@@ -185,3 +185,11 @@ const fn62 = pipe(
     x => x,
     x => first(x),
 );
+
+// Repro from #30297
+
+declare function foo2<T, U = T>(fn: T, a?: U, b?: U): [T, U];
+
+foo2(() => {});
+foo2(identity);
+foo2(identity, 1);
