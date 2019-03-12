@@ -184,6 +184,14 @@ const fn62 = pipe(
     x => first(x),
 );
 
+// Repro from #30297
+
+declare function foo2<T, U = T>(fn: T, a?: U, b?: U): [T, U];
+
+foo2(() => {});
+foo2(identity);
+foo2(identity, 1);
+
 
 //// [genericFunctionInference1.js]
 const f00 = pipe(list);
@@ -265,3 +273,6 @@ const fn40 = pipe(getString, string => orUndefined(string), identity);
 const fn60 = pipe(getArray, x => x, first);
 const fn61 = pipe(getArray, identity, first);
 const fn62 = pipe(getArray, x => x, x => first(x));
+foo2(() => { });
+foo2(identity);
+foo2(identity, 1);
