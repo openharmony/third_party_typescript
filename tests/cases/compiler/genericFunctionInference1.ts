@@ -193,3 +193,8 @@ declare function foo2<T, U = T>(fn: T, a?: U, b?: U): [T, U];
 foo2(() => {});
 foo2(identity);
 foo2(identity, 1);
+
+// Repro from #30324
+
+declare function times<T>(fn: (i: number) => T): (n: number) => T[];
+const a2 = times(identity)(5); // => [0, 1, 2, 3, 4]
