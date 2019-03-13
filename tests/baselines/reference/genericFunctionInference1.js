@@ -192,6 +192,11 @@ foo2(() => {});
 foo2(identity);
 foo2(identity, 1);
 
+// Repro from #30324
+
+declare function times<T>(fn: (i: number) => T): (n: number) => T[];
+const a2 = times(identity)(5); // => [0, 1, 2, 3, 4]
+
 
 //// [genericFunctionInference1.js]
 const f00 = pipe(list);
@@ -276,3 +281,4 @@ const fn62 = pipe(getArray, x => x, x => first(x));
 foo2(() => { });
 foo2(identity);
 foo2(identity, 1);
+const a2 = times(identity)(5); // => [0, 1, 2, 3, 4]
