@@ -60,6 +60,11 @@ declare function pipe5<A, B>(f: (a: A) => B): { f: (a: A) => B };
 
 const f50 = pipe5(list);  // No higher order inference
 
+declare function wrap3<A, B, C>(f: (a: A, b1: B, b2: B) => C): (a: A, b1: B, b2: B) => C;
+declare function baz<T, U extends T>(t1: T, t2: T, u: U): [T, U];
+
+let f60 = wrap3(baz);
+
 // #417
 
 function mirror<A, B>(f: (a: A) => B): (a: A) => B { return f; }
@@ -193,3 +198,8 @@ declare function foo2<T, U = T>(fn: T, a?: U, b?: U): [T, U];
 foo2(() => {});
 foo2(identity);
 foo2(identity, 1);
+
+// Repro from #30324
+
+declare function times<T>(fn: (i: number) => T): (n: number) => T[];
+const a2 = times(identity)(5); // => [0, 1, 2, 3, 4]
