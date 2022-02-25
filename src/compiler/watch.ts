@@ -444,10 +444,11 @@ namespace ts {
         const hostGetNewLine = memoize(() => host.getNewLine());
         return {
             getSourceFile: (fileName, languageVersion, onError) => {
+                const options = getCompilerOptions();
                 let text: string | undefined;
                 try {
                     performance.mark("beforeIORead");
-                    text = host.readFile(fileName, getCompilerOptions().charset);
+                    text = host.readFile(fileName, options.charset);
                     performance.mark("afterIORead");
                     performance.measure("I/O Read", "beforeIORead", "afterIORead");
                 }
@@ -458,7 +459,7 @@ namespace ts {
                     text = "";
                 }
 
-                return text !== undefined ? createSourceFile(fileName, text, languageVersion) : undefined;
+                return text !== undefined ? createSourceFile(fileName, text, languageVersion, /*setParentNodes*/ undefined, /*scriptKind*/ undefined, options) : undefined;
             },
             getDefaultLibLocation: maybeBind(host, host.getDefaultLibLocation),
             getDefaultLibFileName: options => host.getDefaultLibFileName(options),

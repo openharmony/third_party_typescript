@@ -39,6 +39,28 @@ namespace ts.projectSystem {
                 isPackageJsonImport: undefined,
                 sortText: Completions.SortText.AutoImportSuggestions,
                 source: "/a",
+                jsDoc: undefined,
+                displayParts: [
+                    {
+                        text: "const",
+                        kind: "keyword"
+                    },{
+                        text: " ",
+                        kind: "space"
+                    },{
+                        text: "foo",
+                        kind: "localName"
+                    },{
+                        text: ":",
+                        kind: "punctuation"
+                    },{
+                        text: " ",
+                        kind: "space"
+                    },{
+                        text: "0",
+                        kind: "stringLiteral"
+                    }
+                ]
             };
             assert.deepEqual<protocol.CompletionInfo | undefined>(response, {
                 isGlobalCompletion: true,
@@ -119,6 +141,107 @@ namespace ts.projectSystem {
                     ...detailsCommon,
                 }
             ]);
+        });
+
+        it("works add jsDoc info at interface getCompletionsAtPosition", () => {
+            const aTs: File = {
+                path: "/a.ts",
+                content: `export class Test {
+/**
+ * @devices tv
+ */
+public test(): void {
+
+}
+}`
+            };
+            const bTs: File = {
+                path: "/b.ts",
+                content: `import { Test } from "./a";
+const test = new Test();
+test.`,
+            };
+            const tsconfig: File = {
+                path: "/tsconfig.json",
+                content: "{}",
+            };
+
+            const session = createSession(createServerHost([aTs, bTs, tsconfig]));
+            openFilesForSession([aTs, bTs], session);
+
+            const requestLocation: protocol.FileLocationRequestArgs = {
+                file: bTs.path,
+                line: 3,
+                offset: 6
+            };
+
+            const response = executeSessionRequest<protocol.CompletionsRequest, protocol.CompletionInfoResponse>(session, protocol.CommandTypes.CompletionInfo, {
+                ...requestLocation,
+                includeExternalModuleExports: true,
+                prefix: ".",
+            });
+            const entry: protocol.CompletionEntry = {
+                hasAction: undefined,
+                insertText: undefined,
+                isRecommended: undefined,
+                kind: ScriptElementKind.memberFunctionElement,
+                kindModifiers: ScriptElementKindModifier.publicMemberModifier,
+                name: "test",
+                replacementSpan: undefined,
+                isPackageJsonImport: undefined,
+                sortText: Completions.SortText.LocationPriority,
+                source: undefined,
+                jsDoc: [{
+                    name: "devices",
+                    text: "tv"
+                }],
+                displayParts: [
+                    {
+                        text: "(",
+                        kind: "punctuation"
+                    },{
+                        text: "method",
+                        kind: "text"
+                    },{
+                        text: ")",
+                        kind: "punctuation"
+                    },{
+                        text: " ",
+                        kind: "space"
+                    },{
+                        text: "Test",
+                        kind: "className"
+                    },{
+                        text: ".",
+                        kind: "punctuation"
+                    },{
+                        text: "test",
+                        kind: "methodName"
+                    },{
+                        text: "(",
+                        kind: "punctuation"
+                    },{
+                        text: ")",
+                        kind: "punctuation"
+                    },{
+                        text: ":",
+                        kind: "punctuation"
+                    },{
+                        text: " ",
+                        kind: "space"
+                    },{
+                        text: "void",
+                        kind: "keyword"
+                    }
+                ]
+            };
+            assert.deepEqual<protocol.CompletionInfo | undefined>(response, {
+                isGlobalCompletion: false,
+                isMemberCompletion: true,
+                isNewIdentifierLocation: false,
+                optionalReplacementSpan: undefined,
+                entries: [entry],
+            });
         });
 
         it("works when files are included from two different drives of windows", () => {

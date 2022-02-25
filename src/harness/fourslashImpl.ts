@@ -363,6 +363,13 @@ namespace FourSlash {
                     addSourceFile(Harness.Compiler.defaultLibFileName);
                     compilationOptions.lib?.forEach(addSourceFile);
                 }
+
+                compilationOptions.ets?.libs.forEach(fileName => {
+                    const content = ts.sys.readFile(fileName);
+                    if (content) {
+                        this.languageServiceAdapterHost.addScript(fileName, content, /*isRootFile*/ false);
+                    }
+                });
             }
 
             for (const file of testData.files) {

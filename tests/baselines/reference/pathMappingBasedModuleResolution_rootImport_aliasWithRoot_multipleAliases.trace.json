@@ -18,6 +18,7 @@
     "File '/root/client/bar.ts' does not exist.",
     "File '/root/client/bar.tsx' does not exist.",
     "File '/root/client/bar.d.ts' does not exist.",
+    "File '/root/client/bar.ets' does not exist.",
     "Directory '/root/client/bar' does not exist, skipping all lookups in it.",
     "Loading module as file / folder, candidate module location '/client/bar', target file type 'TypeScript'.",
     "Directory '/client' does not exist, skipping all lookups in it.",

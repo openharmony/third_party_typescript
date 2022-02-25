@@ -48,7 +48,8 @@ namespace ts {
 
         // if jsx is specified then treat file as .tsx
         const inputFileName = transpileOptions.fileName || (transpileOptions.compilerOptions && transpileOptions.compilerOptions.jsx ? "module.tsx" : "module.ts");
-        const sourceFile = createSourceFile(inputFileName, input, options.target!); // TODO: GH#18217
+        const scriptKind = ensureScriptKind(inputFileName, /*setScriptKind*/ undefined);
+        const sourceFile = createSourceFile(inputFileName, input, options.target!, /*setParentNodes*/ undefined, scriptKind, options); // TODO: GH#18217
         if (transpileOptions.moduleName) {
             sourceFile.moduleName = transpileOptions.moduleName;
         }

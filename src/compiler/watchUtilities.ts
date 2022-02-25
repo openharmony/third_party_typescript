@@ -434,7 +434,8 @@ namespace ts {
         const filePathWithoutExtension = removeFileExtension(fileOrDirectoryPath);
         const realProgram = isBuilderProgram(program) ? program.getProgramOrUndefined() : program;
         if (hasSourceFile((filePathWithoutExtension + Extension.Ts) as Path) ||
-            hasSourceFile((filePathWithoutExtension + Extension.Tsx) as Path)) {
+            hasSourceFile((filePathWithoutExtension + Extension.Tsx) as Path) ||
+            hasSourceFile((filePathWithoutExtension + Extension.Ets) as Path)) {
             writeLog(`Project: ${configFileName} Detected output file: ${fileOrDirectory}`);
             return true;
         }

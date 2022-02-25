@@ -805,6 +805,7 @@ namespace ts {
             || kind === SyntaxKind.VariableStatement
             || kind === SyntaxKind.FunctionDeclaration
             || kind === SyntaxKind.ClassDeclaration
+            || kind === SyntaxKind.StructDeclaration
             || kind === SyntaxKind.InterfaceDeclaration
             || kind === SyntaxKind.TypeAliasDeclaration
             || kind === SyntaxKind.EnumDeclaration

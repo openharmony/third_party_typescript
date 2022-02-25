@@ -443,9 +443,12 @@ namespace ts {
                 startPrivateIdentifierEnvironment();
             }
 
-            const result = isClassDeclaration(node) ?
-                visitClassDeclaration(node) :
-                visitClassExpression(node);
+            //TODO StructDeclaration 类型暂未处理
+            const result = isClassDeclaration(node)
+                ? visitClassDeclaration(node)
+                : isClassExpression(node)
+                ? visitClassExpression(node)
+                : [];
 
             if (shouldTransformPrivateFields) {
                 endPrivateIdentifierEnvironment();

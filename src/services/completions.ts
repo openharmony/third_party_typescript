@@ -29,14 +29,14 @@ namespace ts.Completions {
     }
 
     const enum SymbolOriginInfoKind {
-        ThisType            = 1 << 0,
-        SymbolMember        = 1 << 1,
-        Export              = 1 << 2,
-        Promise             = 1 << 3,
-        Nullable            = 1 << 4,
+        ThisType = 1 << 0,
+        SymbolMember = 1 << 1,
+        Export = 1 << 2,
+        Promise = 1 << 3,
+        Nullable = 1 << 4,
 
         SymbolMemberNoExport = SymbolMember,
-        SymbolMemberExport   = SymbolMember | Export,
+        SymbolMemberExport = SymbolMember | Export,
     }
 
     interface SymbolOriginInfo {
@@ -537,7 +537,15 @@ namespace ts.Completions {
             /** True for locals; false for globals, module exports from other files, `this.` completions. */
             const shouldShadowLaterSymbols = !origin && !(symbol.parent === undefined && !some(symbol.declarations, d => d.getSourceFile() === location!.getSourceFile()));
             uniques.set(name, shouldShadowLaterSymbols);
-
+            // add jsDoc info at interface getCompletionsAtPosition
+            if (symbol.getJsDocTags().length > 0) {
+                entry.jsDoc = symbol.getJsDocTags();
+            }
+            // add displayParts info at interface getCompletionsAtPosition
+            if (symbol.declarations) {
+                const symbolDisplayPartsDocumentationAndSymbolKind = SymbolDisplay.getSymbolDisplayPartsDocumentationAndSymbolKind(typeChecker, symbol, sourceFile, location, location!, SemanticMeaning.All);
+                entry.displayParts = symbolDisplayPartsDocumentationAndSymbolKind.displayParts;
+            }
             entries.push(entry);
         }
 
@@ -854,6 +862,7 @@ namespace ts.Completions {
         detailsEntryId: CompletionEntryIdentifier | undefined,
         host: LanguageServiceHost
     ): CompletionData | Request | undefined {
+        const isEtsFile = sourceFile.scriptKind === ScriptKind.ETS;
         const typeChecker = program.getTypeChecker();
         const compilerOptions = program.getCompilerOptions();
 
@@ -975,13 +984,16 @@ namespace ts.Completions {
                     case SyntaxKind.PropertyAccessExpression:
                         propertyAccessToConvert = parent as PropertyAccessExpression;
                         node = propertyAccessToConvert.expression;
-                        if ((isCallExpression(node) || isFunctionLike(node)) &&
+                        if ((isCallExpression(node) || isFunctionLike(node) || isEtsComponentExpression(node)) &&
                             node.end === contextToken.pos &&
                             node.getChildCount(sourceFile) &&
-                            last(node.getChildren(sourceFile)).kind !== SyntaxKind.CloseParenToken) {
+                            last(node.getChildren(sourceFile)).kind !== SyntaxKind.CloseParenToken && !node.getLastToken(sourceFile)) {
                             // This is likely dot from incorrectly parsed expression and user is starting to write spread
                             // eg: Math.min(./**/)
                             // const x = function (./**/) {}
+                            return undefined;
+                        }
+                        if (node.virtual && findPrecedingToken(node.pos, sourceFile)?.kind === SyntaxKind.OpenParenToken) {
                             return undefined;
                         }
                         break;
@@ -1062,7 +1074,7 @@ namespace ts.Completions {
                         // For `<div className="x" [||] ></div>`, `parent` will be JsxAttribute and `previousToken` will be its initializer
                         if ((parent as JsxAttribute).initializer === previousToken &&
                             previousToken.end < position) {
-                            isJsxIdentifierExpected = true;
+                            isJsxIdentifierExpected = true;
                             break;
                         }
                         switch (previousToken.kind) {
@@ -1124,6 +1136,24 @@ namespace ts.Completions {
                 return undefined;
             }
         }
+
+        const etsLibFilesNames = program.getEtsLibSFromProgram();
+        symbols = symbols.filter(symbol => {
+            if(!symbol.declarations || !symbol.declarations.length) {
+                return true;
+            }
+            const declaration = (symbol.declarations??[]).filter(declaration =>{
+                if(!declaration.getSourceFile().fileName) {
+                    return true;
+                }
+                const symbolFileName = sys.resolvePath(declaration.getSourceFile().fileName);
+                if(!isEtsFile && etsLibFilesNames.indexOf(symbolFileName) !== -1) {
+                    return false;
+                }
+                return true;
+            });
+            return declaration.length;
+        });
 
         log("getCompletionData: Semantic work: " + (timestamp() - semanticStart));
         const contextualType = previousToken && getContextualType(previousToken, position, sourceFile, typeChecker);
@@ -1236,7 +1266,7 @@ namespace ts.Completions {
             }
 
             if (!isTypeLocation) {
-                let type = typeChecker.getTypeAtLocation(node).getNonOptionalType();
+                let type = typeChecker.tryGetTypeAtLocationWithoutCheck(node).getNonOptionalType();
                 let insertQuestionDot = false;
                 if (type.isNullableType()) {
                     const canCorrectToQuestionDot =
@@ -1271,9 +1301,22 @@ namespace ts.Completions {
                 symbols.push(...filter(getPropertiesForCompletion(type, typeChecker), s => typeChecker.isValidPropertyAccessForCompletions(propertyAccess, type, s)));
             }
             else {
-                for (const symbol of type.getApparentProperties()) {
+                const typeSymbols = type.getApparentProperties();
+
+                for (const symbol of typeSymbols) {
                     if (typeChecker.isValidPropertyAccessForCompletions(propertyAccess, type, symbol)) {
                         addPropertySymbol(symbol, /* insertAwait */ false, insertQuestionDot);
+                    }
+                }
+
+                // The extension method on the ETS depends on whether the type is correctly parsed.
+                if (typeSymbols.length) {
+                    // if complete expression is ets component expression, then complete data need add extend properties and styles properties.
+                    const etsComponentExpressionNode = getEtsComponentExpressionInnerCallExpressionNode(node)
+                        || getRootEtsComponentInnerCallExpressionNode(node);
+                    if (etsComponentExpressionNode) {
+                        addEtsExtendPropertySymbol(etsComponentExpressionNode, insertQuestionDot);
+                        addEtsStylesPropertySymbol(etsComponentExpressionNode, insertQuestionDot);
                     }
                 }
             }
@@ -1339,6 +1382,72 @@ namespace ts.Completions {
 
             function getNullableSymbolOriginInfoKind(kind: SymbolOriginInfoKind) {
                 return insertQuestionDot ? kind | SymbolOriginInfoKind.Nullable : kind;
+            }
+        }
+
+        function addEtsExtendPropertySymbol(node: EtsComponentExpression, insertQuestionDot: boolean) {
+            const locals = getSourceFileOfNode(node).locals;
+            if (!locals) {
+                return;
+            }
+            const etsComponentName = node.expression.kind === SyntaxKind.Identifier ? (<Identifier>node.expression).escapedText : undefined;
+            const extendComponentSymbolMap: UnderscoreEscapedMap<Symbol[]> = new Map<__String, Symbol[]>();
+            locals.forEach(local => {
+                getEtsExtendDecoratorComponentNames(local.valueDeclaration?.decorators, compilerOptions).forEach((extendName) => {
+                    if (extendComponentSymbolMap.has(extendName)) {
+                        extendComponentSymbolMap.get(extendName)!.push(local);
+                    }
+                    else {
+                        extendComponentSymbolMap.set(extendName, [local]);
+                    }
+                });
+            });
+
+            if (etsComponentName && extendComponentSymbolMap.has(etsComponentName)) {
+                extendComponentSymbolMap.get(etsComponentName)!.forEach(local => {
+                    addPropertySymbol(local, /* insertAwait */ false, insertQuestionDot);
+                });
+            }
+        }
+
+        function addEtsStylesPropertySymbol(node: EtsComponentExpression, insertQuestionDot: boolean) {
+            const locals = getSourceFileOfNode(node).locals;
+            if (!locals) {
+                return;
+            }
+            const etsComponentName = isIdentifier(node.expression) ? node.expression.escapedText : undefined;
+            const stylesComponentSymbolMap: UnderscoreEscapedMap<Symbol[]> = new Map<__String, Symbol[]>();
+            locals.forEach(local => {
+                if (hasEtsStylesDecoratorNames(local.valueDeclaration?.decorators, compilerOptions)) {
+                    if (stylesComponentSymbolMap.has(local.escapedName)) {
+                        stylesComponentSymbolMap.get(local.escapedName)!.push(local);
+                    }
+                    else {
+                        stylesComponentSymbolMap.set(local.escapedName, [local]);
+                    }
+                }
+            });
+
+            // If it's a '@Styles' method inside StructDeclaration,
+            // we will find container StructDeclaration of current node first,
+            // and then find method decorated with '@Styles'
+            getContainingStruct(node)?.symbol.members?.forEach(member => {
+                if (hasEtsStylesDecoratorNames(member.valueDeclaration?.decorators, compilerOptions)) {
+                    if (stylesComponentSymbolMap.has(member.escapedName)) {
+                        stylesComponentSymbolMap.get(member.escapedName)!.push(member);
+                    }
+                    else {
+                        stylesComponentSymbolMap.set(member.escapedName, [member]);
+                    }
+                }
+            });
+
+            if (etsComponentName && stylesComponentSymbolMap.size > 0) {
+                stylesComponentSymbolMap.forEach(symbols => {
+                    symbols.forEach(symbol => {
+                        addPropertySymbol(symbol, /* insertAwait */ false, insertQuestionDot);
+                    });
+                });
             }
         }
 
@@ -1884,6 +1993,7 @@ namespace ts.Completions {
 
                     case SyntaxKind.OpenBraceToken:
                         return containingNodeKind === SyntaxKind.ClassDeclaration             // class A { |
+                            || containingNodeKind === SyntaxKind.StructDeclaration            // struct A { |
                             || containingNodeKind === SyntaxKind.ObjectLiteralExpression;     // const obj = { |
 
                     case SyntaxKind.EqualsToken:
@@ -2317,6 +2427,7 @@ namespace ts.Completions {
                     return !isFromObjectTypeDeclaration(contextToken);
 
                 case SyntaxKind.ClassKeyword:
+                case SyntaxKind.StructKeyword:
                 case SyntaxKind.EnumKeyword:
                 case SyntaxKind.InterfaceKeyword:
                 case SyntaxKind.FunctionKeyword:
@@ -2354,6 +2465,7 @@ namespace ts.Completions {
             switch (keywordForNode(contextToken)) {
                 case SyntaxKind.AbstractKeyword:
                 case SyntaxKind.ClassKeyword:
+                case SyntaxKind.StructKeyword:
                 case SyntaxKind.ConstKeyword:
                 case SyntaxKind.DeclareKeyword:
                 case SyntaxKind.EnumKeyword:
@@ -2787,7 +2899,7 @@ namespace ts.Completions {
                     return cls;
                 }
                 break;
-           case SyntaxKind.Identifier: {
+            case SyntaxKind.Identifier: {
                 // class c { public prop = c| }
                 if (isPropertyDeclaration(location.parent) && location.parent.initializer === location) {
                     return undefined;

@@ -133,6 +133,9 @@ namespace ts.server {
 
         readonly deferred: number;
         readonly deferredSize?: number;
+
+        readonly ets: number;
+        readonly etsSize?: number;
     }
 
     export interface OpenFileInfo {
@@ -290,6 +293,8 @@ namespace ts.server {
                 return ScriptKind.TS;
             case "TSX":
                 return ScriptKind.TSX;
+            case "ETS":
+                return ScriptKind.ETS;
             default:
                 return ScriptKind.Unknown;
         }

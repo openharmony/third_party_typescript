@@ -305,6 +305,7 @@ namespace ts.NavigationBar {
 
             case SyntaxKind.ClassDeclaration:
             case SyntaxKind.ClassExpression:
+            case SyntaxKind.StructDeclaration:
             case SyntaxKind.InterfaceDeclaration:
                 startNode(node);
                 for (const member of (<InterfaceDeclaration>node).members) {
@@ -716,6 +717,7 @@ namespace ts.NavigationBar {
             case SyntaxKind.FunctionExpression:
             case SyntaxKind.ClassDeclaration:
             case SyntaxKind.ClassExpression:
+            case SyntaxKind.StructDeclaration:
                 if (getSyntacticModifierFlags(node) & ModifierFlags.Default) {
                     return "default";
                 }
@@ -766,6 +768,7 @@ namespace ts.NavigationBar {
             switch (navigationBarNodeKind(item)) {
                 case SyntaxKind.ClassDeclaration:
                 case SyntaxKind.ClassExpression:
+                case SyntaxKind.StructDeclaration:
                 case SyntaxKind.EnumDeclaration:
                 case SyntaxKind.InterfaceDeclaration:
                 case SyntaxKind.ModuleDeclaration:

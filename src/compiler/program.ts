@@ -88,7 +88,7 @@ namespace ts {
                 }
                 text = "";
             }
-            return text !== undefined ? createSourceFile(fileName, text, languageVersion, setParentNodes) : undefined;
+            return text !== undefined ? createSourceFile(fileName, text, languageVersion, setParentNodes, /*scriptKind*/ undefined, options) : undefined;
         }
 
         function directoryExists(directoryPath: string): boolean {
@@ -998,6 +998,13 @@ namespace ts {
                     forEach(options.lib, (libFileName, index) => {
                         processRootFile(combinePaths(defaultLibraryPath, libFileName), /*isDefaultLib*/ true, /*ignoreNoDefaultLib*/ false, { kind: FileIncludeKind.LibFile, index });
                     });
+
+                    const etsComponentsLib = options.ets?.libs ?? [];
+                    if (etsComponentsLib.length) {
+                        forEach(etsComponentsLib, libFileName => {
+                            processRootFile(combinePaths(libFileName), /*isDefaultLib*/ true, /*ignoreNoDefaultLib*/ false, { kind: FileIncludeKind.LibFile });
+                        });
+                    }
                 }
             }
 
@@ -1049,6 +1056,7 @@ namespace ts {
             getBindAndCheckDiagnostics,
             getProgramDiagnostics,
             getTypeChecker,
+            getEtsLibSFromProgram,
             getClassifiableNames,
             getDiagnosticsProducingTypeChecker,
             getCommonSourceDirectory,
@@ -1088,6 +1096,8 @@ namespace ts {
             useCaseSensitiveFileNames: () => host.useCaseSensitiveFileNames(),
             getFileIncludeReasons: () => fileReasons,
             structureIsReused,
+            getTagNameNeededCheckByFile: host.getTagNameNeededCheckByFile,
+            getExpressionCheckedResultsByFile: host.getExpressionCheckedResultsByFile
         };
 
         onProgramCreateComplete();
@@ -1724,6 +1734,10 @@ namespace ts {
             diagnosticsProducingTypeChecker = undefined!;
         }
 
+        function getEtsLibSFromProgram() {
+            return getEtsLibs(program);
+        }
+
         function getTypeChecker() {
             return noDiagnosticsTypeChecker || (noDiagnosticsTypeChecker = createTypeChecker(program, /*produceDiagnostics:*/ false));
         }
@@ -1897,7 +1911,7 @@ namespace ts {
                 const isTsNoCheck = !!sourceFile.checkJsDirective && sourceFile.checkJsDirective.enabled === false;
                 // By default, only type-check .ts, .tsx, 'Deferred' and 'External' files (external files are added by plugins)
                 const includeBindAndCheckDiagnostics = !isTsNoCheck && (sourceFile.scriptKind === ScriptKind.TS || sourceFile.scriptKind === ScriptKind.TSX ||
-                    sourceFile.scriptKind === ScriptKind.External || isCheckJs || sourceFile.scriptKind === ScriptKind.Deferred);
+                    sourceFile.scriptKind === ScriptKind.External || isCheckJs || sourceFile.scriptKind === ScriptKind.Deferred || sourceFile.scriptKind === ScriptKind.ETS);
                 const bindDiagnostics: readonly Diagnostic[] = includeBindAndCheckDiagnostics ? sourceFile.bindDiagnostics : emptyArray;
                 const checkDiagnostics = includeBindAndCheckDiagnostics ? typeChecker.getDiagnostics(sourceFile, cancellationToken) : emptyArray;
 
@@ -2070,6 +2084,7 @@ namespace ts {
                     switch (parent.kind) {
                         case SyntaxKind.ClassDeclaration:
                         case SyntaxKind.ClassExpression:
+                        case SyntaxKind.StructDeclaration:
                         case SyntaxKind.MethodDeclaration:
                         case SyntaxKind.Constructor:
                         case SyntaxKind.GetAccessor:
@@ -2394,7 +2409,7 @@ namespace ts {
 
             if (hasExtension(fileName)) {
                 const canonicalFileName = host.getCanonicalFileName(fileName);
-                if (!options.allowNonTsExtensions && !forEach(supportedExtensionsWithJsonIfResolveJsonModule, extension => fileExtensionIs(canonicalFileName, extension))) {
+                if (!options.allowNonTsExtensions && !forEach(supportedExtensionsWithJsonIfResolveJsonModule, extension => fileExtensionIs(canonicalFileName, extension)) && !fileExtensionIs(canonicalFileName, Extension.Ets)) {
                     if (fail) {
                         if (hasJSFileExtension(canonicalFileName)) {
                             fail(Diagnostics.File_0_is_a_JavaScript_file_Did_you_mean_to_enable_the_allowJs_option, fileName);
@@ -3939,6 +3954,7 @@ namespace ts {
         switch (extension) {
             case Extension.Ts:
             case Extension.Dts:
+            case Extension.Ets:
                 // These are always allowed.
                 return undefined;
             case Extension.Tsx:

@@ -64,7 +64,7 @@ namespace ts {
      * Typically there is one pass with Extensions.TypeScript, then a second pass with Extensions.JavaScript.
      */
     enum Extensions {
-        TypeScript, /** '.ts', '.tsx', or '.d.ts' */
+        TypeScript, /** '.ts', '.tsx', '.d.ts', or '.ets */
         JavaScript, /** '.js' or '.jsx' */
         Json,       /** '.json' */
         TSConfig,   /** '.json' with `tsconfig` used instead of `index` */
@@ -1097,7 +1097,12 @@ namespace ts {
             case Extensions.DtsOnly:
                 return tryExtension(Extension.Dts);
             case Extensions.TypeScript:
-                return tryExtension(Extension.Ts) || tryExtension(Extension.Tsx) || tryExtension(Extension.Dts);
+                if (state.compilerOptions.ets) {
+                    return tryExtension(Extension.Ets) || tryExtension(Extension.Ts) || tryExtension(Extension.Tsx) || tryExtension(Extension.Dts);
+                }
+                else {
+                    return tryExtension(Extension.Ts) || tryExtension(Extension.Tsx) || tryExtension(Extension.Dts) || tryExtension(Extension.Ets);
+                }
             case Extensions.JavaScript:
                 return tryExtension(Extension.Js) || tryExtension(Extension.Jsx);
             case Extensions.TSConfig:
@@ -1243,7 +1248,7 @@ namespace ts {
             case Extensions.Json:
                 return extension === Extension.Json;
             case Extensions.TypeScript:
-                return extension === Extension.Ts || extension === Extension.Tsx || extension === Extension.Dts;
+                return extension === Extension.Ts || extension === Extension.Tsx || extension === Extension.Dts || extension === Extension.Ets;
             case Extensions.DtsOnly:
                 return extension === Extension.Dts;
         }

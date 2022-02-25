@@ -364,6 +364,18 @@ namespace Harness {
                 case "list":
                     return ts.parseListTypeOption(option, value, errors);
                 default:
+                    if (option.name === "ets") {
+                        const etsOptionFilePath = IO.resolvePath("tests/cases/fourslash/etsOption.json");
+                        const etsOptionJson = IO.readFile(etsOptionFilePath!);
+                        const etsOption = <ts.EtsOptions>JSON.parse(etsOptionJson!);
+                        const etsLibs: string[] = [];
+                        etsOption?.libs?.forEach(filename => {
+                            const absuluteFilePath = IO.resolvePath(filename);
+                            etsLibs.push(absuluteFilePath!);
+                        });
+                        etsOption.libs = etsLibs;
+                        return etsOption;
+                    }
                     return ts.parseCustomTypeOption(<ts.CommandLineOptionOfCustomType>option, value, errors);
             }
         }

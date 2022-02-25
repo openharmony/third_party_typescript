@@ -64,6 +64,7 @@ Found 'package.json' at '/user/username/projects/myproject/node_modules/pkg2/pac
 File '/user/username/projects/myproject/node_modules/pkg2.ts' does not exist.
 File '/user/username/projects/myproject/node_modules/pkg2.tsx' does not exist.
 File '/user/username/projects/myproject/node_modules/pkg2.d.ts' does not exist.
+File '/user/username/projects/myproject/node_modules/pkg2.ets' does not exist.
 'package.json' does not have a 'typings' field.
 'package.json' does not have a 'types' field.
 'package.json' has 'main' field 'build/index.js' that references '/user/username/projects/myproject/node_modules/pkg2/build/index.js'.
@@ -73,6 +74,7 @@ Loading module as file / folder, candidate module location '/user/username/proje
 File '/user/username/projects/myproject/node_modules/pkg2/build/index.js.ts' does not exist.
 File '/user/username/projects/myproject/node_modules/pkg2/build/index.js.tsx' does not exist.
 File '/user/username/projects/myproject/node_modules/pkg2/build/index.js.d.ts' does not exist.
+File '/user/username/projects/myproject/node_modules/pkg2/build/index.js.ets' does not exist.
 File name '/user/username/projects/myproject/node_modules/pkg2/build/index.js' has a '.js' extension - stripping it.
 File '/user/username/projects/myproject/node_modules/pkg2/build/index.ts' does not exist.
 File '/user/username/projects/myproject/node_modules/pkg2/build/index.tsx' does not exist.

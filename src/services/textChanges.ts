@@ -637,6 +637,7 @@ namespace ts.textChanges {
         private getInsertNodeAfterOptionsWorker(node: Node): InsertNodeOptions {
             switch (node.kind) {
                 case SyntaxKind.ClassDeclaration:
+                case SyntaxKind.StructDeclaration:
                 case SyntaxKind.ModuleDeclaration:
                     return { prefix: this.newLineCharacter, suffix: this.newLineCharacter };
 
@@ -1356,6 +1357,7 @@ namespace ts.textChanges {
                     break;
 
                 case SyntaxKind.ClassDeclaration:
+                case SyntaxKind.StructDeclaration:
                 case SyntaxKind.FunctionDeclaration:
                     deleteNode(changes, sourceFile, node, { leadingTriviaOption: hasJSDocNodes(node) ? LeadingTriviaOption.JSDoc : LeadingTriviaOption.StartLine });
                     break;

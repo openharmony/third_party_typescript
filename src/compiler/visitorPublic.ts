@@ -891,6 +891,15 @@ namespace ts {
                     nodesVisitor((<ClassDeclaration>node).heritageClauses, visitor, isHeritageClause),
                     nodesVisitor((<ClassDeclaration>node).members, visitor, isClassElement));
 
+            case SyntaxKind.StructDeclaration:
+                return factory.updateStructDeclaration(<StructDeclaration>node,
+                    nodesVisitor((<StructDeclaration>node).decorators, visitor, isDecorator),
+                    nodesVisitor((<StructDeclaration>node).modifiers, visitor, isModifier),
+                    nodeVisitor((<StructDeclaration>node).name, visitor, isIdentifier),
+                    nodesVisitor((<StructDeclaration>node).typeParameters, visitor, isTypeParameterDeclaration),
+                    nodesVisitor((<StructDeclaration>node).heritageClauses, visitor, isHeritageClause),
+                    nodesVisitor((<StructDeclaration>node).members, visitor, isClassElement));
+
             case SyntaxKind.InterfaceDeclaration:
                 return factory.updateInterfaceDeclaration(<InterfaceDeclaration>node,
                     nodesVisitor((<InterfaceDeclaration>node).decorators, visitor, isDecorator),

@@ -92,6 +92,7 @@ namespace ts.Completions.StringCompletions {
             case Extension.Tsx: return ScriptElementKindModifier.tsxModifier;
             case Extension.TsBuildInfo: return Debug.fail(`Extension ${Extension.TsBuildInfo} is unsupported.`);
             case undefined: return ScriptElementKindModifier.none;
+            case Extension.Ets: return ScriptElementKindModifier.etsModifier;
             default:
                 return Debug.assertNever(extension);
         }

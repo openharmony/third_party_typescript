@@ -94,7 +94,8 @@ namespace ts {
                 // From no-extension reference
                 "d:/pretend/nonexistent4.d.ts",
                 "d:/pretend/nonexistent4.ts",
-                "d:/pretend/nonexistent4.tsx"
+                "d:/pretend/nonexistent4.tsx",
+                "d:/pretend/nonexistent4.ets"
             ]);
         });
 

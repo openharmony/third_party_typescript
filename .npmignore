@@ -36,3 +36,6 @@ Dockerfile
 .eslintrc.json
 .yarnrc
 tmp
+.cloudbuild
+app_define.json
+VersionSet.xml

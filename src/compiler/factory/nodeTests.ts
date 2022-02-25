@@ -297,6 +297,10 @@ namespace ts {
         return node.kind === SyntaxKind.FunctionExpression;
     }
 
+    export function isEtsComponentExpression(node: Node): node is EtsComponentExpression {
+        return node.kind === SyntaxKind.EtsComponentExpression;
+    }
+
     export function isArrowFunction(node: Node): node is ArrowFunction {
         return node.kind === SyntaxKind.ArrowFunction;
     }
@@ -483,6 +487,10 @@ namespace ts {
 
     export function isClassDeclaration(node: Node): node is ClassDeclaration {
         return node.kind === SyntaxKind.ClassDeclaration;
+    }
+
+    export function isStructDeclaration(node: Node): node is StructDeclaration {
+        return node.kind === SyntaxKind.StructDeclaration;
     }
 
     export function isInterfaceDeclaration(node: Node): node is InterfaceDeclaration {

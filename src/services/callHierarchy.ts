@@ -30,6 +30,7 @@ namespace ts.CallHierarchy {
         | ModuleDeclaration & { name: Identifier }
         | FunctionDeclaration
         | ClassDeclaration
+        | StructDeclaration
         | MethodDeclaration
         | GetAccessorDeclaration
         | SetAccessorDeclaration
@@ -147,6 +148,7 @@ namespace ts.CallHierarchy {
                 return getNameOfDeclaration(node.parent)?.getText();
             case SyntaxKind.FunctionDeclaration:
             case SyntaxKind.ClassDeclaration:
+            case SyntaxKind.StructDeclaration:
             case SyntaxKind.ModuleDeclaration:
                 if (isModuleBlock(node.parent) && isIdentifier(node.parent.parent.name)) {
                     return node.parent.parent.name.getText();
@@ -492,6 +494,7 @@ namespace ts.CallHierarchy {
                 break;
             case SyntaxKind.ClassDeclaration:
             case SyntaxKind.ClassExpression:
+            case SyntaxKind.StructDeclaration:
                 collectCallSitesOfClassLikeDeclaration(node, collect);
                 break;
             default:

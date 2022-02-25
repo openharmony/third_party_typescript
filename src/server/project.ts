@@ -19,6 +19,7 @@ namespace ts.server {
             tsx: 0, tsxSize: 0,
             dts: 0, dtsSize: 0,
             deferred: 0, deferredSize: 0,
+            ets: 0, etsSize: 0,
         };
         for (const info of infos) {
             const fileSize = includeSizes ? info.getTelemetryFileSize() : 0;
@@ -49,6 +50,9 @@ namespace ts.server {
                     result.deferred += 1;
                     result.deferredSize! += fileSize;
                     break;
+                case ScriptKind.ETS:
+                    result.ets += 1;
+                    result.etsSize! += fileSize;
             }
         }
         return result;
@@ -71,7 +75,7 @@ namespace ts.server {
 
     /* @internal */
     export function hasNoTypeScriptSource(fileNames: string[]): boolean {
-        return !fileNames.some(fileName => (fileExtensionIs(fileName, Extension.Ts) && !fileExtensionIs(fileName, Extension.Dts)) || fileExtensionIs(fileName, Extension.Tsx));
+        return !fileNames.some(fileName => (fileExtensionIs(fileName, Extension.Ts) && !fileExtensionIs(fileName, Extension.Dts)) || fileExtensionIs(fileName, Extension.Tsx) || fileExtensionIs(fileName, Extension.Ets));
     }
 
     /* @internal */
@@ -273,6 +277,13 @@ namespace ts.server {
             this.currentDirectory = this.projectService.getNormalizedAbsolutePath(currentDirectory || "");
             this.getCanonicalFileName = this.projectService.toCanonicalFileName;
 
+            if (this.projectService.host.getTagNameNeededCheckByFile) {
+                this.getTagNameNeededCheckByFile = this.projectService.host.getTagNameNeededCheckByFile;
+            }
+            if (this.projectService.host.getExpressionCheckedResultsByFile) {
+                this.getExpressionCheckedResultsByFile = this.projectService.host.getExpressionCheckedResultsByFile;
+            }
+
             this.cancellationToken = new ThrottledCancellationToken(this.projectService.cancellationToken, this.projectService.throttleWaitMilliseconds);
             if (!this.compilerOptions) {
                 this.compilerOptions = getDefaultCompilerOptions();
@@ -326,6 +337,22 @@ namespace ts.server {
             if (projectKind !== ProjectKind.AutoImportProvider) {
                 this.projectService.pendingEnsureProjectForOpenFiles = true;
             }
+        }
+
+        getTagNameNeededCheckByFile(filePath: string): TagCheckParam {
+            Debug.log(filePath);
+            return {
+                needCheck: false,
+                checkConfig: []
+            };
+        }
+
+        getExpressionCheckedResultsByFile?(filePath: string, jsDocs: JSDoc[]): ConditionCheckResult {
+            Debug.log(filePath);
+            Debug.log(jsDocs.toString());
+            return {
+                valid: true,
+            };
         }
 
         isKnownTypesPackageName(name: string): boolean {

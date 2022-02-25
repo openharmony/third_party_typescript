@@ -343,6 +343,7 @@ namespace ts.JsDoc {
                 return getCommentOwnerInfoWorker((commentOwner as PropertyAssignment).initializer, options);
 
             case SyntaxKind.ClassDeclaration:
+            case SyntaxKind.StructDeclaration:
             case SyntaxKind.InterfaceDeclaration:
             case SyntaxKind.PropertySignature:
             case SyntaxKind.EnumDeclaration:

@@ -900,6 +900,22 @@ interface Array<T> { length: number; [n: number]: T; }`
             return [];
         }
 
+        getTagNameNeededCheckByFile(filePath: string): TagCheckParam {
+            Debug.log(filePath);
+            return {
+                needCheck: false,
+                checkConfig: [],
+            };
+        }
+
+        getExpressionCheckedResultsByFile?(filePath: string, jsDocs: JSDoc[]): ConditionCheckResult {
+            Debug.log(filePath);
+            Debug.log(jsDocs.toString());
+            return {
+                valid: true,
+            };
+        }
+
         readDirectory(path: string, extensions?: readonly string[], exclude?: readonly string[], include?: readonly string[], depth?: number): string[] {
             return matchFiles(path, extensions, exclude, include, this.useCaseSensitiveFileNames, this.getCurrentDirectory(), depth, (dir) => {
                 const directories: string[] = [];

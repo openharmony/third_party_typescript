@@ -434,10 +434,11 @@ namespace ts.formatting {
                     return getList((<SignatureDeclaration>node).typeParameters) || getList((<SignatureDeclaration>node).parameters);
                 case SyntaxKind.ClassDeclaration:
                 case SyntaxKind.ClassExpression:
+                case SyntaxKind.StructDeclaration:
                 case SyntaxKind.InterfaceDeclaration:
                 case SyntaxKind.TypeAliasDeclaration:
                 case SyntaxKind.JSDocTemplateTag:
-                    return getList((<ClassDeclaration | ClassExpression | InterfaceDeclaration | TypeAliasDeclaration | JSDocTemplateTag>node).typeParameters);
+                    return getList((<ClassDeclaration | ClassExpression | StructDeclaration | InterfaceDeclaration | TypeAliasDeclaration | JSDocTemplateTag>node).typeParameters);
                 case SyntaxKind.NewExpression:
                 case SyntaxKind.CallExpression:
                     return getList((<CallExpression>node).typeArguments) || getList((<CallExpression>node).arguments);
@@ -558,6 +559,7 @@ namespace ts.formatting {
                 case SyntaxKind.ExpressionStatement:
                 case SyntaxKind.ClassDeclaration:
                 case SyntaxKind.ClassExpression:
+                case SyntaxKind.StructDeclaration:
                 case SyntaxKind.InterfaceDeclaration:
                 case SyntaxKind.EnumDeclaration:
                 case SyntaxKind.TypeAliasDeclaration:

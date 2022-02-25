@@ -224,6 +224,7 @@ namespace ts {
                     return [...container.parameters, ...(isClassLike(container.parent) ? container.parent.members : [])];
                 case SyntaxKind.ClassDeclaration:
                 case SyntaxKind.ClassExpression:
+                case SyntaxKind.StructDeclaration:
                 case SyntaxKind.InterfaceDeclaration:
                 case SyntaxKind.TypeLiteral:
                     const nodes = container.members;

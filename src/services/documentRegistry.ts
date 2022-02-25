@@ -187,7 +187,7 @@ namespace ts {
 
             if (!entry) {
                 // Have never seen this file with these settings.  Create a new source file for it.
-                const sourceFile = createLanguageServiceSourceFile(fileName, scriptSnapshot, scriptTarget, version, /*setNodeParents*/ false, scriptKind);
+                const sourceFile = createLanguageServiceSourceFile(fileName, scriptSnapshot, scriptTarget, version, /*setNodeParents*/ false, scriptKind, compilationSettings);
                 if (externalCache) {
                     externalCache.setDocument(key, path, sourceFile);
                 }
@@ -203,7 +203,7 @@ namespace ts {
                 // return it as is.
                 if (entry.sourceFile.version !== version) {
                     entry.sourceFile = updateLanguageServiceSourceFile(entry.sourceFile, scriptSnapshot, version,
-                        scriptSnapshot.getChangeRange(entry.sourceFile.scriptSnapshot!)); // TODO: GH#18217
+                        scriptSnapshot.getChangeRange(entry.sourceFile.scriptSnapshot!), /*aggressiveChecks*/ undefined, compilationSettings); // TODO: GH#18217
                     if (externalCache) {
                         externalCache.setDocument(key, path, entry.sourceFile);
                     }

@@ -133,6 +133,9 @@ namespace ts.classifier.v2020 {
                     }
                 }
             }
+            if (node.virtual) {
+                return;
+            }
             forEachChild(node, visit);
 
             inJSXElement = prevInJSXElement;
