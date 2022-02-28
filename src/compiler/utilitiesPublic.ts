@@ -1258,7 +1258,11 @@ namespace ts {
     }
 
     export function isClassLike(node: Node): node is ClassLikeDeclaration {
-        return node && (node.kind === SyntaxKind.ClassDeclaration || node.kind === SyntaxKind.ClassExpression);
+        return node && (node.kind === SyntaxKind.ClassDeclaration || node.kind === SyntaxKind.ClassExpression || node.kind === SyntaxKind.StructDeclaration);
+    }
+
+    export function isStruct(node: Node): node is StructDeclaration {
+        return node && node.kind === SyntaxKind.StructDeclaration;
     }
 
     export function isAccessor(node: Node): node is AccessorDeclaration {
@@ -1428,6 +1432,7 @@ namespace ts {
             case SyntaxKind.NewExpression:
             case SyntaxKind.TaggedTemplateExpression:
             case SyntaxKind.Decorator:
+            case SyntaxKind.EtsComponentExpression:
                 return true;
             default:
                 return false;
@@ -1464,6 +1469,7 @@ namespace ts {
             case SyntaxKind.ObjectLiteralExpression:
             case SyntaxKind.ClassExpression:
             case SyntaxKind.FunctionExpression:
+            case SyntaxKind.EtsComponentExpression:
             case SyntaxKind.Identifier:
             case SyntaxKind.RegularExpressionLiteral:
             case SyntaxKind.NumericLiteral:
@@ -1659,6 +1665,7 @@ namespace ts {
             || kind === SyntaxKind.BindingElement
             || kind === SyntaxKind.ClassDeclaration
             || kind === SyntaxKind.ClassExpression
+            || kind === SyntaxKind.StructDeclaration
             || kind === SyntaxKind.Constructor
             || kind === SyntaxKind.EnumDeclaration
             || kind === SyntaxKind.EnumMember
@@ -1695,6 +1702,7 @@ namespace ts {
         return kind === SyntaxKind.FunctionDeclaration
             || kind === SyntaxKind.MissingDeclaration
             || kind === SyntaxKind.ClassDeclaration
+            || kind === SyntaxKind.StructDeclaration
             || kind === SyntaxKind.InterfaceDeclaration
             || kind === SyntaxKind.TypeAliasDeclaration
             || kind === SyntaxKind.EnumDeclaration

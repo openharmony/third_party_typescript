@@ -191,7 +191,8 @@ namespace ts.projectSystem {
                     locations.push(
                         combinePaths(ancestor, `${module}.ts`),
                         combinePaths(ancestor, `${module}.tsx`),
-                        combinePaths(ancestor, `${module}.d.ts`)
+                        combinePaths(ancestor, `${module}.d.ts`),
+                        combinePaths(ancestor, `${module}.ets`)
                     );
                 });
                 forEachAncestorDirectory(getDirectoryPath(root.path), ancestor => {

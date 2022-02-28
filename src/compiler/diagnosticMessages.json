@@ -3458,7 +3458,7 @@
         "code": 4059
     },
     "Return type of exported function has or is using private name '{0}'.": {
-        "category": "Error",
+        "category": "Warning",
         "code": 4060
     },
     "Parameter '{0}' of constructor from exported class has or is using name '{1}' from external module {2} but cannot be named.": {
@@ -6354,5 +6354,37 @@
     "Invalid value for 'jsxFragmentFactory'. '{0}' is not a valid identifier or qualified-name.": {
         "category": "Error",
         "code": 18035
+    },
+    "Should not add return type to the function that is annotated by Extend.": {
+        "category": "Error",
+        "code": 18036
+    },
+    "Decorator name must be one of ETS Components": {
+        "category":"Error",
+        "code": 18037
+    },
+    "A struct declaration without the 'default' modifier must have a name.": {
+        "category": "Error",
+        "code": 18038
+    },
+    "Should not add return type to the function that is annotated by Styles.": {
+        "category": "Error",
+        "code": 18039
+    },
+    "Unable to resolve signature of function decorator when decorators are not valid.": {
+        "category": "Error",
+        "code": 18040
+    },
+    "The statement must be written use the function '{0}' under the if condition.": {
+        "category": "Warning",
+        "code": 28000
+    },
+    "The struct name cannot contain reserved tag name: '{0}'.": {
+        "category": "Error",
+        "code": 28001
+    },
+    "This API has been Special Markings. exercise caution when using this API.": {
+        "category": "Warning",
+        "code": 28002
     }
 }

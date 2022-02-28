@@ -6,6 +6,7 @@
     "File '/node_modules/@cow/boy.ts' does not exist.",
     "File '/node_modules/@cow/boy.tsx' does not exist.",
     "File '/node_modules/@cow/boy.d.ts' does not exist.",
+    "File '/node_modules/@cow/boy.ets' does not exist.",
     "File '/node_modules/@cow/boy/index.ts' does not exist.",
     "File '/node_modules/@cow/boy/index.tsx' does not exist.",
     "File '/node_modules/@cow/boy/index.d.ts' exist - use it as a name resolution result.",

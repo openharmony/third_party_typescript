@@ -200,6 +200,7 @@ namespace ts.formatting {
     function isListElement(parent: Node, node: Node): boolean {
         switch (parent.kind) {
             case SyntaxKind.ClassDeclaration:
+            case SyntaxKind.StructDeclaration:
             case SyntaxKind.InterfaceDeclaration:
                 return rangeContainsRange((<InterfaceDeclaration>parent).members, node);
             case SyntaxKind.ModuleDeclaration:
@@ -525,6 +526,7 @@ namespace ts.formatting {
             }
             switch (node.kind) {
                 case SyntaxKind.ClassDeclaration: return SyntaxKind.ClassKeyword;
+                case SyntaxKind.StructDeclaration: return SyntaxKind.StructKeyword;
                 case SyntaxKind.InterfaceDeclaration: return SyntaxKind.InterfaceKeyword;
                 case SyntaxKind.FunctionDeclaration: return SyntaxKind.FunctionKeyword;
                 case SyntaxKind.EnumDeclaration: return SyntaxKind.EnumDeclaration;

@@ -53,13 +53,85 @@ import { something } from "something";
                     command: protocol.CommandTypes.Completions,
                     arguments: protocolFileLocationFromSubstring(file1, "prop", { index: 1 })
                 }).response as protocol.CompletionEntry[];
+                const displayPartsProp = [
+                    {
+                        text: "(",
+                        kind: "punctuation"
+                    },{
+                        text: "property",
+                        kind: "text"
+                    },{
+                        text: ")",
+                        kind: "punctuation"
+                    },{
+                        text: " ",
+                        kind: "space"
+                    },{
+                        text: "c",
+                        kind: "className"
+                    },{
+                        text: ".",
+                        kind: "punctuation"
+                    },{
+                        text: "prop",
+                        kind: "propertyName"
+                    },{
+                        text: ":",
+                        kind: "punctuation"
+                    },{
+                        text: " ",
+                        kind: "space"
+                    },{
+                        text: "string",
+                        kind: "keyword"
+                    }
+                ];
+                const displayPartsFoo = [
+                    {
+                        text: "(",
+                        kind: "punctuation"
+                    },{
+                        text: "method",
+                        kind: "text"
+                    },{
+                        text: ")",
+                        kind: "punctuation"
+                    },{
+                        text: " ",
+                        kind: "space"
+                    },{
+                        text: "c",
+                        kind: "className"
+                    },{
+                        text: ".",
+                        kind: "punctuation"
+                    },{
+                        text: "foo",
+                        kind: "methodName"
+                    },{
+                        text: "(",
+                        kind: "punctuation"
+                    },{
+                        text: ")",
+                        kind: "punctuation"
+                    },{
+                        text: ":",
+                        kind: "punctuation"
+                    },{
+                        text: " ",
+                        kind: "space"
+                    },{
+                        text: "string",
+                        kind: "keyword"
+                    }
+                ];
                 assert.deepEqual(response, [
-                    completionEntry("foo", ScriptElementKind.memberFunctionElement),
-                    completionEntry("prop", ScriptElementKind.memberVariableElement),
+                    completionEntry("foo", ScriptElementKind.memberFunctionElement, displayPartsFoo),
+                    completionEntry("prop", ScriptElementKind.memberVariableElement, displayPartsProp),
                 ]);
             }
 
-            function completionEntry(name: string, kind: ScriptElementKind): protocol.CompletionEntry {
+            function completionEntry(name: string, kind: ScriptElementKind, displayParts: SymbolDisplayPart[]): protocol.CompletionEntry {
                 return {
                     name,
                     kind,
@@ -70,7 +142,9 @@ import { something } from "something";
                     isPackageJsonImport: undefined,
                     isRecommended: undefined,
                     replacementSpan: undefined,
-                    source: undefined
+                    source: undefined,
+                    jsDoc: undefined,
+                    displayParts
                 };
             }
         });

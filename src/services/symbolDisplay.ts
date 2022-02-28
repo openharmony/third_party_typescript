@@ -197,7 +197,7 @@ namespace ts.SymbolDisplay {
             }
 
             if (callExpressionLike) {
-                signature = typeChecker.getResolvedSignature(callExpressionLike)!; // TODO: GH#18217
+                signature = typeChecker.tryGetResolvedSignatureWithoutCheck(callExpressionLike)!; // TODO: GH#18217
 
                 const useConstructSignatures = callExpressionLike.kind === SyntaxKind.NewExpression || (isCallExpression(callExpressionLike) && callExpressionLike.expression.kind === SyntaxKind.SuperKeyword);
 
@@ -308,6 +308,10 @@ namespace ts.SymbolDisplay {
                 // the class name is local to the class body (similar to function expression)
                 //      (local class) class <className>
                 pushSymbolKind(ScriptElementKind.localClassElement);
+            }
+            else if (getDeclarationOfKind(symbol, SyntaxKind.StructDeclaration)) {
+                // struct declaration
+                displayParts.push(keywordPart(SyntaxKind.StructKeyword));
             }
             else {
                 // Class declaration has name which is not local.

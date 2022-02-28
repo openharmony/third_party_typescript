@@ -1,0 +1,41 @@
+{
+    "render": {
+        "method": ["build"],
+        "decorator": "Builder"
+    },
+    "components": [
+        "Flex",
+        "Text",
+        "Button"
+    ],
+    "extend": {
+        "decorator": "Extend",
+        "components": [
+            {
+                "name": "Text",
+                "type": "TextAttribute",
+                "instance": "TextInstance"
+            },
+            {
+                "name": "Flex",
+                "type": "FlexAttribute",
+                "instance": "FlexInstance"
+            }
+        ]
+    },
+    "styles": {
+        "decorator": "Styles",
+        "component": {
+            "name": "Common",
+            "type": "T",
+            "instance": "CommonInstance"
+        },
+        "property": "stateStyles"
+    },
+    "libs": [
+        "tests/cases/fourslash/etslib/common.d.ts",
+        "tests/cases/fourslash/etslib/flex.d.ts",
+        "tests/cases/fourslash/etslib/text.d.ts"
+    ],
+    "customComponent": "CustomComponent"
+}

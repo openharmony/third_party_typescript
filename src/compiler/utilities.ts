@@ -264,6 +264,159 @@ namespace ts {
         return <SourceFile>node;
     }
 
+    export function isTokenInsideBuilder(decorators: NodeArray<Decorator> | undefined, compilerOptions: CompilerOptions): boolean {
+        const renderDecorator = compilerOptions.ets?.render?.decorator ?? "Builder";
+
+        if (!decorators) {
+            return false;
+        }
+
+        for (const decorator of decorators) {
+            if (decorator.expression.kind === SyntaxKind.Identifier && (<Identifier>(decorator.expression)).escapedText === renderDecorator) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    export function getEtsComponentExpressionInnerCallExpressionNode(node: Node | undefined): EtsComponentExpression | undefined {
+        while (node && node.kind !== SyntaxKind.EtsComponentExpression) {
+            if (node.kind === SyntaxKind.CallExpression) {
+                node = (<CallExpression>node).expression;
+            }
+            else if (node.kind === SyntaxKind.PropertyAccessExpression) {
+                node = (<PropertyAccessExpression>node).expression;
+            }
+            else {
+                node = undefined;
+            }
+        }
+        return <EtsComponentExpression>node;
+    }
+
+    export function getRootEtsComponentInnerCallExpressionNode(node: Node | undefined): EtsComponentExpression | undefined {
+        if (node && isEtsComponentExpression(node)) {
+            return node;
+        }
+
+        while (node) {
+            const ancestor = <CallExpression>getAncestor(isCallExpression(node) ? node.parent : node, SyntaxKind.CallExpression);
+            const target = getRootEtsComponent(ancestor);
+            if (target && isInStateStylesObject(node)) {
+                return target;
+            }
+            node = ancestor ?? node.parent;
+        }
+
+        return undefined;
+    }
+
+    function isInStateStylesObject(node: Node | undefined): boolean {
+        const ancestor = <ObjectLiteralExpression>getAncestor(node, SyntaxKind.ObjectLiteralExpression);
+        return ancestor !== undefined && ancestor.parent !== undefined && isPropertyAssignment(ancestor.parent);
+    }
+
+    export function getEtsExtendDecoratorComponentNames(decorators: NodeArray<Decorator> | undefined, compilerOptions: CompilerOptions): __String[] {
+        const extendComponents: __String[] = [];
+        const extendDecorator = compilerOptions.ets?.extend?.decorator ?? "Extend";
+        decorators?.forEach((decorator) => {
+            if (decorator.expression.kind === SyntaxKind.CallExpression) {
+                const identifier = (<CallExpression>decorator.expression).expression;
+                const args = (<CallExpression>decorator.expression).arguments;
+                if (identifier.kind === SyntaxKind.Identifier && (<Identifier>identifier).escapedText === extendDecorator && args.length) {
+                    // only read @Extend(...args) first argument
+                    if (args[0].kind === SyntaxKind.Identifier) {
+                        extendComponents.push((<Identifier>args[0]).escapedText);
+                    }
+                }
+            }
+        });
+        return extendComponents;
+    }
+
+    export function getEtsStylesDecoratorComponentNames(decorators: NodeArray<Decorator> | undefined, compilerOptions: CompilerOptions): __String[] {
+        const stylesComponents: __String[] = [];
+        const stylesDecorator = compilerOptions.ets?.styles?.decorator ?? "Styles";
+        decorators?.forEach(decorator => {
+            if (decorator.expression.kind === SyntaxKind.Identifier) {
+                const identifier = <Identifier>decorator.expression;
+                if (identifier.kind === SyntaxKind.Identifier && identifier.escapedText === stylesDecorator) {
+                    stylesComponents.push(identifier.escapedText);
+                }
+            }
+        });
+        return stylesComponents;
+    }
+
+    export function filterEtsExtendDecoratorComponentNamesByOptions(decoratorComponentNames: __String[], compilerOptions: CompilerOptions): __String[] {
+        if (!decoratorComponentNames.length) {
+            return [];
+        }
+        const filtered: __String[] = [];
+        compilerOptions.ets?.extend.components.forEach(({ name }) => {
+            if (name === last(decoratorComponentNames)) {
+                filtered.push(name);
+            }
+        });
+        return filtered;
+    }
+
+    export function hasEtsExtendDecoratorNames(decorators: NodeArray<Decorator> | undefined, options: CompilerOptions): boolean {
+        const names: string[] = [];
+        if (!decorators || !decorators.length) {
+            return false;
+        }
+        decorators.forEach(decorator => {
+            const nameExpr = decorator.expression;
+            if (isCallExpression(nameExpr) && isIdentifier(nameExpr.expression) && nameExpr.expression.escapedText.toString() === options.ets?.extend.decorator) {
+                names.push(nameExpr.expression.escapedText.toString());
+            }
+        });
+        return names.length !== 0;
+    }
+
+    export function hasEtsStylesDecoratorNames(decorators: NodeArray<Decorator> | undefined, options: CompilerOptions): boolean {
+        const names: string[] = [];
+        if (!decorators || !decorators.length) {
+            return false;
+        }
+        decorators.forEach(decorator => {
+            const nameExpr = decorator.expression;
+            if (isIdentifier(nameExpr) && nameExpr.escapedText.toString() === options.ets?.styles?.decorator) {
+                names.push(nameExpr.escapedText.toString());
+            }
+        });
+        return names.length !== 0;
+    }
+
+    export function hasEtsBuildDecoratorNames(decorators: NodeArray<Decorator> | undefined, options: CompilerOptions): boolean {
+        const names: string[] = [];
+        if (!decorators || !decorators.length) {
+            return false;
+        }
+        decorators.forEach(decorator => {
+            const nameExpr = decorator.expression;
+            if (isIdentifier(nameExpr) && options.ets?.render?.method.indexOf(nameExpr.escapedText.toString()) !== -1) {
+                names.push(nameExpr.escapedText.toString());
+            }
+        });
+        return names.length !== 0;
+    }
+
+    export function hasEtsBuilderDecoratorNames(decorators: NodeArray<Decorator> | undefined, options: CompilerOptions): boolean {
+        const names: string[] = [];
+        if (!decorators || !decorators.length) {
+            return false;
+        }
+        decorators.forEach(decorator => {
+            const nameExpr = decorator.expression;
+            if (isIdentifier(nameExpr) && nameExpr.escapedText.toString() === options.ets?.render?.decorator) {
+                names.push(nameExpr.escapedText.toString());
+            }
+        });
+        return names.length !== 0;
+    }
+
     export function isStatementWithLocals(node: Node) {
         switch (node.kind) {
             case SyntaxKind.Block:
@@ -340,6 +493,11 @@ namespace ts {
             return true;
         }
 
+        // if node type is virtual, do not judge position
+        if(node.virtual){
+            return false;
+        }
+
         return node.pos === node.end && node.pos >= 0 && node.kind !== SyntaxKind.EndOfFileToken;
     }
 
@@ -398,6 +556,40 @@ namespace ts {
 
     export function insertStatementAfterCustomPrologue<T extends Statement>(to: T[], statement: T | undefined): T[] {
         return insertStatementAfterPrologue(to, statement, isAnyPrologueDirective);
+    }
+
+    export function getEtsLibs(program: TypeCheckerHost): string[] {
+        const etsComponentsLibNames: string[] = [];
+        const etsComponentsLib = program.getCompilerOptions().ets?.libs ?? [];
+        if (etsComponentsLib.length) {
+            forEach(etsComponentsLib, libFileName => {
+                etsComponentsLibNames.push(sys.resolvePath(libFileName));
+                const sourceFile = getSourceFileByName(program, libFileName);
+                forEach(sourceFile?.referencedFiles, ref => {
+                    const referencedFileName = sys.resolvePath(resolveTripleslashReference(ref.fileName, sourceFile!.fileName));
+                    etsComponentsLibNames.push(referencedFileName);
+                });
+            });
+        }
+        return etsComponentsLibNames;
+    }
+
+    function getSourceFileByName(program: TypeCheckerHost, libFileName: string): SourceFile | undefined {
+        if(!libFileName) {
+            return undefined;
+        }
+
+        const originFileName = sys.resolvePath(libFileName);
+        for (const file of program.getSourceFiles()) {
+            if(!file.fileName) {
+                continue;
+            }
+            const sourceFileName = sys.resolvePath(file.fileName);
+            if (sourceFileName === originFileName) {
+                return file;
+            }
+        }
+        return undefined;
     }
 
     /**
@@ -478,7 +670,7 @@ namespace ts {
             return getTokenPosOfNode((<SyntaxList>node)._children[0], sourceFile, includeJsDoc);
         }
 
-        return skipTrivia((sourceFile || getSourceFileOfNode(node)).text, node.pos);
+        return node.virtual ? node.pos : skipTrivia((sourceFile || getSourceFileOfNode(node)).text, node.pos);
     }
 
     export function getNonDecoratorTokenPosOfNode(node: Node, sourceFile?: SourceFileLike): number {
@@ -784,6 +976,7 @@ namespace ts {
             case ScriptKind.TS:
             case ScriptKind.JSX:
             case ScriptKind.TSX:
+            case ScriptKind.ETS:
                 break;
             default:
                 return false;
@@ -862,6 +1055,7 @@ namespace ts {
             case SyntaxKind.ConstructorType:
             case SyntaxKind.JSDocFunctionType:
             case SyntaxKind.ClassDeclaration:
+            case SyntaxKind.StructDeclaration:
             case SyntaxKind.ClassExpression:
             case SyntaxKind.InterfaceDeclaration:
             case SyntaxKind.TypeAliasDeclaration:
@@ -896,6 +1090,7 @@ namespace ts {
             case SyntaxKind.ImportEqualsDeclaration:
             case SyntaxKind.VariableStatement:
             case SyntaxKind.ClassDeclaration:
+            case SyntaxKind.StructDeclaration:
             case SyntaxKind.FunctionDeclaration:
             case SyntaxKind.ModuleDeclaration:
             case SyntaxKind.TypeAliasDeclaration:
@@ -925,7 +1120,12 @@ namespace ts {
     // Computed property names will just be emitted as "[<expr>]", where <expr> is the source
     // text of the expression in the computed property.
     export function declarationNameToString(name: DeclarationName | QualifiedName | undefined) {
-        return !name || getFullWidth(name) === 0 ? "(Missing)" : getTextOfNode(name);
+        if (name && name.virtual && name.kind === SyntaxKind.Identifier) {
+            return name.escapedText.toString();
+        }
+        else {
+            return !name || getFullWidth(name) === 0 ? "(Missing)" : getTextOfNode(name);
+        }
     }
 
     export function getNameFromIndexInfo(info: IndexInfo): string | undefined {
@@ -1078,6 +1278,7 @@ namespace ts {
             case SyntaxKind.BindingElement:
             case SyntaxKind.ClassDeclaration:
             case SyntaxKind.ClassExpression:
+            case SyntaxKind.StructDeclaration:
             case SyntaxKind.InterfaceDeclaration:
             case SyntaxKind.ModuleDeclaration:
             case SyntaxKind.EnumDeclaration:
@@ -1110,7 +1311,7 @@ namespace ts {
         Debug.assert(!isJSDoc(errorNode));
 
         const isMissing = nodeIsMissing(errorNode);
-        const pos = isMissing || isJsxText(node)
+        const pos = isMissing || isJsxText(node) || node.virtual
             ? errorNode.pos
             : skipTrivia(sourceFile.text, errorNode.pos);
 
@@ -1418,6 +1619,7 @@ namespace ts {
             case SyntaxKind.InterfaceDeclaration:
             case SyntaxKind.ClassDeclaration:
             case SyntaxKind.ClassExpression:
+            case SyntaxKind.StructDeclaration:
             case SyntaxKind.TypeLiteral:
                 return (<ObjectTypeDeclaration>node).members;
             case SyntaxKind.ObjectLiteralExpression:
@@ -1551,6 +1753,10 @@ namespace ts {
 
     export function getContainingClass(node: Node): ClassLikeDeclaration | undefined {
         return findAncestor(node.parent, isClassLike);
+    }
+
+    export function getContainingStruct(node: Node): StructDeclaration | undefined {
+        return findAncestor(node.parent, isStruct);
     }
 
     export function getThisContainer(node: Node, includeArrowFunctions: boolean): Node {
@@ -1771,19 +1977,20 @@ namespace ts {
         }
         switch (node.kind) {
             case SyntaxKind.ClassDeclaration:
+            case SyntaxKind.StructDeclaration:
                 // classes are valid targets
                 return true;
 
             case SyntaxKind.PropertyDeclaration:
                 // property declarations are valid if their parent is a class declaration.
-                return parent!.kind === SyntaxKind.ClassDeclaration;
+                return parent!.kind === SyntaxKind.ClassDeclaration || parent!.kind === SyntaxKind.StructDeclaration;
 
             case SyntaxKind.GetAccessor:
             case SyntaxKind.SetAccessor:
             case SyntaxKind.MethodDeclaration:
                 // if this method has a body and its parent is a class declaration, this is a valid target.
                 return (<FunctionLikeDeclaration>node).body !== undefined
-                    && parent!.kind === SyntaxKind.ClassDeclaration;
+                    && (parent!.kind === SyntaxKind.ClassDeclaration || parent!.kind === SyntaxKind.StructDeclaration);
 
             case SyntaxKind.Parameter:
                 // if the parameter's parent has a body and its grandparent is a class declaration, this is a valid target;
@@ -1791,7 +1998,7 @@ namespace ts {
                     && (parent!.kind === SyntaxKind.Constructor
                         || parent!.kind === SyntaxKind.MethodDeclaration
                         || parent!.kind === SyntaxKind.SetAccessor)
-                    && grandparent!.kind === SyntaxKind.ClassDeclaration;
+                    && (grandparent!.kind === SyntaxKind.ClassDeclaration || grandparent!.kind === SyntaxKind.StructDeclaration);
         }
 
         return false;
@@ -1818,6 +2025,8 @@ namespace ts {
         switch (node.kind) {
             case SyntaxKind.ClassDeclaration:
                 return some((<ClassDeclaration>node).members, m => nodeOrChildIsDecorated(m, node, parent!)); // TODO: GH#18217
+            case SyntaxKind.StructDeclaration:
+                return some((<StructDeclaration>node).members, m => nodeOrChildIsDecorated(m, node, parent!)); // TODO: GH#18217
             case SyntaxKind.MethodDeclaration:
             case SyntaxKind.SetAccessor:
                 return some((<FunctionLikeDeclaration>node).parameters, p => nodeIsDecorated(p, node, parent!)); // TODO: GH#18217
@@ -1846,6 +2055,7 @@ namespace ts {
             case SyntaxKind.ArrayLiteralExpression:
             case SyntaxKind.ObjectLiteralExpression:
             case SyntaxKind.PropertyAccessExpression:
+            case SyntaxKind.EtsComponentExpression:
             case SyntaxKind.ElementAccessExpression:
             case SyntaxKind.CallExpression:
             case SyntaxKind.NewExpression:
@@ -3039,6 +3249,16 @@ namespace ts {
                 return node;
             }
             node = node.parent;
+        }
+        return undefined;
+    }
+
+    export function getRootEtsComponent(node: Node | undefined): EtsComponentExpression | undefined {
+        while (node) {
+            if (isEtsComponentExpression(node)) {
+                return node;
+            }
+            node = (<PropertyAccessExpression | CallExpression>node).expression;
         }
         return undefined;
     }
@@ -6521,6 +6741,8 @@ namespace ts {
                 return ScriptKind.TSX;
             case Extension.Json:
                 return ScriptKind.JSON;
+            case Extension.Ets:
+                return ScriptKind.ETS;
             default:
                 return ScriptKind.Unknown;
         }
@@ -6529,10 +6751,10 @@ namespace ts {
     /**
      *  List of supported extensions in order of file resolution precedence.
      */
-    export const supportedTSExtensions: readonly Extension[] = [Extension.Ts, Extension.Tsx, Extension.Dts];
-    export const supportedTSExtensionsWithJson: readonly Extension[] = [Extension.Ts, Extension.Tsx, Extension.Dts, Extension.Json];
+    export const supportedTSExtensions: readonly Extension[] = [Extension.Ts, Extension.Tsx, Extension.Dts, Extension.Ets];
+    export const supportedTSExtensionsWithJson: readonly Extension[] = [Extension.Ts, Extension.Tsx, Extension.Dts, Extension.Json, Extension.Ets];
     /** Must have ".d.ts" first because if ".ts" goes first, that will be detected as the extension instead of ".d.ts". */
-    export const supportedTSExtensionsForExtractExtension: readonly Extension[] = [Extension.Dts, Extension.Ts, Extension.Tsx];
+    export const supportedTSExtensionsForExtractExtension: readonly Extension[] = [Extension.Dts, Extension.Ts, Extension.Tsx, Extension.Ets];
     export const supportedJSExtensions: readonly Extension[] = [Extension.Js, Extension.Jsx];
     export const supportedJSAndJsonExtensions: readonly Extension[] = [Extension.Js, Extension.Jsx, Extension.Json];
     const allSupportedExtensions: readonly Extension[] = [...supportedTSExtensions, ...supportedJSExtensions];
@@ -6650,7 +6872,7 @@ namespace ts {
         }
     }
 
-    const extensionsToRemove = [Extension.Dts, Extension.Ts, Extension.Js, Extension.Tsx, Extension.Jsx, Extension.Json];
+    const extensionsToRemove = [Extension.Dts, Extension.Ts, Extension.Js, Extension.Tsx, Extension.Jsx, Extension.Json, Extension.Ets];
     export function removeFileExtension(path: string): string {
         for (const ext of extensionsToRemove) {
             const extensionless = tryRemoveExtension(path, ext);
@@ -6691,7 +6913,7 @@ namespace ts {
 
     /** True if an extension is one of the supported TypeScript extensions. */
     export function extensionIsTS(ext: Extension): boolean {
-        return ext === Extension.Ts || ext === Extension.Tsx || ext === Extension.Dts;
+        return ext === Extension.Ts || ext === Extension.Tsx || ext === Extension.Dts || ext === Extension.Ets;
     }
 
     export function resolutionExtensionIsTSOrJson(ext: Extension) {
@@ -6712,6 +6934,9 @@ namespace ts {
     }
 
     export function tryGetExtensionFromPath(path: string): Extension | undefined {
+        if(fileExtensionIs(path, Extension.Ets)) {
+            return Extension.Ets;
+        }
         return find<Extension>(extensionsToRemove, e => fileExtensionIs(path, e));
     }
 
@@ -7121,5 +7346,31 @@ namespace ts {
 
     export function containsIgnoredPath(path: string) {
         return some(ignoredPaths, p => stringContains(path, p));
+    }
+
+    export function isCalledStructDeclaration(declarations: Declaration[] | undefined): boolean {
+        if (!declarations) {
+            return false;
+        }
+
+        return declarations.some(declaration => declaration.kind === SyntaxKind.StructDeclaration);
+    }
+
+    export function getNameOfDecorator(node: Decorator): string | undefined {
+        const expression = node.expression;
+
+        if (isIdentifier(expression)) {
+            return expression.escapedText.toString();
+        }
+
+        if (isCallExpression(expression) && isIdentifier(expression.expression)) {
+            return expression.expression.escapedText.toString();
+        }
+
+        return undefined;
+    }
+
+    export function isEtsFunctionDecorators(name: string | undefined, options: CompilerOptions): boolean {
+        return (name === options.ets?.render?.decorator || name === options.ets?.extend?.decorator || name === options.ets?.styles?.decorator);
     }
 }

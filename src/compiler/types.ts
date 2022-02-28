@@ -113,6 +113,7 @@ namespace ts {
         CaseKeyword,
         CatchKeyword,
         ClassKeyword,
+        StructKeyword,
         ConstKeyword,
         ContinueKeyword,
         DebuggerKeyword,
@@ -250,6 +251,7 @@ namespace ts {
         ParenthesizedExpression,
         FunctionExpression,
         ArrowFunction,
+        EtsComponentExpression,
         DeleteExpression,
         TypeOfExpression,
         VoidExpression,
@@ -296,6 +298,7 @@ namespace ts {
         VariableDeclarationList,
         FunctionDeclaration,
         ClassDeclaration,
+        StructDeclaration,
         InterfaceDeclaration,
         TypeAliasDeclaration,
         EnumDeclaration,
@@ -544,6 +547,7 @@ namespace ts {
         | SyntaxKind.CaseKeyword
         | SyntaxKind.CatchKeyword
         | SyntaxKind.ClassKeyword
+        | SyntaxKind.StructKeyword
         | SyntaxKind.ConstKeyword
         | SyntaxKind.ConstructorKeyword
         | SyntaxKind.ContinueKeyword
@@ -765,13 +769,15 @@ namespace ts {
         /* @internal */ TypeCached                    = 1 << 26, // If a type was cached for node at any point
         /* @internal */ Deprecated                    = 1 << 27, // If has '@deprecated' JSDoc tag
 
+        EtsContext = 1 << 30,  // If context was parsed as a Struct
+
         BlockScoped = Let | Const,
 
         ReachabilityCheckFlags = HasImplicitReturn | HasExplicitReturn,
         ReachabilityAndEmitFlags = ReachabilityCheckFlags | HasAsyncFunctions,
 
         // Parsing context flags
-        ContextFlags = DisallowInContext | YieldContext | DecoratorContext | AwaitContext | JavaScriptFile | InWithStatement | Ambient,
+        ContextFlags = DisallowInContext | YieldContext | DecoratorContext | AwaitContext | JavaScriptFile | InWithStatement | Ambient | EtsContext,
 
         // Exclude these flags when parsing a Type
         TypeExcludesFlags = YieldContext | AwaitContext,
@@ -780,6 +786,17 @@ namespace ts {
         // never cleared on SourceFiles which get re-used in between incremental parses.
         // See the comment above on `PossiblyContainsDynamicImport` and `PossiblyContainsImportMeta`.
         /* @internal */ PermanentlySetIncrementalFlags = PossiblyContainsDynamicImport | PossiblyContainsImportMeta,
+    }
+
+    export const enum EtsFlags {
+        None =                       0,
+        StructContext =              1 << 1,  // If context was parsed as a Struct
+        EtsExtendComponentsContext = 1 << 2,  // If context was parsed as Ets Extend Components
+        EtsStylesComponentsContext = 1 << 3,  // If context was parsed as Ets Styles Components
+        EtsBuildContext =            1 << 4,  // If context was parsed as Ets build methods
+        EtsBuilderContext =          1 << 5,  // If context was parsed as Ets builder methods or functions
+        EtsStateStylesContext =      1 << 6,  // If context was parsed as Ets stateStyles Components
+        EtsComponentsContext =       1 << 7,  // If context was parsed as a Ets Components
     }
 
     export const enum ModifierFlags {
@@ -852,6 +869,7 @@ namespace ts {
         /* @internal */ emitNode?: EmitNode;                  // Associated EmitNode (initialized by transforms)
         /* @internal */ contextualType?: Type;                // Used to temporarily assign a contextual type during overload resolution
         /* @internal */ inferenceContext?: InferenceContext;  // Inference context for contextual type
+        /* @internal */ virtual?: boolean;                    // Present node is virtual node
     }
 
     export interface JSDocContainer {
@@ -960,6 +978,7 @@ namespace ts {
         | VariableStatement
         | FunctionDeclaration
         | ClassDeclaration
+        | StructDeclaration
         | InterfaceDeclaration
         | TypeAliasDeclaration
         | EnumDeclaration
@@ -2042,6 +2061,14 @@ namespace ts {
         readonly body: FunctionBody;  // Required, whereas the member inherited from FunctionDeclaration is optional
     }
 
+    export interface EtsComponentExpression extends PrimaryExpression, Declaration {
+        readonly kind: SyntaxKind.EtsComponentExpression;
+        readonly expression: LeftHandSideExpression;
+        readonly typeArguments?: NodeArray<TypeNode>;
+        readonly arguments: NodeArray<Expression>;
+        readonly body?: Block;
+    }
+
     export interface ArrowFunction extends Expression, FunctionLikeDeclarationBase, JSDocContainer {
         readonly kind: SyntaxKind.ArrowFunction;
         readonly equalsGreaterThanToken: EqualsGreaterThanToken;
@@ -2397,6 +2424,7 @@ namespace ts {
         | TaggedTemplateExpression
         | Decorator
         | JsxOpeningLikeElement
+        | EtsComponentExpression
         ;
 
     export interface AsExpression extends Expression {
@@ -2793,7 +2821,7 @@ namespace ts {
         ;
 
     export interface ClassLikeDeclarationBase extends NamedDeclaration, JSDocContainer {
-        readonly kind: SyntaxKind.ClassDeclaration | SyntaxKind.ClassExpression;
+        readonly kind: SyntaxKind.ClassDeclaration | SyntaxKind.ClassExpression | SyntaxKind.StructDeclaration;
         readonly name?: Identifier;
         readonly typeParameters?: NodeArray<TypeParameterDeclaration>;
         readonly heritageClauses?: NodeArray<HeritageClause>;
@@ -2806,6 +2834,12 @@ namespace ts {
         readonly name?: Identifier;
     }
 
+    export interface StructDeclaration extends ClassLikeDeclarationBase, DeclarationStatement {
+        readonly kind: SyntaxKind.StructDeclaration;
+        /** May be undefined in `export default class { ... }`. */
+        readonly name?: Identifier;
+    }
+
     export interface ClassExpression extends ClassLikeDeclarationBase, PrimaryExpression {
         readonly kind: SyntaxKind.ClassExpression;
     }
@@ -2813,6 +2847,7 @@ namespace ts {
     export type ClassLikeDeclaration =
         | ClassDeclaration
         | ClassExpression
+        | StructDeclaration
         ;
 
     export interface ClassElement extends NamedDeclaration {
@@ -3825,6 +3860,7 @@ namespace ts {
         /* @internal */ getBindAndCheckDiagnostics(sourceFile: SourceFile, cancellationToken?: CancellationToken): readonly Diagnostic[];
         /* @internal */ getProgramDiagnostics(sourceFile: SourceFile, cancellationToken?: CancellationToken): readonly Diagnostic[];
 
+        getEtsLibSFromProgram(): string[];
         /**
          * Gets a type checker that can be used to semantically analyze source files in the program.
          */
@@ -3886,6 +3922,8 @@ namespace ts {
          * This implementation handles file exists to be true if file is source of project reference redirect when program is created using useSourceOfProjectReferenceRedirect
          */
         /*@internal*/ fileExists(fileName: string): boolean;
+        getTagNameNeededCheckByFile?(filePath: string): TagCheckParam;
+        getExpressionCheckedResultsByFile?(filePath: string, jsDocs: JSDoc[]): ConditionCheckResult;
     }
 
     /*@internal*/
@@ -3992,6 +4030,8 @@ namespace ts {
         getResolvedTypeReferenceDirectives(): ReadonlyESMap<string, ResolvedTypeReferenceDirective | undefined>;
         getProjectReferenceRedirect(fileName: string): string | undefined;
         isSourceOfProjectReferenceRedirect(fileName: string): boolean;
+        getTagNameNeededCheckByFile?(filePath: string): TagCheckParam;
+        getExpressionCheckedResultsByFile?(filePath: string, jsDocs: JSDoc[]): ConditionCheckResult;
 
         readonly redirectTargetsMap: RedirectTargetsMap;
     }
@@ -4068,6 +4108,7 @@ namespace ts {
         getPropertySymbolOfDestructuringAssignment(location: Identifier): Symbol | undefined;
         getTypeOfAssignmentPattern(pattern: AssignmentPattern): Type;
         getTypeAtLocation(node: Node): Type;
+        tryGetTypeAtLocationWithoutCheck(node: Node): Type;
         getTypeFromTypeNode(node: TypeNode): Type;
 
         signatureToString(signature: Signature, enclosingDeclaration?: Node, flags?: TypeFormatFlags, kind?: SignatureKind): string;
@@ -4098,6 +4139,7 @@ namespace ts {
          * @param argumentCount Apparent number of arguments, passed in case of a possibly incomplete call. This should come from an ArgumentListInfo. See `signatureHelp.ts`.
          */
         getResolvedSignature(node: CallLikeExpression, candidatesOutArray?: Signature[], argumentCount?: number): Signature | undefined;
+        tryGetResolvedSignatureWithoutCheck(node: CallLikeExpression, candidatesOutArray?: Signature[], argumentCount?: number): Signature | undefined;
         /* @internal */ getResolvedSignatureForSignatureHelp(node: CallLikeExpression, candidatesOutArray?: Signature[], argumentCount?: number): Signature | undefined;
         /* @internal */ getExpandedParameters(sig: Signature): readonly (readonly Symbol[])[];
         /* @internal */ hasEffectiveRestParameter(sig: Signature): boolean;
@@ -5807,7 +5849,7 @@ namespace ts {
         DynamicPriority,
     }
 
-    export type CompilerOptionsValue = string | number | boolean | (string | number)[] | string[] | MapLike<string[]> | PluginImport[] | ProjectReference[] | null | undefined;
+    export type CompilerOptionsValue = string | number | boolean | (string | number)[] | string[] | MapLike<string[]> | PluginImport[] | ProjectReference[] | null | undefined | EtsOptions;
 
     export interface CompilerOptions {
         /*@internal*/ all?: boolean;
@@ -5928,8 +5970,25 @@ namespace ts {
         esModuleInterop?: boolean;
         /* @internal */ showConfig?: boolean;
         useDefineForClassFields?: boolean;
+        ets?: EtsOptions;
 
         [option: string]: CompilerOptionsValue | TsConfigSourceFile | undefined;
+    }
+
+    export interface EtsOptions {
+        render: { method: string[]; decorator: string };
+        components: string[];
+        libs: string[];
+        extend: {
+            decorator: string;
+            components: { name: string; type: string; instance: string }[];
+        };
+        styles: {
+            decorator: string;
+            component: { name: string; type: string; instance: string };
+            property: string;
+        };
+        customComponent?: string;
     }
 
     export interface WatchOptions {
@@ -6012,7 +6071,8 @@ namespace ts {
          * Used on extensions that doesn't define the ScriptKind but the content defines it.
          * Deferred extensions are going to be included in all project contexts.
          */
-        Deferred = 7
+        Deferred = 7,
+        ETS = 8,
     }
 
     export const enum ScriptTarget {
@@ -6290,6 +6350,17 @@ namespace ts {
         realpath?(path: string): string;
         getCurrentDirectory?(): string;
         getDirectories?(path: string): string[];
+        /**
+         * get tagName where need to be determined based on the file path
+         * @param filePath filePath
+         */
+         getTagNameNeededCheckByFile?(filePath: string): TagCheckParam;
+         /**
+          * get checked results based on the file path and jsDocs
+          * @param filePath string
+          * @param jsDoc JSDoc[]
+          */
+         getExpressionCheckedResultsByFile?(filePath: string, jsDocs: JSDoc[]): ConditionCheckResult;
     }
 
     /**
@@ -6349,7 +6420,8 @@ namespace ts {
         Js = ".js",
         Jsx = ".jsx",
         Json = ".json",
-        TsBuildInfo = ".tsbuildinfo"
+        TsBuildInfo = ".tsbuildinfo",
+        Ets = ".ets",
     }
 
     export interface ResolvedModuleWithFailedLookupLocations {
@@ -6378,6 +6450,19 @@ namespace ts {
     /* @internal */
     export type HasChangedAutomaticTypeDirectiveNames = () => boolean;
 
+    export interface TagCheckParam {
+        needCheck: boolean;
+        checkConfig: TagCheckConfig[];
+    }
+    export interface TagCheckConfig {
+        tagName: string;
+        message: string;
+        needConditionCheck: boolean;
+        specifyCheckConditionFuncName: string;
+    }
+    export interface ConditionCheckResult {
+        valid: boolean;
+    }
     export interface CompilerHost extends ModuleResolutionHost {
         getSourceFile(fileName: string, languageVersion: ScriptTarget, onError?: (message: string) => void, shouldCreateNewSourceFile?: boolean): SourceFile | undefined;
         getSourceFileByPath?(fileName: string, path: Path, languageVersion: ScriptTarget, onError?: (message: string) => void, shouldCreateNewSourceFile?: boolean): SourceFile | undefined;
@@ -6414,6 +6499,17 @@ namespace ts {
         // TODO: later handle this in better way in builder host instead once the api for tsbuild finalizes and doesn't use compilerHost as base
         /*@internal*/createDirectory?(directory: string): void;
         /*@internal*/getSymlinkCache?(): SymlinkCache;
+        /**
+         * get tagName where need to be determined based on the file path
+         * @param filePath filePath
+         */
+        getTagNameNeededCheckByFile?(filePath: string): TagCheckParam;
+        /**
+         * get checked results based on the file path and jsDocs
+         * @param filePath string
+         * @param jsDoc JSDoc[]
+         */
+        getExpressionCheckedResultsByFile?(filePath: string, jsDocs: JSDoc[]): ConditionCheckResult;
     }
 
     /** true if --out otherwise source file name */
@@ -6967,6 +7063,8 @@ namespace ts {
         updateFunctionExpression(node: FunctionExpression, modifiers: readonly Modifier[] | undefined, asteriskToken: AsteriskToken | undefined, name: Identifier | undefined, typeParameters: readonly TypeParameterDeclaration[] | undefined, parameters: readonly ParameterDeclaration[], type: TypeNode | undefined, body: Block): FunctionExpression;
         createArrowFunction(modifiers: readonly Modifier[] | undefined, typeParameters: readonly TypeParameterDeclaration[] | undefined, parameters: readonly ParameterDeclaration[], type: TypeNode | undefined, equalsGreaterThanToken: EqualsGreaterThanToken | undefined, body: ConciseBody): ArrowFunction;
         updateArrowFunction(node: ArrowFunction, modifiers: readonly Modifier[] | undefined, typeParameters: readonly TypeParameterDeclaration[] | undefined, parameters: readonly ParameterDeclaration[], type: TypeNode | undefined, equalsGreaterThanToken: EqualsGreaterThanToken, body: ConciseBody): ArrowFunction;
+        createEtsComponentExpression(name: Identifier, argumentExpression: readonly Expression[] | undefined, body: Block | undefined): EtsComponentExpression;
+        updateEtsComponentExpression(node: EtsComponentExpression, name: Identifier | undefined, argumentExpression: readonly Expression[] | undefined, body: Block | undefined): EtsComponentExpression;
         createDeleteExpression(expression: Expression): DeleteExpression;
         updateDeleteExpression(node: DeleteExpression, expression: Expression): DeleteExpression;
         createTypeOfExpression(expression: Expression): TypeOfExpression;
@@ -7071,6 +7169,8 @@ namespace ts {
         updateFunctionDeclaration(node: FunctionDeclaration, decorators: readonly Decorator[] | undefined, modifiers: readonly Modifier[] | undefined, asteriskToken: AsteriskToken | undefined, name: Identifier | undefined, typeParameters: readonly TypeParameterDeclaration[] | undefined, parameters: readonly ParameterDeclaration[], type: TypeNode | undefined, body: Block | undefined): FunctionDeclaration;
         createClassDeclaration(decorators: readonly Decorator[] | undefined, modifiers: readonly Modifier[] | undefined, name: string | Identifier | undefined, typeParameters: readonly TypeParameterDeclaration[] | undefined, heritageClauses: readonly HeritageClause[] | undefined, members: readonly ClassElement[]): ClassDeclaration;
         updateClassDeclaration(node: ClassDeclaration, decorators: readonly Decorator[] | undefined, modifiers: readonly Modifier[] | undefined, name: Identifier | undefined, typeParameters: readonly TypeParameterDeclaration[] | undefined, heritageClauses: readonly HeritageClause[] | undefined, members: readonly ClassElement[]): ClassDeclaration;
+        createStructDeclaration(decorators: readonly Decorator[] | undefined, modifiers: readonly Modifier[] | undefined, name: string | Identifier | undefined, typeParameters: readonly TypeParameterDeclaration[] | undefined, heritageClauses: readonly HeritageClause[] | undefined, members: readonly ClassElement[]): StructDeclaration;
+        updateStructDeclaration(node: StructDeclaration, decorators: readonly Decorator[] | undefined, modifiers: readonly Modifier[] | undefined, name: Identifier | undefined, typeParameters: readonly TypeParameterDeclaration[] | undefined, heritageClauses: readonly HeritageClause[] | undefined, members: readonly ClassElement[]): StructDeclaration;
         createInterfaceDeclaration(decorators: readonly Decorator[] | undefined, modifiers: readonly Modifier[] | undefined, name: string | Identifier, typeParameters: readonly TypeParameterDeclaration[] | undefined, heritageClauses: readonly HeritageClause[] | undefined, members: readonly TypeElement[]): InterfaceDeclaration;
         updateInterfaceDeclaration(node: InterfaceDeclaration, decorators: readonly Decorator[] | undefined, modifiers: readonly Modifier[] | undefined, name: Identifier, typeParameters: readonly TypeParameterDeclaration[] | undefined, heritageClauses: readonly HeritageClause[] | undefined, members: readonly TypeElement[]): InterfaceDeclaration;
         createTypeAliasDeclaration(decorators: readonly Decorator[] | undefined, modifiers: readonly Modifier[] | undefined, name: string | Identifier, typeParameters: readonly TypeParameterDeclaration[] | undefined, type: TypeNode): TypeAliasDeclaration;

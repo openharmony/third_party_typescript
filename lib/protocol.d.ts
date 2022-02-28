@@ -1590,6 +1590,23 @@ declare namespace ts.server.protocol {
          */
         includeInsertTextCompletions?: boolean;
     }
+    interface EtsOptions {
+        render: {
+            method: string;
+            decorator: string;
+        };
+        components: string[];
+        libs: string[];
+        extend: {
+            decorator: string;
+            components: {
+                name: string;
+                type: string;
+                instance: string;
+            }[];
+        };
+        customComponent?: string;
+    }
     /**
      * Completions request; value of command field is "completions".
      * Given a file location (file, line, col) and a prefix (which may
@@ -2623,6 +2640,7 @@ declare namespace ts.server.protocol {
         types?: string[];
         /** Paths used to used to compute primary types search locations */
         typeRoots?: string[];
+        ets?: EtsOptions;
         [option: string]: CompilerOptionsValue | undefined;
     }
     const enum JsxEmit {
@@ -2739,6 +2757,8 @@ declare namespace ts.server.protocol {
         classElement = "class",
         /** var x = class X {} */
         localClassElement = "local class",
+        /** struct X {} */
+        structElement = "struct",
         /** interface Y {} */
         interfaceElement = "interface",
         /** type T = ... */
@@ -2809,7 +2829,7 @@ declare namespace ts.server.protocol {
         [option: string]: CompilerOptionsValue | undefined;
     }
 
-    export type CompilerOptionsValue = string | number | boolean | (string | number)[] | string[] | MapLike<string[]> | PluginImport[] | ProjectReference[] | null | undefined;
+    export type CompilerOptionsValue = string | number | boolean | (string | number)[] | string[] | MapLike<string[]> | PluginImport[] | ProjectReference[] | null | undefined | EtsOptions;
 
     export interface FileExtensionInfo {
         extension: string;

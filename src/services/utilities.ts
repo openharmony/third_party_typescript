@@ -57,6 +57,7 @@ namespace ts {
 
             case SyntaxKind.EnumMember:
             case SyntaxKind.ClassDeclaration:
+            case SyntaxKind.StructDeclaration:
                 return SemanticMeaning.Value | SemanticMeaning.Type;
 
             case SyntaxKind.ModuleDeclaration:
@@ -173,7 +174,7 @@ namespace ts {
 
         if (!isLastClause && root.parent.kind === SyntaxKind.ExpressionWithTypeArguments && root.parent.parent.kind === SyntaxKind.HeritageClause) {
             const decl = root.parent.parent.parent;
-            return (decl.kind === SyntaxKind.ClassDeclaration && (<HeritageClause>root.parent.parent).token === SyntaxKind.ImplementsKeyword) ||
+            return ((decl.kind === SyntaxKind.ClassDeclaration || decl.kind === SyntaxKind.StructDeclaration) && (<HeritageClause>root.parent.parent).token === SyntaxKind.ImplementsKeyword) ||
                 (decl.kind === SyntaxKind.InterfaceDeclaration && (<HeritageClause>root.parent.parent).token === SyntaxKind.ExtendsKeyword);
         }
 
@@ -360,6 +361,7 @@ namespace ts {
                 case SyntaxKind.GetAccessor:
                 case SyntaxKind.SetAccessor:
                 case SyntaxKind.ClassDeclaration:
+                case SyntaxKind.StructDeclaration:
                 case SyntaxKind.InterfaceDeclaration:
                 case SyntaxKind.EnumDeclaration:
                 case SyntaxKind.ModuleDeclaration:
@@ -377,6 +379,8 @@ namespace ts {
             case SyntaxKind.ClassDeclaration:
             case SyntaxKind.ClassExpression:
                 return ScriptElementKind.classElement;
+            case SyntaxKind.StructDeclaration:
+                return ScriptElementKind.structElement;
             case SyntaxKind.InterfaceDeclaration: return ScriptElementKind.interfaceElement;
             case SyntaxKind.TypeAliasDeclaration:
             case SyntaxKind.JSDocCallbackTag:
@@ -543,6 +547,7 @@ namespace ts {
 
         switch (n.kind) {
             case SyntaxKind.ClassDeclaration:
+            case SyntaxKind.StructDeclaration:
             case SyntaxKind.InterfaceDeclaration:
             case SyntaxKind.EnumDeclaration:
             case SyntaxKind.ObjectLiteralExpression:
@@ -740,11 +745,11 @@ namespace ts {
         return node.kind === SyntaxKind.FunctionKeyword;
     }
 
-    function getAdjustedLocationForClass(node: ClassDeclaration | ClassExpression) {
+    function getAdjustedLocationForClass(node: ClassDeclaration | ClassExpression | StructDeclaration) {
         if (isNamedDeclaration(node)) {
             return node.name;
         }
-        if (isClassDeclaration(node)) {
+        if (isClassDeclaration(node) || isStructDeclaration(node)) {
             // for class and function declarations, use the `default` modifier
             // when the declaration is unnamed.
             const defaultModifier = find(node.modifiers!, isDefaultModifier);
@@ -800,7 +805,8 @@ namespace ts {
             switch (node.kind) {
                 case SyntaxKind.ClassDeclaration:
                 case SyntaxKind.ClassExpression:
-                    return getAdjustedLocationForClass(node as ClassDeclaration | ClassExpression);
+                case SyntaxKind.StructDeclaration:
+                    return getAdjustedLocationForClass(node as ClassDeclaration | ClassExpression | StructDeclaration);
                 case SyntaxKind.FunctionDeclaration:
                 case SyntaxKind.FunctionExpression:
                     return getAdjustedLocationForFunction(node as FunctionDeclaration | FunctionExpression);
@@ -2946,6 +2952,15 @@ namespace ts {
         }
         // If the file is a module written in TypeScript, it still might be in a `declare global` augmentation
         return isInJSFile(declaration) || !findAncestor(declaration, isGlobalScopeAugmentation);
+    }
+
+    export function isVirtualConstructor(checker: TypeChecker, symbol: Symbol, node: Node): boolean {
+        const symbolName = checker.symbolToString(symbol); // Do not get scoped name, just the name of the symbol
+        const symbolKind = SymbolDisplay.getSymbolKind(checker, symbol, node);
+        if (node.virtual && symbolName === InternalSymbolName.Constructor && symbolKind === ScriptElementKind.constructorImplementationElement) {
+            return true;
+        }
+        return false;
     }
 
     // #endregion

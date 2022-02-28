@@ -39,7 +39,7 @@ namespace ts.formatting {
         const functionOpenBraceLeftTokenRange = anyTokenIncludingMultilineComments;
 
         // Place a space before open brace in a TypeScript declaration that has braces as children (class, module, enum, etc)
-        const typeScriptOpenBraceLeftTokenRange = tokenRangeFrom([SyntaxKind.Identifier, SyntaxKind.MultiLineCommentTrivia, SyntaxKind.ClassKeyword, SyntaxKind.ExportKeyword, SyntaxKind.ImportKeyword]);
+        const typeScriptOpenBraceLeftTokenRange = tokenRangeFrom([SyntaxKind.Identifier, SyntaxKind.MultiLineCommentTrivia, SyntaxKind.ClassKeyword, SyntaxKind.StructKeyword, SyntaxKind.ExportKeyword, SyntaxKind.ImportKeyword]);
 
         // Place a space before open brace in a control flow construct
         const controlOpenBraceLeftTokenRange = tokenRangeFrom([SyntaxKind.CloseParenToken, SyntaxKind.MultiLineCommentTrivia, SyntaxKind.DoKeyword, SyntaxKind.TryKeyword, SyntaxKind.FinallyKeyword, SyntaxKind.ElseKeyword]);
@@ -150,6 +150,7 @@ namespace ts.formatting {
                 [
                     SyntaxKind.AbstractKeyword,
                     SyntaxKind.ClassKeyword,
+                    SyntaxKind.StructKeyword,
                     SyntaxKind.DeclareKeyword,
                     SyntaxKind.DefaultKeyword,
                     SyntaxKind.EnumKeyword,
@@ -218,6 +219,7 @@ namespace ts.formatting {
                     SyntaxKind.ExportKeyword,
                     SyntaxKind.DefaultKeyword,
                     SyntaxKind.ClassKeyword,
+                    SyntaxKind.StructKeyword,
                     SyntaxKind.StaticKeyword,
                     SyntaxKind.PublicKeyword,
                     SyntaxKind.PrivateKeyword,
@@ -594,6 +596,7 @@ namespace ts.formatting {
     function nodeIsTypeScriptDeclWithBlockContext(node: Node): boolean {
         switch (node.kind) {
             case SyntaxKind.ClassDeclaration:
+            case SyntaxKind.StructDeclaration:
             case SyntaxKind.ClassExpression:
             case SyntaxKind.InterfaceDeclaration:
             case SyntaxKind.EnumDeclaration:
@@ -612,6 +615,7 @@ namespace ts.formatting {
     function isAfterCodeBlockContext(context: FormattingContext): boolean {
         switch (context.currentTokenParent.kind) {
             case SyntaxKind.ClassDeclaration:
+            case SyntaxKind.StructDeclaration:
             case SyntaxKind.ModuleDeclaration:
             case SyntaxKind.EnumDeclaration:
             case SyntaxKind.CatchClause:
@@ -764,6 +768,7 @@ namespace ts.formatting {
             case SyntaxKind.TypeAliasDeclaration:
             case SyntaxKind.ClassDeclaration:
             case SyntaxKind.ClassExpression:
+            case SyntaxKind.StructDeclaration:
             case SyntaxKind.InterfaceDeclaration:
             case SyntaxKind.FunctionDeclaration:
             case SyntaxKind.FunctionExpression:

@@ -1818,6 +1818,7 @@ namespace ts {
             switch (node.kind) {
                 case SyntaxKind.ClassExpression:
                 case SyntaxKind.ClassDeclaration:
+                case SyntaxKind.StructDeclaration:
                 case SyntaxKind.EnumDeclaration:
                 case SyntaxKind.ObjectLiteralExpression:
                 case SyntaxKind.TypeLiteral:
@@ -1916,6 +1917,7 @@ namespace ts {
 
                 case SyntaxKind.ClassExpression:
                 case SyntaxKind.ClassDeclaration:
+                case SyntaxKind.StructDeclaration:
                     return declareClassMember(node, symbolFlags, symbolExcludes);
 
                 case SyntaxKind.EnumDeclaration:
@@ -2699,6 +2701,7 @@ namespace ts {
                 // Members of classes, interfaces, and modules
                 case SyntaxKind.ClassExpression:
                 case SyntaxKind.ClassDeclaration:
+                case SyntaxKind.StructDeclaration:
                     // All classes are automatically in strict mode in ES6.
                     inStrictMode = true;
                     return bindClassLikeDeclaration(<ClassLikeDeclaration>node);
@@ -3260,7 +3263,7 @@ namespace ts {
         }
 
         function bindClassLikeDeclaration(node: ClassLikeDeclaration) {
-            if (node.kind === SyntaxKind.ClassDeclaration) {
+            if (node.kind === SyntaxKind.ClassDeclaration || node.kind === SyntaxKind.StructDeclaration) {
                 bindBlockScopedDeclaration(node, SymbolFlags.Class, SymbolFlags.ClassExcludes);
             }
             else {

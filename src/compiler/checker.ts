@@ -177,7 +177,8 @@ namespace ts {
         Inferential = 1 << 1,           // Inferential typing
         SkipContextSensitive = 1 << 2,  // Skip context sensitive function expressions
         SkipGenericFunctions = 1 << 3,  // Skip single signature generic functions
-        IsForSignatureHelp = 1 << 4,    // Call resolution for purposes of signature help
+        IsForSignatureHelp = 1 << 4,    // Call resolution for purposes of signature help,
+        SkipEtsComponentBody = 1 << 5, // Not check body for Completion,
     }
 
     const enum AccessFlags {
@@ -473,6 +474,10 @@ namespace ts {
                 const node = getParseTreeNode(nodeIn);
                 return node ? getTypeOfNode(node) : errorType;
             },
+            tryGetTypeAtLocationWithoutCheck: nodeIn => {
+                const node = getParseTreeNode(nodeIn);
+                return node ? tryGetTypeOfNodeWithoutCheck(node) : errorType;
+            },
             getTypeOfAssignmentPattern: nodeIn => {
                 const node = getParseTreeNode(nodeIn, isAssignmentPattern);
                 return node && getTypeOfAssignmentPattern(node) || errorType;
@@ -548,6 +553,8 @@ namespace ts {
             },
             isContextSensitive,
             getFullyQualifiedName,
+            tryGetResolvedSignatureWithoutCheck: (node, candidatesOutArray, argumentCount) =>
+                getResolvedSignatureWorker(node, candidatesOutArray, argumentCount, CheckMode.SkipEtsComponentBody),
             getResolvedSignature: (node, candidatesOutArray, argumentCount) =>
                 getResolvedSignatureWorker(node, candidatesOutArray, argumentCount, CheckMode.Normal),
             getResolvedSignatureForSignatureHelp: (node, candidatesOutArray, argumentCount) =>
@@ -1407,11 +1414,49 @@ namespace ts {
             return node.kind === SyntaxKind.SourceFile && !isExternalOrCommonJsModule(<SourceFile>node);
         }
 
-        function getSymbol(symbols: SymbolTable, name: __String, meaning: SymbolFlags): Symbol | undefined {
+        function isValidFromLibs(symbol: Symbol, node?: Node): boolean {
+            if (!node || !symbol.declarations || !symbol.declarations.length) {
+                return true;
+            }
+
+            const etsLibFilesNames = getEtsLibs(host);
+            const sourceFileName = getSourceFileOfNode(node).fileName.trim();
+            if (!sourceFileName) {
+                return true;
+            }
+
+            const fileName = sys.resolvePath(sourceFileName);
+            if (fileName.endsWith(".ets") || etsLibFilesNames.includes(fileName)) {
+                return true;
+            }
+
+            const declaration = symbol.declarations.filter(declaration => {
+                if (!getSourceFileOfNode(declaration).fileName) {
+                    return true;
+                }
+                const symbolFileName = sys.resolvePath(getSourceFileOfNode(declaration).fileName);
+                if (etsLibFilesNames.indexOf(symbolFileName) !== -1) {
+                    return false;
+                }
+                return true;
+            });
+
+            if (!declaration.length) {
+                return false;
+            }
+
+            return true;
+        }
+
+        function getSymbol(symbols: SymbolTable, name: __String, meaning: SymbolFlags, node?: Node): Symbol | undefined {
             if (meaning) {
                 const symbol = getMergedSymbol(symbols.get(name));
                 if (symbol) {
                     Debug.assert((getCheckFlags(symbol) & CheckFlags.Instantiated) === 0, "Should never get an instantiated symbol here.");
+                    if (!isValidFromLibs(symbol, node)) {
+                        return undefined;
+                    }
+
                     if (symbol.flags & meaning) {
                         return symbol;
                     }
@@ -2030,7 +2075,7 @@ namespace ts {
                 }
 
                 if (!excludeGlobals) {
-                    result = lookup(globals, name, meaning);
+                    result = lookup(globals, name, meaning, originalLocation);
                 }
             }
             if (!result) {
@@ -24742,12 +24787,13 @@ namespace ts {
                 case SyntaxKind.AwaitExpression:
                     return getContextualTypeForAwaitOperand(<AwaitExpression>parent, contextFlags);
                 case SyntaxKind.CallExpression:
-                    if ((<CallExpression>parent).expression.kind === SyntaxKind.ImportKeyword) {
+                case SyntaxKind.EtsComponentExpression:
+                    if ((<CallExpression | EtsComponentExpression>parent).expression.kind === SyntaxKind.ImportKeyword) {
                         return stringType;
                     }
                     /* falls through */
                 case SyntaxKind.NewExpression:
-                    return getContextualTypeForArgument(<CallExpression | NewExpression>parent, node);
+                    return getContextualTypeForArgument(<CallExpression | NewExpression | EtsComponentExpression>parent, node);
                 case SyntaxKind.TypeAssertionExpression:
                 case SyntaxKind.AsExpression:
                     return isConstTypeReference((<AssertionExpression>parent).type) ? tryFindWhenConstTypeReference(<AssertionExpression>parent) : getTypeFromTypeNode((<AssertionExpression>parent).type);
@@ -26179,8 +26225,8 @@ namespace ts {
             return !!forEachProperty(symbol, prop => !(prop.flags & SymbolFlags.Method));
         }
 
-        function checkNonNullExpression(node: Expression | QualifiedName) {
-            return checkNonNullType(checkExpression(node), node);
+        function checkNonNullExpression(node: Expression | QualifiedName, checkMode?: CheckMode) {
+            return checkNonNullType(checkExpression(node, checkMode), node);
         }
 
         function isNullableType(type: Type) {
@@ -26237,13 +26283,14 @@ namespace ts {
             return nonNullType;
         }
 
-        function checkPropertyAccessExpression(node: PropertyAccessExpression) {
-            return node.flags & NodeFlags.OptionalChain ? checkPropertyAccessChain(node as PropertyAccessChain) :
-                checkPropertyAccessExpressionOrQualifiedName(node, node.expression, checkNonNullExpression(node.expression), node.name);
+        function checkPropertyAccessExpression(node: PropertyAccessExpression, checkMode?: CheckMode) {
+            propertyAccessExpressionConditionCheck(node);
+            return node.flags & NodeFlags.OptionalChain ? checkPropertyAccessChain(node as PropertyAccessChain, checkMode) :
+                checkPropertyAccessExpressionOrQualifiedName(node, node.expression, checkNonNullExpression(node.expression, checkMode), node.name);
         }
 
-        function checkPropertyAccessChain(node: PropertyAccessChain) {
-            const leftType = checkExpression(node.expression);
+        function checkPropertyAccessChain(node: PropertyAccessChain, checkMode?: CheckMode) {
+            const leftType = checkExpression(node.expression, checkMode);
             const nonOptionalType = getOptionalExpressionType(leftType, node.expression);
             return propagateOptionalTypeMarker(checkPropertyAccessExpressionOrQualifiedName(node, node.expression, checkNonNullType(nonOptionalType, node.expression), node.name), node, nonOptionalType !== leftType);
         }
@@ -26376,6 +26423,28 @@ namespace ts {
                     return apparentType;
                 }
                 prop = getPropertyOfType(apparentType, right.escapedText);
+                if (!prop) {
+                    const etsComponentExpressionNode = getEtsComponentExpressionInnerCallExpressionNode(node)
+                        || getRootEtsComponentInnerCallExpressionNode(node);
+                    const locals = getSourceFileOfNode(node).locals;
+                    if (etsComponentExpressionNode && locals?.has(right.escapedText)) {
+                        const extraSymbol = locals?.get(right.escapedText);
+                        const etsComponentName = etsComponentExpressionNode.expression.kind === SyntaxKind.Identifier ? (<Identifier>etsComponentExpressionNode.expression).escapedText : undefined;
+                        if (getEtsExtendDecoratorComponentNames(extraSymbol?.valueDeclaration?.decorators, compilerOptions).find(extendComponentName => extendComponentName === etsComponentName)) {
+                            prop = extraSymbol;
+                        }
+                        if (hasEtsStylesDecoratorNames(extraSymbol?.valueDeclaration?.decorators, compilerOptions)) {
+                            prop = extraSymbol;
+                        }
+                    }
+                    const props = getContainingStruct(node)?.symbol.members;
+                    if (etsComponentExpressionNode && props?.has(right.escapedText)) {
+                        const stylesSymbol = props?.get(right.escapedText);
+                        if (hasEtsStylesDecoratorNames(stylesSymbol?.valueDeclaration?.decorators, compilerOptions)) {
+                            prop = stylesSymbol;
+                        }
+                    }
+                }
             }
             // In `Foo.Bar.Baz`, 'Foo' is not referenced if 'Bar' is a const enum or a module containing only const enums.
             // The exceptions are:
@@ -26658,9 +26727,9 @@ namespace ts {
 
         function getSuggestedSymbolForNonexistentSymbol(location: Node | undefined, outerName: __String, meaning: SymbolFlags): Symbol | undefined {
             Debug.assert(outerName !== undefined, "outername should always be defined");
-            const result = resolveNameHelper(location, outerName, meaning, /*nameNotFoundMessage*/ undefined, outerName, /*isUse*/ false, /*excludeGlobals*/ false, (symbols, name, meaning) => {
+            const result = resolveNameHelper(location, outerName, meaning, /*nameNotFoundMessage*/ undefined, outerName, /*isUse*/ false, /*excludeGlobals*/ false, (symbols, name, meaning, node) => {
                 Debug.assertEqual(outerName, name, "name should equal outerName");
-                const symbol = getSymbol(symbols, name, meaning);
+                const symbol = getSymbol(symbols, name, meaning, node);
                 // Sometimes the symbol is found when location is a return type of a function: `typeof x` and `x` is declared in the body of the function
                 // So the table *contains* `x` but `x` isn't actually in scope.
                 // However, resolveNameHelper will continue and call this callback again, so we'll eventually get a correct suggestion.
@@ -27108,11 +27177,11 @@ namespace ts {
             return true;
         }
 
-        function hasCorrectTypeArgumentArity(signature: Signature, typeArguments: NodeArray<TypeNode> | undefined) {
+        function hasCorrectTypeArgumentArity(signature: Signature, typeArguments: NodeArray<TypeNode> | undefined, virtual?: boolean) {
             // If the user supplied type arguments, but the number of type arguments does not match
             // the declared number of type parameters, the call has an incorrect arity.
-            const numTypeParameters = length(signature.typeParameters);
-            const minTypeArgumentCount = getMinTypeArgumentCount(signature.typeParameters);
+            const numTypeParameters = virtual ? 1 : length(signature.typeParameters);
+            const minTypeArgumentCount = virtual ? 1 : getMinTypeArgumentCount(signature.typeParameters);
             return !some(typeArguments) ||
                 (typeArguments.length >= minTypeArgumentCount && typeArguments.length <= numTypeParameters);
         }
@@ -27606,6 +27675,7 @@ namespace ts {
             switch (parent.kind) {
                 case SyntaxKind.ClassDeclaration:
                 case SyntaxKind.ClassExpression:
+                case SyntaxKind.StructDeclaration:
                     // For a class decorator, the `target` is the type of the class (e.g. the
                     // "static" or "constructor" side of the class).
                     return [
@@ -27633,6 +27703,16 @@ namespace ts {
                         createSyntheticExpression(expr, getClassElementPropertyKeyType(<ClassElement>parent)),
                         createSyntheticExpression(expr, hasPropDesc ? createTypedPropertyDescriptorType(getTypeOfNode(parent)) : anyType)
                     ];
+                case SyntaxKind.FunctionDeclaration:
+                    if (isEtsFunctionDecorators(getNameOfDecorator(node), compilerOptions)) {
+                        const symbol = getSymbolOfNode(expr);
+                        return symbol
+                            ? [
+                                createSyntheticExpression(expr, getTypeOfSymbol(symbol))
+                            ]
+                            : [];
+                    }
+                    return Debug.fail();
             }
             return Debug.fail();
         }
@@ -27644,6 +27724,7 @@ namespace ts {
             switch (node.parent.kind) {
                 case SyntaxKind.ClassDeclaration:
                 case SyntaxKind.ClassExpression:
+                case SyntaxKind.StructDeclaration:
                     return 1;
                 case SyntaxKind.PropertyDeclaration:
                     return 2;
@@ -27654,6 +27735,11 @@ namespace ts {
                     return languageVersion === ScriptTarget.ES3 || signature.parameters.length <= 2 ? 2 : 3;
                 case SyntaxKind.Parameter:
                     return 3;
+                case SyntaxKind.FunctionDeclaration:
+                    if (isEtsFunctionDecorators(getNameOfDecorator(node), compilerOptions)) {
+                        return isCallExpression(node.expression) ? 1 : 0;
+                    }
+                    return Debug.fail();
                 default:
                     return Debug.fail();
             }
@@ -27817,16 +27903,23 @@ namespace ts {
             const isTaggedTemplate = node.kind === SyntaxKind.TaggedTemplateExpression;
             const isDecorator = node.kind === SyntaxKind.Decorator;
             const isJsxOpeningOrSelfClosingElement = isJsxOpeningLikeElement(node);
+            const isEtsComponentExpression = node.kind === SyntaxKind.EtsComponentExpression;
             const reportErrors = !candidatesOutArray && produceDiagnostics;
 
             let typeArguments: NodeArray<TypeNode> | undefined;
+            let virtual: boolean | undefined;
 
             if (!isDecorator) {
                 typeArguments = (<CallExpression>node).typeArguments;
+                virtual = typeArguments?.some(typeArgument => typeArgument.virtual);
 
                 // We already perform checking on the type arguments on the class declaration itself.
                 if (isTaggedTemplate || isJsxOpeningOrSelfClosingElement || (<CallExpression>node).expression.kind !== SyntaxKind.SuperKeyword) {
                     forEach(typeArguments, checkSourceElement);
+                }
+
+                if (isEtsComponentExpression && checkMode !== CheckMode.SkipEtsComponentBody) {
+                    checkSourceElement((<EtsComponentExpression>node).body);
                 }
             }
 
@@ -27985,7 +28078,7 @@ namespace ts {
                     checkTypeArguments(candidateForTypeArgumentError, (node as CallExpression | TaggedTemplateExpression | JsxOpeningLikeElement).typeArguments!, /*reportErrors*/ true, fallbackError);
                 }
                 else {
-                    const signaturesWithCorrectTypeArgumentArity = filter(signatures, s => hasCorrectTypeArgumentArity(s, typeArguments));
+                    const signaturesWithCorrectTypeArgumentArity = filter(signatures, s => hasCorrectTypeArgumentArity(s, typeArguments, virtual));
                     if (signaturesWithCorrectTypeArgumentArity.length === 0) {
                         diagnostics.add(getTypeArgumentArityError(node, signatures, typeArguments!));
                     }
@@ -28028,7 +28121,7 @@ namespace ts {
 
                 if (isSingleNonGenericCandidate) {
                     const candidate = candidates[0];
-                    if (some(typeArguments) || !hasCorrectArity(node, args, candidate, signatureHelpTrailingComma)) {
+                    if ((some(typeArguments) && !virtual) || !hasCorrectArity(node, args, candidate, signatureHelpTrailingComma)) {
                         return undefined;
                     }
                     if (getSignatureApplicabilityError(node, args, candidate, relation, CheckMode.Normal, /*reportErrors*/ false, /*containingMessageChain*/ undefined)) {
@@ -28231,7 +28324,7 @@ namespace ts {
             return maxParamsIndex;
         }
 
-        function resolveCallExpression(node: CallExpression, candidatesOutArray: Signature[] | undefined, checkMode: CheckMode): Signature {
+        function resolveCallExpression(node: CallExpression | EtsComponentExpression, candidatesOutArray: Signature[] | undefined, checkMode: CheckMode): Signature {
             if (node.expression.kind === SyntaxKind.SuperKeyword) {
                 const superType = checkSuperExpression(node.expression);
                 if (isTypeAny(superType)) {
@@ -28253,7 +28346,11 @@ namespace ts {
             }
 
             let callChainFlags: SignatureFlags;
-            let funcType = checkExpression(node.expression);
+            let checkExpressionCheckMode: CheckMode | undefined = checkMode;
+            if (checkMode !== CheckMode.SkipEtsComponentBody) {
+                checkExpressionCheckMode = undefined;
+            }
+            let funcType = checkExpression(node.expression, checkExpressionCheckMode);
             if (isCallChain(node)) {
                 const nonOptionalType = getOptionalExpressionType(funcType, node.expression);
                 callChainFlags = nonOptionalType === funcType ? SignatureFlags.None :
@@ -28286,7 +28383,8 @@ namespace ts {
             // Function interface, since they have none by default. This is a bit of a leap of faith
             // that the user will not add any.
             const callSignatures = getSignaturesOfType(apparentType, SignatureKind.Call);
-            const numConstructSignatures = getSignaturesOfType(apparentType, SignatureKind.Construct).length;
+            const constructSignatures = getSignaturesOfType(apparentType, SignatureKind.Construct);
+            const numConstructSignatures = constructSignatures.length;
 
             // TS 1.0 Spec: 4.12
             // In an untyped function call no TypeArgs are permitted, Args can be any argument list, no contextual
@@ -28302,9 +28400,15 @@ namespace ts {
             // If FuncExpr's apparent type(section 3.8.1) is a function type, the call is a typed function call.
             // TypeScript employs overload resolution in typed function calls in order to support functions
             // with multiple call signatures.
+            const isStructDeclaration = isCalledStructDeclaration(apparentType.symbol?.declarations);
             if (!callSignatures.length) {
                 if (numConstructSignatures) {
-                    error(node, Diagnostics.Value_of_type_0_is_not_callable_Did_you_mean_to_include_new, typeToString(funcType));
+                    if (!isStructDeclaration) {
+                        error(node, Diagnostics.Value_of_type_0_is_not_callable_Did_you_mean_to_include_new, typeToString(funcType));
+                    }
+                    else {
+                        return resolveCall(node, constructSignatures, candidatesOutArray, checkMode, SignatureFlags.None);
+                    }
                 }
                 else {
                     let relatedInformation: DiagnosticRelatedInformation | undefined;
@@ -28663,6 +28767,7 @@ namespace ts {
             switch (node.parent.kind) {
                 case SyntaxKind.ClassDeclaration:
                 case SyntaxKind.ClassExpression:
+                case SyntaxKind.StructDeclaration:
                     return Diagnostics.Unable_to_resolve_signature_of_class_decorator_when_called_as_an_expression;
 
                 case SyntaxKind.Parameter:
@@ -28675,6 +28780,13 @@ namespace ts {
                 case SyntaxKind.GetAccessor:
                 case SyntaxKind.SetAccessor:
                     return Diagnostics.Unable_to_resolve_signature_of_method_decorator_when_called_as_an_expression;
+
+                case SyntaxKind.FunctionDeclaration:
+                    const decoratorName = getNameOfDecorator(node);
+                    if (isEtsFunctionDecorators(decoratorName, compilerOptions)) {
+                        return Diagnostics.Unable_to_resolve_signature_of_function_decorator_when_decorators_are_not_valid;
+                    }
+                    return Debug.fail();
 
                 default:
                     return Debug.fail();
@@ -28790,6 +28902,7 @@ namespace ts {
         function resolveSignature(node: CallLikeExpression, candidatesOutArray: Signature[] | undefined, checkMode: CheckMode): Signature {
             switch (node.kind) {
                 case SyntaxKind.CallExpression:
+                case SyntaxKind.EtsComponentExpression:
                     return resolveCallExpression(node, candidatesOutArray, checkMode);
                 case SyntaxKind.NewExpression:
                     return resolveNewExpression(node, candidatesOutArray, checkMode);
@@ -28950,7 +29063,7 @@ namespace ts {
          * @param node The call/new expression to be checked.
          * @returns On success, the expression's signature's return type. On failure, anyType.
          */
-        function checkCallExpression(node: CallExpression | NewExpression, checkMode?: CheckMode): Type {
+        function checkCallExpression(node: CallExpression | NewExpression | EtsComponentExpression, checkMode?: CheckMode): Type {
             if (!checkGrammarTypeArguments(node, node.typeArguments)) checkGrammarArguments(node.arguments);
 
             const signature = getResolvedSignature(node, /*candidatesOutArray*/ undefined, checkMode);
@@ -29016,6 +29129,115 @@ namespace ts {
             }
 
             return returnType;
+        }
+
+        function propertyAccessExpressionConditionCheck(node: PropertyAccessExpression) {
+            if (!host.getTagNameNeededCheckByFile) {
+                return;
+            }
+            const sourceFile = getSourceFileOfNode(node);
+            const checkParam = host.getTagNameNeededCheckByFile(sourceFile.fileName);
+            if (!checkParam.needCheck) {
+                return;
+            }
+
+            const uninstantiatedType = node.flags & NodeFlags.OptionalChain ? checkPropertyAccessChain(node as PropertyAccessChain) :
+                checkPropertyAccessExpressionOrQualifiedName(node, node.expression, checkNonNullExpression(node.expression), node.name);
+            const type = instantiateTypeWithSingleGenericCallSignature(node, uninstantiatedType);
+            const sourceSymbol = type.symbol;
+            if (!sourceSymbol) {
+                return;
+            }
+
+           if (sourceSymbol.declarations && sourceSymbol.declarations.length > 0) {
+                const jsDoc = (sourceSymbol.declarations[0] as any).jsDoc;
+                if (jsDoc) {
+                    expressionCheckByJsDoc(jsDoc, node, sourceFile, checkParam.checkConfig);
+                }
+            }
+        }
+
+        function conditionCheck(node: PropertyAccessExpression, jsDoc: JSDoc[], sourceFile: SourceFile, checkConfig: TagCheckConfig) {
+            const specifyJsDocTagValue = getSpecifyJsDocTagValue(jsDoc, checkConfig.tagName);
+            const hasIfChecked = hasConditionChecked(node, specifyJsDocTagValue, checkConfig.specifyCheckConditionFuncName);
+            if (!hasIfChecked && host.getExpressionCheckedResultsByFile) {
+                const conditionCheckResult = host.getExpressionCheckedResultsByFile(sourceFile.fileName, jsDoc);
+                if (conditionCheckResult.valid) {
+                    return;
+                }
+                const diagnostic = createDiagnosticForNodeInSourceFile(sourceFile, node, Diagnostics.The_statement_must_be_written_use_the_function_0_under_the_if_condition, checkConfig.specifyCheckConditionFuncName);
+                diagnostic.messageText = checkConfig.message;
+                suggestionDiagnostics.add(diagnostic);
+            }
+        }
+
+        function expressionCheckByJsDoc(jsDoc: JSDoc[], node: PropertyAccessExpression, sourceFile: SourceFile, checkConfig: TagCheckConfig[]): void {
+            jsDoc.forEach(item => {
+                if (item.tags) {
+                    item.tags.forEach(tag => {
+                        checkConfig.forEach(config => {
+                            if (config.needConditionCheck && tag.tagName.escapedText.toString() === config.tagName) {
+                                conditionCheck(node, jsDoc, sourceFile, config);
+                            }
+                            else if (tag.tagName.escapedText.toString() === config.tagName) {
+                                const diagnostic = createDiagnosticForNodeInSourceFile(sourceFile, node, Diagnostics.This_API_has_been_Special_Markings_exercise_caution_when_using_this_API);
+                                diagnostic.messageText = config.message;
+                                suggestionDiagnostics.add(diagnostic);
+                            }
+                        });
+                    });
+                }
+            });
+        }
+
+        function getSpecifyJsDocTagValue(jsDoc: JSDoc[], specifyTag: string): string {
+            let specifyJsDocTagValue = "";
+            jsDoc.forEach(item => {
+                if (item.tags) {
+                    item.tags.forEach(tag => {
+                        if (tag.tagName.escapedText.toString() === specifyTag) {
+                            specifyJsDocTagValue = tag.comment ? tag.comment : "";
+                        }
+                    });
+                }
+            });
+            return specifyJsDocTagValue;
+        }
+
+        function hasConditionChecked(expression: PropertyAccessExpression, importSymbol: string, funcSpecify: string): boolean {
+            const container = getControlFlowContainer(expression);
+            const result = {
+                hasIfChecked: false
+            };
+            traversalNode(expression, importSymbol, container, result, funcSpecify);
+            return result.hasIfChecked;
+        }
+
+        function traversalNode(node: Node, importSymbol: string, parent: Node, result: { hasIfChecked: boolean }, specifyFuncName: string) {
+            if (result.hasIfChecked) {
+                return result;
+            }
+
+            if (node.parent !== parent) {
+                if (isIfStatement(node.parent) &&
+                    isCallExpression(node.parent.expression) &&
+                    isIdentifier(node.parent.expression.expression) &&
+                    node.parent.expression.arguments.length === 1 &&
+                    node.parent.expression.expression.escapedText.toString() === specifyFuncName) {
+                    const expression = node.parent.expression.arguments[0];
+                    if (isStringLiteral(expression) && expression.text.toString() === importSymbol) {
+                        result.hasIfChecked = true;
+                        return;
+                    }
+                    else {
+                        traversalNode(node.parent, importSymbol, parent, result, specifyFuncName);
+                    }
+                }
+                traversalNode(node.parent, importSymbol, parent, result, specifyFuncName);
+            }
+            else {
+                return result;
+            }
         }
 
         function checkDeprecatedSignature(signature: Signature, node: CallLikeExpression) {
@@ -29899,6 +30121,37 @@ namespace ts {
                 return;
             }
 
+            if ((func.kind === SyntaxKind.FunctionDeclaration) && func.decorators && (returnType !== undefined)) {
+                const extendNames = getEtsExtendDecoratorComponentNames(func.decorators, compilerOptions);
+                if (extendNames.length !== 0) {
+                    let returnTypeReferenceName;
+                    compilerOptions.ets?.extend.components.forEach(({ name, type }) => {
+                        if (name === last(extendNames)) {
+                            returnTypeReferenceName = type;
+                        }
+                    });
+                    if (returnType?.symbol?.escapedName === returnTypeReferenceName) {
+                        return;
+                    }
+                    else {
+                        error(getEffectiveReturnTypeNode(func), Diagnostics.Should_not_add_return_type_to_the_function_that_is_annotated_by_Extend);
+                        return;
+                    }
+                }
+
+                const stylesNames = getEtsStylesDecoratorComponentNames(func.decorators, compilerOptions);
+                if (stylesNames.length > 0) {
+                    const returnTypeReferenceName = compilerOptions.ets?.styles.component.type;
+                    if (returnType?.symbol?.escapedName === returnTypeReferenceName) {
+                        return;
+                    }
+                    else {
+                        error(getEffectiveReturnTypeNode(func), Diagnostics.Should_not_add_return_type_to_the_function_that_is_annotated_by_Styles);
+                        return;
+                    }
+                }
+            }
+
             // If all we have is a function signature, or an arrow function with an expression body, then there is nothing to check.
             // also if HasImplicitReturn flag is not set this means that all codepaths in function body end with return or throw
             if (func.kind === SyntaxKind.MethodSignature || nodeIsMissing(func.body) || func.body!.kind !== SyntaxKind.Block || !functionHasImplicitReturn(func)) {
@@ -29910,7 +30163,7 @@ namespace ts {
             if (type && type.flags & TypeFlags.Never) {
                 error(getEffectiveReturnTypeNode(func), Diagnostics.A_function_returning_never_cannot_have_a_reachable_end_point);
             }
-            else if (type && !hasExplicitReturn) {
+            else if (type && !hasExplicitReturn && !hasEtsStylesDecoratorNames(func.decorators, compilerOptions)) {
                 // minimal check: function has syntactic return type annotation and no explicit return statements in the body
                 // this function does not conform to the specification.
                 // NOTE: having returnType !== undefined is a precondition for entering this branch so func.type will always be present
@@ -31618,7 +31871,7 @@ namespace ts {
          * Returns the type of an expression. Unlike checkExpression, this function is simply concerned
          * with computing the type and may not fully check all contained sub-expressions for errors.
          */
-        function getTypeOfExpression(node: Expression) {
+        function getTypeOfExpression(node: Expression, checkMode?: CheckMode) {
             // Don't bother caching types that require no flow analysis and are quick to compute.
             const quickType = getQuickTypeOfExpression(node);
             if (quickType) {
@@ -31632,7 +31885,7 @@ namespace ts {
                 }
             }
             const startInvocationCount = flowInvocationCount;
-            const type = checkExpression(node);
+            const type = checkExpression(node, checkMode);
             // If control flow analysis was required to determine the type, it is worth caching.
             if (flowInvocationCount !== startInvocationCount) {
                 const cache = flowTypeCache || (flowTypeCache = []);
@@ -31648,7 +31901,14 @@ namespace ts {
             // signature where we can just fetch the return type without checking the arguments.
             if (isCallExpression(expr) && expr.expression.kind !== SyntaxKind.SuperKeyword && !isRequireCall(expr, /*checkArgumentIsStringLiteralLike*/ true) && !isSymbolOrSymbolForCall(expr)) {
                 const type = isCallChain(expr) ? getReturnTypeOfSingleNonGenericSignatureOfCallChain(expr) :
-                    getReturnTypeOfSingleNonGenericCallSignature(checkNonNullExpression(expr.expression));
+                    getReturnTypeOfSingleNonGenericCallSignature(checkNonNullExpression(expr.expression, CheckMode.SkipEtsComponentBody));
+                if (type) {
+                    return type;
+                }
+            }
+            else if (isEtsComponentExpression(expr) && expr.expression.kind !== SyntaxKind.SuperKeyword && !isRequireCall(expr, /*checkArgumentIsStringLiteralLike*/ true) && !isSymbolOrSymbolForCall(expr)) {
+                const type = isCallChain(expr) ? getReturnTypeOfSingleNonGenericSignatureOfCallChain(expr) :
+                    getReturnTypeOfSingleNonGenericCallSignature(checkNonNullExpression(expr.expression, CheckMode.SkipEtsComponentBody));
                 if (type) {
                     return type;
                 }
@@ -31780,7 +32040,7 @@ namespace ts {
                 case SyntaxKind.ObjectLiteralExpression:
                     return checkObjectLiteral(<ObjectLiteralExpression>node, checkMode);
                 case SyntaxKind.PropertyAccessExpression:
-                    return checkPropertyAccessExpression(<PropertyAccessExpression>node);
+                    return checkPropertyAccessExpression(<PropertyAccessExpression>node, checkMode);
                 case SyntaxKind.QualifiedName:
                     return checkQualifiedName(<QualifiedName>node);
                 case SyntaxKind.ElementAccessExpression:
@@ -31792,6 +32052,14 @@ namespace ts {
                     // falls through
                 case SyntaxKind.NewExpression:
                     return checkCallExpression(<CallExpression>node, checkMode);
+                case SyntaxKind.EtsComponentExpression:
+                    const newNode = <EtsComponentExpression>node;
+                    if (newNode.body && newNode.body.statements.length) {
+                        newNode.body.statements.forEach((item) => {
+                            checkExpressionWorker((<ExpressionStatement>item).expression, checkMode);
+                        });
+                    }
+                    return checkCallExpression(<EtsComponentExpression>node, checkMode);
                 case SyntaxKind.TaggedTemplateExpression:
                     return checkTaggedTemplateExpression(<TaggedTemplateExpression>node);
                 case SyntaxKind.ParenthesizedExpression:
@@ -32306,6 +32574,11 @@ namespace ts {
         }
 
         function checkConstructorDeclaration(node: ConstructorDeclaration) {
+            // If constructor is virtual node, skip it
+            if (node.virtual) {
+                return;
+            }
+
             // Grammar check on signature of constructor and modifier of the constructor is done in checkSignatureDeclaration function.
             checkSignatureDeclaration(node);
             // Grammar check for checking only related to constructorDeclaration
@@ -33046,6 +33319,7 @@ namespace ts {
                             ? DeclarationSpaces.ExportNamespace | DeclarationSpaces.ExportValue
                             : DeclarationSpaces.ExportNamespace;
                     case SyntaxKind.ClassDeclaration:
+                    case SyntaxKind.StructDeclaration:
                     case SyntaxKind.EnumDeclaration:
                     case SyntaxKind.EnumMember:
                         return DeclarationSpaces.ExportType | DeclarationSpaces.ExportValue;
@@ -33398,6 +33672,7 @@ namespace ts {
             let errorInfo: DiagnosticMessageChain | undefined;
             switch (node.parent.kind) {
                 case SyntaxKind.ClassDeclaration:
+                case SyntaxKind.StructDeclaration:
                     const classSymbol = getSymbolOfNode(node.parent);
                     const classConstructorType = getTypeOfSymbol(classSymbol);
                     expectedReturnType = getUnionType([classConstructorType, voidType]);
@@ -33820,6 +34095,7 @@ namespace ts {
                 switch (node.kind) {
                     case SyntaxKind.ClassDeclaration:
                     case SyntaxKind.ClassExpression:
+                    case SyntaxKind.StructDeclaration:
                         checkUnusedClassMembers(node, addDiagnostic);
                         checkUnusedTypeParameters(node, addDiagnostic);
                         break;
@@ -33872,7 +34148,7 @@ namespace ts {
             return isIdentifier(node) && idText(node).charCodeAt(0) === CharacterCodes._;
         }
 
-        function checkUnusedClassMembers(node: ClassDeclaration | ClassExpression, addDiagnostic: AddUnusedDiagnostic): void {
+        function checkUnusedClassMembers(node: ClassDeclaration | ClassExpression | StructDeclaration, addDiagnostic: AddUnusedDiagnostic): void {
             for (const member of node.members) {
                 switch (member.kind) {
                     case SyntaxKind.MethodDeclaration:
@@ -35990,6 +36266,26 @@ namespace ts {
             registerForUnusedIdentifiersCheck(node);
         }
 
+        function checkStructDeclaration(node: StructDeclaration) {
+            if (!node.name && !hasSyntacticModifier(node, ModifierFlags.Default)) {
+                grammarErrorOnFirstToken(node, Diagnostics.A_struct_declaration_without_the_default_modifier_must_have_a_name);
+            }
+            checkClassLikeDeclaration(node);
+            checkStructName(node);
+            forEach(node.members, checkSourceElement);
+
+            registerForUnusedIdentifiersCheck(node);
+        }
+
+        function checkStructName(node: StructDeclaration) {
+            if (host.getCompilerOptions().ets && node.name && isIdentifier(node.name)) {
+                const arrReservedComponents = host.getCompilerOptions().ets?.components;
+                if (arrReservedComponents!.includes(node.name.escapedText.toString())) {
+                    error(node.name, Diagnostics.The_struct_name_cannot_contain_reserved_tag_name_Colon_0, node.name.escapedText.toString());
+                }
+            }
+        }
+
         function checkClassLikeDeclaration(node: ClassLikeDeclaration) {
             checkGrammarClassLikeDeclaration(node);
             checkDecorators(node);
@@ -37466,6 +37762,8 @@ namespace ts {
                     return checkBindingElement(<BindingElement>node);
                 case SyntaxKind.ClassDeclaration:
                     return checkClassDeclaration(<ClassDeclaration>node);
+                case SyntaxKind.StructDeclaration:
+                    return checkStructDeclaration(<StructDeclaration>node);
                 case SyntaxKind.InterfaceDeclaration:
                     return checkInterfaceDeclaration(<InterfaceDeclaration>node);
                 case SyntaxKind.TypeAliasDeclaration:
@@ -38327,6 +38625,30 @@ namespace ts {
             return errorType;
         }
 
+        function tryGetTypeOfNodeWithoutCheck(node: Node): Type {
+            if (isSourceFile(node) && !isExternalModule(node)) {
+                return errorType;
+            }
+
+            if (node.flags & NodeFlags.InWithStatement) {
+                // We cannot answer semantic questions within a with block, do not proceed any further
+                return errorType;
+            }
+
+            const classDecl = tryGetClassImplementingOrExtendingExpressionWithTypeArguments(node);
+            const classType = classDecl && getDeclaredTypeOfClassOrInterface(getSymbolOfNode(classDecl.class));
+            if (isPartOfTypeNode(node)) {
+                const typeFromTypeNode = getTypeFromTypeNode(<TypeNode>node);
+                return classType ? getTypeWithThisArgument(typeFromTypeNode, classType.thisType) : typeFromTypeNode;
+            }
+
+            if (isExpressionNode(node)) {
+                return getRegularTypeOfExpression(<Expression>node, CheckMode.SkipEtsComponentBody);
+            }
+
+            return getTypeOfNode(node);
+        }
+
         // Gets the type of object literal or array literal of destructuring assignment.
         // { a } from
         //     for ( { a } of elems) {
@@ -38376,11 +38698,11 @@ namespace ts {
             return typeOfObjectLiteral && getPropertyOfType(typeOfObjectLiteral, location.escapedText);
         }
 
-        function getRegularTypeOfExpression(expr: Expression): Type {
+        function getRegularTypeOfExpression(expr: Expression, checkMode?: CheckMode): Type {
             if (isRightSideOfQualifiedNameOrPropertyAccess(expr)) {
                 expr = <Expression>expr.parent;
             }
-            return getRegularTypeOfLiteralType(getTypeOfExpression(expr));
+            return getRegularTypeOfLiteralType(getTypeOfExpression(expr, checkMode));
         }
 
         /**
@@ -39444,6 +39766,27 @@ namespace ts {
             if (!node.decorators) {
                 return false;
             }
+
+            if (getSourceFileOfNode(node).scriptKind === ScriptKind.ETS) {
+                if (isTokenInsideBuilder(node.decorators, compilerOptions)) {
+                    return false;
+                }
+                const etsComponentDecoratorNames = getEtsExtendDecoratorComponentNames(node.decorators, compilerOptions);
+                if (etsComponentDecoratorNames.length) {
+                    const filtedEtsComponentNames = filterEtsExtendDecoratorComponentNamesByOptions(etsComponentDecoratorNames, compilerOptions);
+                    if (filtedEtsComponentNames.length) {
+                        return false;
+                    }
+                    const sourceFile = getSourceFileOfNode(node);
+                    const span = getSpanOfTokenAtPosition(sourceFile, node.pos);
+                    diagnostics.add(createFileDiagnostic(sourceFile, span.start, span.length, Diagnostics.Decorator_name_must_be_one_of_ETS_Components));
+                    return true;
+                }
+                if (hasEtsStylesDecoratorNames(node.decorators, compilerOptions)) {
+                    return true;
+                }
+            }
+
             if (!nodeCanBeDecorated(node, node.parent, node.parent.parent)) {
                 if (node.kind === SyntaxKind.MethodDeclaration && !nodeIsPresent((<MethodDeclaration>node).body)) {
                     return grammarErrorOnFirstToken(node, Diagnostics.A_decorator_can_only_decorate_a_method_implementation_not_an_overload);

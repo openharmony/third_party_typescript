@@ -564,6 +564,7 @@ namespace ts.FindAllReferences {
             case SyntaxKind.BindingElement:
             case SyntaxKind.ClassDeclaration:
             case SyntaxKind.ClassExpression:
+            case SyntaxKind.StructDeclaration:
             case SyntaxKind.DefaultKeyword:
             case SyntaxKind.EnumDeclaration:
             case SyntaxKind.EnumMember:
@@ -1963,6 +1964,7 @@ namespace ts.FindAllReferences {
                             return isObjectLiteralMethod(searchSpaceNode) && searchSpaceNode.symbol === container.symbol;
                         case SyntaxKind.ClassExpression:
                         case SyntaxKind.ClassDeclaration:
+                        case SyntaxKind.StructDeclaration:
                             // Make sure the container belongs to the same class
                             // and has the appropriate static modifier from the original container.
                             return container.parent && searchSpaceNode.symbol === container.parent.symbol && (getSyntacticModifierFlags(container) & ModifierFlags.Static) === staticFlag;

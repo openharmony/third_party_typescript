@@ -314,6 +314,8 @@ namespace ts {
         getPackageJsonAutoImportProvider?(): Program | undefined;
         /* @internal */
         sendPerformanceEvent?(kind: PerformanceEvent["kind"], durationMs: number): void;
+        getTagNameNeededCheckByFile?(filePath: string): TagCheckParam;
+        getExpressionCheckedResultsByFile?(filePath: string, jsDocs: JSDoc[]): ConditionCheckResult;
     }
 
     /* @internal */
@@ -1154,6 +1156,8 @@ namespace ts {
         isRecommended?: true;
         isFromUncheckedFile?: true;
         isPackageJsonImport?: true;
+        jsDoc?: JSDocTagInfo[];
+        displayParts?: SymbolDisplayPart[];
     }
 
     export interface CompletionEntryDetails {
@@ -1286,6 +1290,9 @@ namespace ts {
         /** var x = class X {} */
         localClassElement = "local class",
 
+        /** struct X {} */
+        structElement = "struct",
+
         /** interface Y {} */
         interfaceElement = "interface",
 
@@ -1386,6 +1393,7 @@ namespace ts {
         jsModifier = ".js",
         jsxModifier = ".jsx",
         jsonModifier = ".json",
+        etsModifier = ".ets",
     }
 
     export const enum ClassificationTypeNames {

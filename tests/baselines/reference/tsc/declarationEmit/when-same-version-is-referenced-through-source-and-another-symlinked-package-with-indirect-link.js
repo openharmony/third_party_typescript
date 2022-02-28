@@ -97,6 +97,7 @@ Found 'package.json' at '/user/username/projects/myproject/plugin-one/node_modul
 File '/user/username/projects/myproject/plugin-one/node_modules/plugin-two.ts' does not exist.
 File '/user/username/projects/myproject/plugin-one/node_modules/plugin-two.tsx' does not exist.
 File '/user/username/projects/myproject/plugin-one/node_modules/plugin-two.d.ts' does not exist.
+File '/user/username/projects/myproject/plugin-one/node_modules/plugin-two.ets' does not exist.
 'package.json' does not have a 'typings' field.
 'package.json' does not have a 'types' field.
 'package.json' has 'main' field 'dist/commonjs/index.js' that references '/user/username/projects/myproject/plugin-one/node_modules/plugin-two/dist/commonjs/index.js'.
@@ -105,6 +106,7 @@ Loading module as file / folder, candidate module location '/user/username/proje
 File '/user/username/projects/myproject/plugin-one/node_modules/plugin-two/dist/commonjs/index.js.ts' does not exist.
 File '/user/username/projects/myproject/plugin-one/node_modules/plugin-two/dist/commonjs/index.js.tsx' does not exist.
 File '/user/username/projects/myproject/plugin-one/node_modules/plugin-two/dist/commonjs/index.js.d.ts' does not exist.
+File '/user/username/projects/myproject/plugin-one/node_modules/plugin-two/dist/commonjs/index.js.ets' does not exist.
 File name '/user/username/projects/myproject/plugin-one/node_modules/plugin-two/dist/commonjs/index.js' has a '.js' extension - stripping it.
 File '/user/username/projects/myproject/plugin-one/node_modules/plugin-two/dist/commonjs/index.ts' does not exist.
 File '/user/username/projects/myproject/plugin-one/node_modules/plugin-two/dist/commonjs/index.tsx' does not exist.
@@ -119,6 +121,7 @@ Found 'package.json' at '/user/username/projects/myproject/plugin-one/node_modul
 File '/user/username/projects/myproject/plugin-one/node_modules/typescript-fsa.ts' does not exist.
 File '/user/username/projects/myproject/plugin-one/node_modules/typescript-fsa.tsx' does not exist.
 File '/user/username/projects/myproject/plugin-one/node_modules/typescript-fsa.d.ts' does not exist.
+File '/user/username/projects/myproject/plugin-one/node_modules/typescript-fsa.ets' does not exist.
 'package.json' does not have a 'typings' field.
 'package.json' does not have a 'types' field.
 'package.json' does not have a 'main' field.
@@ -137,6 +140,7 @@ Found 'package.json' at '/user/username/projects/myproject/plugin-two/node_modul
 File '/user/username/projects/myproject/plugin-two/node_modules/typescript-fsa.ts' does not exist.
 File '/user/username/projects/myproject/plugin-two/node_modules/typescript-fsa.tsx' does not exist.
 File '/user/username/projects/myproject/plugin-two/node_modules/typescript-fsa.d.ts' does not exist.
+File '/user/username/projects/myproject/plugin-two/node_modules/typescript-fsa.ets' does not exist.
 'package.json' does not have a 'typings' field.
 'package.json' does not have a 'types' field.
 'package.json' does not have a 'main' field.

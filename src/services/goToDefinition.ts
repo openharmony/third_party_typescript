@@ -28,9 +28,15 @@ namespace ts.GoToDefinition {
             return getDefinitionInfoForIndexSignatures(node, typeChecker);
         }
 
+        if (parent.kind === SyntaxKind.CallExpression || (parent.kind === SyntaxKind.EtsComponentExpression && isCalledStructDeclaration(symbol.getDeclarations()))) {
+            const declarations = symbol.getDeclarations();
+            if (declarations?.length && declarations[0].kind === SyntaxKind.StructDeclaration) {
+                return getDefinitionFromSymbol(typeChecker, symbol, node);
+            }
+        }
         const calledDeclaration = tryGetSignatureDeclaration(typeChecker, node);
         // Don't go to the component constructor definition for a JSX element, just go to the component definition.
-        if (calledDeclaration && !(isJsxOpeningLikeElement(node.parent) && isConstructorLike(calledDeclaration))) {
+        if (calledDeclaration && !(isJsxOpeningLikeElement(node.parent) && isConstructorLike(calledDeclaration)) && !isVirtualConstructor(typeChecker, calledDeclaration.symbol, calledDeclaration)) {
             const sigInfo = createDefinitionFromSignatureDeclaration(typeChecker, calledDeclaration);
             // For a function, if this is the original function definition, return just sigInfo.
             // If this is the original constructor definition, parent is the class.

@@ -87,6 +87,7 @@ namespace ts {
         case: SyntaxKind.CaseKeyword,
         catch: SyntaxKind.CatchKeyword,
         class: SyntaxKind.ClassKeyword,
+        struct: SyntaxKind.StructKeyword,
         continue: SyntaxKind.ContinueKeyword,
         const: SyntaxKind.ConstKeyword,
         ["" + "constructor"]: SyntaxKind.ConstructorKeyword,

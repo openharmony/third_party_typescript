@@ -1645,7 +1645,7 @@ namespace ts.server.protocol {
         projectRootPath?: string;
     }
 
-    export type ScriptKindName = "TS" | "JS" | "TSX" | "JSX";
+    export type ScriptKindName = "TS" | "JS" | "TSX" | "JSX" | "ETS";
 
     /**
      * Open request; value of command field is "open". Notify the
@@ -2145,6 +2145,22 @@ namespace ts.server.protocol {
         includeInsertTextCompletions?: boolean;
     }
 
+    export interface EtsOptions {
+        render: { method: string[]; decorator: string };
+        components: string[];
+        libs: string[];
+        extend: {
+            decorator: string;
+            components: { name: string; type: string; instance: string }[];
+        };
+        styles: {
+            decorator: string;
+            component: { name: string; type: string; instance: string };
+            property: string;
+        };
+        customComponent?: string;
+    }
+
     /**
      * Completions request; value of command field is "completions".
      * Given a file location (file, line, col) and a prefix (which may
@@ -2255,6 +2271,14 @@ namespace ts.server.protocol {
          * in the project package.json.
          */
         isPackageJsonImport?: true;
+        /**
+         * js Doc info with symbol.
+         */
+        jsDoc?: JSDocTagInfo[];
+        /**
+         * displayParts info with symbol.
+         */
+        displayParts?: SymbolDisplayPart[];
     }
 
     /**
@@ -3357,6 +3381,7 @@ namespace ts.server.protocol {
         types?: string[];
         /** Paths used to used to compute primary types search locations */
         typeRoots?: string[];
+        ets?: EtsOptions;
         [option: string]: CompilerOptionsValue | undefined;
     }
 

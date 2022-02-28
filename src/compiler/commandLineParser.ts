@@ -849,6 +849,15 @@ namespace ts {
             description: Diagnostics.Specify_the_module_specifier_to_be_used_to_import_the_jsx_and_jsxs_factory_functions_from_eg_react
         },
         {
+            name: "ets",
+            type: "object",
+            affectsSourceFile: true,
+            affectsEmit: true,
+            affectsModuleResolution: true,
+            category: Diagnostics.Advanced_Options,
+            description: Diagnostics.Unknown_build_option_0,
+        },
+        {
             name: "resolveJsonModule",
             type: "boolean",
             affectsModuleResolution: true,

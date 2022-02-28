@@ -178,6 +178,8 @@ namespace ts {
             updateParenthesizedExpression,
             createFunctionExpression,
             updateFunctionExpression,
+            createEtsComponentExpression,
+            updateEtsComponentExpression,
             createArrowFunction,
             updateArrowFunction,
             createDeleteExpression,
@@ -267,6 +269,8 @@ namespace ts {
             updateFunctionDeclaration,
             createClassDeclaration,
             updateClassDeclaration,
+            createStructDeclaration,
+            updateStructDeclaration,
             createInterfaceDeclaration,
             updateInterfaceDeclaration,
             createTypeAliasDeclaration,
@@ -2533,6 +2537,33 @@ namespace ts {
         }
 
         // @api
+        function createEtsComponentExpression(
+            name: Identifier,
+            argumentsArray: readonly Expression[] | undefined,
+            body: Block | undefined
+        ) {
+            const node = createBaseExpression<EtsComponentExpression>(SyntaxKind.EtsComponentExpression);
+            node.expression = parenthesizerRules().parenthesizeLeftSideOfAccess(name);
+            node.arguments = parenthesizerRules().parenthesizeExpressionsOfCommaDelimitedList(createNodeArray(argumentsArray));
+            node.body = body;
+            return node;
+        }
+
+        // @api
+        function updateEtsComponentExpression(
+            node: EtsComponentExpression,
+            name: Identifier,
+            argumentsArray: readonly Expression[] | undefined,
+            body: Block | undefined
+        ) {
+            return node.expression !== name
+                || node.arguments !== argumentsArray
+                || node.body !== body
+                ? createEtsComponentExpression(name, argumentsArray, body)
+                : node;
+        }
+
+        // @api
         function createArrowFunction(
             modifiers: readonly Modifier[] | undefined,
             typeParameters: readonly TypeParameterDeclaration[] | undefined,
@@ -3593,6 +3624,56 @@ namespace ts {
                 || node.heritageClauses !== heritageClauses
                 || node.members !== members
                 ? update(createClassDeclaration(decorators, modifiers, name, typeParameters, heritageClauses, members), node)
+                : node;
+        }
+
+        // @api
+        function createStructDeclaration(
+            decorators: readonly Decorator[] | undefined,
+            modifiers: readonly Modifier[] | undefined,
+            name: string | Identifier | undefined,
+            typeParameters: readonly TypeParameterDeclaration[] | undefined,
+            heritageClauses: readonly HeritageClause[] | undefined,
+            members: readonly ClassElement[]
+        ) {
+            const node = createBaseClassLikeDeclaration<StructDeclaration>(
+                SyntaxKind.StructDeclaration,
+                decorators,
+                modifiers,
+                name,
+                typeParameters,
+                heritageClauses,
+                members
+            );
+            if (modifiersToFlags(node.modifiers) & ModifierFlags.Ambient) {
+                node.transformFlags = TransformFlags.ContainsTypeScript;
+            }
+            else {
+                node.transformFlags |= TransformFlags.ContainsES2015;
+                if (node.transformFlags & TransformFlags.ContainsTypeScriptClassSyntax) {
+                    node.transformFlags |= TransformFlags.ContainsTypeScript;
+                }
+            }
+            return node;
+        }
+
+        // @api
+        function updateStructDeclaration(
+            node: StructDeclaration,
+            decorators: readonly Decorator[] | undefined,
+            modifiers: readonly Modifier[] | undefined,
+            name: Identifier | undefined,
+            typeParameters: readonly TypeParameterDeclaration[] | undefined,
+            heritageClauses: readonly HeritageClause[] | undefined,
+            members: readonly ClassElement[]
+        ) {
+            return node.decorators !== decorators
+                || node.modifiers !== modifiers
+                || node.name !== name
+                || node.typeParameters !== typeParameters
+                || node.heritageClauses !== heritageClauses
+                || node.members !== members
+                ? update(createStructDeclaration(decorators, modifiers, name, typeParameters, heritageClauses, members), node)
                 : node;
         }
 
@@ -5832,6 +5913,7 @@ namespace ts {
                 isVariableStatement(node) ? updateVariableStatement(node, modifiers, node.declarationList) :
                 isFunctionDeclaration(node) ? updateFunctionDeclaration(node, node.decorators, modifiers, node.asteriskToken, node.name, node.typeParameters, node.parameters, node.type, node.body) :
                 isClassDeclaration(node) ? updateClassDeclaration(node, node.decorators, modifiers, node.name, node.typeParameters, node.heritageClauses, node.members) :
+                isStructDeclaration(node) ? updateStructDeclaration(node, node.decorators, modifiers, node.name, node.typeParameters, node.heritageClauses, node.members) :
                 isInterfaceDeclaration(node) ? updateInterfaceDeclaration(node, node.decorators, modifiers, node.name, node.typeParameters, node.heritageClauses, node.members) :
                 isTypeAliasDeclaration(node) ? updateTypeAliasDeclaration(node, node.decorators, modifiers, node.name, node.typeParameters, node.type) :
                 isEnumDeclaration(node) ? updateEnumDeclaration(node, node.decorators, modifiers, node.name, node.members) :

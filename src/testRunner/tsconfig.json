@@ -161,6 +161,8 @@
         "unittests/tsserver/declarationFileMaps.ts",
         "unittests/tsserver/documentRegistry.ts",
         "unittests/tsserver/duplicatePackages.ts",
+        "unittests/tsserver/conditionCheck.ts",
+        "unittests/tsserver/jsDocTagCheck.ts",
         "unittests/tsserver/dynamicFiles.ts",
         "unittests/tsserver/events/largeFileReferenced.ts",
         "unittests/tsserver/events/projectLanguageServiceState.ts",

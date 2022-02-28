@@ -20,6 +20,7 @@
     "File 'c:/root/generated/src/file2.ts' does not exist.",
     "File 'c:/root/generated/src/file2.tsx' does not exist.",
     "File 'c:/root/generated/src/file2.d.ts' does not exist.",
+    "File 'c:/root/generated/src/file2.ets' does not exist.",
     "Trying other entries in 'rootDirs'.",
     "Loading 'file2' from the root dir 'c:/root/src', candidate location 'c:/root/src/file2'.",
     "File 'c:/root/src/file2.ts' does not exist.",

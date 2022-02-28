@@ -168,6 +168,10 @@ namespace ts {
     }
 
     function addSyntheticNodes(nodes: Push<Node>, pos: number, end: number, parent: Node): void {
+        // position start === end mean the node is virtual
+        if(parent.virtual){
+            return;
+        }
         scanner.setTextPos(pos);
         while (pos < end) {
             const token = scanner.scan();
@@ -190,6 +194,10 @@ namespace ts {
         list._children = [];
         let pos = nodes.pos;
         for (const node of nodes) {
+            // position start === end mean the node is visual
+            if (node.virtual) {
+                continue;
+            }
             addSyntheticNodes(list._children, pos, node.pos, parent);
             list._children.push(node);
             pos = node.end;
@@ -754,6 +762,7 @@ namespace ts {
 
                     case SyntaxKind.ClassDeclaration:
                     case SyntaxKind.ClassExpression:
+                    case SyntaxKind.StructDeclaration:
                     case SyntaxKind.InterfaceDeclaration:
                     case SyntaxKind.TypeAliasDeclaration:
                     case SyntaxKind.EnumDeclaration:
@@ -1042,12 +1051,12 @@ namespace ts {
 
             if (this.currentFileName !== fileName) {
                 // This is a new file, just parse it
-                sourceFile = createLanguageServiceSourceFile(fileName, scriptSnapshot, ScriptTarget.Latest, version, /*setNodeParents*/ true, scriptKind);
+                sourceFile = createLanguageServiceSourceFile(fileName, scriptSnapshot, ScriptTarget.Latest, version, /*setNodeParents*/ true, scriptKind, this.host.getCompilationSettings());
             }
             else if (this.currentFileVersion !== version) {
                 // This is the same file, just a newer version. Incrementally parse the file.
                 const editRange = scriptSnapshot.getChangeRange(this.currentFileScriptSnapshot!);
-                sourceFile = updateLanguageServiceSourceFile(this.currentSourceFile!, scriptSnapshot, version, editRange);
+                sourceFile = updateLanguageServiceSourceFile(this.currentSourceFile!, scriptSnapshot, version, editRange, /*aggressiveChecks*/ undefined, this.host.getCompilationSettings());
             }
 
             if (sourceFile) {
@@ -1067,13 +1076,13 @@ namespace ts {
         sourceFile.scriptSnapshot = scriptSnapshot;
     }
 
-    export function createLanguageServiceSourceFile(fileName: string, scriptSnapshot: IScriptSnapshot, scriptTarget: ScriptTarget, version: string, setNodeParents: boolean, scriptKind?: ScriptKind): SourceFile {
-        const sourceFile = createSourceFile(fileName, getSnapshotText(scriptSnapshot), scriptTarget, setNodeParents, scriptKind);
+    export function createLanguageServiceSourceFile(fileName: string, scriptSnapshot: IScriptSnapshot, scriptTarget: ScriptTarget, version: string, setNodeParents: boolean, scriptKind?: ScriptKind, option?: CompilerOptions): SourceFile {
+        const sourceFile = createSourceFile(fileName, getSnapshotText(scriptSnapshot), scriptTarget, setNodeParents, scriptKind, option);
         setSourceFileFields(sourceFile, scriptSnapshot, version);
         return sourceFile;
     }
 
-    export function updateLanguageServiceSourceFile(sourceFile: SourceFile, scriptSnapshot: IScriptSnapshot, version: string, textChangeRange: TextChangeRange | undefined, aggressiveChecks?: boolean): SourceFile {
+    export function updateLanguageServiceSourceFile(sourceFile: SourceFile, scriptSnapshot: IScriptSnapshot, version: string, textChangeRange: TextChangeRange | undefined, aggressiveChecks?: boolean, option?: CompilerOptions): SourceFile {
         // If we were given a text change range, and our version or open-ness changed, then
         // incrementally parse this file.
         if (textChangeRange) {
@@ -1105,7 +1114,7 @@ namespace ts {
                             : (changedText + suffix);
                 }
 
-                const newSourceFile = updateSourceFile(sourceFile, newText, textChangeRange, aggressiveChecks);
+                const newSourceFile = updateSourceFile(sourceFile, newText, textChangeRange, aggressiveChecks, option);
                 setSourceFileFields(newSourceFile, scriptSnapshot, version);
                 // after incremental parsing nameTable might not be up-to-date
                 // drop it so it can be lazily recreated later
@@ -1125,7 +1134,7 @@ namespace ts {
         }
 
         // Otherwise, just create a new source file.
-        return createLanguageServiceSourceFile(sourceFile.fileName, scriptSnapshot, sourceFile.languageVersion, version, /*setNodeParents*/ true, sourceFile.scriptKind);
+        return createLanguageServiceSourceFile(sourceFile.fileName, scriptSnapshot, sourceFile.languageVersion, version, /*setNodeParents*/ true, sourceFile.scriptKind, option);
     }
 
     const NoopCancellationToken: CancellationToken = {
@@ -1359,6 +1368,8 @@ namespace ts {
                 resolveModuleNames: maybeBind(host, host.resolveModuleNames),
                 resolveTypeReferenceDirectives: maybeBind(host, host.resolveTypeReferenceDirectives),
                 useSourceOfProjectReferenceRedirect: maybeBind(host, host.useSourceOfProjectReferenceRedirect),
+                getTagNameNeededCheckByFile: maybeBind(host, host.getTagNameNeededCheckByFile),
+                getExpressionCheckedResultsByFile: maybeBind(host, host.getExpressionCheckedResultsByFile),
             };
             host.setCompilerHost?.(compilerHost);
 
