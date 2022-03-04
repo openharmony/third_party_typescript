@@ -6709,7 +6709,7 @@ namespace ts {
 
 
         function isTokenInsideStructBuild(methodName: PropertyName): boolean {
-            const renderMethod = sourceFileCompilerOptions.ets?.render?.method;
+            const renderMethod = sourceFileCompilerOptions.ets?.render?.method?.find(render => render === "build") ?? "build";
 
             if (methodName.kind === SyntaxKind.Identifier && renderMethod?.indexOf(methodName.escapedText.toString()) !== -1) {
                 return true;
@@ -6733,7 +6733,7 @@ namespace ts {
             diagnosticMessage?: DiagnosticMessage
         ): MethodDeclaration {
             const methodName = getPropertyNameForPropertyNameNode(name)?.toString();
-            setEtsBuildContext(methodName !== undefined && sourceFileCompilerOptions.ets?.render.method.indexOf(methodName) !== -1);
+            setEtsBuildContext(methodName === sourceFileCompilerOptions?.ets?.render?.method?.find(render => render === "build"));
             setEtsBuilderContext(hasEtsBuilderDecoratorNames(decorators, sourceFileCompilerOptions));
             if (inStructContext() && hasEtsStylesDecoratorNames(decorators, sourceFileCompilerOptions)) {
                 if (methodName && currentStructName) {
