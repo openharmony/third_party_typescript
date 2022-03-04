@@ -410,7 +410,7 @@ namespace ts {
         }
         decorators.forEach(decorator => {
             const nameExpr = decorator.expression;
-            if (isIdentifier(nameExpr) && nameExpr.escapedText.toString() === options.ets?.render?.decorator) {
+            if (isIdentifier(nameExpr) && nameExpr.escapedText.toString() === options.ets?.render?.method?.find(render => render === "build")) {
                 names.push(nameExpr.escapedText.toString());
             }
         });
@@ -1969,8 +1969,9 @@ namespace ts {
 
     export function nodeCanBeDecorated(node: ClassDeclaration): true;
     export function nodeCanBeDecorated(node: ClassElement, parent: Node): boolean;
-    export function nodeCanBeDecorated(node: Node, parent: Node, grandparent: Node): boolean;
-    export function nodeCanBeDecorated(node: Node, parent?: Node, grandparent?: Node): boolean {
+    export function nodeCanBeDecorated(node: Node, parent: Node, grandparent: Node, compilerOptions: CompilerOptions): boolean;
+    export function nodeCanBeDecorated(node: Node, parent: Node, grandparent: Node, compilerOptions?: CompilerOptions): boolean;
+    export function nodeCanBeDecorated(node: Node, parent?: Node, grandparent?: Node, compilerOptions?: CompilerOptions): boolean {
         // private names cannot be used with decorators yet
         if (isNamedDeclaration(node) && isPrivateIdentifier(node.name)) {
             return false;
@@ -1999,6 +2000,13 @@ namespace ts {
                         || parent!.kind === SyntaxKind.MethodDeclaration
                         || parent!.kind === SyntaxKind.SetAccessor)
                     && (grandparent!.kind === SyntaxKind.ClassDeclaration || grandparent!.kind === SyntaxKind.StructDeclaration);
+
+            case SyntaxKind.FunctionDeclaration:
+                if (compilerOptions) {
+                    return hasEtsExtendDecoratorNames(node.decorators, compilerOptions)
+                        || hasEtsStylesDecoratorNames(node.decorators, compilerOptions)
+                        || hasEtsBuilderDecoratorNames(node.decorators, compilerOptions);
+                }
         }
 
         return false;

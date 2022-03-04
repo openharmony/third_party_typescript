@@ -1,6 +1,6 @@
 {
     "render": {
-        "method": ["build"],
+        "method": ["build", "PageTransitionEnter", "PageTransitionExit"],
         "decorator": "Builder"
     },
     "components": [
