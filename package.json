@@ -1,8 +1,11 @@
 {
-    "name": "typescript",
-    "author": "Microsoft Corp.",
+    "name": "@ohos/typescript",
+    "ohos": {
+        "org": "opensource"
+    },
+    "author": "Microsoft Corp",
     "homepage": "https://www.typescriptlang.org/",
-    "version": "4.2.3-h1.AllScenario.devecostudio.r20",
+    "version": "4.2.3-r1",
     "license": "Apache-2.0",
     "description": "TypeScript is a language for application scale JavaScript development",
     "keywords": [
