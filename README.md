@@ -102,3 +102,33 @@ node built/local/tsc.js hello.ts
 ## Roadmap
 
 For details on our planned features and future direction please refer to our [roadmap](https://github.com/microsoft/TypeScript/wiki/Roadmap).
+
+## Changes
+
+We made the following code modifications to support the ETS development paradigm.
+
+### October 2021
+
+* [x] Support custom component `struct` syntax, and add `StructDeclaration` and `EtsComponentExpression` node type.
+
+### November 2021
+
+* [x] Support `gotoDefinition` for custom component name and arguments.
+* [x] Support completion of lifecycle for `StructDeclaration` type.
+* [x] Support `@Builder` decorator for function and method.
+
+### January 2022
+
+* [x] Optimize eTS language support.
+* [x] Support `@BuilderParam` decorator and custom container lambda syntax.
+* [x] Add jsDoc and displayParts info in `getCompletionAtPosition` interface.
+* [x] Support eTS language ScriptKind and Extension.
+* [x] Add `PropertyAccessExpressionConditionCheck` for eTS.
+
+### February 2022
+
+* [x] Support `@Styles` decorator and related syntax.
+* [x] Add check for `struct` name contain reserved tag name.
+* [x] Support `stateStyles` property.
+* [x] Performance optimization for eTS completion.
+* [x] Support `@Extend` and `@Styles` decorators for function.
