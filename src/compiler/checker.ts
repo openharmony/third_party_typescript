@@ -1425,8 +1425,8 @@ namespace ts {
                 return true;
             }
 
-            const fileName = sys.resolvePath(sourceFileName);
-            if (fileName.endsWith(".ets") || etsLibFilesNames.includes(fileName)) {
+            const fileName = sys?.resolvePath(sourceFileName);
+            if (fileName?.endsWith(Extension.Ets) || etsLibFilesNames.includes(fileName)) {
                 return true;
             }
 
@@ -1434,7 +1434,7 @@ namespace ts {
                 if (!getSourceFileOfNode(declaration).fileName) {
                     return true;
                 }
-                const symbolFileName = sys.resolvePath(getSourceFileOfNode(declaration).fileName);
+                const symbolFileName = sys?.resolvePath(getSourceFileOfNode(declaration).fileName);
                 if (etsLibFilesNames.indexOf(symbolFileName) !== -1) {
                     return false;
                 }
@@ -26284,7 +26284,9 @@ namespace ts {
         }
 
         function checkPropertyAccessExpression(node: PropertyAccessExpression, checkMode?: CheckMode) {
-            propertyAccessExpressionConditionCheck(node);
+            if (checkMode !== CheckMode.SkipEtsComponentBody) {
+                propertyAccessExpressionConditionCheck(node);
+            }
             return node.flags & NodeFlags.OptionalChain ? checkPropertyAccessChain(node as PropertyAccessChain, checkMode) :
                 checkPropertyAccessExpressionOrQualifiedName(node, node.expression, checkNonNullExpression(node.expression, checkMode), node.name);
         }
@@ -28133,7 +28135,7 @@ namespace ts {
 
                 for (let candidateIndex = 0; candidateIndex < candidates.length; candidateIndex++) {
                     const candidate = candidates[candidateIndex];
-                    if (!hasCorrectTypeArgumentArity(candidate, typeArguments) || !hasCorrectArity(node, args, candidate, signatureHelpTrailingComma)) {
+                    if (!hasCorrectTypeArgumentArity(candidate, typeArguments, virtual) || !hasCorrectArity(node, args, candidate, signatureHelpTrailingComma)) {
                         continue;
                     }
 
@@ -29213,19 +29215,14 @@ namespace ts {
             return result.hasIfChecked;
         }
 
-        function traversalNode(node: Node, importSymbol: string, parent: Node, result: { hasIfChecked: boolean }, specifyFuncName: string) {
+        function traversalNode(node: Node, importSymbol: string, parent: Node, result: { hasIfChecked: boolean }, specifyFuncName: string): void {
             if (result.hasIfChecked) {
-                return result;
+                return;
             }
 
             if (node.parent !== parent) {
-                if (isIfStatement(node.parent) &&
-                    isCallExpression(node.parent.expression) &&
-                    isIdentifier(node.parent.expression.expression) &&
-                    node.parent.expression.arguments.length === 1 &&
-                    node.parent.expression.expression.escapedText.toString() === specifyFuncName) {
-                    const expression = node.parent.expression.arguments[0];
-                    if (isStringLiteral(expression) && expression.text.toString() === importSymbol) {
+                if (isIfStatement(node.parent)) {
+                    if (isCallExpression(node.parent.expression) && isTargetCallExpression(node.parent.expression, specifyFuncName, importSymbol)) {
                         result.hasIfChecked = true;
                         return;
                     }
@@ -29236,8 +29233,20 @@ namespace ts {
                 traversalNode(node.parent, importSymbol, parent, result, specifyFuncName);
             }
             else {
-                return result;
+                return;
             }
+        }
+
+        function isTargetCallExpression(node: CallExpression, specifyFuncName: string, importSymbol: string): boolean {
+            if (isIdentifier(node.expression) &&
+                node.arguments.length === 1 &&
+                node.expression.escapedText.toString() === specifyFuncName) {
+                const expression = node.arguments[0];
+                if (isStringLiteral(expression) && expression.text.toString() === importSymbol) {
+                    return true;
+                }
+            }
+            return false;
         }
 
         function checkDeprecatedSignature(signature: Signature, node: CallLikeExpression) {
@@ -39787,7 +39796,7 @@ namespace ts {
                 }
             }
 
-            if (!nodeCanBeDecorated(node, node.parent, node.parent.parent)) {
+            if (!nodeCanBeDecorated(node, node.parent, node.parent.parent, compilerOptions)) {
                 if (node.kind === SyntaxKind.MethodDeclaration && !nodeIsPresent((<MethodDeclaration>node).body)) {
                     return grammarErrorOnFirstToken(node, Diagnostics.A_decorator_can_only_decorate_a_method_implementation_not_an_overload);
                 }

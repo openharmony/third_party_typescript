@@ -5468,7 +5468,7 @@ namespace ts {
         }
 
         function isValidVirtualTypeArgumentsContext(): boolean {
-            return inBuildContext() || inStructContext() || inBuilderContext();
+            return (inBuildContext() || inStructContext()) && inBuilderContext();
         }
 
         function parseArgumentList() {
@@ -6709,9 +6709,9 @@ namespace ts {
 
 
         function isTokenInsideStructBuild(methodName: PropertyName): boolean {
-            const renderMethod = sourceFileCompilerOptions.ets?.render?.method;
+            const renderMethod = sourceFileCompilerOptions.ets?.render?.method?.find(render => render === "build") ?? "build";
 
-            if (methodName.kind === SyntaxKind.Identifier && renderMethod?.indexOf(methodName.escapedText.toString()) !== -1) {
+            if (methodName.kind === SyntaxKind.Identifier && methodName.escapedText === renderMethod) {
                 return true;
             }
             return false;
@@ -6719,6 +6719,15 @@ namespace ts {
 
         function isTokenInsideStructBuilder(decorators: NodeArray<Decorator> | undefined): boolean {
             return isTokenInsideBuilder(decorators, sourceFileCompilerOptions);
+        }
+
+        function isTokenInsideStructPageTransition(methodName: PropertyName): boolean {
+            const renderMethod = sourceFileCompilerOptions.ets?.render?.method?.find(render => render === "pageTransition") ?? "pageTransition";
+
+            if (methodName.kind === SyntaxKind.Identifier && methodName.escapedText === renderMethod) {
+                return true;
+            }
+            return false;
         }
 
         function parseMethodDeclaration(
@@ -6733,7 +6742,7 @@ namespace ts {
             diagnosticMessage?: DiagnosticMessage
         ): MethodDeclaration {
             const methodName = getPropertyNameForPropertyNameNode(name)?.toString();
-            setEtsBuildContext(methodName !== undefined && sourceFileCompilerOptions.ets?.render.method.indexOf(methodName) !== -1);
+            setEtsBuildContext(methodName === sourceFileCompilerOptions?.ets?.render?.method?.find(render => render === "build"));
             setEtsBuilderContext(hasEtsBuilderDecoratorNames(decorators, sourceFileCompilerOptions));
             if (inStructContext() && hasEtsStylesDecoratorNames(decorators, sourceFileCompilerOptions)) {
                 if (methodName && currentStructName) {
@@ -6745,7 +6754,8 @@ namespace ts {
                 }
                 setEtsStylesComponentsContext(!!stylesEtsComponentDeclaration);
             }
-            setEtsComponentsContext(inStructContext() && (isTokenInsideStructBuild(name) || isTokenInsideStructBuilder(decorators)));
+            setEtsComponentsContext(inStructContext() && (isTokenInsideStructBuild(name) || isTokenInsideStructBuilder(decorators) ||
+                isTokenInsideStructPageTransition(name)));
             const isGenerator = asteriskToken ? SignatureFlags.Yield : SignatureFlags.None;
             const isAsync = some(modifiers, isAsyncModifier) ? SignatureFlags.Await : SignatureFlags.None;
             const typeParameters = inEtsStylesComponentsContext() && stylesEtsComponentDeclaration ? parseEtsTypeParameters(pos) : parseTypeParameters();
