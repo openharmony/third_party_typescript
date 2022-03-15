@@ -5468,7 +5468,7 @@ namespace ts {
         }
 
         function isValidVirtualTypeArgumentsContext(): boolean {
-            return (inBuildContext() || inStructContext()) && inBuilderContext();
+            return (inBuildContext() || inBuilderContext()) && inStructContext();
         }
 
         function parseArgumentList() {
