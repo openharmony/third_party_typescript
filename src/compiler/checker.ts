@@ -32125,6 +32125,7 @@ namespace ts {
 
         // Traverse Ets Component
         function checkIfEtsComponent(node: IfStatement, checkMode: CheckMode | undefined): void {
+            checkIfChildComponent(node, checkMode);
             if (node.thenStatement && isBlock(node.thenStatement) && node.thenStatement.statements) {
                 traverseEtsComponentStatements(node.thenStatement.statements, checkMode);
             }
@@ -32136,6 +32137,13 @@ namespace ts {
                     traverseEtsComponentStatements(node.elseStatement.statements, checkMode);
                 }
             }
+        }
+        function checkIfChildComponent(node: Node, checkMode: CheckMode | undefined): void {
+            if ((<ExpressionStatement>node).expression) {
+                checkExpressionWorker((<ExpressionStatement>node).expression, checkMode);
+            }
+            // @ts-ignore
+            node.getChildren().forEach((item: Node) => checkIfChildComponent(item, checkMode));
         }
         function traverseEtsComponentStatements(statements: NodeArray<Statement>, checkMode: CheckMode | undefined): void {
             if (statements.length) {
