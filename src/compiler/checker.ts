@@ -32064,9 +32064,7 @@ namespace ts {
                 case SyntaxKind.EtsComponentExpression:
                     const newNode = <EtsComponentExpression>node;
                     if (newNode.body && newNode.body.statements.length) {
-                        newNode.body.statements.forEach((item) => {
-                            checkExpressionWorker((<ExpressionStatement>item).expression, checkMode);
-                        });
+                        traverseEtsComponentStatements(newNode.body.statements, checkMode);
                     }
                     return checkCallExpression(<EtsComponentExpression>node, checkMode);
                 case SyntaxKind.TaggedTemplateExpression:
@@ -32123,6 +32121,41 @@ namespace ts {
                     Debug.fail("Shouldn't ever directly check a JsxOpeningElement");
             }
             return errorType;
+        }
+
+        // Traverse Ets Component
+        function checkIfEtsComponent(node: IfStatement, checkMode: CheckMode | undefined): void {
+            checkIfChildComponent(node, checkMode);
+            if (node.thenStatement && isBlock(node.thenStatement) && node.thenStatement.statements) {
+                traverseEtsComponentStatements(node.thenStatement.statements, checkMode);
+            }
+            if (node.elseStatement) {
+                if (isIfStatement(node.elseStatement)) {
+                    checkIfEtsComponent(node.elseStatement, checkMode);
+                }
+                if (isBlock(node.elseStatement) && node.elseStatement.statements) {
+                    traverseEtsComponentStatements(node.elseStatement.statements, checkMode);
+                }
+            }
+        }
+        function checkIfChildComponent(node: Node, checkMode: CheckMode | undefined): void {
+            if ((<ExpressionStatement>node).expression) {
+                checkExpressionWorker((<ExpressionStatement>node).expression, checkMode);
+            }
+            // @ts-ignore
+            node.getChildren().forEach((item: Node) => checkIfChildComponent(item, checkMode));
+        }
+        function traverseEtsComponentStatements(statements: NodeArray<Statement>, checkMode: CheckMode | undefined): void {
+            if (statements.length) {
+                statements.forEach(item => {
+                    if (isIfStatement(item)) {
+                        checkIfEtsComponent(item, checkMode);
+                    }
+                    else {
+                        checkExpressionWorker((<ExpressionStatement>item).expression, checkMode);
+                    }
+                });
+            }
         }
 
         // DECLARATION AND STATEMENT TYPE CHECKING
