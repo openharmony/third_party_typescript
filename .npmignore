@@ -39,3 +39,4 @@ tmp
 .cloudbuild
 app_define.json
 VersionSet.xml
+build_package/
