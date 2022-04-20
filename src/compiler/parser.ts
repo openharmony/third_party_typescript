@@ -6400,6 +6400,9 @@ namespace ts {
                 }
                 setEtsComponentsContext(isTokenInsideBuilder(decorators, sourceFileCompilerOptions));
             }
+            else if (token() === SyntaxKind.ExportKeyword){
+                setEtsComponentsContext(isTokenInsideBuilder(decorators, sourceFileCompilerOptions));
+            }
 
             const modifiers = parseModifiers();
             if (isAmbient) {

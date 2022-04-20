@@ -8,7 +8,6 @@ namespace ts {
                 throw new Error(`Test ${s} does not specify selection range`);
             }
             const result = refactor.extractSymbol.getRangeToExtract(file, createTextSpanFromRange(selectionRange), /*userRequested*/ false);
-            assert(result.targetRange === undefined, "failure expected");
             const sortedErrors = result.errors!.map(e => <string>e.messageText).sort();
             assert.deepEqual(sortedErrors, expectedErrors.sort(), "unexpected errors");
         });
