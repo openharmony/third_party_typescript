@@ -980,6 +980,9 @@ namespace ts {
                     contextFlags = NodeFlags.None;
                     break;
             }
+            if (fileName.endsWith(Extension.Ets)) {
+                contextFlags = NodeFlags.EtsContext;
+            }
             parseErrorBeforeNextFinishedNode = false;
 
             // Initialize and prime the scanner before parsing the source elements.
@@ -6656,7 +6659,7 @@ namespace ts {
             extendEtsComponentDeclaration = undefined;
             setEtsStylesComponentsContext(false);
             stylesEtsComponentDeclaration = undefined;
-            setEtsComponentsContext(false);
+            setEtsComponentsContext(inBuildContext());
             setAwaitContext(savedAwaitContext);
             const node = factory.createFunctionDeclaration(decorators, modifiers, asteriskToken, name, typeParameters, parameters, type, body);
             return withJSDoc(finishNode(node, pos), hasJSDoc);
