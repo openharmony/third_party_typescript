@@ -6382,7 +6382,7 @@ namespace ts {
             const hasJSDoc = hasPrecedingJSDocComment();
             const decorators = parseDecorators();
 
-            if (token() === SyntaxKind.FunctionKeyword) {
+            if (token() === SyntaxKind.FunctionKeyword || token() === SyntaxKind.ExportKeyword) {
                 if (hasEtsExtendDecoratorNames(decorators, sourceFileCompilerOptions)) {
                     const extendEtsComponentDecoratorNames = getEtsExtendDecoratorComponentNames(decorators, sourceFileCompilerOptions);
                     if (extendEtsComponentDecoratorNames.length > 0) {
@@ -6394,17 +6394,16 @@ namespace ts {
                     }
                     setEtsExtendComponentsContext(!!extendEtsComponentDeclaration);
                 }
-                if (hasEtsStylesDecoratorNames(decorators, sourceFileCompilerOptions)) {
+                else if (hasEtsStylesDecoratorNames(decorators, sourceFileCompilerOptions)) {
                     const stylesEtsComponentDecoratorNames = getEtsStylesDecoratorComponentNames(decorators, sourceFileCompilerOptions);
                     if (stylesEtsComponentDecoratorNames.length > 0) {
                         stylesEtsComponentDeclaration = sourceFileCompilerOptions.ets?.styles.component;
                     }
                     setEtsStylesComponentsContext(!!stylesEtsComponentDeclaration);
                 }
-                setEtsComponentsContext(isTokenInsideBuilder(decorators, sourceFileCompilerOptions));
-            }
-            else if (token() === SyntaxKind.ExportKeyword){
-                setEtsComponentsContext(isTokenInsideBuilder(decorators, sourceFileCompilerOptions));
+                else {
+                    setEtsComponentsContext(isTokenInsideBuilder(decorators, sourceFileCompilerOptions));
+                }
             }
 
             const modifiers = parseModifiers();
