@@ -2159,6 +2159,10 @@ namespace ts.server.protocol {
             property: string;
         };
         customComponent?: string;
+        propertyDecorators: {
+            name: string;
+            needInitialization: boolean;
+        }[];
     }
 
     /**
