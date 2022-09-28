@@ -26556,7 +26556,24 @@ namespace ts {
                 && !(isAccessExpression(node) && isAccessExpression(node.expression))
                 && !isBlockScopedNameDeclaredBeforeUse(valueDeclaration, right)
                 && !isPropertyDeclaredInAncestorClass(prop)) {
-                diagnosticMessage = error(right, Diagnostics.Property_0_is_used_before_its_initialization, declarationName);
+                let needInitialization: boolean | undefined = false;
+                if (prop?.valueDeclaration.decorators) {
+                    needInitialization = host.getCompilerOptions().ets?.propertyDecorators.some(property => {
+                        return prop?.valueDeclaration.decorators?.some(decorator => {
+                            if (isIdentifier(decorator.expression)
+                                && property.name === decorator.expression.escapedText.toString()
+                                && !property.needInitialization) {
+                                    return true;
+                            }
+                            else {
+                                return false;
+                            }
+                        });
+                    });
+                }
+                if (!needInitialization) {
+                    diagnosticMessage = error(right, Diagnostics.Property_0_is_used_before_its_initialization, declarationName);
+                }
             }
             else if (valueDeclaration.kind === SyntaxKind.ClassDeclaration &&
                 node.parent.kind !== SyntaxKind.TypeReference &&
