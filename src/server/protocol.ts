@@ -2163,6 +2163,10 @@ namespace ts.server.protocol {
             name: string;
             needInitialization: boolean;
         }[];
+        emitDecorators: {
+            name: string,
+            emitParameters: boolean
+        }[];
     }
 
     /**

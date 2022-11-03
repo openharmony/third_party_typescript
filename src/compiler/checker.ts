@@ -7797,6 +7797,7 @@ namespace ts {
                         // falls through
                     case SyntaxKind.ModuleDeclaration:
                     case SyntaxKind.ClassDeclaration:
+                    case SyntaxKind.StructDeclaration:
                     case SyntaxKind.InterfaceDeclaration:
                     case SyntaxKind.TypeAliasDeclaration:
                     case SyntaxKind.FunctionDeclaration:

@@ -136,6 +136,7 @@
         "unittests/tsbuild/watchMode.ts",
         "unittests/tsc/composite.ts",
         "unittests/tsc/declarationEmit.ts",
+        "unittests/tsc/etsTests.ts",
         "unittests/tsc/incremental.ts",
         "unittests/tsc/listFilesOnly.ts",
         "unittests/tsc/projectReferences.ts",

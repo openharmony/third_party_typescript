@@ -73,7 +73,7 @@ namespace ts {
     }
 
     function isDeclarationFile(fileName: string) {
-        return fileExtensionIs(fileName, Extension.Dts);
+        return fileExtensionIs(fileName, Extension.Dts) || fileExtensionIs(fileName, Extension.Dets);
     }
 
     export type ReportEmitErrorSummary = (errorCount: number) => void;

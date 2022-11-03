@@ -954,7 +954,7 @@ namespace ts {
                             else if (getEmitModuleKind(parsedRef.commandLine.options) === ModuleKind.None) {
                                 const getCommonSourceDirectory = memoize(() => getCommonSourceDirectoryOfConfig(parsedRef.commandLine, !host.useCaseSensitiveFileNames()));
                                 for (const fileName of parsedRef.commandLine.fileNames) {
-                                    if (!fileExtensionIs(fileName, Extension.Dts) && !fileExtensionIs(fileName, Extension.Json)) {
+                                    if (!isDeclarationFileName(fileName) && !fileExtensionIs(fileName, Extension.Json)) {
                                         processProjectReferenceFile(getOutputDeclarationFileName(fileName, parsedRef.commandLine, !host.useCaseSensitiveFileNames(), getCommonSourceDirectory), { kind: FileIncludeKind.OutputFromProjectReference, index });
                                     }
                                 }
@@ -1150,7 +1150,7 @@ namespace ts {
 
         function getRedirectReferenceForResolution(file: SourceFile) {
             const redirect = getResolvedProjectReferenceToRedirect(file.originalFileName);
-            if (redirect || !fileExtensionIs(file.originalFileName, Extension.Dts)) return redirect;
+            if (redirect || !isDeclarationFileName(file.originalFileName)) return redirect;
 
             // The originalFileName could not be actual source file name if file found was d.ts from referecned project
             // So in this case try to look up if this is output from referenced project, if it is use the redirected project in that case
@@ -2693,7 +2693,7 @@ namespace ts {
 
         function getProjectReferenceRedirectProject(fileName: string) {
             // Ignore dts or any json files
-            if (!resolvedProjectReferences || !resolvedProjectReferences.length || fileExtensionIs(fileName, Extension.Dts) || fileExtensionIs(fileName, Extension.Json)) {
+            if (!resolvedProjectReferences || !resolvedProjectReferences.length || isDeclarationFileName(fileName) || fileExtensionIs(fileName, Extension.Json)) {
                 return undefined;
             }
 
@@ -2749,7 +2749,7 @@ namespace ts {
                     else {
                         const getCommonSourceDirectory = memoize(() => getCommonSourceDirectoryOfConfig(resolvedRef.commandLine, !host.useCaseSensitiveFileNames()));
                         forEach(resolvedRef.commandLine.fileNames, fileName => {
-                            if (!fileExtensionIs(fileName, Extension.Dts) && !fileExtensionIs(fileName, Extension.Json)) {
+                            if (!isDeclarationFileName(fileName) && !fileExtensionIs(fileName, Extension.Json)) {
                                 const outputDts = getOutputDeclarationFileName(fileName, resolvedRef.commandLine, !host.useCaseSensitiveFileNames(), getCommonSourceDirectory);
                                 mapFromToProjectReferenceRedirectSource!.set(toPath(outputDts), fileName);
                             }
@@ -3638,7 +3638,7 @@ namespace ts {
                 return containsPath(options.outDir, filePath, currentDirectory, !host.useCaseSensitiveFileNames());
             }
 
-            if (fileExtensionIsOneOf(filePath, supportedJSExtensions) || fileExtensionIs(filePath, Extension.Dts)) {
+            if (fileExtensionIsOneOf(filePath, supportedJSExtensions) || isDeclarationFileName(filePath)) {
                 // Otherwise just check if sourceFile with the name exists
                 const filePathWithoutExtension = removeFileExtension(filePath);
                 return !!getSourceFileByPath((filePathWithoutExtension + Extension.Ts) as Path) ||
@@ -3955,6 +3955,7 @@ namespace ts {
             case Extension.Ts:
             case Extension.Dts:
             case Extension.Ets:
+            case Extension.Dets:
                 // These are always allowed.
                 return undefined;
             case Extension.Tsx:

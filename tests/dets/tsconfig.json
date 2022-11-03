@@ -1,0 +1,826 @@
+{
+  "compileOnSave": false,
+  "files": [
+    "cases/customDecorator.ets",
+    "cases/decoratorWithParameters.ets",
+    "cases/dynamicallyBuildUIElements.ets",
+    "cases/functionAndClassWithDecorator.ets",
+    "cases/functionWithDecorators.ets",
+    "cases/limitationAndExtension.ets",
+    "cases/renderControl.ets",
+    "cases/statusManagementOfApplicationLevelVariables.ets",
+    "cases/statusManagementOfPageLevelVariables.ets",
+    "cases/targetEtsExample.ets",
+    "../../../../interface/sdk-js/api/@internal/component/ets/common.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/water_flow.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/span.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/plugin_component.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/column.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/middle_class.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/index-full.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/button.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/divider.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/inspector.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/relative_container.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/grid_col.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/search.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/navigation.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/gesture.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/action_sheet.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/lazy_for_each.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/ellipse.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/remote_window.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/list.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/loading_progress.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/list_item.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/ability_component.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/swiper.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/row_split.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/hyperlink.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/date_picker.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/common_ts_ets_api.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/toggle.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/video.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/gauge.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/qrcode.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/line.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/refresh.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/tabs.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/polyline.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/blank.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/navigator.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/text_timer.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/grid_row.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/alphabet_indexer.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/row.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/radio.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/marquee.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/flex.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/text_input.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/grid.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/rating.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/pattern_lock.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/tab_content.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/context_menu.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/custom_dialog_controller.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/gridItem.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/nav_router.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/badge.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/scroll.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/units.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/form_component.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/grid_container.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/calendar.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/for_each.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/polygon.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/nav_destination.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/counter.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/rich_text.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/alert_dialog.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/image.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/matrix2d.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/canvas.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/stack.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/circle.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/checkbox.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/time_picker.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/text_area.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/column_split.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/sidebar.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/common.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/path.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/image_animator.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/list_item_group.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/rect.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/web.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/animator.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/stepper_item.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/text_clock.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/state_management.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/shape.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/select.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/stepper.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/text_picker.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/xcomponent.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/panel.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/enums.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/data_panel.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/slider.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/text.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/flow_item.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/page_transition.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/scroll_bar.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/checkboxgroup.d.ts",
+    "../../../../interface/sdk-js/api/@internal/component/ets/progress.d.ts",
+  ],
+  "compilerOptions": {
+   "declaration": true,
+   "outDir": "baselines/local/",
+   "ets": {
+      "emitDecorators":[
+        {
+          "name":"Entry", 
+          "emitParameters" : false
+        },
+        {
+          "name":"Component",
+          "emitParameters" : false
+        },
+        {
+          "name":"Preview",
+          "emitParameters" : false
+        },
+        {
+          "name":"CustomDialog",
+          "emitParameters" : false
+        },
+        {
+          "name":"Consume", 
+          "emitParameters" : false
+        },
+        {
+          "name":"Link",
+          "emitParameters" : false
+        },
+        {
+          "name":"LocalStorageLink",
+          "emitParameters" : false
+        },
+        {
+          "name":"LocalStorageProp",
+          "emitParameters" : false
+        },
+        {
+          "name":"ObjectLink", 
+          "emitParameters" : false
+        },
+        {
+          "name":"Prop",
+          "emitParameters" : false
+        },
+        {
+          "name":"Provide",
+          "emitParameters" : false
+        },
+        {
+          "name":"State",
+          "emitParameters" : false
+        },
+        {
+          "name":"StorageLink",
+          "emitParameters" : false
+        },
+        {
+          "name":"StorageProp",
+          "emitParameters" : false
+        },
+        {
+          "name":"Watch",
+          "emitParameters" : false
+        },
+        {
+          "name":"Builder",
+          "emitParameters" : false
+        },
+        {
+          "name":"BuilderParam",
+          "emitParameters" : false
+        },
+        {
+          "name":"Styles",
+          "emitParameters" : false
+        },
+        {
+          "name":"Observed",
+          "emitParameters" : false
+        }
+        ],
+      "propertyDecorators": [
+        {
+          "name": "Link",
+          "needInitialization": false
+        },
+        {
+          "name": "Prop",
+          "needInitialization": false
+        },
+        {
+          "name": "ObjectLink",
+          "needInitialization": false
+        },
+        {
+          "name": "Consume",
+          "needInitialization": false
+        }
+      ],
+      "render": {
+        "method": ["build", "pageTransition"],
+        "decorator": "Builder"
+      },
+      "components": [
+        "AbilityComponent",
+        "AlphabetIndexer",
+        "Animator",
+        "Badge",
+        "Blank",
+        "Button",
+        "Calendar",
+        "Camera",
+        "Canvas",
+        "Checkbox",
+        "CheckboxGroup",
+        "Circle",
+        "ColorPicker",
+        "ColorPickerDialog",
+        "Column",
+        "ColumnSplit",
+        "Counter",
+        "DataPanel",
+        "DatePicker",
+        "Divider",
+        "Ellipse",
+        "Flex",
+        "FormComponent",
+        "Gauge",
+        "GeometryView",
+        "Grid",
+        "GridItem",
+        "GridContainer",
+        "Hyperlink",
+        "Image",
+        "ImageAnimator",
+        "Line",
+        "List",
+        "ListItem",
+        "ListItemGroup",
+        "LoadingProgress",
+        "Marquee",
+        "Menu",
+        "NavDestination",
+        "NavRouter",
+        "Navigation",
+        "Navigator",
+        "Option",
+        "PageTransitionEnter",
+        "PageTransitionExit",
+        "Panel",
+        "Path",
+        "PatternLock",
+        "Piece",
+        "PluginComponent",
+        "Polygon",
+        "Polyline",
+        "Progress",
+        "QRCode",
+        "Radio",
+        "Rating",
+        "Rect",
+        "Refresh",
+        "RelativeContainer",
+        "RemoteWindow",
+        "Row",
+        "RowSplit",
+        "RichText",
+        "Scroll",
+        "ScrollBar",
+        "Search",
+        "Section",
+        "Select",
+        "Shape",
+        "Sheet",
+        "SideBarContainer",
+        "Slider",
+        "Span",
+        "Stack",
+        "Stepper",
+        "StepperItem",
+        "Swiper",
+        "TabContent",
+        "Tabs",
+        "Text",
+        "TextPicker",
+        "TextClock",
+        "TextArea",
+        "TextInput",
+        "TextTimer",
+        "TimePicker",
+        "Toggle",
+        "Video",
+        "Web",
+        "XComponent",
+        "GridRow",
+        "GridCol",
+        "WaterFlow",
+        "FlowItem"
+      ],
+      "extend": {
+        "decorator": "Extend",
+        "components": [
+          {
+            "name": "AbilityComponent",
+            "type": "AbilityComponentAttribute",
+            "instance": "AbilityComponentInstance"
+          },
+          {
+            "name": "AlphabetIndexer",
+            "type": "AlphabetIndexerAttribute",
+            "instance": "AlphabetIndexerInstance"
+          },
+          {
+            "name": "Animator",
+            "type": "AnimatorAttribute",
+            "instance": "AnimatorInstance"
+          },
+          {
+            "name": "Badge",
+            "type": "BadgeAttribute",
+            "instance": "BadgeInstance"
+          },
+          {
+            "name": "Blank",
+            "type": "BlankAttribute",
+            "instance": "BlankInstance"
+          },
+          {
+            "name": "Button",
+            "type": "ButtonAttribute",
+            "instance": "ButtonInstance"
+          },
+          {
+            "name": "Calendar",
+            "type": "CalendarAttribute",
+            "instance": "CalendarInstance"
+          },
+          {
+            "name": "Camera",
+            "type": "CameraAttribute",
+            "instance": "CameraInstance"
+          },
+          {
+            "name": "Canvas",
+            "type": "CanvasAttribute",
+            "instance": "CanvasInstance"
+          },
+          {
+            "name": "Checkbox",
+            "type": "CheckboxAttribute",
+            "instance": "CheckboxInstance"
+          },
+          {
+            "name": "CheckboxGroup",
+            "type": "CheckboxGroupAttribute",
+            "instance": "CheckboxGroupInstance"
+          },
+          {
+            "name": "Circle",
+            "type": "CircleAttribute",
+            "instance": "CircleInstance"
+          },
+          {
+            "name": "ColorPicker",
+            "type": "ColorPickerAttribute",
+            "instance": "ColorPickerInstance"
+          },
+          {
+            "name": "ColorPickerDialog",
+            "type": "ColorPickerDialogAttribute",
+            "instance": "ColorPickerDialogInstance"
+          },
+          {
+            "name": "Column",
+            "type": "ColumnAttribute",
+            "instance": "ColumnInstance"
+          },
+          {
+            "name": "ColumnSplit",
+            "type": "ColumnSplitAttribute",
+            "instance": "ColumnSplitInstance"
+          },
+          {
+            "name": "Counter",
+            "type": "CounterAttribute",
+            "instance": "CounterInstance"
+          },
+          {
+            "name": "DataPanel",
+            "type": "DataPanelAttribute",
+            "instance": "DataPanelInstance"
+          },
+          {
+            "name": "DatePicker",
+            "type": "DatePickerAttribute",
+            "instance": "DatePickerInstance"
+          },
+          {
+            "name": "Divider",
+            "type": "DividerAttribute",
+            "instance": "DividerInstance"
+          },
+          {
+            "name": "Ellipse",
+            "type": "EllipseAttribute",
+            "instance": "EllipseInstance"
+          },
+          {
+            "name": "Flex",
+            "type": "FlexAttribute",
+            "instance": "FlexInstance"
+          },
+          {
+            "name": "FormComponent",
+            "type": "FormComponentAttribute",
+            "instance": "FormComponentInstance"
+          },
+          {
+            "name": "Gauge",
+            "type": "GaugeAttribute",
+            "instance": "GaugeInstance"
+          },
+          {
+            "name": "GeometryView",
+            "type": "GeometryViewAttribute",
+            "instance": "GeometryViewInstance"
+          },
+          {
+            "name": "Grid",
+            "type": "GridAttribute",
+            "instance": "GridInstance"
+          },
+          {
+            "name": "GridItem",
+            "type": "GridItemAttribute",
+            "instance": "GridItemInstance"
+          },
+          {
+            "name": "GridContainer",
+            "type": "GridContainerAttribute",
+            "instance": "GridContainerInstance"
+          },
+          {
+            "name": "Hyperlink",
+            "type": "HyperlinkAttribute",
+            "instance": "HyperlinkInstance"
+          },
+          {
+            "name": "Image",
+            "type": "ImageAttribute",
+            "instance": "ImageInstance"
+          },
+          {
+            "name": "ImageAnimator",
+            "type": "ImageAnimatorAttribute",
+            "instance": "ImageAnimatorInstance"
+          },
+          {
+            "name": "Line",
+            "type": "LineAttribute",
+            "instance": "LineInstance"
+          },
+          {
+            "name": "List",
+            "type": "ListAttribute",
+            "instance": "ListInstance"
+          },
+          {
+            "name": "ListItem",
+            "type": "ListItemAttribute",
+            "instance": "ListItemInstance"
+          },
+          {
+            "name": "ListItemGroup",
+            "type": "ListItemGroupAttribute",
+            "instance": "ListItemGroupInstance"
+          },
+          {
+            "name": "LoadingProgress",
+            "type": "LoadingProgressAttribute",
+            "instance": "LoadingProgressInstance"
+          },
+          {
+            "name": "Marquee",
+            "type": "MarqueeAttribute",
+            "instance": "MarqueeInstance"
+          },
+          {
+            "name": "Menu",
+            "type": "MenuAttribute",
+            "instance": "MenuInstance"
+          },
+          {
+            "name": "NavDestination",
+            "type": "NavDestinationAttribute",
+            "instance": "NavDestinationInstance"
+          },
+          {
+            "name": "NavRouter",
+            "type": "NavRouterAttribute",
+            "instance": "NavRouterInstance"
+          },
+          {
+            "name": "Navigation",
+            "type": "NavigationAttribute",
+            "instance": "NavigationInstance"
+          },
+          {
+            "name": "Navigator",
+            "type": "NavigatorAttribute",
+            "instance": "NavigatorInstance"
+          },
+          {
+            "name": "Option",
+            "type": "OptionAttribute",
+            "instance": "OptionInstance"
+          },
+          {
+            "name": "PageTransitionEnter",
+            "type": "PageTransitionEnterAttribute",
+            "instance": "PageTransitionEnterInstance"
+          },
+          {
+            "name": "PageTransitionExit",
+            "type": "PageTransitionExitAttribute",
+            "instance": "PageTransitionExitInstance"
+          },
+          {
+            "name": "Panel",
+            "type": "PanelAttribute",
+            "instance": "PanelInstance"
+          },
+          {
+            "name": "Path",
+            "type": "PathAttribute",
+            "instance": "PathInstance"
+          },
+          {
+            "name": "PatternLock",
+            "type": "PatternLockAttribute",
+            "instance": "PatternLockInstance"
+          },
+          {
+            "name": "Piece",
+            "type": "PieceAttribute",
+            "instance": "PieceInstance"
+          },
+          {
+            "name": "PluginComponent",
+            "type": "PluginComponentAttribute",
+            "instance": "PluginComponentInstance"
+          },
+          {
+            "name": "Polygon",
+            "type": "PolygonAttribute",
+            "instance": "PolygonInstance"
+          },
+          {
+            "name": "Polyline",
+            "type": "PolylineAttribute",
+            "instance": "PolylineInstance"
+          },
+          {
+            "name": "Progress",
+            "type": "ProgressAttribute",
+            "instance": "ProgressInstance"
+          },
+          {
+            "name": "QRCode",
+            "type": "QRCodeAttribute",
+            "instance": "QRCodeInstance"
+          },
+          {
+            "name": "Radio",
+            "type": "RadioAttribute",
+            "instance": "RadioInstance"
+          },
+          {
+            "name": "Rating",
+            "type": "RatingAttribute",
+            "instance": "RatingInstance"
+          },
+          {
+            "name": "Rect",
+            "type": "RectAttribute",
+            "instance": "RectInstance"
+          },
+          {
+            "name": "RelativeContainer",
+            "type": "RelativeContainerAttribute",
+            "instance": "RelativeContainerInstance"
+          },
+          {
+            "name": "Refresh",
+            "type": "RefreshAttribute",
+            "instance": "RefreshInstance"
+          },
+          {
+            "name": "RemoteWindow",
+            "type": "RemoteWindowAttribute",
+            "instance": "RemoteWindowInstance"
+          },
+          {
+            "name": "Row",
+            "type": "RowAttribute",
+            "instance": "RowInstance"
+          },
+          {
+            "name": "RowSplit",
+            "type": "RowSplitAttribute",
+            "instance": "RowSplitInstance"
+          },
+          {
+            "name": "RichText",
+            "type": "RichTextAttribute",
+            "instance": "RichTextInstance"
+          },
+          {
+            "name": "Scroll",
+            "type": "ScrollAttribute",
+            "instance": "ScrollInstance"
+          },
+          {
+            "name": "ScrollBar",
+            "type": "ScrollBarAttribute",
+            "instance": "ScrollBarInstance"
+          },
+          {
+            "name": "Search",
+            "type": "SearchAttribute",
+            "instance": "SearchInstance"
+          },
+          {
+            "name": "Section",
+            "type": "SectionAttribute",
+            "instance": "SectionInstance"
+          },
+          {
+            "name": "Select",
+            "type": "SelectAttribute",
+            "instance": "SelectInstance"
+          },
+          {
+            "name": "Shape",
+            "type": "ShapeAttribute",
+            "instance": "ShapeInstance"
+          },
+          {
+            "name": "Sheet",
+            "type": "SheetAttribute",
+            "instance": "SheetInstance"
+          },
+          {
+            "name": "SideBarContainer",
+            "type": "SideBarContainerAttribute",
+            "instance": "SideBarContainerInstance"
+          },
+          {
+            "name": "Slider",
+            "type": "SliderAttribute",
+            "instance": "SliderInstance"
+          },
+          {
+            "name": "Span",
+            "type": "SpanAttribute",
+            "instance": "SpanInstance"
+          },
+          {
+            "name": "Stack",
+            "type": "StackAttribute",
+            "instance": "StackInstance"
+          },
+          {
+            "name": "Stepper",
+            "type": "StepperAttribute",
+            "instance": "StepperInstance"
+          },
+          {
+            "name": "StepperItem",
+            "type": "StepperItemAttribute",
+            "instance": "StepperItemInstance"
+          },
+          {
+            "name": "Swiper",
+            "type": "SwiperAttribute",
+            "instance": "SwiperInstance"
+          },
+          {
+            "name": "TabContent",
+            "type": "TabContentAttribute",
+            "instance": "TabContentInstance"
+          },
+          {
+            "name": "Tabs",
+            "type": "TabsAttribute",
+            "instance": "TabsInstance"
+          },
+          {
+            "name": "Text",
+            "type": "TextAttribute",
+            "instance": "TextInstance"
+          },
+          {
+            "name": "TextPicker",
+            "type": "TextPickerAttribute",
+            "instance": "TextPickerInstance"
+          },
+          {
+            "name": "TextClock",
+            "type": "TextClockAttribute",
+            "instance": "TextClockInstance"
+          },
+          {
+            "name": "TextArea",
+            "type": "TextAreaAttribute",
+            "instance": "TextAreaInstance"
+          },
+          {
+            "name": "TextInput",
+            "type": "TextInputAttribute",
+            "instance": "TextInputInstance"
+          },
+          {
+            "name": "TextTimer",
+            "type": "TextTimerAttribute",
+            "instance": "TextTimerInstance"
+          },
+          {
+            "name": "TimePicker",
+            "type": "TimePickerAttribute",
+            "instance": "TimePickerInstance"
+          },
+          {
+            "name": "Toggle",
+            "type": "ToggleAttribute",
+            "instance": "ToggleInstance"
+          },
+          {
+            "name": "Video",
+            "type": "VideoAttribute",
+            "instance": "VideoInstance"
+          },
+          {
+            "name": "Web",
+            "type": "WebAttribute",
+            "instance": "WebInstance"
+          },
+          {
+            "name": "XComponent",
+            "type": "XComponentAttribute",
+            "instance": "XComponentInstance"
+          },
+          {
+            "name": "GridRow",
+            "type": "GridRowAttribute",
+            "instance": "GridRowInterface"
+          },
+          {
+            "name": "GridCol",
+            "type": "GridColAttribute",
+            "instance": "GridColInterface"
+          },
+          {
+            "name": "WaterFlow",
+            "type": "WaterFlowAttribute",
+            "instance": "WaterFlowInterface"
+          },
+          {
+            "name": "FlowItem",
+            "type": "FlowItemAttribute",
+            "instance": "FlowItemInterface"
+          }
+        ]
+      },
+      "styles": {
+        "decorator": "Styles",
+        "component": {
+            "name": "Common",
+            "type": "T",
+            "instance": "CommonInstance"
+        },
+        "property": "stateStyles"
+      },
+      "customComponent": "CustomComponent",
+    },
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "importsNotUsedAsValues": "preserve",
+    "noImplicitAny": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "experimentalDecorators": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "sourceMap": true,
+    "module": "commonjs",
+    "target": "es2017",
+    "types": [],
+    "typeRoots": [],
+    "lib": [
+      "es2020"
+    ],
+    "alwaysStrict": true
+  },
+  "exclude": [
+    "node_modules"
+  ]
+}

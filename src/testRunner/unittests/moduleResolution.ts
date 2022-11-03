@@ -84,8 +84,10 @@ namespace ts {
 
         function testLoadAsFile(containingFileName: string, moduleFileNameNoExt: string, moduleName: string): void {
             for (const ext of supportedTSExtensions) {
-                test(ext, /*hasDirectoryExists*/ false);
-                test(ext, /*hasDirectoryExists*/ true);
+                if (ext !== Extension.Dets) {
+                    test(ext, /*hasDirectoryExists*/ false);
+                    test(ext, /*hasDirectoryExists*/ true);
+                }
             }
 
             function test(ext: string, hasDirectoryExists: boolean) {
@@ -137,7 +139,8 @@ namespace ts {
                 const resolution = nodeModuleNameResolver(moduleName, containingFile.name, {}, createModuleResolutionHost(hasDirectoryExists, containingFile, packageJson, moduleFile));
                 checkResolvedModule(resolution.resolvedModule, createResolvedModule(moduleFile.name));
                 // expect three failed lookup location - attempt to load module as file with all supported extensions
-                assert.equal(resolution.failedLookupLocations.length, supportedTSExtensions.length);
+                // Minus 1 is because the test cannot read the ets configuration in tsconfig.json. The. d.ets extension should not be supported here.
+                assert.equal(resolution.failedLookupLocations.length, supportedTSExtensions.length - 1);
             }
         }
 
