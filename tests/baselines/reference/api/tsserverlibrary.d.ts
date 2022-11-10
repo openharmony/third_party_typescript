@@ -2936,6 +2936,10 @@ declare namespace ts {
             property: string;
         };
         customComponent?: string;
+        propertyDecorators: {
+            name: string;
+            needInitialization: boolean;
+        }[];
     }
     export interface WatchOptions {
         watchFile?: WatchFileKind;
@@ -8259,6 +8263,10 @@ declare namespace ts.server.protocol {
             property: string;
         };
         customComponent?: string;
+        propertyDecorators: {
+            name: string;
+            needInitialization: boolean;
+        }[];
     }
     /**
      * Completions request; value of command field is "completions".

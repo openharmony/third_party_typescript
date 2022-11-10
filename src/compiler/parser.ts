@@ -5434,7 +5434,7 @@ namespace ts {
                 }
                 else if (token() === SyntaxKind.OpenParenToken) {
                     let typeArguments: NodeArray<TypeNode> | undefined;
-                    if (isValidVirtualTypeArgumentsContext() && isPropertyAccessExpression(expression)) {
+                    if ((isValidVirtualTypeArgumentsContext() || inBuilderContext()) && isPropertyAccessExpression(expression)) {
                         const rootNode = getRootEtsComponent(expression);
                         if (rootNode) {
                             const rootNodeName = (<Identifier>(rootNode.expression)).escapedText.toString();
