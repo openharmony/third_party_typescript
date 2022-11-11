@@ -2936,6 +2936,10 @@ declare namespace ts {
             property: string;
         };
         customComponent?: string;
+        propertyDecorators: {
+            name: string;
+            needInitialization: boolean;
+        }[];
     }
     export interface WatchOptions {
         watchFile?: WatchFileKind;
