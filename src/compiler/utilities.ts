@@ -410,7 +410,7 @@ namespace ts {
         }
         decorators.forEach(decorator => {
             const nameExpr = decorator.expression;
-            if (isIdentifier(nameExpr) && nameExpr.escapedText.toString() === options.ets?.render?.method?.find(render => render === "build")) {
+            if (isIdentifier(nameExpr) && nameExpr.escapedText.toString() === options.ets?.render?.decorator) {
                 names.push(nameExpr.escapedText.toString());
             }
         });
