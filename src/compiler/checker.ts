@@ -32168,7 +32168,7 @@ namespace ts {
                     if (isIfStatement(item)) {
                         checkIfEtsComponent(item, checkMode);
                     }
-                    else {
+                    else if ((<ExpressionStatement>item).expression) {
                         checkExpressionWorker((<ExpressionStatement>item).expression, checkMode);
                     }
                 });
