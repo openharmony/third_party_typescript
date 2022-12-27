@@ -2158,6 +2158,9 @@ namespace ts.server.protocol {
             component: { name: string; type: string; instance: string };
             property: string;
         };
+        concurrent: {
+            decorator: string;
+        };
         customComponent?: string;
         propertyDecorators: {
             name: string;
