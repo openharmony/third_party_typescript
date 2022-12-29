@@ -20,6 +20,7 @@ namespace ts.server {
             dts: 0, dtsSize: 0,
             deferred: 0, deferredSize: 0,
             ets: 0, etsSize: 0,
+            dets: 0, detsSize: 0,
         };
         for (const info of infos) {
             const fileSize = includeSizes ? info.getTelemetryFileSize() : 0;
@@ -51,8 +52,15 @@ namespace ts.server {
                     result.deferredSize! += fileSize;
                     break;
                 case ScriptKind.ETS:
-                    result.ets += 1;
-                    result.etsSize! += fileSize;
+                    if (fileExtensionIs(info.fileName, Extension.Dets)) {
+                        result.dets += 1;
+                        result.detsSize! += fileSize;
+                    }
+                    else {
+                        result.ets += 1;
+                        result.etsSize! += fileSize;
+                    }
+                    break;
             }
         }
         return result;
@@ -75,7 +83,8 @@ namespace ts.server {
 
     /* @internal */
     export function hasNoTypeScriptSource(fileNames: string[]): boolean {
-        return !fileNames.some(fileName => (fileExtensionIs(fileName, Extension.Ts) && !fileExtensionIs(fileName, Extension.Dts)) || fileExtensionIs(fileName, Extension.Tsx) || fileExtensionIs(fileName, Extension.Ets));
+        return !fileNames.some(fileName => (fileExtensionIs(fileName, Extension.Ts) && !fileExtensionIs(fileName, Extension.Dts)) ||
+               fileExtensionIs(fileName, Extension.Tsx) || (fileExtensionIs(fileName, Extension.Ets) && !fileExtensionIs(fileName, Extension.Dets)));
     }
 
     /* @internal */
@@ -696,7 +705,7 @@ namespace ts.server {
 
                 // Update the signature
                 if (this.builderState && getEmitDeclarations(this.compilerOptions)) {
-                    const dtsFiles = outputFiles.filter(f => fileExtensionIs(f.name, Extension.Dts));
+                    const dtsFiles = outputFiles.filter(f => isDeclarationFileName(f.name));
                     if (dtsFiles.length === 1) {
                         const sourceFile = this.program!.getSourceFile(scriptInfo.fileName)!;
                         const signature = this.projectService.host.createHash ?

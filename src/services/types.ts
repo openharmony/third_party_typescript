@@ -1394,6 +1394,7 @@ namespace ts {
         jsxModifier = ".jsx",
         jsonModifier = ".json",
         etsModifier = ".ets",
+        detsModifier = ".d.ets",
     }
 
     export const enum ClassificationTypeNames {

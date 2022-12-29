@@ -141,10 +141,10 @@ namespace ts {
 
     /* @internal */
     export function getOutputDeclarationFileName(inputFileName: string, configFile: ParsedCommandLine, ignoreCase: boolean, getCommonSourceDirectory?: () => string) {
-        Debug.assert(!fileExtensionIs(inputFileName, Extension.Dts) && !fileExtensionIs(inputFileName, Extension.Json));
+        Debug.assert(!isDeclarationFileName(inputFileName) && !fileExtensionIs(inputFileName, Extension.Json));
         return changeExtension(
             getOutputPathWithoutChangingExt(inputFileName, configFile, ignoreCase, configFile.options.declarationDir || configFile.options.outDir, getCommonSourceDirectory),
-            Extension.Dts
+            fileExtensionIs(inputFileName, Extension.Ets) ? Extension.Dets : Extension.Dts
         );
     }
 
@@ -187,7 +187,7 @@ namespace ts {
     }
 
     function getOwnOutputFileNames(configFile: ParsedCommandLine, inputFileName: string, ignoreCase: boolean, addOutput: ReturnType<typeof createAddOutput>["addOutput"], getCommonSourceDirectory?: () => string) {
-        if (fileExtensionIs(inputFileName, Extension.Dts)) return;
+        if (isDeclarationFileName(inputFileName)) return;
         const js = getOutputJSFileName(inputFileName, configFile, ignoreCase, getCommonSourceDirectory);
         addOutput(js);
         if (fileExtensionIs(inputFileName, Extension.Json)) return;
@@ -239,7 +239,7 @@ namespace ts {
     export function getCommonSourceDirectoryOfConfig({ options, fileNames }: ParsedCommandLine, ignoreCase: boolean): string {
         return getCommonSourceDirectory(
             options,
-            () => filter(fileNames, file => !(options.noEmitForJsFiles && fileExtensionIsOneOf(file, supportedJSExtensions)) && !fileExtensionIs(file, Extension.Dts)),
+            () => filter(fileNames, file => !(options.noEmitForJsFiles && fileExtensionIsOneOf(file, supportedJSExtensions)) && !isDeclarationFileName(file)),
             getDirectoryPath(normalizeSlashes(Debug.checkDefined(options.configFilePath))),
             createGetCanonicalFileName(!ignoreCase)
         );
@@ -283,7 +283,7 @@ namespace ts {
 
         const getCommonSourceDirectory = memoize(() => getCommonSourceDirectoryOfConfig(configFile, ignoreCase));
         for (const inputFileName of configFile.fileNames) {
-            if (fileExtensionIs(inputFileName, Extension.Dts)) continue;
+            if (isDeclarationFileName(inputFileName)) continue;
             const jsFilePath = getOutputJSFileName(inputFileName, configFile, ignoreCase, getCommonSourceDirectory);
             if (jsFilePath) return jsFilePath;
             if (fileExtensionIs(inputFileName, Extension.Json)) continue;
@@ -1493,7 +1493,9 @@ namespace ts {
                     case SyntaxKind.FunctionDeclaration:
                         return emitFunctionDeclaration(<FunctionDeclaration>node);
                     case SyntaxKind.ClassDeclaration:
-                        return emitClassDeclaration(<ClassDeclaration>node);
+                        return emitClassOrStructDeclaration(<ClassDeclaration>node);
+                    case SyntaxKind.StructDeclaration:
+                        return emitClassOrStructDeclaration(<StructDeclaration>node);
                     case SyntaxKind.InterfaceDeclaration:
                         return emitInterfaceDeclaration(<InterfaceDeclaration>node);
                     case SyntaxKind.TypeAliasDeclaration:
@@ -2657,7 +2659,7 @@ namespace ts {
 
         function emitClassExpression(node: ClassExpression) {
             generateNameIfNeeded(node.name);
-            emitClassDeclarationOrExpression(node);
+            emitClassOrStructDeclarationOrExpression(node);
         }
 
         function emitExpressionWithTypeArguments(node: ExpressionWithTypeArguments) {
@@ -3088,16 +3090,21 @@ namespace ts {
             }
         }
 
-        function emitClassDeclaration(node: ClassDeclaration) {
-            emitClassDeclarationOrExpression(node);
+        function emitClassOrStructDeclaration(node: ClassDeclaration | StructDeclaration) {
+            emitClassOrStructDeclarationOrExpression(node);
         }
 
-        function emitClassDeclarationOrExpression(node: ClassDeclaration | ClassExpression) {
+        function emitClassOrStructDeclarationOrExpression(node: ClassDeclaration | ClassExpression | StructDeclaration) {
             forEach(node.members, generateMemberNames);
 
             emitDecorators(node, node.decorators);
             emitModifiers(node, node.modifiers);
-            writeKeyword("class");
+            if (isStructDeclaration(node)) {
+                writeKeyword("struct");
+            }
+            else {
+                writeKeyword("class");
+            }
             if (node.name) {
                 writeSpace();
                 emitIdentifierName(node.name);
@@ -4038,7 +4045,7 @@ namespace ts {
             emitList(parentNode, typeArguments, ListFormat.TypeArguments);
         }
 
-        function emitTypeParameters(parentNode: SignatureDeclaration | InterfaceDeclaration | TypeAliasDeclaration | ClassDeclaration | ClassExpression, typeParameters: NodeArray<TypeParameterDeclaration> | undefined) {
+        function emitTypeParameters(parentNode: SignatureDeclaration | InterfaceDeclaration | TypeAliasDeclaration | ClassDeclaration | ClassExpression | StructDeclaration, typeParameters: NodeArray<TypeParameterDeclaration> | undefined) {
             if (isFunctionLike(parentNode) && parentNode.typeArguments) { // Quick info uses type arguments in place of type parameters on instantiated signatures
                 return emitTypeArguments(parentNode, parentNode.typeArguments);
             }

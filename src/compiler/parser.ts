@@ -9229,7 +9229,7 @@ namespace ts {
 
     /** @internal */
     export function isDeclarationFileName(fileName: string): boolean {
-        return fileExtensionIs(fileName, Extension.Dts);
+        return fileExtensionIs(fileName, Extension.Dts) || fileExtensionIs(fileName, Extension.Dets);
     }
 
     /*@internal*/
