@@ -318,8 +318,14 @@ task("watch-lssl").flags = {
     "   --built": "Compile using the built version of the compiler."
 };
 
+const ohTestCasesGeneration = async () => {
+    if (!fs.existsSync(path.join(__dirname, "tests/cases/fourslash/oh/")) || !fs.existsSync(path.join(__dirname, "tests/cases/compiler-oh/"))) {
+        await exec(process.execPath, ["scripts/ohTestCasesGenerationScript.js", diagnosticMessagesJson]);
+    }
+}
+
 const buildTests = () => buildProject("src/testRunner");
-task("tests", series(preBuild, parallel(buildLssl, buildTests)));
+task("tests", series(preBuild, ohTestCasesGeneration, parallel(buildLssl, buildTests)));
 task("tests").description = "Builds the test infrastructure";
 task("tests").flags = {
     "   --built": "Compile using the built version of the compiler."
@@ -447,7 +453,7 @@ preTest.displayName = "preTest";
 const postTest = (done) => cmdLineOptions.lint ? lint(done) : done();
 
 const runTests = () => runConsoleTests("built/local/run.js", "mocha-fivemat-progress-reporter", /*runInParallel*/ false, /*watchMode*/ false);
-task("runtests", series(preBuild, preTest, runTests, postTest));
+task("runtests", series(preBuild, ohTestCasesGeneration, preTest, runTests, postTest));
 task("runtests").description = "Runs the tests using the built run.js file.";
 task("runtests").flags = {
     "-t --tests=<regex>": "Pattern for tests to run.",
@@ -468,7 +474,7 @@ task("runtests").flags = {
 };
 
 const runTestsParallel = () => runConsoleTests("built/local/run.js", "min", /*runInParallel*/ cmdLineOptions.workers > 1, /*watchMode*/ false);
-task("runtests-parallel", series(preBuild, preTest, runTestsParallel, postTest));
+task("runtests-parallel", series(preBuild, ohTestCasesGeneration, preTest, runTestsParallel, postTest));
 task("runtests-parallel").description = "Runs all the tests in parallel using the built run.js file.";
 task("runtests-parallel").flags = {
     "   --no-lint": "disables lint.",

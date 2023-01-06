@@ -5972,7 +5972,7 @@ namespace ts {
         /* @internal */ showConfig?: boolean;
         useDefineForClassFields?: boolean;
         ets?: EtsOptions;
-
+        packageManagerType?: string;
         [option: string]: CompilerOptionsValue | TsConfigSourceFile | undefined;
     }
 
@@ -6446,7 +6446,7 @@ namespace ts {
         // The location of the .d.ts file we located, or undefined if resolution failed
         resolvedFileName: string | undefined;
         packageId?: PackageId;
-        /** True if `resolvedFileName` comes from `node_modules`. */
+        /** True if `resolvedFileName` comes from `node_modules` or `oh_modules`. */
         isExternalLibraryImport?: boolean;
     }
 

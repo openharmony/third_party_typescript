@@ -2909,6 +2909,7 @@ declare namespace ts {
         esModuleInterop?: boolean;
         useDefineForClassFields?: boolean;
         ets?: EtsOptions;
+        packageManagerType?: string;
         [option: string]: CompilerOptionsValue | TsConfigSourceFile | undefined;
     }
     export interface EtsOptions {
@@ -3141,7 +3142,7 @@ declare namespace ts {
         primary: boolean;
         resolvedFileName: string | undefined;
         packageId?: PackageId;
-        /** True if `resolvedFileName` comes from `node_modules`. */
+        /** True if `resolvedFileName` comes from `node_modules` or `oh_modules`. */
         isExternalLibraryImport?: boolean;
     }
     export interface ResolvedTypeReferenceDirectiveWithFailedLookupLocations {
@@ -4792,6 +4793,7 @@ declare namespace ts {
     function resolveModuleNameFromCache(moduleName: string, containingFile: string, cache: ModuleResolutionCache): ResolvedModuleWithFailedLookupLocations | undefined;
     function resolveModuleName(moduleName: string, containingFile: string, compilerOptions: CompilerOptions, host: ModuleResolutionHost, cache?: ModuleResolutionCache, redirectedReference?: ResolvedProjectReference): ResolvedModuleWithFailedLookupLocations;
     function nodeModuleNameResolver(moduleName: string, containingFile: string, compilerOptions: CompilerOptions, host: ModuleResolutionHost, cache?: ModuleResolutionCache, redirectedReference?: ResolvedProjectReference): ResolvedModuleWithFailedLookupLocations;
+    const ohModulesPathPart = "/oh_modules/";
     function classicNameResolver(moduleName: string, containingFile: string, compilerOptions: CompilerOptions, host: ModuleResolutionHost, cache?: NonRelativeModuleNameResolutionCache, redirectedReference?: ResolvedProjectReference): ResolvedModuleWithFailedLookupLocations;
 }
 declare namespace ts {

@@ -25,8 +25,12 @@ namespace Harness {
                 return new CompilerBaselineRunner(CompilerTestType.Conformance);
             case "compiler":
                 return new CompilerBaselineRunner(CompilerTestType.Regressions);
+            case "compiler-oh":
+                return new CompilerBaselineRunner(CompilerTestType.OH);
             case "fourslash":
                 return new FourSlashRunner(FourSlash.FourSlashTestType.Native);
+            case "fourslash-oh":
+                return new FourSlashRunner(FourSlash.FourSlashTestType.OH);
             case "fourslash-shims":
                 return new FourSlashRunner(FourSlash.FourSlashTestType.Shims);
             case "fourslash-shims-pp":
@@ -155,6 +159,9 @@ namespace Harness {
                             runners.push(new CompilerBaselineRunner(CompilerTestType.Conformance));
                             runners.push(new CompilerBaselineRunner(CompilerTestType.Regressions));
                             break;
+                        case "compiler-oh":
+                            runners.push(new CompilerBaselineRunner(CompilerTestType.OH));
+                            break;
                         case "conformance":
                             runners.push(new CompilerBaselineRunner(CompilerTestType.Conformance));
                             break;
@@ -163,6 +170,9 @@ namespace Harness {
                             break;
                         case "fourslash":
                             runners.push(new FourSlashRunner(FourSlash.FourSlashTestType.Native));
+                            break;
+                        case "fourslash-oh":
+                            runners.push(new FourSlashRunner(FourSlash.FourSlashTestType.OH));
                             break;
                         case "fourslash-shims":
                             runners.push(new FourSlashRunner(FourSlash.FourSlashTestType.Shims));
@@ -200,11 +210,12 @@ namespace Harness {
             // compiler
             runners.push(new CompilerBaselineRunner(CompilerTestType.Conformance));
             runners.push(new CompilerBaselineRunner(CompilerTestType.Regressions));
-
+            runners.push(new CompilerBaselineRunner(CompilerTestType.OH));
             runners.push(new project.ProjectRunner());
 
             // language services
             runners.push(new FourSlashRunner(FourSlash.FourSlashTestType.Native));
+            runners.push(new FourSlashRunner(FourSlash.FourSlashTestType.OH));
             runners.push(new FourSlashRunner(FourSlash.FourSlashTestType.Shims));
             runners.push(new FourSlashRunner(FourSlash.FourSlashTestType.ShimsWithPreprocess));
             runners.push(new FourSlashRunner(FourSlash.FourSlashTestType.Server));

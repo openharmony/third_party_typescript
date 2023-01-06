@@ -385,7 +385,8 @@ namespace ts.server {
             return this.symlinks || (this.symlinks = discoverProbableSymlinks(
                 this.program?.getSourceFiles() || emptyArray,
                 this.getCanonicalFileName,
-                this.getCurrentDirectory()));
+                this.getCurrentDirectory(),
+                isOhpm(this.compilerOptions.packageManagerType)));
         }
 
         // Method of LanguageServiceHost
@@ -1350,7 +1351,6 @@ namespace ts.server {
                 if (this.generatedFilesMap) {
                     if (isGeneratedFileWatcher(this.generatedFilesMap)) {
                         Debug.fail(`${this.projectName} Expected to not have --out watcher for generated file with options: ${JSON.stringify(this.compilerOptions)}`);
-                        return;
                     }
                     if (this.generatedFilesMap.has(path)) return;
                 }

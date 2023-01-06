@@ -5,7 +5,8 @@ namespace FourSlash {
         Native,
         Shims,
         ShimsWithPreprocess,
-        Server
+        Server,
+        OH
     }
 
     // Represents a parsed source file with metadata
@@ -220,6 +221,8 @@ namespace FourSlash {
             switch (testType) {
                 case FourSlashTestType.Native:
                     return new Harness.LanguageService.NativeLanguageServiceAdapter(cancellationToken, compilationOptions);
+                case FourSlashTestType.OH:
+                    return new Harness.LanguageService.NativeLanguageServiceAdapter(cancellationToken, { ...compilationOptions, ...{ packageManagerType: "ohpm" } });
                 case FourSlashTestType.Shims:
                     return new Harness.LanguageService.ShimLanguageServiceAdapter(/*preprocessToResolve*/ false, cancellationToken, compilationOptions);
                 case FourSlashTestType.ShimsWithPreprocess:
@@ -568,7 +571,7 @@ namespace FourSlash {
                 }
 
                 const baseName = ts.getBaseFileName(fileName);
-                if (baseName === "package.json" || baseName === "tsconfig.json" || baseName === "jsconfig.json") {
+                if (baseName === "package.json" || baseName === "oh-package.json5" || baseName === "tsconfig.json" || baseName === "jsconfig.json") {
                     return [];
                 }
                 return this.getDiagnostics(fileName);
@@ -3965,7 +3968,8 @@ namespace FourSlash {
         const testData = parseTestData(absoluteBasePath, content, absoluteFileName);
         const state = new TestState(absoluteFileName, absoluteBasePath, testType, testData);
         const actualFileName = Harness.IO.resolvePath(fileName) || absoluteFileName;
-        const output = ts.transpileModule(content, { reportDiagnostics: true, fileName: actualFileName, compilerOptions: { target: ts.ScriptTarget.ES2015, inlineSourceMap: true, inlineSources: true } });
+        const compilerOptions: ts.CompilerOptions = { target: ts.ScriptTarget.ES2015, inlineSourceMap: true, inlineSources: true, packageManagerType: testType === FourSlashTestType.OH ? "ohpm" : "npm" };
+        const output = ts.transpileModule(content, { reportDiagnostics: true, fileName: actualFileName, compilerOptions });
         if (output.diagnostics!.length > 0) {
             throw new Error(`Syntax error in ${absoluteBasePath}: ${output.diagnostics![0].messageText}`);
         }

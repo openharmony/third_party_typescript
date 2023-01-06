@@ -3390,6 +3390,7 @@ namespace ts.server.protocol {
         /** Paths used to used to compute primary types search locations */
         typeRoots?: string[];
         ets?: EtsOptions;
+        packageManagerType?: string;
         [option: string]: CompilerOptionsValue | undefined;
     }
 
