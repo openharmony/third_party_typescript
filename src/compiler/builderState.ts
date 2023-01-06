@@ -336,7 +336,7 @@ namespace ts {
                     emitOutput.outputFiles.length > 1 ? emitOutput.outputFiles[1] : undefined :
                     emitOutput.outputFiles.length > 0 ? emitOutput.outputFiles[0] : undefined;
                 if (firstDts) {
-                    Debug.assert(fileExtensionIs(firstDts.name, Extension.Dts), "File extension for signature expected to be dts", () => `Found: ${getAnyExtensionFromPath(firstDts.name)} for ${firstDts.name}:: All output files: ${JSON.stringify(emitOutput.outputFiles.map(f => f.name))}`);
+                    Debug.assert(isDeclarationFileName(firstDts.name), "File extension for signature expected to be dts or dets", () => `Found: ${getAnyExtensionFromPath(firstDts.name)} for ${firstDts.name}:: All output files: ${JSON.stringify(emitOutput.outputFiles.map(f => f.name))}`);
                     latestSignature = (computeHash || generateDjb2Hash)(firstDts.text);
                     if (exportedModulesMapCache && latestSignature !== prevSignature) {
                         updateExportedModules(sourceFile, emitOutput.exportedModulesFromDeclarationEmit, exportedModulesMapCache);

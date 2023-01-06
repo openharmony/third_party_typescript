@@ -44,7 +44,7 @@ namespace ts {
         NodeBuilderFlags.NoTruncation;
 
     /**
-     * Transforms a ts file into a .d.ts file
+     * Transforms a ts file into a .d.ts or .d.ets file
      * This process requires type information, which is retrieved through the emit resolver. Because of this,
      * in many places this transformer assumes it will be operating on parse tree nodes directly.
      * This means that _no transforms should be allowed to occur before this one_.
@@ -509,6 +509,9 @@ namespace ts {
                 // Literal const declarations will have an initializer ensured rather than a type
                 return;
             }
+            if (type !== undefined && isTypeReferenceNode(type) && type.typeName.virtual) {
+                return;
+            }
             const shouldUseResolverType = node.kind === SyntaxKind.Parameter &&
                 (resolver.isRequiredInitializedParameter(node) ||
                  resolver.isOptionalUninitializedParameterProperty(node));
@@ -556,6 +559,7 @@ namespace ts {
                 case SyntaxKind.ModuleDeclaration:
                 case SyntaxKind.InterfaceDeclaration:
                 case SyntaxKind.ClassDeclaration:
+                case SyntaxKind.StructDeclaration:
                 case SyntaxKind.TypeAliasDeclaration:
                 case SyntaxKind.EnumDeclaration:
                     return !resolver.isDeclarationVisible(node);
@@ -634,6 +638,7 @@ namespace ts {
                 || isTypeAliasDeclaration(node)
                 || isModuleDeclaration(node)
                 || isClassDeclaration(node)
+                || isStructDeclaration(node)
                 || isInterfaceDeclaration(node)
                 || isFunctionLike(node)
                 || isIndexSignatureDeclaration(node)
@@ -894,13 +899,17 @@ namespace ts {
                         if (isPrivateIdentifier(input.name)) {
                             return cleanup(/*returnValue*/ undefined);
                         }
+                        let reservedDecorators;
+                        if (input.parent.kind === SyntaxKind.StructDeclaration) {
+                            reservedDecorators = ensureEtsDecorators(input);
+                        }
                         const sig = factory.createMethodDeclaration(
-                            /*decorators*/ undefined,
+                            reservedDecorators,
                             ensureModifiers(input),
                             /*asteriskToken*/ undefined,
                             input.name,
                             input.questionToken,
-                            ensureTypeParams(input, input.typeParameters),
+                            inEtsStylesContext(input) ? undefined : ensureTypeParams(input, input.typeParameters),
                             updateParamsList(input, input.parameters),
                             ensureType(input, input.type),
                             /*body*/ undefined
@@ -939,7 +948,7 @@ namespace ts {
                         }
                         return cleanup(factory.updatePropertyDeclaration(
                             input,
-                            /*decorators*/ undefined,
+                            input.parent.kind === SyntaxKind.StructDeclaration ? ensureEtsDecorators(input) : undefined,
                             ensureModifiers(input),
                             input.name,
                             input.questionToken,
@@ -1058,6 +1067,22 @@ namespace ts {
                 }
                 return returnValue && setOriginalNode(preserveJsDoc(returnValue, input), input);
             }
+        }
+
+        function inEtsStylesContext(input: LateVisibilityPaintedStatement | MethodDeclaration) {
+            if (!host.getCompilerOptions().ets?.styles.component || getSourceFileOfNode(input).scriptKind !== ScriptKind.ETS) {
+                return false;
+            }
+            const decorators = input.decorators;
+            if (decorators == undefined) {
+                return false;
+            }
+            for (const decorator of decorators) {
+                if (isIdentifier(decorator.expression) && decorator.expression.escapedText.toString() === "Styles") {
+                    return true;
+                }
+            }
+            return false;
         }
 
         function isPrivateMethodTypeParameter(node: TypeParameterDeclaration) {
@@ -1182,11 +1207,11 @@ namespace ts {
                     // Generators lose their generator-ness, excepting their return type
                     const clean = cleanup(factory.updateFunctionDeclaration(
                         input,
-                        /*decorators*/ undefined,
+                        getSourceFileOfNode(input).scriptKind === ScriptKind.ETS ? ensureEtsDecorators(input) : undefined,
                         ensureModifiers(input),
                         /*asteriskToken*/ undefined,
                         input.name,
-                        ensureTypeParams(input, input.typeParameters),
+                        inEtsStylesContext(input) ? undefined : ensureTypeParams(input, input.typeParameters),
                         updateParamsList(input, input.parameters),
                         ensureType(input, input.type),
                         /*body*/ undefined
@@ -1236,7 +1261,7 @@ namespace ts {
                         const modifiers = factory.createModifiersFromModifierFlags((getEffectiveModifierFlags(clean) & ~ModifierFlags.ExportDefault) | ModifierFlags.Ambient);
                         const cleanDeclaration = factory.updateFunctionDeclaration(
                             clean,
-                            /*decorators*/ undefined,
+                            clean.decorators,
                             modifiers,
                             /*asteriskToken*/ undefined,
                             clean.name,
@@ -1328,6 +1353,26 @@ namespace ts {
                         ));
                     }
                 }
+                case SyntaxKind.StructDeclaration: {
+                    errorNameNode = input.name;
+                    errorFallbackNode = input;
+
+                    const decorators = ensureEtsDecorators(input);
+                    const modifiers = factory.createNodeArray(ensureModifiers(input));
+                    const typeParameters = ensureTypeParams(input, input.typeParameters);
+                    const memberNodes = visitNodes(input.members, visitDeclarationSubtree, undefined, 1);
+                    const members = factory.createNodeArray(memberNodes);
+
+                    return cleanup(factory.updateStructDeclaration(
+                        input,
+                        decorators,
+                        modifiers,
+                        input.name,
+                        typeParameters,
+                        /*heritageClauses*/ undefined,
+                        members
+                    ));
+                }
                 case SyntaxKind.ClassDeclaration: {
                     errorNameNode = input.name;
                     errorFallbackNode = input;
@@ -1418,7 +1463,7 @@ namespace ts {
                         }));
                         return [statement, cleanup(factory.updateClassDeclaration(
                             input,
-                            /*decorators*/ undefined,
+                            getSourceFileOfNode(input).scriptKind === ScriptKind.ETS ? ensureEtsDecorators(input) : undefined,
                             modifiers,
                             input.name,
                             typeParameters,
@@ -1430,7 +1475,7 @@ namespace ts {
                         const heritageClauses = transformHeritageClauses(input.heritageClauses);
                         return cleanup(factory.updateClassDeclaration(
                             input,
-                            /*decorators*/ undefined,
+                            getSourceFileOfNode(input).scriptKind === ScriptKind.ETS ? ensureEtsDecorators(input) : undefined,
                             modifiers,
                             input.name,
                             typeParameters,
@@ -1537,6 +1582,13 @@ namespace ts {
             return factory.createModifiersFromModifierFlags(newFlags);
         }
 
+        function ensureEtsDecorators(node: Node): NodeArray<Decorator> | undefined {
+            if (node.decorators) {
+                return factory.createNodeArray(getEffectiveDecorators(node.decorators, host));
+            }
+            return undefined;
+        }
+
         function ensureModifierFlags(node: Node): ModifierFlags {
             let mask = ModifierFlags.All ^ (ModifierFlags.Public | ModifierFlags.Async); // No async modifiers in declaration files
             let additions = (needsDeclare && !isAlwaysType(node)) ? ModifierFlags.Ambient : ModifierFlags.None;
@@ -1638,6 +1690,7 @@ namespace ts {
             case SyntaxKind.ImportEqualsDeclaration:
             case SyntaxKind.InterfaceDeclaration:
             case SyntaxKind.ClassDeclaration:
+            case SyntaxKind.StructDeclaration:
             case SyntaxKind.TypeAliasDeclaration:
             case SyntaxKind.EnumDeclaration:
             case SyntaxKind.VariableStatement:

@@ -1475,7 +1475,7 @@ namespace Harness {
     export function isDefaultLibraryFile(filePath: string): boolean {
         // We need to make sure that the filePath is prefixed with "lib." not just containing "lib." and end with ".d.ts"
         const fileName = ts.getBaseFileName(ts.normalizeSlashes(filePath));
-        return ts.startsWith(fileName, "lib.") && ts.endsWith(fileName, ts.Extension.Dts);
+        return ts.startsWith(fileName, "lib.") && (ts.endsWith(fileName, ts.Extension.Dts) || ts.endsWith(fileName, ts.Extension.Dets));
     }
 
     export function isBuiltFile(filePath: string): boolean {
