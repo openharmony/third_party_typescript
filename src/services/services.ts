@@ -2328,8 +2328,8 @@ namespace ts {
             const fileContents = sourceFile.text;
             const result: TodoComment[] = [];
 
-            // Exclude node_modules files as we don't want to show the todos of external libraries.
-            if (descriptors.length > 0 && !isNodeModulesFile(sourceFile.fileName)) {
+            // Exclude node_modules or oh_modules files as we don't want to show the todos of external libraries.
+            if (descriptors.length > 0 && !isNodeModulesFile(sourceFile.fileName) && !isOHModulesFile(sourceFile.fileName)) {
                 const regExp = getTodoCommentsRegExp();
 
                 let matchArray: RegExpExecArray | null;
@@ -2456,6 +2456,10 @@ namespace ts {
 
             function isNodeModulesFile(path: string): boolean {
                 return stringContains(path, "/node_modules/");
+            }
+
+            function isOHModulesFile(path: string): boolean {
+                return stringContains(path, "/oh_modules/");
             }
         }
 

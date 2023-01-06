@@ -2,7 +2,8 @@ namespace Harness {
     export const enum CompilerTestType {
         Conformance,
         Regressions,
-        Test262
+        Test262,
+        OH
     }
 
     interface CompilerFileBasedTest extends FileBasedTest {
@@ -27,6 +28,9 @@ namespace Harness {
             }
             else if (testType === CompilerTestType.Test262) {
                 this.testSuiteName = "test262";
+            }
+            else if (testType === CompilerTestType.OH) {
+                this.testSuiteName = "compiler-oh";
             }
             else {
                 this.testSuiteName = "compiler"; // default to this for historical reasons

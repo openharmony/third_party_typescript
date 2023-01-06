@@ -925,7 +925,7 @@ namespace ts.codefix {
                 }
             }
         });
-        host.log?.(`forEachExternalModuleToImportFrom: filtered out ${filteredCount} modules by package.json contents`);
+        host.log?.(`forEachExternalModuleToImportFrom: filtered out ${filteredCount} modules by package.json or oh-package.json5 contents`);
     }
 
     function forEachExternalModule(checker: TypeChecker, allSourceFiles: readonly SourceFile[], cb: (module: Symbol, sourceFile: SourceFile | undefined) => void) {
@@ -945,6 +945,7 @@ namespace ts.codefix {
         to: SourceFile,
         moduleSpecifierResolutionHost: ModuleSpecifierResolutionHost
     ) {
+        const isOHModules = isOhpm(program.getCompilerOptions().packageManagerType);
         const getCanonicalFileName = hostGetCanonicalFileName(moduleSpecifierResolutionHost);
         const globalTypingsCache = moduleSpecifierResolutionHost.getGlobalTypingsCacheLocation?.();
         return !!moduleSpecifiers.forEachFileNameOfModule(
@@ -957,18 +958,20 @@ namespace ts.codefix {
                 // Determine to import using toPath only if toPath is what we were looking at
                 // or there doesnt exist the file in the program by the symlink
                 return (toFile === to || !toFile) &&
-                    isImportablePath(from.fileName, toPath, getCanonicalFileName, globalTypingsCache);
-            }
+                    isImportablePath(from.fileName, toPath, getCanonicalFileName, globalTypingsCache, isOHModules);
+            },
+            isOHModules
         );
     }
 
     /**
-     * Don't include something from a `node_modules` that isn't actually reachable by a global import.
-     * A relative import to node_modules is usually a bad idea.
+     * Don't include something from a `node_modules` or `oh_modules` that isn't actually reachable by a global import.
+     * A relative import to node_modules or oh_modules is usually a bad idea.
      */
-    function isImportablePath(fromPath: string, toPath: string, getCanonicalFileName: GetCanonicalFileName, globalCachePath?: string): boolean {
-        // If it's in a `node_modules` but is not reachable from here via a global import, don't bother.
-        const toNodeModules = forEachAncestorDirectory(toPath, ancestor => getBaseFileName(ancestor) === "node_modules" ? ancestor : undefined);
+    function isImportablePath(fromPath: string, toPath: string, getCanonicalFileName: GetCanonicalFileName, globalCachePath?: string, isOHModules?: boolean): boolean {
+        // If it's in a `node_modules` or `oh_modules` but is not reachable from here via a global import, don't bother.
+        const toNodeModules = forEachAncestorDirectory(toPath, ancestor => (getBaseFileName(ancestor) === "node_modules" || (isOHModules &&
+            getBaseFileName(ancestor) === "oh_modules")) ? ancestor : undefined);
         const toNodeModulesParent = toNodeModules && getDirectoryPath(getCanonicalFileName(toNodeModules));
         return toNodeModulesParent === undefined
             || startsWith(getCanonicalFileName(fromPath), toNodeModulesParent)
@@ -1015,7 +1018,7 @@ namespace ts.codefix {
         return { allowsImportingAmbientModule, allowsImportingSourceFile, allowsImportingSpecifier, moduleSpecifierResolutionHost };
 
         function moduleSpecifierIsCoveredByPackageJson(specifier: string) {
-            const packageName = getNodeModuleRootSpecifier(specifier);
+            const packageName = getModuleRootSpecifier(specifier);
             for (const packageJson of packageJsons) {
                 if (packageJson.has(packageName) || packageJson.has(getTypesPackageName(packageName))) {
                     return true;
@@ -1030,7 +1033,7 @@ namespace ts.codefix {
             }
 
             const declaringSourceFile = moduleSymbol.valueDeclaration.getSourceFile();
-            const declaringNodeModuleName = getNodeModulesPackageNameFromFileName(declaringSourceFile.fileName);
+            const declaringNodeModuleName = getModulesPackageNameFromFileName(declaringSourceFile.fileName);
             if (typeof declaringNodeModuleName === "undefined") {
                 return true;
             }
@@ -1049,7 +1052,7 @@ namespace ts.codefix {
                 return true;
             }
 
-            const moduleSpecifier = getNodeModulesPackageNameFromFileName(sourceFile.fileName);
+            const moduleSpecifier = getModulesPackageNameFromFileName(sourceFile.fileName);
             if (!moduleSpecifier) {
                 return true;
             }
@@ -1088,11 +1091,11 @@ namespace ts.codefix {
             return false;
         }
 
-        function getNodeModulesPackageNameFromFileName(importedFileName: string): string | undefined {
-            if (!stringContains(importedFileName, "node_modules")) {
+        function getModulesPackageNameFromFileName(importedFileName: string): string | undefined {
+            if (!stringContains(importedFileName, "node_modules") && !stringContains(importedFileName, "oh_modules")) {
                 return undefined;
             }
-            const specifier = moduleSpecifiers.getNodeModulesPackageName(
+            const specifier = moduleSpecifiers.getModulesPackageName(
                 host.getCompilationSettings(),
                 fromFile.path,
                 importedFileName,
@@ -1102,14 +1105,14 @@ namespace ts.codefix {
             if (!specifier) {
                 return undefined;
             }
-            // Paths here are not node_modules, so we don’t care about them;
-            // returning anything will trigger a lookup in package.json.
+            // Paths here are not node_modules or oh_modules, so we don’t care about them;
+            // returning anything will trigger a lookup in package.json or oh-package.json5.
             if (!pathIsRelative(specifier) && !isRootedDiskPath(specifier)) {
-                return getNodeModuleRootSpecifier(specifier);
+                return getModuleRootSpecifier(specifier);
             }
         }
 
-        function getNodeModuleRootSpecifier(fullSpecifier: string): string {
+        function getModuleRootSpecifier(fullSpecifier: string): string {
             const components = getPathComponents(getPackageNameFromTypesPackageName(fullSpecifier)).slice(1);
             // Scoped packages
             if (startsWith(components[0], "@")) {

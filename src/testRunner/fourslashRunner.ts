@@ -10,6 +10,10 @@ namespace Harness {
                     this.basePath = "tests/cases/fourslash";
                     this.testSuiteName = "fourslash";
                     break;
+                case FourSlash.FourSlashTestType.OH:
+                    this.basePath = "tests/cases/fourslash/oh";
+                    this.testSuiteName = "fourslash-oh";
+                    break;
                 case FourSlash.FourSlashTestType.Shims:
                     this.basePath = "tests/cases/fourslash/shims";
                     this.testSuiteName = "fourslash-shims";

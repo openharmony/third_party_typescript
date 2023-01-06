@@ -816,7 +816,7 @@ namespace ts {
         let resolvedTypeReferenceDirectives = new Map<string, ResolvedTypeReferenceDirective | undefined>();
         let fileProcessingDiagnostics: FilePreprocessingDiagnostics[] | undefined;
 
-        // The below settings are to track if a .js file should be add to the program if loaded via searching under node_modules.
+        // The below settings are to track if a .js file should be add to the program if loaded via searching under node_modules or oh_modules.
         // This works as imported modules are discovered recursively in a depth first manner, specifically:
         // - For each root file, findSourceFile is called.
         // - This calls processImportedModules for each module imported in the source file.
@@ -826,11 +826,11 @@ namespace ts {
         const maxNodeModuleJsDepth = typeof options.maxNodeModuleJsDepth === "number" ? options.maxNodeModuleJsDepth : 0;
         let currentNodeModulesDepth = 0;
 
-        // If a module has some of its imports skipped due to being at the depth limit under node_modules, then track
+        // If a module has some of its imports skipped due to being at the depth limit under node_modules or oh_modules, then track
         // this, as it may be imported at a shallower depth later, and then it will need its skipped imports processed.
         const modulesWithElidedImports = new Map<string, boolean>();
 
-        // Track source files that are source files found by searching under node_modules, as these shouldn't be compiled.
+        // Track source files that are source files found by searching under node_modules or oh_modules, as these shouldn't be compiled.
         const sourceFilesFoundSearchingNodeModules = new Map<string, boolean>();
 
         tracing?.push(tracing.Phase.Program, "createProgram", { configFilePath: options.configFilePath, rootDir: options.rootDir }, /*separateBeginAndEnd*/ true);
@@ -916,7 +916,8 @@ namespace ts {
             toPath,
             getResolvedProjectReferences,
             getSourceOfProjectReferenceRedirect,
-            forEachResolvedProjectReference
+            forEachResolvedProjectReference,
+            options: _options
         });
 
         tracing?.push(tracing.Phase.Program, "shouldProgramCreateNewSourceFiles", { hasOldProgram: !!oldProgram });
@@ -1160,8 +1161,9 @@ namespace ts {
             // If preserveSymlinks is true, module resolution wont jump the symlink
             // but the resolved real path may be the .d.ts from project reference
             // Note:: Currently we try the real path only if the
-            // file is from node_modules to avoid having to run real path on all file paths
-            if (!host.realpath || !options.preserveSymlinks || !stringContains(file.originalFileName, nodeModulesPathPart)) return undefined;
+            // file is from node_modules or oh_modules to avoid having to run real path on all file paths
+            if (!host.realpath || !options.preserveSymlinks || (!stringContains(file.originalFileName, nodeModulesPathPart) &&
+              !stringContains(file.originalFileName, ohModulesPathPart))) return undefined;
             const realDeclarationFileName = host.realpath(file.originalFileName);
             const realDeclarationPath = toPath(realDeclarationFileName);
             return realDeclarationPath === file.path ? undefined : getRedirectReferenceForResolutionFromSourceOfProject(realDeclarationFileName, realDeclarationPath);
@@ -2516,12 +2518,13 @@ namespace ts {
                 // If preserveSymlinks is true, module resolution wont jump the symlink
                 // but the resolved real path may be the .d.ts from project reference
                 // Note:: Currently we try the real path only if the
-                // file is from node_modules to avoid having to run real path on all file paths
+                // file is from node_modules or oh_modules to avoid having to run real path on all file paths
+                const modulesPathPart: string = isOhpm(options.packageManagerType) ? ohModulesPathPart : nodeModulesPathPart;
                 if (!source &&
                     host.realpath &&
                     options.preserveSymlinks &&
                     isDeclarationFileName(fileName) &&
-                    stringContains(fileName, nodeModulesPathPart)) {
+                    stringContains(fileName, modulesPathPart)) {
                     const realPath = host.realpath(fileName);
                     if (realPath !== fileName) source = getSourceOfProjectReferenceRedirect(realPath);
                 }
@@ -2553,7 +2556,7 @@ namespace ts {
                     }
                 }
 
-                // If the file was previously found via a node_modules search, but is now being processed as a root file,
+                // If the file was previously found via a node_modules or oh_modules search, but is now being processed as a root file,
                 // then everything it sucks in may also be marked incorrectly, and needs to be checked again.
                 if (file && sourceFilesFoundSearchingNodeModules.get(file.path) && currentNodeModulesDepth === 0) {
                     sourceFilesFoundSearchingNodeModules.set(file.path, false);
@@ -3658,7 +3661,8 @@ namespace ts {
             return symlinks || (symlinks = discoverProbableSymlinks(
                 files,
                 getCanonicalFileName,
-                host.getCurrentDirectory()));
+                host.getCurrentDirectory(),
+                isOhpm(options.packageManagerType)));
         }
     }
 
@@ -3670,6 +3674,7 @@ namespace ts {
         getResolvedProjectReferences(): readonly (ResolvedProjectReference | undefined)[] | undefined;
         getSourceOfProjectReferenceRedirect(fileName: string): SourceOfProjectReferenceRedirect | undefined;
         forEachResolvedProjectReference<T>(cb: (resolvedProjectReference: ResolvedProjectReference) => T | undefined): T | undefined;
+        options?: CompilerOptions;
     }
 
     function updateHostForUseSourceOfProjectReferenceRedirect(host: HostForUseSourceOfProjectReferenceRedirect) {
@@ -3777,8 +3782,9 @@ namespace ts {
         function handleDirectoryCouldBeSymlink(directory: string) {
             if (!host.getResolvedProjectReferences() || containsIgnoredPath(directory)) return;
 
-            // Because we already watch node_modules, handle symlinks in there
-            if (!originalRealpath || !stringContains(directory, nodeModulesPathPart)) return;
+            // Because we already watch node_modules or oh_modules, handle symlinks in there
+            const modulesPathPart = isOhpm(host.options?.packageManagerType) ? ohModulesPathPart : nodeModulesPathPart;
+            if (!originalRealpath || !stringContains(directory, modulesPathPart)) return;
             const symlinkCache = host.getSymlinkCache();
             const directoryPath = ensureTrailingDirectorySeparator(host.toPath(directory));
             if (symlinkCache.getSymlinkedDirectories()?.has(directoryPath)) return;
@@ -3810,10 +3816,11 @@ namespace ts {
             const symlinkedDirectories = symlinkCache.getSymlinkedDirectories();
             if (!symlinkedDirectories) return false;
             const fileOrDirectoryPath = host.toPath(fileOrDirectory);
-            if (!stringContains(fileOrDirectoryPath, nodeModulesPathPart)) return false;
+            const modulesPathPart = isOhpm(host.options?.packageManagerType) ? ohModulesPathPart : nodeModulesPathPart;
+            if (!stringContains(fileOrDirectoryPath, modulesPathPart)) return false;
             if (isFile && symlinkCache.getSymlinkedFiles()?.has(fileOrDirectoryPath)) return true;
 
-            // If it contains node_modules check if its one of the symlinked path we know of
+            // If it contains node_modules or oh_modules check if its one of the symlinked path we know of
             return firstDefinedIterator(
                 symlinkedDirectories.entries(),
                 ([directoryPath, symlinkedDirectory]) => {

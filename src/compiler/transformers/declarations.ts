@@ -398,9 +398,9 @@ namespace ts {
                             fileName = fileName.substring(2);
                         }
 
-                        // omit references to files from node_modules (npm may disambiguate module
+                        // omit references to files from node_modules or oh_modules (npm may disambiguate module
                         // references when installing this package, making the path is unreliable).
-                        if (startsWith(fileName, "node_modules/") || pathContainsNodeModules(fileName)) {
+                        if (isNodeModulesReference(fileName) || (isOhpm(options.packageManagerType) && isOHModulesReference(fileName))) {
                             return;
                         }
 
@@ -408,6 +408,14 @@ namespace ts {
                     }
                 };
             }
+        }
+
+        function isNodeModulesReference(fileName: string): boolean {
+            return startsWith(fileName, "node_modules/") || pathContainsNodeModules(fileName);
+        }
+
+        function isOHModulesReference(fileName: string): boolean {
+            return startsWith(fileName, "oh_modules/") || pathContainsOHModules(fileName);
         }
 
         function collectReferences(sourceFile: SourceFile | UnparsedSource, ret: ESMap<NodeId, SourceFile>) {
@@ -1074,7 +1082,7 @@ namespace ts {
                 return false;
             }
             const decorators = input.decorators;
-            if (decorators == undefined) {
+            if (decorators === undefined) {
                 return false;
             }
             for (const decorator of decorators) {

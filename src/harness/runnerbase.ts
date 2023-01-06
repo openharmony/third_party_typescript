@@ -1,7 +1,7 @@
 namespace Harness {
     export type TestRunnerKind = CompilerTestKind | FourslashTestKind | "project" | "rwc" | "test262" | "user" | "dt" | "docker";
-    export type CompilerTestKind = "conformance" | "compiler";
-    export type FourslashTestKind = "fourslash" | "fourslash-shims" | "fourslash-shims-pp" | "fourslash-server";
+    export type CompilerTestKind = "conformance" | "compiler" | "compiler-oh";
+    export type FourslashTestKind = "fourslash" | "fourslash-shims" | "fourslash-shims-pp" | "fourslash-server" | "fourslash-oh";
 
     /* eslint-disable prefer-const */
     export let shards = 1;
