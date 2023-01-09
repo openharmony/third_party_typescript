@@ -4550,7 +4550,8 @@ namespace ts {
         | ModuleDeclaration
         | TypeAliasDeclaration
         | InterfaceDeclaration
-        | EnumDeclaration;
+        | EnumDeclaration
+        | StructDeclaration;
 
     /* @internal */
     export interface SymbolVisibilityResult {
@@ -5993,6 +5994,10 @@ namespace ts {
             name: string;
             needInitialization: boolean;
         }[];
+        emitDecorators: {
+            name: string,
+            emitParameters: boolean
+        }[];
     }
 
     export interface WatchOptions {
@@ -6426,6 +6431,7 @@ namespace ts {
         Json = ".json",
         TsBuildInfo = ".tsbuildinfo",
         Ets = ".ets",
+        Dets = ".d.ets"
     }
 
     export interface ResolvedModuleWithFailedLookupLocations {

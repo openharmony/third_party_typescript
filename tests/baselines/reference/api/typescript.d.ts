@@ -2940,6 +2940,10 @@ declare namespace ts {
             name: string;
             needInitialization: boolean;
         }[];
+        emitDecorators: {
+            name: string;
+            emitParameters: boolean;
+        }[];
     }
     export interface WatchOptions {
         watchFile?: WatchFileKind;
@@ -3127,7 +3131,8 @@ declare namespace ts {
         Jsx = ".jsx",
         Json = ".json",
         TsBuildInfo = ".tsbuildinfo",
-        Ets = ".ets"
+        Ets = ".ets",
+        Dets = ".d.ets"
     }
     export interface ResolvedModuleWithFailedLookupLocations {
         readonly resolvedModule: ResolvedModuleFull | undefined;
@@ -6387,7 +6392,8 @@ declare namespace ts {
         jsModifier = ".js",
         jsxModifier = ".jsx",
         jsonModifier = ".json",
-        etsModifier = ".ets"
+        etsModifier = ".ets",
+        detsModifier = ".d.ets"
     }
     enum ClassificationTypeNames {
         comment = "comment",

@@ -64,7 +64,7 @@ namespace ts {
      * Typically there is one pass with Extensions.TypeScript, then a second pass with Extensions.JavaScript.
      */
     enum Extensions {
-        TypeScript, /** '.ts', '.tsx', '.d.ts', or '.ets */
+        TypeScript, /** '.ts', '.tsx', '.d.ts', '.ets' or '.d.ets' */
         JavaScript, /** '.js' or '.jsx' */
         Json,       /** '.json' */
         TSConfig,   /** '.json' with `tsconfig` used instead of `index` */
@@ -1095,10 +1095,15 @@ namespace ts {
 
         switch (extensions) {
             case Extensions.DtsOnly:
-                return tryExtension(Extension.Dts);
+                if (state.compilerOptions.ets) {
+                    return tryExtension(Extension.Dets) || tryExtension(Extension.Dts);
+                }
+                else {
+                    return tryExtension(Extension.Dts);
+                }
             case Extensions.TypeScript:
                 if (state.compilerOptions.ets) {
-                    return tryExtension(Extension.Ets) || tryExtension(Extension.Ts) || tryExtension(Extension.Tsx) || tryExtension(Extension.Dts);
+                    return tryExtension(Extension.Ets) || tryExtension(Extension.Ts) || tryExtension(Extension.Tsx) || tryExtension(Extension.Dets) || tryExtension(Extension.Dts);
                 }
                 else {
                     return tryExtension(Extension.Ts) || tryExtension(Extension.Tsx) || tryExtension(Extension.Dts) || tryExtension(Extension.Ets);
@@ -1248,9 +1253,9 @@ namespace ts {
             case Extensions.Json:
                 return extension === Extension.Json;
             case Extensions.TypeScript:
-                return extension === Extension.Ts || extension === Extension.Tsx || extension === Extension.Dts || extension === Extension.Ets;
+                return extension === Extension.Ts || extension === Extension.Tsx || extension === Extension.Dts || extension === Extension.Ets || extension === Extension.Dets;
             case Extensions.DtsOnly:
-                return extension === Extension.Dts;
+                return extension === Extension.Dts || extension === Extension.Dets;
         }
     }
 

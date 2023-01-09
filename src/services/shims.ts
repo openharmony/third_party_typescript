@@ -1165,7 +1165,8 @@ namespace ts {
                 const compilerOptions = <CompilerOptions>JSON.parse(compilerOptionsJson);
                 const result = resolveModuleName(moduleName, normalizeSlashes(fileName), compilerOptions, this.host);
                 let resolvedFileName = result.resolvedModule ? result.resolvedModule.resolvedFileName : undefined;
-                if (result.resolvedModule && result.resolvedModule.extension !== Extension.Ts && result.resolvedModule.extension !== Extension.Tsx && result.resolvedModule.extension !== Extension.Dts && result.resolvedModule.extension !== Extension.Ets) {
+                if (result.resolvedModule && result.resolvedModule.extension !== Extension.Ts && result.resolvedModule.extension !== Extension.Tsx && result.resolvedModule.extension !== Extension.Dts &&
+                    result.resolvedModule.extension !== Extension.Ets && result.resolvedModule.extension !== Extension.Dets) {
                     resolvedFileName = undefined;
                 }
 

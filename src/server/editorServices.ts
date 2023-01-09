@@ -136,6 +136,9 @@ namespace ts.server {
 
         readonly ets: number;
         readonly etsSize?: number;
+
+        readonly dets: number;
+        readonly detsSize?: number;
     }
 
     export interface OpenFileInfo {

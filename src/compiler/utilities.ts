@@ -4401,7 +4401,7 @@ namespace ts {
         const path = outputDir
             ? getSourceFilePathInNewDirWorker(fileName, outputDir, currentDirectory, commonSourceDirectory, getCanonicalFileName)
             : fileName;
-        return removeFileExtension(path) + Extension.Dts;
+        return removeFileExtension(path) + (fileExtensionIs(path, Extension.Ets) ? Extension.Dets : Extension.Dts);
     }
 
     export function outFile(options: CompilerOptions) {
@@ -4920,6 +4920,46 @@ namespace ts {
         }
 
         return node.modifierFlagsCache & ~(ModifierFlags.HasComputedFlags | ModifierFlags.HasComputedJSDocModifiers);
+    }
+
+    // Get the effective ETS Decorators for the node
+    export function getEffectiveDecorators(decorators: NodeArray<Decorator>, host: EmitHost) {
+        const emitDecorators = host.getCompilerOptions().ets?.emitDecorators;
+        if (!emitDecorators) {
+            return undefined;
+        }
+        const reservedComponents: Decorator[] = [];
+
+        for (let decorator of decorators) {
+            const expr = decorator.expression;
+            if (isIdentifier(expr)) {
+                for (const availableDecorator of emitDecorators) {
+                    if (availableDecorator.name === expr.escapedText.toString()) {
+                        reservedComponents.push(decorator);
+                        break;
+                    }
+                }
+            }
+            else if (isCallExpression(expr)) {
+                const childExpr = expr.expression;
+                if (isIdentifier(childExpr)) {
+                    for (const availableDecorator of emitDecorators) {
+                        if (availableDecorator.name === childExpr.escapedText.toString()) {
+                            if (!availableDecorator.emitParameters) {
+                                decorator = factory.updateDecorator(
+                                    decorator,
+                                    childExpr
+                                );
+                            }
+                            reservedComponents.push(decorator);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        return reservedComponents;
     }
 
     /**
@@ -6759,10 +6799,10 @@ namespace ts {
     /**
      *  List of supported extensions in order of file resolution precedence.
      */
-    export const supportedTSExtensions: readonly Extension[] = [Extension.Ts, Extension.Tsx, Extension.Dts, Extension.Ets];
-    export const supportedTSExtensionsWithJson: readonly Extension[] = [Extension.Ts, Extension.Tsx, Extension.Dts, Extension.Json, Extension.Ets];
+    export const supportedTSExtensions: readonly Extension[] = [Extension.Ts, Extension.Tsx, Extension.Dts, Extension.Ets, Extension.Dets];
+    export const supportedTSExtensionsWithJson: readonly Extension[] = [Extension.Ts, Extension.Tsx, Extension.Dts, Extension.Json, Extension.Ets, Extension.Dets];
     /** Must have ".d.ts" first because if ".ts" goes first, that will be detected as the extension instead of ".d.ts". */
-    export const supportedTSExtensionsForExtractExtension: readonly Extension[] = [Extension.Dts, Extension.Ts, Extension.Tsx, Extension.Ets];
+    export const supportedTSExtensionsForExtractExtension: readonly Extension[] = [Extension.Dts, Extension.Ts, Extension.Tsx, Extension.Dets, Extension.Ets];
     export const supportedJSExtensions: readonly Extension[] = [Extension.Js, Extension.Jsx];
     export const supportedJSAndJsonExtensions: readonly Extension[] = [Extension.Js, Extension.Jsx, Extension.Json];
     const allSupportedExtensions: readonly Extension[] = [...supportedTSExtensions, ...supportedJSExtensions];
@@ -6880,7 +6920,7 @@ namespace ts {
         }
     }
 
-    const extensionsToRemove = [Extension.Dts, Extension.Ts, Extension.Js, Extension.Tsx, Extension.Jsx, Extension.Json, Extension.Ets];
+    const extensionsToRemove = [Extension.Dts, Extension.Ts, Extension.Js, Extension.Tsx, Extension.Jsx, Extension.Json, Extension.Dets, Extension.Ets];
     export function removeFileExtension(path: string): string {
         for (const ext of extensionsToRemove) {
             const extensionless = tryRemoveExtension(path, ext);
@@ -6921,7 +6961,7 @@ namespace ts {
 
     /** True if an extension is one of the supported TypeScript extensions. */
     export function extensionIsTS(ext: Extension): boolean {
-        return ext === Extension.Ts || ext === Extension.Tsx || ext === Extension.Dts || ext === Extension.Ets;
+        return ext === Extension.Ts || ext === Extension.Tsx || ext === Extension.Dts || ext === Extension.Ets || ext === Extension.Dets;
     }
 
     export function resolutionExtensionIsTSOrJson(ext: Extension) {
@@ -6942,7 +6982,7 @@ namespace ts {
     }
 
     export function tryGetExtensionFromPath(path: string): Extension | undefined {
-        if(fileExtensionIs(path, Extension.Ets)) {
+        if (fileExtensionIs(path, Extension.Ets)) {
             return Extension.Ets;
         }
         return find<Extension>(extensionsToRemove, e => fileExtensionIs(path, e));
