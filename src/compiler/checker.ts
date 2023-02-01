@@ -29157,25 +29157,83 @@ namespace ts {
                 return;
             }
             const sourceFile = getSourceFileOfNode(node);
-            const checkParam = host.getTagNameNeededCheckByFile(sourceFile.fileName);
+            const sourceSymbol: Symbol | undefined = getPropertyAccessExpressionNameSymbol(node);
+            if (!sourceSymbol || !sourceSymbol.valueDeclaration) {
+       	        return;
+       	    }
+            const sourceSymbolSourceFile = getSourceFileOfNode(sourceSymbol.valueDeclaration);
+            if (!sourceSymbolSourceFile) {
+                return;
+            }
+            const checkParam = host.getTagNameNeededCheckByFile(sourceFile.fileName, sourceSymbolSourceFile.fileName);
             if (!checkParam.needCheck) {
                 return;
             }
 
-            const uninstantiatedType = node.flags & NodeFlags.OptionalChain ? checkPropertyAccessChain(node as PropertyAccessChain) :
-                checkPropertyAccessExpressionOrQualifiedName(node, node.expression, checkNonNullExpression(node.expression), node.name);
-            const type = instantiateTypeWithSingleGenericCallSignature(node, uninstantiatedType);
-            const sourceSymbol = type.symbol;
-            if (!sourceSymbol) {
-                return;
-            }
-
-           if (sourceSymbol.declarations && sourceSymbol.declarations.length > 0) {
-                const jsDoc = (sourceSymbol.declarations[0] as any).jsDoc;
-                if (jsDoc) {
-                    expressionCheckByJsDoc(jsDoc, node, sourceFile, checkParam.checkConfig);
+            if (sourceSymbol.declarations) {
+                if (sourceSymbol.declarations.length > 1) {
+                    const calledDeclaration = tryGetSignatureDeclaration(checker, node.name);
+                    if (calledDeclaration && calledDeclaration.jsDoc) {
+                        expressionCheckByJsDoc(calledDeclaration.jsDoc, node, sourceFile, checkParam.checkConfig);
+                    }
+                }
+                else {
+                    const jsDoc = (sourceSymbol.declarations[0] as any).jsDoc;
+                    if (jsDoc) {
+                        expressionCheckByJsDoc(jsDoc, node, sourceFile, checkParam.checkConfig);
+                    }
                 }
             }
+        }
+
+        function getPropertyAccessExpressionNameSymbol(node: PropertyAccessExpression) {
+            const right = node.name;
+            const leftType = checkNonNullExpression(node.expression);
+            const assignmentKind = getAssignmentTargetKind(node);
+            const apparentType = getApparentType(assignmentKind !== AssignmentKind.None || isMethodAccessForCall(node) ? getWidenedType(leftType) : leftType);
+            let sourceSymbol: Symbol | undefined;
+            if (isPrivateIdentifier(right)) {
+                const lexicallyScopedSymbol = lookupSymbolForPrivateIdentifierDeclaration(right.escapedText, right);
+                sourceSymbol = lexicallyScopedSymbol ? getPrivateIdentifierPropertyOfType(leftType, lexicallyScopedSymbol) : undefined;
+            }
+            else {
+                sourceSymbol = getPropertyOfType(apparentType, right.escapedText);
+                if (!sourceSymbol) {
+                    const etsComponentExpressionNode = getEtsComponentExpressionInnerExpressionStatementNode(node)
+                        || getRootEtsComponentInnerCallExpressionNode(node);
+                    if (etsComponentExpressionNode) {
+                        sourceSymbol = getEtsComponentExpressionPropertyOfType(node, etsComponentExpressionNode, right);
+                    }
+                }
+            }
+            return sourceSymbol;
+        }
+
+        function getEtsComponentExpressionPropertyOfType(node: PropertyAccessExpression, etsComponentExpressionNode: CallExpression | EtsComponentExpression | PropertyAccessExpression | Identifier, right: Identifier) {
+            let sourceSymbol:Symbol | undefined;
+            const locals = getSourceFileOfNode(node).locals;
+            if (locals?.has(right.escapedText)) {
+                const extraSymbol = locals?.get(right.escapedText);
+                const etsComponentName = isIdentifier(etsComponentExpressionNode) ?
+                    etsComponentExpressionNode.escapedText :
+                    isIdentifier(node.expression) ?
+                        node.expression.escapedText :
+                        undefined;
+                if (getEtsExtendDecoratorsComponentNames(extraSymbol?.valueDeclaration?.decorators, compilerOptions).find(extendComponentName => extendComponentName === etsComponentName)) {
+                    sourceSymbol = extraSymbol;
+                }
+                if (hasEtsStylesDecoratorNames(extraSymbol?.valueDeclaration?.decorators, compilerOptions)) {
+                    sourceSymbol = extraSymbol;
+                }
+            }
+            const props = getContainingStruct(node)?.symbol.members;
+            if (props?.has(right.escapedText)) {
+                const stylesSymbol = props?.get(right.escapedText);
+                if (hasEtsStylesDecoratorNames(stylesSymbol?.valueDeclaration?.decorators, compilerOptions)) {
+                    sourceSymbol = stylesSymbol;
+                }
+            }
+            return sourceSymbol;
         }
 
         function conditionCheck(node: PropertyAccessExpression, jsDoc: JSDoc[], sourceFile: SourceFile, checkConfig: TagCheckConfig) {
@@ -29193,20 +29251,37 @@ namespace ts {
         }
 
         function expressionCheckByJsDoc(jsDoc: JSDoc[], node: PropertyAccessExpression, sourceFile: SourceFile, checkConfig: TagCheckConfig[]): void {
-            jsDoc.forEach(item => {
-                if (item.tags) {
-                    item.tags.forEach(tag => {
-                        checkConfig.forEach(config => {
-                            if (config.needConditionCheck && tag.tagName.escapedText.toString() === config.tagName) {
-                                conditionCheck(node, jsDoc, sourceFile, config);
-                            }
-                            else if (tag.tagName.escapedText.toString() === config.tagName) {
-                                const diagnostic = createDiagnosticForNodeInSourceFile(sourceFile, node, Diagnostics.This_API_has_been_Special_Markings_exercise_caution_when_using_this_API);
-                                diagnostic.messageText = config.message;
-                                suggestionDiagnostics.add(diagnostic);
+            checkConfig.forEach(config => {
+                let tagNameExisted = false;
+                jsDoc.forEach(item => {
+                    if (item.tags) {
+                        item.tags.forEach(tag => {
+                            if (tag.tagName.escapedText.toString() === config.tagName) {
+                                tagNameExisted = true;
+                                if (!config.tagNameShouldExisted && config.needConditionCheck) {
+                                    conditionCheck(node, jsDoc, sourceFile, config);
+                                }
+                                else if (!config.tagNameShouldExisted) {
+                                    const diagnostic = createDiagnosticForNodeInSourceFile(sourceFile, node.name, Diagnostics.This_API_has_been_Special_Markings_exercise_caution_when_using_this_API);
+                                    diagnostic.messageText = config.message;
+                                    if (config.type === DiagnosticCategory.Warning) {
+                                        suggestionDiagnostics.add(diagnostic);
+                                    }
+                                    else {
+                                        diagnostic.category = DiagnosticCategory.Error;
+                                        diagnostics.add(diagnostic);
+                                    }
+                                }
                             }
                         });
-                    });
+                    }
+                });
+                if (config.tagNameShouldExisted && !tagNameExisted) {
+                    const diagnostic = createDiagnosticForNodeInSourceFile(sourceFile, node.name, Diagnostics.This_API_has_been_Special_Markings_exercise_caution_when_using_this_API);
+                    diagnostic.messageText = config.message;
+                    diagnostic.category = ts.DiagnosticCategory.Error;
+                    diagnostics.add(diagnostic);
+                    suggestionDiagnostics.add(diagnostic);
                 }
             });
         }
