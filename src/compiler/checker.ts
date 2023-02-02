@@ -1747,7 +1747,15 @@ namespace ts {
             isUse: boolean,
             excludeGlobals = false,
             suggestedNameNotFoundMessage?: DiagnosticMessage): Symbol | undefined {
-            return resolveNameHelper(location, name, meaning, nameNotFoundMessage, nameArg, isUse, excludeGlobals, getSymbol, suggestedNameNotFoundMessage);
+            let result = resolveNameHelper(location, name, meaning, nameNotFoundMessage, nameArg, isUse, excludeGlobals, getSymbol, suggestedNameNotFoundMessage);
+            if (location && location.parent && (ts.isDecorator(location.parent) || ts.isCallExpression(location.parent) || ts.isNewExpression(location.parent) || ts.isTypeReferenceNode(location.parent))) {
+                const specialSymbol = getSymbol(globals, name, meaning, location);
+                if (specialSymbol && specialSymbol.valueDeclaration && specialSymbol.valueDeclaration.parent && specialSymbol.valueDeclaration.parent.parent && result && result.declarations && result.declarations[0]) {
+                    // @ts-ignore
+                    result.declarations[0].jsDoc = specialSymbol.valueDeclaration.parent.parent.jsDoc;
+                }
+            }
+            return result;
         }
 
         function resolveNameHelper(
@@ -3807,7 +3815,7 @@ namespace ts {
         }
 
         function symbolIsValue(symbol: Symbol): boolean {
-            return !!(symbol.flags & SymbolFlags.Value || symbol.flags & SymbolFlags.Alias && resolveAlias(symbol).flags & SymbolFlags.Value && !getTypeOnlyAliasDeclaration(symbol));
+            return !!(symbol.flags & SymbolFlags.Value || symbol.flags & SymbolFlags.Signature || symbol.flags & SymbolFlags.Alias && resolveAlias(symbol).flags & SymbolFlags.Value && !getTypeOnlyAliasDeclaration(symbol));
         }
 
         function findConstructorDeclaration(node: ClassLikeDeclaration): ConstructorDeclaration | undefined {
@@ -11685,6 +11693,19 @@ namespace ts {
             }
             if (type.flags & TypeFlags.UnionOrIntersection) {
                 return getPropertyOfUnionOrIntersectionType(<UnionOrIntersectionType>type, name, skipObjectFunctionPropertyAugment);
+            }
+            return undefined;
+        }
+
+        function getEtsComponentOfType(type: Type): Symbol | undefined {
+            type = getReducedApparentType(type);
+            if (type.flags & TypeFlags.Object) {
+                const resolved = resolveStructuredTypeMembers(<ObjectType>type);
+                // @ts-ignore
+                const symbol = resolved.members.get("__call");
+                if (symbol && symbolIsValue(symbol)) {
+                    return symbol;
+                }
             }
             return undefined;
         }
@@ -23375,6 +23396,11 @@ namespace ts {
 
         function checkIdentifier(node: Identifier): Type {
             const symbol = getResolvedSymbol(node);
+
+            if (node.parent && (ts.isDecorator(node.parent) || ts.isCallExpression(node.parent) || ts.isNewExpression(node.parent) || ts.isTypeReferenceNode(node.parent))) {
+                identifierConditionCheck(node, symbol);
+            }
+
             if (symbol === unknownSymbol) {
                 return errorType;
             }
@@ -29186,6 +29212,65 @@ namespace ts {
             }
         }
 
+        function identifierConditionCheck(node: Identifier, sourceSymbol: Symbol) {
+            if (!host.getTagNameNeededCheckByFile) {
+                return;
+            }
+            const sourceFile = getSourceFileOfNode(node);
+            if (!sourceSymbol || !sourceSymbol.valueDeclaration) {
+       	        return;
+       	    }
+            const sourceSymbolSourceFile = getSourceFileOfNode(sourceSymbol.valueDeclaration);
+            if (!sourceSymbolSourceFile) {
+                return;
+            }
+            const checkParam = host.getTagNameNeededCheckByFile(sourceFile.fileName, sourceSymbolSourceFile.fileName);
+            if (!checkParam.needCheck) {
+                return;
+            }
+
+            if (sourceSymbol.declarations) {
+                const jsDoc = (sourceSymbol.declarations[0] as any).jsDoc;
+                if (jsDoc) {
+                    expressionCheckByJsDoc(jsDoc, node, sourceFile, checkParam.checkConfig);
+                }
+            }
+        }
+
+        function etsComponentExpressionConditionCheck(node: EtsComponentExpression) {
+            if (!host.getTagNameNeededCheckByFile) {
+                return;
+            }
+            const sourceFile = getSourceFileOfNode(node);
+            const sourceSymbol: Symbol | undefined = getEtsComponentExpressionNameSymbol(node);
+            if (!sourceSymbol || !sourceSymbol.declarations[0]) {
+       	        return;
+       	    }
+            const sourceSymbolSourceFile = getSourceFileOfNode(sourceSymbol.declarations[0]);
+            if (!sourceSymbolSourceFile) {
+                return;
+            }
+            const checkParam = host.getTagNameNeededCheckByFile(sourceFile.fileName, sourceSymbolSourceFile.fileName);
+            if (!checkParam.needCheck) {
+                return;
+            }
+
+            if (sourceSymbol.declarations) {
+                const jsDoc = (sourceSymbol.declarations[0] as any).jsDoc;
+                if (jsDoc) {
+                    expressionCheckByJsDoc(jsDoc, node, sourceFile, checkParam.checkConfig);
+                }
+            }
+        }
+
+        function getEtsComponentExpressionNameSymbol(node: EtsComponentExpression) {
+            const leftType = checkNonNullExpression(node.expression);
+            const assignmentKind = getAssignmentTargetKind(node);
+            const apparentType = getApparentType(assignmentKind !== AssignmentKind.None || isMethodAccessForCall(node) ? getWidenedType(leftType) : leftType);
+            const sourceSymbol: Symbol | undefined = getEtsComponentOfType(apparentType);
+            return sourceSymbol;
+        }
+
         function getPropertyAccessExpressionNameSymbol(node: PropertyAccessExpression) {
             const right = node.name;
             const leftType = checkNonNullExpression(node.expression);
@@ -29250,19 +29335,29 @@ namespace ts {
             }
         }
 
-        function expressionCheckByJsDoc(jsDoc: JSDoc[], node: PropertyAccessExpression, sourceFile: SourceFile, checkConfig: TagCheckConfig[]): void {
+        function expressionCheckByJsDoc(jsDoc: JSDoc[], node: PropertyAccessExpression | EtsComponentExpression | Identifier, sourceFile: SourceFile, checkConfig: TagCheckConfig[]): void {
             checkConfig.forEach(config => {
                 let tagNameExisted = false;
+                let currentChildNode: Node;
+                if (ts.isEtsComponentExpression(node)) {
+                    currentChildNode = node.expression;
+                } else if (ts.isIdentifier(node)) {
+                    currentChildNode = node;
+                } else {
+                    currentChildNode = node.name;
+                }
                 jsDoc.forEach(item => {
                     if (item.tags) {
                         item.tags.forEach(tag => {
                             if (tag.tagName.escapedText.toString() === config.tagName) {
                                 tagNameExisted = true;
                                 if (!config.tagNameShouldExisted && config.needConditionCheck) {
-                                    conditionCheck(node, jsDoc, sourceFile, config);
+                                    if (ts.isPropertyAccessExpression(node)) {
+                                        conditionCheck(node, jsDoc, sourceFile, config);
+                                    }
                                 }
                                 else if (!config.tagNameShouldExisted) {
-                                    const diagnostic = createDiagnosticForNodeInSourceFile(sourceFile, node.name, Diagnostics.This_API_has_been_Special_Markings_exercise_caution_when_using_this_API);
+                                    const diagnostic = createDiagnosticForNodeInSourceFile(sourceFile, currentChildNode, Diagnostics.This_API_has_been_Special_Markings_exercise_caution_when_using_this_API);
                                     diagnostic.messageText = config.message;
                                     if (config.type === DiagnosticCategory.Warning) {
                                         suggestionDiagnostics.add(diagnostic);
@@ -29277,9 +29372,10 @@ namespace ts {
                     }
                 });
                 if (config.tagNameShouldExisted && !tagNameExisted) {
-                    const diagnostic = createDiagnosticForNodeInSourceFile(sourceFile, node.name, Diagnostics.This_API_has_been_Special_Markings_exercise_caution_when_using_this_API);
-                    diagnostic.messageText = config.message;
-                    diagnostic.category = ts.DiagnosticCategory.Error;
+                    const diagnostic = createDiagnosticForNodeInSourceFile(sourceFile, currentChildNode, Diagnostics.This_API_has_been_Special_Markings_exercise_caution_when_using_this_API);
+                    // @ts-ignore
+                    diagnostic.messageText = config.message.replace("{0}", currentChildNode.getText());
+                    diagnostic.category = DiagnosticCategory.Error;
                     diagnostics.add(diagnostic);
                     suggestionDiagnostics.add(diagnostic);
                 }
@@ -32157,6 +32253,7 @@ namespace ts {
                     return checkCallExpression(<CallExpression>node, checkMode);
                 case SyntaxKind.EtsComponentExpression:
                     const newNode = <EtsComponentExpression>node;
+                    etsComponentExpressionConditionCheck(newNode);
                     if (newNode.body && newNode.body.statements.length) {
                         traverseEtsComponentStatements(newNode.body.statements, checkMode);
                     }
@@ -32900,6 +32997,9 @@ namespace ts {
         }
 
         function checkTypeReferenceNode(node: TypeReferenceNode | ExpressionWithTypeArguments) {
+            // if (isTypeReferenceNode(node) && node.typeName && isIdentifier(node.typeName) && node.typeName.escapedText.toString() !== "") {
+            //     checkIdentifier(node.typeName);
+            // }
             checkGrammarTypeArguments(node, node.typeArguments);
             if (node.kind === SyntaxKind.TypeReference && node.typeName.jsdocDotPos !== undefined && !isInJSFile(node) && !isInJSDoc(node)) {
                 grammarErrorAtPos(node, node.typeName.jsdocDotPos, 1, Diagnostics.JSDoc_types_can_only_be_used_inside_documentation_comments);
@@ -33954,6 +34054,12 @@ namespace ts {
             if (!node.decorators) {
                 return;
             }
+
+            node.decorators.forEach(decorator => {
+                if (decorator.expression && ts.isIdentifier(decorator.expression)) {
+                    checkIdentifier(decorator.expression);
+                }
+            });
 
             // skip this check for nodes that cannot have decorators. These should have already had an error reported by
             // checkGrammarDecorators.
