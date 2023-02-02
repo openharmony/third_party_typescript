@@ -858,6 +858,15 @@ namespace ts {
             description: Diagnostics.Unknown_build_option_0,
         },
         {
+            name: "packageManagerType",
+            type: "string",
+            affectsSourceFile: true,
+            affectsEmit: true,
+            affectsModuleResolution: true,
+            category: Diagnostics.Advanced_Options,
+            description: Diagnostics.Unknown_build_option_0,
+        },
+        {
             name: "resolveJsonModule",
             type: "boolean",
             affectsModuleResolution: true,

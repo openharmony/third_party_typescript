@@ -479,6 +479,8 @@ namespace ts.Completions.StringCompletions {
      *      Modules found relative to "baseUrl" compliler options (including patterns from "paths" compiler option)
      *      Modules from node_modules (i.e. those listed in package.json)
      *          This includes all files that are found in node_modules/moduleName/ with acceptable file extensions
+     *      Modules from oh_modules (i.e. those listed in oh-package.json5)
+     *          This includes all files that are found in oh_modules/moduleName/ with acceptable file extensions
      */
     function getCompletionEntriesForNonRelativeModules(fragment: string, scriptPath: string, compilerOptions: CompilerOptions, host: LanguageServiceHost, typeChecker: TypeChecker): readonly NameAndKind[] {
         const { baseUrl, paths } = compilerOptions;
@@ -503,7 +505,7 @@ namespace ts.Completions.StringCompletions {
         getCompletionEntriesFromTypings(host, compilerOptions, scriptPath, fragmentDirectory, extensionOptions, result);
 
         if (getEmitModuleResolutionKind(compilerOptions) === ModuleResolutionKind.NodeJs) {
-            // If looking for a global package name, don't just include everything in `node_modules` because that includes dependencies' own dependencies.
+            // If looking for a global package name, don't just include everything in `node_modules` or `oh_modules` because that includes dependencies' own dependencies.
             // (But do if we didn't find anything, e.g. 'package.json' missing.)
             let foundGlobal = false;
             if (fragmentDirectory === undefined) {
@@ -516,9 +518,9 @@ namespace ts.Completions.StringCompletions {
             }
             if (!foundGlobal) {
                 forEachAncestorDirectory(scriptPath, ancestor => {
-                    const nodeModules = combinePaths(ancestor, "node_modules");
-                    if (tryDirectoryExists(host, nodeModules)) {
-                        getCompletionEntriesForDirectoryFragment(fragment, nodeModules, extensionOptions, host, /*exclude*/ undefined, result);
+                    const modules = combinePaths(ancestor, getModuleByPMType(host.getCompilationSettings().packageManagerType));
+                    if (tryDirectoryExists(host, modules)) {
+                        getCompletionEntriesForDirectoryFragment(fragment, modules, extensionOptions, host, /*exclude*/ undefined, result);
                     }
                 });
             }
@@ -652,9 +654,9 @@ namespace ts.Completions.StringCompletions {
             getCompletionEntriesFromDirectories(root);
         }
 
-        // Also get all @types typings installed in visible node_modules directories
+        // Also get all @types typings installed in visible node_modules or oh_modules directories
         for (const packageJson of findPackageJsons(scriptPath, host)) {
-            const typesDir = combinePaths(getDirectoryPath(packageJson), "node_modules/@types");
+            const typesDir = combinePaths(getDirectoryPath(packageJson), isOhpm(options.packageManagerType) ? "oh_modules/@types" : "node_modules/@types");
             getCompletionEntriesFromDirectories(typesDir);
         }
 

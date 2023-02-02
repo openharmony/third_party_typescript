@@ -5662,8 +5662,9 @@ namespace ts {
                     const nonRootParts = chain.length > 1 ? createAccessFromSymbolChain(chain, chain.length - 1, 1) : undefined;
                     const typeParameterNodes = overrideTypeArguments || lookupTypeParameterNodes(chain, 0, context);
                     const specifier = getSpecifierForModuleSymbol(chain[0], context);
-                    if (!(context.flags & NodeBuilderFlags.AllowNodeModulesRelativePaths) && getEmitModuleResolutionKind(compilerOptions) === ModuleResolutionKind.NodeJs && specifier.indexOf("/node_modules/") >= 0) {
-                        // If ultimately we can only name the symbol with a reference that dives into a `node_modules` folder, we should error
+                    if (!(context.flags & NodeBuilderFlags.AllowNodeModulesRelativePaths) && getEmitModuleResolutionKind(compilerOptions) === ModuleResolutionKind.NodeJs &&
+                       (specifier.indexOf("/node_modules/") >= 0 || (isOhpm(compilerOptions.packageManagerType) && specifier.indexOf("/oh_modules/") >= 0))) {
+                        // If ultimately we can only name the symbol with a reference that dives into a `node_modules` or `oh_modules` folder, we should error
                         // since declaration files with these kinds of references are liable to fail when published :(
                         context.encounteredError = true;
                         if (context.tracker.reportLikelyUnsafeImportRequiredError) {

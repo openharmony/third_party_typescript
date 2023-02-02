@@ -2,7 +2,7 @@ namespace ts {
     export function isExternalModuleNameRelative(moduleName: string): boolean {
         // TypeScript 1.0 spec (April 2014): 11.2.1
         // An external module name is "relative" if the first term is "." or "..".
-        // Update: We also consider a path like `C:\foo.ts` "relative" because we do not search for it in `node_modules` or treat it as an ambient module.
+        // Update: We also consider a path like `C:\foo.ts` "relative" because we do not search for it in `node_modules`, `oh_modules` or treat it as an ambient module.
         return pathIsRelative(moduleName) || isRootedDiskPath(moduleName);
     }
 

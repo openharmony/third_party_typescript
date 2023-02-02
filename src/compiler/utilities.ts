@@ -6404,13 +6404,13 @@ namespace ts {
         };
     }
 
-    export function discoverProbableSymlinks(files: readonly SourceFile[], getCanonicalFileName: GetCanonicalFileName, cwd: string): SymlinkCache {
+    export function discoverProbableSymlinks(files: readonly SourceFile[], getCanonicalFileName: GetCanonicalFileName, cwd: string, isOHModules?: boolean): SymlinkCache {
         const cache = createSymlinkCache(cwd, getCanonicalFileName);
         const symlinks = flatten<readonly [string, string]>(mapDefined(files, sf =>
             sf.resolvedModules && compact(arrayFrom(mapIterator(sf.resolvedModules.values(), res =>
                 res && res.originalPath && res.resolvedFileName !== res.originalPath ? [res.resolvedFileName, res.originalPath] as const : undefined)))));
         for (const [resolvedPath, originalPath] of symlinks) {
-            const [commonResolved, commonOriginal] = guessDirectorySymlink(resolvedPath, originalPath, cwd, getCanonicalFileName) || emptyArray;
+            const [commonResolved, commonOriginal] = guessDirectorySymlink(resolvedPath, originalPath, cwd, getCanonicalFileName, isOHModules) || emptyArray;
             if (commonResolved && commonOriginal) {
                 cache.setSymlinkedDirectory(
                     commonOriginal,
@@ -6420,12 +6420,12 @@ namespace ts {
         return cache;
     }
 
-    function guessDirectorySymlink(a: string, b: string, cwd: string, getCanonicalFileName: GetCanonicalFileName): [string, string] | undefined {
+    function guessDirectorySymlink(a: string, b: string, cwd: string, getCanonicalFileName: GetCanonicalFileName, isOHModules?: boolean): [string, string] | undefined {
         const aParts = getPathComponents(getNormalizedAbsolutePath(a, cwd));
         const bParts = getPathComponents(getNormalizedAbsolutePath(b, cwd));
         let isDirectory = false;
-        while (!isNodeModulesOrScopedPackageDirectory(aParts[aParts.length - 2], getCanonicalFileName) &&
-            !isNodeModulesOrScopedPackageDirectory(bParts[bParts.length - 2], getCanonicalFileName) &&
+        while (!isModulesOrScopedPackageDirectory(aParts[aParts.length - 2], getCanonicalFileName, isOHModules) &&
+            !isModulesOrScopedPackageDirectory(bParts[bParts.length - 2], getCanonicalFileName, isOHModules) &&
             getCanonicalFileName(aParts[aParts.length - 1]) === getCanonicalFileName(bParts[bParts.length - 1])) {
             aParts.pop();
             bParts.pop();
@@ -6436,8 +6436,8 @@ namespace ts {
 
     // KLUDGE: Don't assume one 'node_modules' links to another. More likely a single directory inside the node_modules is the symlink.
     // ALso, don't assume that an `@foo` directory is linked. More likely the contents of that are linked.
-    function isNodeModulesOrScopedPackageDirectory(s: string, getCanonicalFileName: GetCanonicalFileName): boolean {
-        return getCanonicalFileName(s) === "node_modules" || startsWith(s, "@");
+    function isModulesOrScopedPackageDirectory(s: string, getCanonicalFileName: GetCanonicalFileName, isOHModules?: boolean): boolean {
+        return getCanonicalFileName(s) === "node_modules" || (isOHModules && getCanonicalFileName(s) === "oh_modules") || startsWith(s, "@");
     }
 
     function stripLeadingDirectorySeparator(s: string): string | undefined {
@@ -6464,7 +6464,7 @@ namespace ts {
 
     const wildcardCharCodes = [CharacterCodes.asterisk, CharacterCodes.question];
 
-    export const commonPackageFolders: readonly string[] = ["node_modules", "bower_components", "jspm_packages"];
+    export const commonPackageFolders: readonly string[] = ["node_modules", "oh_modules", "bower_components", "jspm_packages"];
 
     const implicitExcludePathRegexPattern = `(?!(${commonPackageFolders.join("|")})(/|$))`;
 
@@ -7420,5 +7420,23 @@ namespace ts {
 
     export function isEtsFunctionDecorators(name: string | undefined, options: CompilerOptions): boolean {
         return (name === options.ets?.render?.decorator || name === options.ets?.extend?.decorator || name === options.ets?.styles?.decorator);
+    }
+
+    export function isOhpm(packageManagerType: string | undefined) {
+        return packageManagerType === "ohpm";
+    }
+
+    export function getModuleByPMType(packageManagerType: string | undefined): string {
+        if (isOhpm(packageManagerType)) {
+            return "oh_modules";
+        }
+        return "node_modules";
+    }
+
+    export function getPackageJsonByPMType(packageManagerType: string | undefined): string {
+        if (isOhpm(packageManagerType)) {
+            return "oh-package.json5";
+        }
+        return "package.json";
     }
 }
