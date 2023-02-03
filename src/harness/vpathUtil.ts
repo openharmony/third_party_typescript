@@ -122,7 +122,7 @@ namespace vpath {
     }
 
     export function isJson(path: string) {
-        return extname(path, ".json", /*ignoreCase*/ false).length > 0;
+        return extname(path, ".json", /*ignoreCase*/ false).length > 0 || extname(path, ".json5", /*ignoreCase*/ false).length > 0;
     }
 
     export function isDefaultLibrary(path: string) {

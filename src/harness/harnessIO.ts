@@ -414,7 +414,7 @@ namespace Harness {
             }
 
             const useCaseSensitiveFileNames = options.useCaseSensitiveFileNames !== undefined ? options.useCaseSensitiveFileNames : true;
-            const programFileNames = inputFiles.map(file => file.unitName).filter(fileName => !ts.fileExtensionIs(fileName, ts.Extension.Json));
+            const programFileNames = inputFiles.map(file => file.unitName).filter(fileName => !ts.fileExtensionIs(fileName, ts.Extension.Json) && !ts.fileExtensionIs(fileName, ".json5"));
 
             // Files from built\local that are requested by test "@includeBuiltFiles" to be in the context.
             // Treat them as library files, so include them in build, but not in baselines.

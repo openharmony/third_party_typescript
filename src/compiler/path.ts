@@ -865,4 +865,8 @@ namespace ts {
     export function isNodeModulesDirectory(dirPath: Path) {
         return endsWith(dirPath, "/node_modules");
     }
+
+    export function isOHModulesDirectory(dirPath: Path) {
+        return endsWith(dirPath, "/oh_modules");
+    }
 }

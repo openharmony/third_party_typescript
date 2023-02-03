@@ -6386,5 +6386,29 @@
     "This API has been Special Markings. exercise caution when using this API.": {
         "category": "Warning",
         "code": 28002
+    },
+    "Looking up in 'oh_modules' folder, initial location '{0}'.": {
+        "category": "Message",
+        "code": 18041
+    },
+    "Containing file is not specified and root directory cannot be determined, skipping lookup in 'oh_modules' folder.": {
+        "category": "Message",
+        "code": 18042
+    },
+    "Loading module '{0}' from 'oh_modules' folder, target file type '{1}'.": {
+        "category": "Message",
+        "code": 18043
+    },
+    "Found 'oh-package.json5' at '{0}'.": {
+        "category": "Message",
+        "code": 18044
+    },
+    "'oh-package.json5' does not have a '{0}' field.": {
+        "category": "Message",
+        "code": 18045
+    },
+    "'oh-package.json5' has '{0}' field '{1}' that references '{2}'.": {
+        "category": "Message",
+        "code": 18046
     }
 }

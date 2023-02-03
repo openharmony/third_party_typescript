@@ -81,8 +81,8 @@ namespace ts {
     }
 
     export function removeIgnoredPath(path: Path): Path | undefined {
-        // Consider whole staging folder as if node_modules changed.
-        if (endsWith(path, "/node_modules/.staging")) {
+        // Consider whole staging folder as if node_modules or oh_modules changed.
+        if (endsWith(path, "/node_modules/.staging") || endsWith(path, "/oh_modules/.staging")) {
             return removeSuffix(path, "/.staging") as Path;
         }
 
@@ -473,6 +473,10 @@ namespace ts {
             return endsWith(dirPath, "/node_modules/@types");
         }
 
+        function isOHModulesAtTypesDirectory(dirPath: Path) {
+            return endsWith(dirPath, "/oh_modules/@types");
+        }
+
         function getDirectoryToWatchFailedLookupLocation(failedLookupLocation: string, failedLookupLocationPath: Path): DirectoryOfFailedLookupWatch | undefined {
             if (isInDirectoryPath(rootPath, failedLookupLocationPath)) {
                 // Ensure failed look up is normalized path
@@ -504,14 +508,15 @@ namespace ts {
         }
 
         function getDirectoryToWatchFromFailedLookupLocationDirectory(dir: string, dirPath: Path): DirectoryOfFailedLookupWatch | undefined {
-            // If directory path contains node module, get the most parent node_modules directory for watching
-            while (pathContainsNodeModules(dirPath)) {
+            // If directory path contains node module, get the most parent node_modules or oh_modules directory for watching
+            const isOHModules: boolean = isOhpm(resolutionHost.getCompilationSettings().packageManagerType);
+            while (isOHModules ? pathContainsOHModules(dirPath) : pathContainsNodeModules(dirPath)) {
                 dir = getDirectoryPath(dir);
                 dirPath = getDirectoryPath(dirPath);
             }
 
-            // If the directory is node_modules use it to watch, always watch it recursively
-            if (isNodeModulesDirectory(dirPath)) {
+            // If the directory is node_modules or oh_modules use it to watch, always watch it recursively
+            if (isOHModules ? isOHModulesDirectory(dirPath) : isNodeModulesDirectory(dirPath)) {
                 return canWatchDirectory(getDirectoryPath(dirPath)) ? { dir, dirPath } : undefined;
             }
 
@@ -771,8 +776,10 @@ namespace ts {
                 // Some file or directory in the watching directory is created
                 // Return early if it does not have any of the watching extension or not the custom failed lookup path
                 const dirOfFileOrDirectory = getDirectoryPath(fileOrDirectoryPath);
-                if (isNodeModulesAtTypesDirectory(fileOrDirectoryPath) || isNodeModulesDirectory(fileOrDirectoryPath) ||
-                    isNodeModulesAtTypesDirectory(dirOfFileOrDirectory) || isNodeModulesDirectory(dirOfFileOrDirectory)) {
+                const isOHModules = isOhpm(resolutionHost.getCompilationSettings().packageManagerType);
+                if (isNodeModulesAtTypesDirectory(fileOrDirectoryPath) || (isOHModules && isOHModulesAtTypesDirectory(fileOrDirectoryPath)) ||
+                    isNodeModulesDirectory(fileOrDirectoryPath) || isNodeModulesAtTypesDirectory(dirOfFileOrDirectory) || (isOHModules &&
+                    isOHModulesAtTypesDirectory(dirOfFileOrDirectory)) || isNodeModulesDirectory(dirOfFileOrDirectory)) {
                     // Invalidate any resolution from this directory
                     failedLookupChecks.push(fileOrDirectoryPath);
                     startsWithPathChecks.push(fileOrDirectoryPath);

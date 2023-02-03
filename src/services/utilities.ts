@@ -2708,13 +2708,13 @@ namespace ts {
         return tryAndIgnoreErrors(() => toApply && toApply.apply(host, args));
     }
 
-    export function findPackageJsons(startDirectory: string, host: Pick<LanguageServiceHost, "fileExists">, stopDirectory?: string): string[] {
+    export function findPackageJsons(startDirectory: string, host: LanguageServiceHost, stopDirectory?: string): string[] {
         const paths: string[] = [];
         forEachAncestorDirectory(startDirectory, ancestor => {
             if (ancestor === stopDirectory) {
                 return true;
             }
-            const currentConfigPath = combinePaths(ancestor, "package.json");
+            const currentConfigPath = combinePaths(ancestor, getPackageJsonByPMType(host.getCompilationSettings().packageManagerType));
             if (tryFileExists(host, currentConfigPath)) {
                 paths.push(currentConfigPath);
             }
@@ -2725,8 +2725,10 @@ namespace ts {
     export function findPackageJson(directory: string, host: LanguageServiceHost): string | undefined {
         let packageJson: string | undefined;
         forEachAncestorDirectory(directory, ancestor => {
-            if (ancestor === "node_modules") return true;
-            packageJson = findConfigFile(ancestor, (f) => tryFileExists(host, f), "package.json");
+            const moduleType: string = getModuleByPMType(host.getCompilationSettings().packageManagerType);
+            const packageJsonType: string = getPackageJsonByPMType(host.getCompilationSettings().packageManagerType);
+            if (ancestor === moduleType) return true;
+            packageJson = findConfigFile(ancestor, (f) => tryFileExists(host, f), packageJsonType);
             if (packageJson) {
                 return true; // break out
             }
@@ -2738,10 +2740,9 @@ namespace ts {
         if (!host.fileExists) {
             return [];
         }
-
         const packageJsons: PackageJsonInfo[] = [];
         forEachAncestorDirectory(getDirectoryPath(fileName), ancestor => {
-            const packageJsonFileName = combinePaths(ancestor, "package.json");
+            const packageJsonFileName = combinePaths(ancestor, getPackageJsonByPMType(host.getCompilationSettings().packageManagerType));
             if (host.fileExists!(packageJsonFileName)) {
                 const info = createPackageJsonInfo(packageJsonFileName, host);
                 if (info) {
