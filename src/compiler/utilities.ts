@@ -417,6 +417,20 @@ namespace ts {
         return names.length !== 0;
     }
 
+    export function hasEtsConcurrentDecoratorNames(decorators: NodeArray<Decorator> | undefined, options: CompilerOptions): boolean {
+        const names: string[] = [];
+        if (!decorators || !decorators.length) {
+            return false;
+        }
+        decorators.forEach(decorator => {
+            const nameExpr = decorator.expression;
+            if (isIdentifier(nameExpr) && nameExpr.escapedText.toString() === options.ets?.concurrent?.decorator) {
+                names.push(nameExpr.escapedText.toString());
+            }
+        });
+        return names.length !== 0;
+    }
+
     export function isStatementWithLocals(node: Node) {
         switch (node.kind) {
             case SyntaxKind.Block:
@@ -2005,7 +2019,8 @@ namespace ts {
                 if (compilerOptions) {
                     return hasEtsExtendDecoratorNames(node.decorators, compilerOptions)
                         || hasEtsStylesDecoratorNames(node.decorators, compilerOptions)
-                        || hasEtsBuilderDecoratorNames(node.decorators, compilerOptions);
+                        || hasEtsBuilderDecoratorNames(node.decorators, compilerOptions)
+                        || hasEtsConcurrentDecoratorNames(node.decorators, compilerOptions);
                 }
         }
 
