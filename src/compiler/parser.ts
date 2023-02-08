@@ -5443,6 +5443,10 @@ namespace ts {
                                 setEtsStateStylesContext(true);
                                 stateStylesRootNode = rootNodeName;
                             }
+                            else {
+                                setEtsStateStylesContext(false);
+                                stateStylesRootNode = undefined;
+                            }
                             typeArguments = parseEtsTypeArguments(pos, `${rootNodeName}Attribute`);
                         }
                         else if (inEtsStateStylesContext() && stateStylesRootNode) {
