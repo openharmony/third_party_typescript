@@ -3922,7 +3922,7 @@ namespace ts {
          * This implementation handles file exists to be true if file is source of project reference redirect when program is created using useSourceOfProjectReferenceRedirect
          */
         /*@internal*/ fileExists(fileName: string): boolean;
-        getTagNameNeededCheckByFile?(filePath: string, sourceFilePath: string): TagCheckParam;
+        getTagNameNeededCheckByFile?(containFilePath: string, sourceFilePath: string): TagCheckParam;
         getExpressionCheckedResultsByFile?(filePath: string, jsDocs: JSDoc[]): ConditionCheckResult;
     }
 
@@ -4030,7 +4030,7 @@ namespace ts {
         getResolvedTypeReferenceDirectives(): ReadonlyESMap<string, ResolvedTypeReferenceDirective | undefined>;
         getProjectReferenceRedirect(fileName: string): string | undefined;
         isSourceOfProjectReferenceRedirect(fileName: string): boolean;
-        getTagNameNeededCheckByFile?(filePath: string, sourceFilePath: string): TagCheckParam;
+        getTagNameNeededCheckByFile?(containFilePath: string, sourceFilePath: string): TagCheckParam;
         getExpressionCheckedResultsByFile?(filePath: string, jsDocs: JSDoc[]): ConditionCheckResult;
 
         readonly redirectTargetsMap: RedirectTargetsMap;
@@ -6366,7 +6366,7 @@ namespace ts {
          * get tagName where need to be determined based on the file path
          * @param filePath filePath
          */
-         getTagNameNeededCheckByFile?(filePath: string, sourceFilePath: string): TagCheckParam;
+         getTagNameNeededCheckByFile?(containFilePath: string, sourceFilePath: string): TagCheckParam;
          /**
           * get checked results based on the file path and jsDocs
           * @param filePath string
@@ -6518,7 +6518,7 @@ namespace ts {
          * get tagName where need to be determined based on the file path
          * @param filePath filePath
          */
-        getTagNameNeededCheckByFile?(filePath: string, sourceFilePath: string): TagCheckParam;
+        getTagNameNeededCheckByFile?(containFilePath: string, sourceFilePath: string): TagCheckParam;
         /**
          * get checked results based on the file path and jsDocs
          * @param filePath string

@@ -2123,7 +2123,7 @@ declare namespace ts {
         isSourceFileDefaultLibrary(file: SourceFile): boolean;
         getProjectReferences(): readonly ProjectReference[] | undefined;
         getResolvedProjectReferences(): readonly (ResolvedProjectReference | undefined)[] | undefined;
-        getTagNameNeededCheckByFile?(filePath: string): TagCheckParam;
+        getTagNameNeededCheckByFile?(containFilePath: string, sourceFilePath: string): TagCheckParam;
         getExpressionCheckedResultsByFile?(filePath: string, jsDocs: JSDoc[]): ConditionCheckResult;
     }
     export interface ResolvedProjectReference {
@@ -3074,7 +3074,7 @@ declare namespace ts {
          * get tagName where need to be determined based on the file path
          * @param filePath filePath
          */
-        getTagNameNeededCheckByFile?(filePath: string): TagCheckParam;
+        getTagNameNeededCheckByFile?(containFilePath: string, sourceFilePath: string): TagCheckParam;
         /**
          * get checked results based on the file path and jsDocs
          * @param filePath string
@@ -3160,7 +3160,9 @@ declare namespace ts {
         tagName: string;
         message: string;
         needConditionCheck: boolean;
+        type: DiagnosticCategory;
         specifyCheckConditionFuncName: string;
+        tagNameShouldExisted: boolean;
     }
     export interface ConditionCheckResult {
         valid: boolean;
@@ -3189,7 +3191,7 @@ declare namespace ts {
          * get tagName where need to be determined based on the file path
          * @param filePath filePath
          */
-        getTagNameNeededCheckByFile?(filePath: string): TagCheckParam;
+        getTagNameNeededCheckByFile?(containFilePath: string, sourceFilePath: string): TagCheckParam;
         /**
          * get checked results based on the file path and jsDocs
          * @param filePath string
@@ -5538,7 +5540,7 @@ declare namespace ts {
         isKnownTypesPackageName?(name: string): boolean;
         installPackage?(options: InstallPackageOptions): Promise<ApplyCodeActionCommandResult>;
         writeFile?(fileName: string, content: string): void;
-        getTagNameNeededCheckByFile?(filePath: string): TagCheckParam;
+        getTagNameNeededCheckByFile?(containFilePath: string, sourceFilePath: string): TagCheckParam;
         getExpressionCheckedResultsByFile?(filePath: string, jsDocs: JSDoc[]): ConditionCheckResult;
     }
     type WithMetadata<T> = T & {

@@ -25,7 +25,7 @@ static test(): void {
 /**
  * @sysCap SystemCapability.ArkUI.Core
  */
-static test2: number = 2; 
+static test2: number = 2;
 }`
             };
             const cUser: File = {
@@ -57,15 +57,18 @@ static test2: number = 2;
 
             const projectFiles = [aUser, bUser, cUser, tsconfigFile];
             const host = createServerHost(projectFiles);
-            host.getTagNameNeededCheckByFile = (filePath: string) => {
-                Debug.log(filePath);
+            host.getTagNameNeededCheckByFile = (containFilePath: string, sourceFilePath: string) => {
+                Debug.log(containFilePath);
+                Debug.log(sourceFilePath);
                 return {
                     needCheck: true,
                     checkConfig: [{
                         tagName: "sysCap",
                         message: "The statement must be written use the function 'canIUse' under the if condition.",
                         needConditionCheck: true,
-                        specifyCheckConditionFuncName: "canIUse"
+                        specifyCheckConditionFuncName: "canIUse",
+                        type: DiagnosticCategory.Warning,
+                        tagNameShouldExisted: false,
                     }]
                 };
             };
