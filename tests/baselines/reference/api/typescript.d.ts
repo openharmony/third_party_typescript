@@ -2936,6 +2936,9 @@ declare namespace ts {
             };
             property: string;
         };
+        concurrent: {
+            decorator: string;
+        };
         customComponent?: string;
         propertyDecorators: {
             name: string;
