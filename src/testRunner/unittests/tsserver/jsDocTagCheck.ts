@@ -51,20 +51,25 @@ static test2(): void {
 
             const projectFiles = [aUser, bUser, tsconfigFile];
             const host = createServerHost(projectFiles);
-            host.getTagNameNeededCheckByFile = (filePath: string) => {
-                Debug.log(filePath);
+            host.getTagNameNeededCheckByFile = (containFilePath: string, sourceFilePath: string) => {
+                Debug.log(containFilePath);
+                Debug.log(sourceFilePath);
                 return {
                     needCheck: true,
                     checkConfig: [{
                         tagName: "ignore",
                         message: "This API has been ignored. exercise caution when using this API.",
                         needConditionCheck: false,
-                        specifyCheckConditionFuncName: ""
+                        type: DiagnosticCategory.Warning,
+                        specifyCheckConditionFuncName: "",
+                        tagNameShouldExisted: false,
                     },{
                         tagName: "systemApi",
                         message: "This API is used to develop system apps. exercise caution when using this API.",
                         needConditionCheck: false,
-                        specifyCheckConditionFuncName: ""
+                        type: DiagnosticCategory.Warning,
+                        specifyCheckConditionFuncName: "",
+                        tagNameShouldExisted: false,
                     }]
                 };
             };

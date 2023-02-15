@@ -292,7 +292,7 @@ namespace ts.moduleSpecifiers {
             if (result) return result;
         }
         const links = host.getSymlinkCache
-            ? host.getSymlinkCache() 
+            ? host.getSymlinkCache()
             : discoverProbableSymlinks(host.getSourceFiles(), getCanonicalFileName, cwd, isOHModules);
 
         const symlinkedDirectories = links.getSymlinkedDirectoriesByRealpath();
