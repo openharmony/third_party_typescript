@@ -348,8 +348,9 @@ namespace ts.server {
             }
         }
 
-        getTagNameNeededCheckByFile(filePath: string): TagCheckParam {
-            Debug.log(filePath);
+        getTagNameNeededCheckByFile(containFilePath: string, sourceFilePath: string): TagCheckParam {
+            Debug.log(containFilePath);
+            Debug.log(sourceFilePath);
             return {
                 needCheck: false,
                 checkConfig: []
