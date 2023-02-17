@@ -1747,12 +1747,12 @@ namespace ts {
             isUse: boolean,
             excludeGlobals = false,
             suggestedNameNotFoundMessage?: DiagnosticMessage): Symbol | undefined {
-            let result = resolveNameHelper(location, name, meaning, nameNotFoundMessage, nameArg, isUse, excludeGlobals, getSymbol, suggestedNameNotFoundMessage);
-            if (location && location.parent && (ts.isDecorator(location.parent) || ts.isCallExpression(location.parent) || ts.isNewExpression(location.parent) || ts.isTypeReferenceNode(location.parent))) {
+            const result = resolveNameHelper(location, name, meaning, nameNotFoundMessage, nameArg, isUse, excludeGlobals, getSymbol, suggestedNameNotFoundMessage);
+            if (location && location.parent && (isDecorator(location.parent) || isCallExpression(location.parent) || isNewExpression(location.parent) || isTypeReferenceNode(location.parent))) {
                 const specialSymbol = getSymbol(globals, name, meaning, location);
                 if (specialSymbol && specialSymbol.valueDeclaration && specialSymbol.valueDeclaration.parent && specialSymbol.valueDeclaration.parent.parent && result && result.declarations && result.declarations[0]) {
                     // @ts-ignore
-                    result.declarations[0].jsDoc = specialSymbol.valueDeclaration.parent.parent.jsDoc;
+                    result.declarations[0].jsDocInherit = specialSymbol.valueDeclaration.parent.parent.jsDoc;
                 }
             }
             return result;
@@ -23397,7 +23397,7 @@ namespace ts {
         function checkIdentifier(node: Identifier): Type {
             const symbol = getResolvedSymbol(node);
 
-            if (node.parent && (ts.isDecorator(node.parent) || ts.isCallExpression(node.parent) || ts.isNewExpression(node.parent) || ts.isTypeReferenceNode(node.parent))) {
+            if (node.parent && (isDecorator(node.parent) || isCallExpression(node.parent) || isNewExpression(node.parent) || isTypeReferenceNode(node.parent))) {
                 identifierConditionCheck(node, symbol);
             }
 
@@ -29185,8 +29185,8 @@ namespace ts {
             const sourceFile = getSourceFileOfNode(node);
             const sourceSymbol: Symbol | undefined = getPropertyAccessExpressionNameSymbol(node);
             if (!sourceSymbol || !sourceSymbol.valueDeclaration) {
-       	        return;
-       	    }
+                return;
+            }
             const sourceSymbolSourceFile = getSourceFileOfNode(sourceSymbol.valueDeclaration);
             if (!sourceSymbolSourceFile) {
                 return;
@@ -29218,8 +29218,8 @@ namespace ts {
             }
             const sourceFile = getSourceFileOfNode(node);
             if (!sourceSymbol || !sourceSymbol.valueDeclaration) {
-       	        return;
-       	    }
+                return;
+            }
             const sourceSymbolSourceFile = getSourceFileOfNode(sourceSymbol.valueDeclaration);
             if (!sourceSymbolSourceFile) {
                 return;
@@ -29230,9 +29230,9 @@ namespace ts {
             }
 
             if (sourceSymbol.declarations) {
-                const jsDoc = (sourceSymbol.declarations[0] as any).jsDoc;
-                if (jsDoc) {
-                    expressionCheckByJsDoc(jsDoc, node, sourceFile, checkParam.checkConfig);
+                const jsDocInherit = (sourceSymbol.declarations[0] as any).jsDocInherit;
+                if (jsDocInherit) {
+                    expressionCheckByJsDoc(jsDocInherit, node, sourceFile, checkParam.checkConfig);
                 }
             }
         }
@@ -29244,8 +29244,8 @@ namespace ts {
             const sourceFile = getSourceFileOfNode(node);
             const sourceSymbol: Symbol | undefined = getEtsComponentExpressionNameSymbol(node);
             if (!sourceSymbol || !sourceSymbol.declarations[0]) {
-       	        return;
-       	    }
+                return;
+            }
             const sourceSymbolSourceFile = getSourceFileOfNode(sourceSymbol.declarations[0]);
             if (!sourceSymbolSourceFile) {
                 return;
@@ -29295,7 +29295,7 @@ namespace ts {
         }
 
         function getEtsComponentExpressionPropertyOfType(node: PropertyAccessExpression, etsComponentExpressionNode: CallExpression | EtsComponentExpression | PropertyAccessExpression | Identifier, right: Identifier) {
-            let sourceSymbol:Symbol | undefined;
+            let sourceSymbol: Symbol | undefined;
             const locals = getSourceFileOfNode(node).locals;
             if (locals?.has(right.escapedText)) {
                 const extraSymbol = locals?.get(right.escapedText);
@@ -29339,11 +29339,13 @@ namespace ts {
             checkConfig.forEach(config => {
                 let tagNameExisted = false;
                 let currentChildNode: Node;
-                if (ts.isEtsComponentExpression(node)) {
+                if (isEtsComponentExpression(node)) {
                     currentChildNode = node.expression;
-                } else if (ts.isIdentifier(node)) {
+                }
+                else if (isIdentifier(node)) {
                     currentChildNode = node;
-                } else {
+                }
+                else {
                     currentChildNode = node.name;
                 }
                 jsDoc.forEach(item => {
@@ -29352,7 +29354,7 @@ namespace ts {
                             if (tag.tagName.escapedText.toString() === config.tagName) {
                                 tagNameExisted = true;
                                 if (!config.tagNameShouldExisted && config.needConditionCheck) {
-                                    if (ts.isPropertyAccessExpression(node)) {
+                                    if (isPropertyAccessExpression(node)) {
                                         conditionCheck(node, jsDoc, sourceFile, config);
                                     }
                                 }
@@ -34056,7 +34058,7 @@ namespace ts {
             }
 
             node.decorators.forEach(decorator => {
-                if (decorator.expression && ts.isIdentifier(decorator.expression)) {
+                if (decorator.expression && isIdentifier(decorator.expression)) {
                     checkIdentifier(decorator.expression);
                 }
             });
