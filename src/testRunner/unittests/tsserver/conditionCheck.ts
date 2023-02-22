@@ -72,7 +72,7 @@ static test2: number = 2;
                     }]
                 };
             };
-            host.getExpressionCheckedResultsByFile = (filePath: string, jsDocs: JSDoc[]) => {
+            host.getExpressionCheckedResultsByFile = (filePath: string, jsDocs: JSDocTagInfo[]) => {
                 Debug.log(filePath);
                 Debug.log(jsDocs.toString());
                 return {

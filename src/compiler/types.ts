@@ -3923,7 +3923,7 @@ namespace ts {
          */
         /*@internal*/ fileExists(fileName: string): boolean;
         getTagNameNeededCheckByFile?(containFilePath: string, sourceFilePath: string): TagCheckParam;
-        getExpressionCheckedResultsByFile?(filePath: string, jsDocs: JSDoc[]): ConditionCheckResult;
+        getExpressionCheckedResultsByFile?(filePath: string, jsDocs: JSDocTagInfo[]): ConditionCheckResult;
     }
 
     /*@internal*/
@@ -4031,7 +4031,7 @@ namespace ts {
         getProjectReferenceRedirect(fileName: string): string | undefined;
         isSourceOfProjectReferenceRedirect(fileName: string): boolean;
         getTagNameNeededCheckByFile?(containFilePath: string, sourceFilePath: string): TagCheckParam;
-        getExpressionCheckedResultsByFile?(filePath: string, jsDocs: JSDoc[]): ConditionCheckResult;
+        getExpressionCheckedResultsByFile?(filePath: string, jsDocs: JSDocTagInfo[]): ConditionCheckResult;
 
         readonly redirectTargetsMap: RedirectTargetsMap;
     }
@@ -6372,7 +6372,7 @@ namespace ts {
           * @param filePath string
           * @param jsDoc JSDoc[]
           */
-         getExpressionCheckedResultsByFile?(filePath: string, jsDocs: JSDoc[]): ConditionCheckResult;
+         getExpressionCheckedResultsByFile?(filePath: string, jsDocs: JSDocTagInfo[]): ConditionCheckResult;
     }
 
     /**
@@ -6524,7 +6524,7 @@ namespace ts {
          * @param filePath string
          * @param jsDoc JSDoc[]
          */
-        getExpressionCheckedResultsByFile?(filePath: string, jsDocs: JSDoc[]): ConditionCheckResult;
+        getExpressionCheckedResultsByFile?(filePath: string, jsDocs: JSDocTagInfo[]): ConditionCheckResult;
     }
 
     /** true if --out otherwise source file name */
@@ -8371,5 +8371,10 @@ namespace ts {
     export interface PseudoBigInt {
         negative: boolean;
         base10Value: string;
+    }
+
+    export interface JSDocTagInfo {
+        name: string;
+        text?: string;
     }
 }
