@@ -909,7 +909,7 @@ interface Array<T> { length: number; [n: number]: T; }`
             };
         }
 
-        getExpressionCheckedResultsByFile?(filePath: string, jsDocs: JSDoc[]): ConditionCheckResult {
+        getExpressionCheckedResultsByFile?(filePath: string, jsDocs: JSDocTagInfo[]): ConditionCheckResult {
             Debug.log(filePath);
             Debug.log(jsDocs.toString());
             return {
