@@ -314,7 +314,7 @@ namespace ts {
         getPackageJsonAutoImportProvider?(): Program | undefined;
         /* @internal */
         sendPerformanceEvent?(kind: PerformanceEvent["kind"], durationMs: number): void;
-        getTagNameNeededCheckByFile?(filePath: string): TagCheckParam;
+        getTagNameNeededCheckByFile?(containFilePath: string, sourceFilePath: string): TagCheckParam;
         getExpressionCheckedResultsByFile?(filePath: string, jsDocs: JSDoc[]): ConditionCheckResult;
     }
 

@@ -1368,6 +1368,7 @@ namespace ts {
                     const decorators = ensureEtsDecorators(input);
                     const modifiers = factory.createNodeArray(ensureModifiers(input));
                     const typeParameters = ensureTypeParams(input, input.typeParameters);
+                    // eslint-disable-next-line boolean-trivia
                     const memberNodes = visitNodes(input.members, visitDeclarationSubtree, undefined, 1);
                     const members = factory.createNodeArray(memberNodes);
 

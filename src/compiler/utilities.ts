@@ -7454,4 +7454,60 @@ namespace ts {
         }
         return "package.json";
     }
+
+    export function tryGetSignatureDeclaration(typeChecker: TypeChecker, node: Node): SignatureDeclaration | undefined {
+        const callLike = getAncestorCallLikeExpression(node);
+        const signature = callLike && typeChecker.tryGetResolvedSignatureWithoutCheck(callLike);
+        // Don't go to a function type, go to the value having that type.
+        return tryCast(signature && signature.declaration, (d): d is SignatureDeclaration => isFunctionLike(d) && !isFunctionTypeNode(d));
+    }
+
+    function getAncestorCallLikeExpression(node: Node): CallLikeExpression | undefined {
+        const target = findAncestor(node, n => !isRightSideOfPropertyAccess(n));
+        const callLike = target?.parent;
+        return callLike && isCallLikeExpression(callLike) && getInvokedExpression(callLike) === target ? callLike : undefined;
+    }
+
+    function isRightSideOfPropertyAccess(node: Node) {
+        return tryCast(node.parent, isPropertyAccessExpression)?.name === node;
+    }
+
+    export function getEtsComponentExpressionInnerExpressionStatementNode(node: Node | undefined): CallExpression | EtsComponentExpression | PropertyAccessExpression | undefined {
+        while (node && !isIdentifier(node)) {
+            const parent = node;
+            const currentNode = (<ExpressionStatement | CallExpression | PropertyAccessExpression | EtsComponentExpression>node).expression;
+            if (currentNode && isIdentifier(currentNode)) {
+                node = parent;
+                break;
+            }
+            else {
+                node = currentNode;
+            }
+        }
+        if (!node) {
+            return undefined;
+        }
+        if (isCallExpression(node) || isEtsComponentExpression(node) || isPropertyAccessExpression(node)) {
+            return node;
+        }
+        return undefined;
+    }
+
+    export function getEtsExtendDecoratorsComponentNames(decorators: NodeArray<Decorator> | undefined, compilerOptions: CompilerOptions): __String[] {
+        const extendComponents: __String[] = [];
+        const extendDecorator = compilerOptions.ets?.extend?.decorator ?? "Extend";
+        decorators?.forEach((decorator) => {
+            if (decorator.expression.kind === SyntaxKind.CallExpression) {
+                const identifier = (<CallExpression>decorator.expression).expression;
+                const args = (<CallExpression>decorator.expression).arguments;
+                if (identifier.kind === SyntaxKind.Identifier && (<Identifier>identifier).escapedText === extendDecorator && args.length) {
+                    // only read @Extend(...args) first argument
+                    if (args[0].kind === SyntaxKind.Identifier) {
+                        extendComponents.push((<Identifier>args[0]).escapedText);
+                    }
+                }
+            }
+        });
+        return extendComponents;
+    }
 }
