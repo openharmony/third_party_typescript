@@ -526,7 +526,8 @@ namespace ts.moduleSpecifiers {
             const packageJsonPath = combinePaths(packageRootPath, getPackageJsonByPMType(options.packageManagerType));
             let moduleFileToTry = path;
             if (host.fileExists(packageJsonPath)) {
-                const packageJsonContent = JSON.parse(host.readFile!(packageJsonPath)!);
+                const isOHModules: boolean = isOhpm(options.packageManagerType);
+                const packageJsonContent = isOHModules ? JSON5.parse(host.readFile!(packageJsonPath)!) : JSON.parse(host.readFile!(packageJsonPath)!);
                 const versionPaths = packageJsonContent.typesVersions
                     ? getPackageJsonTypesVersionsPaths(packageJsonContent.typesVersions)
                     : undefined;
