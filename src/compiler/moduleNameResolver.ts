@@ -1,3 +1,4 @@
+const JSON5 = require("json5")
 namespace ts {
     /* @internal */
     export function trace(host: ModuleResolutionHost, message: DiagnosticMessage, ...args: any[]): void;
@@ -426,7 +427,12 @@ namespace ts {
                             // `types-publisher` sometimes creates packages with `"typings": null` for packages that don't provide their own types.
                             // See `createNotNeededPackageJSON` in the types-publisher` repo.
                             // eslint-disable-next-line no-null/no-null
-                            const isNotNeededPackage = host.fileExists(packageJsonPath) && (readJson(packageJsonPath, host) as PackageJson).typings === null;
+                            let isNotNeededPackage: boolean;
+                            if (isOhpm(options.packageManagerType)) {
+                                isNotNeededPackage = host.fileExists(packageJsonPath) && JSON5.parse(host.readFile!(packageJsonPath)!).typings === null;
+                            } else {
+                                isNotNeededPackage = host.fileExists(packageJsonPath) && (readJson(packageJsonPath, host) as PackageJson).typings === null;
+                            }
                             if (!isNotNeededPackage) {
                                 const baseFileName = getBaseFileName(normalized);
 
@@ -1176,9 +1182,10 @@ namespace ts {
         const directoryExists = !onlyRecordFailures && directoryProbablyExists(packageDirectory, host);
         const packageJsonPath = combinePaths(packageDirectory, getPackageJsonByPMType(state.compilerOptions.packageManagerType));
         if (directoryExists && host.fileExists(packageJsonPath)) {
-            const packageJsonContent = readJson(packageJsonPath, host) as PackageJson;
+            const isOHModules: boolean = isOhpm(state.compilerOptions.packageManagerType);
+            const packageJsonContent = isOHModules ? JSON5.parse(host.readFile!(packageJsonPath)!) : readJson(packageJsonPath, host) as PackageJson;
             if (traceEnabled) {
-                const message = isOhpm(state.compilerOptions.packageManagerType) ? Diagnostics.Found_oh_package_json5_at_0 : Diagnostics.Found_package_json_at_0;
+                const message = isOHModules ? Diagnostics.Found_oh_package_json5_at_0 : Diagnostics.Found_package_json_at_0;
                 trace(host, message, packageJsonPath);
             }
             const versionPaths = readPackageJsonTypesVersionPaths(packageJsonContent, state);
