@@ -143,6 +143,11 @@ namespace ts {
             return children;
         }
 
+        const sourceFileName: string | undefined = sourceFile ? sourceFile.fileName : node.getSourceFile().fileName;
+        if (sourceFileName && getScriptKindFromFileName(sourceFileName) === ScriptKind.ETS) {
+            scanner.setEtsContext(true);
+        }
+
         scanner.setText((sourceFile || node.getSourceFile()).text);
         let pos = node.pos;
         const processNode = (child: Node) => {
@@ -164,6 +169,7 @@ namespace ts {
         node.forEachChild(processNode, processNodes);
         addSyntheticNodes(children, pos, node.end, node);
         scanner.setText(undefined);
+        scanner.setEtsContext(false);
         return children;
     }
 

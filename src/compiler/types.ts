@@ -3418,6 +3418,7 @@ namespace ts {
     export interface SourceFileLike {
         readonly text: string;
         lineMap?: readonly number[];
+        readonly fileName?: string;
         /* @internal */
         getPositionOfLineAndCharacter?(line: number, character: number, allowEdits?: true): number;
     }
