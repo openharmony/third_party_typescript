@@ -2124,7 +2124,7 @@ declare namespace ts {
         getProjectReferences(): readonly ProjectReference[] | undefined;
         getResolvedProjectReferences(): readonly (ResolvedProjectReference | undefined)[] | undefined;
         getTagNameNeededCheckByFile?(containFilePath: string, sourceFilePath: string): TagCheckParam;
-        getExpressionCheckedResultsByFile?(filePath: string, jsDocs: JSDoc[]): ConditionCheckResult;
+        getExpressionCheckedResultsByFile?(filePath: string, jsDocs: JSDocTagInfo[]): ConditionCheckResult;
     }
     export interface ResolvedProjectReference {
         commandLine: ParsedCommandLine;
@@ -3080,7 +3080,7 @@ declare namespace ts {
          * @param filePath string
          * @param jsDoc JSDoc[]
          */
-        getExpressionCheckedResultsByFile?(filePath: string, jsDocs: JSDoc[]): ConditionCheckResult;
+        getExpressionCheckedResultsByFile?(filePath: string, jsDocs: JSDocTagInfo[]): ConditionCheckResult;
     }
     /**
      * Represents the result of module resolution.
@@ -3197,7 +3197,7 @@ declare namespace ts {
          * @param filePath string
          * @param jsDoc JSDoc[]
          */
-        getExpressionCheckedResultsByFile?(filePath: string, jsDocs: JSDoc[]): ConditionCheckResult;
+        getExpressionCheckedResultsByFile?(filePath: string, jsDocs: JSDocTagInfo[]): ConditionCheckResult;
     }
     export interface SourceMapRange extends TextRange {
         source?: SourceMapSource;
@@ -3995,6 +3995,10 @@ declare namespace ts {
     export interface PseudoBigInt {
         negative: boolean;
         base10Value: string;
+    }
+    export interface JSDocTagInfo {
+        name: string;
+        text?: string;
     }
     export {};
 }
@@ -5542,7 +5546,7 @@ declare namespace ts {
         installPackage?(options: InstallPackageOptions): Promise<ApplyCodeActionCommandResult>;
         writeFile?(fileName: string, content: string): void;
         getTagNameNeededCheckByFile?(containFilePath: string, sourceFilePath: string): TagCheckParam;
-        getExpressionCheckedResultsByFile?(filePath: string, jsDocs: JSDoc[]): ConditionCheckResult;
+        getExpressionCheckedResultsByFile?(filePath: string, jsDocs: JSDocTagInfo[]): ConditionCheckResult;
     }
     type WithMetadata<T> = T & {
         metadata?: unknown;
