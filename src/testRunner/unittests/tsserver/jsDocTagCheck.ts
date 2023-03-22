@@ -73,7 +73,7 @@ static test2(): void {
                     }]
                 };
             };
-            host.getExpressionCheckedResultsByFile = (filePath: string, jsDocs: JSDoc[]) => {
+            host.getExpressionCheckedResultsByFile = (filePath: string, jsDocs: JSDocTagInfo[]) => {
                 Debug.log(filePath);
                 Debug.log(jsDocs.toString());
                 return {

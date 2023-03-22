@@ -315,7 +315,7 @@ namespace ts {
         /* @internal */
         sendPerformanceEvent?(kind: PerformanceEvent["kind"], durationMs: number): void;
         getTagNameNeededCheckByFile?(containFilePath: string, sourceFilePath: string): TagCheckParam;
-        getExpressionCheckedResultsByFile?(filePath: string, jsDocs: JSDoc[]): ConditionCheckResult;
+        getExpressionCheckedResultsByFile?(filePath: string, jsDocs: JSDocTagInfo[]): ConditionCheckResult;
     }
 
     /* @internal */

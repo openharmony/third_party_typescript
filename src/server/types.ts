@@ -17,6 +17,6 @@ declare namespace ts.server {
         trace?(s: string): void;
         require?(initialPath: string, moduleName: string): RequireResult;
         getTagNameNeededCheckByFile?(containFilePath: string, sourceFilePath: string): TagCheckParam;
-        getExpressionCheckedResultsByFile?(filePath: string, jsDocs: JSDoc[]): ConditionCheckResult;
+        getExpressionCheckedResultsByFile?(filePath: string, jsDocs: JSDocTagInfo[]): ConditionCheckResult;
     }
 }
