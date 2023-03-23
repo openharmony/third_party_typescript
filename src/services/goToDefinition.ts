@@ -35,6 +35,7 @@ namespace ts.GoToDefinition {
             }
         }
         const calledDeclaration = tryGetSignatureDeclaration(typeChecker, node);
+        const compilerOptions = program.getCompilerOptions();
         // Don't go to the component constructor definition for a JSX element, just go to the component definition.
         if (calledDeclaration && !(isJsxOpeningLikeElement(node.parent) && isConstructorLike(calledDeclaration)) && !isVirtualConstructor(typeChecker, calledDeclaration.symbol, calledDeclaration)) {
             const sigInfo = createDefinitionFromSignatureDeclaration(typeChecker, calledDeclaration);
@@ -43,8 +44,17 @@ namespace ts.GoToDefinition {
             if (typeChecker.getRootSymbols(symbol).some(s => symbolMatchesSignature(s, calledDeclaration))) {
                 return [sigInfo];
             }
+            else if (isIdentifier(node)
+                && isNewExpression(parent)
+                && compilerOptions.ets?.components.some(component => component === node.escapedText.toString())
+            ) {
+                return [sigInfo];
+            }
             else {
                 const defs = getDefinitionFromSymbol(typeChecker, symbol, node, calledDeclaration) || emptyArray;
+                if (isIdentifier(node) && isEtsComponentExpression(parent)) {
+                    return [...defs];
+                }
                 // For a 'super()' call, put the signature first, else put the variable first.
                 return node.kind === SyntaxKind.SuperKeyword ? [sigInfo, ...defs] : [...defs, sigInfo];
             }
