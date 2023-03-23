@@ -530,7 +530,8 @@ declare namespace ts {
         EtsBuildContext = 16,
         EtsBuilderContext = 32,
         EtsStateStylesContext = 64,
-        EtsComponentsContext = 128
+        EtsComponentsContext = 128,
+        EtsNewExpressionContext = 256
     }
     export enum ModifierFlags {
         None = 0,

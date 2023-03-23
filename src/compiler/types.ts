@@ -797,6 +797,7 @@ namespace ts {
         EtsBuilderContext =          1 << 5,  // If context was parsed as Ets builder methods or functions
         EtsStateStylesContext =      1 << 6,  // If context was parsed as Ets stateStyles Components
         EtsComponentsContext =       1 << 7,  // If context was parsed as a Ets Components
+        EtsNewExpressionContext =    1 << 8,  // If context was parsed ad a new expression
     }
 
     export const enum ModifierFlags {
