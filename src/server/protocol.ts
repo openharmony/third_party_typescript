@@ -3394,6 +3394,7 @@ namespace ts.server.protocol {
         typeRoots?: string[];
         ets?: EtsOptions;
         packageManagerType?: string;
+        emitNodeModulesFiles?: boolean;
         [option: string]: CompilerOptionsValue | undefined;
     }
 
