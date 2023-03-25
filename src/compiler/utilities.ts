@@ -1351,6 +1351,10 @@ namespace ts {
         return file.scriptKind === ScriptKind.JSON;
     }
 
+    export function isEmitNodeModulesFiles(emitNodeModulesFiles: boolean | undefined): boolean {
+        return !!emitNodeModulesFiles;
+    }
+
     export function isEnumConst(node: EnumDeclaration): boolean {
         return !!(getCombinedModifierFlags(node) & ModifierFlags.Const);
     }
@@ -4473,7 +4477,7 @@ namespace ts {
         const options = host.getCompilerOptions();
         return !(options.noEmitForJsFiles && isSourceFileJS(sourceFile)) &&
             !sourceFile.isDeclarationFile &&
-            !host.isSourceFileFromExternalLibrary(sourceFile) &&
+            (!host.isSourceFileFromExternalLibrary(sourceFile) || isEmitNodeModulesFiles(host.getCompilerOptions().emitNodeModulesFiles)) &&
             !(isJsonSourceFile(sourceFile) && host.getResolvedProjectReferenceToRedirect(sourceFile.fileName)) &&
             (forceDtsEmit || !host.isSourceOfProjectReferenceRedirect(sourceFile.fileName));
     }

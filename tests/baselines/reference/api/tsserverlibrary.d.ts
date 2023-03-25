@@ -2911,6 +2911,7 @@ declare namespace ts {
         useDefineForClassFields?: boolean;
         ets?: EtsOptions;
         packageManagerType?: string;
+        emitNodeModulesFiles?: boolean;
         [option: string]: CompilerOptionsValue | TsConfigSourceFile | undefined;
     }
     export interface EtsOptions {
@@ -9337,6 +9338,7 @@ declare namespace ts.server.protocol {
         typeRoots?: string[];
         ets?: EtsOptions;
         packageManagerType?: string;
+        emitNodeModulesFiles?: boolean;
         [option: string]: CompilerOptionsValue | undefined;
     }
     enum JsxEmit {

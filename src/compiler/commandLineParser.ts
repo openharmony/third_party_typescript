@@ -867,6 +867,12 @@ namespace ts {
             description: Diagnostics.Unknown_build_option_0,
         },
         {
+            name: "emitNodeModulesFiles",
+            type: "boolean",
+            category: Diagnostics.Advanced_Options,
+            description: Diagnostics.Unknown_build_option_0,
+        },
+        {
             name: "resolveJsonModule",
             type: "boolean",
             affectsModuleResolution: true,
