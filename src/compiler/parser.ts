@@ -1258,6 +1258,10 @@ namespace ts {
             setEtsFlag(val, EtsFlags.EtsComponentsContext);
         }
 
+        function setEtsNewExpressionContext(val: boolean) {
+            setEtsFlag(val, EtsFlags.EtsNewExpressionContext);
+        }
+
         function setEtsExtendComponentsContext(val: boolean) {
             setEtsFlag(val, EtsFlags.EtsExtendComponentsContext);
         }
@@ -1396,6 +1400,10 @@ namespace ts {
 
         function inEtsComponentsContext() {
             return inEtsContext() && inEtsFlagsContext(EtsFlags.EtsComponentsContext);
+        }
+
+        function inEtsNewExpressionContext() {
+            return inEtsContext() && inEtsFlagsContext(EtsFlags.EtsNewExpressionContext);
         }
 
         function inEtsExtendComponentsContext() {
@@ -5604,7 +5612,7 @@ namespace ts {
                     return parseTemplateExpression(/* isTaggedTemplate */ false);
             }
 
-            if(isCurrentTokenAnEtsComponentExpression()){
+            if(isCurrentTokenAnEtsComponentExpression() && !inEtsNewExpressionContext()){
                 return parseEtsComponentExpression();
             }
 
@@ -5774,6 +5782,7 @@ namespace ts {
         }
 
         function parseNewExpressionOrNewDotTarget(): NewExpression | MetaProperty {
+            setEtsNewExpressionContext(inEtsComponentsContext());
             const pos = getNodePos();
             parseExpected(SyntaxKind.NewKeyword);
             if (parseOptional(SyntaxKind.DotToken)) {
@@ -5803,6 +5812,7 @@ namespace ts {
             else if (typeArguments) {
                 parseErrorAt(pos, scanner.getStartPos(), Diagnostics.A_new_expression_with_type_arguments_must_always_be_followed_by_a_parenthesized_argument_list);
             }
+            setEtsNewExpressionContext(false);
             return finishNode(factory.createNewExpression(expression, typeArguments, argumentsArray), pos);
         }
 
