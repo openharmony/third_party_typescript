@@ -29089,6 +29089,9 @@ namespace ts {
             if (!checkGrammarTypeArguments(node, node.typeArguments)) checkGrammarArguments(node.arguments);
 
             const signature = getResolvedSignature(node, /*candidatesOutArray*/ undefined, checkMode);
+
+            checkCallExpressionArgsJsDoc(node, signature);
+
             if (signature === resolvingSignature) {
                 // CheckMode.SkipGenericFunctions is enabled and this is a call to a generic function that
                 // returns a function type. We defer checking and return nonInferrableType.
@@ -29192,6 +29195,41 @@ namespace ts {
                 return;
             }
             expressionCheckByJsDoc((sourceSymbol as any).getJsDocTags(), node, sourceFile, checkParam.checkConfig);
+        }
+
+        function checkCallExpressionArgsJsDoc(node: CallExpression | NewExpression | EtsComponentExpression, signature: Signature) {
+            if (!host.getTagNameNeededCheckByFile) {
+                return;
+            }
+            const args = getEffectiveCallArguments(node);
+            const argsCount = args ? args.length : 0;
+            for (let i = 0; i < argsCount; i++) {
+                const arg = args[i];
+                if (!isObjectLiteralExpression(arg)) {
+                    continue;
+                }
+                const paramType = getTypeAtPosition(signature, i);
+                const paramSymbol = paramType.symbol;
+                if (!paramSymbol) {
+                    continue;
+                }
+                for (const property of arg.properties) {
+                    if (paramSymbol.members && isPropertyAssignment(property) && property.name && isIdentifier(property.name)) {
+                        const propertyName = property.name;
+                        const sourceSymbol = paramSymbol.members.get(propertyName.escapedText);
+                        if (!sourceSymbol || !sourceSymbol.valueDeclaration) {
+                            return;
+                        }
+                        const sourceFile = getSourceFileOfNode(node);
+                        const sourceSymbolSourceFile = getSourceFileOfNode(sourceSymbol.valueDeclaration);
+                        const checkParam = host.getTagNameNeededCheckByFile(sourceFile.fileName, sourceSymbolSourceFile.fileName);
+                        if (!checkParam.needCheck) {
+                            return;
+                        }
+                        expressionCheckByJsDoc((sourceSymbol as any).getJsDocTags(), propertyName, sourceFile, checkParam.checkConfig);
+                    }
+                }
+            }
         }
 
         function getPropertyAccessExpressionNameSymbol(node: PropertyAccessExpression) {
