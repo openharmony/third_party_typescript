@@ -29218,13 +29218,17 @@ namespace ts {
                         const propertyName = property.name;
                         const sourceSymbol = paramSymbol.members.get(propertyName.escapedText);
                         if (!sourceSymbol || !sourceSymbol.valueDeclaration) {
-                            return;
+                            continue;
+                        }
+                        const symbolValue = sourceSymbol.valueDeclaration;
+                        if (symbolValue.parent && isTypeLiteralNode(symbolValue.parent) && symbolValue.parent.parent && isParameter(symbolValue.parent.parent)) {
+                            break;
                         }
                         const sourceFile = getSourceFileOfNode(node);
-                        const sourceSymbolSourceFile = getSourceFileOfNode(sourceSymbol.valueDeclaration);
+                        const sourceSymbolSourceFile = getSourceFileOfNode(symbolValue);
                         const checkParam = host.getTagNameNeededCheckByFile(sourceFile.fileName, sourceSymbolSourceFile.fileName);
                         if (!checkParam.needCheck) {
-                            return;
+                            break;
                         }
                         expressionCheckByJsDoc((sourceSymbol as any).getJsDocTags(), propertyName, sourceFile, checkParam.checkConfig);
                     }
