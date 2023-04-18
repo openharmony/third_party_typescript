@@ -3403,7 +3403,13 @@ namespace ts {
                         error(errorNode, Diagnostics.Cannot_find_module_0_Consider_using_resolveJsonModule_to_import_module_with_json_extension, moduleReference);
                     }
                     else {
-                        error(errorNode, moduleNotFoundError, moduleReference);
+                        if (moduleReference.lastIndexOf(".so") !== -1) {
+                            const diagnostic = createDiagnosticForNode(errorNode, Diagnostics.Module_not_found_for_0_If_you_re_importing_a_napi_please_provide_the_corresponding_d_ts_file, moduleReference);
+                            diagnostics.add(diagnostic);
+                        }
+                        else {
+                            error(errorNode, moduleNotFoundError, moduleReference);
+                        }
                     }
                 }
             }
