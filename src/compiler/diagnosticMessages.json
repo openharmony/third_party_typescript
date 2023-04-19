@@ -6410,5 +6410,9 @@
     "'oh-package.json5' has '{0}' field '{1}' that references '{2}'.": {
         "category": "Message",
         "code": 18046
+    },
+    "Module not found for '{0}'. If you're importing a napi, please provide the corresponding .d.ts file.": {
+        "category": "Warning",
+        "code": 18047
     }
 }
