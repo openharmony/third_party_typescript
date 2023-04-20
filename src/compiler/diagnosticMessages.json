@@ -6411,7 +6411,7 @@
         "category": "Message",
         "code": 18046
     },
-    "Module not found for '{0}'. If you're importing a napi, please provide the corresponding .d.ts file.": {
+    "Currently module for '{0}' is not verified. If you're importing napi, its verification will be enabled in later SDK version. Please make sure the corresponding .d.ts file is provided and the napis are correctly declared.": {
         "category": "Warning",
         "code": 18047
     }
