@@ -681,6 +681,7 @@ namespace ts {
         isDeclarationWithCollidingName: notImplemented,
         isValueAliasDeclaration: notImplemented,
         isReferencedAliasDeclaration: notImplemented,
+        isReferenced: notImplemented,
         isTopLevelValueImportEqualsWithEntityName: notImplemented,
         getNodeCheckFlags: notImplemented,
         isDeclarationVisible: notImplemented,

@@ -4010,4 +4010,8 @@ namespace ts {
         }
         Debug.fail("should never ask for module name at index higher than possible module name");
     }
+
+    export function getTypeExportImportAndConstEnumTransformer(context: TransformationContext): (node: SourceFile) => SourceFile {
+        return transformTypeExportImportAndConstEnumInTypeScript(context);
+    }
 }
