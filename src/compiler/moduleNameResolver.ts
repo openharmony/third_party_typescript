@@ -1,4 +1,4 @@
-const JSON5 = require("json5")
+const JSON5 = require("json5");
 namespace ts {
     /* @internal */
     export function trace(host: ModuleResolutionHost, message: DiagnosticMessage, ...args: any[]): void;
@@ -430,7 +430,8 @@ namespace ts {
                             let isNotNeededPackage: boolean;
                             if (isOhpm(options.packageManagerType)) {
                                 isNotNeededPackage = host.fileExists(packageJsonPath) && JSON5.parse(host.readFile!(packageJsonPath)!).typings === null;
-                            } else {
+                            }
+                            else {
                                 isNotNeededPackage = host.fileExists(packageJsonPath) && (readJson(packageJsonPath, host) as PackageJson).typings === null;
                             }
                             if (!isNotNeededPackage) {
