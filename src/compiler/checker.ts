@@ -39183,6 +39183,11 @@ namespace ts {
             return false;
         }
 
+        function isReferenced(node: Node): boolean {
+            const symbol = getSymbolOfNode(node);
+            return !!symbol?.isReferenced;
+        }
+
         function isImplementationOfOverload(node: SignatureDeclaration) {
             if (nodeIsPresent((node as FunctionLikeDeclaration).body)) {
                 if (isGetAccessor(node) || isSetAccessor(node)) return false; // Get or set accessors can never be overload implementations, but can have up to 2 signatures
@@ -39517,6 +39522,10 @@ namespace ts {
                     const node = getParseTreeNode(nodeIn);
                     // Synthesized nodes are always treated as referenced.
                     return node ? isReferencedAliasDeclaration(node, checkChildren) : true;
+                },
+                isReferenced: (nodeIn: Node | undefined): boolean => {
+                    const node = getParseTreeNode(nodeIn);
+                    return node ? isReferenced(node) : false;
                 },
                 getNodeCheckFlags: nodeIn => {
                     const node = getParseTreeNode(nodeIn);

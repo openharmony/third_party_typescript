@@ -4945,6 +4945,7 @@ declare namespace ts {
      */
     export function resolveProjectReferencePath(ref: ProjectReference): ResolvedConfigFileName;
     /** @deprecated */ export function resolveProjectReferencePath(host: ResolveProjectReferencePathHost, ref: ProjectReference): ResolvedConfigFileName;
+    export function getTypeExportImportAndConstEnumTransformer(context: TransformationContext): (node: SourceFile) => SourceFile;
     export {};
 }
 declare namespace ts {
