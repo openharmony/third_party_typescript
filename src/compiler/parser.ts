@@ -990,6 +990,7 @@ namespace ts {
             scanner.setOnError(scanError);
             scanner.setScriptTarget(languageVersion);
             scanner.setLanguageVariant(languageVariant);
+            scanner.setEtsContext(inEtsContext());
         }
 
         function clearState() {
@@ -997,7 +998,7 @@ namespace ts {
             scanner.clearCommentDirectives();
             scanner.setText("");
             scanner.setOnError(undefined);
-
+            scanner.setEtsContext(false);
             // Clear any data.  We don't want to accidentally hold onto it for too long.
             sourceText = undefined!;
             languageVersion = undefined!;

@@ -4101,6 +4101,7 @@ declare namespace ts {
         lookAhead<T>(callback: () => T): T;
         scanRange<T>(start: number, length: number, callback: () => T): T;
         tryScan<T>(callback: () => T): T;
+        setEtsContext(isEtsContext: boolean): void;
     }
     function tokenToString(t: SyntaxKind): string | undefined;
     function getPositionOfLineAndCharacter(sourceFile: SourceFileLike, line: number, character: number): number;

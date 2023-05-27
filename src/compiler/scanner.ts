@@ -74,6 +74,7 @@ namespace ts {
         // callback returns something truthy, then the scanner state is not rolled back.  The result
         // of invoking the callback is returned from this function.
         tryScan<T>(callback: () => T): T;
+        setEtsContext(isEtsContext: boolean): void;
     }
 
     const textToKeywordObj: MapLike<KeywordSyntaxKind> = {
@@ -937,6 +938,7 @@ namespace ts {
 
         let commentDirectives: CommentDirective[] | undefined;
         let inJSDocType = 0;
+        let inEtsContext: boolean = false;
 
         setText(text, start, length);
 
@@ -983,6 +985,7 @@ namespace ts {
             tryScan,
             lookAhead,
             scanRange,
+            setEtsContext
         };
 
         if (Debug.isDebugging) {
@@ -995,6 +998,10 @@ namespace ts {
         }
 
         return scanner;
+
+        function setEtsContext(isEtsContext: boolean): void {
+            inEtsContext = isEtsContext;
+        }
 
         function error(message: DiagnosticMessage): void;
         function error(message: DiagnosticMessage, errPos: number, length: number): void;
@@ -1519,7 +1526,11 @@ namespace ts {
                 if (ch >= CharacterCodes.a && ch <= CharacterCodes.z) {
                     const keyword = textToKeyword.get(tokenValue);
                     if (keyword !== undefined) {
-                        return token = keyword;
+                        token = keyword;
+                        if (keyword === SyntaxKind.StructKeyword && !inEtsContext) {
+                            token = SyntaxKind.Identifier;
+                        }
+                        return token;
                     }
                 }
             }
