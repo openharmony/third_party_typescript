@@ -318,12 +318,12 @@ namespace ts {
 
     export function getEtsExtendDecoratorComponentNames(decorators: NodeArray<Decorator> | undefined, compilerOptions: CompilerOptions): __String[] {
         const extendComponents: __String[] = [];
-        const extendDecorator = compilerOptions.ets?.extend?.decorator ?? "Extend";
+        const extendDecorator = compilerOptions.ets?.extend?.decorator;
         decorators?.forEach((decorator) => {
             if (decorator.expression.kind === SyntaxKind.CallExpression) {
                 const identifier = (<CallExpression>decorator.expression).expression;
                 const args = (<CallExpression>decorator.expression).arguments;
-                if (identifier.kind === SyntaxKind.Identifier && (<Identifier>identifier).escapedText === extendDecorator && args.length) {
+                if (identifier.kind === SyntaxKind.Identifier && extendDecorator?.includes((<Identifier>identifier).escapedText.toString()) && args.length) {
                     // only read @Extend(...args) first argument
                     if (args[0].kind === SyntaxKind.Identifier) {
                         extendComponents.push((<Identifier>args[0]).escapedText);
@@ -368,8 +368,9 @@ namespace ts {
         }
         decorators.forEach(decorator => {
             const nameExpr = decorator.expression;
-            if (isCallExpression(nameExpr) && isIdentifier(nameExpr.expression) && nameExpr.expression.escapedText.toString() === options.ets?.extend.decorator) {
-                names.push(nameExpr.expression.escapedText.toString());
+            if (isCallExpression(nameExpr) && isIdentifier(nameExpr.expression) &&
+                options.ets?.extend.decorator?.includes(nameExpr.expression.escapedText.toString())) {
+                    names.push(nameExpr.expression.escapedText.toString());
             }
         });
         return names.length !== 0;
@@ -7438,7 +7439,8 @@ namespace ts {
     }
 
     export function isEtsFunctionDecorators(name: string | undefined, options: CompilerOptions): boolean {
-        return (name === options.ets?.render?.decorator || name === options.ets?.extend?.decorator || name === options.ets?.styles?.decorator);
+        return (name === options.ets?.render?.decorator || name === options.ets?.styles?.decorator ||
+               (options.ets?.extend?.decorator?.includes(name as string) ?? false));
     }
 
     export function isOhpm(packageManagerType: string | undefined) {
