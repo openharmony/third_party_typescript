@@ -2922,7 +2922,7 @@ declare namespace ts {
         components: string[];
         libs: string[];
         extend: {
-            decorator: string;
+            decorator: string[];
             components: {
                 name: string;
                 type: string;
@@ -8268,7 +8268,7 @@ declare namespace ts.server.protocol {
         components: string[];
         libs: string[];
         extend: {
-            decorator: string;
+            decorator: string[];
             components: {
                 name: string;
                 type: string;
