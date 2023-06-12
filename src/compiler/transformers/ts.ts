@@ -3370,4 +3370,301 @@ namespace ts {
             return isPropertyAccessExpression(node) || isElementAccessExpression(node) ? resolver.getConstantValue(node) : undefined;
         }
     }
+
+
+    /**
+     * Add 'type' flag to import/export when import/export an type member.
+     * Replace const enum with number and string literal.
+     */
+    export function transformTypeExportImportAndConstEnumInTypeScript(context: TransformationContext): (node: SourceFile) => SourceFile {
+        const resolver = context.getEmitResolver();
+        interface ImportInfo {
+            name: Identifier | undefined,
+            namespaceImport: NamespaceImport | undefined,
+            namedImports: ImportSpecifier[]
+        };
+        interface ExportInfo {
+            namedExports: ExportSpecifier[]
+        };
+
+        // recore type import/export info to create new import/export type statement
+        let currentTypeImportInfo: ImportInfo;
+        let currentTypeExportInfo: ExportInfo;
+
+        return transformSourceFile;
+
+        function transformSourceFile(node: SourceFile): SourceFile {
+            if (node.isDeclarationFile) {
+                return node;
+            }
+            const visited = factory.updateSourceFile(
+                node,
+                visitLexicalEnvironment(node.statements, visitImportExportAndConstEnumMember, context));
+            return visited;
+        }
+
+        function visitImportExportAndConstEnumMember(node: Node): VisitResult<Node> {
+            switch (node.kind) {
+                case SyntaxKind.ImportDeclaration:
+                    return visitImportDeclaration(<ImportDeclaration>node);
+                case SyntaxKind.ImportEqualsDeclaration:
+                    return visitImportEqualsDeclaration(<ImportEqualsDeclaration>node);
+                case SyntaxKind.ExportDeclaration:
+                    return visitExportDeclaration(<ExportDeclaration>node);
+                case SyntaxKind.PropertyAccessExpression:
+                case SyntaxKind.ElementAccessExpression:
+                    return visitConstEnum(<PropertyAccessExpression | ElementAccessExpression>node);
+                case SyntaxKind.EnumMember:
+                    return visitEnumMember(<EnumMember>node);
+                default:
+                    return visitEachChild(node, visitImportExportAndConstEnumMember, context);
+            }
+        }
+
+        /**
+         * Transform:
+         *
+         * import a, {b, c} from ...
+         *
+         * To:
+         *
+         * import {b} from ...
+         * import type a from ...
+         * import type {c} from ...
+         *
+         * when 'a' and 'c' are type.
+         */
+        function visitImportDeclaration(node: ImportDeclaration): VisitResult<Statement> {
+            // return if the import already has 'type'
+            if (!node.importClause || node.importClause.isTypeOnly) {
+                return node;
+            }
+            resetcurrentTypeImportInfo();
+            const res: Statement[] = [];
+            const importClause = visitNode(node.importClause, visitImportClause, isImportClause);
+            if (importClause) {
+                res.push(factory.updateImportDeclaration(node, /*decorators*/ undefined, /*modifiers*/ undefined,
+                    importClause, node.moduleSpecifier));
+            }
+            // create new import statement with 'type'
+            const typeImportClauses = createTypeImportClause();
+            for (const typeImportClause of typeImportClauses) {
+                res.push(factory.createImportDeclaration(/*decorators*/ undefined, /*modifiers*/ undefined,
+                    typeImportClause, node.moduleSpecifier));
+            }
+            return res.length > 0 ? res : undefined;
+        }
+
+        function visitImportClause(node: ImportClause): VisitResult<ImportClause> {
+            if (node.isTypeOnly) {
+                return node;
+            }
+            let name: Identifier | undefined;
+            if (resolver.isReferencedAliasDeclaration(node)) {
+                name = node.name;
+            }
+            // consider it is a type if the symbol has referenced.
+            else if (resolver.isReferenced(node)) {
+                addTypeImportClauseName(node);
+            }
+            const namedBindings = visitNode(node.namedBindings, visitNamedImportBindings, isNamedImportBindings);
+            return (name || namedBindings) ?
+                factory.updateImportClause(node, /*isTypeOnly*/ false, name, namedBindings) :
+                undefined;
+        }
+
+        function visitNamedImportBindings(node: NamedImportBindings): VisitResult<NamedImportBindings> {
+            if (node.kind === SyntaxKind.NamespaceImport) {
+                if (resolver.isReferencedAliasDeclaration(node)) {
+                    return node;
+                }
+                if (resolver.isReferenced(node)) {
+                    addTypeNamespaceImport(node);
+                }
+                return undefined;
+            }
+            else {
+                const elements = visitNodes(node.elements, visitImportSpecifier, isImportSpecifier);
+                return some(elements) ? factory.updateNamedImports(node, elements) : undefined;
+            }
+        }
+
+        function visitImportSpecifier(node: ImportSpecifier): VisitResult<ImportSpecifier> {
+            if (resolver.isReferencedAliasDeclaration(node)) {
+                return node;
+            }
+            if (resolver.isReferenced(node)) {
+                addTypeImportSpecifier(node);
+            }
+            return undefined;
+        }
+
+        function addTypeImportClauseName(node: ImportClause): void {
+            currentTypeImportInfo.name = node.name;
+        }
+
+        function addTypeNamespaceImport(node: NamespaceImport): void {
+            currentTypeImportInfo.namespaceImport = node;
+        }
+
+        function addTypeImportSpecifier(node: ImportSpecifier): void {
+            currentTypeImportInfo.namedImports.push(node);
+        }
+
+        /**
+         * Create new import type statement, like:
+         * import type {a} from ...
+         */
+        function createTypeImportClause(): ImportClause[] {
+            const name: Identifier | undefined = currentTypeImportInfo.name;
+            let namedBindings: NamedImportBindings | undefined;
+            if (currentTypeImportInfo.namespaceImport) {
+                namedBindings = currentTypeImportInfo.namespaceImport;
+            }
+            else if (currentTypeImportInfo.namedImports.length > 0) {
+                namedBindings = factory.createNamedImports(currentTypeImportInfo.namedImports);
+            }
+            const typeImportClauses: ImportClause[] = [];
+            if (name !== undefined) {
+                typeImportClauses.push(factory.createImportClause(/*isTypeOnly*/ true, name, /*namedBindings*/ undefined));
+            }
+            if (namedBindings !== undefined) {
+                typeImportClauses.push(factory.createImportClause(/*isTypeOnly*/ true, /*name*/ undefined, namedBindings));
+            }
+            resetcurrentTypeImportInfo();
+            return typeImportClauses;
+        }
+
+        /**
+         * Transform:
+         *
+         * import a = require(...)
+         *
+         * To:
+         *
+         * import type a = require(...)
+         *
+         * when 'a' is type.
+         */
+        function visitImportEqualsDeclaration(node: ImportEqualsDeclaration): VisitResult<Statement> {
+            // return if the import already has 'type'
+            if (node.isTypeOnly) {
+                return node;
+            }
+
+            if (isExternalModuleImportEqualsDeclaration(node)) {
+                const isReferenced = resolver.isReferencedAliasDeclaration(node);
+                if (isReferenced) {
+                    return node;
+                }
+                if (resolver.isReferenced(node)) {
+                    return factory.updateImportEqualsDeclaration(node, node.decorators, node.modifiers,
+                        /*isTypeOnly*/ true, node.name, node.moduleReference);
+                }
+
+                return undefined;
+            }
+
+            return node;
+        }
+
+        /**
+         * Transform:
+         *
+         * export {a}
+         *
+         * To:
+         *
+         * export type {a}
+         *
+         * when 'a' is type.
+         */
+        function visitExportDeclaration(node: ExportDeclaration): VisitResult<Statement> {
+            // return if the export already has 'type'or export *
+            if (node.isTypeOnly || !node.exportClause || isNamespaceExport(node.exportClause)) {
+                return node;
+            }
+
+            resetcurrentTypeExportInfo();
+            const res: Statement[] = [];
+
+            const exportClause = visitNode(node.exportClause, visitNamedExports, isNamedExportBindings);
+            if (exportClause) {
+                res.push(factory.updateExportDeclaration(node, /*decorators*/ undefined, /*modifiers*/ undefined,
+                    node.isTypeOnly, exportClause, node.moduleSpecifier));
+            }
+            const typeExportClause = createTypeExportClause();
+            if (typeExportClause) {
+                res.push(factory.createExportDeclaration(/*decorators*/ undefined, /*modifiers*/ undefined,
+                    /*isTypeOnly*/ true, typeExportClause, node.moduleSpecifier));
+            }
+
+            return res.length > 0 ? res : undefined;
+        }
+
+        function visitNamedExports(node: NamedExports): VisitResult<NamedExports> {
+            const elements = visitNodes(node.elements, visitExportSpecifier, isExportSpecifier);
+            return some(elements) ? factory.updateNamedExports(node, elements) : undefined;
+        }
+
+        function visitExportSpecifier(node: ExportSpecifier): VisitResult<ExportSpecifier> {
+            if (resolver.isValueAliasDeclaration(node)) {
+                return node;
+            }
+            // consider all rest member are type.
+            addTypeExportSpecifier(node);
+            return undefined;
+        }
+
+        function addTypeExportSpecifier(node: ExportSpecifier): void {
+            currentTypeExportInfo.namedExports.push(node);
+        }
+
+        /**
+         * Create new export type statement, like:
+         * export type {a}
+         */
+        function createTypeExportClause(): NamedExports | undefined {
+            let namedBindings: NamedExports | undefined;
+            if (currentTypeExportInfo.namedExports.length > 0) {
+                namedBindings = factory.createNamedExports(currentTypeExportInfo.namedExports);
+            }
+            resetcurrentTypeExportInfo();
+            return namedBindings;
+        }
+
+        function visitConstEnum(node: PropertyAccessExpression | ElementAccessExpression): LeftHandSideExpression {
+            const constantValue = resolver.getConstantValue(node);
+            if (constantValue !== undefined) {
+                const substitute = typeof constantValue === "string" ?
+                    factory.createStringLiteral(constantValue) :
+                    factory.createNumericLiteral(constantValue);
+                return substitute;
+            }
+
+            return node;
+        }
+
+        /**
+         * If the enum member is a const value, replace it.
+         */
+        function visitEnumMember(node: EnumMember): VisitResult<EnumMember> {
+            const value = resolver.getConstantValue(node);
+            if (value !== undefined) {
+                const substitute = typeof value === "string" ?
+                    factory.createStringLiteral(value) :
+                    factory.createNumericLiteral(value);
+                return factory.updateEnumMember(node, node.name, substitute);
+            }
+            return visitEachChild(node, visitImportExportAndConstEnumMember, context);
+        }
+
+        function resetcurrentTypeImportInfo(): void {
+            currentTypeImportInfo = { name: undefined, namespaceImport: undefined, namedImports:[] };
+        }
+
+        function resetcurrentTypeExportInfo(): void {
+            currentTypeExportInfo = { namedExports:[] };
+        }
+    }
 }
