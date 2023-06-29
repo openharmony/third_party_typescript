@@ -132,5 +132,7 @@
         "source-map-support": false,
         "inspector": false
     },
-    "dependencies": {}
+    "dependencies": {
+        "json5": "^2.2.3"
+    }
 }

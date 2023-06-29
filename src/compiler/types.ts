@@ -862,8 +862,8 @@ namespace ts {
         /* @internal */ id?: NodeId;                          // Unique id (used to look up NodeLinks)
         readonly parent: Node;                                // Parent node (initialized by binding)
         /* @internal */ original?: Node;                      // The original node if this is an updated node.
-        /* @internal */ symbol: Symbol;                       // Symbol declared by node (initialized by binding)
-        /* @internal */ locals?: SymbolTable;                 // Locals associated with node (initialized by binding)
+        symbol: Symbol;                                       // Symbol declared by node (initialized by binding)
+        locals?: SymbolTable;                                 // Locals associated with node (initialized by binding)
         /* @internal */ nextContainer?: Node;                 // Next container in declaration order (initialized by binding)
         /* @internal */ localSymbol?: Symbol;                 // Local symbol declared by node (initialized by binding only for exported nodes)
         /* @internal */ flowNode?: FlowNode;                  // Associated FlowNode (initialized by binding)
@@ -3897,7 +3897,7 @@ namespace ts {
         // This is set on created program to let us know how the program was created using old program
         /* @internal */ readonly structureIsReused: StructureIsReused;
 
-        /* @internal */ getSourceFileFromReference(referencingFile: SourceFile | UnparsedSource, ref: FileReference): SourceFile | undefined;
+        getSourceFileFromReference(referencingFile: SourceFile | UnparsedSource, ref: FileReference): SourceFile | undefined;
         /* @internal */ getLibFileFromReference(ref: FileReference): SourceFile | undefined;
 
         /** Given a source file, get the name of the package it was imported from. */
@@ -3932,7 +3932,6 @@ namespace ts {
     export interface Program extends TypeCheckerHost, ModuleSpecifierResolutionHost {
     }
 
-    /* @internal */
     export type RedirectTargetsMap = ReadonlyESMap<string, readonly string[]>;
 
     export interface ResolvedProjectReference {
@@ -4429,7 +4428,6 @@ namespace ts {
     }
 
     // This was previously deprecated in our public API, but is still used internally
-    /* @internal */
     interface SymbolWriter extends SymbolTracker {
         writeKeyword(text: string): void;
         writeOperator(text: string): void;
@@ -4772,7 +4770,7 @@ namespace ts {
         /* @internal */ id?: SymbolId;          // Unique id (used to look up SymbolLinks)
         /* @internal */ mergeId?: number;       // Merge id (used to look up merged symbol)
         /* @internal */ parent?: Symbol;        // Parent symbol
-        /* @internal */ exportSymbol?: Symbol;  // Exported symbol associated with this symbol
+        exportSymbol?: Symbol;                  // Exported symbol associated with this symbol
         /* @internal */ constEnumOnlyModule?: boolean; // True if module contains only const enums or other modules with only const enums
         /* @internal */ isReferenced?: SymbolFlags; // True if the symbol is referenced elsewhere. Keeps track of the meaning of a reference in case a symbol is both a type parameter and parameter.
         /* @internal */ isReplaceableByMethod?: boolean; // Can this Javascript class property be replaced by a method symbol?
@@ -6762,7 +6760,6 @@ namespace ts {
         JsxAttributeValue,   // Emitting a JSX attribute value
     }
 
-    /* @internal */
     export interface SourceFileMayBeEmittedHost {
         getCompilerOptions(): CompilerOptions;
         isSourceFileFromExternalLibrary(file: SourceFile): boolean;
@@ -6770,7 +6767,6 @@ namespace ts {
         isSourceOfProjectReferenceRedirect(fileName: string): boolean;
     }
 
-    /* @internal */
     export interface EmitHost extends ScriptReferenceHost, ModuleSpecifierResolutionHost, SourceFileMayBeEmittedHost {
         getSourceFiles(): readonly SourceFile[];
         useCaseSensitiveFileNames(): boolean;
@@ -6787,6 +6783,7 @@ namespace ts {
         getPrependNodes(): readonly (InputFiles | UnparsedSource)[];
 
         writeFile: WriteFileCallback;
+        /* @internal */
         getProgramBuildInfo(): ProgramBuildInfo | undefined;
         getSourceFileFromReference: Program["getSourceFileFromReference"];
         readonly redirectTargetsMap: RedirectTargetsMap;
@@ -7760,7 +7757,7 @@ namespace ts {
         printBundle(bundle: Bundle): string;
         /*@internal*/ writeNode(hint: EmitHint, node: Node, sourceFile: SourceFile | undefined, writer: EmitTextWriter): void;
         /*@internal*/ writeList<T extends Node>(format: ListFormat, list: NodeArray<T> | undefined, sourceFile: SourceFile | undefined, writer: EmitTextWriter): void;
-        /*@internal*/ writeFile(sourceFile: SourceFile, writer: EmitTextWriter, sourceMapGenerator: SourceMapGenerator | undefined): void;
+        writeFile(sourceFile: SourceFile, writer: EmitTextWriter, sourceMapGenerator: SourceMapGenerator | undefined): void;
         /*@internal*/ writeBundle(bundle: Bundle, writer: EmitTextWriter, sourceMapGenerator: SourceMapGenerator | undefined): void;
         /*@internal*/ bundleFileInfo?: BundleFileInfo;
     }
@@ -7942,9 +7939,9 @@ namespace ts {
         noEmitHelpers?: boolean;
         /*@internal*/ module?: CompilerOptions["module"];
         /*@internal*/ target?: CompilerOptions["target"];
-        /*@internal*/ sourceMap?: boolean;
-        /*@internal*/ inlineSourceMap?: boolean;
-        /*@internal*/ inlineSources?: boolean;
+        sourceMap?: boolean;
+        inlineSourceMap?: boolean;
+        inlineSources?: boolean;
         /*@internal*/ extendedDiagnostics?: boolean;
         /*@internal*/ onlyPrintJsDocStyle?: boolean;
         /*@internal*/ neverAsciiEscape?: boolean;
@@ -7956,7 +7953,6 @@ namespace ts {
         /*@internal*/ relativeToBuildInfo?: (path: string) => string;
     }
 
-    /* @internal */
     export interface RawSourceMap {
         version: 3;
         file: string;
@@ -7970,7 +7966,6 @@ namespace ts {
     /**
      * Generates a source map.
      */
-    /* @internal */
     export interface SourceMapGenerator {
         getSources(): readonly string[];
         /**
@@ -8029,7 +8024,6 @@ namespace ts {
         pos: number;
     }
 
-    /* @internal */
     export interface EmitTextWriter extends SymbolWriter {
         write(s: string): void;
         writeTrailingSemicolon(text: string): void;
@@ -8052,7 +8046,6 @@ namespace ts {
         getCurrentDirectory?(): string;
     }
 
-    /*@internal*/
     export interface ModuleSpecifierResolutionHost {
         useCaseSensitiveFileNames?(): boolean;
         fileExists(path: string): boolean;
@@ -8060,6 +8053,7 @@ namespace ts {
         directoryExists?(path: string): boolean;
         readFile?(path: string): string | undefined;
         realpath?(path: string): string;
+        /* @internal */
         getSymlinkCache?(): SymlinkCache;
         getGlobalTypingsCacheLocation?(): string | undefined;
         getNearestAncestorDirectoryWithPackageJson?(fileName: string, rootDir?: string): string | undefined;
@@ -8068,11 +8062,11 @@ namespace ts {
         readonly redirectTargetsMap: RedirectTargetsMap;
         getProjectReferenceRedirect(fileName: string): string | undefined;
         isSourceOfProjectReferenceRedirect(fileName: string): boolean;
+        /* @internal */
         getFileIncludeReasons(): MultiMap<Path, FileIncludeReason>;
     }
 
     // Note: this used to be deprecated in our public API, but is still used internally
-    /* @internal */
     export interface SymbolTracker {
         // Called when the symbol writer encounters a symbol to write.  Currently only used by the
         // declaration emitter to help determine if it should patch up the final declaration file

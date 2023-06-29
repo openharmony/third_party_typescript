@@ -1415,10 +1415,6 @@ namespace ts {
             && every(node.declarationList.declarations, isHoistedVariable);
     }
 
-    export function getLeadingCommentRangesOfNode(node: Node, sourceFileOfNode: SourceFile) {
-        return node.kind !== SyntaxKind.JsxText ? getLeadingCommentRanges(sourceFileOfNode.text, node.pos) : undefined;
-    }
-
     export function getJSDocCommentRanges(node: Node, text: string) {
         const commentRanges = (node.kind === SyntaxKind.Parameter ||
             node.kind === SyntaxKind.TypeParameter ||
@@ -4164,120 +4160,6 @@ namespace ts {
 
     export function getIndentSize() {
         return indentStrings[1].length;
-    }
-
-    export function createTextWriter(newLine: string): EmitTextWriter {
-        let output: string;
-        let indent: number;
-        let lineStart: boolean;
-        let lineCount: number;
-        let linePos: number;
-        let hasTrailingComment = false;
-
-        function updateLineCountAndPosFor(s: string) {
-            const lineStartsOfS = computeLineStarts(s);
-            if (lineStartsOfS.length > 1) {
-                lineCount = lineCount + lineStartsOfS.length - 1;
-                linePos = output.length - s.length + last(lineStartsOfS);
-                lineStart = (linePos - output.length) === 0;
-            }
-            else {
-                lineStart = false;
-            }
-        }
-
-        function writeText(s: string) {
-            if (s && s.length) {
-                if (lineStart) {
-                    s = getIndentString(indent) + s;
-                    lineStart = false;
-                }
-                output += s;
-                updateLineCountAndPosFor(s);
-            }
-        }
-
-        function write(s: string) {
-            if (s) hasTrailingComment = false;
-            writeText(s);
-        }
-
-        function writeComment(s: string) {
-            if (s) hasTrailingComment = true;
-            writeText(s);
-        }
-
-        function reset(): void {
-            output = "";
-            indent = 0;
-            lineStart = true;
-            lineCount = 0;
-            linePos = 0;
-            hasTrailingComment = false;
-        }
-
-        function rawWrite(s: string) {
-            if (s !== undefined) {
-                output += s;
-                updateLineCountAndPosFor(s);
-                hasTrailingComment = false;
-            }
-        }
-
-        function writeLiteral(s: string) {
-            if (s && s.length) {
-                write(s);
-            }
-        }
-
-        function writeLine(force?: boolean) {
-            if (!lineStart || force) {
-                output += newLine;
-                lineCount++;
-                linePos = output.length;
-                lineStart = true;
-                hasTrailingComment = false;
-            }
-        }
-
-        function getTextPosWithWriteLine() {
-            return lineStart ? output.length : (output.length + newLine.length);
-        }
-
-        reset();
-
-        return {
-            write,
-            rawWrite,
-            writeLiteral,
-            writeLine,
-            increaseIndent: () => { indent++; },
-            decreaseIndent: () => { indent--; },
-            getIndent: () => indent,
-            getTextPos: () => output.length,
-            getLine: () => lineCount,
-            getColumn: () => lineStart ? indent * getIndentSize() : output.length - linePos,
-            getText: () => output,
-            isAtStartOfLine: () => lineStart,
-            hasTrailingComment: () => hasTrailingComment,
-            hasTrailingWhitespace: () => !!output.length && isWhiteSpaceLike(output.charCodeAt(output.length - 1)),
-            clear: reset,
-            reportInaccessibleThisError: noop,
-            reportPrivateInBaseOfClassExpression: noop,
-            reportInaccessibleUniqueSymbolError: noop,
-            trackSymbol: noop,
-            writeKeyword: write,
-            writeOperator: write,
-            writeParameter: write,
-            writeProperty: write,
-            writePunctuation: write,
-            writeSpace: write,
-            writeStringLiteral: write,
-            writeSymbol: (s, _) => write(s),
-            writeTrailingSemicolon: write,
-            writeComment,
-            getTextPosWithWriteLine
-        };
     }
 
     export function getTrailingSemicolonDeferringWriter(writer: EmitTextWriter): EmitTextWriter {
@@ -7327,42 +7209,6 @@ namespace ts {
         return children;
     }
 
-    /**
-     * Bypasses immutability and directly sets the `parent` property of each `Node` recursively.
-     * @param rootNode The root node from which to start the recursion.
-     * @param incremental When `true`, only recursively descends through nodes whose `parent` pointers are incorrect.
-     * This allows us to quickly bail out of setting `parent` for subtrees during incremental parsing.
-     */
-    /* @internal */
-    export function setParentRecursive<T extends Node>(rootNode: T, incremental: boolean): T;
-    /* @internal */
-    export function setParentRecursive<T extends Node>(rootNode: T | undefined, incremental: boolean): T | undefined;
-    export function setParentRecursive<T extends Node>(rootNode: T | undefined, incremental: boolean): T | undefined {
-        if (!rootNode) return rootNode;
-        forEachChildRecursively(rootNode, isJSDocNode(rootNode) ? bindParentToChildIgnoringJSDoc : bindParentToChild);
-        return rootNode;
-
-        function bindParentToChildIgnoringJSDoc(child: Node, parent: Node): void | "skip" {
-            if (incremental && child.parent === parent) {
-                return "skip";
-            }
-            setParent(child, parent);
-        }
-
-        function bindJSDoc(child: Node) {
-            if (hasJSDocNodes(child)) {
-                for (const doc of child.jsDoc!) {
-                    bindParentToChildIgnoringJSDoc(doc, child);
-                    forEachChildRecursively(doc, bindParentToChildIgnoringJSDoc);
-                }
-            }
-        }
-
-        function bindParentToChild(child: Node, parent: Node) {
-            return bindParentToChildIgnoringJSDoc(child, parent) || bindJSDoc(child);
-        }
-    }
-
     function isPackedElement(node: Expression) {
         return !isOmittedExpression(node);
     }
@@ -7515,5 +7361,249 @@ namespace ts {
             }
         });
         return extendComponents;
+    }
+}
+
+namespace ts {
+    export function createObfTextSingleLineWriter(): EmitTextWriter {
+        let output: string;
+        let lineStart: boolean;
+        let linePos: number;
+
+        function updateLineCountAndPosFor(s: string) {
+            const lineStartsOfS = computeLineStarts(s);
+            if (lineStartsOfS.length > 1) {
+                linePos = output.length - s.length + last(lineStartsOfS);
+                lineStart = (linePos - output.length) === 0;
+            }
+            else {
+                lineStart = false;
+            }
+        }
+
+        function writeText(s: string) {
+            if (s && s.length) {
+                if (lineStart) {
+                    lineStart = false;
+                }
+                output += s;
+                updateLineCountAndPosFor(s);
+            }
+        }
+
+        function write(s: string) {
+            writeText(s);
+        }
+
+
+        function reset(): void {
+            output = "";
+            lineStart = true;
+            linePos = 0;
+        }
+
+        function rawWrite(s: string) {
+            if (s !== undefined) {
+                output += s;
+                updateLineCountAndPosFor(s);
+            }
+        }
+
+        function writeLiteral(s: string) {
+            if (s && s.length) {
+                write(s);
+            }
+        }
+
+        function getTextPosWithWriteLine() {
+            return output.length;
+        }
+
+        reset();
+
+        return {
+            write,
+            rawWrite,
+            writeLiteral,
+            writeLine: noop,
+            increaseIndent: noop,
+            decreaseIndent: noop,
+            getIndent: () => 0,
+            getTextPos: () => output.length,
+            getLine: () => 0,
+            getColumn: () => lineStart ? 0 : output.length - linePos,
+            getText: () => output,
+            isAtStartOfLine: () => lineStart,
+            hasTrailingComment: () => false,
+            hasTrailingWhitespace: () => false,
+            clear: reset,
+            reportInaccessibleThisError: noop,
+            reportPrivateInBaseOfClassExpression: noop,
+            reportInaccessibleUniqueSymbolError: noop,
+            trackSymbol: noop,
+            writeKeyword: write,
+            writeOperator: write,
+            writeParameter: write,
+            writeProperty: write,
+            writePunctuation: write,
+            writeSpace: write,
+            writeStringLiteral: write,
+            writeSymbol: (s, _) => write(s),
+            writeTrailingSemicolon: write,
+            writeComment: noop,
+            getTextPosWithWriteLine
+        };
+    }
+
+    export function getLeadingCommentRangesOfNode(node: Node, sourceFileOfNode: SourceFile) {
+        return node.kind !== SyntaxKind.JsxText ? getLeadingCommentRanges(sourceFileOfNode.text, node.pos) : undefined;
+    }
+
+    export function createTextWriter(newLine: string): EmitTextWriter {
+        let output: string;
+        let indent: number;
+        let lineStart: boolean;
+        let lineCount: number;
+        let linePos: number;
+        let hasTrailingComment = false;
+
+        function updateLineCountAndPosFor(s: string) {
+            const lineStartsOfS = computeLineStarts(s);
+            if (lineStartsOfS.length > 1) {
+                lineCount = lineCount + lineStartsOfS.length - 1;
+                linePos = output.length - s.length + last(lineStartsOfS);
+                lineStart = (linePos - output.length) === 0;
+            }
+            else {
+                lineStart = false;
+            }
+        }
+
+        function writeText(s: string) {
+            if (s && s.length) {
+                if (lineStart) {
+                    s = getIndentString(indent) + s;
+                    lineStart = false;
+                }
+                output += s;
+                updateLineCountAndPosFor(s);
+            }
+        }
+
+        function write(s: string) {
+            if (s) hasTrailingComment = false;
+            writeText(s);
+        }
+
+        function writeComment(s: string) {
+            if (s) hasTrailingComment = true;
+            writeText(s);
+        }
+
+        function reset(): void {
+            output = "";
+            indent = 0;
+            lineStart = true;
+            lineCount = 0;
+            linePos = 0;
+            hasTrailingComment = false;
+        }
+
+        function rawWrite(s: string) {
+            if (s !== undefined) {
+                output += s;
+                updateLineCountAndPosFor(s);
+                hasTrailingComment = false;
+            }
+        }
+
+        function writeLiteral(s: string) {
+            if (s && s.length) {
+                write(s);
+            }
+        }
+
+        function writeLine(force?: boolean) {
+            if (!lineStart || force) {
+                output += newLine;
+                lineCount++;
+                linePos = output.length;
+                lineStart = true;
+                hasTrailingComment = false;
+            }
+        }
+
+        function getTextPosWithWriteLine() {
+            return lineStart ? output.length : (output.length + newLine.length);
+        }
+
+        reset();
+
+        return {
+            write,
+            rawWrite,
+            writeLiteral,
+            writeLine,
+            increaseIndent: () => { indent++; },
+            decreaseIndent: () => { indent--; },
+            getIndent: () => indent,
+            getTextPos: () => output.length,
+            getLine: () => lineCount,
+            getColumn: () => lineStart ? indent * getIndentSize() : output.length - linePos,
+            getText: () => output,
+            isAtStartOfLine: () => lineStart,
+            hasTrailingComment: () => hasTrailingComment,
+            hasTrailingWhitespace: () => !!output.length && isWhiteSpaceLike(output.charCodeAt(output.length - 1)),
+            clear: reset,
+            reportInaccessibleThisError: noop,
+            reportPrivateInBaseOfClassExpression: noop,
+            reportInaccessibleUniqueSymbolError: noop,
+            trackSymbol: noop,
+            writeKeyword: write,
+            writeOperator: write,
+            writeParameter: write,
+            writeProperty: write,
+            writePunctuation: write,
+            writeSpace: write,
+            writeStringLiteral: write,
+            writeSymbol: (s, _) => write(s),
+            writeTrailingSemicolon: write,
+            writeComment,
+            getTextPosWithWriteLine
+        };
+    }
+
+    /**
+     * Bypasses immutability and directly sets the `parent` property of each `Node` recursively.
+     * @param rootNode The root node from which to start the recursion.
+     * @param incremental When `true`, only recursively descends through nodes whose `parent` pointers are incorrect.
+     * This allows us to quickly bail out of setting `parent` for subtrees during incremental parsing.
+     */
+    export function setParentRecursive<T extends Node>(rootNode: T, incremental: boolean): T;
+    export function setParentRecursive<T extends Node>(rootNode: T | undefined, incremental: boolean): T | undefined;
+    export function setParentRecursive<T extends Node>(rootNode: T | undefined, incremental: boolean): T | undefined {
+        if (!rootNode) return rootNode;
+        forEachChildRecursively(rootNode, isJSDocNode(rootNode) ? bindParentToChildIgnoringJSDoc : bindParentToChild);
+        return rootNode;
+
+        function bindParentToChildIgnoringJSDoc(child: Node, parent: Node): void | "skip" {
+            if (incremental && child.parent === parent) {
+                return "skip";
+            }
+            setParent(child, parent);
+        }
+
+        function bindJSDoc(child: Node) {
+            if (hasJSDocNodes(child)) {
+                for (const doc of child.jsDoc!) {
+                    bindParentToChildIgnoringJSDoc(doc, child);
+                    forEachChildRecursively(doc, bindParentToChildIgnoringJSDoc);
+                }
+            }
+        }
+
+        function bindParentToChild(child: Node, parent: Node) {
+            return bindParentToChildIgnoringJSDoc(child, parent) || bindJSDoc(child);
+        }
     }
 }

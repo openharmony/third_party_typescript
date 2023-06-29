@@ -570,6 +570,8 @@ declare namespace ts {
         readonly decorators?: NodeArray<Decorator>;
         readonly modifiers?: ModifiersArray;
         readonly parent: Node;
+        symbol: Symbol;
+        locals?: SymbolTable;
     }
     export interface JSDocContainer {
     }
@@ -2122,11 +2124,13 @@ declare namespace ts {
         };
         isSourceFileFromExternalLibrary(file: SourceFile): boolean;
         isSourceFileDefaultLibrary(file: SourceFile): boolean;
+        getSourceFileFromReference(referencingFile: SourceFile | UnparsedSource, ref: FileReference): SourceFile | undefined;
         getProjectReferences(): readonly ProjectReference[] | undefined;
         getResolvedProjectReferences(): readonly (ResolvedProjectReference | undefined)[] | undefined;
         getTagNameNeededCheckByFile?(containFilePath: string, sourceFilePath: string): TagCheckParam;
         getExpressionCheckedResultsByFile?(filePath: string, jsDocs: JSDocTagInfo[]): ConditionCheckResult;
     }
+    export type RedirectTargetsMap = ReadonlyESMap<string, readonly string[]>;
     export interface ResolvedProjectReference {
         commandLine: ParsedCommandLine;
         sourceFile: SourceFile;
@@ -2338,6 +2342,20 @@ declare namespace ts {
         AllowAnyNodeKind = 4,
         UseAliasDefinedOutsideCurrentScope = 8,
     }
+    interface SymbolWriter extends SymbolTracker {
+        writeKeyword(text: string): void;
+        writeOperator(text: string): void;
+        writePunctuation(text: string): void;
+        writeSpace(text: string): void;
+        writeStringLiteral(text: string): void;
+        writeParameter(text: string): void;
+        writeProperty(text: string): void;
+        writeSymbol(text: string, symbol: Symbol): void;
+        writeLine(force?: boolean): void;
+        increaseIndent(): void;
+        decreaseIndent(): void;
+        clear(): void;
+    }
     export enum TypePredicateKind {
         This = 0,
         Identifier = 1,
@@ -2442,6 +2460,7 @@ declare namespace ts {
         members?: SymbolTable;
         exports?: SymbolTable;
         globalExports?: SymbolTable;
+        exportSymbol?: Symbol;
     }
     export enum InternalSymbolName {
         Call = "__call",
@@ -3261,6 +3280,26 @@ declare namespace ts {
         EmbeddedStatement = 5,
         JsxAttributeValue = 6
     }
+    export interface SourceFileMayBeEmittedHost {
+        getCompilerOptions(): CompilerOptions;
+        isSourceFileFromExternalLibrary(file: SourceFile): boolean;
+        getResolvedProjectReferenceToRedirect(fileName: string): ResolvedProjectReference | undefined;
+        isSourceOfProjectReferenceRedirect(fileName: string): boolean;
+    }
+    export interface EmitHost extends ScriptReferenceHost, ModuleSpecifierResolutionHost, SourceFileMayBeEmittedHost {
+        getSourceFiles(): readonly SourceFile[];
+        useCaseSensitiveFileNames(): boolean;
+        getCurrentDirectory(): string;
+        getLibFileFromReference(ref: FileReference): SourceFile | undefined;
+        getCommonSourceDirectory(): string;
+        getCanonicalFileName(fileName: string): string;
+        getNewLine(): string;
+        isEmitBlocked(emitFileName: string): boolean;
+        getPrependNodes(): readonly (InputFiles | UnparsedSource)[];
+        writeFile: WriteFileCallback;
+        getSourceFileFromReference: Program["getSourceFileFromReference"];
+        readonly redirectTargetsMap: RedirectTargetsMap;
+    }
     export enum OuterExpressionKinds {
         Parentheses = 1,
         TypeAssertions = 2,
@@ -3839,6 +3878,7 @@ declare namespace ts {
          * Prints a bundle of source files as-is, without any emit transformations.
          */
         printBundle(bundle: Bundle): string;
+        writeFile(sourceFile: SourceFile, writer: EmitTextWriter, sourceMapGenerator: SourceMapGenerator | undefined): void;
     }
     export interface PrintHandlers {
         /**
@@ -3893,10 +3933,105 @@ declare namespace ts {
         newLine?: NewLineKind;
         omitTrailingSemicolon?: boolean;
         noEmitHelpers?: boolean;
+        sourceMap?: boolean;
+        inlineSourceMap?: boolean;
+        inlineSources?: boolean;
+    }
+    export interface RawSourceMap {
+        version: 3;
+        file: string;
+        sourceRoot?: string | null;
+        sources: string[];
+        sourcesContent?: (string | null)[] | null;
+        mappings: string;
+        names?: string[] | null;
+    }
+    /**
+     * Generates a source map.
+     */
+    export interface SourceMapGenerator {
+        getSources(): readonly string[];
+        /**
+         * Adds a source to the source map.
+         */
+        addSource(fileName: string): number;
+        /**
+         * Set the content for a source.
+         */
+        setSourceContent(sourceIndex: number, content: string | null): void;
+        /**
+         * Adds a name.
+         */
+        addName(name: string): number;
+        /**
+         * Adds a mapping without source information.
+         */
+        addMapping(generatedLine: number, generatedCharacter: number): void;
+        /**
+         * Adds a mapping with source information.
+         */
+        addMapping(generatedLine: number, generatedCharacter: number, sourceIndex: number, sourceLine: number, sourceCharacter: number, nameIndex?: number): void;
+        /**
+         * Appends a source map.
+         */
+        appendSourceMap(generatedLine: number, generatedCharacter: number, sourceMap: RawSourceMap, sourceMapPath: string, start?: LineAndCharacter, end?: LineAndCharacter): void;
+        /**
+         * Gets the source map as a `RawSourceMap` object.
+         */
+        toJSON(): RawSourceMap;
+        /**
+         * Gets the string representation of the source map.
+         */
+        toString(): string;
+    }
+    export interface EmitTextWriter extends SymbolWriter {
+        write(s: string): void;
+        writeTrailingSemicolon(text: string): void;
+        writeComment(text: string): void;
+        getText(): string;
+        rawWrite(s: string): void;
+        writeLiteral(s: string): void;
+        getTextPos(): number;
+        getLine(): number;
+        getColumn(): number;
+        getIndent(): number;
+        isAtStartOfLine(): boolean;
+        hasTrailingComment(): boolean;
+        hasTrailingWhitespace(): boolean;
+        getTextPosWithWriteLine?(): number;
     }
     export interface GetEffectiveTypeRootsHost {
         directoryExists?(directoryName: string): boolean;
         getCurrentDirectory?(): string;
+    }
+    export interface ModuleSpecifierResolutionHost {
+        useCaseSensitiveFileNames?(): boolean;
+        fileExists(path: string): boolean;
+        getCurrentDirectory(): string;
+        directoryExists?(path: string): boolean;
+        readFile?(path: string): string | undefined;
+        realpath?(path: string): string;
+        getGlobalTypingsCacheLocation?(): string | undefined;
+        getNearestAncestorDirectoryWithPackageJson?(fileName: string, rootDir?: string): string | undefined;
+        getSourceFiles(): readonly SourceFile[];
+        readonly redirectTargetsMap: RedirectTargetsMap;
+        getProjectReferenceRedirect(fileName: string): string | undefined;
+        isSourceOfProjectReferenceRedirect(fileName: string): boolean;
+    }
+    export interface SymbolTracker {
+        trackSymbol?(symbol: Symbol, enclosingDeclaration: Node | undefined, meaning: SymbolFlags): void;
+        reportInaccessibleThisError?(): void;
+        reportPrivateInBaseOfClassExpression?(propertyName: string): void;
+        reportInaccessibleUniqueSymbolError?(): void;
+        reportCyclicStructureError?(): void;
+        reportLikelyUnsafeImportRequiredError?(specifier: string): void;
+        reportTruncationError?(): void;
+        moduleResolverHost?: ModuleSpecifierResolutionHost & {
+            getCommonSourceDirectory(): string;
+        };
+        trackReferencedAmbientModule?(decl: ModuleDeclaration, symbol: Symbol): void;
+        trackExternalModuleSymbolOfImportTypeNode?(symbol: Symbol): void;
+        reportNonlocalAugmentation?(containingFile: SourceFile, parentSymbol: Symbol, augmentingSymbol: Symbol): void;
     }
     export interface TextSpan {
         start: number;
@@ -4373,6 +4508,19 @@ declare namespace ts {
     function hasOnlyExpressionInitializer(node: Node): node is HasExpressionInitializer;
     function isObjectLiteralElement(node: Node): node is ObjectLiteralElement;
     function isStringLiteralLike(node: Node): node is StringLiteralLike;
+}
+declare namespace ts {
+    function createObfTextSingleLineWriter(): EmitTextWriter;
+    function getLeadingCommentRangesOfNode(node: Node, sourceFileOfNode: SourceFile): CommentRange[] | undefined;
+    function createTextWriter(newLine: string): EmitTextWriter;
+    /**
+     * Bypasses immutability and directly sets the `parent` property of each `Node` recursively.
+     * @param rootNode The root node from which to start the recursion.
+     * @param incremental When `true`, only recursively descends through nodes whose `parent` pointers are incorrect.
+     * This allows us to quickly bail out of setting `parent` for subtrees during incremental parsing.
+     */
+    function setParentRecursive<T extends Node>(rootNode: T, incremental: boolean): T;
+    function setParentRecursive<T extends Node>(rootNode: T | undefined, incremental: boolean): T | undefined;
 }
 declare namespace ts {
     const factory: NodeFactory;
@@ -4890,6 +5038,12 @@ declare namespace ts {
      * @param context A lexical environment context for the visitor.
      */
     function visitEachChild<T extends Node>(node: T | undefined, visitor: Visitor, context: TransformationContext, nodesVisitor?: typeof visitNodes, tokenVisitor?: Visitor): T | undefined;
+}
+declare namespace ts {
+    interface SourceMapGeneratorOptions {
+        extendedDiagnostics?: boolean;
+    }
+    function createSourceMapGenerator(host: EmitHost, file: string, sourceRoot: string, sourcesDirectoryPath: string, generatorOptions: SourceMapGeneratorOptions): SourceMapGenerator;
 }
 declare namespace ts {
     function getTsBuildInfoEmitOutputFilePath(options: CompilerOptions): string | undefined;
