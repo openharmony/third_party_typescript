@@ -5975,6 +5975,7 @@ namespace ts {
         ets?: EtsOptions;
         packageManagerType?: string;
         emitNodeModulesFiles?: boolean;
+        etsLoaderPath?: string;
         [option: string]: CompilerOptionsValue | TsConfigSourceFile | undefined;
     }
 

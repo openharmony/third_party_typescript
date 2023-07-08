@@ -29157,7 +29157,39 @@ namespace ts {
                 }
             }
 
+            // System UI components can only be used in build/pageTransition method or method/function with the decorator "@Builder"
+            if (isInETSFile(node) &&
+                isIdentifier(node.expression) &&
+                !isNewExpression(node) &&
+                isSystemEtsComponent(node.expression, compilerOptions) &&
+                !isInBuildOrPageTransitionContext(node, compilerOptions)) {
+                error(node.expression, Diagnostics.UI_component_0_cannot_be_used_in_this_place, diagnosticName(node.expression));
+            }
+
             return returnType;
+        }
+
+        function isSystemEtsComponent(node: Identifier, compilerOptions: CompilerOptions): boolean {
+            // Check if the node's name is in the components list
+            const name = getTextOfPropertyName(node).toString();
+            if (!compilerOptions.ets?.components.some(component => component === name)) {
+                return false;
+            }
+
+            // we believe node is an system ets component if it's declared in "ets-loader/declarations/" in sdk
+            if (!compilerOptions.etsLoaderPath) {
+                return false;
+            }
+            const declarationsPath = resolvePath(compilerOptions.etsLoaderPath, "declarations");
+            const symbol = resolveSymbol(getSymbolAtLocation(node));
+            const declarations = symbol?.declarations;
+            // Check if it only has one declaration and was declared in sdk
+            if (!declarations || declarations.length !== 1) {
+                return false;
+            }
+            const sourceFile = getSourceFileOfNode(declarations[0]);
+            const fileName = sourceFile?.fileName;
+            return !!fileName?.startsWith(declarationsPath);
         }
 
         function propertyAccessExpressionConditionCheck(node: PropertyAccessExpression) {

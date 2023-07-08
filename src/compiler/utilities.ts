@@ -2239,6 +2239,51 @@ namespace ts {
             (node.typeArguments[0].kind === SyntaxKind.StringKeyword || node.typeArguments[0].kind === SyntaxKind.NumberKeyword);
     }
 
+    export function isInETSFile(node: Node | undefined): boolean {
+        return !!node && getSourceFileOfNode(node).scriptKind === ScriptKind.ETS;
+    }
+
+    export function isInBuildOrPageTransitionContext(node: Node | undefined, compilerOptions: CompilerOptions): boolean {
+        if (!node) {
+            return false;
+        }
+        const methodNames = compilerOptions.ets?.render?.method;
+        const decoratorName = compilerOptions.ets?.render?.decorator;
+        if (!methodNames && !decoratorName) {
+            return false;
+        }
+
+        let container = getContainingFunctionDeclaration(node);
+        while (container) {
+            // check if is in build or pageTransition method
+            if (methodNames && isMethodDeclaration(container) && isInStruct(container)) {
+                const containerMethodName = getTextOfPropertyName(container.name).toString();
+                if (methodNames.some(name => name === containerMethodName)) {
+                    return true;
+                }
+            }
+
+            // check if is in function or method with the decorator "@Builder"
+            if (decoratorName &&
+                (isMethodDeclaration(container) || isFunctionDeclaration(container)) &&
+                container.decorators &&
+                container.decorators.some(
+                    decorator => isIdentifier(decorator.expression) && getTextOfPropertyName(decorator.expression).toString() === decoratorName
+                )) {
+                return true;
+            }
+
+            container = getContainingFunctionDeclaration(container);
+        }
+
+        return false;
+    }
+
+    function isInStruct(node: MethodDeclaration): boolean {
+        const container = getContainingClass(node);
+        return !!container && isStruct(container);
+    }
+
     /**
      * Returns true if the node is a CallExpression to the identifier 'require' with
      * exactly one argument (of the form 'require("name")').
