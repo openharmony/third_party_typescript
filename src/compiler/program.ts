@@ -4014,4 +4014,20 @@ namespace ts {
     export function getTypeExportImportAndConstEnumTransformer(context: TransformationContext): (node: SourceFile) => SourceFile {
         return transformTypeExportImportAndConstEnumInTypeScript(context);
     }
+
+    export function hasTsNoCheckOrTsIgnoreFlag(node: SourceFile): boolean {
+        // check @ts-nocheck flag
+        if (!!node.checkJsDirective && node.checkJsDirective.enabled === false) {
+            return true;
+        }
+        // check @ts-ignore flag
+        if (node.commentDirectives !== undefined) {
+            for (const commentDirective of node.commentDirectives) {
+                if (commentDirective.type === CommentDirectiveType.Ignore) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 }
