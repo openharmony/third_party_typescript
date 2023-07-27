@@ -1,0 +1,33 @@
+/*
+ * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+/**---
+ description: >
+   Rest parameters with tuple types
+ module: ESNext
+ isCurrent: true
+ ---*/
+
+
+import { Assert } from '../../../suite/assert.js'
+
+function test1(...ar:[string,number,boolean]):number {
+    return 0
+}
+function test2(ar:string,ar1: number,ar2:boolean):number {
+    return 1
+}
+
+Assert.equal(test1("11",2,true), 0);
+Assert.equal(test2("11",2,true), 1);
