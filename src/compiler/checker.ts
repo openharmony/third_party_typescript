@@ -674,7 +674,7 @@ namespace ts {
             },
             getSuggestionDiagnostics: (fileIn, ct) => {
                 const file = getParseTreeNode(fileIn, isSourceFile) || Debug.fail("Could not determine parsed source file.");
-                if (skipTypeChecking(file, compilerOptions, host)) {
+                if (skipTypeChecking(file, compilerOptions, host) || (file.isDeclarationFile && !!compilerOptions.needDoArkTsLinter)) {
                     return emptyArray;
                 }
 
@@ -3328,6 +3328,15 @@ namespace ts {
             }
             const currentSourceFile = getSourceFileOfNode(location);
             const resolvedModule = getResolvedModule(currentSourceFile, moduleReference)!; // TODO: GH#18217
+            if (compilerOptions.needDoArkTsLinter &&
+                currentSourceFile && currentSourceFile.scriptKind === ScriptKind.TS &&
+                resolvedModule && (resolvedModule.extension === ".ets" || resolvedModule.extension === ".d.ets")) {
+                const diagnosticType = compilerOptions.isCompatibleVersion ?
+                    Diagnostics.Importing_ArkTS_files_in_JS_and_TS_files_is_about_to_be_forbidden :
+                    Diagnostics.Importing_ArkTS_files_in_JS_and_TS_files_is_forbidden;
+                error(errorNode, diagnosticType, moduleReference);
+            }
+
             const resolutionDiagnostic = resolvedModule && getResolutionDiagnostic(compilerOptions, resolvedModule);
             const sourceFile = resolvedModule && !resolutionDiagnostic && host.getSourceFile(resolvedModule.resolvedFileName);
             if (sourceFile) {

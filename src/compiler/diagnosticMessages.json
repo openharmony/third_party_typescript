@@ -6418,5 +6418,13 @@
     "UI component '{0}' cannot be used in this place.": {
         "category": "Error",
         "code": 18048
+    },
+    "Importing ArkTS files in JS and TS files is about to be forbidden.": {
+        "category": "Warning",
+        "code": 18049
+    },
+    "Importing ArkTS files in JS and TS files is forbidden.": {
+        "category": "Error",
+        "code": 18050
     }
 }
