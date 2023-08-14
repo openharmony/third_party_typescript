@@ -1830,7 +1830,7 @@ namespace ts {
         }
 
         function getProgramDiagnostics(sourceFile: SourceFile): readonly Diagnostic[] {
-            if (skipTypeChecking(sourceFile, options, program)) {
+            if (skipTypeChecking(sourceFile, options, program) || (sourceFile.isDeclarationFile && !!options.needDoArkTsLinter)) {
                 return emptyArray;
             }
 
@@ -1901,6 +1901,13 @@ namespace ts {
 
         function getBindAndCheckDiagnosticsForFileNoCache(sourceFile: SourceFile, cancellationToken: CancellationToken | undefined): readonly Diagnostic[] {
             return runWithCancellationToken(() => {
+                // Only check and block .d.ts import .ets behavior when it is called by "ets-loader" and scanned.
+                const filterFlag = !!options.needDoArkTsLinter;
+
+                if (filterFlag) {
+                    options.skipLibCheck = false;
+                }
+
                 if (skipTypeChecking(sourceFile, options, program)) {
                     return emptyArray;
                 }
@@ -1917,8 +1924,23 @@ namespace ts {
                 const bindDiagnostics: readonly Diagnostic[] = includeBindAndCheckDiagnostics ? sourceFile.bindDiagnostics : emptyArray;
                 const checkDiagnostics = includeBindAndCheckDiagnostics ? typeChecker.getDiagnostics(sourceFile, cancellationToken) : emptyArray;
 
-                return getMergedBindAndCheckDiagnostics(sourceFile, includeBindAndCheckDiagnostics, bindDiagnostics, checkDiagnostics, isCheckJs ? sourceFile.jsDocDiagnostics : undefined);
+                return getMergedBindAndCheckDiagnostics(sourceFile, includeBindAndCheckDiagnostics, bindDiagnostics, filterFlag ?
+                    filterDiagnostics(checkDiagnostics) : checkDiagnostics, isCheckJs ? sourceFile.jsDocDiagnostics : undefined);
             });
+        }
+
+        function filterDiagnostics(allDiagnostics: (readonly Diagnostic[] | undefined)): readonly Diagnostic[] | undefined {
+            if (allDiagnostics) {
+                const diagnosticsAfterFilter = allDiagnostics.filter((item) => {
+                    const messageFlag = item.messageText !== (options.isCompatibleVersion ?
+                        Diagnostics.Importing_ArkTS_files_in_JS_and_TS_files_is_about_to_be_forbidden.message :
+                        Diagnostics.Importing_ArkTS_files_in_JS_and_TS_files_is_forbidden.message);
+                    const isOhModule = item.file?.fileName.indexOf("/oh_modules/") !== -1;
+                    return !((item.file?.scriptKind === ScriptKind.TS && item.file?.isDeclarationFile && messageFlag) || isOhModule);
+                });
+                return diagnosticsAfterFilter;
+            }
+            return emptyArray;
         }
 
         function getMergedBindAndCheckDiagnostics(sourceFile: SourceFile, includeBindAndCheckDiagnostics: boolean, ...allDiagnostics: (readonly Diagnostic[] | undefined)[]) {
