@@ -1,0 +1,26 @@
+{
+    "extends": "../tsconfig-base",
+    "compilerOptions": {
+        "removeComments": false,
+        "outFile": "../../built/local/linter.js",
+        "preserveConstEnums": true,
+        "types": [
+            "node"
+        ]
+    },
+    "references": [
+        { "path": "../compiler" },
+        { "path": "../jsTyping" },
+        { "path": "../services" }
+    ],
+    "files": [
+        "Common.ts",
+        "CookBookMsg.ts",
+        "Problems.ts",
+        "Utils.ts",
+        "Autofixer.ts",
+        "TypeScriptLinterConfig.ts",
+        "TypeScriptLinter.ts",
+	    "LinterRunner.ts",
+    ]
+}

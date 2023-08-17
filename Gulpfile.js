@@ -102,8 +102,12 @@ cleanTasks.push(cleanDebugTools);
 
 const buildShimsAndTools = parallel(buildShims, buildDebugTools);
 
+const buildArkTSLinter = () => buildProject("src/linter");
+const cleanArkTSLinter = () => cleanProject("src/linter");
+cleanTasks.push(cleanArkTSLinter);
+
 // Pre-build steps when targeting the LKG compiler
-const lkgPreBuild = parallel(generateLibs, series(buildScripts, generateDiagnostics, buildShimsAndTools));
+const lkgPreBuild = parallel(generateLibs, series(buildScripts, generateDiagnostics, buildShimsAndTools, buildArkTSLinter));
 
 const buildTsc = () => buildProject("src/tsc");
 task("tsc", series(lkgPreBuild, buildTsc));
@@ -119,7 +123,7 @@ task("watch-tsc", series(lkgPreBuild, parallel(watchLib, watchDiagnostics, watch
 task("watch-tsc").description = "Watch for changes and rebuild the command-line compiler only.";
 
 // Pre-build steps when targeting the built/local compiler.
-const localPreBuild = parallel(generateLibs, series(buildScripts, generateDiagnostics, buildShimsAndTools, buildTsc));
+const localPreBuild = parallel(generateLibs, series(buildScripts, generateDiagnostics, buildShimsAndTools, buildArkTSLinter, buildTsc));
 
 // Pre-build steps to use based on supplied options.
 const preBuild = cmdLineOptions.lkg ? lkgPreBuild : localPreBuild;

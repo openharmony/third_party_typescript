@@ -1,0 +1,911 @@
+/*
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+namespace ts {
+export namespace Utils {
+//import * as path from 'node:path';
+//import * as ts from 'typescript';
+//import ProblemInfo = ts.ProblemInfo;
+//import TypeScriptLinter = TypeScriptLinter;
+import AutofixInfo = Common.AutofixInfo;
+
+let typeChecker: TypeChecker;
+export function setTypeChecker(tsTypeChecker: TypeChecker): void {
+  typeChecker = tsTypeChecker;
+}
+
+
+export function getStartPos(nodeOrComment: Node | CommentRange): number {
+  return (nodeOrComment.kind === SyntaxKind.SingleLineCommentTrivia || nodeOrComment.kind === SyntaxKind.MultiLineCommentTrivia)
+    ? (nodeOrComment as CommentRange).pos
+    : (nodeOrComment as Node).getStart();
+}
+
+export function getEndPos(nodeOrComment: Node | CommentRange): number {
+  return (nodeOrComment.kind === SyntaxKind.SingleLineCommentTrivia || nodeOrComment.kind === SyntaxKind.MultiLineCommentTrivia)
+    ? (nodeOrComment as CommentRange).end
+    : (nodeOrComment as Node).getEnd();
+}
+
+
+
+const statementKinds = [
+  SyntaxKind.Block,SyntaxKind.EmptyStatement,SyntaxKind.VariableStatement,SyntaxKind.ExpressionStatement,
+  SyntaxKind.IfStatement,SyntaxKind.DoStatement,SyntaxKind.WhileStatement,SyntaxKind.ForStatement,
+  SyntaxKind.ForInStatement,SyntaxKind.ForOfStatement,SyntaxKind.ContinueStatement,
+  SyntaxKind.BreakStatement,SyntaxKind.ReturnStatement,SyntaxKind.WithStatement,
+  SyntaxKind.SwitchStatement,SyntaxKind.LabeledStatement,SyntaxKind.ThrowStatement,
+  SyntaxKind.TryStatement,SyntaxKind.DebuggerStatement,
+];
+
+export function isStatementKindNode(tsNode: Node): boolean {
+  return statementKinds.includes(tsNode.kind);
+}
+
+export function isAssignmentOperator(tsBinOp: BinaryOperatorToken): boolean {
+  return tsBinOp.kind >= SyntaxKind.FirstAssignment && tsBinOp.kind <= SyntaxKind.LastAssignment;
+}
+
+export function isArrayNotTupleType(tsType: TypeNode | undefined): boolean {
+  if (tsType && tsType.kind && isArrayTypeNode(tsType)) {
+    // Check that element type is not a union type to filter out tuple types induced by tuple literals.
+    const tsElemType = unwrapParenthesizedType(tsType.elementType);
+    return !isUnionTypeNode(tsElemType);
+  }
+
+  return false;
+}
+
+export function isNumberType(tsType: Type): boolean {
+  if (tsType.isUnion()) {
+    for (const tsCompType of tsType.types) {
+      if ((tsCompType.flags & TypeFlags.NumberLike) === 0) return false;
+    }
+    return true;
+  }
+  return (tsType.getFlags() & TypeFlags.NumberLike) !== 0;
+}
+
+export function isBooleanType(tsType: Type): boolean {
+  return (tsType.getFlags() & TypeFlags.BooleanLike) !== 0;
+}
+
+export function isStringType(tsType: Type): boolean {
+  if (tsType.isUnion()) {
+    for (const tsCompType of tsType.types) {
+      if ((tsCompType.flags & TypeFlags.StringLike) === 0) return false;
+    }
+    return true;
+  }
+  return (tsType.getFlags() & TypeFlags.StringLike) !== 0;
+}
+
+export function unwrapParenthesizedType(tsType: TypeNode): TypeNode {
+  while (isParenthesizedTypeNode(tsType)) {
+    tsType = tsType.type;
+  }
+  return tsType;
+}
+
+export function findParentIf(asExpr: AsExpression): IfStatement | null {
+  let node = asExpr.parent;
+  while (node) {
+    if (node.kind === SyntaxKind.IfStatement) {
+      return node as IfStatement;
+    }
+    node = node.parent;
+  }
+
+  return null;
+}
+
+export function isDestructuringAssignmentLHS(
+  tsExpr: ArrayLiteralExpression | ObjectLiteralExpression
+): boolean {
+  // Check whether given expression is the LHS part of the destructuring
+  // assignment (or is a nested element of destructuring pattern).
+  let tsParent = tsExpr.parent;
+  let tsCurrentExpr: Node = tsExpr;
+  while (tsParent) {
+    if (
+      isBinaryExpression(tsParent) && isAssignmentOperator(tsParent.operatorToken) &&
+      tsParent.left === tsCurrentExpr
+    ) {
+      return true;
+    }
+    if (
+      (isForStatement(tsParent) || isForInStatement(tsParent) || isForOfStatement(tsParent)) &&
+      tsParent.initializer && tsParent.initializer === tsCurrentExpr
+    ) {
+      return true;
+    }
+    tsCurrentExpr = tsParent;
+    tsParent = tsParent.parent;
+  }
+
+  return false;
+}
+
+export function isEnumType(tsType: Type): boolean {
+  // Note: For some reason, test (tsType.flags & TypeFlags.Enum) != 0 doesn't work here.
+  // Must use SymbolFlags to figure out if this is an enum type.
+  return tsType.symbol && (tsType.symbol.flags & SymbolFlags.Enum) !== 0;
+}
+
+export function isEnumMemberType(tsType: Type): boolean {
+    // Note: For some reason, test (tsType.flags & TypeFlags.Enum) != 0 doesn't work here.
+    // Must use SymbolFlags to figure out if this is an enum type.
+    return tsType.symbol && (tsType.symbol.flags & SymbolFlags.EnumMember) !== 0;
+  }
+
+export function isObjectLiteralType(tsType: Type): boolean {
+  return tsType.symbol && (tsType.symbol.flags & SymbolFlags.ObjectLiteral) !== 0;
+}
+
+export function isNumberLikeType(tsType: Type): boolean {
+  return (tsType.getFlags() & TypeFlags.NumberLike) !== 0;
+}
+
+export function hasModifier(tsModifiers: readonly Modifier[] | undefined, tsModifierKind: number): boolean {
+  // Sanity check.
+  if (!tsModifiers) return false;
+
+  for (const tsModifier of tsModifiers) {
+    if (tsModifier.kind === tsModifierKind) return true;
+  }
+
+  return false;
+}
+
+export function unwrapParenthesized(tsExpr: Expression): Expression {
+  let unwrappedExpr = tsExpr;
+  while (isParenthesizedExpression(unwrappedExpr)) {
+    unwrappedExpr = unwrappedExpr.expression;
+  }
+  return unwrappedExpr;
+}
+
+export function symbolHasDuplicateName(symbol: Symbol, tsDeclKind: SyntaxKind): boolean {
+  // Type Checker merges all declarations with the same name in one scope into one symbol.
+  // Thus, check whether the symbol of certain declaration has any declaration with
+  // different syntax kind.
+  const symbolDecls = symbol?.getDeclarations();
+  if (symbolDecls) {
+    for (const symDecl of symbolDecls) {
+      // Don't count declarations with 'Identifier' syntax kind as those
+      // usually depict declaring an object's property through assignment.
+      if (symDecl.kind !== SyntaxKind.Identifier && symDecl.kind !== tsDeclKind) return true;
+    }
+  }
+
+  return false;
+}
+
+export function isReferenceType(tsType: Type): boolean {
+  const f = tsType.getFlags();
+  return (
+    (f & TypeFlags.InstantiableNonPrimitive) !== 0 || (f & TypeFlags.Object) !== 0 ||
+    (f & TypeFlags.Boolean) !== 0 || (f & TypeFlags.Enum) !== 0 || (f & TypeFlags.NonPrimitive) !== 0 ||
+    (f & TypeFlags.Number) !== 0 || (f & TypeFlags.String) !== 0
+  );
+}
+
+export function isPrimitiveType(type: Type): boolean {
+  const f = type.getFlags();
+  return (
+    (f & TypeFlags.Boolean) !== 0 || (f & TypeFlags.BooleanLiteral) !== 0 ||
+    (f & TypeFlags.Number) !== 0 || (f & TypeFlags.NumberLiteral) !== 0
+    // In ArkTS 'string' is not a primitive type. So for the common subset 'string'
+    // should be considered as a reference type. That is why next line is commented out.
+    //(f & TypeFlags.String) != 0 || (f & TypeFlags.StringLiteral) != 0
+  );
+}
+
+export function isTypeSymbol(symbol: Symbol | undefined): boolean {
+  return (
+    !!symbol && !!symbol.flags &&
+    ((symbol.flags & SymbolFlags.Class) !== 0 || (symbol.flags & SymbolFlags.Interface) !== 0)
+  );
+}
+
+// Check whether type is generic 'Array<T>' type defined in TypeScript standard library.
+export function isGenericArrayType(tsType: Type): tsType is TypeReference {
+  return (
+    isTypeReference(tsType) && tsType.typeArguments?.length === 1 && tsType.target.typeParameters?.length === 1 &&
+    tsType.getSymbol()?.getName() === "Array"
+  );
+}
+
+export function isTypeReference(tsType: Type): tsType is TypeReference {
+  return (
+    (tsType.getFlags() & TypeFlags.Object) !== 0 &&
+    ((tsType as ObjectType).objectFlags & ObjectFlags.Reference) !== 0
+  );
+}
+
+export function isNullType(tsTypeNode: TypeNode): boolean {
+  return (isLiteralTypeNode(tsTypeNode) && tsTypeNode.literal.kind === SyntaxKind.NullKeyword);
+}
+
+export function isThisOrSuperExpr(tsExpr: Expression): boolean {
+  return (tsExpr.kind === SyntaxKind.ThisKeyword || tsExpr.kind === SyntaxKind.SuperKeyword);
+}
+
+export function isPrototypeSymbol(symbol: Symbol | undefined): boolean {
+  return (!!symbol && !!symbol.flags && (symbol.flags & SymbolFlags.Prototype) !== 0);
+}
+
+export function isFunctionSymbol(symbol: Symbol | undefined): boolean {
+  return (!!symbol && !!symbol.flags && (symbol.flags & SymbolFlags.Function) !== 0);
+}
+
+export function isInterfaceType(tsType: Type | undefined): boolean {
+  return (
+    !!tsType && !!tsType.symbol && !!tsType.symbol.flags &&
+    (tsType.symbol.flags & SymbolFlags.Interface) !== 0
+  );
+}
+
+export function isAnyType(tsType: Type): tsType is TypeReference {
+  return (tsType.getFlags() & TypeFlags.Any) !== 0;
+}
+
+export function isUnknownType(tsType: Type): boolean {
+  return (tsType.getFlags() & TypeFlags.Unknown) !== 0;
+}
+
+export function isUnsupportedType(tsType: Type): boolean {
+  return (
+    !!tsType.flags && ((tsType.flags & TypeFlags.Any) !== 0 || (tsType.flags & TypeFlags.Unknown) !== 0 ||
+    (tsType.flags & TypeFlags.Intersection) !== 0)
+  );
+}
+
+export function isUnsupportedUnionType(tsType: Type): boolean {
+  if (tsType.isUnion()) {
+    return !isNullableUnionType(tsType) && !isBooleanUnionType(tsType);
+  }
+  return false;
+}
+
+function isNullableUnionType(tsUnionType: UnionType): boolean {
+  const tsTypes = tsUnionType.types;
+  return (
+    tsTypes.length === 2 &&
+    ((tsTypes[0].flags & TypeFlags.Null) !== 0 || (tsTypes[1].flags & TypeFlags.Null) !== 0)
+  );
+}
+
+function isBooleanUnionType(tsUnionType: UnionType): boolean {
+  // For some reason, 'boolean' type is also represented as as union
+  // of 'true' and 'false' literal types. This form of 'union' type
+  // should be considered as supported.
+  const tsCompTypes = tsUnionType.types;
+  return (
+    tsUnionType.flags === (TypeFlags.Boolean | TypeFlags.Union) && tsCompTypes.length === 2 &&
+    tsCompTypes[0].flags === TypeFlags.BooleanLiteral && (tsCompTypes[1].flags === TypeFlags.BooleanLiteral)
+  );
+}
+
+export function isFunctionOrMethod(tsSymbol: Symbol | undefined): boolean {
+  return (
+    !!tsSymbol &&
+    ((tsSymbol.flags & SymbolFlags.Function) !== 0 || (tsSymbol.flags & SymbolFlags.Method) !== 0)
+  );
+}
+
+export function isMethodAssignment(tsSymbol: Symbol | undefined): boolean {
+  return (
+    !!tsSymbol &&
+    ((tsSymbol.flags & SymbolFlags.Method) !== 0 && (tsSymbol.flags & SymbolFlags.Assignment) !== 0)
+  );
+}
+
+function getDeclaration(tsSymbol: Symbol | undefined): Declaration | null {
+  if (tsSymbol && tsSymbol.declarations && tsSymbol.declarations.length > 0) {
+    return tsSymbol.declarations[0];
+  }
+  return null;
+}
+
+function isVarDeclaration(tsDecl: Declaration): boolean {
+  return isVariableDeclaration(tsDecl) && isVariableDeclarationList(tsDecl.parent);
+}
+
+export function isValidEnumMemberInit(tsExpr: Expression): boolean {
+  if (isIntegerConstantValue(tsExpr.parent as EnumMember)) {
+    return true;
+  }
+  if (isStringConstantValue(tsExpr.parent as EnumMember)) {
+    return true;
+  }
+  return isCompileTimeExpression(tsExpr);
+}
+
+export function isCompileTimeExpression(tsExpr: Expression): boolean {
+  if (
+    isParenthesizedExpression(tsExpr) ||
+    (isAsExpression(tsExpr) && tsExpr.type.kind === SyntaxKind.NumberKeyword)) {
+    return isCompileTimeExpression(tsExpr.expression);
+  }
+  switch (tsExpr.kind) {
+    case SyntaxKind.PrefixUnaryExpression:
+      return isPrefixUnaryExprValidEnumMemberInit(tsExpr as PrefixUnaryExpression);
+    case SyntaxKind.ParenthesizedExpression:
+    case SyntaxKind.BinaryExpression:
+      return isBinaryExprValidEnumMemberInit(tsExpr as BinaryExpression);
+    case SyntaxKind.ConditionalExpression:
+      return isConditionalExprValidEnumMemberInit(tsExpr as ConditionalExpression);
+    case SyntaxKind.Identifier:
+      return isIdentifierValidEnumMemberInit(tsExpr as Identifier);
+    case SyntaxKind.NumericLiteral:
+      return isIntegerConstantValue(tsExpr as NumericLiteral);
+    case SyntaxKind.PropertyAccessExpression: {
+      // if enum member is in current enum declaration try to get value
+      // if it comes from another enum consider as constant
+      const propertyAccess = tsExpr as PropertyAccessExpression;
+      if(isIntegerConstantValue(propertyAccess)) {
+        return true;
+      }
+      const leftHandSymbol = typeChecker.getSymbolAtLocation(propertyAccess.expression);
+      if(!leftHandSymbol) {
+        return false;
+      }
+      const decls = leftHandSymbol.getDeclarations();
+      if (!decls || decls.length !== 1) {
+        return false;
+      }
+      return isEnumDeclaration(decls[0]);
+    }
+    default:
+      return false;
+  }
+}
+
+function isPrefixUnaryExprValidEnumMemberInit(tsExpr: PrefixUnaryExpression): boolean {
+  return (isUnaryOpAllowedForEnumMemberInit(tsExpr.operator) && isCompileTimeExpression(tsExpr.operand));
+}
+
+function isBinaryExprValidEnumMemberInit(tsExpr: BinaryExpression): boolean {
+  return (
+    isBinaryOpAllowedForEnumMemberInit(tsExpr.operatorToken) && isCompileTimeExpression(tsExpr.left) &&
+    isCompileTimeExpression(tsExpr.right)
+  );
+}
+
+function isConditionalExprValidEnumMemberInit(tsExpr: ConditionalExpression): boolean {
+  return (isCompileTimeExpression(tsExpr.whenTrue) && isCompileTimeExpression(tsExpr.whenFalse));
+}
+
+function isIdentifierValidEnumMemberInit(tsExpr: Identifier): boolean {
+  const tsSymbol = typeChecker.getSymbolAtLocation(tsExpr);
+  const tsDecl = getDeclaration(tsSymbol);
+  return (!!tsDecl &&
+            ((isVarDeclaration(tsDecl) && isConst(tsDecl.parent)) ||
+              (tsDecl.kind === SyntaxKind.EnumMember)
+            )
+  );
+}
+
+function isUnaryOpAllowedForEnumMemberInit(tsPrefixUnaryOp: PrefixUnaryOperator): boolean {
+  return (
+    tsPrefixUnaryOp === SyntaxKind.PlusToken || tsPrefixUnaryOp === SyntaxKind.MinusToken ||
+    tsPrefixUnaryOp === SyntaxKind.TildeToken
+  );
+}
+
+function isBinaryOpAllowedForEnumMemberInit(tsBinaryOp: BinaryOperatorToken): boolean {
+  return (
+    tsBinaryOp.kind === SyntaxKind.AsteriskToken || tsBinaryOp.kind === SyntaxKind.SlashToken ||
+    tsBinaryOp.kind === SyntaxKind.PercentToken || tsBinaryOp.kind === SyntaxKind.MinusToken ||
+    tsBinaryOp.kind === SyntaxKind.PlusToken || tsBinaryOp.kind === SyntaxKind.LessThanLessThanToken ||
+    tsBinaryOp.kind === SyntaxKind.GreaterThanGreaterThanToken || tsBinaryOp.kind === SyntaxKind.BarBarToken ||
+    tsBinaryOp.kind === SyntaxKind.GreaterThanGreaterThanGreaterThanToken ||
+    tsBinaryOp.kind === SyntaxKind.AmpersandToken || tsBinaryOp.kind === SyntaxKind.CaretToken ||
+    tsBinaryOp.kind === SyntaxKind.BarToken || tsBinaryOp.kind === SyntaxKind.AmpersandAmpersandToken
+  );
+}
+
+export function isConst(tsNode: Node): boolean {
+  return !!(getCombinedNodeFlags(tsNode) & NodeFlags.Const);
+}
+
+export function isIntegerConstantValue(
+  tsExpr: EnumMember | PropertyAccessExpression | ElementAccessExpression | NumericLiteral
+): boolean {
+
+  const tsConstValue = (tsExpr.kind === SyntaxKind.NumericLiteral) ?
+    Number(tsExpr.getText()) :
+    typeChecker.getConstantValue(tsExpr);
+  return (
+    tsConstValue !== undefined && typeof tsConstValue === "number" &&
+    tsConstValue.toFixed(0) === tsConstValue.toString()
+  );
+}
+
+export function isStringConstantValue(
+  tsExpr: EnumMember | PropertyAccessExpression | ElementAccessExpression
+): boolean {
+  const tsConstValue = typeChecker.getConstantValue(tsExpr);
+  return (
+    tsConstValue !== undefined && typeof tsConstValue === "string"
+  );
+}
+
+// Returns true iff typeA is a subtype of typeB
+export function relatedByInheritanceOrIdentical(typeA: Type, typeB: Type): boolean {
+  if (isTypeReference(typeA) && typeA.target !== typeA) { typeA = typeA.target; }
+  if (isTypeReference(typeB) && typeB.target !== typeB) { typeB = typeB.target; }
+
+  if (typeA === typeB || isObjectType(typeB)) { return true; }
+  if (!typeA.symbol || !typeA.symbol.declarations) { return false; }
+
+  for (const typeADecl of typeA.symbol.declarations) {
+    if (
+      (!isClassDeclaration(typeADecl) && !isInterfaceDeclaration(typeADecl)) ||
+      !typeADecl.heritageClauses
+    ) { continue; }
+    for (const heritageClause of typeADecl.heritageClauses) {
+      if (processParentTypes(heritageClause.types, typeB)) { return true; }
+    }
+  }
+
+  return false;
+}
+
+function processParentTypes(parentTypes: NodeArray<ExpressionWithTypeArguments>, typeB: Type): boolean {
+  for (const baseTypeExpr of parentTypes) {
+    const baseType = typeChecker.getTypeAtLocation(baseTypeExpr);
+    if (baseType && relatedByInheritanceOrIdentical(baseType, typeB)) { return true; }
+  }
+  return false;
+}
+
+export function isObjectType(tsType: Type): boolean {
+  return (
+    tsType && tsType.isClassOrInterface() && tsType.symbol &&
+    (tsType.symbol.name === "Object" || tsType.symbol.name === "object")
+  );
+}
+
+export function logTscDiagnostic(diagnostics: readonly Diagnostic[], log: (message: any, ...args: any[]) => void): void {
+  diagnostics.forEach((diagnostic) => {
+    let message = flattenDiagnosticMessageText(diagnostic.messageText, "\n");
+
+    if (diagnostic.file && diagnostic.start) {
+      const { line, character } = getLineAndCharacterOfPosition(diagnostic.file, diagnostic.start);
+      message = `${diagnostic.file.fileName} (${line + 1}, ${character + 1}): ${message}`;
+    }
+
+    log(message);
+  });
+}
+
+export function encodeProblemInfo(problem: ProblemInfo): string {
+  return `${problem.problem}%${problem.start}%${problem.end}`;
+}
+
+export function decodeAutofixInfo(info: string): AutofixInfo {
+  const infos = info.split("%");
+  return { problemID: infos[0], start: Number.parseInt(infos[1]), end: Number.parseInt(infos[2]) };
+}
+
+export function isCallToFunctionWithOmittedReturnType(tsExpr: Expression): boolean {
+  if (isCallExpression(tsExpr)) {
+    const tsCallSignature = typeChecker.getResolvedSignature(tsExpr);
+    if (tsCallSignature) {
+      const tsSignDecl = tsCallSignature.getDeclaration();
+      // `tsSignDecl` is undefined when `getResolvedSignature` returns `unknownSignature`
+      if (!tsSignDecl || !tsSignDecl.type) return true;
+    }
+  }
+
+  return false;
+}
+
+function hasReadonlyFields(type: Type): boolean {
+  if (type.symbol.members === undefined) return false; // No members -> no readonly fields
+
+  let result = false;
+
+  type.symbol.members.forEach((value /*, key*/) => {
+    if (
+      value.declarations !== undefined && value.declarations.length > 0 &&
+      isPropertyDeclaration(value.declarations[0])
+    ) {
+      const propmMods = value.declarations[0].modifiers; // TSC 4.2 doesn't have 'getModifiers()' method
+      if (hasModifier(propmMods, SyntaxKind.ReadonlyKeyword)) {
+        result = true;
+        return;
+      }
+    }
+  });
+
+  return result;
+}
+
+function hasDefaultCtor(type: Type): boolean {
+  if (type.symbol.members === undefined) return true; // No members -> no explicite constructors -> there is default ctor
+
+  let hasCtor = false; // has any constructor
+  let hasDefaultCtor = false; // has default constructor
+
+  type.symbol.members.forEach((value /*, key*/) => {
+    if ((value.flags & SymbolFlags.Constructor) !== 0) {
+      hasCtor = true;
+
+      if (value.declarations !== undefined && value.declarations.length > 0) {
+        const declCtor = value.declarations[0] as ConstructorDeclaration;
+        if (declCtor.parameters.length === 0) {
+          hasDefaultCtor = true;
+          return;
+        }
+      }
+    }
+  });
+
+  return !hasCtor || hasDefaultCtor; // Has no any explicite constructor -> has implicite default constructor.
+}
+
+function isAbstractClass(type: Type): boolean {
+  if (type.isClass() && type.symbol.declarations && type.symbol.declarations.length > 0) {
+    const declClass = type.symbol.declarations[0] as ClassDeclaration;
+    const classMods = declClass.modifiers; // TSC 4.2 doesn't have 'getModifiers()' method
+    if (hasModifier(classMods, SyntaxKind.AbstractKeyword)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+export function validateObjectLiteralType(type: Type | undefined): boolean {
+  return (
+    type !== undefined && type.isClassOrInterface() && hasDefaultCtor(type) &&
+    !hasReadonlyFields(type) && !isAbstractClass(type)
+  );
+}
+
+export function hasMemberFunction(objectLiteral: ObjectLiteralExpression): boolean {
+  for (let i = 0; i < objectLiteral.properties.length; i++) {
+    const prop = objectLiteral.properties[i];
+    if (isPropertyAssignment(prop)) {
+      const propAssignment = prop;
+      if (isArrowFunction(propAssignment.initializer) || isFunctionExpression(propAssignment.initializer)) {
+        return true;
+      }
+    }
+  };
+
+  return false;
+}
+
+function findDelaration(type: ClassDeclaration | InterfaceDeclaration, name: string): NamedDeclaration | undefined {
+  const members: NodeArray<ClassElement> | NodeArray<TypeElement> = type.members;
+  let declFound: NamedDeclaration | undefined;
+
+  for(const m of members) {
+    if (m.name && m.name.getText() === name) {
+      declFound = m;
+      break;
+    }
+  }
+
+  if (declFound || !type.heritageClauses) return declFound;
+
+  // Search in base classes/interfaces
+  for (let i1 = 0; i1 < type.heritageClauses.length; i1++) {
+    const v1 = type.heritageClauses[i1];
+    for (let i2 = 0; i2 < v1.types.length; i2++) {
+      const v2 = v1.types[i2];
+      const symbol = typeChecker.getTypeAtLocation(v2.expression).symbol;
+      if (
+        (symbol.flags === SymbolFlags.Class || symbol.flags === SymbolFlags.Interface) &&
+        symbol.declarations && symbol.declarations.length > 0
+      ) {
+        declFound = findDelaration(symbol.declarations[0] as (ClassDeclaration | InterfaceDeclaration), name);
+      }
+
+      if (declFound) break;
+    };
+
+    if (declFound) break;
+  };
+
+  return declFound;
+}
+
+export function areTypesAssignable(lhsType: Type | undefined, rhsExpr: Expression): boolean {
+  if (lhsType === undefined) { return false; }
+
+  if (lhsType.isUnion()) {
+    for (const compType of lhsType.types) {
+      if (areTypesAssignable(compType, rhsExpr)) return true;
+    }
+  }
+
+  // Allow initializing with object literal when the type
+  // originates from the library.
+  if (isLibraryType(lhsType)) return true;
+
+  // Allow initializing Record objects with object initializer.
+  // Record supports any type for a its value, but the key value
+  // must be either a string or number literal.
+  if (isStdRecordType(lhsType) && isObjectLiteralExpression(rhsExpr)) {
+    return validateRecordObjectKeys(rhsExpr);
+  }
+  // For Partial<T> type, validate its argument type.
+  if (isStdPartialType(lhsType)) {
+    if (lhsType.aliasTypeArguments && lhsType.aliasTypeArguments.length === 1) {
+      lhsType = lhsType.aliasTypeArguments[0];
+    }
+    else {
+      return false;
+    }
+  }
+
+  if (isObjectLiteralExpression(rhsExpr)) {
+    return validateObjectLiteralType(lhsType) &&
+      !hasMemberFunction(rhsExpr) && validateFields(lhsType, rhsExpr);
+  }
+
+  // Always compare the non-nullable variant of types.
+  lhsType = lhsType.getNonNullableType();
+  let rhsType = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(rhsExpr).getNonNullableType();
+
+  // If type is a literal type, compare its base type.
+  if (isLiteralType(lhsType)) {
+    lhsType = TypeScriptLinter.tsTypeChecker.getBaseTypeOfLiteralType(lhsType);
+  }
+  if (isLiteralType(rhsType)) {
+    rhsType = TypeScriptLinter.tsTypeChecker.getBaseTypeOfLiteralType(rhsType);
+  }
+  return lhsType === rhsType || hasBaseType(rhsType, getTargetType(lhsType));
+}
+
+function getTargetType(type: Type): Type {
+  return (type.getFlags() & TypeFlags.Object) &&
+    (type as ObjectType).objectFlags & ObjectFlags.Reference ? (type as TypeReference).target : type;
+}
+
+function hasBaseType(type: Type, checkBase: Type): boolean {
+  if ((type.getFlags() & TypeFlags.Object) &&
+    (type as ObjectType).objectFlags & (ObjectFlags.ClassOrInterface | ObjectFlags.Reference)
+  ) {
+    const target = getTargetType(type) as InterfaceType;
+    return target === checkBase ||
+      TypeScriptLinter.tsTypeChecker.getBaseTypes(target).some(baseType => hasBaseType(baseType, checkBase));
+  }
+  return false;
+}
+
+
+export function isLiteralType(type: Type): boolean {
+  return type.isLiteral() || (type.flags & TypeFlags.BooleanLiteral) !== 0;
+}
+
+export function validateFields(type: Type | undefined, objectLiteral: ObjectLiteralExpression): boolean {
+  if (type === undefined || type.symbol.declarations === undefined) return false;
+
+  const declType = type.symbol.declarations[0] as (ClassDeclaration | InterfaceDeclaration);
+
+  for (let i = 0; i < objectLiteral.properties.length; i++) {
+    const prop = objectLiteral.properties[i];
+    if (isPropertyAssignment(prop)) {
+      const propAssignment = prop;
+      const propName = propAssignment.name.getText();
+      const decl = findDelaration(declType, propName);
+      if (!decl) {
+        return false;
+      }
+      if (!areTypesAssignable(typeChecker.getTypeAtLocation(decl), propAssignment.initializer)) {
+        return false;
+      }
+    }
+  };
+
+  return true;
+}
+
+function isSupportedTypeNodeKind(kind: SyntaxKind): boolean {
+  return kind !== SyntaxKind.AnyKeyword && kind !== SyntaxKind.UnknownKeyword &&
+    kind !== SyntaxKind.SymbolKeyword && kind !== SyntaxKind.UndefinedKeyword &&
+    kind !== SyntaxKind.ConditionalType && kind !== SyntaxKind.MappedType &&
+    kind !== SyntaxKind.InferType && kind !== SyntaxKind.IndexedAccessType;
+
+}
+
+export function isSupportedType(typeNode: TypeNode): boolean {
+  if (isParenthesizedTypeNode(typeNode)) return isSupportedType(typeNode.type);
+
+  if (isArrayTypeNode(typeNode)) return isSupportedType(typeNode.elementType);
+
+  if (isTypeReferenceNode(typeNode) && typeNode.typeArguments) {
+    for (const typeArg of typeNode.typeArguments) {
+      if (!isSupportedType(typeArg)) { return false; }
+    }
+    return true;
+  }
+
+  if (isUnionTypeNode(typeNode)) {
+    for (const unionTypeElem of typeNode.types) {
+      if (!isSupportedType(unionTypeElem)) { return false; }
+    }
+    return true;
+  }
+
+  return !isTypeLiteralNode(typeNode) && !isTypeQueryNode(typeNode) &&
+    !isIntersectionTypeNode(typeNode) && !isTupleTypeNode(typeNode) &&
+    isSupportedTypeNodeKind(typeNode.kind);
+}
+
+function validateRecordObjectKeys(objectLiteral: ObjectLiteralExpression): boolean {
+  for (const prop of objectLiteral.properties) {
+    if (!prop.name || (!isStringLiteral(prop.name) && !isNumericLiteral(prop.name))) { return false; }
+  }
+  return true;
+}
+
+export const LIMITED_STD_GLOBAL_FUNC = [
+  "eval", "isFinite", "isNaN", "parseFloat", "parseInt", "encodeURI", "encodeURIComponent", "Encode", "decodeURI",
+  "decodeURIComponent", "Decode", "escape", "unescape", "ParseHexOctet"
+];
+export const LIMITED_STD_GLOBAL_VAR = ["Infinity", "NaN"];
+export const LIMITED_STD_OBJECT_API = [
+  "__proto__", "__defineGetter__", "__defineSetter__", "__lookupGetter__", "__lookupSetter__", "assign", "create",
+  "defineProperties", "defineProperty", "entries", "freeze", "fromEntries", "getOwnPropertyDescriptor",
+  "getOwnPropertyDescriptors", "getOwnPropertyNames", "getOwnPropertySymbols", "getPrototypeOf", "hasOwn",
+  "hasOwnProperty", "is", "isExtensible", "isFrozen", "isPrototypeOf", "isSealed", "keys", "preventExtensions",
+  "propertyIsEnumerable", "seal", "setPrototypeOf", "values"
+];
+export const LIMITED_STD_REFLECT_API = [
+  "apply", "construct", "defineProperty", "deleteProperty", "get", "getOwnPropertyDescriptor", "getPrototypeOf",
+  "has", "isExtensible", "ownKeys", "preventExtensions", "set", "setPrototypeOf"
+];
+export const LIMITED_STD_PROXYHANDLER_API = [
+  "apply", "construct", "defineProperty", "deleteProperty", "get", "getOwnPropertyDescriptor", "getPrototypeOf",
+  "has", "isExtensible", "ownKeys", "preventExtensions", "set", "setPrototypeOf"
+];
+export const LIMITED_STD_ARRAY_API = ["isArray"];
+export const LIMITED_STD_ARRAYBUFFER_API = ["isView"];
+
+export const ARKUI_DECORATORS = [
+  "Builder", "BuilderParam", "Component", "Consume", "Entry", "Link", "LocalStorageLink", "LocalStorageProp",
+  "ObjectLink", "Observed", "Prop", "Provide", "State", "StorageLink", "StorageProp", "Watch",
+];
+
+export const STANDARD_LIBRARIES = [
+  "lib.dom.d.ts", "lib.dom.iterable.d.ts", "lib.webworker.d.ts", "lib.webworker.importscripd.ts",
+  "lib.webworker.iterable.d.ts", "lib.scripthost.d.ts", "lib.decorators.d.ts", "lib.decorators.legacy.d.ts",
+  "lib.es5.d.ts", "lib.es2015.core.d.ts", "lib.es2015.collection.d.ts", "lib.es2015.generator.d.ts",
+  "lib.es2015.iterable.d.ts", "lib.es2015.promise.d.ts", "lib.es2015.proxy.d.ts", "lib.es2015.reflect.d.ts",
+  "lib.es2015.symbol.d.ts", "lib.es2015.symbol.wellknown.d.ts", "lib.es2016.array.include.d.ts",
+  "lib.es2017.object.d.ts", "lib.es2017.sharedmemory.d.ts", "lib.es2017.string.d.ts", "lib.es2017.intl.d.ts",
+  "lib.es2017.typedarrays.d.ts", "lib.es2018.asyncgenerator.d.ts", "lib.es2018.asynciterable.d.ts",
+  "lib.es2018.intl.d.ts", "lib.es2018.promise.d.ts", "lib.es2018.regexp.d.ts", "lib.es2019.array.d.ts",
+  "lib.es2019.object.d.ts", "lib.es2019.string.d.ts", "lib.es2019.symbol.d.ts", "lib.es2019.intl.d.ts",
+  "lib.es2020.bigint.d.ts", "lib.es2020.date.d.ts", "lib.es2020.promise.d.ts", "lib.es2020.sharedmemory.d.ts",
+  "lib.es2020.string.d.ts", "lib.es2020.symbol.wellknown.d.ts", "lib.es2020.intl.d.ts", "lib.es2020.number.d.ts",
+  "lib.es2021.promise.d.ts", "lib.es2021.string.d.ts", "lib.es2021.weakref.d.ts", "lib.es2021.intl.d.ts",
+  "lib.es2022.array.d.ts", "lib.es2022.error.d.ts", "lib.es2022.intl.d.ts", "lib.es2022.object.d.ts",
+  "lib.es2022.sharedmemory.d.ts", "lib.es2022.string.d.ts", "lib.es2022.regexp.d.ts", "lib.es2023.array.d.ts",
+];
+
+function getParentSymbolName(symbol: Symbol): string | undefined {
+  const name = typeChecker.getFullyQualifiedName(symbol);
+  const dotPosition = name.lastIndexOf(".");
+  return (dotPosition === -1) ? undefined : name.substring(0, dotPosition);
+}
+
+export function isGlobalSymbol(symbol: Symbol): boolean {
+  const parentName = getParentSymbolName(symbol);
+  return !parentName || parentName === "global";
+}
+export function isStdObjectAPI(symbol: Symbol): boolean {
+  const parentName = getParentSymbolName(symbol);
+  return !!parentName && (parentName === "Object" || parentName === "ObjectConstructor");
+}
+export function isStdReflectAPI(symbol: Symbol): boolean {
+  const parentName = getParentSymbolName(symbol);
+  return !!parentName && (parentName === "Reflect");
+}
+export function isStdProxyHandlerAPI(symbol: Symbol): boolean {
+  const parentName = getParentSymbolName(symbol);
+  return !!parentName && (parentName === "ProxyHandler");
+}
+export function isStdArrayAPI(symbol: Symbol): boolean {
+  const parentName = getParentSymbolName(symbol);
+  return !!parentName && (parentName === "Array" || parentName === "ArrayConstructor");
+}
+export function isStdArrayBufferAPI(symbol: Symbol): boolean {
+  const parentName = getParentSymbolName(symbol);
+  return !!parentName && (parentName === "ArrayBuffer" || parentName === "ArrayBufferConstructor");
+}
+
+export function isSymbolAPI(symbol: Symbol): boolean {
+  const parentName = getParentSymbolName(symbol);
+  if(!!parentName) {
+    return (parentName === "Symbol" || parentName === "SymbolConstructor");
+  }
+  else {
+    return (symbol.escapedName === "Symbol" || symbol.escapedName === "SymbolConstructor");
+  }
+}
+
+export function isDefaultImport(importSpec: ImportSpecifier): boolean {
+  return importSpec?.propertyName?.text === "default";
+}
+export function hasAccessModifier(decl: Declaration): boolean {
+  const modifiers = decl.modifiers; // TSC 4.2 doesn't have 'getModifiers()' method
+  return (
+    !!modifiers &&
+    (hasModifier(modifiers, SyntaxKind.PublicKeyword) ||
+      hasModifier(modifiers, SyntaxKind.ProtectedKeyword) ||
+      hasModifier(modifiers, SyntaxKind.PrivateKeyword))
+  );
+}
+
+export function getModifier(modifiers: readonly Modifier[] | undefined, modifierKind: SyntaxKind): Modifier | undefined {
+  if (!modifiers) return undefined;
+  return modifiers.find(x => x.kind === modifierKind);
+}
+
+export function getAccessModifier(modifiers: readonly Modifier[] | undefined): Modifier | undefined {
+  return getModifier(modifiers, SyntaxKind.PublicKeyword) ??
+    getModifier(modifiers, SyntaxKind.ProtectedKeyword) ??
+    getModifier(modifiers, SyntaxKind.PrivateKeyword);
+}
+
+export function isStdRecordType(type: Type): boolean {
+  // In TypeScript, 'Record<K, T>' is defined as type alias to a mapped type.
+  // Thus, it should have 'aliasSymbol' and 'target' properties. The 'target'
+  // in this case will resolve to origin 'Record' symbol.
+  if (type.aliasSymbol) {
+    const target = (type as TypeReference).target;
+    if (target) {
+      const sym = target.aliasSymbol;
+      return !!sym && sym.getName() === "Record" && isGlobalSymbol(sym);
+    }
+  }
+
+  return false;
+}
+
+export function isStdPartialType(type: Type): boolean {
+  const sym = type.aliasSymbol;
+  return !!sym && sym.getName() === "Partial" && isGlobalSymbol(sym);
+}
+
+
+export function isLibraryType(type: Type): boolean {
+  return isLibrarySymbol(type.aliasSymbol ?? type.getSymbol());
+}
+
+export function isLibrarySymbol(sym: Symbol | undefined) {
+  if (sym && sym.declarations && sym.declarations.length > 0) {
+    const srcFile = sym.declarations[0].getSourceFile();
+
+    // We still need to confirm support for certain API from the
+    // TypeScript standard library in Ark Thus, for now do not
+    // count standard library modules.
+    return srcFile && srcFile.isDeclarationFile &&
+      !STANDARD_LIBRARIES.includes(getBaseFileName(srcFile.fileName).toLowerCase());
+  }
+
+  return false;
+}
+
+}
+}
