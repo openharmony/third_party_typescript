@@ -3316,7 +3316,7 @@ namespace ts {
                 error(errorNode, diag, withoutAtTypePrefix, moduleReference);
             }
 
-            if (moduleReference.lastIndexOf(".so") !== -1) {
+            if (moduleReference.lastIndexOf(".so") !== -1 && !(isInETSFile(location) && compilerOptions.needDoArkTsLinter && !compilerOptions.isCompatibleVersion)) {
                 const diagnostic = createDiagnosticForNode(errorNode, Diagnostics.Currently_module_for_0_is_not_verified_If_you_re_importing_napi_its_verification_will_be_enabled_in_later_SDK_version_Please_make_sure_the_corresponding_d_ts_file_is_provided_and_the_napis_are_correctly_declared, moduleReference);
                 diagnostics.add(diagnostic);
                 return undefined;
@@ -36305,7 +36305,6 @@ namespace ts {
                 case "symbol":
                 case "void":
                 case "object":
-                case "ESObject":
                     error(name, message, name.escapedText as string);
             }
         }

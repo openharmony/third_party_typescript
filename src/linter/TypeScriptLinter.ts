@@ -178,7 +178,6 @@ export class TypeScriptLinter {
     [SyntaxKind.CallExpression, this.handleCallExpression], [SyntaxKind.MetaProperty, this.handleMetaProperty],
     [SyntaxKind.NewExpression, this.handleNewExpression], [SyntaxKind.AsExpression, this.handleAsExpression],
     [SyntaxKind.SpreadElement, this.handleSpreadOp], [SyntaxKind.SpreadAssignment, this.handleSpreadOp],
-    [SyntaxKind.NonNullExpression, this.handleNonNullExpression],
     [SyntaxKind.GetAccessor, this.handleGetAccessor], [SyntaxKind.SetAccessor, this.handleSetAccessor],
   ]);
 
@@ -684,6 +683,15 @@ export class TypeScriptLinter {
 
   private handleImportDeclaration(node: Node): void {
     const importDeclNode = node as ImportDeclaration;
+    for (const stmt of importDeclNode.parent.statements) {
+      if (stmt === importDeclNode) {
+        break;
+      }
+      if (!isImportDeclaration(stmt)) {
+        this.incrementCounters(node, FaultID.ImportAfterStatement);
+        break;
+      }
+    }
     const expr1 = importDeclNode.moduleSpecifier;
     if (expr1.kind === SyntaxKind.StringLiteral) {
       if (!importDeclNode.importClause) this.incrementCounters(node, FaultID.ImportFromPath);
@@ -734,6 +742,7 @@ export class TypeScriptLinter {
       this.handleDecorators(decorators);
       //this.filterOutStrictDiagnostics(decorators, propName);
       this.handleDeclarationInferredType(node);
+      this.handleDefiniteAssignmentAssertion(node);
     }
   }
 
@@ -994,10 +1003,11 @@ export class TypeScriptLinter {
         else {
           this.incrementCounters(node, FaultID.AddWithWrongType);
         }
-      } else if (Utils.isNumberType(leftOperandType) && Utils.isNumberType(rightOperandType)) {
+      }
+      else if (Utils.isNumberType(leftOperandType) && Utils.isNumberType(rightOperandType)) {
         return;
       }
-      else if (Utils.isStringType(leftOperandType) || Utils.isStringType(rightOperandType)) {
+      else if (Utils.isStringLikeType(leftOperandType) || Utils.isStringLikeType(rightOperandType)) {
         return;
       }
       else {
@@ -1039,7 +1049,10 @@ export class TypeScriptLinter {
       const leftSymbol = TypeScriptLinter.tsTypeChecker.getSymbolAtLocation(leftExpr);
       // In STS, the left-hand side expression may be of any reference type, otherwise
       // a compile-time error occurs. In addition, the left operand in STS cannot be a type.
-      if (isTypeNode(leftExpr) || !Utils.isReferenceType(leftOperandType) || Utils.isTypeSymbol(leftSymbol)) {
+      if (isTypeNode(leftExpr) ||
+            !Utils.isReferenceType(leftOperandType) && tsLhsExpr.kind !== SyntaxKind.ThisKeyword ||
+            Utils.isTypeSymbol(leftSymbol)
+          ) {
         this.incrementCounters(node, FaultID.InstanceofUnsupported);
       }
     }
@@ -1084,8 +1097,6 @@ export class TypeScriptLinter {
         }
       };
 
-      if (tsVarDecl.exclamationToken) this.incrementCounters(node, FaultID.DefiniteAssignment);
-
       visitBindingPatternNames(tsVarDecl.name);
     }
 
@@ -1102,6 +1113,7 @@ export class TypeScriptLinter {
     }
 
     this.handleDeclarationInferredType(tsVarDecl);
+    this.handleDefiniteAssignmentAssertion(tsVarDecl);
   }
 
   private handleCatchClause(node: Node): void {
@@ -1285,6 +1297,7 @@ export class TypeScriptLinter {
 
     if (tsIdentSym) {
       this.handleNamespaceAsObject(tsIdentifier, tsIdentSym);
+      this.handleClassAsObject(tsIdentifier, tsIdentSym);
 
       if (
         (tsIdentSym.flags & SymbolFlags.Module) !== 0 &&
@@ -1316,15 +1329,67 @@ export class TypeScriptLinter {
         while (isPropertyAccessExpression(tsIdentParent.parent) || isQualifiedName(tsIdentParent.parent)) {
           tsIdentParent = tsIdentParent.parent;
         }
+        const isNamespace: boolean = (tsIdentSym.getFlags() & SymbolFlags.Namespace) !== 0;
+        let isEmptyModuleBlock = false;
+        if (tsIdentSym.declarations && tsIdentSym.declarations.length > 0 && isModuleDeclaration(tsIdentSym.declarations[0])) {
+          const moduleDecl = tsIdentSym.declarations[0] as ModuleDeclaration;
+          if (moduleDecl.body && isModuleBlock(moduleDecl.body)) {
+            const moduleBlock = moduleDecl.body;
+            if (moduleBlock.statements && moduleBlock.statements.length === 0) {
+              isEmptyModuleBlock = true;
+            }
+          }
+        }
+
         if (
-          (!isPropertyAccessExpression(tsIdentParent) && !isQualifiedName(tsIdentParent)) ||
+          (!isPropertyAccessExpression(tsIdentParent) && !isQualifiedName(tsIdentParent) && !(isNamespace && isEmptyModuleBlock)) ||
           (isPropertyAccessExpression(tsIdentParent) && tsIdentifier === tsIdentParent.name) ||
           (isQualifiedName(tsIdentParent) && tsIdentifier === tsIdentParent.right)
-        ) {
+          ) {
           this.incrementCounters(tsIdentifier, FaultID.NamespaceAsObject);
         }
       }
     }
+  }
+
+  private handleClassAsObject(tsIdentifier: Identifier, tsIdentSym: Symbol) {
+    // Only process class references.
+    if ((tsIdentSym.getFlags() & SymbolFlags.Class) === 0) {
+      return;
+    }
+
+    // No need to process class declarations or type references.
+    if (isClassDeclaration(tsIdentifier.parent)) {
+      return;
+    }
+
+    // If class name is the right-most name of Property Access chain or Qualified name,
+    // or it's a separate identifier expression, then class is being referenced as an object.
+    let tsIdentStart: Node = tsIdentifier;
+
+    while (isPropertyAccessExpression(tsIdentStart.parent) || isQualifiedName(tsIdentStart.parent)) {
+      tsIdentStart = tsIdentStart.parent;
+    }
+
+    // contexts where type is used as value, but it's intended
+    if (isTypeNode(tsIdentStart.parent) ||
+        isExpressionWithTypeArguments(tsIdentStart.parent) ||
+        isExportAssignment(tsIdentStart.parent) ||
+        isMetaProperty(tsIdentStart.parent) ||
+        isImportClause(tsIdentStart.parent) ||
+        isClassLike(tsIdentStart.parent) ||
+        isInterfaceDeclaration(tsIdentStart.parent) ||
+        isModuleDeclaration(tsIdentStart.parent) ||
+        isNamespaceImport(tsIdentStart.parent) ||
+        isImportSpecifier(tsIdentStart.parent) ||
+        (isQualifiedName(tsIdentStart) && tsIdentifier !== tsIdentStart.right) ||
+        (isPropertyAccessExpression(tsIdentStart) && tsIdentifier !== tsIdentStart.name) ||
+        (isNewExpression(tsIdentStart.parent) && tsIdentStart === tsIdentStart.parent.expression) ||
+        (isBinaryExpression(tsIdentStart.parent) && tsIdentStart.parent.operatorToken.kind  === SyntaxKind.InstanceOfKeyword)) {
+      return;
+    }
+
+    this.incrementCounters(tsIdentifier, FaultID.ClassAsObject);
   }
 
   private handleElementAccessExpression(node: Node): void {
@@ -1386,13 +1451,17 @@ export class TypeScriptLinter {
     if (tsExportDecl.moduleSpecifier && !tsExportDecl.exportClause) {
       this.incrementCounters(node, FaultID.LimitedReExporting);
     }
+
+    const exportClause = tsExportDecl.exportClause;
+    if(exportClause && isNamespaceExport(exportClause)) {
+      this.incrementCounters(node, FaultID.LimitedReExporting);
+    }
   }
 
   private handleExportAssignment(node: Node): void {
-    const tsExportAssignment = node as ExportAssignment;
-    if (tsExportAssignment.isExportEquals) {
-      this.incrementCounters(node, FaultID.ExportAssignment);
-    }
+    // TODO(nsizov): check exportEquals and determine if it's an actual `export assignment`
+    //               or a `default export namespace` when this two cases will be determined in cookbook
+    this.incrementCounters(node, FaultID.ExportAssignment);
   }
 
   private handleCallExpression(node: Node): void {
@@ -1460,15 +1529,25 @@ export class TypeScriptLinter {
   }
 
   private handleFunctionApplyBindPropCall(tsCallExpr: CallExpression): void {
-    const tsExpr = tsCallExpr.expression;
-    if (
-      isPropertyAccessExpression(tsExpr) &&
-      (tsExpr.name.text === "apply" || tsExpr.name.text === "bind" || tsExpr.name.text === "call")
-    ) {
-      const tsSymbol = TypeScriptLinter.tsTypeChecker.getSymbolAtLocation(tsExpr.expression);
-      if (Utils.isFunctionOrMethod(tsSymbol)) {
-        this.incrementCounters(tsCallExpr, FaultID.FunctionApplyBindCall);
-      }
+    const stdFunction = "Function";
+    const callableFunction = "CallableFunction";
+    const funcProps = [
+      `${stdFunction}.apply`,
+      `${stdFunction}.call`,
+      `${stdFunction}.bind`,
+      `${callableFunction}.apply`,
+      `${callableFunction}.call`,
+      `${callableFunction}.bind`,
+    ];
+
+    const exprSymbol = TypeScriptLinter.tsTypeChecker.getSymbolAtLocation(tsCallExpr.expression);
+    if (exprSymbol === undefined) {
+      return;
+    }
+
+    const exprName = TypeScriptLinter.tsTypeChecker.getFullyQualifiedName(exprSymbol);
+    if (funcProps.includes(exprName)) {
+      this.incrementCounters(tsCallExpr, FaultID.FunctionApplyBindCall);
     }
   }
 
@@ -1588,28 +1667,20 @@ export class TypeScriptLinter {
 
   private handleSpreadOp(node: Node) {
     // spread assignment is disabled
-    // spread element is allowed only for arrays as rest parameer
+    // spread element is allowed only for arrays as rest parameter
     if (isSpreadElement(node)) {
       const spreadElemNode = node;
       const spreadExprType = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(spreadElemNode.expression);
       if (spreadExprType) {
         const spreadExprTypeNode = TypeScriptLinter.tsTypeChecker.typeToTypeNode(spreadExprType, undefined, NodeBuilderFlags.None);
-        if (spreadExprTypeNode && Utils.isArrayNotTupleType(spreadExprTypeNode) && isCallLikeExpression(node.parent)) {
-          // rest parameter should be the last and the one
-          return;
+        if (spreadExprTypeNode !== undefined && isCallLikeExpression(node.parent)) {
+          if (Utils.isArrayNotTupleType(spreadExprTypeNode)) {
+            return;
+          }
         }
       }
     }
     this.incrementCounters(node, FaultID.SpreadOperator);
-  }
-
-  private handleNonNullExpression(node: Node): void {
-    const nonNullExprNode = node as NonNullExpression;
-    // increment only at innermost exclamation
-    // this ensures that only one report is generated for sequenced exclamations
-    if (nonNullExprNode.expression.kind !== SyntaxKind.NonNullExpression) {
-      this.incrementCounters(node, FaultID.DefiniteAssignment);
-    }
   }
 
   private handleComments(node: Node) {
@@ -1679,11 +1750,23 @@ export class TypeScriptLinter {
     // The type is explicitly specified, no need to check inferred type.
     if (decl.type) return;
 
-    // Destructuring declarations are not supported.
+    // issue 13161:
+    // In TypeScript, the catch clause variable must be 'any' or 'unknown' type. Since
+    // ArkTS doesn't support these types, the type for such variable is simply omitted,
+    // and we don't report it as an error.
+    if (isCatchClause(decl.parent)) return;
+
+    //Destructuring declarations are not supported, do not process them.
     if (isArrayBindingPattern(decl.name) || isObjectBindingPattern(decl.name)) return;
 
     const type = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(decl);
     if (type) this.validateDeclInferredType(type, decl);
+  }
+
+  private handleDefiniteAssignmentAssertion(decl: VariableDeclaration | PropertyDeclaration) {
+    if (decl.exclamationToken !== undefined) {
+      this.incrementCounters(decl, FaultID.DefiniteAssignment);
+    }
   }
 
   private validateDeclInferredType(

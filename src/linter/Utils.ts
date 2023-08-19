@@ -68,6 +68,22 @@ export function isArrayNotTupleType(tsType: TypeNode | undefined): boolean {
   return false;
 }
 
+export function isTypedArray(tsType: TypeNode | undefined): boolean {
+  if (tsType === undefined || !isTypeReferenceNode(tsType)) {
+    return false;
+  }
+  return TYPED_ARRAYS.includes(entityNameToString(tsType.typeName));
+}
+
+export function entityNameToString(name: EntityName): string {
+  if (isIdentifier(name)) {
+    return name.escapedText.toString();
+  }
+  else {
+    return entityNameToString(name.left) + entityNameToString(name.right);
+  }
+}
+
 export function isNumberType(tsType: Type): boolean {
   if (tsType.isUnion()) {
     for (const tsCompType of tsType.types) {
@@ -82,7 +98,7 @@ export function isBooleanType(tsType: Type): boolean {
   return (tsType.getFlags() & TypeFlags.BooleanLike) !== 0;
 }
 
-export function isStringType(tsType: Type): boolean {
+export function isStringLikeType(tsType: Type): boolean {
   if (tsType.isUnion()) {
     for (const tsCompType of tsType.types) {
       if ((tsCompType.flags & TypeFlags.StringLike) === 0) return false;
@@ -90,6 +106,18 @@ export function isStringType(tsType: Type): boolean {
     return true;
   }
   return (tsType.getFlags() & TypeFlags.StringLike) !== 0;
+}
+
+export function isStringType(type: Type): boolean {
+  return (type.getFlags() & TypeFlags.String) !== 0;
+}
+
+export function isStringEnumLiteralType(type: Type): boolean {
+  return !!((type.getFlags() & TypeFlags.StringLiteral) && (type.getFlags() & TypeFlags.EnumLiteral));
+}
+
+export function isNumberEnumLiteralType(type: Type): boolean {
+  return !!((type.getFlags() & TypeFlags.NumberLiteral) && (type.getFlags() & TypeFlags.EnumLiteral));
 }
 
 export function unwrapParenthesizedType(tsType: TypeNode): TypeNode {
@@ -578,21 +606,29 @@ export function validateObjectLiteralType(type: Type | undefined): boolean {
   );
 }
 
-export function hasMemberFunction(objectLiteral: ObjectLiteralExpression): boolean {
-  for (let i = 0; i < objectLiteral.properties.length; i++) {
-    const prop = objectLiteral.properties[i];
-    if (isPropertyAssignment(prop)) {
-      const propAssignment = prop;
-      if (isArrowFunction(propAssignment.initializer) || isFunctionExpression(propAssignment.initializer)) {
-        return true;
-      }
+export function hasMethods(type: Type): boolean {
+  const properties = typeChecker.getPropertiesOfType(type);
+  if (properties?.length) {
+    for (const prop of properties) {
+      if (prop.getFlags() & SymbolFlags.Method) return true;
     }
   };
 
   return false;
 }
 
-function findDelaration(type: ClassDeclaration | InterfaceDeclaration, name: string): NamedDeclaration | undefined {
+function findProperty(type: Type, name: string): Symbol | undefined {
+  const properties = typeChecker.getPropertiesOfType(type);
+  if(properties.length) {
+    for (const prop of properties) {
+      if (prop.name === name) return prop;
+    }
+  }
+  return undefined;
+}
+
+/*
+function findDeclaration(type: ClassDeclaration | InterfaceDeclaration, name: string): NamedDeclaration | undefined {
   const members: NodeArray<ClassElement> | NodeArray<TypeElement> = type.members;
   let declFound: NamedDeclaration | undefined;
 
@@ -626,6 +662,7 @@ function findDelaration(type: ClassDeclaration | InterfaceDeclaration, name: str
 
   return declFound;
 }
+*/
 
 export function areTypesAssignable(lhsType: Type | undefined, rhsExpr: Expression): boolean {
   if (lhsType === undefined) { return false; }
@@ -657,13 +694,23 @@ export function areTypesAssignable(lhsType: Type | undefined, rhsExpr: Expressio
   }
 
   if (isObjectLiteralExpression(rhsExpr)) {
-    return validateObjectLiteralType(lhsType) &&
-      !hasMemberFunction(rhsExpr) && validateFields(lhsType, rhsExpr);
+    return validateObjectLiteralType(lhsType) && !hasMethods(lhsType) &&
+      validateFields(lhsType, rhsExpr);
   }
 
   // Always compare the non-nullable variant of types.
   lhsType = lhsType.getNonNullableType();
   let rhsType = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(rhsExpr).getNonNullableType();
+
+  // issue 13114:
+  // Const enum values are convertible to string/number type.
+  // Note: This check should appear before calling TypeChecker.getBaseTypeOfLiteralType()
+  // to ensure that lhsType has its original form, as it can be a literal type with
+  // specific number or string value, which shouldn't pass this check.
+  if ((isNumberType(lhsType) && isNumberEnumLiteralType(rhsType)) ||
+      (isStringType(lhsType) && isStringEnumLiteralType(rhsType))) {
+    return true;
+  }
 
   // If type is a literal type, compare its base type.
   if (isLiteralType(lhsType)) {
@@ -672,7 +719,24 @@ export function areTypesAssignable(lhsType: Type | undefined, rhsExpr: Expressio
   if (isLiteralType(rhsType)) {
     rhsType = TypeScriptLinter.tsTypeChecker.getBaseTypeOfLiteralType(rhsType);
   }
+
+  // issue 13033:
+  // If both types are functional, they are considered compatible.
+  if ((isStdFunctionType(lhsType) || isFunctionalType(lhsType)) &&
+      (isStdFunctionType(rhsType) || isFunctionalType(rhsType))) {
+    return true;
+  }
   return lhsType === rhsType || hasBaseType(rhsType, getTargetType(lhsType));
+}
+
+function isFunctionalType(type: Type): boolean {
+  const callSigns = type.getCallSignatures();
+  return callSigns && callSigns.length > 0;
+}
+
+function isStdFunctionType(type: Type) {
+  const sym = type.getSymbol();
+  return sym && sym.getName() === "Function" && isGlobalSymbol(sym);
 }
 
 function getTargetType(type: Type): Type {
@@ -696,21 +760,16 @@ export function isLiteralType(type: Type): boolean {
   return type.isLiteral() || (type.flags & TypeFlags.BooleanLiteral) !== 0;
 }
 
-export function validateFields(type: Type | undefined, objectLiteral: ObjectLiteralExpression): boolean {
-  if (type === undefined || type.symbol.declarations === undefined) return false;
-
-  const declType = type.symbol.declarations[0] as (ClassDeclaration | InterfaceDeclaration);
-
-  for (let i = 0; i < objectLiteral.properties.length; i++) {
-    const prop = objectLiteral.properties[i];
+export function validateFields(type: Type, objectLiteral: ObjectLiteralExpression): boolean {
+  for (const prop of objectLiteral.properties) {
     if (isPropertyAssignment(prop)) {
       const propAssignment = prop;
       const propName = propAssignment.name.getText();
-      const decl = findDelaration(declType, propName);
-      if (!decl) {
-        return false;
-      }
-      if (!areTypesAssignable(typeChecker.getTypeAtLocation(decl), propAssignment.initializer)) {
+      const propSym = findProperty(type, propName);
+      if (!propSym || !propSym.declarations?.length) return false;
+
+      const propType = typeChecker.getTypeOfSymbolAtLocation(propSym, propSym.declarations[0]);
+      if (!areTypesAssignable(propType, propAssignment.initializer)) {
         return false;
       }
     }
@@ -759,8 +818,8 @@ function validateRecordObjectKeys(objectLiteral: ObjectLiteralExpression): boole
 }
 
 export const LIMITED_STD_GLOBAL_FUNC = [
-  "eval", "isFinite", "isNaN", "parseFloat", "parseInt", "encodeURI", "encodeURIComponent", "Encode", "decodeURI",
-  "decodeURIComponent", "Decode", "escape", "unescape", "ParseHexOctet"
+  "eval", "isFinite", "isNaN", "parseFloat", "parseInt", /*"encodeURI", "encodeURIComponent", */ "Encode", /*"decodeURI",
+  "decodeURIComponent", */ "Decode", /* "escape", "unescape", */ "ParseHexOctet"
 ];
 export const LIMITED_STD_GLOBAL_VAR = ["Infinity", "NaN"];
 export const LIMITED_STD_OBJECT_API = [
@@ -802,6 +861,20 @@ export const STANDARD_LIBRARIES = [
   "lib.es2022.array.d.ts", "lib.es2022.error.d.ts", "lib.es2022.intl.d.ts", "lib.es2022.object.d.ts",
   "lib.es2022.sharedmemory.d.ts", "lib.es2022.string.d.ts", "lib.es2022.regexp.d.ts", "lib.es2023.array.d.ts",
 ];
+
+export const TYPED_ARRAYS = [
+  "Int8Array",
+  "Uint8Array",
+  "Uint8ClampedArray",
+  "Int16Array",
+  "Uint16Array",
+  "Int32Array",
+  "Uint32Array",
+  "Float32Array",
+  "Float64Array",
+  "BigInt64Array",
+  "BigUint64Array",
+  ];
 
 function getParentSymbolName(symbol: Symbol): string | undefined {
   const name = typeChecker.getFullyQualifiedName(symbol);

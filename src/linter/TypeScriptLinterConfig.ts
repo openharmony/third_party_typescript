@@ -84,6 +84,7 @@ export class LinterConfig {
     LinterConfig.nodeDesc[FaultID.ConditionalType] = "Conditional type";
     LinterConfig.nodeDesc[FaultID.MappedType] = "Mapped type";
     LinterConfig.nodeDesc[FaultID.NamespaceAsObject] = "Namespaces used as objects";
+    LinterConfig.nodeDesc[FaultID.ClassAsObject] = "Class used as object";
     LinterConfig.nodeDesc[FaultID.NonDeclarationInNamespace] = "Non-declaration statements in namespaces";
     LinterConfig.nodeDesc[FaultID.GeneratorFunction] = "Generator functions";
     LinterConfig.nodeDesc[FaultID.FunctionContainsThis] = "Functions containing \"this\"";
@@ -127,6 +128,7 @@ export class LinterConfig {
     LinterConfig.nodeDesc[FaultID.ErrorSuppression] = "Error suppression annotation";
     LinterConfig.nodeDesc[FaultID.StrictDiagnostic] = "Strict diagnostic";
     LinterConfig.nodeDesc[FaultID.UnsupportedDecorators] = "Unsupported decorators";
+    LinterConfig.nodeDesc[FaultID.ImportAfterStatement] = "Import declaration after other declaration or statement";
 
    // LinterConfig.initTsSyntaxKindNames();
   }
