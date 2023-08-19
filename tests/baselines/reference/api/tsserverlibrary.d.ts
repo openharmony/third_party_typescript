@@ -11373,50 +11373,52 @@ declare namespace ts {
             ConditionalType = 48,
             MappedType = 49,
             NamespaceAsObject = 50,
-            NonDeclarationInNamespace = 51,
-            GeneratorFunction = 52,
-            FunctionContainsThis = 53,
-            PropertyAccessByIndex = 54,
-            JsxElement = 55,
-            EnumMemberNonConstInit = 56,
-            ImplementsClass = 57,
-            MultipleStaticBlocks = 58,
-            ThisType = 59,
-            InferType = 60,
-            IntefaceExtendDifProps = 61,
-            StructuralIdentity = 62,
-            TypeOnlyImport = 63,
-            TypeOnlyExport = 64,
-            DefaultImport = 65,
-            LimitedReExporting = 66,
-            ExportAssignment = 67,
-            ImportAssignment = 68,
-            PropertyRuntimeCheck = 69,
-            GenericCallNoTypeArgs = 70,
-            ParameterProperties = 71,
-            InstanceofUnsupported = 72,
-            ShorthandAmbientModuleDecl = 73,
-            WildcardsInModuleName = 74,
-            UMDModuleDefinition = 75,
-            JSExtensionInModuleIdent = 76,
-            NewTarget = 77,
-            DynamicImport = 78,
-            DefiniteAssignment = 79,
-            IifeAsNamespace = 80,
-            Prototype = 81,
-            GlobalThis = 82,
-            UtilityType = 83,
-            PropertyDeclOnFunction = 84,
-            FunctionApplyBindCall = 85,
-            ReadonlyArr = 86,
-            ConstAssertion = 87,
-            ImportAssertion = 88,
-            SpreadOperator = 89,
-            LimitedStdLibApi = 90,
-            ErrorSuppression = 91,
-            StrictDiagnostic = 92,
-            UnsupportedDecorators = 93,
-            LAST_ID = 94
+            ClassAsObject = 51,
+            NonDeclarationInNamespace = 52,
+            GeneratorFunction = 53,
+            FunctionContainsThis = 54,
+            PropertyAccessByIndex = 55,
+            JsxElement = 56,
+            EnumMemberNonConstInit = 57,
+            ImplementsClass = 58,
+            MultipleStaticBlocks = 59,
+            ThisType = 60,
+            InferType = 61,
+            IntefaceExtendDifProps = 62,
+            StructuralIdentity = 63,
+            TypeOnlyImport = 64,
+            TypeOnlyExport = 65,
+            DefaultImport = 66,
+            LimitedReExporting = 67,
+            ExportAssignment = 68,
+            ImportAssignment = 69,
+            PropertyRuntimeCheck = 70,
+            GenericCallNoTypeArgs = 71,
+            ParameterProperties = 72,
+            InstanceofUnsupported = 73,
+            ShorthandAmbientModuleDecl = 74,
+            WildcardsInModuleName = 75,
+            UMDModuleDefinition = 76,
+            JSExtensionInModuleIdent = 77,
+            NewTarget = 78,
+            DynamicImport = 79,
+            DefiniteAssignment = 80,
+            IifeAsNamespace = 81,
+            Prototype = 82,
+            GlobalThis = 83,
+            UtilityType = 84,
+            PropertyDeclOnFunction = 85,
+            FunctionApplyBindCall = 86,
+            ReadonlyArr = 87,
+            ConstAssertion = 88,
+            ImportAssertion = 89,
+            SpreadOperator = 90,
+            LimitedStdLibApi = 91,
+            ErrorSuppression = 92,
+            StrictDiagnostic = 93,
+            UnsupportedDecorators = 94,
+            ImportAfterStatement = 95,
+            LAST_ID = 96
         }
         class FaultAttributs {
             migratable?: boolean;
@@ -11435,9 +11437,14 @@ declare namespace ts {
         function isStatementKindNode(tsNode: Node): boolean;
         function isAssignmentOperator(tsBinOp: BinaryOperatorToken): boolean;
         function isArrayNotTupleType(tsType: TypeNode | undefined): boolean;
+        function isTypedArray(tsType: TypeNode | undefined): boolean;
+        function entityNameToString(name: EntityName): string;
         function isNumberType(tsType: Type): boolean;
         function isBooleanType(tsType: Type): boolean;
-        function isStringType(tsType: Type): boolean;
+        function isStringLikeType(tsType: Type): boolean;
+        function isStringType(type: Type): boolean;
+        function isStringEnumLiteralType(type: Type): boolean;
+        function isNumberEnumLiteralType(type: Type): boolean;
         function unwrapParenthesizedType(tsType: TypeNode): TypeNode;
         function findParentIf(asExpr: AsExpression): IfStatement | null;
         function isDestructuringAssignmentLHS(tsExpr: ArrayLiteralExpression | ObjectLiteralExpression): boolean;
@@ -11476,10 +11483,10 @@ declare namespace ts {
         function decodeAutofixInfo(info: string): AutofixInfo;
         function isCallToFunctionWithOmittedReturnType(tsExpr: Expression): boolean;
         function validateObjectLiteralType(type: Type | undefined): boolean;
-        function hasMemberFunction(objectLiteral: ObjectLiteralExpression): boolean;
+        function hasMethods(type: Type): boolean;
         function areTypesAssignable(lhsType: Type | undefined, rhsExpr: Expression): boolean;
         function isLiteralType(type: Type): boolean;
-        function validateFields(type: Type | undefined, objectLiteral: ObjectLiteralExpression): boolean;
+        function validateFields(type: Type, objectLiteral: ObjectLiteralExpression): boolean;
         function isSupportedType(typeNode: TypeNode): boolean;
         const LIMITED_STD_GLOBAL_FUNC: string[];
         const LIMITED_STD_GLOBAL_VAR: string[];
@@ -11490,6 +11497,7 @@ declare namespace ts {
         const LIMITED_STD_ARRAYBUFFER_API: string[];
         const ARKUI_DECORATORS: string[];
         const STANDARD_LIBRARIES: string[];
+        const TYPED_ARRAYS: string[];
         function isGlobalSymbol(symbol: Symbol): boolean;
         function isStdObjectAPI(symbol: Symbol): boolean;
         function isStdReflectAPI(symbol: Symbol): boolean;
@@ -11655,6 +11663,7 @@ declare namespace ts {
         private handleSwitchStatement;
         private handleIdentifier;
         private handleNamespaceAsObject;
+        private handleClassAsObject;
         private handleElementAccessExpression;
         private handleEnumMember;
         private handleExportDeclaration;
@@ -11672,13 +11681,13 @@ declare namespace ts {
         private handleMetaProperty;
         private handleStructDeclaration;
         private handleSpreadOp;
-        private handleNonNullExpression;
         private handleComments;
         private checkErrorSuppressingAnnotation;
         private handleDecorators;
         private handleGetAccessor;
         private handleSetAccessor;
         private handleDeclarationInferredType;
+        private handleDefiniteAssignmentAssertion;
         private validateDeclInferredType;
         lint(): void;
     }
