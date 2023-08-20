@@ -36305,6 +36305,7 @@ namespace ts {
                 case "symbol":
                 case "void":
                 case "object":
+                case "ESObject":
                     error(name, message, name.escapedText as string);
             }
         }
