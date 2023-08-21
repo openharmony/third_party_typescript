@@ -434,7 +434,7 @@ namespace ts {
                 const options = program.getCompilerOptions();
                 forEach(program.getSourceFiles(), f =>
                     program.isSourceFileDefaultLibrary(f) &&
-                    !skipTypeChecking(f, options, program) &&
+                    !(skipTypeChecking(f, options, program) || (f.isDeclarationFile && !!options.needDoArkTsLinter)) &&
                     removeSemanticDiagnosticsOf(state, f.resolvedPath)
                 );
             }
