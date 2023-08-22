@@ -26,7 +26,7 @@ export enum FaultID {
   DestructuringDeclaration, ForOfNonArray, VarDeclaration, CatchWithUnsupportedType, DeleteOperator,
   DeclWithDuplicateName, UnaryArithmNotNumber, ConstructorType, CallSignature,
   TypeAssertion, PrivateIdentifier, LocalFunction,
-  SwitchSelectorInvalidType, CaseExpressionNonConst, ConditionalType, MappedType, NamespaceAsObject,
+  SwitchSelectorInvalidType, CaseExpressionNonConst, ConditionalType, MappedType, NamespaceAsObject, ClassAsObject,
   NonDeclarationInNamespace, GeneratorFunction, FunctionContainsThis, PropertyAccessByIndex, JsxElement,
   EnumMemberNonConstInit, ImplementsClass, MultipleStaticBlocks, ThisType, InferType,
   IntefaceExtendDifProps, StructuralIdentity, TypeOnlyImport, TypeOnlyExport, DefaultImport,
@@ -35,7 +35,7 @@ export enum FaultID {
   InstanceofUnsupported, ShorthandAmbientModuleDecl, WildcardsInModuleName, UMDModuleDefinition,
   JSExtensionInModuleIdent, NewTarget, DynamicImport, DefiniteAssignment, IifeAsNamespace, Prototype, GlobalThis,
   UtilityType, PropertyDeclOnFunction, FunctionApplyBindCall, ReadonlyArr, ConstAssertion, ImportAssertion,
-  SpreadOperator, LimitedStdLibApi, ErrorSuppression, StrictDiagnostic, UnsupportedDecorators,
+  SpreadOperator, LimitedStdLibApi, ErrorSuppression, StrictDiagnostic, UnsupportedDecorators, ImportAfterStatement,
   LAST_ID, // this should always be last enum`
 }
 
@@ -114,6 +114,7 @@ faultsAttrs[FaultID.InterfaceExtendsClass] = { cookBookRef: "104", };
 faultsAttrs[FaultID.PropertyRuntimeCheck] = { cookBookRef: "105", };
 faultsAttrs[FaultID.EnumMemberNonConstInit] = { cookBookRef: "111", };
 faultsAttrs[FaultID.NamespaceAsObject] = { cookBookRef: "114", };
+faultsAttrs[FaultID.ClassAsObject] = { cookBookRef: "-1", };
 faultsAttrs[FaultID.NonDeclarationInNamespace] = { cookBookRef: "116", };
 faultsAttrs[FaultID.ImportFromPath] = { cookBookRef: "119", };
 faultsAttrs[FaultID.TypeOnlyImport] = { migratable: true, cookBookRef: "118", };
@@ -142,6 +143,6 @@ faultsAttrs[FaultID.LimitedStdLibApi] = { cookBookRef: "144", };
 faultsAttrs[FaultID.StrictDiagnostic] = { cookBookRef: "145", };
 faultsAttrs[FaultID.ErrorSuppression] = { cookBookRef: "146", };
 faultsAttrs[FaultID.UnsupportedDecorators] = { cookBookRef: "148", };
-
+faultsAttrs[FaultID.ImportAfterStatement] = { cookBookRef: "-1", };
 }
 }
