@@ -1104,6 +1104,7 @@ namespace FourSlashInterface {
             varEntry("Float64Array"),
             interfaceEntry("Float64ArrayConstructor"),
             moduleEntry("Intl"),
+            typeEntry("ESObject"),
         ];
 
         export const globalThisEntry: ExpectedCompletionEntry = {
