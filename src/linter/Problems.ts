@@ -22,9 +22,9 @@ export enum FaultID {
   ThrowStatement, IndexedAccessType, UnknownType, ForInStatement, InOperator,
   KeyOfOperator, ImportFromPath, FunctionExpression, IntersectionType,
   ObjectTypeLiteral, AddWithWrongType, CommaOperator, LimitedReturnTypeInference,
-  ArrowFunctionWithOmittedTypes, LambdaWithTypeParameters, ClassExpression, DestructuringAssignment,
+  LambdaWithTypeParameters, ClassExpression, DestructuringAssignment,
   DestructuringDeclaration, ForOfNonArray, VarDeclaration, CatchWithUnsupportedType, DeleteOperator,
-  DeclWithDuplicateName, UnaryArithmNotNumber, ConstructorType, CallSignature,
+  DeclWithDuplicateName, UnaryArithmNotNumber, ConstructorType, ConstructorIface, ConstructorFuncs, CallSignature,
   TypeAssertion, PrivateIdentifier, LocalFunction,
   SwitchSelectorInvalidType, CaseExpressionNonConst, ConditionalType, MappedType, NamespaceAsObject, ClassAsObject,
   NonDeclarationInNamespace, GeneratorFunction, FunctionContainsThis, PropertyAccessByIndex, JsxElement,
@@ -65,6 +65,7 @@ faultsAttrs[FaultID.IntersectionType] = { cookBookRef: "19", };
 faultsAttrs[FaultID.ThisType] = { cookBookRef: "21", };
 faultsAttrs[FaultID.ConditionalType] = { cookBookRef: "22", };
 faultsAttrs[FaultID.ParameterProperties] = { migratable: true, cookBookRef: "25", };
+faultsAttrs[FaultID.ConstructorIface] = { cookBookRef: "27", };
 faultsAttrs[FaultID.IndexedAccessType] = { cookBookRef: "28", };
 faultsAttrs[FaultID.PropertyAccessByIndex] = { migratable: true, cookBookRef: "29", };
 faultsAttrs[FaultID.StructuralIdentity] = { cookBookRef: "30", };
@@ -73,7 +74,6 @@ faultsAttrs[FaultID.RegexLiteral] = { cookBookRef: "37", };
 faultsAttrs[FaultID.ObjectLiteralNoContextType] = { cookBookRef: "38", };
 faultsAttrs[FaultID.ObjectTypeLiteral] = { cookBookRef: "40", };
 faultsAttrs[FaultID.ArrayLiteralNoContextType] = { cookBookRef: "43", };
-faultsAttrs[FaultID.ArrowFunctionWithOmittedTypes] = { migratable: true, cookBookRef: "45", };
 faultsAttrs[FaultID.FunctionExpression] = { migratable: true, cookBookRef: "46", };
 faultsAttrs[FaultID.LambdaWithTypeParameters] = { migratable: true, cookBookRef: "49", };
 faultsAttrs[FaultID.ClassExpression] = { migratable: true, cookBookRef: "50", };
@@ -112,9 +112,10 @@ faultsAttrs[FaultID.IntefaceExtendDifProps] = { cookBookRef: "102", };
 faultsAttrs[FaultID.InterfaceOrEnumMerging] = { cookBookRef: "103", };
 faultsAttrs[FaultID.InterfaceExtendsClass] = { cookBookRef: "104", };
 faultsAttrs[FaultID.PropertyRuntimeCheck] = { cookBookRef: "105", };
+faultsAttrs[FaultID.ConstructorFuncs] = { cookBookRef: "106", };
 faultsAttrs[FaultID.EnumMemberNonConstInit] = { cookBookRef: "111", };
 faultsAttrs[FaultID.NamespaceAsObject] = { cookBookRef: "114", };
-faultsAttrs[FaultID.ClassAsObject] = { cookBookRef: "-1", };
+faultsAttrs[FaultID.ClassAsObject] = { warning: true, cookBookRef: "-1", };
 faultsAttrs[FaultID.NonDeclarationInNamespace] = { cookBookRef: "116", };
 faultsAttrs[FaultID.ImportFromPath] = { cookBookRef: "119", };
 faultsAttrs[FaultID.TypeOnlyImport] = { migratable: true, cookBookRef: "118", };
