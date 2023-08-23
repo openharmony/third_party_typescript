@@ -63,7 +63,6 @@ export class LinterConfig {
     LinterConfig.nodeDesc[FaultID.AddWithWrongType] = "binary \"+\" with wrong operand";
     LinterConfig.nodeDesc[FaultID.CommaOperator] = "comma operator";
     LinterConfig.nodeDesc[FaultID.LimitedReturnTypeInference] = "Functions with limited return type inference";
-    LinterConfig.nodeDesc[FaultID.ArrowFunctionWithOmittedTypes] = "Arrow functions with omitted parameter types";
     LinterConfig.nodeDesc[FaultID.LambdaWithTypeParameters] = "Lambda function with type parameters";
     LinterConfig.nodeDesc[FaultID.ClassExpression] = "Class expressions";
     LinterConfig.nodeDesc[FaultID.DestructuringAssignment] = "Destructuring assignments";
@@ -75,6 +74,8 @@ export class LinterConfig {
     LinterConfig.nodeDesc[FaultID.DeclWithDuplicateName] = "Declarations with duplicate name";
     LinterConfig.nodeDesc[FaultID.UnaryArithmNotNumber] = "Unary arithmetics with not-numeric values";
     LinterConfig.nodeDesc[FaultID.ConstructorType] = "Constructor type";
+    LinterConfig.nodeDesc[FaultID.ConstructorFuncs] = "Constructor function type is not supported";
+    LinterConfig.nodeDesc[FaultID.ConstructorIface] = "Construct signatures are not supported in interfaces";
     LinterConfig.nodeDesc[FaultID.CallSignature] = "Call signatures";
     LinterConfig.nodeDesc[FaultID.TypeAssertion] = "Type assertion expressions";
     LinterConfig.nodeDesc[FaultID.PrivateIdentifier] = "Private identifiers (with \"#\" prefix)";
@@ -194,7 +195,7 @@ export class LinterConfig {
     [SyntaxKind.InKeyword, FaultID.InOperator], [SyntaxKind.CallSignature, FaultID.CallSignature],
     [SyntaxKind.IntersectionType, FaultID.IntersectionType],
     [SyntaxKind.TypeLiteral, FaultID.ObjectTypeLiteral], [SyntaxKind.ConstructorType, FaultID.ConstructorType],
-    [SyntaxKind.ConstructSignature, FaultID.ConstructorType],
+   // [SyntaxKind.ConstructSignature, FaultID.ConstructorType],
     [SyntaxKind.PrivateIdentifier, FaultID.PrivateIdentifier],
     [SyntaxKind.ConditionalType, FaultID.ConditionalType], [SyntaxKind.MappedType, FaultID.MappedType],
     [SyntaxKind.JsxElement, FaultID.JsxElement], [SyntaxKind.JsxSelfClosingElement, FaultID.JsxElement],
