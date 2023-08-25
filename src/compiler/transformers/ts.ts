@@ -3642,7 +3642,7 @@ namespace ts {
                 return substitute;
             }
 
-            return node;
+            return visitEachChild(node, visitImportExportAndConstEnumMember, context);
         }
 
         /**
