@@ -353,7 +353,7 @@ function isVarDeclaration(tsDecl: Declaration): boolean {
 }
 
 export function isValidEnumMemberInit(tsExpr: Expression): boolean {
-  if (isIntegerConstantValue(tsExpr.parent as EnumMember)) {
+  if (isNumberConstantValue(tsExpr.parent as EnumMember)) {
     return true;
   }
   if (isStringConstantValue(tsExpr.parent as EnumMember)) {
@@ -379,12 +379,14 @@ export function isCompileTimeExpression(tsExpr: Expression): boolean {
     case SyntaxKind.Identifier:
       return isIdentifierValidEnumMemberInit(tsExpr as Identifier);
     case SyntaxKind.NumericLiteral:
-      return isIntegerConstantValue(tsExpr as NumericLiteral);
+      return true;
+    case SyntaxKind.StringLiteral:
+        return true;
     case SyntaxKind.PropertyAccessExpression: {
       // if enum member is in current enum declaration try to get value
       // if it comes from another enum consider as constant
       const propertyAccess = tsExpr as PropertyAccessExpression;
-      if(isIntegerConstantValue(propertyAccess)) {
+      if(isNumberConstantValue(propertyAccess)) {
         return true;
       }
       const leftHandSymbol = typeChecker.getSymbolAtLocation(propertyAccess.expression);
@@ -450,6 +452,17 @@ export function isConst(tsNode: Node): boolean {
   return !!(getCombinedNodeFlags(tsNode) & NodeFlags.Const);
 }
 
+export function isNumberConstantValue(
+  tsExpr: EnumMember | PropertyAccessExpression | ElementAccessExpression | NumericLiteral
+): boolean {
+
+  const tsConstValue = (tsExpr.kind === SyntaxKind.NumericLiteral) ?
+    Number(tsExpr.getText()) :
+    typeChecker.getConstantValue(tsExpr);
+
+  return tsConstValue !== undefined && typeof tsConstValue === "number";
+}
+
 export function isIntegerConstantValue(
   tsExpr: EnumMember | PropertyAccessExpression | ElementAccessExpression | NumericLiteral
 ): boolean {
@@ -486,17 +499,30 @@ export function relatedByInheritanceOrIdentical(typeA: Type, typeB: Type): boole
       !typeADecl.heritageClauses
     ) { continue; }
     for (const heritageClause of typeADecl.heritageClauses) {
-      if (processParentTypes(heritageClause.types, typeB)) { return true; }
+      const processInterfaces = typeA.isClass() ? (heritageClause.token !== SyntaxKind.ExtendsKeyword) : true;
+      if (processParentTypes(heritageClause.types, typeB, processInterfaces)) return true;
     }
   }
 
   return false;
 }
 
-function processParentTypes(parentTypes: NodeArray<ExpressionWithTypeArguments>, typeB: Type): boolean {
+export function hasPredecessor(node: Node, predicate: (node: Node) => boolean): boolean {
+  let parent = node.parent;
+  while (parent !== undefined) {
+    if (predicate(parent)) {
+      return true;
+    }
+    parent = parent.parent;
+  }
+  return false;
+}
+
+export function processParentTypes(parentTypes: NodeArray<ExpressionWithTypeArguments>, typeB: Type, processInterfaces: boolean): boolean {
   for (const baseTypeExpr of parentTypes) {
-    const baseType = typeChecker.getTypeAtLocation(baseTypeExpr);
-    if (baseType && relatedByInheritanceOrIdentical(baseType, typeB)) { return true; }
+    let baseType = typeChecker.getTypeAtLocation(baseTypeExpr);
+    if (isTypeReference(baseType) && baseType.target !== baseType) baseType = baseType.target;
+    if (baseType && (baseType.isClass() !== processInterfaces) && relatedByInheritanceOrIdentical(baseType, typeB)) return true;
   }
   return false;
 }
@@ -604,6 +630,15 @@ export function validateObjectLiteralType(type: Type | undefined): boolean {
     type !== undefined && type.isClassOrInterface() && hasDefaultCtor(type) &&
     !hasReadonlyFields(type) && !isAbstractClass(type)
   );
+}
+
+export function isStructObjectInitializer(objectLiteral: ObjectLiteralExpression): boolean {
+  if(isCallExpression(objectLiteral.parent)) {
+    const signature = typeChecker.getResolvedSignature(objectLiteral.parent);
+    const signDecl = signature?.declaration;
+    return !!signDecl && isConstructorDeclaration(signDecl) && isStructDeclaration(signDecl.parent);
+  }
+  return false;
 }
 
 export function hasMethods(type: Type): boolean {
@@ -969,12 +1004,131 @@ export function isLibraryType(type: Type): boolean {
 export function isLibrarySymbol(sym: Symbol | undefined) {
   if (sym && sym.declarations && sym.declarations.length > 0) {
     const srcFile = sym.declarations[0].getSourceFile();
+    if (!srcFile) {
+      return false;
+    }
+    const scriptKind = getScriptKind(srcFile);
+
+    // Symbols from both *.ts and *.d.ts files should obey interop rules.
+    // We disable such behavior for *.ts files in the test mode due to lack of 'ets'
+    // extension support.
+    const isInterop = srcFile.isDeclarationFile || (scriptKind === ScriptKind.TS /* TODO? && !testMode*/);
 
     // We still need to confirm support for certain API from the
     // TypeScript standard library in Ark Thus, for now do not
     // count standard library modules.
-    return srcFile && srcFile.isDeclarationFile &&
+    return isInterop &&
       !STANDARD_LIBRARIES.includes(getBaseFileName(srcFile.fileName).toLowerCase());
+  }
+
+  return false;
+}
+
+export function getScriptKind(srcFile: SourceFile): ScriptKind {
+  const fileName = srcFile.fileName;
+  const ext = getAnyExtensionFromPath(fileName);
+  switch (ext.toLowerCase()) {
+    case Extension.Js:
+      return ScriptKind.JS;
+    case Extension.Jsx:
+      return ScriptKind.JSX;
+    case Extension.Ts:
+      return ScriptKind.TS;
+    case Extension.Tsx:
+      return ScriptKind.TSX;
+    case Extension.Json:
+      return ScriptKind.JSON;
+    default:
+      return ScriptKind.Unknown;
+  }
+}
+
+export function isStdLibraryType(type: Type): boolean {
+  return isStdLibrarySymbol(type.aliasSymbol ?? type.getSymbol());
+}
+
+export function isStdLibrarySymbol(sym: Symbol | undefined) {
+  if (sym && sym.declarations && sym.declarations.length > 0) {
+    const srcFile = sym.declarations[0].getSourceFile();
+    return srcFile &&
+      STANDARD_LIBRARIES.includes(getBaseFileName(srcFile.fileName).toLowerCase());
+  }
+
+  return false;
+}
+
+export function isDynamicType(type: Type | undefined): boolean | undefined {
+  if (type === undefined) {
+    return false;
+  }
+
+  // Return 'true' if it is an object of library type initialization, otherwise
+  // return 'false' if it is not an object of standard library type one.
+  // In the case of standard library type we need to determine context.
+
+  if (type.isUnion()) {
+    for (const compType of type.types) {
+      if (isLibraryType(compType)) {
+        return true;
+      }
+
+      if (!isStdLibraryType(compType)) {
+        return false;
+      }
+    }
+  }
+
+  if (isLibraryType(type)) {
+    return true;
+  }
+
+  if (!isStdLibraryType(type)) {
+    return false;
+  }
+
+  return undefined;
+}
+
+export function isDynamicLiteralInitializer(expr: Expression): boolean {
+  if (!isObjectLiteralExpression(expr) && !isArrayLiteralExpression(expr)) {
+    return false;
+  }
+
+  // Handle nested literals:
+  // { f: { ... } }
+  let curNode: Node = expr;
+  while (isObjectLiteralExpression(curNode) || isArrayLiteralExpression(curNode)) {
+    const exprType = typeChecker.getContextualType(curNode);
+    if (exprType !== undefined) {
+      const res = isDynamicType(exprType);
+      if (res !== undefined) {
+        return res;
+      }
+    }
+
+    curNode = curNode.parent;
+    if (isPropertyAssignment(curNode)) {
+      curNode = curNode.parent;
+    }
+  }
+
+  // Handle calls with literals:
+  // foo({ ... })
+  if (isCallExpression(curNode)) {
+    const callExpr = curNode;
+    const sym = typeChecker.getTypeAtLocation(callExpr.expression).symbol;
+    return isLibrarySymbol(sym);
+  }
+
+  // Handle property assignments with literals:
+  // obj.f = { ... }
+  if (isBinaryExpression(curNode)) {
+    const binExpr = curNode;
+    if (isPropertyAccessExpression(binExpr.left)) {
+      const propAccessExpr = binExpr.left;
+      const type = typeChecker.getTypeAtLocation(propAccessExpr.expression);
+      return isLibrarySymbol(type.symbol);
+    }
   }
 
   return false;

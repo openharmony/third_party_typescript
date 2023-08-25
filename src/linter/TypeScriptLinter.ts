@@ -179,6 +179,7 @@ export class TypeScriptLinter {
     [SyntaxKind.NewExpression, this.handleNewExpression], [SyntaxKind.AsExpression, this.handleAsExpression],
     [SyntaxKind.SpreadElement, this.handleSpreadOp], [SyntaxKind.SpreadAssignment, this.handleSpreadOp],
     [SyntaxKind.GetAccessor, this.handleGetAccessor], [SyntaxKind.SetAccessor, this.handleSetAccessor],
+    [SyntaxKind.ConstructSignature, this.handleConstructSignature],
   ]);
 
   public incrementCounters(node: Node | CommentRange, faultId: number, autofixable = false, autofix?: Autofix[]): void {
@@ -253,8 +254,9 @@ export class TypeScriptLinter {
       TypeScriptLinter.totalVisitedNodes++;
 
       //if (TypeScriptLinter.tsSyntaxKindNames[node.kind] === "StructDeclaration") {
-      if (node.kind === SyntaxKind.StructDeclaration) {
+      // if (node.kind === SyntaxKind.StructDeclaration) {
       //if ( SyntaxKind[node.kind] === 'StructDeclaration') {
+      if(isStructDeclaration(node)) {
         self.handleStructDeclaration(node);
         return;
       }
@@ -523,7 +525,9 @@ export class TypeScriptLinter {
       return;
     }
     const objectLiteralType = TypeScriptLinter.tsTypeChecker.getContextualType(objectLiteralExpr);
-    if (!Utils.areTypesAssignable(objectLiteralType, objectLiteralExpr)
+    if (!Utils.isStructObjectInitializer(objectLiteralExpr) &&
+        !Utils.isDynamicLiteralInitializer(objectLiteralExpr) &&
+        !Utils.areTypesAssignable(objectLiteralType, objectLiteralExpr)
       //  !Utils.validateObjectLiteralType(objectLiteralType) || Utils.hasMemberFunction(objectLiteralExpr) ||
       //  !Utils.validateFields(objectLiteralType, objectLiteralExpr)
     ) {
@@ -549,8 +553,8 @@ export class TypeScriptLinter {
     for(const element of arrayLitElements) {
       if(element.kind === SyntaxKind.ObjectLiteralExpression) {
         const objectLiteralType = TypeScriptLinter.tsTypeChecker.getContextualType(element);
-        if (!Utils.areTypesAssignable(objectLiteralType, element)) {
-        //if ( !Utils.validateObjectLiteralType(objectLiteralType) ) {
+        if (!Utils.isDynamicLiteralInitializer(arrayLitNode) &&
+            !Utils.areTypesAssignable(objectLiteralType, element)) {
           noContextTypeForArrayLiteral = true;
           break;
         }
@@ -720,14 +724,16 @@ export class TypeScriptLinter {
     const propName = (node as PropertyAssignment | PropertyDeclaration).name;
 
     if (propName && (propName.kind === SyntaxKind.NumericLiteral || propName.kind === SyntaxKind.StringLiteral)) {
-      // We can use literals as property names only when creating Record instances.
+      // We can use literals as property names only when creating Record or any interop instances.
       let isRecordObjectInitializer = false;
+      let isDynamicLiteralInitializer = false;
       if (isPropertyAssignment(node)) {
         const objectLiteralType = TypeScriptLinter.tsTypeChecker.getContextualType(node.parent);
         isRecordObjectInitializer = !!objectLiteralType && Utils.isStdRecordType(objectLiteralType);
+        isDynamicLiteralInitializer = Utils.isDynamicLiteralInitializer(node.parent);
       }
 
-      if (!isRecordObjectInitializer) {
+      if (!isRecordObjectInitializer && !isDynamicLiteralInitializer) {
         let autofix: Autofix[] | undefined = Autofixer.fixLiteralAsPropertyName(node);
         const autofixable = autofix !== undefined;
         if (!Autofixer.shouldAutofix(node, FaultID.LiteralAsPropertyName)) {
@@ -778,76 +784,51 @@ export class TypeScriptLinter {
     const funcExpr = node as FunctionExpression;
     const isGenerator = funcExpr.asteriskToken !== undefined;
     const containsThis = this.functionContainsThis(funcExpr.body);
+    const hasValidContext = Utils.hasPredecessor(funcExpr, isClassLike) ||
+                            Utils.hasPredecessor(funcExpr, isInterfaceDeclaration);
     const isGeneric = funcExpr.typeParameters !== undefined && funcExpr.typeParameters.length > 0;
-
-    const newParams = this.handleMissingParameterTypes(funcExpr);
-
     const [hasUnfixableReturnType, newRetTypeNode] = this.handleMissingReturnType(funcExpr);
-
-    const autofixable = !isGeneric && !isGenerator && !containsThis &&
-      newParams && !hasUnfixableReturnType;
+    const autofixable = !isGeneric && !isGenerator && !containsThis && !hasUnfixableReturnType;
 
     let autofix: Autofix[] | undefined;
     if (autofixable && Autofixer.shouldAutofix(node, FaultID.FunctionExpression)) {
-      autofix = [ Autofixer.fixFunctionExpression(funcExpr, newParams, newRetTypeNode) ];
+      autofix = [ Autofixer.fixFunctionExpression(funcExpr, funcExpr.parameters, newRetTypeNode) ];
     }
 
     this.incrementCounters(node, FaultID.FunctionExpression, autofixable, autofix);
-    if (!newParams) this.incrementCounters(funcExpr, FaultID.ArrowFunctionWithOmittedTypes, false);
-    if (isGeneric) this.incrementCounters(funcExpr, FaultID.LambdaWithTypeParameters);
-    if (isGenerator) this.incrementCounters(funcExpr, FaultID.GeneratorFunction);
-    if (containsThis) this.incrementCounters(funcExpr, FaultID.FunctionContainsThis);
-    if (hasUnfixableReturnType) this.incrementCounters(funcExpr, FaultID.LimitedReturnTypeInference);
+    if (isGeneric) {
+      this.incrementCounters(funcExpr, FaultID.LambdaWithTypeParameters);
+    }
+    if (isGenerator) {
+      this.incrementCounters(funcExpr, FaultID.GeneratorFunction);
+    }
+    if (containsThis && !hasValidContext) {
+      this.incrementCounters(funcExpr, FaultID.FunctionContainsThis);
+    }
+    if (hasUnfixableReturnType) {
+      this.incrementCounters(funcExpr, FaultID.LimitedReturnTypeInference);
+    }
   }
 
   private handleArrowFunction(node: Node): void {
     const arrowFunc = node as ArrowFunction;
+    const containsThis = this.functionContainsThis(arrowFunc.body);
+    const hasValidContext = Utils.hasPredecessor(arrowFunc, isClassLike) ||
+                            Utils.hasPredecessor(arrowFunc, isInterfaceDeclaration);
+    if (containsThis && !hasValidContext) {
+      this.incrementCounters(arrowFunc, FaultID.FunctionContainsThis);
+    }
+
     const contextType = TypeScriptLinter.tsTypeChecker.getContextualType(arrowFunc);
     if (!(contextType && Utils.isLibraryType(contextType))) {
-      this.handleMissingParameterTypes(arrowFunc);
-
-      if (!arrowFunc.type) this.handleMissingReturnType(arrowFunc);
+      if (!arrowFunc.type) {
+        this.handleMissingReturnType(arrowFunc);
+      }
 
       if (arrowFunc.typeParameters && arrowFunc.typeParameters.length > 0) {
         this.incrementCounters(node, FaultID.LambdaWithTypeParameters);
       }
     }
-  }
-
-  private handleMissingParameterTypes(signDecl: SignatureDeclaration):
-  NodeArray<ParameterDeclaration> | undefined {
-    let hasOmittedType = false;
-    let autofixable = true;
-    let autofix: Autofix[] | undefined;
-    const isFuncExpr = signDecl.kind === SyntaxKind.FunctionExpression;
-    const newParams: ParameterDeclaration[] = [];
-    for (const param of signDecl.parameters) {
-      if (isFuncExpr) newParams.push(param);
-      if (param.type) continue;
-
-      hasOmittedType = true;
-      const paramType = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(param);
-      const paramTypeNode = TypeScriptLinter.tsTypeChecker.typeToTypeNode(paramType, param, NodeBuilderFlags.None);
-      if (!paramType || Utils.isUnsupportedType(paramType) || !paramTypeNode) {
-        autofixable = false;
-        continue;
-      }
-
-      if (isFuncExpr) {
-        const newParam = Autofixer.fixParamWithoutType(param, paramTypeNode, true) as ParameterDeclaration;
-        newParams[newParams.length-1] = newParam;
-      }
-      else if (Autofixer.shouldAutofix(signDecl, FaultID.ArrowFunctionWithOmittedTypes)) {
-        if (!autofix) autofix = [];
-        autofix.push(Autofixer.fixParamWithoutType(param, paramTypeNode) as Autofix);
-      }
-    }
-    // Don't report here if in function expression context.
-    // See handleFunctionExpression for details.
-    if (hasOmittedType && !isFuncExpr) {
-      this.incrementCounters(signDecl, FaultID.ArrowFunctionWithOmittedTypes, autofixable, autofix);
-    }
-    return isFuncExpr && autofixable ? factory.createNodeArray(newParams) : undefined;
   }
 
   private handleClassExpression(node: Node): void {
@@ -1049,10 +1030,10 @@ export class TypeScriptLinter {
       const leftSymbol = TypeScriptLinter.tsTypeChecker.getSymbolAtLocation(leftExpr);
       // In STS, the left-hand side expression may be of any reference type, otherwise
       // a compile-time error occurs. In addition, the left operand in STS cannot be a type.
-      if (isTypeNode(leftExpr) ||
-            !Utils.isReferenceType(leftOperandType) && tsLhsExpr.kind !== SyntaxKind.ThisKeyword ||
-            Utils.isTypeSymbol(leftSymbol)
-          ) {
+      if (tsLhsExpr.kind === SyntaxKind.ThisKeyword) {
+        return;
+      }
+      if (Utils.isPrimitiveType(leftOperandType) || isTypeNode(leftExpr) || Utils.isTypeSymbol(leftSymbol)) {
         this.incrementCounters(node, FaultID.InstanceofUnsupported);
       }
     }
@@ -1129,6 +1110,8 @@ export class TypeScriptLinter {
 
   private handleClassDeclaration(node: Node): void {
     const tsClassDecl = node as ClassDeclaration;
+    this.staticBlocks.clear();
+
     if (tsClassDecl.name) {
       this.countDeclarationsWithDuplicateName(
         TypeScriptLinter.tsTypeChecker.getSymbolAtLocation(tsClassDecl.name),
@@ -1182,7 +1165,10 @@ export class TypeScriptLinter {
         }
       }
     }
-    else if (Utils.hasModifier(tsModifiers, SyntaxKind.DeclareKeyword)) {
+
+    if (!(tsModuleDecl.flags & NodeFlags.Namespace) &&
+        Utils.hasModifier(tsModifiers, SyntaxKind.DeclareKeyword)) {
+      this.incrementCounters(tsModuleDecl, FaultID.ShorthandAmbientModuleDecl);
       this.incrementCounters(tsModuleDecl, FaultID.ShorthandAmbientModuleDecl);
     }
 
@@ -1255,6 +1241,20 @@ export class TypeScriptLinter {
 
   private handleMethodDeclaration(node: Node): void {
     const tsMethodDecl = node as MethodDeclaration;
+    const hasThis = this.functionContainsThis(tsMethodDecl);
+    let isStatic = false;
+    if (tsMethodDecl.modifiers) {
+      for (const mod of tsMethodDecl.modifiers) {
+        if (mod.kind === SyntaxKind.StaticKeyword) {
+          isStatic = true;
+          break;
+        }
+      }
+    }
+
+    if (isStatic && hasThis) {
+      this.incrementCounters(node, FaultID.FunctionContainsThis);
+    }
     if (!tsMethodDecl.type) {
       this.handleMissingReturnType(tsMethodDecl);
     }
@@ -1278,8 +1278,34 @@ export class TypeScriptLinter {
       if (isCaseClause(tsCaseClause)) {
         const tsCaseExpr = tsCaseClause.expression;
         const tsCaseExprType = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(tsCaseExpr);
-        if (
+        const tsCaseSym = TypeScriptLinter.tsTypeChecker.getSymbolAtLocation(tsCaseExpr);
+        let isConstOrStaticReadonlyField = false;
+
+        if (tsCaseSym?.valueDeclaration) {
+          const isSymProperty = (tsCaseSym.flags & SymbolFlags.Property) !== 0;
+          const isSymVariable = (tsCaseSym.flags & SymbolFlags.Variable) !== 0;
+
+          if (isSymProperty && isPropertyAccessExpression(tsCaseExpr)) {
+          const tsPropDecl = tsCaseSym.valueDeclaration as PropertyDeclaration;
+          if (tsPropDecl?.initializer) {
+          const tsPropModifiers = tsPropDecl.modifiers;
+          isConstOrStaticReadonlyField = Utils.isCompileTimeExpression(tsPropDecl.initializer) &&
+                                          Utils.hasModifier(tsPropModifiers, SyntaxKind.StaticKeyword) &&
+                                          Utils.hasModifier(tsPropModifiers, SyntaxKind.ReadonlyKeyword);
+          }
+        }
+        else if (isSymVariable && isVariableDeclaration(tsCaseSym.valueDeclaration)) {
+          const tsVarDecl = tsCaseSym.valueDeclaration;
+          if (tsVarDecl?.initializer) {
+            isConstOrStaticReadonlyField = Utils.isCompileTimeExpression(tsVarDecl.initializer) &&
+                                              Utils.isConst(tsVarDecl);
+          }
+        }
+      }
+
+      if (
           !(
+            isConstOrStaticReadonlyField ||
             isNumericLiteral(tsCaseExpr) ||
             isStringLiteralLike(tsCaseExpr) ||
             tsCaseExprType.flags & TypeFlags.EnumLike
@@ -1395,9 +1421,10 @@ export class TypeScriptLinter {
   private handleElementAccessExpression(node: Node): void {
     const tsElementAccessExpr = node as ElementAccessExpression;
     const tsElemAccessBaseExprType = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(tsElementAccessExpr.expression);
+    const tsElemAccessBaseExprTypeNode = TypeScriptLinter.tsTypeChecker.typeToTypeNode(tsElemAccessBaseExprType, undefined, NodeBuilderFlags.None);
 
     if (
-      !Utils.isLibraryType(tsElemAccessBaseExprType) &&
+      !Utils.isLibraryType(tsElemAccessBaseExprType) && !Utils.isTypedArray(tsElemAccessBaseExprTypeNode) &&
       ((tsElemAccessBaseExprType.isClassOrInterface() && !Utils.isGenericArrayType(tsElemAccessBaseExprType)) ||
       Utils.isObjectLiteralType(tsElemAccessBaseExprType) || Utils.isEnumType(tsElemAccessBaseExprType) ||
       Utils.isThisOrSuperExpr(tsElementAccessExpr.expression))
@@ -1459,9 +1486,12 @@ export class TypeScriptLinter {
   }
 
   private handleExportAssignment(node: Node): void {
-    // TODO(nsizov): check exportEquals and determine if it's an actual `export assignment`
-    //               or a `default export namespace` when this two cases will be determined in cookbook
-    this.incrementCounters(node, FaultID.ExportAssignment);
+    // (nsizov): check exportEquals and determine if it's an actual `export assignment`
+    //   or a `default export namespace` when this two cases will be determined in cookbook
+    const exportAssignment = node as ExportAssignment;
+    if (exportAssignment.isExportEquals) {
+      this.incrementCounters(node, FaultID.ExportAssignment);
+    }
   }
 
   private handleCallExpression(node: Node): void {
@@ -1478,7 +1508,8 @@ export class TypeScriptLinter {
 
   private handleImportCall(tsCallExpr: CallExpression): void {
     if (tsCallExpr.expression.kind === SyntaxKind.ImportKeyword) {
-      this.incrementCounters(tsCallExpr, FaultID.DynamicImport);
+      // relax rule#133 "arkts-no-runtime-import"
+      // this.incrementCounters(tsCallExpr, FaultID.DynamicImport);
       const tsArgs = tsCallExpr.arguments;
       if (tsArgs.length > 1 && isObjectLiteralExpression(tsArgs[1])) {
         const objLitExpr = tsArgs[1] as ObjectLiteralExpression;
@@ -1674,13 +1705,26 @@ export class TypeScriptLinter {
       if (spreadExprType) {
         const spreadExprTypeNode = TypeScriptLinter.tsTypeChecker.typeToTypeNode(spreadExprType, undefined, NodeBuilderFlags.None);
         if (spreadExprTypeNode !== undefined && isCallLikeExpression(node.parent)) {
-          if (Utils.isArrayNotTupleType(spreadExprTypeNode)) {
+          if (Utils.isArrayNotTupleType(spreadExprTypeNode) || Utils.isTypedArray(spreadExprTypeNode)) {
             return;
           }
         }
       }
     }
     this.incrementCounters(node, FaultID.SpreadOperator);
+  }
+
+  private handleConstructSignature(node: Node) {
+    switch (node.parent.kind) {
+      case SyntaxKind.TypeLiteral:
+        this.incrementCounters(node, FaultID.ConstructorType);
+        break;
+      case SyntaxKind.InterfaceDeclaration:
+        this.incrementCounters(node, FaultID.ConstructorIface);
+        break;
+      default:
+        return;
+    }
   }
 
   private handleComments(node: Node) {
@@ -1714,7 +1758,10 @@ export class TypeScriptLinter {
       ? srcText.slice(comment.pos + 2, comment.end - 2)
       : srcText.slice(comment.pos + 2, comment.end);
 
-    if (commentContent.includes("@ts-ignore") || commentContent.includes("@ts-nocheck")) {
+    const trimmedContent = commentContent.trim();
+    if (trimmedContent.startsWith("@ts-ignore") ||
+        trimmedContent.startsWith("@ts-nocheck") ||
+        trimmedContent.startsWith("@ts-expect-error")) {
       this.incrementCounters(comment, FaultID.ErrorSuppression);
     }
   }
