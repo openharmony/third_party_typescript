@@ -21,6 +21,7 @@
         "Autofixer.ts",
         "TypeScriptLinterConfig.ts",
         "TypeScriptLinter.ts",
+        "TSDiagnostics.ts",
 	    "LinterRunner.ts",
     ]
 }

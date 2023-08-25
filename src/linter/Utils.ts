@@ -21,6 +21,18 @@ export namespace Utils {
 //import TypeScriptLinter = TypeScriptLinter;
 import AutofixInfo = Common.AutofixInfo;
 
+export const PROPERTY_HAS_NO_INITIALIZER_ERROR_CODE = 2564;
+
+export const NON_INITIALIZABLE_PROPERTY_DECORATORS = ["Link", "Consume", "ObjectLink"];
+
+export const LIMITED_STANDARD_UTILITY_TYPES = [
+  "Awaited", "Required", "Readonly", "Pick", "Omit", "Exclude", "Extract", "NonNullable", "Parameters",
+  "ConstructorParameters", "ReturnType", "InstanceType", "ThisParameterType", "OmitThisParameter",
+  "ThisType", "Uppercase", "Lowercase", "Capitalize", "Uncapitalize",
+];
+
+export enum ProblemSeverity { WARNING = 1, ERROR = 2 }
+
 let typeChecker: TypeChecker;
 export function setTypeChecker(tsTypeChecker: TypeChecker): void {
   typeChecker = tsTypeChecker;
@@ -626,6 +638,9 @@ function isAbstractClass(type: Type): boolean {
 }
 
 export function validateObjectLiteralType(type: Type | undefined): boolean {
+  if (!type) return false;
+
+  type = getTargetType(type);
   return (
     type !== undefined && type.isClassOrInterface() && hasDefaultCtor(type) &&
     !hasReadonlyFields(type) && !isAbstractClass(type)
@@ -845,6 +860,18 @@ export function isSupportedType(typeNode: TypeNode): boolean {
     isSupportedTypeNodeKind(typeNode.kind);
 }
 
+export function isStruct(symbol: Symbol) {
+  if (!symbol.declarations) {
+    return false;
+  }
+  for (const decl of symbol.declarations) {
+    if (isStructDeclaration(decl)) {
+      return true;
+    }
+  }
+  return false;
+}
+
 function validateRecordObjectKeys(objectLiteral: ObjectLiteralExpression): boolean {
   for (const prop of objectLiteral.properties) {
     if (!prop.name || (!isStringLiteral(prop.name) && !isNumericLiteral(prop.name))) { return false; }
@@ -877,7 +904,7 @@ export const LIMITED_STD_ARRAYBUFFER_API = ["isView"];
 
 export const ARKUI_DECORATORS = [
   "Builder", "BuilderParam", "Component", "Consume", "Entry", "Link", "LocalStorageLink", "LocalStorageProp",
-  "ObjectLink", "Observed", "Prop", "Provide", "State", "StorageLink", "StorageProp", "Watch",
+  "ObjectLink", "Observed", "Prop", "Provide", "State", "StorageLink", "StorageProp", "Styles", "Watch",
 ];
 
 export const STANDARD_LIBRARIES = [
@@ -1057,6 +1084,10 @@ export function isStdLibrarySymbol(sym: Symbol | undefined) {
   return false;
 }
 
+export function isBuiltinType(type: Type): boolean {
+  return !(type.flags & TypeFlags.NonPrimitive);
+}
+
 export function isDynamicType(type: Type | undefined): boolean | undefined {
   if (type === undefined) {
     return false;
@@ -1072,17 +1103,18 @@ export function isDynamicType(type: Type | undefined): boolean | undefined {
         return true;
       }
 
-      if (!isStdLibraryType(compType)) {
+      if (!isStdLibraryType(compType) && !isBuiltinType(compType)) {
         return false;
       }
     }
+    return undefined;
   }
 
   if (isLibraryType(type)) {
     return true;
   }
 
-  if (!isStdLibraryType(type)) {
+  if (!isStdLibraryType(type) && !isBuiltinType(type)) {
     return false;
   }
 
