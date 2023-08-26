@@ -32,18 +32,6 @@ import Logger = ts.perfLogger;
 
 //const logger = Logger.getLogger();
 
-export function consoleLog(...args: any[]): void {
-  if (TypeScriptLinter.ideMode) return;
-
-  let outLine = "";
-  for (let k = 0; k < args.length; k++) {
-    outLine += `${args[k]} `;
-  }
-
-  Logger.logEvent(outLine);
-}
-
-enum ProblemSeverity { WARNING = 1, ERROR = 2 }
 export interface ProblemInfo {
   line: number;
   column: number;
@@ -89,7 +77,6 @@ export class TypeScriptLinter {
   static problemsInfos: ProblemInfo[] = [];
 
   public static initStatic(): void {
-    TypeScriptLinter.ideMode = false;
     TypeScriptLinter.strictMode = true;
     TypeScriptLinter.logTscErrors = false;
     TypeScriptLinter.warningsAsErrors = false;
@@ -134,7 +121,9 @@ export class TypeScriptLinter {
   currentWarningLine: number;
   staticBlocks: Set<string>;
 
-  constructor(private sourceFile: SourceFile, /* private */ tsProgram: Program) {
+  constructor(private sourceFile: SourceFile,
+              /* private */ tsProgram: Program,
+              private tscStrictDiagnostics?: Map<Diagnostic[]>) {
     TypeScriptLinter.tsTypeChecker = tsProgram.getTypeChecker();
     this.currentErrorLine = 0;
     this.currentWarningLine = 0;
@@ -197,33 +186,32 @@ export class TypeScriptLinter {
     const faultDescr = LinterConfig.nodeDesc[faultId];
     const faultType = "unknown"; //TypeScriptLinter.tsSyntaxKindNames[node.kind];
 
-    if (TypeScriptLinter.reportDiagnostics) {
-      const cookBookMsgNum = faultsAttrs[faultId] ? Number(faultsAttrs[faultId].cookBookRef) : 0;
-      const cookBookTg = cookBookTag[cookBookMsgNum];
-      let severity = ProblemSeverity.ERROR;
-      if (faultsAttrs[faultId] && faultsAttrs[faultId].warning) {
-        severity = ProblemSeverity.WARNING;
-      }
-      const badNodeInfo: ProblemInfo = {
-        line: line,
-        column: character,
-        start: startPos,
-        end: endPos,
-        type: faultType,
-        severity: severity,
-        problem: FaultID[faultId],
-        suggest: cookBookMsgNum > 0 ? cookBookMsg[cookBookMsgNum] : "",
-        rule: cookBookMsgNum > 0 && cookBookTg !== "" ? cookBookTg : faultDescr ? faultDescr : faultType,
-        ruleTag: cookBookMsgNum,
-        autofixable: autofixable,
-        autofix: autofix
-      };
-
-      TypeScriptLinter.problemsInfos.push(badNodeInfo);
+    const cookBookMsgNum = faultsAttrs[faultId] ? Number(faultsAttrs[faultId].cookBookRef) : 0;
+    const cookBookTg = cookBookTag[cookBookMsgNum];
+    let severity = Utils.ProblemSeverity.ERROR;
+    if (faultsAttrs[faultId] && faultsAttrs[faultId].warning) {
+      severity = Utils.ProblemSeverity.WARNING;
     }
-    else {
+    const badNodeInfo: ProblemInfo = {
+      line: line,
+      column: character,
+      start: startPos,
+      end: endPos,
+      type: faultType,
+      severity: severity,
+      problem: FaultID[faultId],
+      suggest: cookBookMsgNum > 0 ? cookBookMsg[cookBookMsgNum] : "",
+      rule: cookBookMsgNum > 0 && cookBookTg !== "" ? cookBookTg : faultDescr ? faultDescr : faultType,
+      ruleTag: cookBookMsgNum,
+      autofixable: autofixable,
+      autofix: autofix
+    };
+
+    TypeScriptLinter.problemsInfos.push(badNodeInfo);
+
+    if (!TypeScriptLinter.reportDiagnostics) {
       //logger.info(
-        Logger.logEvent(
+      Logger.logEvent(
         `Warning: ${this.sourceFile.fileName} (${line}, ${character}): ${faultDescr ? faultDescr : faultType}`
       );
     }
@@ -606,7 +594,7 @@ export class TypeScriptLinter {
       if (decl.kind === SyntaxKind.EnumDeclaration) enumDeclCount++;
     }
 
-    if (enumDeclCount > 1) this.incrementCounters(node, FaultID.InterfaceOrEnumMerging);
+    if (enumDeclCount > 1) this.incrementCounters(node, FaultID.EnumMerging);
   }
 
   private handleInterfaceDeclaration(node: Node): void {
@@ -623,7 +611,7 @@ export class TypeScriptLinter {
         if (decl.kind === SyntaxKind.InterfaceDeclaration) iDeclCount++;
       }
 
-      if (iDeclCount > 1) this.incrementCounters(node, FaultID.InterfaceOrEnumMerging);
+      if (iDeclCount > 1) this.incrementCounters(node, FaultID.InterfaceMerging);
     }
 
     if (interfaceNode.heritageClauses) this.interfaceInharitanceLint(node, interfaceNode.heritageClauses);
@@ -746,31 +734,32 @@ export class TypeScriptLinter {
     if (isPropertyDeclaration(node)) {
       const decorators = node.decorators;
       this.handleDecorators(decorators);
-      //this.filterOutStrictDiagnostics(decorators, propName);
+      this.filterOutStrictDiagnostics(decorators, propName);
       this.handleDeclarationInferredType(node);
       this.handleDefiniteAssignmentAssertion(node);
     }
   }
 
-  /***** it seems not need in SDK
-  private filterOutStrictDiagnostics(decorators: readonly ts.Decorator[] | undefined, propName: ts.PropertyName) {
+  private filterOutStrictDiagnostics(decorators: readonly Decorator[] | undefined, propName: PropertyName) {
     // Filter out non-initializable property decorators from strict diagnostics.
     if (this.tscStrictDiagnostics && this.sourceFile) {
       if (decorators?.some(x => {
-        let decoratorName = '';
-        if (ts.isIdentifier(x.expression))
+        let decoratorName = "";
+        if (isIdentifier(x.expression)) {
           decoratorName = x.expression.text;
-        else if (ts.isCallExpression(x.expression) && ts.isIdentifier(x.expression.expression))
+        }
+        else if (isCallExpression(x.expression) && isIdentifier(x.expression.expression)) {
           decoratorName = x.expression.expression.text;
+        }
 
         return Utils.NON_INITIALIZABLE_PROPERTY_DECORATORS.includes(decoratorName);
       })) {
-        let file = path.normalize(this.sourceFile.fileName);
-        let tscDiagnostics = this.tscStrictDiagnostics.get(file)
+        const file = normalizePath(this.sourceFile.fileName);
+        const tscDiagnostics = this.tscStrictDiagnostics.get(file);
         if (tscDiagnostics) {
-          let filteredDiagnostics = tscDiagnostics.filter(
-            (val, idx, array) => !(
-              val.code === TsUtils.PROPERTY_HAS_NO_INITIALIZER_ERROR_CODE &&
+          const filteredDiagnostics = tscDiagnostics.filter(
+            (val) => !(
+              val.code === Utils.PROPERTY_HAS_NO_INITIALIZER_ERROR_CODE &&
               val.start === propName.getStart()
             )
           );
@@ -779,7 +768,7 @@ export class TypeScriptLinter {
       }
     }
   }
-*/
+
   private handleFunctionExpression(node: Node): void {
     const funcExpr = node as FunctionExpression;
     const isGenerator = funcExpr.asteriskToken !== undefined;
@@ -940,7 +929,7 @@ export class TypeScriptLinter {
       tsUnaryOp === SyntaxKind.TildeToken
     ) {
       const tsOperatndType = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(tsUnaryArithm.operand);
-      if (!(tsOperatndType.getFlags() & TypeFlags.NumberLike)||
+      if (!(tsOperatndType.getFlags() & (TypeFlags.NumberLike | TypeFlags.BigIntLiteral)) ||
             (tsUnaryOp === SyntaxKind.TildeToken && tsUnaryArithm.operand.kind === SyntaxKind.NumericLiteral &&
               !Utils.isIntegerConstantValue(tsUnaryArithm.operand as NumericLiteral))
           ) {
@@ -1169,7 +1158,6 @@ export class TypeScriptLinter {
     if (!(tsModuleDecl.flags & NodeFlags.Namespace) &&
         Utils.hasModifier(tsModifiers, SyntaxKind.DeclareKeyword)) {
       this.incrementCounters(tsModuleDecl, FaultID.ShorthandAmbientModuleDecl);
-      this.incrementCounters(tsModuleDecl, FaultID.ShorthandAmbientModuleDecl);
     }
 
     if (isStringLiteral(tsModuleDecl.name) && tsModuleDecl.name.text.includes("*")) {
@@ -1384,8 +1372,8 @@ export class TypeScriptLinter {
       return;
     }
 
-    // No need to process class declarations or type references.
-    if (isClassDeclaration(tsIdentifier.parent)) {
+    // No check for ArkUI struct.
+    if (Utils.isStruct(tsIdentSym)) {
       return;
     }
 
@@ -1667,7 +1655,7 @@ export class TypeScriptLinter {
   private handleTypeReference(node: Node): void {
     const typeRef = node as TypeReferenceNode;
 
-    if (isIdentifier(typeRef.typeName) && LinterConfig.standardUtilityTypes.has(typeRef.typeName.text)) {
+    if (isIdentifier(typeRef.typeName) && Utils.LIMITED_STANDARD_UTILITY_TYPES.includes(typeRef.typeName.text)) {
       this.incrementCounters(node, FaultID.UtilityType);
     }
     else if (

@@ -39,24 +39,49 @@ export function runArkTSLinter(tsProgram: Program, srcFile?: SourceFile): Diagno
     srcFiles = tsProgram.getSourceFiles() as SourceFile[];
   }
 
+  const tscDiagnosticsLinter = new TSCCompiledProgram(tsProgram, srcFiles.map((x) => x.fileName));
+  const tscStrictDiagnostics = getTscDiagnostics(tscDiagnosticsLinter, srcFiles);
+
   for(const fileToLint of srcFiles) {
     TypeScriptLinter.initStatic();
     if(TypeScriptLinter.lintEtsOnly && fileToLint.scriptKind !==ScriptKind.ETS) {
       continue;
     }
-    const linter = new TypeScriptLinter(fileToLint, tsProgram);
+
+    const linter = new TypeScriptLinter(fileToLint, tsProgram, tscStrictDiagnostics);
     Utils.setTypeChecker(TypeScriptLinter.tsTypeChecker);
     linter.lint();
 
     // Get list of bad nodes from the current run.
-    const currentDiagnostics: Diagnostic[] = [];
+    const currentDiagnostics = tscStrictDiagnostics.get(fileToLint.fileName) ?? [];
     TypeScriptLinter.problemsInfos.forEach(
       (x) => currentDiagnostics.push(translateDiag(fileToLint, x))
     );
-    diagnostics = diagnostics.concat(...currentDiagnostics);
+    diagnostics.push(...currentDiagnostics);
   }
 
   return diagnostics;
+}
+
+/**
+ * Extracts TSC diagnostics emitted by strict checks.
+ * Function might be time-consuming, as it runs second compilation.
+ * @param sourceFiles AST of the processed files
+ * @param tscDiagnosticsLinter linter initialized with the processed program
+ * @returns problems found by TSC, mapped by `SourceFile.fileName` field
+ */
+function getTscDiagnostics(
+  tscDiagnosticsLinter: TSCCompiledProgram,
+  sourceFiles: SourceFile[],
+): Map<Diagnostic[]> {
+  const strictDiagnostics = new Map<string, Diagnostic[]>();
+  sourceFiles.forEach(file => {
+    const diagnostics = tscDiagnosticsLinter.getStrictDiagnostics(file);
+    if (diagnostics.length !== 0) {
+      strictDiagnostics.set(normalizePath(file.fileName), diagnostics);
+    }
+  });
+  return strictDiagnostics;
 }
 
 }
