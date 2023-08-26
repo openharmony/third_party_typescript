@@ -46,7 +46,8 @@ export class LinterConfig {
     LinterConfig.nodeDesc[FaultID.IsOperator] = "\"is\" operations";
     LinterConfig.nodeDesc[FaultID.DestructuringParameter] = "destructuring parameters";
     LinterConfig.nodeDesc[FaultID.YieldExpression] = "\"yield\" operations";
-    LinterConfig.nodeDesc[FaultID.InterfaceOrEnumMerging] = "merging interfaces or enums";
+    LinterConfig.nodeDesc[FaultID.InterfaceMerging] = "merging interfaces";
+    LinterConfig.nodeDesc[FaultID.EnumMerging] = "merging enums";
     LinterConfig.nodeDesc[FaultID.InterfaceExtendsClass] = "interfaces inherited from classes";
     LinterConfig.nodeDesc[FaultID.IndexMember] = "index members";
     LinterConfig.nodeDesc[FaultID.WithStatement] = "\"with\" statements";
@@ -134,13 +135,6 @@ export class LinterConfig {
    // LinterConfig.initTsSyntaxKindNames();
   }
 
-  // currently utility types from TypeScript extensions are not supported
-  static standardUtilityTypes: Set<string> = new Set([
-    "Awaited", "Partial", "Required", "Readonly", "Record", "Pick", "Omit", "Exclude", "Extract", "NonNullable",
-    "Parameters", "ConstructorParameters", "ReturnType", "InstanceType", "ThisParameterType", "OmitThisParameter",
-    "ThisType", "Uppercase", "Lowercase", "Capitalize", "Uncapitalize",
-  ]);
-
   /*
   private static initTsSyntaxKindNames(): void {
     const keys = Object.keys(SyntaxKind);
@@ -194,7 +188,7 @@ export class LinterConfig {
     [SyntaxKind.IndexedAccessType, FaultID.IndexedAccessType],[SyntaxKind.UnknownKeyword, FaultID.UnknownType],
     [SyntaxKind.InKeyword, FaultID.InOperator], [SyntaxKind.CallSignature, FaultID.CallSignature],
     [SyntaxKind.IntersectionType, FaultID.IntersectionType],
-    [SyntaxKind.TypeLiteral, FaultID.ObjectTypeLiteral], [SyntaxKind.ConstructorType, FaultID.ConstructorType],
+    [SyntaxKind.TypeLiteral, FaultID.ObjectTypeLiteral], [SyntaxKind.ConstructorType, FaultID.ConstructorFuncs],
    // [SyntaxKind.ConstructSignature, FaultID.ConstructorType],
     [SyntaxKind.PrivateIdentifier, FaultID.PrivateIdentifier],
     [SyntaxKind.ConditionalType, FaultID.ConditionalType], [SyntaxKind.MappedType, FaultID.MappedType],

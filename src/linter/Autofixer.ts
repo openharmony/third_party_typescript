@@ -101,29 +101,6 @@ export function fixPropertyAccessByIndex(node: Node): Autofix[] | undefined {
   return undefined;
 }
 
-export function fixBigIntLiteral(tsBigIntLiteral: BigIntLiteral, isStringArg: boolean): Autofix[] {
-  let value = tsBigIntLiteral.getText();
-  if (value.endsWith("n")) {
-    value = value.substring(0, value.length - 1);
-  }
-
-  // Note: BigInt constructor can"t parse literal value
-  // with underscore chars if ctor argument is a string.
-  const newNode = factory.createCallExpression(
-    factory.createIdentifier("BigInt"),
-    undefined,
-    [isStringArg
-      ? factory.createStringLiteral(value.replace(/_/g, ""), true)
-      : factory.createNumericLiteral(value)]
-  );
-
-  return [{
-    replacementText: printer.printNode(EmitHint.Unspecified, newNode, tsBigIntLiteral.getSourceFile()),
-    start: tsBigIntLiteral.getStart(),
-    end: tsBigIntLiteral.getEnd(),
-  }];
-}
-
 export function fixParamWithoutType(param: ParameterDeclaration, paramType: TypeNode,
   isFuncExprParam = false): Autofix | ParameterDeclaration {
   const paramWithType = factory.createParameterDeclaration(

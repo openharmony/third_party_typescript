@@ -18,7 +18,7 @@ export namespace Problems {
 export enum FaultID {
   AnyType, SymbolType, TupleType, ObjectLiteralNoContextType, ArrayLiteralNoContextType,
   ComputedPropertyName, LiteralAsPropertyName, TypeQuery, TupleLiteral, RegexLiteral, IsOperator,
-  DestructuringParameter, YieldExpression, InterfaceOrEnumMerging, InterfaceExtendsClass, IndexMember, WithStatement,
+  DestructuringParameter, YieldExpression, InterfaceMerging, EnumMerging, InterfaceExtendsClass, IndexMember, WithStatement,
   ThrowStatement, IndexedAccessType, UnknownType, ForInStatement, InOperator,
   KeyOfOperator, ImportFromPath, FunctionExpression, IntersectionType,
   ObjectTypeLiteral, AddWithWrongType, CommaOperator, LimitedReturnTypeInference,
@@ -109,11 +109,12 @@ faultsAttrs[FaultID.IsOperator] = { cookBookRef: "96", };
 faultsAttrs[FaultID.KeyOfOperator] = { cookBookRef: "97", };
 faultsAttrs[FaultID.SpreadOperator] = { cookBookRef: "99", };
 faultsAttrs[FaultID.IntefaceExtendDifProps] = { cookBookRef: "102", };
-faultsAttrs[FaultID.InterfaceOrEnumMerging] = { cookBookRef: "103", };
+faultsAttrs[FaultID.InterfaceMerging] = { cookBookRef: "103", };
 faultsAttrs[FaultID.InterfaceExtendsClass] = { cookBookRef: "104", };
 faultsAttrs[FaultID.PropertyRuntimeCheck] = { cookBookRef: "105", };
 faultsAttrs[FaultID.ConstructorFuncs] = { cookBookRef: "106", };
 faultsAttrs[FaultID.EnumMemberNonConstInit] = { cookBookRef: "111", };
+faultsAttrs[FaultID.EnumMerging] = { cookBookRef: "113", };
 faultsAttrs[FaultID.NamespaceAsObject] = { cookBookRef: "114", };
 faultsAttrs[FaultID.ClassAsObject] = { warning: true, cookBookRef: "-1", };
 faultsAttrs[FaultID.NonDeclarationInNamespace] = { cookBookRef: "116", };
