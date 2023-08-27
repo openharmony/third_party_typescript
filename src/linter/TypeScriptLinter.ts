@@ -734,13 +734,20 @@ export class TypeScriptLinter {
     if (isPropertyDeclaration(node)) {
       const decorators = node.decorators;
       this.handleDecorators(decorators);
-      this.filterOutStrictDiagnostics(decorators, propName);
+      this.filterOutStrictDiagnostics(
+          decorators,
+          Utils.NON_INITIALIZABLE_PROPERTY_DECORATORS,
+          { begin: propName.getStart(), end: propName.getStart() },
+          Utils.PROPERTY_HAS_NO_INITIALIZER_ERROR_CODE
+        );
       this.handleDeclarationInferredType(node);
       this.handleDefiniteAssignmentAssertion(node);
     }
   }
 
-  private filterOutStrictDiagnostics(decorators: readonly Decorator[] | undefined, propName: PropertyName) {
+  private filterOutStrictDiagnostics(decorators: readonly Decorator[] | undefined,
+    expectedDecorators: readonly string[],
+    range: { begin: number, end: number}, code: number) {
     // Filter out non-initializable property decorators from strict diagnostics.
     if (this.tscStrictDiagnostics && this.sourceFile) {
       if (decorators?.some(x => {
@@ -752,16 +759,20 @@ export class TypeScriptLinter {
           decoratorName = x.expression.expression.text;
         }
 
-        return Utils.NON_INITIALIZABLE_PROPERTY_DECORATORS.includes(decoratorName);
+        //return Utils.NON_INITIALIZABLE_PROPERTY_DECORATORS.includes(decoratorName);
+        return expectedDecorators.includes(decoratorName);
       })) {
         const file = normalizePath(this.sourceFile.fileName);
         const tscDiagnostics = this.tscStrictDiagnostics.get(file);
         if (tscDiagnostics) {
           const filteredDiagnostics = tscDiagnostics.filter(
-            (val) => !(
-              val.code === Utils.PROPERTY_HAS_NO_INITIALIZER_ERROR_CODE &&
-              val.start === propName.getStart()
-            )
+            (val /*, idx, array */) => {
+              if (val.code !== code) return true;
+              if (val.start === undefined) return true;
+              if (val.start < range.begin) return true;
+              if (val.start > range.end) return true;
+              return false;
+            }
           );
           this.tscStrictDiagnostics.set(file, filteredDiagnostics);
         }
@@ -1250,6 +1261,9 @@ export class TypeScriptLinter {
       this.incrementCounters(node, FaultID.GeneratorFunction);
     }
     this.handleDecorators(tsMethodDecl.decorators);
+    this.filterOutStrictDiagnostics(Utils.getDecorators(tsMethodDecl), Utils.NON_RETURN_FUNCTION_DECORATORS,
+      { begin: tsMethodDecl.parameters.end, end: tsMethodDecl.body?.getStart() ?? tsMethodDecl.parameters.end },
+      Utils.FUNCTION_HAS_NO_RETURN_ERROR_CODE);
   }
 
   private handleSwitchStatement(node: Node): void {

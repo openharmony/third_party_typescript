@@ -116,7 +116,6 @@ faultsAttrs[FaultID.ConstructorFuncs] = { cookBookRef: "106", };
 faultsAttrs[FaultID.EnumMemberNonConstInit] = { cookBookRef: "111", };
 faultsAttrs[FaultID.EnumMerging] = { cookBookRef: "113", };
 faultsAttrs[FaultID.NamespaceAsObject] = { cookBookRef: "114", };
-faultsAttrs[FaultID.ClassAsObject] = { warning: true, cookBookRef: "-1", };
 faultsAttrs[FaultID.NonDeclarationInNamespace] = { cookBookRef: "116", };
 faultsAttrs[FaultID.ImportFromPath] = { cookBookRef: "119", };
 faultsAttrs[FaultID.TypeOnlyImport] = { migratable: true, cookBookRef: "118", };
@@ -145,6 +144,7 @@ faultsAttrs[FaultID.LimitedStdLibApi] = { cookBookRef: "144", };
 faultsAttrs[FaultID.StrictDiagnostic] = { cookBookRef: "145", };
 faultsAttrs[FaultID.ErrorSuppression] = { cookBookRef: "146", };
 faultsAttrs[FaultID.UnsupportedDecorators] = { cookBookRef: "148", };
-faultsAttrs[FaultID.ImportAfterStatement] = { cookBookRef: "-1", };
+faultsAttrs[FaultID.ClassAsObject] = { cookBookRef: "149", };
+faultsAttrs[FaultID.ImportAfterStatement] = { cookBookRef: "150", };
 }
 }
