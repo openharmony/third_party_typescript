@@ -648,7 +648,7 @@ export function validateObjectLiteralType(type: Type | undefined): boolean {
 }
 
 export function isStructObjectInitializer(objectLiteral: ObjectLiteralExpression): boolean {
-  if(isCallExpression(objectLiteral.parent)) {
+  if(isCallLikeExpression(objectLiteral.parent)) {
     const signature = typeChecker.getResolvedSignature(objectLiteral.parent);
     const signDecl = signature?.declaration;
     return !!signDecl && isConstructorDeclaration(signDecl) && isStructDeclaration(signDecl.parent);
@@ -879,6 +879,12 @@ function validateRecordObjectKeys(objectLiteral: ObjectLiteralExpression): boole
   return true;
 }
 
+export function getDecorators(node: Node): readonly Decorator[] | undefined {
+  if (node.decorators) {
+    return filter(node.decorators, isDecorator);
+  }
+}
+
 export const LIMITED_STD_GLOBAL_FUNC = [
   "eval", "isFinite", "isNaN", "parseFloat", "parseInt", /*"encodeURI", "encodeURIComponent", */ "Encode", /*"decodeURI",
   "decodeURIComponent", */ "Decode", /* "escape", "unescape", */ "ParseHexOctet"
@@ -906,6 +912,9 @@ export const ARKUI_DECORATORS = [
   "Builder", "BuilderParam", "Component", "Consume", "Entry", "Link", "LocalStorageLink", "LocalStorageProp",
   "ObjectLink", "Observed", "Prop", "Provide", "State", "StorageLink", "StorageProp", "Styles", "Watch",
 ];
+
+export const FUNCTION_HAS_NO_RETURN_ERROR_CODE = 2366;
+export const NON_RETURN_FUNCTION_DECORATORS = ["AnimatableExtend", "Builder", "Extend", "Styles" ];
 
 export const STANDARD_LIBRARIES = [
   "lib.dom.d.ts", "lib.dom.iterable.d.ts", "lib.webworker.d.ts", "lib.webworker.importscripd.ts",
