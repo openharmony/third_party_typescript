@@ -11502,6 +11502,7 @@ declare namespace ts {
         function validateFields(type: Type, objectLiteral: ObjectLiteralExpression): boolean;
         function isSupportedType(typeNode: TypeNode): boolean;
         function isStruct(symbol: Symbol): boolean;
+        function getDecorators(node: Node): readonly Decorator[] | undefined;
         const LIMITED_STD_GLOBAL_FUNC: string[];
         const LIMITED_STD_GLOBAL_VAR: string[];
         const LIMITED_STD_OBJECT_API: string[];
@@ -11510,6 +11511,8 @@ declare namespace ts {
         const LIMITED_STD_ARRAY_API: string[];
         const LIMITED_STD_ARRAYBUFFER_API: string[];
         const ARKUI_DECORATORS: string[];
+        const FUNCTION_HAS_NO_RETURN_ERROR_CODE = 2366;
+        const NON_RETURN_FUNCTION_DECORATORS: string[];
         const STANDARD_LIBRARIES: string[];
         const TYPED_ARRAYS: string[];
         function isGlobalSymbol(symbol: Symbol): boolean;
