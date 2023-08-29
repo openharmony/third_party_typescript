@@ -7411,6 +7411,7 @@ namespace ts {
 
 namespace ts {
     export function createObfTextSingleLineWriter(): EmitTextWriter {
+        const space: string = " ";
         let output: string;
         let lineStart: boolean;
         let linePos: number;
@@ -7440,7 +7441,6 @@ namespace ts {
             writeText(s);
         }
 
-
         function reset(): void {
             output = "";
             lineStart = true;
@@ -7460,8 +7460,15 @@ namespace ts {
             }
         }
 
+        function writeLine(force?: boolean) {
+            if (!lineStart || force) {
+                output += space;
+                linePos = output.length;
+            }
+        }
+
         function getTextPosWithWriteLine() {
-            return output.length;
+            return lineStart ? output.length : (output.length + space.length);
         }
 
         reset();
@@ -7470,7 +7477,7 @@ namespace ts {
             write,
             rawWrite,
             writeLiteral,
-            writeLine: noop,
+            writeLine,
             increaseIndent: noop,
             decreaseIndent: noop,
             getIndent: () => 0,
@@ -7480,7 +7487,7 @@ namespace ts {
             getText: () => output,
             isAtStartOfLine: () => lineStart,
             hasTrailingComment: () => false,
-            hasTrailingWhitespace: () => false,
+            hasTrailingWhitespace: () => !!output.length && isWhiteSpaceLike(output.charCodeAt(output.length - 1)),
             clear: reset,
             reportInaccessibleThisError: noop,
             reportPrivateInBaseOfClassExpression: noop,
