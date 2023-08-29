@@ -16,7 +16,7 @@ namespace ts {
 export const cookBookMsg: string[] = [];
 export const cookBookTag: string[] = [];
 
-for(let i = 0; i < 148; i++) {
+for(let i = 0; i <= 150; i++) {
   cookBookMsg[ i ] = "";
 }
 
@@ -168,4 +168,6 @@ cookBookTag[ 145 ] = "Strict type checking is enforced (arkts-strict-typing)";
 cookBookTag[ 146 ] = "Switching off type checks with in-place comments is not allowed (arkts-strict-typing-required)";
 cookBookTag[ 147 ] = "No dependencies on TypeScript code are currently allowed (arkts-no-ts-deps)";
 cookBookTag[ 148 ] = "No decorators except ArkUI decorators are currently allowed (arkts-no-decorators-except-arkui)";
+cookBookTag[ 149 ] = "Classes cannot be used as objects (arkts-no-classes-as-objects)";
+cookBookTag[ 150 ] = "'import' statements afte other statements are not allowed (arkts-no-misplaced-imports)";
 }
