@@ -658,7 +658,8 @@ export class TypeScriptLinter {
       exprType, undefined, NodeBuilderFlags.None
     );
 
-    if (!(isArrayLiteralExpression(expr) || Utils.isArrayNotTupleType(exprTypeNode))) {
+    if (!(isArrayLiteralExpression(expr) || Utils.isArrayNotTupleType(exprTypeNode) ||
+        Utils.isTypedArray(exprTypeNode))) {
       this.incrementCounters(node, FaultID.ForOfNonArray);
     }
   }
@@ -1270,12 +1271,17 @@ export class TypeScriptLinter {
     const tsSwitchStmt = node as SwitchStatement;
     const tsSwitchExprType = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(tsSwitchStmt.expression);
 
-    if (
-      !(tsSwitchExprType.getFlags() & (TypeFlags.NumberLike | TypeFlags.StringLike)) &&
-      !Utils.isEnumType(tsSwitchExprType)
-    ) {
+    const isSwitchableNumeric = (type: Type) => {
+      return !!(type.getFlags() & TypeFlags.NumberLike);
+    };
+    const isSwitchableString = (type: Type) => {
+      return !!(type.getFlags() & TypeFlags.StringLike);
+    };
+    if (!Utils.checkTypeSet(tsSwitchExprType, isSwitchableNumeric) &&
+        !Utils.checkTypeSet(tsSwitchExprType, isSwitchableString)) {
       this.incrementCounters(tsSwitchStmt.expression, FaultID.SwitchSelectorInvalidType);
     }
+
     for (const tsCaseClause of tsSwitchStmt.caseBlock.clauses) {
       if (isCaseClause(tsCaseClause)) {
         const tsCaseExpr = tsCaseClause.expression;

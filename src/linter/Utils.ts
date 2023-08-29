@@ -1175,5 +1175,17 @@ export function isDynamicLiteralInitializer(expr: Expression): boolean {
   return false;
 }
 
+export function checkTypeSet(uType: Type, predicate: (t: Type) => boolean): boolean {
+  if (!uType.isUnionOrIntersection()) {
+    return predicate(uType);
+  }
+  for (const elemType of uType.types) {
+    if (!checkTypeSet(elemType, predicate)) {
+      return false;
+    }
+  }
+  return true;
+}
+
 }
 }
