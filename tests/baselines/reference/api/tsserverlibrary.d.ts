@@ -11536,6 +11536,7 @@ declare namespace ts {
         function isBuiltinType(type: Type): boolean;
         function isDynamicType(type: Type | undefined): boolean | undefined;
         function isDynamicLiteralInitializer(expr: Expression): boolean;
+        function checkTypeSet(uType: Type, predicate: (t: Type) => boolean): boolean;
     }
 }
 declare namespace ts {
