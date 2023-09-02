@@ -1936,7 +1936,8 @@ namespace ts {
                         Diagnostics.Importing_ArkTS_files_in_JS_and_TS_files_is_about_to_be_forbidden.message :
                         Diagnostics.Importing_ArkTS_files_in_JS_and_TS_files_is_forbidden.message);
                     const isOhModule = item.file?.fileName.indexOf("/oh_modules/") !== -1;
-                    return !((item.file?.scriptKind === ScriptKind.TS && item.file?.isDeclarationFile && messageFlag) || isOhModule);
+                    const isApplicationsStandard = (item.file !== undefined) && (item.file.fileName.indexOf("/applications/standard/") !== -1);
+                    return !((item.file?.scriptKind === ScriptKind.TS && item.file?.isDeclarationFile && messageFlag) || isOhModule || isApplicationsStandard);
                 });
                 return diagnosticsAfterFilter;
             }
