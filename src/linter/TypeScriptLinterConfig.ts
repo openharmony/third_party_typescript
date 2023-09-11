@@ -61,7 +61,6 @@ export class LinterConfig {
     LinterConfig.nodeDesc[FaultID.FunctionExpression] = "function expressions";
     LinterConfig.nodeDesc[FaultID.IntersectionType] = "intersection types and type literals";
     LinterConfig.nodeDesc[FaultID.ObjectTypeLiteral] = "Object type literals";
-    LinterConfig.nodeDesc[FaultID.AddWithWrongType] = "binary \"+\" with wrong operand";
     LinterConfig.nodeDesc[FaultID.CommaOperator] = "comma operator";
     LinterConfig.nodeDesc[FaultID.LimitedReturnTypeInference] = "Functions with limited return type inference";
     LinterConfig.nodeDesc[FaultID.LambdaWithTypeParameters] = "Lambda function with type parameters";
@@ -81,8 +80,6 @@ export class LinterConfig {
     LinterConfig.nodeDesc[FaultID.TypeAssertion] = "Type assertion expressions";
     LinterConfig.nodeDesc[FaultID.PrivateIdentifier] = "Private identifiers (with \"#\" prefix)";
     LinterConfig.nodeDesc[FaultID.LocalFunction] = "Local function declarations";
-    LinterConfig.nodeDesc[FaultID.SwitchSelectorInvalidType] ="Switch selectors with invalid type";
-    LinterConfig.nodeDesc[FaultID.CaseExpressionNonConst] = "\"case\" clause with non-constant expression";
     LinterConfig.nodeDesc[FaultID.ConditionalType] = "Conditional type";
     LinterConfig.nodeDesc[FaultID.MappedType] = "Mapped type";
     LinterConfig.nodeDesc[FaultID.NamespaceAsObject] = "Namespaces used as objects";
@@ -94,9 +91,9 @@ export class LinterConfig {
     LinterConfig.nodeDesc[FaultID.JsxElement] = "JSX Elements";
     LinterConfig.nodeDesc[FaultID.EnumMemberNonConstInit] = "Enum members with non-constant initializer";
     LinterConfig.nodeDesc[FaultID.ImplementsClass] = "Class type mentioned in \"implements\" clause";
+    LinterConfig.nodeDesc[FaultID.MethodReassignment] = "Access to undefined field";
     LinterConfig.nodeDesc[FaultID.MultipleStaticBlocks] = "Multiple static blocks";
     LinterConfig.nodeDesc[FaultID.ThisType] = "\"this\" type";
-    LinterConfig.nodeDesc[FaultID.InferType] = "Infer type";
     LinterConfig.nodeDesc[FaultID.IntefaceExtendDifProps] = "Extends same properties with different types";
     LinterConfig.nodeDesc[FaultID.StructuralIdentity] = "Use of type structural identity";
     LinterConfig.nodeDesc[FaultID.TypeOnlyImport] = "Type-only imports";
@@ -114,7 +111,6 @@ export class LinterConfig {
     LinterConfig.nodeDesc[FaultID.UMDModuleDefinition] = "UMD module definition";
     LinterConfig.nodeDesc[FaultID.JSExtensionInModuleIdent] =".js extension in module identifier";
     LinterConfig.nodeDesc[FaultID.NewTarget] = "\"new.target\" meta-property";
-    LinterConfig.nodeDesc[FaultID.DynamicImport] = "Dynamic import expression";
     LinterConfig.nodeDesc[FaultID.DefiniteAssignment] = "Definite assignment assertion";
     LinterConfig.nodeDesc[FaultID.IifeAsNamespace] = "IIFEs as namespace declarations";
     LinterConfig.nodeDesc[FaultID.Prototype] = "Prototype assignment";
@@ -131,6 +127,9 @@ export class LinterConfig {
     LinterConfig.nodeDesc[FaultID.StrictDiagnostic] = "Strict diagnostic";
     LinterConfig.nodeDesc[FaultID.UnsupportedDecorators] = "Unsupported decorators";
     LinterConfig.nodeDesc[FaultID.ImportAfterStatement] = "Import declaration after other declaration or statement";
+    LinterConfig.nodeDesc[FaultID.EsObjectType] = '"ESObject" type';
+    LinterConfig.nodeDesc[FaultID.EsObjectAssignment] = '"ESObject" type assignment';
+    LinterConfig.nodeDesc[FaultID.EsObjectAccess] = '"ESObject" access';
 
    // LinterConfig.initTsSyntaxKindNames();
   }
@@ -178,7 +177,7 @@ export class LinterConfig {
   // tokens which can be reported without additional parsing
   static incrementOnlyTokens: ESMap<SyntaxKind , FaultID> = new Map([
     [SyntaxKind.AnyKeyword, FaultID.AnyType], [SyntaxKind.SymbolKeyword, FaultID.SymbolType],
-    [SyntaxKind.ThisType, FaultID.ThisType], [SyntaxKind.InferType, FaultID.InferType],
+    [SyntaxKind.ThisType, FaultID.ThisType],
     [SyntaxKind.TupleType, FaultID.TupleType], [SyntaxKind.ComputedPropertyName, FaultID.ComputedPropertyName],
     [SyntaxKind.TypeQuery, FaultID.TypeQuery],
     [SyntaxKind.DeleteExpression, FaultID.DeleteOperator],
