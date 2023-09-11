@@ -38,6 +38,10 @@ export function setTypeChecker(tsTypeChecker: TypeChecker): void {
   typeChecker = tsTypeChecker;
 }
 
+let testMode = false;
+export function setTestMode(tsTestMode: boolean): void {
+  testMode = tsTestMode;
+}
 
 export function getStartPos(nodeOrComment: Node | CommentRange): number {
   return (nodeOrComment.kind === SyntaxKind.SingleLineCommentTrivia || nodeOrComment.kind === SyntaxKind.MultiLineCommentTrivia)
@@ -49,21 +53,6 @@ export function getEndPos(nodeOrComment: Node | CommentRange): number {
   return (nodeOrComment.kind === SyntaxKind.SingleLineCommentTrivia || nodeOrComment.kind === SyntaxKind.MultiLineCommentTrivia)
     ? (nodeOrComment as CommentRange).end
     : (nodeOrComment as Node).getEnd();
-}
-
-
-
-const statementKinds = [
-  SyntaxKind.Block,SyntaxKind.EmptyStatement,SyntaxKind.VariableStatement,SyntaxKind.ExpressionStatement,
-  SyntaxKind.IfStatement,SyntaxKind.DoStatement,SyntaxKind.WhileStatement,SyntaxKind.ForStatement,
-  SyntaxKind.ForInStatement,SyntaxKind.ForOfStatement,SyntaxKind.ContinueStatement,
-  SyntaxKind.BreakStatement,SyntaxKind.ReturnStatement,SyntaxKind.WithStatement,
-  SyntaxKind.SwitchStatement,SyntaxKind.LabeledStatement,SyntaxKind.ThrowStatement,
-  SyntaxKind.TryStatement,SyntaxKind.DebuggerStatement,
-];
-
-export function isStatementKindNode(tsNode: Node): boolean {
-  return statementKinds.includes(tsNode.kind);
 }
 
 export function isAssignmentOperator(tsBinOp: BinaryOperatorToken): boolean {
@@ -124,12 +113,25 @@ export function isStringType(type: Type): boolean {
   return (type.getFlags() & TypeFlags.String) !== 0;
 }
 
-export function isStringEnumLiteralType(type: Type): boolean {
-  return !!((type.getFlags() & TypeFlags.StringLiteral) && (type.getFlags() & TypeFlags.EnumLiteral));
+export function isPrimitiveEnumType(type: Type, primitiveType: TypeFlags): boolean {
+  const isNonPrimitive = (type.flags & TypeFlags.NonPrimitive) !== 0;
+  if (!isEnumType(type) || !type.isUnion() || isNonPrimitive) {
+    return false;
+  }
+  for (const t of type.types) {
+    if ((t.flags & primitiveType) === 0) {
+      return false;
+    }
+  }
+  return true;
 }
 
-export function isNumberEnumLiteralType(type: Type): boolean {
-  return !!((type.getFlags() & TypeFlags.NumberLiteral) && (type.getFlags() & TypeFlags.EnumLiteral));
+export function isPrimitiveEnumMemberType(type: Type, primitiveType: TypeFlags): boolean {
+  const isNonPrimitive = (type.flags & TypeFlags.NonPrimitive) !== 0;
+  if (!isEnumMemberType(type) || isNonPrimitive) {
+    return false;
+  }
+  return (type.flags & primitiveType) !== 0;
 }
 
 export function unwrapParenthesizedType(tsType: TypeNode): TypeNode {
@@ -268,6 +270,28 @@ export function isGenericArrayType(tsType: Type): tsType is TypeReference {
   );
 }
 
+// does something similar to relatedByInheritanceOrIdentical function
+export function isDerivedFromArray(tsType: Type): tsType is TypeReference {
+  if (isTypeReference(tsType) && tsType.target !== tsType) tsType = tsType.target;
+  if (!tsType.symbol || !tsType.symbol.declarations) return false;
+
+  for (const tsTypeDecl of tsType.symbol.declarations) {
+    if (
+      (!isClassDeclaration(tsTypeDecl) && !isInterfaceDeclaration(tsTypeDecl)) ||
+      !tsTypeDecl.heritageClauses
+    ) break;
+    for (const heritageClause of tsTypeDecl.heritageClauses) {
+      for (const baseTypeExpr of heritageClause.types) {
+        let baseType = typeChecker.getTypeAtLocation(baseTypeExpr);
+        if (isTypeReference(baseType) && baseType.target !== baseType) baseType = baseType.target;
+        const baseTypeNode = typeChecker.typeToTypeNode(baseType, undefined, NodeBuilderFlags.None);
+        return isGenericArrayType(baseType) || isTypedArray(baseTypeNode);
+      }
+    }
+  }
+  return false;
+}
+
 export function isTypeReference(tsType: Type): tsType is TypeReference {
   return (
     (tsType.getFlags() & TypeFlags.Object) !== 0 &&
@@ -360,7 +384,7 @@ function getDeclaration(tsSymbol: Symbol | undefined): Declaration | null {
   return null;
 }
 
-function isVarDeclaration(tsDecl: Declaration): boolean {
+function isVarDeclaration(tsDecl: Node): boolean {
   return isVariableDeclaration(tsDecl) && isVariableDeclarationList(tsDecl.parent);
 }
 
@@ -727,6 +751,14 @@ export function areTypesAssignable(lhsType: Type | undefined, rhsExpr: Expressio
   // originates from the library.
   if (isLibraryType(lhsType)) return true;
 
+  // issue 13412:
+  // Allow initializing with a dynamic object when the LHS type
+  // is primitive or defined in standard library.
+  if (isDynamicObjectAssignedToStdType(lhsType, rhsExpr)) {
+    return true;
+  }
+
+
   // Allow initializing Record objects with object initializer.
   // Record supports any type for a its value, but the key value
   // must be either a string or number literal.
@@ -743,10 +775,7 @@ export function areTypesAssignable(lhsType: Type | undefined, rhsExpr: Expressio
     }
   }
 
-  if (isObjectLiteralExpression(rhsExpr)) {
-    return validateObjectLiteralType(lhsType) && !hasMethods(lhsType) &&
-      validateFields(lhsType, rhsExpr);
-  }
+  if (isObjectLiteralAssignable(lhsType, rhsExpr)) return true;
 
   // Always compare the non-nullable variant of types.
   lhsType = lhsType.getNonNullableType();
@@ -757,26 +786,52 @@ export function areTypesAssignable(lhsType: Type | undefined, rhsExpr: Expressio
   // Note: This check should appear before calling TypeChecker.getBaseTypeOfLiteralType()
   // to ensure that lhsType has its original form, as it can be a literal type with
   // specific number or string value, which shouldn't pass this check.
-  if ((isNumberType(lhsType) && isNumberEnumLiteralType(rhsType)) ||
-      (isStringType(lhsType) && isStringEnumLiteralType(rhsType))) {
+  if (isEnumAssignment(lhsType, rhsType)) {
     return true;
   }
 
   // If type is a literal type, compare its base type.
-  if (isLiteralType(lhsType)) {
-    lhsType = TypeScriptLinter.tsTypeChecker.getBaseTypeOfLiteralType(lhsType);
-  }
-  if (isLiteralType(rhsType)) {
-    rhsType = TypeScriptLinter.tsTypeChecker.getBaseTypeOfLiteralType(rhsType);
-  }
+  lhsType = typeChecker.getBaseTypeOfLiteralType(lhsType);
+  rhsType = typeChecker.getBaseTypeOfLiteralType(rhsType);
 
   // issue 13033:
   // If both types are functional, they are considered compatible.
-  if ((isStdFunctionType(lhsType) || isFunctionalType(lhsType)) &&
-      (isStdFunctionType(rhsType) || isFunctionalType(rhsType))) {
+  if (areCompatibleFunctionals(lhsType, rhsType)) {
     return true;
   }
   return lhsType === rhsType || hasBaseType(rhsType, getTargetType(lhsType));
+}
+
+function isDynamicObjectAssignedToStdType(lhsType: Type, rhsExpr: Expression): boolean {
+  if (isStdLibraryType(lhsType) || isPrimitiveType(lhsType)) {
+    const rhsSym = isCallExpression(rhsExpr)
+      ? getSymbolOfCallExpression(rhsExpr)
+      : typeChecker.getSymbolAtLocation(rhsExpr);
+
+    if (rhsSym && isLibrarySymbol(rhsSym)) return true;
+  }
+  return false;
+}
+
+function isObjectLiteralAssignable(lhsType: Type, rhsExpr: Expression): boolean {
+  if (isObjectLiteralExpression(rhsExpr)) {
+    return validateObjectLiteralType(lhsType) && !hasMethods(lhsType) &&
+      validateFields(lhsType, rhsExpr);
+  }
+  return false;
+}
+
+function isEnumAssignment(lhsType: Type, rhsType: Type) {
+  const isNumberEnum = isPrimitiveEnumType(rhsType, TypeFlags.NumberLiteral) ||
+                         isPrimitiveEnumMemberType(rhsType, TypeFlags.NumberLiteral);
+  const isStringEnum = isPrimitiveEnumType(rhsType, TypeFlags.StringLiteral) ||
+                         isPrimitiveEnumMemberType(rhsType, TypeFlags.StringLiteral);
+  return (isNumberType(lhsType) && isNumberEnum) || (isStringType(lhsType) && isStringEnum);
+}
+
+function areCompatibleFunctionals(lhsType: Type, rhsType: Type) {
+  return (isStdFunctionType(lhsType) || isFunctionalType(lhsType)) &&
+          (isStdFunctionType(rhsType) || isFunctionalType(rhsType));
 }
 
 function isFunctionalType(type: Type): boolean {
@@ -885,6 +940,8 @@ export function getDecorators(node: Node): readonly Decorator[] | undefined {
   }
 }
 
+export const ES_OBJECT = "ESObject";
+
 export const LIMITED_STD_GLOBAL_FUNC = [
   "eval", "isFinite", "isNaN", "parseFloat", "parseInt", /*"encodeURI", "encodeURIComponent", */ "Encode", /*"decodeURI",
   "decodeURIComponent", */ "Decode", /* "escape", "unescape", */ "ParseHexOctet"
@@ -909,8 +966,29 @@ export const LIMITED_STD_ARRAY_API = ["isArray"];
 export const LIMITED_STD_ARRAYBUFFER_API = ["isView"];
 
 export const ARKUI_DECORATORS = [
-  "Builder", "BuilderParam", "Component", "Consume", "Entry", "Link", "LocalStorageLink", "LocalStorageProp",
-  "ObjectLink", "Observed", "Prop", "Provide", "State", "StorageLink", "StorageProp", "Styles", "Watch",
+    "AnimatableExtend",
+    "Builder",
+    "BuilderParam",
+    "Component",
+    "Concurrent",
+    "Consume",
+    "CustomDialog",
+    "Entry",
+    "Extend",
+    "Link",
+    "LocalStorageLink",
+    "LocalStorageProp",
+    "ObjectLink",
+    "Observed",
+    "Preview",
+    "Prop",
+    "Provide",
+    "Reusable",
+    "State",
+    "StorageLink",
+    "StorageProp",
+    "Styles",
+    "Watch",
 ];
 
 export const FUNCTION_HAS_NO_RETURN_ERROR_CODE = 2366;
@@ -1043,12 +1121,23 @@ export function isLibrarySymbol(sym: Symbol | undefined) {
     if (!srcFile) {
       return false;
     }
-    const scriptKind = getScriptKind(srcFile);
+    const fileName = srcFile.fileName;
 
     // Symbols from both *.ts and *.d.ts files should obey interop rules.
     // We disable such behavior for *.ts files in the test mode due to lack of 'ets'
     // extension support.
-    const isInterop = srcFile.isDeclarationFile || (scriptKind === ScriptKind.TS /* TODO? && !testMode*/);
+    let isOhModule = false;
+    //for (const dir of path.dirname(normalizePath(fileName)).split(path.sep)) {
+    for (const dir of getPathComponents(normalizePath(fileName))) {
+      if (dir === "oh_modules") {
+        isOhModule = true;
+        break;
+      }
+    }
+    let isInterop = srcFile.isDeclarationFile || isOhModule;
+    if (!testMode) {
+      isInterop ||= getScriptKind(srcFile) === ScriptKind.TS;
+    }
 
     // We still need to confirm support for certain API from the
     // TypeScript standard library in Ark Thus, for now do not
@@ -1093,8 +1182,8 @@ export function isStdLibrarySymbol(sym: Symbol | undefined) {
   return false;
 }
 
-export function isBuiltinType(type: Type): boolean {
-  return !(type.flags & TypeFlags.NonPrimitive);
+export function isIntrinsicObjectType(type: Type): boolean {
+  return !!(type.flags & TypeFlags.NonPrimitive);
 }
 
 export function isDynamicType(type: Type | undefined): boolean | undefined {
@@ -1106,13 +1195,18 @@ export function isDynamicType(type: Type | undefined): boolean | undefined {
   // return 'false' if it is not an object of standard library type one.
   // In the case of standard library type we need to determine context.
 
+   // Check the non-nullable version of type to eliminate 'undefined' type
+  // from the union type elements.
+  type = type.getNonNullableType();
+
+
   if (type.isUnion()) {
     for (const compType of type.types) {
       if (isLibraryType(compType)) {
         return true;
       }
 
-      if (!isStdLibraryType(compType) && !isBuiltinType(compType)) {
+      if (!isStdLibraryType(compType) && !isIntrinsicObjectType(compType) && !isAnyType(compType)) {
         return false;
       }
     }
@@ -1123,7 +1217,7 @@ export function isDynamicType(type: Type | undefined): boolean | undefined {
     return true;
   }
 
-  if (!isStdLibraryType(type) && !isBuiltinType(type)) {
+  if (!isStdLibraryType(type) && !isIntrinsicObjectType(type) && !isAnyType(type)) {
     return false;
   }
 
@@ -1175,16 +1269,68 @@ export function isDynamicLiteralInitializer(expr: Expression): boolean {
   return false;
 }
 
-export function checkTypeSet(uType: Type, predicate: (t: Type) => boolean): boolean {
-  if (!uType.isUnionOrIntersection()) {
-    return predicate(uType);
+export function isEsObjectType(typeNode: TypeNode): boolean {
+  return isTypeReferenceNode(typeNode) && isIdentifier(typeNode.typeName) &&
+    typeNode.typeName.text === ES_OBJECT;
+}
+
+export function isEsObjectAllowed(typeRef: TypeReferenceNode): boolean {
+  let node = typeRef.parent;
+
+  if (!isVarDeclaration(node)) {
+    return false;
   }
-  for (const elemType of uType.types) {
-    if (!checkTypeSet(elemType, predicate)) {
-      return false;
+
+  while (node) {
+    if (isBlock(node)) {
+      return true;
     }
+    node = node.parent;
   }
-  return true;
+  return false;
+}
+
+export function getVariableDeclarationTypeNode(node: Node): TypeNode | undefined {
+  const symbol = typeChecker.getSymbolAtLocation(node);
+  const decl = getDeclaration(symbol);
+  if (!!decl && isVariableDeclaration(decl)) {
+    return decl.type;
+  }
+  return undefined;
+}
+
+export function hasEsObjectType(node: Node): boolean {
+  const typeNode = getVariableDeclarationTypeNode(node);
+  return typeNode !== undefined && isEsObjectType(typeNode);
+}
+
+export function isEsObjectSymbol(sym: Symbol): boolean {
+  const decl = getDeclaration(sym);
+  return !!decl && isTypeAliasDeclaration(decl) && decl.name.escapedText === ES_OBJECT &&
+    decl.type.kind === SyntaxKind.AnyKeyword;
+}
+
+export function isAnonymousType(type: Type): boolean {
+  if (type.isUnionOrIntersection()) {
+    for (const compType of type.types) {
+      if (isAnonymousType(compType)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  return (type.flags & TypeFlags.Object) !== 0 &&
+    ((type as ObjectType).objectFlags & ObjectFlags.Anonymous) !== 0;
+}
+
+export function getSymbolOfCallExpression(callExpr: CallExpression): Symbol | undefined {
+  const signature = typeChecker.getResolvedSignature(callExpr);
+  const signDecl = signature?.getDeclaration();
+  if (signDecl && signDecl.name) {
+    return typeChecker.getSymbolAtLocation(signDecl.name);
+  }
+  return undefined;
 }
 
 }

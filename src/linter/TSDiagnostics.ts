@@ -19,8 +19,8 @@ export class TSCCompiledProgram {
   private diagnosticsExtractor: TypeScriptDiagnosticsExtractor;
   private wasStrict: boolean;
 
-  constructor(program: Program, inputFiles: string[]) {
-    const { strict, nonStrict, wasStrict } = getTwoCompiledVersions(program, inputFiles);
+  constructor(program: Program, host: CompilerHost) {
+    const { strict, nonStrict, wasStrict } = getTwoCompiledVersions(program, host);
     this.diagnosticsExtractor = new TypeScriptDiagnosticsExtractor(strict, nonStrict);
     this.wasStrict = wasStrict;
   }
@@ -45,15 +45,16 @@ function getStrictOptions(strict = true) {
   };
 }
 
-function compile(inputFiles: string[], compilerOptions: CompilerOptions, extraOptions?: any): Program {
-  const createProgramOptions = formTscOptions(inputFiles, compilerOptions, extraOptions);
+function compile(rootNames: readonly string[], compilerOptions: CompilerOptions, host: CompilerHost, extraOptions?: any): Program {
+  const createProgramOptions = formTscOptions(rootNames, compilerOptions, host, extraOptions);
   const program = createProgram(createProgramOptions);
   return program;
 }
 
-function formTscOptions(inputFiles: string[], compilerOptions: CompilerOptions, extraOptions?: any): CreateProgramOptions {
+function formTscOptions(rootNames: readonly string[], compilerOptions: CompilerOptions, host: CompilerHost, extraOptions?: any): CreateProgramOptions {
   const options: CreateProgramOptions = {
-    rootNames: inputFiles,
+    rootNames,
+    host,
     options: compilerOptions,
   };
 
@@ -66,13 +67,13 @@ function formTscOptions(inputFiles: string[], compilerOptions: CompilerOptions, 
 
 function getTwoCompiledVersions(
   program: Program,
-  inputFiles: string[],
+  host: CompilerHost,
 ): { strict: Program; nonStrict: Program; wasStrict: boolean } {
   const compilerOptions = { ...program.getCompilerOptions() };
 
   const wasStrict = inverseStrictOptions(compilerOptions);
   const inversedOptions = getStrictOptions(!wasStrict);
-  const withInversedOptions = compile(inputFiles, compilerOptions, inversedOptions);
+  const withInversedOptions = compile(program.getRootFileNames(), compilerOptions, host, inversedOptions);
 
   return {
     strict: wasStrict ? program : withInversedOptions,

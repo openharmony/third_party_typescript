@@ -21,21 +21,22 @@ export enum FaultID {
   DestructuringParameter, YieldExpression, InterfaceMerging, EnumMerging, InterfaceExtendsClass, IndexMember, WithStatement,
   ThrowStatement, IndexedAccessType, UnknownType, ForInStatement, InOperator,
   KeyOfOperator, ImportFromPath, FunctionExpression, IntersectionType,
-  ObjectTypeLiteral, AddWithWrongType, CommaOperator, LimitedReturnTypeInference,
+  ObjectTypeLiteral, CommaOperator, LimitedReturnTypeInference,
   LambdaWithTypeParameters, ClassExpression, DestructuringAssignment,
   DestructuringDeclaration, ForOfNonArray, VarDeclaration, CatchWithUnsupportedType, DeleteOperator,
   DeclWithDuplicateName, UnaryArithmNotNumber, ConstructorType, ConstructorIface, ConstructorFuncs, CallSignature,
   TypeAssertion, PrivateIdentifier, LocalFunction,
-  SwitchSelectorInvalidType, CaseExpressionNonConst, ConditionalType, MappedType, NamespaceAsObject, ClassAsObject,
+  ConditionalType, MappedType, NamespaceAsObject, ClassAsObject,
   NonDeclarationInNamespace, GeneratorFunction, FunctionContainsThis, PropertyAccessByIndex, JsxElement,
-  EnumMemberNonConstInit, ImplementsClass, MultipleStaticBlocks, ThisType, InferType,
+  EnumMemberNonConstInit, ImplementsClass, MethodReassignment, MultipleStaticBlocks, ThisType,
   IntefaceExtendDifProps, StructuralIdentity, TypeOnlyImport, TypeOnlyExport, DefaultImport,
   LimitedReExporting, ExportAssignment, ImportAssignment, PropertyRuntimeCheck,
   GenericCallNoTypeArgs, ParameterProperties,
   InstanceofUnsupported, ShorthandAmbientModuleDecl, WildcardsInModuleName, UMDModuleDefinition,
-  JSExtensionInModuleIdent, NewTarget, DynamicImport, DefiniteAssignment, IifeAsNamespace, Prototype, GlobalThis,
+  JSExtensionInModuleIdent, NewTarget, DefiniteAssignment, IifeAsNamespace, Prototype, GlobalThis,
   UtilityType, PropertyDeclOnFunction, FunctionApplyBindCall, ReadonlyArr, ConstAssertion, ImportAssertion,
   SpreadOperator, LimitedStdLibApi, ErrorSuppression, StrictDiagnostic, UnsupportedDecorators, ImportAfterStatement,
+  EsObjectType, EsObjectAssignment, EsObjectAccess,
   LAST_ID, // this should always be last enum`
 }
 
@@ -78,26 +79,23 @@ faultsAttrs[FaultID.FunctionExpression] = { migratable: true, cookBookRef: "46",
 faultsAttrs[FaultID.LambdaWithTypeParameters] = { migratable: true, cookBookRef: "49", };
 faultsAttrs[FaultID.ClassExpression] = { migratable: true, cookBookRef: "50", };
 faultsAttrs[FaultID.ImplementsClass] = { cookBookRef: "51", };
+faultsAttrs[FaultID.MethodReassignment] = {cookBookRef: '52',};
 faultsAttrs[FaultID.TypeAssertion] = { migratable: true, cookBookRef: "53", };
 faultsAttrs[FaultID.JsxElement] = { cookBookRef: "54", };
 faultsAttrs[FaultID.UnaryArithmNotNumber] = { cookBookRef: "55", };
 faultsAttrs[FaultID.DeleteOperator] = { cookBookRef: "59", };
 faultsAttrs[FaultID.TypeQuery] = { cookBookRef: "60", };
 // remove as rule#61: FaultID.BitOpWithWrongType => { cookBookRef: "61", };
-faultsAttrs[FaultID.AddWithWrongType] = { cookBookRef: "63", };
 faultsAttrs[FaultID.InstanceofUnsupported] = { cookBookRef: "65", };
 faultsAttrs[FaultID.InOperator] = { cookBookRef: "66", };
 faultsAttrs[FaultID.DestructuringAssignment] = { migratable: true, cookBookRef: "69", };
 faultsAttrs[FaultID.CommaOperator] = { cookBookRef: "71", };
 faultsAttrs[FaultID.DestructuringDeclaration] = { migratable: true, cookBookRef: "74", };
-faultsAttrs[FaultID.InferType] = { cookBookRef: "76", };
 faultsAttrs[FaultID.CatchWithUnsupportedType] = { migratable: true, cookBookRef: "79", };
 faultsAttrs[FaultID.ForInStatement] = { cookBookRef: "80", };
 faultsAttrs[FaultID.ForOfNonArray] = { migratable: true, cookBookRef: "82", };
 faultsAttrs[FaultID.MappedType] = { cookBookRef: "83", };
 faultsAttrs[FaultID.WithStatement] = { cookBookRef: "84", };
-faultsAttrs[FaultID.CaseExpressionNonConst] = { cookBookRef: "85", };
-faultsAttrs[FaultID.SwitchSelectorInvalidType] = { cookBookRef: "86", };
 faultsAttrs[FaultID.ThrowStatement] = { migratable: true, cookBookRef: "87", };
 faultsAttrs[FaultID.LimitedReturnTypeInference] = { migratable: true, cookBookRef: "90", };
 faultsAttrs[FaultID.DestructuringParameter] = { cookBookRef: "91", };
@@ -129,7 +127,6 @@ faultsAttrs[FaultID.WildcardsInModuleName] = { cookBookRef: "129", };
 faultsAttrs[FaultID.UMDModuleDefinition] = { cookBookRef: "130", };
 faultsAttrs[FaultID.JSExtensionInModuleIdent] = { cookBookRef: "131", };
 faultsAttrs[FaultID.NewTarget] = { cookBookRef: "132", };
-faultsAttrs[FaultID.DynamicImport] = { cookBookRef: "133", };
 faultsAttrs[FaultID.DefiniteAssignment] = { cookBookRef: "134", };
 faultsAttrs[FaultID.IifeAsNamespace] = { cookBookRef: "135", };
 faultsAttrs[FaultID.Prototype] = { cookBookRef: "136", };
@@ -146,5 +143,8 @@ faultsAttrs[FaultID.ErrorSuppression] = { cookBookRef: "146", };
 faultsAttrs[FaultID.UnsupportedDecorators] = { cookBookRef: "148", };
 faultsAttrs[FaultID.ClassAsObject] = { cookBookRef: "149", };
 faultsAttrs[FaultID.ImportAfterStatement] = { cookBookRef: "150", };
+faultsAttrs[FaultID.EsObjectType] = { cookBookRef: "8" };
+faultsAttrs[FaultID.EsObjectAssignment] = { cookBookRef: "8" };
+faultsAttrs[FaultID.EsObjectAccess] = { cookBookRef: "8" };
 }
 }

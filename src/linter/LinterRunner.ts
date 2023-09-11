@@ -24,7 +24,7 @@ export function translateDiag(srcFile: SourceFile, problemInfo: ProblemInfo): Di
   return makeDiag(DiagnosticCategory.Error, LINTER_MSG_CODE_START /*+ problemInfo.ruleTag */, srcFile , problemInfo.start, (problemInfo.end - problemInfo.start + 1), problemInfo.rule);
 }
 
-export function runArkTSLinter(tsProgram: Program, srcFile?: SourceFile): Diagnostic[] {
+export function runArkTSLinter(tsProgram: Program, host: CompilerHost, srcFile?: SourceFile): Diagnostic[] {
   TypeScriptLinter.errorLineNumbersString = "";
   TypeScriptLinter.warningLineNumbersString = "";
   let diagnostics: Diagnostic[] = [];
@@ -39,7 +39,7 @@ export function runArkTSLinter(tsProgram: Program, srcFile?: SourceFile): Diagno
     srcFiles = tsProgram.getSourceFiles() as SourceFile[];
   }
 
-  const tscDiagnosticsLinter = new TSCCompiledProgram(tsProgram, srcFiles.map((x) => x.fileName));
+  const tscDiagnosticsLinter = new TSCCompiledProgram(tsProgram, host);
   const tscStrictDiagnostics = getTscDiagnostics(tscDiagnosticsLinter, srcFiles);
 
   for(const fileToLint of srcFiles) {
