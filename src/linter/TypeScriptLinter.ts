@@ -61,8 +61,7 @@ export class TypeScriptLinter {
   static errorLineNumbersString: string;
   static totalWarningLines: number;
   static warningLineNumbersString: string;
-
-  static reportDiagnostics: boolean = true;
+  static reportDiagnostics = true;
 
   // The SyntaxKind enum defines additional elements at the end of the enum
   // that serve as markers (FirstX/LastX). Those elements are initialized
@@ -159,7 +158,7 @@ export class TypeScriptLinter {
     [SyntaxKind.NamespaceImport, this.handleNamespaceImport],
     [SyntaxKind.TypeAssertionExpression, this.handleTypeAssertionExpression],
     [SyntaxKind.MethodDeclaration, this.handleMethodDeclaration],
-    [SyntaxKind.SwitchStatement, this.handleSwitchStatement], [SyntaxKind.Identifier, this.handleIdentifier],
+    [SyntaxKind.Identifier, this.handleIdentifier],
     [SyntaxKind.ElementAccessExpression, this.handleElementAccessExpression],
     [SyntaxKind.EnumMember, this.handleEnumMember], [SyntaxKind.TypeReference, this.handleTypeReference],
     [SyntaxKind.ExportDeclaration, this.handleExportDeclaration],
@@ -169,6 +168,7 @@ export class TypeScriptLinter {
     [SyntaxKind.SpreadElement, this.handleSpreadOp], [SyntaxKind.SpreadAssignment, this.handleSpreadOp],
     [SyntaxKind.GetAccessor, this.handleGetAccessor], [SyntaxKind.SetAccessor, this.handleSetAccessor],
     [SyntaxKind.ConstructSignature, this.handleConstructSignature],
+    [SyntaxKind.ExpressionWithTypeArguments, this.handleExpressionWithTypeArguments],
   ]);
 
   public incrementCounters(node: Node | CommentRange, faultId: number, autofixable = false, autofix?: Autofix[]): void {
@@ -707,6 +707,9 @@ export class TypeScriptLinter {
     if(!!symbol && Utils.isSymbolAPI(symbol)) {
       this.incrementCounters(node, FaultID.SymbolType);
     }
+    if (Utils.hasEsObjectType(propertyAccessNode.expression)) {
+      this.incrementCounters(node, FaultID.EsObjectAccess);
+    }
   }
 
   private handlePropertyAssignmentOrDeclaration(node: Node) {
@@ -735,7 +738,7 @@ export class TypeScriptLinter {
     if (isPropertyDeclaration(node)) {
       const decorators = node.decorators;
       this.handleDecorators(decorators);
-      this.filterOutStrictDiagnostics(
+      this.filterOutDecoratorsDiagnostics(
           decorators,
           Utils.NON_INITIALIZABLE_PROPERTY_DECORATORS,
           { begin: propName.getStart(), end: propName.getStart() },
@@ -746,7 +749,7 @@ export class TypeScriptLinter {
     }
   }
 
-  private filterOutStrictDiagnostics(decorators: readonly Decorator[] | undefined,
+  private filterOutDecoratorsDiagnostics(decorators: readonly Decorator[] | undefined,
     expectedDecorators: readonly string[],
     range: { begin: number, end: number}, code: number) {
     // Filter out non-initializable property decorators from strict diagnostics.
@@ -779,6 +782,34 @@ export class TypeScriptLinter {
         }
       }
     }
+  }
+
+  private filterStrictDiagnostics(range: { begin: number, end: number }, code: number,
+    chainCheck: (n: string | DiagnosticMessageChain) => boolean): boolean {
+    if (!this.tscStrictDiagnostics || !this.sourceFile) {
+      return false;
+    }
+    const file = normalizePath(this.sourceFile.fileName);
+    const tscDiagnostics = this.tscStrictDiagnostics.get(file);
+    if (!tscDiagnostics) {
+      return false;
+    }
+
+    const checkDiagnostic = (val: Diagnostic) => {
+      if (val.code !== code) {
+        return true;
+      }
+      if (val.start === undefined || val.start < range.begin || val.start > range.end) {
+        return true;
+      }
+      return chainCheck(val.messageText);
+    };
+
+    if (tscDiagnostics.every(checkDiagnostic)) {
+      return false;
+    }
+    this.tscStrictDiagnostics.set(file, tscDiagnostics.filter(checkDiagnostic));
+    return true;
   }
 
   private handleFunctionExpression(node: Node): void {
@@ -982,18 +1013,12 @@ export class TypeScriptLinter {
           ) {
           return;
         }
-        else {
-          this.incrementCounters(node, FaultID.AddWithWrongType);
-        }
       }
       else if (Utils.isNumberType(leftOperandType) && Utils.isNumberType(rightOperandType)) {
         return;
       }
       else if (Utils.isStringLikeType(leftOperandType) || Utils.isStringLikeType(rightOperandType)) {
         return;
-      }
-      else {
-        this.incrementCounters(node, FaultID.AddWithWrongType);
       }
     }
     else if (
@@ -1044,6 +1069,10 @@ export class TypeScriptLinter {
         !Utils.relatedByInheritanceOrIdentical(rightOperandType, leftOperandType)
       ) {
         this.incrementCounters(tsBinaryExpr, FaultID.StructuralIdentity);
+        const typeNode = Utils.getVariableDeclarationTypeNode(tsLhsExpr);
+        if (!!typeNode) {
+          this.handleEsObjectAssignment(tsBinaryExpr, typeNode, tsRhsExpr);
+        }
       }
     }
   }
@@ -1091,12 +1120,40 @@ export class TypeScriptLinter {
         !Utils.relatedByInheritanceOrIdentical(tsInitType, tsVarType)
       ) {
         this.incrementCounters(tsVarDecl, FaultID.StructuralIdentity);
+        this.handleEsObjectAssignment(tsVarDecl, tsVarDecl.type, tsVarInit);
       }
     }
 
     this.handleDeclarationInferredType(tsVarDecl);
     this.handleDefiniteAssignmentAssertion(tsVarDecl);
   }
+
+  private handleEsObjectAssignment(node: Node, type: TypeNode, value: Node) {
+    if (!Utils.isEsObjectType(type)) {
+      const valueTypeNode = Utils.getVariableDeclarationTypeNode(value);
+      if (!!valueTypeNode && Utils.isEsObjectType(valueTypeNode)) {
+        this.incrementCounters(node, FaultID.EsObjectAssignment);
+      }
+      return;
+    }
+
+    if (isArrayLiteralExpression(value) || isObjectLiteralExpression(value)) {
+      this.incrementCounters(node, FaultID.EsObjectAssignment);
+      return;
+    }
+
+    const valueType = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(value);
+    if (Utils.isUnsupportedType(valueType)) {
+      return;
+    }
+
+    if (Utils.isAnonymousType(valueType)) {
+      return;
+    }
+
+    this.incrementCounters(node, FaultID.EsObjectAssignment);
+  }
+
 
   private handleCatchClause(node: Node): void {
     const tsCatch = node as CatchClause;
@@ -1262,67 +1319,9 @@ export class TypeScriptLinter {
       this.incrementCounters(node, FaultID.GeneratorFunction);
     }
     this.handleDecorators(tsMethodDecl.decorators);
-    this.filterOutStrictDiagnostics(Utils.getDecorators(tsMethodDecl), Utils.NON_RETURN_FUNCTION_DECORATORS,
+    this.filterOutDecoratorsDiagnostics(Utils.getDecorators(tsMethodDecl), Utils.NON_RETURN_FUNCTION_DECORATORS,
       { begin: tsMethodDecl.parameters.end, end: tsMethodDecl.body?.getStart() ?? tsMethodDecl.parameters.end },
       Utils.FUNCTION_HAS_NO_RETURN_ERROR_CODE);
-  }
-
-  private handleSwitchStatement(node: Node): void {
-    const tsSwitchStmt = node as SwitchStatement;
-    const tsSwitchExprType = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(tsSwitchStmt.expression);
-
-    const isSwitchableNumeric = (type: Type) => {
-      return !!(type.getFlags() & TypeFlags.NumberLike);
-    };
-    const isSwitchableString = (type: Type) => {
-      return !!(type.getFlags() & TypeFlags.StringLike);
-    };
-    if (!Utils.checkTypeSet(tsSwitchExprType, isSwitchableNumeric) &&
-        !Utils.checkTypeSet(tsSwitchExprType, isSwitchableString)) {
-      this.incrementCounters(tsSwitchStmt.expression, FaultID.SwitchSelectorInvalidType);
-    }
-
-    for (const tsCaseClause of tsSwitchStmt.caseBlock.clauses) {
-      if (isCaseClause(tsCaseClause)) {
-        const tsCaseExpr = tsCaseClause.expression;
-        const tsCaseExprType = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(tsCaseExpr);
-        const tsCaseSym = TypeScriptLinter.tsTypeChecker.getSymbolAtLocation(tsCaseExpr);
-        let isConstOrStaticReadonlyField = false;
-
-        if (tsCaseSym?.valueDeclaration) {
-          const isSymProperty = (tsCaseSym.flags & SymbolFlags.Property) !== 0;
-          const isSymVariable = (tsCaseSym.flags & SymbolFlags.Variable) !== 0;
-
-          if (isSymProperty && isPropertyAccessExpression(tsCaseExpr)) {
-          const tsPropDecl = tsCaseSym.valueDeclaration as PropertyDeclaration;
-          if (tsPropDecl?.initializer) {
-          const tsPropModifiers = tsPropDecl.modifiers;
-          isConstOrStaticReadonlyField = Utils.isCompileTimeExpression(tsPropDecl.initializer) &&
-                                          Utils.hasModifier(tsPropModifiers, SyntaxKind.StaticKeyword) &&
-                                          Utils.hasModifier(tsPropModifiers, SyntaxKind.ReadonlyKeyword);
-          }
-        }
-        else if (isSymVariable && isVariableDeclaration(tsCaseSym.valueDeclaration)) {
-          const tsVarDecl = tsCaseSym.valueDeclaration;
-          if (tsVarDecl?.initializer) {
-            isConstOrStaticReadonlyField = Utils.isCompileTimeExpression(tsVarDecl.initializer) &&
-                                              Utils.isConst(tsVarDecl);
-          }
-        }
-      }
-
-      if (
-          !(
-            isConstOrStaticReadonlyField ||
-            isNumericLiteral(tsCaseExpr) ||
-            isStringLiteralLike(tsCaseExpr) ||
-            tsCaseExprType.flags & TypeFlags.EnumLike
-          )
-        ) {
-          this.incrementCounters(tsCaseExpr, FaultID.CaseExpressionNonConst);
-        }
-      }
-    }
   }
 
   private handleIdentifier(node: Node): void {
@@ -1409,6 +1408,7 @@ export class TypeScriptLinter {
     if (isTypeNode(tsIdentStart.parent) ||
         isExpressionWithTypeArguments(tsIdentStart.parent) ||
         isExportAssignment(tsIdentStart.parent) ||
+        isExportSpecifier(tsIdentStart.parent) ||
         isMetaProperty(tsIdentStart.parent) ||
         isImportClause(tsIdentStart.parent) ||
         isClassLike(tsIdentStart.parent) ||
@@ -1430,19 +1430,26 @@ export class TypeScriptLinter {
     const tsElementAccessExpr = node as ElementAccessExpression;
     const tsElemAccessBaseExprType = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(tsElementAccessExpr.expression);
     const tsElemAccessBaseExprTypeNode = TypeScriptLinter.tsTypeChecker.typeToTypeNode(tsElemAccessBaseExprType, undefined, NodeBuilderFlags.None);
-
+    const checkClassOrInterface = tsElemAccessBaseExprType.isClassOrInterface() &&
+                                  !Utils.isGenericArrayType(tsElemAccessBaseExprType) &&
+                                  !Utils.isDerivedFromArray(tsElemAccessBaseExprType);
+    const checkThisOrSuper = Utils.isThisOrSuperExpr(tsElementAccessExpr.expression) &&
+                             !Utils.isDerivedFromArray(tsElemAccessBaseExprType);
     if (
-      !Utils.isLibraryType(tsElemAccessBaseExprType) && !Utils.isTypedArray(tsElemAccessBaseExprTypeNode) &&
-      ((tsElemAccessBaseExprType.isClassOrInterface() && !Utils.isGenericArrayType(tsElemAccessBaseExprType)) ||
-      Utils.isObjectLiteralType(tsElemAccessBaseExprType) || Utils.isEnumType(tsElemAccessBaseExprType) ||
-      Utils.isThisOrSuperExpr(tsElementAccessExpr.expression))
-         ) {
+        !Utils.isLibraryType(tsElemAccessBaseExprType) && !Utils.isTypedArray(tsElemAccessBaseExprTypeNode) &&
+          (checkClassOrInterface ||
+          Utils.isObjectLiteralType(tsElemAccessBaseExprType) || Utils.isEnumType(tsElemAccessBaseExprType) ||
+          checkThisOrSuper)
+        ) {
       let autofix = Autofixer.fixPropertyAccessByIndex(node);
       const autofixable = autofix !== undefined;
       if (!Autofixer.shouldAutofix(node, FaultID.PropertyAccessByIndex)) {
         autofix = undefined;
       }
       this.incrementCounters(node, FaultID.PropertyAccessByIndex, autofixable, autofix);
+    }
+    if (Utils.hasEsObjectType(tsElementAccessExpr.expression)) {
+      this.incrementCounters(node, FaultID.EsObjectAccess);
     }
   }
 
@@ -1483,10 +1490,6 @@ export class TypeScriptLinter {
       this.incrementCounters(node, FaultID.TypeOnlyExport, true, autofix);
     }
 
-    if (tsExportDecl.moduleSpecifier && !tsExportDecl.exportClause) {
-      this.incrementCounters(node, FaultID.LimitedReExporting);
-    }
-
     const exportClause = tsExportDecl.exportClause;
     if(exportClause && isNamespaceExport(exportClause)) {
       this.incrementCounters(node, FaultID.LimitedReExporting);
@@ -1512,6 +1515,11 @@ export class TypeScriptLinter {
     this.handleGenericCallWithNoTypeArgs(tsCallExpr);
     this.handleStructIdentAndUndefinedInArgs(tsCallExpr);
     this.handleStdlibAPICall(tsCallExpr);
+    this.handleLibraryTypeCall(tsCallExpr);
+
+    if (Utils.hasEsObjectType(tsCallExpr.expression)) {
+      this.incrementCounters(node, FaultID.EsObjectAccess);
+    }
   }
 
   private handleImportCall(tsCallExpr: CallExpression): void {
@@ -1644,6 +1652,34 @@ export class TypeScriptLinter {
     }
   }
 
+  private handleLibraryTypeCall(callExpr: CallExpression) {
+    const TYPE_0_IS_NOT_ASSIGNABLE_TO_TYPE_1_ERROR_CODE = 2322;
+    const TYPE_UNKNOWN_IS_NOT_ASSIGNABLE_TO_TYPE_1_RE = /^Type 'unknown' is not assignable to type '.*'.$/;
+    const ARGUMENT_OF_TYPE_0_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_ERROR_CODE = 2345;
+    const ARGUMENT_OF_TYPE_NULL_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_RE = /^Argument of type 'null' is not assignable to parameter of type '.*'.$/;
+
+
+    const chainCheck = (n: DiagnosticMessageChain): boolean => {
+      if (n.code === TYPE_0_IS_NOT_ASSIGNABLE_TO_TYPE_1_ERROR_CODE &&
+        n.messageText.match(TYPE_UNKNOWN_IS_NOT_ASSIGNABLE_TO_TYPE_1_RE)) {
+        return false;
+      }
+      return n.next === undefined ? true : chainCheck(n.next[0]);
+    };
+
+    const msgCheck = (msg: string): boolean => {
+      if (Utils.isLibraryType(TypeScriptLinter.tsTypeChecker.getTypeAtLocation(callExpr.expression))) {
+        const match = msg.match(ARGUMENT_OF_TYPE_NULL_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_RE);
+        return !match;
+      }
+      return true;
+    };
+
+    this.filterStrictDiagnostics({ begin: callExpr.pos, end: callExpr.end },
+      ARGUMENT_OF_TYPE_0_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_ERROR_CODE,
+      (msg) => (typeof msg === "string" ? msgCheck(msg) : chainCheck(msg)));
+  }
+
   private handleNewExpression(node: Node): void {
     const tsNewExpr = node as NewExpression;
     this.handleGenericCallWithNoTypeArgs(tsNewExpr);
@@ -1677,6 +1713,9 @@ export class TypeScriptLinter {
 
     if (isIdentifier(typeRef.typeName) && Utils.LIMITED_STANDARD_UTILITY_TYPES.includes(typeRef.typeName.text)) {
       this.incrementCounters(node, FaultID.UtilityType);
+    }
+    else if (Utils.isEsObjectType(typeRef) && !Utils.isEsObjectAllowed(typeRef)) {
+      this.incrementCounters(node, FaultID.EsObjectType);
     }
     else if (
       isIdentifier(typeRef.typeName) && typeRef.typeName.text === "Partial" &&
@@ -1758,6 +1797,14 @@ export class TypeScriptLinter {
           this.checkErrorSuppressingAnnotation(comment, srcText);
         }
       }
+    }
+  }
+
+  private handleExpressionWithTypeArguments(node: Node) {
+    const tsTypeExpr = node as ExpressionWithTypeArguments;
+    const symbol = TypeScriptLinter.tsTypeChecker.getSymbolAtLocation(tsTypeExpr.expression);
+    if (!!symbol && Utils.isEsObjectSymbol(symbol)) {
+      this.incrementCounters(tsTypeExpr, FaultID.EsObjectType);
     }
   }
 
