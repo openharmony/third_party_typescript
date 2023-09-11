@@ -23,9 +23,17 @@ import FaultID = Problems.FaultID;
 
 export const AUTOFIX_ALL: AutofixInfo = { problemID: "", start: -1, end: -1 };
 
+// Some fixes are potentially risky and may break source code if fixes
+// are applied separately.
+// Temporary solution is to disable all risky autofixes, until the
+// algorithm is improved to guarantee that fixes can be applied
+// safely and won't break program code.
+const UNSAFE_FIXES: FaultID[] = [ FaultID.LiteralAsPropertyName, FaultID.PropertyAccessByIndex ];
+
 export const autofixInfo: AutofixInfo[] = [];
 
 export function shouldAutofix(node: Node, faultID: FaultID): boolean {
+  if (UNSAFE_FIXES.includes(faultID)) return false;
   if (autofixInfo.length === 0) return false;
   if (autofixInfo.length === 1 && autofixInfo[0] === AUTOFIX_ALL) return true;
   return autofixInfo.findIndex(
@@ -99,20 +107,6 @@ export function fixPropertyAccessByIndex(node: Node): Autofix[] | undefined {
   }
 
   return undefined;
-}
-
-export function fixParamWithoutType(param: ParameterDeclaration, paramType: TypeNode,
-  isFuncExprParam = false): Autofix | ParameterDeclaration {
-  const paramWithType = factory.createParameterDeclaration(
-    undefined, undefined, param.dotDotDotToken, param.name, param.questionToken,
-    paramType, param.initializer
-  );
-  if (isFuncExprParam) {
-    return paramWithType;
-  }
-
-  const text = printer.printNode(EmitHint.Unspecified, paramWithType, param.getSourceFile());
-  return { start: param.getStart(), end: param.getEnd(), replacementText: text };
 }
 
 export function fixFunctionExpression(funcExpr: FunctionExpression,
