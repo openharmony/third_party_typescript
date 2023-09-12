@@ -28,12 +28,12 @@ export enum FaultID {
   TypeAssertion, PrivateIdentifier, LocalFunction,
   ConditionalType, MappedType, NamespaceAsObject, ClassAsObject,
   NonDeclarationInNamespace, GeneratorFunction, FunctionContainsThis, PropertyAccessByIndex, JsxElement,
-  EnumMemberNonConstInit, ImplementsClass, MethodReassignment, MultipleStaticBlocks, ThisType,
+  EnumMemberNonConstInit, ImplementsClass, NoUndefinedPropAccess, MultipleStaticBlocks, ThisType,
   IntefaceExtendDifProps, StructuralIdentity, TypeOnlyImport, TypeOnlyExport, DefaultImport,
   LimitedReExporting, ExportAssignment, ImportAssignment, PropertyRuntimeCheck,
   GenericCallNoTypeArgs, ParameterProperties,
   InstanceofUnsupported, ShorthandAmbientModuleDecl, WildcardsInModuleName, UMDModuleDefinition,
-  JSExtensionInModuleIdent, NewTarget, DefiniteAssignment, IifeAsNamespace, Prototype, GlobalThis,
+  NewTarget, DefiniteAssignment, IifeAsNamespace, Prototype, GlobalThis,
   UtilityType, PropertyDeclOnFunction, FunctionApplyBindCall, ReadonlyArr, ConstAssertion, ImportAssertion,
   SpreadOperator, LimitedStdLibApi, ErrorSuppression, StrictDiagnostic, UnsupportedDecorators, ImportAfterStatement,
   EsObjectType, EsObjectAssignment, EsObjectAccess,
@@ -79,7 +79,7 @@ faultsAttrs[FaultID.FunctionExpression] = { migratable: true, cookBookRef: "46",
 faultsAttrs[FaultID.LambdaWithTypeParameters] = { migratable: true, cookBookRef: "49", };
 faultsAttrs[FaultID.ClassExpression] = { migratable: true, cookBookRef: "50", };
 faultsAttrs[FaultID.ImplementsClass] = { cookBookRef: "51", };
-faultsAttrs[FaultID.MethodReassignment] = {cookBookRef: '52',};
+faultsAttrs[FaultID.NoUndefinedPropAccess] = { cookBookRef: "52", };
 faultsAttrs[FaultID.TypeAssertion] = { migratable: true, cookBookRef: "53", };
 faultsAttrs[FaultID.JsxElement] = { cookBookRef: "54", };
 faultsAttrs[FaultID.UnaryArithmNotNumber] = { cookBookRef: "55", };
@@ -125,7 +125,6 @@ faultsAttrs[FaultID.TypeOnlyExport] = { migratable: true, cookBookRef: "127", };
 faultsAttrs[FaultID.ShorthandAmbientModuleDecl] = { cookBookRef: "128", };
 faultsAttrs[FaultID.WildcardsInModuleName] = { cookBookRef: "129", };
 faultsAttrs[FaultID.UMDModuleDefinition] = { cookBookRef: "130", };
-faultsAttrs[FaultID.JSExtensionInModuleIdent] = { cookBookRef: "131", };
 faultsAttrs[FaultID.NewTarget] = { cookBookRef: "132", };
 faultsAttrs[FaultID.DefiniteAssignment] = { cookBookRef: "134", };
 faultsAttrs[FaultID.IifeAsNamespace] = { cookBookRef: "135", };

@@ -543,6 +543,21 @@ export function relatedByInheritanceOrIdentical(typeA: Type, typeB: Type): boole
   return false;
 }
 
+// return true if two class types are not related by inheritance and structural identity check is needed
+export function needToDeduceStructuralIdentity(typeFrom: Type, typeTo: Type, allowPromotion = false): boolean {
+  if (isLibraryType(typeTo)) {
+    return false;
+  }
+
+  let res = typeTo.isClassOrInterface() && typeFrom.isClassOrInterface() && !relatedByInheritanceOrIdentical(typeFrom, typeTo);
+
+  if (allowPromotion) {
+    res &&= !relatedByInheritanceOrIdentical(typeTo, typeFrom);
+  }
+
+  return res;
+}
+
 export function hasPredecessor(node: Node, predicate: (node: Node) => boolean): boolean {
   let parent = node.parent;
   while (parent !== undefined) {
@@ -1126,14 +1141,7 @@ export function isLibrarySymbol(sym: Symbol | undefined) {
     // Symbols from both *.ts and *.d.ts files should obey interop rules.
     // We disable such behavior for *.ts files in the test mode due to lack of 'ets'
     // extension support.
-    let isOhModule = false;
-    //for (const dir of path.dirname(normalizePath(fileName)).split(path.sep)) {
-    for (const dir of getPathComponents(normalizePath(fileName))) {
-      if (dir === "oh_modules") {
-        isOhModule = true;
-        break;
-      }
-    }
+    const isOhModule = pathContainsDirectory(normalizePath(fileName), "oh_modules");
     let isInterop = srcFile.isDeclarationFile || isOhModule;
     if (!testMode) {
       isInterop ||= getScriptKind(srcFile) === ScriptKind.TS;
@@ -1148,6 +1156,16 @@ export function isLibrarySymbol(sym: Symbol | undefined) {
 
   return false;
 }
+
+export function pathContainsDirectory(targetPath: string, dir: string): boolean {
+  for (const subdir of getPathComponents(targetPath)) {
+    if (subdir === dir) {
+      return true;
+    }
+  }
+  return false;
+}
+
 
 export function getScriptKind(srcFile: SourceFile): ScriptKind {
   const fileName = srcFile.fileName;
@@ -1251,8 +1269,22 @@ export function isDynamicLiteralInitializer(expr: Expression): boolean {
   // foo({ ... })
   if (isCallExpression(curNode)) {
     const callExpr = curNode;
-    const sym = typeChecker.getTypeAtLocation(callExpr.expression).symbol;
-    return isLibrarySymbol(sym);
+    let sym: Symbol | undefined = typeChecker.getTypeAtLocation(callExpr.expression).symbol;
+    if(isLibrarySymbol(sym)) {
+      return true;
+    }
+
+    // #13483:
+    // x.foo({ ... }), where 'x' is exported from some library:
+    if (isPropertyAccessExpression(callExpr.expression)) {
+      sym = typeChecker.getSymbolAtLocation(callExpr.expression.expression);
+      if (sym && sym.getFlags() & SymbolFlags.Alias) {
+        sym = typeChecker.getAliasedSymbol(sym);
+        if (isLibrarySymbol(sym)) {
+          return true;
+        }
+      }
+    }
   }
 
   // Handle property assignments with literals:

@@ -688,11 +688,6 @@ export class TypeScriptLinter {
     const expr1 = importDeclNode.moduleSpecifier;
     if (expr1.kind === SyntaxKind.StringLiteral) {
       if (!importDeclNode.importClause) this.incrementCounters(node, FaultID.ImportFromPath);
-
-      const text = expr1.getText();
-      if (text.endsWith(".js\"") || text.endsWith(".js\'")) {
-        this.incrementCounters(node, FaultID.JSExtensionInModuleIdent);
-      }
     }
   }
 
@@ -993,6 +988,9 @@ export class TypeScriptLinter {
       if (isPropertyAccessExpression(tsLhsExpr)) {
         const tsLhsSymbol = TypeScriptLinter.tsTypeChecker.getSymbolAtLocation(tsLhsExpr);
         const tsLhsBaseSymbol = TypeScriptLinter.tsTypeChecker.getSymbolAtLocation(tsLhsExpr.expression);
+        if (tsLhsSymbol && (tsLhsSymbol.flags & SymbolFlags.Method)) {
+          this.incrementCounters(tsLhsExpr, FaultID.NoUndefinedPropAccess);
+        }
         if (
           Utils.isMethodAssignment(tsLhsSymbol) && tsLhsBaseSymbol &&
           (tsLhsBaseSymbol.flags & SymbolFlags.Function) !== 0
@@ -1064,15 +1062,12 @@ export class TypeScriptLinter {
       }
     }
     else if (tsBinaryExpr.operatorToken.kind === SyntaxKind.EqualsToken) {
-      if (
-        leftOperandType.isClassOrInterface() && rightOperandType.isClassOrInterface() &&
-        !Utils.relatedByInheritanceOrIdentical(rightOperandType, leftOperandType)
-      ) {
+      if (Utils.needToDeduceStructuralIdentity(rightOperandType, leftOperandType)) {
         this.incrementCounters(tsBinaryExpr, FaultID.StructuralIdentity);
-        const typeNode = Utils.getVariableDeclarationTypeNode(tsLhsExpr);
-        if (!!typeNode) {
-          this.handleEsObjectAssignment(tsBinaryExpr, typeNode, tsRhsExpr);
-        }
+      }
+      const typeNode = Utils.getVariableDeclarationTypeNode(tsLhsExpr);
+      if (!!typeNode) {
+        this.handleEsObjectAssignment(tsBinaryExpr, typeNode, tsRhsExpr);
       }
     }
   }
@@ -1115,13 +1110,10 @@ export class TypeScriptLinter {
       const tsVarInit = tsVarDecl.initializer;
       const tsVarType = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(tsVarDecl.type);
       const tsInitType = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(tsVarInit);
-      if (
-        tsVarType.isClassOrInterface() && tsInitType.isClassOrInterface() &&
-        !Utils.relatedByInheritanceOrIdentical(tsInitType, tsVarType)
-      ) {
+      if (Utils.needToDeduceStructuralIdentity(tsInitType, tsVarType)) {
         this.incrementCounters(tsVarDecl, FaultID.StructuralIdentity);
-        this.handleEsObjectAssignment(tsVarDecl, tsVarDecl.type, tsVarInit);
       }
+      this.handleEsObjectAssignment(tsVarDecl, tsVarDecl.type, tsVarInit);
     }
 
     this.handleDeclarationInferredType(tsVarDecl);
@@ -1619,10 +1611,7 @@ export class TypeScriptLinter {
         }
         if (!tsParamType) continue;
 
-        if (
-          tsArgType.isClassOrInterface() && tsParamType.isClassOrInterface() &&
-          !Utils.relatedByInheritanceOrIdentical(tsArgType, tsParamType)
-        ) {
+        if (Utils.needToDeduceStructuralIdentity(tsArgType, tsParamType)){
           this.incrementCounters(tsArg, FaultID.StructuralIdentity);
         }
       }
@@ -1654,14 +1643,19 @@ export class TypeScriptLinter {
 
   private handleLibraryTypeCall(callExpr: CallExpression) {
     const TYPE_0_IS_NOT_ASSIGNABLE_TO_TYPE_1_ERROR_CODE = 2322;
-    const TYPE_UNKNOWN_IS_NOT_ASSIGNABLE_TO_TYPE_1_RE = /^Type 'unknown' is not assignable to type '.*'.$/;
+    const TYPE_UNKNOWN_IS_NOT_ASSIGNABLE_TO_TYPE_1_RE = /^Type 'unknown' is not assignable to type '.*'\.$/;
+    const TYPE_NULL_IS_NOT_ASSIGNABLE_TO_TYPE_1_RE = /^Type 'null' is not assignable to type '.*'\.$/;
+    const TYPE_UNDEFINED_IS_NOT_ASSIGNABLE_TO_TYPE_1_RE = /^Type 'undefined' is not assignable to type '.*'\.$/;
     const ARGUMENT_OF_TYPE_0_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_ERROR_CODE = 2345;
-    const ARGUMENT_OF_TYPE_NULL_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_RE = /^Argument of type 'null' is not assignable to parameter of type '.*'.$/;
+    const ARGUMENT_OF_TYPE_NULL_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_RE = /^Argument of type 'null' is not assignable to parameter of type '.*'\.$/;
+    const ARGUMENT_OF_TYPE_UNDEFINED_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_RE = /^Argument of type 'undefined' is not assignable to parameter of type '.*'\.$/;
 
 
     const chainCheck = (n: DiagnosticMessageChain): boolean => {
       if (n.code === TYPE_0_IS_NOT_ASSIGNABLE_TO_TYPE_1_ERROR_CODE &&
-        n.messageText.match(TYPE_UNKNOWN_IS_NOT_ASSIGNABLE_TO_TYPE_1_RE)) {
+        (n.messageText.match(TYPE_UNKNOWN_IS_NOT_ASSIGNABLE_TO_TYPE_1_RE) ||
+         n.messageText.match(TYPE_NULL_IS_NOT_ASSIGNABLE_TO_TYPE_1_RE) ||
+         n.messageText.match(TYPE_UNDEFINED_IS_NOT_ASSIGNABLE_TO_TYPE_1_RE))) {
         return false;
       }
       return n.next === undefined ? true : chainCheck(n.next[0]);
@@ -1669,7 +1663,8 @@ export class TypeScriptLinter {
 
     const msgCheck = (msg: string): boolean => {
       if (Utils.isLibraryType(TypeScriptLinter.tsTypeChecker.getTypeAtLocation(callExpr.expression))) {
-        const match = msg.match(ARGUMENT_OF_TYPE_NULL_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_RE);
+        const match = msg.match(ARGUMENT_OF_TYPE_NULL_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_RE) ||
+          msg.match(ARGUMENT_OF_TYPE_UNDEFINED_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_RE);
         return !match;
       }
       return true;
@@ -1692,11 +1687,7 @@ export class TypeScriptLinter {
 
     const targetType = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(tsAsExpr.type);
     const exprType = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(tsAsExpr.expression);
-    if (
-      targetType.isClassOrInterface() && exprType.isClassOrInterface() &&
-      !Utils.relatedByInheritanceOrIdentical(exprType, targetType) &&
-      !Utils.relatedByInheritanceOrIdentical(targetType, exprType)
-    ) {
+    if (Utils.needToDeduceStructuralIdentity(exprType, targetType, true)) {
       this.incrementCounters(tsAsExpr, FaultID.StructuralIdentity);
     }
     // check for rule#65:   "number as Number" and "boolean as Boolean" are disabled

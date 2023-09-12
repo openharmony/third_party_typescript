@@ -91,7 +91,8 @@ export class LinterConfig {
     LinterConfig.nodeDesc[FaultID.JsxElement] = "JSX Elements";
     LinterConfig.nodeDesc[FaultID.EnumMemberNonConstInit] = "Enum members with non-constant initializer";
     LinterConfig.nodeDesc[FaultID.ImplementsClass] = "Class type mentioned in \"implements\" clause";
-    LinterConfig.nodeDesc[FaultID.MethodReassignment] = "Access to undefined field";
+    LinterConfig.nodeDesc[FaultID.NoUndefinedPropAccess] = "Access to undefined field";
+    //LinterConfig.nodeDesc[FaultID.MethodReassignment] = "Access to undefined field";
     LinterConfig.nodeDesc[FaultID.MultipleStaticBlocks] = "Multiple static blocks";
     LinterConfig.nodeDesc[FaultID.ThisType] = "\"this\" type";
     LinterConfig.nodeDesc[FaultID.IntefaceExtendDifProps] = "Extends same properties with different types";
@@ -109,7 +110,6 @@ export class LinterConfig {
     LinterConfig.nodeDesc[FaultID.ShorthandAmbientModuleDecl] = "Shorthand ambient module declaration";
     LinterConfig.nodeDesc[FaultID.WildcardsInModuleName] = "Wildcards in module name";
     LinterConfig.nodeDesc[FaultID.UMDModuleDefinition] = "UMD module definition";
-    LinterConfig.nodeDesc[FaultID.JSExtensionInModuleIdent] =".js extension in module identifier";
     LinterConfig.nodeDesc[FaultID.NewTarget] = "\"new.target\" meta-property";
     LinterConfig.nodeDesc[FaultID.DefiniteAssignment] = "Definite assignment assertion";
     LinterConfig.nodeDesc[FaultID.IifeAsNamespace] = "IIFEs as namespace declarations";
