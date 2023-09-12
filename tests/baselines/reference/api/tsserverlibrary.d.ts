@@ -11380,7 +11380,7 @@ declare namespace ts {
             JsxElement = 55,
             EnumMemberNonConstInit = 56,
             ImplementsClass = 57,
-            MethodReassignment = 58,
+            NoUndefinedPropAccess = 58,
             MultipleStaticBlocks = 59,
             ThisType = 60,
             IntefaceExtendDifProps = 61,
@@ -11398,28 +11398,27 @@ declare namespace ts {
             ShorthandAmbientModuleDecl = 73,
             WildcardsInModuleName = 74,
             UMDModuleDefinition = 75,
-            JSExtensionInModuleIdent = 76,
-            NewTarget = 77,
-            DefiniteAssignment = 78,
-            IifeAsNamespace = 79,
-            Prototype = 80,
-            GlobalThis = 81,
-            UtilityType = 82,
-            PropertyDeclOnFunction = 83,
-            FunctionApplyBindCall = 84,
-            ReadonlyArr = 85,
-            ConstAssertion = 86,
-            ImportAssertion = 87,
-            SpreadOperator = 88,
-            LimitedStdLibApi = 89,
-            ErrorSuppression = 90,
-            StrictDiagnostic = 91,
-            UnsupportedDecorators = 92,
-            ImportAfterStatement = 93,
-            EsObjectType = 94,
-            EsObjectAssignment = 95,
-            EsObjectAccess = 96,
-            LAST_ID = 97
+            NewTarget = 76,
+            DefiniteAssignment = 77,
+            IifeAsNamespace = 78,
+            Prototype = 79,
+            GlobalThis = 80,
+            UtilityType = 81,
+            PropertyDeclOnFunction = 82,
+            FunctionApplyBindCall = 83,
+            ReadonlyArr = 84,
+            ConstAssertion = 85,
+            ImportAssertion = 86,
+            SpreadOperator = 87,
+            LimitedStdLibApi = 88,
+            ErrorSuppression = 89,
+            StrictDiagnostic = 90,
+            UnsupportedDecorators = 91,
+            ImportAfterStatement = 92,
+            EsObjectType = 93,
+            EsObjectAssignment = 94,
+            EsObjectAccess = 95,
+            LAST_ID = 96
         }
         class FaultAttributs {
             migratable?: boolean;
@@ -11487,6 +11486,7 @@ declare namespace ts {
         function isIntegerConstantValue(tsExpr: EnumMember | PropertyAccessExpression | ElementAccessExpression | NumericLiteral): boolean;
         function isStringConstantValue(tsExpr: EnumMember | PropertyAccessExpression | ElementAccessExpression): boolean;
         function relatedByInheritanceOrIdentical(typeA: Type, typeB: Type): boolean;
+        function needToDeduceStructuralIdentity(typeFrom: Type, typeTo: Type, allowPromotion?: boolean): boolean;
         function hasPredecessor(node: Node, predicate: (node: Node) => boolean): boolean;
         function processParentTypes(parentTypes: NodeArray<ExpressionWithTypeArguments>, typeB: Type, processInterfaces: boolean): boolean;
         function isObjectType(tsType: Type): boolean;
@@ -11531,6 +11531,7 @@ declare namespace ts {
         function isStdPartialType(type: Type): boolean;
         function isLibraryType(type: Type): boolean;
         function isLibrarySymbol(sym: Symbol | undefined): boolean;
+        function pathContainsDirectory(targetPath: string, dir: string): boolean;
         function getScriptKind(srcFile: SourceFile): ScriptKind;
         function isStdLibraryType(type: Type): boolean;
         function isStdLibrarySymbol(sym: Symbol | undefined): boolean;
