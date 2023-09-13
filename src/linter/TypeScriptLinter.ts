@@ -174,6 +174,11 @@ export class TypeScriptLinter {
   public incrementCounters(node: Node | CommentRange, faultId: number, autofixable = false, autofix?: Autofix[]): void {
     if (!TypeScriptLinter.strictMode && faultsAttrs[faultId].migratable) { return; } // In relax mode skip migratable
 
+    // Relax EsObject
+    if (faultId === FaultID.EsObjectType || faultId === FaultID.EsObjectAssignment || faultId === FaultID.EsObjectAccess) {
+      return;
+    }
+
     const startPos = Utils.getStartPos(node);
     const endPos = Utils.getEndPos(node);
 
@@ -658,8 +663,11 @@ export class TypeScriptLinter {
       exprType, undefined, NodeBuilderFlags.None
     );
 
-    if (!(isArrayLiteralExpression(expr) || Utils.isArrayNotTupleType(exprTypeNode) ||
-        Utils.isTypedArray(exprTypeNode))) {
+    if (!(isArrayLiteralExpression(expr) ||
+        (exprTypeNode && isArrayTypeNode(exprTypeNode)) ||
+        Utils.isTypedArray(exprTypeNode) ||
+        exprType.isStringLiteral() ||
+        Utils.isStringType(exprType))) {
       this.incrementCounters(node, FaultID.ForOfNonArray);
     }
   }
@@ -1170,14 +1178,26 @@ export class TypeScriptLinter {
     }
     this.countClassMembersWithDuplicateName(tsClassDecl);
 
+    const tsClassDeclType = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(tsClassDecl);
+
+    const visitHClause = (hClause: HeritageClause) => {
+      for (const tsTypeExpr of hClause.types) {
+        const tsExprType = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(tsTypeExpr.expression);
+        if (tsExprType.isClass() && hClause.token === SyntaxKind.ImplementsKeyword) {
+          this.incrementCounters(tsTypeExpr, FaultID.ImplementsClass);
+        }
+        else if (Utils.typeIsRecursive(tsClassDeclType, TypeScriptLinter.tsTypeChecker.getTypeAtLocation(tsTypeExpr))) {
+          this.incrementCounters(tsTypeExpr, FaultID.ClassAsObject);
+        }
+      }
+    };
+
     if (tsClassDecl.heritageClauses) {
       for (const hClause of tsClassDecl.heritageClauses) {
-        if (hClause && hClause.token === SyntaxKind.ImplementsKeyword) {
-          for (const tsTypeExpr of hClause.types) {
-            const tsExprType = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(tsTypeExpr.expression);
-            if (tsExprType.isClass()) this.incrementCounters(tsTypeExpr, FaultID.ImplementsClass);
-          }
+        if (!hClause) {
+          continue;
         }
+        visitHClause(hClause);
       }
     }
 
@@ -1231,6 +1251,9 @@ export class TypeScriptLinter {
     this.countDeclarationsWithDuplicateName(
       TypeScriptLinter.tsTypeChecker.getSymbolAtLocation(tsTypeAlias.name), tsTypeAlias
     );
+    if (Utils.typeIsRecursive(TypeScriptLinter.tsTypeChecker.getTypeAtLocation(node))) {
+      this.incrementCounters(tsTypeAlias, FaultID.ClassAsObject);
+    }
   }
 
   private handleImportClause(node: Node): void {
@@ -1642,10 +1665,13 @@ export class TypeScriptLinter {
   }
 
   private handleLibraryTypeCall(callExpr: CallExpression) {
+    // Current approach relates on error code and error message matching and it is quite fragile,
+    // so this place should be checked thoroughly in the case of typescript upgrade
     const TYPE_0_IS_NOT_ASSIGNABLE_TO_TYPE_1_ERROR_CODE = 2322;
-    const TYPE_UNKNOWN_IS_NOT_ASSIGNABLE_TO_TYPE_1_RE = /^Type 'unknown' is not assignable to type '.*'\.$/;
+    const TYPE_UNKNOWN_IS_NOT_ASSIGNABLE_TO_TYPE_1_RE = /^Type '(.*)\bunknown\b(.*)' is not assignable to type '.*'\.$/;
     const TYPE_NULL_IS_NOT_ASSIGNABLE_TO_TYPE_1_RE = /^Type 'null' is not assignable to type '.*'\.$/;
     const TYPE_UNDEFINED_IS_NOT_ASSIGNABLE_TO_TYPE_1_RE = /^Type 'undefined' is not assignable to type '.*'\.$/;
+
     const ARGUMENT_OF_TYPE_0_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_ERROR_CODE = 2345;
     const ARGUMENT_OF_TYPE_NULL_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_RE = /^Argument of type 'null' is not assignable to parameter of type '.*'\.$/;
     const ARGUMENT_OF_TYPE_UNDEFINED_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_RE = /^Argument of type 'undefined' is not assignable to parameter of type '.*'\.$/;
@@ -1664,7 +1690,7 @@ export class TypeScriptLinter {
     const msgCheck = (msg: string): boolean => {
       if (Utils.isLibraryType(TypeScriptLinter.tsTypeChecker.getTypeAtLocation(callExpr.expression))) {
         const match = msg.match(ARGUMENT_OF_TYPE_NULL_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_RE) ||
-          msg.match(ARGUMENT_OF_TYPE_UNDEFINED_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_RE);
+        msg.match(ARGUMENT_OF_TYPE_UNDEFINED_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_RE);
         return !match;
       }
       return true;
@@ -1743,7 +1769,7 @@ export class TypeScriptLinter {
       if (spreadExprType) {
         const spreadExprTypeNode = TypeScriptLinter.tsTypeChecker.typeToTypeNode(spreadExprType, undefined, NodeBuilderFlags.None);
         if (spreadExprTypeNode !== undefined && isCallLikeExpression(node.parent)) {
-          if (Utils.isArrayNotTupleType(spreadExprTypeNode) || Utils.isTypedArray(spreadExprTypeNode)) {
+          if (isArrayTypeNode(spreadExprTypeNode) || Utils.isTypedArray(spreadExprTypeNode)) {
             return;
           }
         }
@@ -1866,6 +1892,9 @@ export class TypeScriptLinter {
     type: Type,
     decl: VariableDeclaration | PropertyDeclaration | ParameterDeclaration
   ): void {
+    if (type.aliasSymbol !== undefined) {
+      return;
+    }
     if (type.isUnion()) {
       for (const unionElem of type.types) {
         this.validateDeclInferredType(unionElem, decl);

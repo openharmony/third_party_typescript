@@ -59,16 +59,6 @@ export function isAssignmentOperator(tsBinOp: BinaryOperatorToken): boolean {
   return tsBinOp.kind >= SyntaxKind.FirstAssignment && tsBinOp.kind <= SyntaxKind.LastAssignment;
 }
 
-export function isArrayNotTupleType(tsType: TypeNode | undefined): boolean {
-  if (tsType && tsType.kind && isArrayTypeNode(tsType)) {
-    // Check that element type is not a union type to filter out tuple types induced by tuple literals.
-    const tsElemType = unwrapParenthesizedType(tsType.elementType);
-    return !isUnionTypeNode(tsElemType);
-  }
-
-  return false;
-}
-
 export function isTypedArray(tsType: TypeNode | undefined): boolean {
   if (tsType === undefined || !isTypeReferenceNode(tsType)) {
     return false;
@@ -1364,6 +1354,38 @@ export function getSymbolOfCallExpression(callExpr: CallExpression): Symbol | un
   }
   return undefined;
 }
+
+export function typeIsRecursive(topType: Type, type: Type | undefined = undefined): boolean {
+  if (type === undefined) {
+    type = topType;
+  }
+  else if (type === topType) {
+    return true;
+  }
+  else if (type.aliasSymbol) {
+    return false;
+  }
+
+  if (type.isUnion()) {
+    for (const unionElem of type.types) {
+      if (typeIsRecursive(topType, unionElem)) {
+        return true;
+      }
+    }
+  }
+  if (type.flags & TypeFlags.Object && (type as ObjectType).objectFlags & ObjectFlags.Reference) {
+    const typeArgs = typeChecker.getTypeArguments(type as TypeReference);
+    if (typeArgs) {
+      for (const typeArg of typeArgs) {
+        if (typeIsRecursive(topType, typeArg)) {
+          return true;
+        }
+      }
+    }
+  }
+  return false;
+}
+
 
 }
 }
