@@ -11443,7 +11443,6 @@ declare namespace ts {
         function getStartPos(nodeOrComment: Node | CommentRange): number;
         function getEndPos(nodeOrComment: Node | CommentRange): number;
         function isAssignmentOperator(tsBinOp: BinaryOperatorToken): boolean;
-        function isArrayNotTupleType(tsType: TypeNode | undefined): boolean;
         function isTypedArray(tsType: TypeNode | undefined): boolean;
         function entityNameToString(name: EntityName): string;
         function isNumberType(tsType: Type): boolean;
@@ -11545,6 +11544,7 @@ declare namespace ts {
         function isEsObjectSymbol(sym: Symbol): boolean;
         function isAnonymousType(type: Type): boolean;
         function getSymbolOfCallExpression(callExpr: CallExpression): Symbol | undefined;
+        function typeIsRecursive(topType: Type, type?: Type | undefined): boolean;
     }
 }
 declare namespace ts {
