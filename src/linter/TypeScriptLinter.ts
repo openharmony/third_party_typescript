@@ -174,11 +174,6 @@ export class TypeScriptLinter {
   public incrementCounters(node: Node | CommentRange, faultId: number, autofixable = false, autofix?: Autofix[]): void {
     if (!TypeScriptLinter.strictMode && faultsAttrs[faultId].migratable) { return; } // In relax mode skip migratable
 
-    // Relax EsObject
-    if (faultId === FaultID.EsObjectType || faultId === FaultID.EsObjectAssignment || faultId === FaultID.EsObjectAccess) {
-      return;
-    }
-
     const startPos = Utils.getStartPos(node);
     const endPos = Utils.getEndPos(node);
 
@@ -305,14 +300,13 @@ export class TypeScriptLinter {
   }
 
   private countDeclarationsWithDuplicateName(
-    symbol: Symbol | undefined, tsDeclNode: Node, tsDeclKind?: SyntaxKind
+    tsNode: Node, tsDeclNode: Node, tsDeclKind?: ts.SyntaxKind
   ): void {
-    // Sanity check.
-    if (!symbol) return;
+    const symbol = TypeScriptLinter.tsTypeChecker.getSymbolAtLocation(tsNode);
 
     // If specific declaration kind is provided, check against it.
     // Otherwise, use syntax kind of corresponding declaration node.
-    if (Utils.symbolHasDuplicateName(symbol, tsDeclKind ?? tsDeclNode.kind)) {
+    if (!!symbol && Utils.symbolHasDuplicateName(symbol, tsDeclKind ?? tsDeclNode.kind)) {
       this.incrementCounters(tsDeclNode, FaultID.DeclWithDuplicateName);
     }
   }
@@ -414,9 +408,9 @@ export class TypeScriptLinter {
   }
 
   private isIIFEasNamespace(tsExpr: PropertyAccessExpression): boolean {
-    const nameSymbol = TypeScriptLinter.tsTypeChecker.getSymbolAtLocation(tsExpr.name);
+    const nameSymbol = Utils.trueSymbolAtLocation(tsExpr.name);
     if (!nameSymbol) {
-      const leftHandSymbol = TypeScriptLinter.tsTypeChecker.getSymbolAtLocation(tsExpr.expression);
+      const leftHandSymbol = Utils.trueSymbolAtLocation(tsExpr.expression);
       if (leftHandSymbol) {
         const decls = leftHandSymbol.getDeclarations();
         if (!decls || decls.length !== 1) return false;
@@ -441,12 +435,12 @@ export class TypeScriptLinter {
       return false;
     }
     // Check if property symbol is "Prototype"
-    const propAccessSym = TypeScriptLinter.tsTypeChecker.getSymbolAtLocation(tsPropertyAccess);
+    const propAccessSym = Utils.trueSymbolAtLocation(tsPropertyAccess);
     if (Utils.isPrototypeSymbol(propAccessSym)) return true;
 
     // Check if symbol of LHS-expression is Class or Function.
     const tsBaseExpr = tsPropertyAccess.expression;
-    const baseExprSym = TypeScriptLinter.tsTypeChecker.getSymbolAtLocation(tsBaseExpr);
+    const baseExprSym = Utils.trueSymbolAtLocation(tsBaseExpr);
     if (Utils.isTypeSymbol(baseExprSym) || Utils.isFunctionSymbol(baseExprSym)) {
       return true;
     }
@@ -580,11 +574,9 @@ export class TypeScriptLinter {
 
   private handleEnumDeclaration(node: Node): void {
     const enumNode = node as EnumDeclaration;
-    this.countDeclarationsWithDuplicateName(
-      TypeScriptLinter.tsTypeChecker.getSymbolAtLocation(enumNode.name), enumNode
-    );
+    this.countDeclarationsWithDuplicateName(enumNode.name, enumNode);
 
-    const enumSymbol = TypeScriptLinter.tsTypeChecker.getSymbolAtLocation(enumNode.name);
+    const enumSymbol = Utils.trueSymbolAtLocation(enumNode.name);
     if (!enumSymbol) return;
 
     const enumDecls = enumSymbol.getDeclarations();
@@ -604,7 +596,7 @@ export class TypeScriptLinter {
 
   private handleInterfaceDeclaration(node: Node): void {
     const interfaceNode = node as InterfaceDeclaration;
-    const iSymbol = TypeScriptLinter.tsTypeChecker.getSymbolAtLocation(interfaceNode.name);
+    const iSymbol = Utils.trueSymbolAtLocation(interfaceNode.name);
     const iDecls = iSymbol ? iSymbol.getDeclarations() : null;
     if (iDecls) {
       // Since type checker merges all declarations with the same name
@@ -621,9 +613,7 @@ export class TypeScriptLinter {
 
     if (interfaceNode.heritageClauses) this.interfaceInharitanceLint(node, interfaceNode.heritageClauses);
 
-    this.countDeclarationsWithDuplicateName(
-      TypeScriptLinter.tsTypeChecker.getSymbolAtLocation(interfaceNode.name), interfaceNode
-    );
+    this.countDeclarationsWithDuplicateName(interfaceNode.name, interfaceNode);
   }
 
   private handleThrowStatement(node: Node): void {
@@ -706,7 +696,7 @@ export class TypeScriptLinter {
     if (this.isPrototypePropertyAccess(propertyAccessNode)) {
       this.incrementCounters(propertyAccessNode.name, FaultID.Prototype);
     }
-    const symbol = TypeScriptLinter.tsTypeChecker.getSymbolAtLocation(propertyAccessNode);
+    const symbol = Utils.trueSymbolAtLocation(propertyAccessNode);
     if(!!symbol && Utils.isSymbolAPI(symbol)) {
       this.incrementCounters(node, FaultID.SymbolType);
     }
@@ -876,9 +866,7 @@ export class TypeScriptLinter {
     const tsFunctionDeclaration = node as FunctionDeclaration;
     if (!tsFunctionDeclaration.type) this.handleMissingReturnType(tsFunctionDeclaration);
     if (tsFunctionDeclaration.name) {
-      this.countDeclarationsWithDuplicateName(
-        TypeScriptLinter.tsTypeChecker.getSymbolAtLocation(tsFunctionDeclaration.name), tsFunctionDeclaration
-      );
+      this.countDeclarationsWithDuplicateName(tsFunctionDeclaration.name, tsFunctionDeclaration);
     }
     if (tsFunctionDeclaration.body && this.functionContainsThis(tsFunctionDeclaration.body)) {
       this.incrementCounters(node, FaultID.FunctionContainsThis);
@@ -994,8 +982,8 @@ export class TypeScriptLinter {
         this.incrementCounters(node, FaultID.DestructuringAssignment);
       }
       if (isPropertyAccessExpression(tsLhsExpr)) {
-        const tsLhsSymbol = TypeScriptLinter.tsTypeChecker.getSymbolAtLocation(tsLhsExpr);
-        const tsLhsBaseSymbol = TypeScriptLinter.tsTypeChecker.getSymbolAtLocation(tsLhsExpr.expression);
+        const tsLhsSymbol = Utils.trueSymbolAtLocation(tsLhsExpr);
+        const tsLhsBaseSymbol = Utils.trueSymbolAtLocation(tsLhsExpr.expression);
         if (tsLhsSymbol && (tsLhsSymbol.flags & SymbolFlags.Method)) {
           this.incrementCounters(tsLhsExpr, FaultID.NoUndefinedPropAccess);
         }
@@ -1059,7 +1047,7 @@ export class TypeScriptLinter {
     }
     else if (tsBinaryExpr.operatorToken.kind === SyntaxKind.InstanceOfKeyword) {
       const leftExpr = Utils.unwrapParenthesized(tsBinaryExpr.left);
-      const leftSymbol = TypeScriptLinter.tsTypeChecker.getSymbolAtLocation(leftExpr);
+      const leftSymbol = Utils.trueSymbolAtLocation(leftExpr);
       // In STS, the left-hand side expression may be of any reference type, otherwise
       // a compile-time error occurs. In addition, the left operand in STS cannot be a type.
       if (tsLhsExpr.kind === SyntaxKind.ThisKeyword) {
@@ -1097,10 +1085,7 @@ export class TypeScriptLinter {
       const visitBindingPatternNames = (tsBindingName: BindingName): void => {
         if (isIdentifier(tsBindingName)) {
           // The syntax kind of the declaration is defined here by the parent of 'BindingName' node.
-          this.countDeclarationsWithDuplicateName(
-            TypeScriptLinter.tsTypeChecker.getSymbolAtLocation(tsBindingName), tsBindingName,
-            tsBindingName.parent.kind
-          );
+          this.countDeclarationsWithDuplicateName(tsBindingName, tsBindingName, tsBindingName.parent.kind);
         }
         else {
           for (const tsBindingElem of tsBindingName.elements) {
@@ -1171,23 +1156,15 @@ export class TypeScriptLinter {
     this.staticBlocks.clear();
 
     if (tsClassDecl.name) {
-      this.countDeclarationsWithDuplicateName(
-        TypeScriptLinter.tsTypeChecker.getSymbolAtLocation(tsClassDecl.name),
-        tsClassDecl
-      );
+      this.countDeclarationsWithDuplicateName(tsClassDecl.name, tsClassDecl);
     }
     this.countClassMembersWithDuplicateName(tsClassDecl);
-
-    const tsClassDeclType = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(tsClassDecl);
 
     const visitHClause = (hClause: HeritageClause) => {
       for (const tsTypeExpr of hClause.types) {
         const tsExprType = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(tsTypeExpr.expression);
         if (tsExprType.isClass() && hClause.token === SyntaxKind.ImplementsKeyword) {
           this.incrementCounters(tsTypeExpr, FaultID.ImplementsClass);
-        }
-        else if (Utils.typeIsRecursive(tsClassDeclType, TypeScriptLinter.tsTypeChecker.getTypeAtLocation(tsTypeExpr))) {
-          this.incrementCounters(tsTypeExpr, FaultID.ClassAsObject);
         }
       }
     };
@@ -1206,10 +1183,7 @@ export class TypeScriptLinter {
 
   private handleModuleDeclaration(node: Node): void {
     const tsModuleDecl = node as ModuleDeclaration;
-    this.countDeclarationsWithDuplicateName(
-      TypeScriptLinter.tsTypeChecker.getSymbolAtLocation(tsModuleDecl.name),
-      tsModuleDecl
-    );
+    this.countDeclarationsWithDuplicateName(tsModuleDecl.name, tsModuleDecl);
 
     const tsModuleBody = tsModuleDecl.body;
     const tsModifiers = tsModuleDecl.modifiers; // TSC 4.2 doesn't have 'getModifiers()' method
@@ -1248,20 +1222,13 @@ export class TypeScriptLinter {
 
   private handleTypeAliasDeclaration(node: Node): void {
     const tsTypeAlias = node as TypeAliasDeclaration;
-    this.countDeclarationsWithDuplicateName(
-      TypeScriptLinter.tsTypeChecker.getSymbolAtLocation(tsTypeAlias.name), tsTypeAlias
-    );
-    if (Utils.typeIsRecursive(TypeScriptLinter.tsTypeChecker.getTypeAtLocation(node))) {
-      this.incrementCounters(tsTypeAlias, FaultID.ClassAsObject);
-    }
+    this.countDeclarationsWithDuplicateName(tsTypeAlias.name, tsTypeAlias);
   }
 
   private handleImportClause(node: Node): void {
     const tsImportClause = node as ImportClause;
     if (tsImportClause.name) {
-      this.countDeclarationsWithDuplicateName(
-        TypeScriptLinter.tsTypeChecker.getSymbolAtLocation(tsImportClause.name), tsImportClause
-      );
+      this.countDeclarationsWithDuplicateName(tsImportClause.name, tsImportClause);
     }
 
     if (tsImportClause.namedBindings && isNamedImports(tsImportClause.namedBindings)) {
@@ -1289,16 +1256,12 @@ export class TypeScriptLinter {
 
   private handleImportSpecifier(node: Node): void {
     const tsImportSpecifier = node as ImportSpecifier;
-    this.countDeclarationsWithDuplicateName(
-      TypeScriptLinter.tsTypeChecker.getSymbolAtLocation(tsImportSpecifier.name), tsImportSpecifier
-    );
+    this.countDeclarationsWithDuplicateName(tsImportSpecifier.name, tsImportSpecifier);
   }
 
   private handleNamespaceImport(node: Node): void {
     const tsNamespaceImport = node as NamespaceImport;
-    this.countDeclarationsWithDuplicateName(
-      TypeScriptLinter.tsTypeChecker.getSymbolAtLocation(tsNamespaceImport.name), tsNamespaceImport
-    );
+    this.countDeclarationsWithDuplicateName(tsNamespaceImport.name, tsNamespaceImport);
   }
 
   private handleTypeAssertionExpression(node: Node): void {
@@ -1341,11 +1304,10 @@ export class TypeScriptLinter {
 
   private handleIdentifier(node: Node): void {
     const tsIdentifier = node as Identifier;
-    const tsIdentSym = TypeScriptLinter.tsTypeChecker.getSymbolAtLocation(tsIdentifier);
+    const tsIdentSym = Utils.trueSymbolAtLocation(tsIdentifier);
 
     if (tsIdentSym) {
-      this.handleNamespaceAsObject(tsIdentifier, tsIdentSym);
-      this.handleClassAsObject(tsIdentifier, tsIdentSym);
+      this.handleRestrictedValues(tsIdentifier, tsIdentSym);
 
       if (
         (tsIdentSym.flags & SymbolFlags.Module) !== 0 &&
@@ -1360,85 +1322,62 @@ export class TypeScriptLinter {
     }
   }
 
-  private handleNamespaceAsObject(tsIdentifier: Identifier, tsIdentSym: Symbol): void {
-    if (
-      tsIdentSym &&
-      (tsIdentSym.getFlags() & SymbolFlags.Module) !== 0 &&
-      (tsIdentSym.getFlags() & SymbolFlags.Variable) === 0 &&
-      !isModuleDeclaration(tsIdentifier.parent)
-    ) {
-      // If module name is duplicated by another declaration, this increases the possibility
-      // of finding a lot of false positives. Thus, do not check further in that case.
-      if (!Utils.symbolHasDuplicateName(tsIdentSym, SyntaxKind.ModuleDeclaration)) {
-        // If module name is the right-most name of Property Access chain or Qualified name,
-        // or it's a separate identifier expression, then module is being referenced as an object.
-        let tsIdentParent: Node = tsIdentifier;
+  private handleRestrictedValues(tsIdentifier: Identifier, tsIdentSym: Symbol) {
+    const illegalValues = SymbolFlags.Class | SymbolFlags.ConstEnum | SymbolFlags.RegularEnum | SymbolFlags.ValueModule;
 
-        while (isPropertyAccessExpression(tsIdentParent.parent) || isQualifiedName(tsIdentParent.parent)) {
-          tsIdentParent = tsIdentParent.parent;
-        }
-        const isNamespace: boolean = (tsIdentSym.getFlags() & SymbolFlags.Namespace) !== 0;
-        let isEmptyModuleBlock = false;
-        if (tsIdentSym.declarations && tsIdentSym.declarations.length > 0 && isModuleDeclaration(tsIdentSym.declarations[0])) {
-          const moduleDecl = tsIdentSym.declarations[0] as ModuleDeclaration;
-          if (moduleDecl.body && isModuleBlock(moduleDecl.body)) {
-            const moduleBlock = moduleDecl.body;
-            if (moduleBlock.statements && moduleBlock.statements.length === 0) {
-              isEmptyModuleBlock = true;
-            }
-          }
-        }
-
-        if (
-          (!isPropertyAccessExpression(tsIdentParent) && !isQualifiedName(tsIdentParent) && !(isNamespace && isEmptyModuleBlock)) ||
-          (isPropertyAccessExpression(tsIdentParent) && tsIdentifier === tsIdentParent.name) ||
-          (isQualifiedName(tsIdentParent) && tsIdentifier === tsIdentParent.right)
-          ) {
-          this.incrementCounters(tsIdentifier, FaultID.NamespaceAsObject);
-        }
+    // If module name is duplicated by another declaration, this increases the possibility
+    // of finding a lot of false positives. Thus, do not check further in that case.
+    if ((tsIdentSym.flags & SymbolFlags.ValueModule) != 0) {
+      if (!!tsIdentSym && Utils.symbolHasDuplicateName(tsIdentSym, SyntaxKind.ModuleDeclaration)) {
+        return;
       }
     }
-  }
-
-  private handleClassAsObject(tsIdentifier: Identifier, tsIdentSym: Symbol) {
-    // Only process class references.
-    if ((tsIdentSym.getFlags() & SymbolFlags.Class) === 0) {
-      return;
-    }
-
     // No check for ArkUI struct.
     if (Utils.isStruct(tsIdentSym)) {
       return;
     }
 
-    // If class name is the right-most name of Property Access chain or Qualified name,
-    // or it's a separate identifier expression, then class is being referenced as an object.
-    let tsIdentStart: Node = tsIdentifier;
+    if ((tsIdentSym.flags & illegalValues) == 0 || !this.identiferUseInValueContext(tsIdentifier)) {
+      return;
+    }
+    if (tsIdentSym.flags & SymbolFlags.ValueModule) {
+      this.incrementCounters(tsIdentifier, FaultID.NamespaceAsObject);
+    }
+    else {
+      // missing EnumAsObject
+      this.incrementCounters(tsIdentifier, FaultID.ClassAsObject);
+    }
+  }
 
+  private identiferUseInValueContext(
+    tsIdentifier: Identifier
+  ) {
+    // If identifier is the right-most name of Property Access chain or Qualified name,
+    // or it's a separate identifier expression, then identifier is being referenced as an value.
+    let tsIdentStart: Node = tsIdentifier;
     while (isPropertyAccessExpression(tsIdentStart.parent) || isQualifiedName(tsIdentStart.parent)) {
       tsIdentStart = tsIdentStart.parent;
     }
-
-    // contexts where type is used as value, but it's intended
-    if (isTypeNode(tsIdentStart.parent) ||
-        isExpressionWithTypeArguments(tsIdentStart.parent) ||
-        isExportAssignment(tsIdentStart.parent) ||
-        isExportSpecifier(tsIdentStart.parent) ||
-        isMetaProperty(tsIdentStart.parent) ||
-        isImportClause(tsIdentStart.parent) ||
-        isClassLike(tsIdentStart.parent) ||
-        isInterfaceDeclaration(tsIdentStart.parent) ||
-        isModuleDeclaration(tsIdentStart.parent) ||
-        isNamespaceImport(tsIdentStart.parent) ||
-        isImportSpecifier(tsIdentStart.parent) ||
-        (isQualifiedName(tsIdentStart) && tsIdentifier !== tsIdentStart.right) ||
-        (isPropertyAccessExpression(tsIdentStart) && tsIdentifier !== tsIdentStart.name) ||
-        (isNewExpression(tsIdentStart.parent) && tsIdentStart === tsIdentStart.parent.expression) ||
-        (isBinaryExpression(tsIdentStart.parent) && tsIdentStart.parent.operatorToken.kind  === SyntaxKind.InstanceOfKeyword)) {
-      return;
-    }
-
-    this.incrementCounters(tsIdentifier, FaultID.ClassAsObject);
+    return !(
+      // treat TypeQuery as valid because it's already forbidden (FaultID.TypeQuery)
+      (isTypeNode(tsIdentStart.parent) && !isTypeOfExpression(tsIdentStart.parent)) ||
+      isExpressionWithTypeArguments(tsIdentStart.parent) ||
+      isExportAssignment(tsIdentStart.parent) ||
+      isExportSpecifier(tsIdentStart.parent) ||
+      isMetaProperty(tsIdentStart.parent) ||
+      isImportClause(tsIdentStart.parent) ||
+      isClassLike(tsIdentStart.parent) ||
+      isInterfaceDeclaration(tsIdentStart.parent) ||
+      isModuleDeclaration(tsIdentStart.parent) ||
+      isEnumDeclaration(tsIdentStart.parent) ||
+      isNamespaceImport(tsIdentStart.parent) ||
+      isImportSpecifier(tsIdentStart.parent) ||
+      // rightmost in AST is rightmost in qualified name chain
+      (isQualifiedName(tsIdentStart) && tsIdentifier !== tsIdentStart.right) ||
+      (isPropertyAccessExpression(tsIdentStart) && tsIdentifier !== tsIdentStart.name) ||
+      (isNewExpression(tsIdentStart.parent) && tsIdentStart === tsIdentStart.parent.expression) ||
+      (isBinaryExpression(tsIdentStart.parent) && tsIdentStart.parent.operatorToken.kind === SyntaxKind.InstanceOfKeyword)
+    );
   }
 
   private handleElementAccessExpression(node: Node): void {
@@ -1503,11 +1442,6 @@ export class TypeScriptLinter {
       //if (Autofixer.shouldAutofix(node, FaultID.TypeOnlyExport))
       //  autofix = [ Autofixer.dropTypeOnlyFlag(tsExportDecl) ];
       this.incrementCounters(node, FaultID.TypeOnlyExport, true, autofix);
-    }
-
-    const exportClause = tsExportDecl.exportClause;
-    if(exportClause && isNamespaceExport(exportClause)) {
-      this.incrementCounters(node, FaultID.LimitedReExporting);
     }
   }
 
@@ -1574,8 +1508,12 @@ export class TypeScriptLinter {
     if (!callSignature) return;
 
     const tsSyntaxKind = isNewExpression(callLikeExpr) ? SyntaxKind.Constructor : SyntaxKind.FunctionDeclaration;
-    const signDecl = TypeScriptLinter.tsTypeChecker.signatureToSignatureDeclaration(callSignature, tsSyntaxKind,
-      undefined, NodeBuilderFlags.WriteTypeArgumentsOfSignature | NodeBuilderFlags.IgnoreErrors);
+    const sym = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(callLikeExpr.expression).symbol;
+    const signDecl = TypeScriptLinter.tsTypeChecker.signatureToSignatureDeclaration(
+      callSignature,
+      tsSyntaxKind,
+      (!!sym && !!sym.declarations) ? sym.declarations[0] : undefined,
+      NodeBuilderFlags.WriteTypeArgumentsOfSignature | NodeBuilderFlags.IgnoreErrors);
 
     if (signDecl?.typeArguments) {
       const resolvedTypeArgs = signDecl.typeArguments;
@@ -1602,7 +1540,7 @@ export class TypeScriptLinter {
       `${callableFunction}.bind`,
     ];
 
-    const exprSymbol = TypeScriptLinter.tsTypeChecker.getSymbolAtLocation(tsCallExpr.expression);
+    const exprSymbol = Utils.trueSymbolAtLocation(tsCallExpr.expression);
     if (exprSymbol === undefined) {
       return;
     }
@@ -1645,7 +1583,7 @@ export class TypeScriptLinter {
     const callSignature = TypeScriptLinter.tsTypeChecker.getResolvedSignature(callExpr);
     if (!callSignature) return;
 
-    const sym = TypeScriptLinter.tsTypeChecker.getSymbolAtLocation(callExpr.expression);
+    const sym = Utils.trueSymbolAtLocation(callExpr.expression);
     if (sym) {
       const name = sym.getName();
       if (
@@ -1819,7 +1757,7 @@ export class TypeScriptLinter {
 
   private handleExpressionWithTypeArguments(node: Node) {
     const tsTypeExpr = node as ExpressionWithTypeArguments;
-    const symbol = TypeScriptLinter.tsTypeChecker.getSymbolAtLocation(tsTypeExpr.expression);
+    const symbol = Utils.trueSymbolAtLocation(tsTypeExpr.expression);
     if (!!symbol && Utils.isEsObjectSymbol(symbol)) {
       this.incrementCounters(tsTypeExpr, FaultID.EsObjectType);
     }
@@ -1888,6 +1826,8 @@ export class TypeScriptLinter {
     }
   }
 
+  private validatedTypesSet = new Set<Type>();
+
   private validateDeclInferredType(
     type: Type,
     decl: VariableDeclaration | PropertyDeclaration | ParameterDeclaration
@@ -1895,18 +1835,22 @@ export class TypeScriptLinter {
     if (type.aliasSymbol !== undefined) {
       return;
     }
-    if (type.isUnion()) {
-      for (const unionElem of type.types) {
-        this.validateDeclInferredType(unionElem, decl);
-      }
-    }
-
     if (type.flags & TypeFlags.Object && (type as ObjectType).objectFlags & ObjectFlags.Reference) {
       const typeArgs = TypeScriptLinter.tsTypeChecker.getTypeArguments(type as TypeReference);
       if (typeArgs) {
         for (const typeArg of typeArgs) {
           this.validateDeclInferredType(typeArg, decl);
         }
+      }
+      return;
+    }
+    if (this.validatedTypesSet.has(type)) {
+      return;
+    }
+    if (type.isUnion()) {
+      this.validatedTypesSet.add(type);
+      for (let unionElem of type.types) {
+        this.validateDeclInferredType(unionElem, decl);
       }
     }
 
