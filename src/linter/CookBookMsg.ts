@@ -144,7 +144,7 @@ cookBookTag[121] = "\"require\" and \"import\" assignment are not supported (ark
 cookBookTag[122] = "";
 cookBookTag[123] = "";
 cookBookTag[124] = "";
-cookBookTag[125] = "Re-exporting is supported with restrictions (arkts-limited-reexport)";
+cookBookTag[125] = "";
 cookBookTag[126] = "\"export = ...\" assignment is not supported (arkts-no-export-assignment)";
 cookBookTag[127] = "Special \"export type\" declarations are not supported (arkts-no-special-exports)";
 cookBookTag[128] = "Ambient module declaration is not supported (arkts-no-ambient-decls)";
