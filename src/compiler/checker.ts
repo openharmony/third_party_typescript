@@ -3341,8 +3341,8 @@ namespace ts {
 
             // It should in standard mode, or will return before.
             if (isSoFile && moduleNotFoundError !== undefined &&
-                ((currentSourceFile && currentSourceFile.fileName.indexOf("/oh_modules/") !== -1) ||
-                (resolvedModule && resolvedModule.resolvedFileName.indexOf("/oh_modules/") !== -1))) {
+                ((currentSourceFile && normalizePath(currentSourceFile.fileName).indexOf("/oh_modules/") !== -1) ||
+                (resolvedModule && normalizePath(resolvedModule.resolvedFileName).indexOf("/oh_modules/") !== -1))) {
                 const diagnostic = createDiagnosticForNode(errorNode, Diagnostics.Currently_module_for_0_is_not_verified_If_you_re_importing_napi_its_verification_will_be_enabled_in_later_SDK_version_Please_make_sure_the_corresponding_d_ts_file_is_provided_and_the_napis_are_correctly_declared, moduleReference);
                 diagnostics.add(diagnostic);
                 moduleNotFoundError = undefined;
