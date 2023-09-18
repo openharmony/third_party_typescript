@@ -11388,37 +11388,36 @@ declare namespace ts {
             TypeOnlyImport = 63,
             TypeOnlyExport = 64,
             DefaultImport = 65,
-            LimitedReExporting = 66,
-            ExportAssignment = 67,
-            ImportAssignment = 68,
-            PropertyRuntimeCheck = 69,
-            GenericCallNoTypeArgs = 70,
-            ParameterProperties = 71,
-            InstanceofUnsupported = 72,
-            ShorthandAmbientModuleDecl = 73,
-            WildcardsInModuleName = 74,
-            UMDModuleDefinition = 75,
-            NewTarget = 76,
-            DefiniteAssignment = 77,
-            IifeAsNamespace = 78,
-            Prototype = 79,
-            GlobalThis = 80,
-            UtilityType = 81,
-            PropertyDeclOnFunction = 82,
-            FunctionApplyBindCall = 83,
-            ReadonlyArr = 84,
-            ConstAssertion = 85,
-            ImportAssertion = 86,
-            SpreadOperator = 87,
-            LimitedStdLibApi = 88,
-            ErrorSuppression = 89,
-            StrictDiagnostic = 90,
-            UnsupportedDecorators = 91,
-            ImportAfterStatement = 92,
-            EsObjectType = 93,
-            EsObjectAssignment = 94,
-            EsObjectAccess = 95,
-            LAST_ID = 96
+            ExportAssignment = 66,
+            ImportAssignment = 67,
+            PropertyRuntimeCheck = 68,
+            GenericCallNoTypeArgs = 69,
+            ParameterProperties = 70,
+            InstanceofUnsupported = 71,
+            ShorthandAmbientModuleDecl = 72,
+            WildcardsInModuleName = 73,
+            UMDModuleDefinition = 74,
+            NewTarget = 75,
+            DefiniteAssignment = 76,
+            IifeAsNamespace = 77,
+            Prototype = 78,
+            GlobalThis = 79,
+            UtilityType = 80,
+            PropertyDeclOnFunction = 81,
+            FunctionApplyBindCall = 82,
+            ReadonlyArr = 83,
+            ConstAssertion = 84,
+            ImportAssertion = 85,
+            SpreadOperator = 86,
+            LimitedStdLibApi = 87,
+            ErrorSuppression = 88,
+            StrictDiagnostic = 89,
+            UnsupportedDecorators = 90,
+            ImportAfterStatement = 91,
+            EsObjectType = 92,
+            EsObjectAssignment = 93,
+            EsObjectAccess = 94,
+            LAST_ID = 95
         }
         class FaultAttributs {
             migratable?: boolean;
@@ -11460,6 +11459,8 @@ declare namespace ts {
         function isNumberLikeType(tsType: Type): boolean;
         function hasModifier(tsModifiers: readonly Modifier[] | undefined, tsModifierKind: number): boolean;
         function unwrapParenthesized(tsExpr: Expression): Expression;
+        function followIfAliased(sym: Symbol): Symbol;
+        function trueSymbolAtLocation(node: Node): Symbol | undefined;
         function symbolHasDuplicateName(symbol: Symbol, tsDeclKind: SyntaxKind): boolean;
         function isReferenceType(tsType: Type): boolean;
         function isPrimitiveType(type: Type): boolean;
@@ -11664,8 +11665,8 @@ declare namespace ts {
         private handleTypeAssertionExpression;
         private handleMethodDeclaration;
         private handleIdentifier;
-        private handleNamespaceAsObject;
-        private handleClassAsObject;
+        private handleRestrictedValues;
+        private identiferUseInValueContext;
         private handleElementAccessExpression;
         private handleEnumMember;
         private handleExportDeclaration;
@@ -11693,6 +11694,7 @@ declare namespace ts {
         private handleSetAccessor;
         private handleDeclarationInferredType;
         private handleDefiniteAssignmentAssertion;
+        private validatedTypesSet;
         private validateDeclInferredType;
         lint(): void;
     }
