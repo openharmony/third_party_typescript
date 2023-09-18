@@ -100,7 +100,6 @@ export class LinterConfig {
     LinterConfig.nodeDesc[FaultID.TypeOnlyImport] = "Type-only imports";
     LinterConfig.nodeDesc[FaultID.TypeOnlyExport] = "Type-only exports";
     LinterConfig.nodeDesc[FaultID.DefaultImport] = "Default import declarations";
-    LinterConfig.nodeDesc[FaultID.LimitedReExporting] = "Limited re-exporting declarations";
     LinterConfig.nodeDesc[FaultID.ExportAssignment] = "Export assignments (export = ..)";
     LinterConfig.nodeDesc[FaultID.ImportAssignment] = "Import assignments (import = ..)";
     LinterConfig.nodeDesc[FaultID.PropertyRuntimeCheck] = "Property-based runtime checks";
