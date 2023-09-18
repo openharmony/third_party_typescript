@@ -209,6 +209,18 @@ export function unwrapParenthesized(tsExpr: Expression): Expression {
   return unwrappedExpr;
 }
 
+export function followIfAliased(sym: Symbol): Symbol {
+  if ((sym.getFlags() & SymbolFlags.Alias) !== 0) {
+    return typeChecker.getAliasedSymbol(sym);
+  }
+  return sym;
+}
+
+export function trueSymbolAtLocation(node: Node): Symbol | undefined {
+  const sym = typeChecker.getSymbolAtLocation(node);
+  return sym === undefined ? undefined : followIfAliased(sym);
+}
+
 export function symbolHasDuplicateName(symbol: Symbol, tsDeclKind: SyntaxKind): boolean {
   // Type Checker merges all declarations with the same name in one scope into one symbol.
   // Thus, check whether the symbol of certain declaration has any declaration with
@@ -955,13 +967,13 @@ export const LIMITED_STD_GLOBAL_VAR = ["Infinity", "NaN"];
 export const LIMITED_STD_OBJECT_API = [
   "__proto__", "__defineGetter__", "__defineSetter__", "__lookupGetter__", "__lookupSetter__", "assign", "create",
   "defineProperties", "defineProperty", "entries", "freeze", "fromEntries", "getOwnPropertyDescriptor",
-  "getOwnPropertyDescriptors", "getOwnPropertyNames", "getOwnPropertySymbols", "getPrototypeOf", "hasOwn",
-  "hasOwnProperty", "is", "isExtensible", "isFrozen", "isPrototypeOf", "isSealed", "keys", "preventExtensions",
-  "propertyIsEnumerable", "seal", "setPrototypeOf", "values"
+  "getOwnPropertyDescriptors", "getOwnPropertySymbols", "getPrototypeOf", "hasOwnProperty", "is",
+  "isExtensible", "isFrozen", "isPrototypeOf", "isSealed", "preventExtensions", "propertyIsEnumerable",
+  "seal", "setPrototypeOf"
 ];
 export const LIMITED_STD_REFLECT_API = [
-  "apply", "construct", "defineProperty", "deleteProperty", "get", "getOwnPropertyDescriptor", "getPrototypeOf",
-  "has", "isExtensible", "ownKeys", "preventExtensions", "set", "setPrototypeOf"
+ "apply", "construct", "defineProperty", "deleteProperty", "getOwnPropertyDescriptor", "getPrototypeOf",
+    "isExtensible", "preventExtensions", "setPrototypeOf"
 ];
 export const LIMITED_STD_PROXYHANDLER_API = [
   "apply", "construct", "defineProperty", "deleteProperty", "get", "getOwnPropertyDescriptor", "getPrototypeOf",
@@ -1203,22 +1215,19 @@ export function isDynamicType(type: Type | undefined): boolean | undefined {
   // return 'false' if it is not an object of standard library type one.
   // In the case of standard library type we need to determine context.
 
-   // Check the non-nullable version of type to eliminate 'undefined' type
+  // Check the non-nullable version of type to eliminate 'undefined' type
   // from the union type elements.
   type = type.getNonNullableType();
 
 
   if (type.isUnion()) {
     for (const compType of type.types) {
-      if (isLibraryType(compType)) {
-        return true;
-      }
-
-      if (!isStdLibraryType(compType) && !isIntrinsicObjectType(compType) && !isAnyType(compType)) {
-        return false;
+      const isDynamic = isDynamicType(compType);
+      if (isDynamic || isDynamic === undefined) {
+        return isDynamic;
       }
     }
-    return undefined;
+    return false;
   }
 
   if (isLibraryType(type)) {
@@ -1259,13 +1268,18 @@ export function isDynamicLiteralInitializer(expr: Expression): boolean {
   // foo({ ... })
   if (isCallExpression(curNode)) {
     const callExpr = curNode;
-    let sym: Symbol | undefined = typeChecker.getTypeAtLocation(callExpr.expression).symbol;
+    const type = typeChecker.getTypeAtLocation(callExpr.expression);
+
+    // this check is a hack to fix #13474, only for tac 4.2
+    if (isAnyType(type)) return true;
+
+    let sym: Symbol | undefined = type.symbol;
     if(isLibrarySymbol(sym)) {
       return true;
     }
 
     // #13483:
-    // x.foo({ ... }), where 'x' is exported from some library:
+    // x.foo({ ... }), where 'x' is a variable exported from some library:
     if (isPropertyAccessExpression(callExpr.expression)) {
       sym = typeChecker.getSymbolAtLocation(callExpr.expression.expression);
       if (sym && sym.getFlags() & SymbolFlags.Alias) {

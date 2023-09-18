@@ -30,7 +30,7 @@ export enum FaultID {
   NonDeclarationInNamespace, GeneratorFunction, FunctionContainsThis, PropertyAccessByIndex, JsxElement,
   EnumMemberNonConstInit, ImplementsClass, NoUndefinedPropAccess, MultipleStaticBlocks, ThisType,
   IntefaceExtendDifProps, StructuralIdentity, TypeOnlyImport, TypeOnlyExport, DefaultImport,
-  LimitedReExporting, ExportAssignment, ImportAssignment, PropertyRuntimeCheck,
+  ExportAssignment, ImportAssignment, PropertyRuntimeCheck,
   GenericCallNoTypeArgs, ParameterProperties,
   InstanceofUnsupported, ShorthandAmbientModuleDecl, WildcardsInModuleName, UMDModuleDefinition,
   NewTarget, DefiniteAssignment, IifeAsNamespace, Prototype, GlobalThis,
@@ -85,7 +85,6 @@ faultsAttrs[FaultID.JsxElement] = { cookBookRef: "54", };
 faultsAttrs[FaultID.UnaryArithmNotNumber] = { cookBookRef: "55", };
 faultsAttrs[FaultID.DeleteOperator] = { cookBookRef: "59", };
 faultsAttrs[FaultID.TypeQuery] = { cookBookRef: "60", };
-// remove as rule#61: FaultID.BitOpWithWrongType => { cookBookRef: "61", };
 faultsAttrs[FaultID.InstanceofUnsupported] = { cookBookRef: "65", };
 faultsAttrs[FaultID.InOperator] = { cookBookRef: "66", };
 faultsAttrs[FaultID.DestructuringAssignment] = { migratable: true, cookBookRef: "69", };
@@ -119,7 +118,6 @@ faultsAttrs[FaultID.ImportFromPath] = { cookBookRef: "119", };
 faultsAttrs[FaultID.TypeOnlyImport] = { migratable: true, cookBookRef: "118", };
 faultsAttrs[FaultID.DefaultImport] = { migratable: true, cookBookRef: "120", };
 faultsAttrs[FaultID.ImportAssignment] = { cookBookRef: "121", };
-faultsAttrs[FaultID.LimitedReExporting] = { cookBookRef: "125", };
 faultsAttrs[FaultID.ExportAssignment] = { cookBookRef: "126", };
 faultsAttrs[FaultID.TypeOnlyExport] = { migratable: true, cookBookRef: "127", };
 faultsAttrs[FaultID.ShorthandAmbientModuleDecl] = { cookBookRef: "128", };
@@ -142,8 +140,8 @@ faultsAttrs[FaultID.ErrorSuppression] = { cookBookRef: "146", };
 faultsAttrs[FaultID.UnsupportedDecorators] = { cookBookRef: "148", };
 faultsAttrs[FaultID.ClassAsObject] = { cookBookRef: "149", };
 faultsAttrs[FaultID.ImportAfterStatement] = { cookBookRef: "150", };
-faultsAttrs[FaultID.EsObjectType] = { cookBookRef: "8" };
-faultsAttrs[FaultID.EsObjectAssignment] = { cookBookRef: "8" };
-faultsAttrs[FaultID.EsObjectAccess] = { cookBookRef: "8" };
+faultsAttrs[FaultID.EsObjectType] = { warning: true, cookBookRef: "8" };
+faultsAttrs[FaultID.EsObjectAssignment] = { warning: true, cookBookRef: "8" };
+faultsAttrs[FaultID.EsObjectAccess] = { warning: true, cookBookRef: "8" };
 }
 }
