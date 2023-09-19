@@ -23,7 +23,7 @@ import AutofixInfo = Common.AutofixInfo;
 
 export const PROPERTY_HAS_NO_INITIALIZER_ERROR_CODE = 2564;
 
-export const NON_INITIALIZABLE_PROPERTY_DECORATORS = ["Link", "Consume", "ObjectLink"];
+export const NON_INITIALIZABLE_PROPERTY_DECORATORS = ["Link", "Consume", "ObjectLink", "Prop", "BuilderParam"];
 
 export const LIMITED_STANDARD_UTILITY_TYPES = [
   "Awaited", "Required", "Readonly", "Pick", "Omit", "Exclude", "Extract", "NonNullable", "Parameters",
@@ -64,6 +64,13 @@ export function isTypedArray(tsType: TypeNode | undefined): boolean {
     return false;
   }
   return TYPED_ARRAYS.includes(entityNameToString(tsType.typeName));
+}
+
+export function isType(tsType: TypeNode | undefined, checkType: string): boolean {
+  if (tsType === undefined || !isTypeReferenceNode(tsType)) {
+    return false;
+  }
+  return entityNameToString(tsType.typeName) === checkType;
 }
 
 export function entityNameToString(name: EntityName): string {
@@ -221,6 +228,14 @@ export function trueSymbolAtLocation(node: Node): Symbol | undefined {
   return sym === undefined ? undefined : followIfAliased(sym);
 }
 
+export function isTypeDeclSyntaxKind(kind: SyntaxKind) {
+  return isStructDeclarationKind(kind) ||
+    kind === SyntaxKind.EnumDeclaration ||
+    kind === SyntaxKind.ClassDeclaration ||
+    kind === SyntaxKind.InterfaceDeclaration ||
+    kind === SyntaxKind.TypeAliasDeclaration;
+}
+
 export function symbolHasDuplicateName(symbol: Symbol, tsDeclKind: SyntaxKind): boolean {
   // Type Checker merges all declarations with the same name in one scope into one symbol.
   // Thus, check whether the symbol of certain declaration has any declaration with
@@ -228,9 +243,15 @@ export function symbolHasDuplicateName(symbol: Symbol, tsDeclKind: SyntaxKind): 
   const symbolDecls = symbol?.getDeclarations();
   if (symbolDecls) {
     for (const symDecl of symbolDecls) {
+      const declKind = symDecl.kind;
+      // we relax arkts-unique-names for namespace collision with class/interface/enum/type/struct
+      const isNamespaceTypeCollision =
+        (isTypeDeclSyntaxKind(declKind) && tsDeclKind === SyntaxKind.ModuleDeclaration) ||
+        (isTypeDeclSyntaxKind(tsDeclKind) && declKind === SyntaxKind.ModuleDeclaration);
+
       // Don't count declarations with 'Identifier' syntax kind as those
       // usually depict declaring an object's property through assignment.
-      if (symDecl.kind !== SyntaxKind.Identifier && symDecl.kind !== tsDeclKind) return true;
+      if (declKind !== SyntaxKind.Identifier && declKind !== tsDeclKind && !isNamespaceTypeCollision) return true;
     }
   }
 
@@ -273,24 +294,24 @@ export function isGenericArrayType(tsType: Type): tsType is TypeReference {
 }
 
 // does something similar to relatedByInheritanceOrIdentical function
-export function isDerivedFromArray(tsType: Type): tsType is TypeReference {
+export function isDerivedFrom(tsType: Type, checkType: CheckType): tsType is TypeReference {
   if (isTypeReference(tsType) && tsType.target !== tsType) tsType = tsType.target;
+
+  const tsTypeNode = typeChecker.typeToTypeNode(tsType, undefined, NodeBuilderFlags.None);
+  if (checkType === CheckType.Array && (isGenericArrayType(tsType) || isTypedArray(tsTypeNode))) return true;
+  if (checkType !== CheckType.Array && isType(tsTypeNode, checkType.toString())) return true;
   if (!tsType.symbol || !tsType.symbol.declarations) return false;
 
   for (const tsTypeDecl of tsType.symbol.declarations) {
     if (
       (!isClassDeclaration(tsTypeDecl) && !isInterfaceDeclaration(tsTypeDecl)) ||
       !tsTypeDecl.heritageClauses
-    ) break;
+    ) continue;
     for (const heritageClause of tsTypeDecl.heritageClauses) {
-      for (const baseTypeExpr of heritageClause.types) {
-        let baseType = typeChecker.getTypeAtLocation(baseTypeExpr);
-        if (isTypeReference(baseType) && baseType.target !== baseType) baseType = baseType.target;
-        const baseTypeNode = typeChecker.typeToTypeNode(baseType, undefined, NodeBuilderFlags.None);
-        return isGenericArrayType(baseType) || isTypedArray(baseTypeNode);
-      }
+      if (processParentTypesCheck(heritageClause.types, checkType)) return true;
     }
   }
+
   return false;
 }
 
@@ -580,11 +601,25 @@ export function processParentTypes(parentTypes: NodeArray<ExpressionWithTypeArgu
   return false;
 }
 
+export function processParentTypesCheck(parentTypes: NodeArray<ExpressionWithTypeArguments>, checkType: CheckType): boolean {
+  for (const baseTypeExpr of parentTypes) {
+    let baseType = typeChecker.getTypeAtLocation(baseTypeExpr);
+    if (isTypeReference(baseType) && baseType.target !== baseType) baseType = baseType.target;
+    if (baseType && isDerivedFrom(baseType, checkType)) return true;
+  }
+  return false;
+}
+
+
 export function isObjectType(tsType: Type): boolean {
-  return (
-    tsType && tsType.isClassOrInterface() && tsType.symbol &&
-    (tsType.symbol.name === "Object" || tsType.symbol.name === "object")
-  );
+  if (!tsType) {
+    return false;
+  }
+  if (tsType.symbol && (tsType.isClassOrInterface() && tsType.symbol.name === "Object")) {
+    return true;
+  }
+  const node = typeChecker.typeToTypeNode(tsType, undefined, undefined);
+  return node !== undefined && node.kind === SyntaxKind.ObjectKeyword;
 }
 
 export function logTscDiagnostic(diagnostics: readonly Diagnostic[], log: (message: any, ...args: any[]) => void): void {
@@ -688,6 +723,13 @@ export function validateObjectLiteralType(type: Type | undefined): boolean {
   );
 }
 
+export function isStructDeclarationKind(kind: SyntaxKind) {
+  return kind === SyntaxKind.StructDeclaration;
+}
+
+export function isStructDeclaration(node: Node) {
+  return isStructDeclarationKind(node.kind);
+}
 export function isStructObjectInitializer(objectLiteral: ObjectLiteralExpression): boolean {
   if(isCallLikeExpression(objectLiteral.parent)) {
     const signature = typeChecker.getResolvedSignature(objectLiteral.parent);
@@ -792,7 +834,9 @@ export function areTypesAssignable(lhsType: Type | undefined, rhsExpr: Expressio
     }
   }
 
-  if (isObjectLiteralAssignable(lhsType, rhsExpr)) return true;
+  if (isObjectLiteralExpression(rhsExpr)) {
+    return isObjectLiteralAssignable(lhsType, rhsExpr);
+  }
 
   // Always compare the non-nullable variant of types.
   lhsType = lhsType.getNonNullableType();
@@ -816,7 +860,7 @@ export function areTypesAssignable(lhsType: Type | undefined, rhsExpr: Expressio
   if (areCompatibleFunctionals(lhsType, rhsType)) {
     return true;
   }
-  return lhsType === rhsType || hasBaseType(rhsType, getTargetType(lhsType));
+  return lhsType === rhsType || relatedByInheritanceOrIdentical(rhsType, getTargetType(lhsType));
 }
 
 function isDynamicObjectAssignedToStdType(lhsType: Type, rhsExpr: Expression): boolean {
@@ -865,18 +909,6 @@ function getTargetType(type: Type): Type {
   return (type.getFlags() & TypeFlags.Object) &&
     (type as ObjectType).objectFlags & ObjectFlags.Reference ? (type as TypeReference).target : type;
 }
-
-function hasBaseType(type: Type, checkBase: Type): boolean {
-  if ((type.getFlags() & TypeFlags.Object) &&
-    (type as ObjectType).objectFlags & (ObjectFlags.ClassOrInterface | ObjectFlags.Reference)
-  ) {
-    const target = getTargetType(type) as InterfaceType;
-    return target === checkBase ||
-      TypeScriptLinter.tsTypeChecker.getBaseTypes(target).some(baseType => hasBaseType(baseType, checkBase));
-  }
-  return false;
-}
-
 
 export function isLiteralType(type: Type): boolean {
   return type.isLiteral() || (type.flags & TypeFlags.BooleanLiteral) !== 0;
@@ -957,6 +989,14 @@ export function getDecorators(node: Node): readonly Decorator[] | undefined {
   }
 }
 
+export enum CheckType {
+  Array,
+  String = "String",
+  Set = "Set",
+  Map = "Map",
+  Error = "Error",
+};
+
 export const ES_OBJECT = "ESObject";
 
 export const LIMITED_STD_GLOBAL_FUNC = [
@@ -966,7 +1006,7 @@ export const LIMITED_STD_GLOBAL_FUNC = [
 export const LIMITED_STD_GLOBAL_VAR = ["Infinity", "NaN"];
 export const LIMITED_STD_OBJECT_API = [
   "__proto__", "__defineGetter__", "__defineSetter__", "__lookupGetter__", "__lookupSetter__", "assign", "create",
-  "defineProperties", "defineProperty", "entries", "freeze", "fromEntries", "getOwnPropertyDescriptor",
+  "defineProperties", "defineProperty", "freeze", "fromEntries", "getOwnPropertyDescriptor",
   "getOwnPropertyDescriptors", "getOwnPropertySymbols", "getPrototypeOf", "hasOwnProperty", "is",
   "isExtensible", "isFrozen", "isPrototypeOf", "isSealed", "preventExtensions", "propertyIsEnumerable",
   "seal", "setPrototypeOf"
@@ -979,7 +1019,6 @@ export const LIMITED_STD_PROXYHANDLER_API = [
   "apply", "construct", "defineProperty", "deleteProperty", "get", "getOwnPropertyDescriptor", "getPrototypeOf",
   "has", "isExtensible", "ownKeys", "preventExtensions", "set", "setPrototypeOf"
 ];
-export const LIMITED_STD_ARRAY_API = ["isArray"];
 export const LIMITED_STD_ARRAYBUFFER_API = ["isView"];
 
 export const ARKUI_DECORATORS = [
@@ -1132,6 +1171,10 @@ export function isLibraryType(type: Type): boolean {
   return isLibrarySymbol(type.aliasSymbol ?? type.getSymbol());
 }
 
+export function hasLibraryType(node: Node): boolean {
+  return isLibraryType(typeChecker.getTypeAtLocation(node));
+}
+
 export function isLibrarySymbol(sym: Symbol | undefined) {
   if (sym && sym.declarations && sym.declarations.length > 0) {
     const srcFile = sym.declarations[0].getSourceFile();
@@ -1144,7 +1187,7 @@ export function isLibrarySymbol(sym: Symbol | undefined) {
     // We disable such behavior for *.ts files in the test mode due to lack of 'ets'
     // extension support.
     const isOhModule = pathContainsDirectory(normalizePath(fileName), "oh_modules");
-    let isInterop = srcFile.isDeclarationFile || isOhModule;
+    let isInterop = srcFile.isDeclarationFile || isOhModule || getScriptKind(srcFile) === ScriptKind.JS;
     if (!testMode) {
       isInterop ||= getScriptKind(srcFile) === ScriptKind.TS;
     }

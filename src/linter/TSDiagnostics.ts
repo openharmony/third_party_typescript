@@ -31,8 +31,12 @@ export class TSCCompiledProgram {
       : this.diagnosticsExtractor.nonStrictProgram;
   }
 
-  public getStrictDiagnostics(sourceFile: SourceFile): Diagnostic[] {
-    return this.diagnosticsExtractor.getStrictDiagnostics(sourceFile);
+  public getStrictProgram(): Program {
+    return this.diagnosticsExtractor.strictProgram;
+  }
+
+  public getStrictDiagnostics(fileName: string): Diagnostic[] {
+    return this.diagnosticsExtractor.getStrictDiagnostics(fileName);
   }
 }
 
@@ -61,6 +65,9 @@ function formTscOptions(rootNames: readonly string[], compilerOptions: CompilerO
   if (extraOptions) {
     options.options = Object.assign(options.options, extraOptions);
   }
+
+  options.options.allowJs = true;
+  options.options.checkJs = true;
 
   return options;
 }
@@ -102,9 +109,9 @@ class TypeScriptDiagnosticsExtractor {
   /**
    * Returns diagnostics which appear in strict compilation mode only
    */
-  public getStrictDiagnostics(sourceFile: SourceFile): Diagnostic[] {
-    const strict = getAllDiagnostics(this.strictProgram, sourceFile);
-    const nonStrict = getAllDiagnostics(this.nonStrictProgram, sourceFile);
+   public getStrictDiagnostics(fileName: string): Diagnostic[] {
+    const strict = getAllDiagnostics(this.strictProgram, fileName);
+    const nonStrict = getAllDiagnostics(this.nonStrictProgram, fileName);
 
     // collect hashes for later easier comparison
     const nonStrictHashes = nonStrict.reduce((result, value) => {
@@ -122,7 +129,8 @@ class TypeScriptDiagnosticsExtractor {
   }
 }
 
-function getAllDiagnostics(program: Program, sourceFile: SourceFile): Diagnostic[] {
+function getAllDiagnostics(program: Program, fileName: string): Diagnostic[] {
+  const sourceFile = program.getSourceFile(fileName);
   return program.getSemanticDiagnostics(sourceFile)
     .concat(program.getSyntacticDiagnostics(sourceFile))
     .filter(diag => diag.file === sourceFile);
