@@ -35,13 +35,11 @@ export class LinterConfig {
     // Set the feature descriptions (for the output).
     LinterConfig.nodeDesc[FaultID.AnyType] = "\"any\" type";
     LinterConfig.nodeDesc[FaultID.SymbolType] = "\"symbol\" type";
-    LinterConfig.nodeDesc[FaultID.TupleType] = "Tuple type";
     LinterConfig.nodeDesc[FaultID.ObjectLiteralNoContextType] = "Object literals with no context Class or Interface type";
     LinterConfig.nodeDesc[FaultID.ArrayLiteralNoContextType] = "Array literals with no context Array type";
     LinterConfig.nodeDesc[FaultID.ComputedPropertyName] = "Computed properties";
     LinterConfig.nodeDesc[FaultID.LiteralAsPropertyName] = "String or integer literal as property name";
     LinterConfig.nodeDesc[FaultID.TypeQuery] = "\"typeof\" operations";
-    LinterConfig.nodeDesc[FaultID.TupleLiteral] = "tuple literals";
     LinterConfig.nodeDesc[FaultID.RegexLiteral] = "regex literals";
     LinterConfig.nodeDesc[FaultID.IsOperator] = "\"is\" operations";
     LinterConfig.nodeDesc[FaultID.DestructuringParameter] = "destructuring parameters";
@@ -56,7 +54,6 @@ export class LinterConfig {
     LinterConfig.nodeDesc[FaultID.UnknownType] = "\"unknown\" type";
     LinterConfig.nodeDesc[FaultID.ForInStatement] = "\"for-In\" statements";
     LinterConfig.nodeDesc[FaultID.InOperator] = "\"in\" operations";
-    LinterConfig.nodeDesc[FaultID.KeyOfOperator] = "\"keyof\" operations";
     LinterConfig.nodeDesc[FaultID.ImportFromPath] = "imports from path";
     LinterConfig.nodeDesc[FaultID.FunctionExpression] = "function expressions";
     LinterConfig.nodeDesc[FaultID.IntersectionType] = "intersection types and type literals";
@@ -111,13 +108,11 @@ export class LinterConfig {
     LinterConfig.nodeDesc[FaultID.UMDModuleDefinition] = "UMD module definition";
     LinterConfig.nodeDesc[FaultID.NewTarget] = "\"new.target\" meta-property";
     LinterConfig.nodeDesc[FaultID.DefiniteAssignment] = "Definite assignment assertion";
-    LinterConfig.nodeDesc[FaultID.IifeAsNamespace] = "IIFEs as namespace declarations";
     LinterConfig.nodeDesc[FaultID.Prototype] = "Prototype assignment";
     LinterConfig.nodeDesc[FaultID.GlobalThis] = "Use of globalThis";
     LinterConfig.nodeDesc[FaultID.UtilityType] = "Standard Utility types";
     LinterConfig.nodeDesc[FaultID.PropertyDeclOnFunction] = "Property declaration on function";
     LinterConfig.nodeDesc[FaultID.FunctionApplyBindCall] = "Invoking methods of function objects";
-    LinterConfig.nodeDesc[FaultID.ReadonlyArr] = "\"readonly\" array or tuple";
     LinterConfig.nodeDesc[FaultID.ConstAssertion] = "\"as const\" assertion";
     LinterConfig.nodeDesc[FaultID.ImportAssertion] = "Import assertion";
     LinterConfig.nodeDesc[FaultID.SpreadOperator] = "Spread operation";
@@ -177,7 +172,7 @@ export class LinterConfig {
   static incrementOnlyTokens: ESMap<SyntaxKind , FaultID> = new Map([
     [SyntaxKind.AnyKeyword, FaultID.AnyType], [SyntaxKind.SymbolKeyword, FaultID.SymbolType],
     [SyntaxKind.ThisType, FaultID.ThisType],
-    [SyntaxKind.TupleType, FaultID.TupleType], [SyntaxKind.ComputedPropertyName, FaultID.ComputedPropertyName],
+    [SyntaxKind.ComputedPropertyName, FaultID.ComputedPropertyName],
     [SyntaxKind.TypeQuery, FaultID.TypeQuery],
     [SyntaxKind.DeleteExpression, FaultID.DeleteOperator],
     [SyntaxKind.RegularExpressionLiteral, FaultID.RegexLiteral],
