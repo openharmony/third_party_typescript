@@ -32,16 +32,20 @@ export function runArkTSLinter(tsProgram: Program, host: CompilerHost, srcFile?:
 
   LinterConfig.initStatic();
 
+  const tscDiagnosticsLinter = new TSCCompiledProgram(tsProgram, host);
+  const strictProgram = tscDiagnosticsLinter.getStrictProgram();
+
   let srcFiles: SourceFile[] = [];
   if(!!srcFile) {
     srcFiles.push(srcFile);
   }
   else {
-    srcFiles = tsProgram.getSourceFiles() as SourceFile[];
+    srcFiles = strictProgram.getSourceFiles() as SourceFile[];
   }
 
-  const tscDiagnosticsLinter = new TSCCompiledProgram(tsProgram, host);
   const tscStrictDiagnostics = getTscDiagnostics(tscDiagnosticsLinter, srcFiles);
+
+  TypeScriptLinter.initGlobals();
 
   for(const fileToLint of srcFiles) {
     TypeScriptLinter.initStatic();
@@ -49,7 +53,7 @@ export function runArkTSLinter(tsProgram: Program, host: CompilerHost, srcFile?:
       continue;
     }
 
-    const linter = new TypeScriptLinter(fileToLint, tsProgram, tscStrictDiagnostics);
+    const linter = new TypeScriptLinter(fileToLint, strictProgram, tscStrictDiagnostics);
     Utils.setTypeChecker(TypeScriptLinter.tsTypeChecker);
     linter.lint();
 
@@ -77,7 +81,7 @@ function getTscDiagnostics(
 ): Map<Diagnostic[]> {
   const strictDiagnostics = new Map<string, Diagnostic[]>();
   sourceFiles.forEach(file => {
-    const diagnostics = tscDiagnosticsLinter.getStrictDiagnostics(file);
+    const diagnostics = tscDiagnosticsLinter.getStrictDiagnostics(file.fileName);
     if (diagnostics.length !== 0) {
       strictDiagnostics.set(normalizePath(file.fileName), diagnostics);
     }
