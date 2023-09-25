@@ -33,6 +33,9 @@ export const LIMITED_STANDARD_UTILITY_TYPES = [
 
 export enum ProblemSeverity { WARNING = 1, ERROR = 2 }
 
+export const ARKTS_IGNORE_DIRS = ['node_modules', 'oh_modules', 'build', '.preview'];
+export const ARKTS_IGNORE_FILES = ['hvigorfile.ts'];
+
 let typeChecker: TypeChecker;
 export function setTypeChecker(tsTypeChecker: TypeChecker): void {
   typeChecker = tsTypeChecker;
@@ -1186,16 +1189,17 @@ export function isLibrarySymbol(sym: Symbol | undefined) {
     // Symbols from both *.ts and *.d.ts files should obey interop rules.
     // We disable such behavior for *.ts files in the test mode due to lack of 'ets'
     // extension support.
-    const isOhModule = pathContainsDirectory(normalizePath(fileName), "oh_modules");
-    let isInterop = srcFile.isDeclarationFile || isOhModule || getScriptKind(srcFile) === ScriptKind.JS;
-    if (!testMode) {
-      isInterop ||= getScriptKind(srcFile) === ScriptKind.TS;
-    }
-
+    const ext = getAnyExtensionFromPath(fileName);
+    const isThirdPartyCode =
+      ARKTS_IGNORE_DIRS.some(ignore => pathContainsDirectory(normalizePath(fileName), ignore)) ||
+      ARKTS_IGNORE_FILES.some(ignore => getBaseFileName(fileName) === ignore);
+    const isEts = (ext === '.ets');
+    const isTs = (ext === '.ts' && !srcFile.isDeclarationFile);
+    const isStatic = (isEts || (isTs && testMode)) && !isThirdPartyCode;
     // We still need to confirm support for certain API from the
-    // TypeScript standard library in Ark Thus, for now do not
+    // TypeScript standard library in ArkTS. Thus, for now do not
     // count standard library modules.
-    return isInterop &&
+    return !isStatic &&
       !STANDARD_LIBRARIES.includes(getBaseFileName(srcFile.fileName).toLowerCase());
   }
 
