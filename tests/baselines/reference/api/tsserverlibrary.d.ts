@@ -11432,6 +11432,8 @@ declare namespace ts {
             WARNING = 1,
             ERROR = 2
         }
+        const ARKTS_IGNORE_DIRS: string[];
+        const ARKTS_IGNORE_FILES: string[];
         function setTypeChecker(tsTypeChecker: TypeChecker): void;
         function setTestMode(tsTestMode: boolean): void;
         function getStartPos(nodeOrComment: Node | CommentRange): number;
