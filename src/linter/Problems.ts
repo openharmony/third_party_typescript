@@ -16,11 +16,11 @@ namespace ts {
 export namespace Problems {
 
 export enum FaultID {
-  AnyType, SymbolType, TupleType, ObjectLiteralNoContextType, ArrayLiteralNoContextType,
-  ComputedPropertyName, LiteralAsPropertyName, TypeQuery, TupleLiteral, RegexLiteral, IsOperator,
+  AnyType, SymbolType, ObjectLiteralNoContextType, ArrayLiteralNoContextType,
+  ComputedPropertyName, LiteralAsPropertyName, TypeQuery, RegexLiteral, IsOperator,
   DestructuringParameter, YieldExpression, InterfaceMerging, EnumMerging, InterfaceExtendsClass, IndexMember, WithStatement,
   ThrowStatement, IndexedAccessType, UnknownType, ForInStatement, InOperator,
-  KeyOfOperator, ImportFromPath, FunctionExpression, IntersectionType,
+  ImportFromPath, FunctionExpression, IntersectionType,
   ObjectTypeLiteral, CommaOperator, LimitedReturnTypeInference,
   LambdaWithTypeParameters, ClassExpression, DestructuringAssignment,
   DestructuringDeclaration, ForOfNonArray, VarDeclaration, CatchWithUnsupportedType, DeleteOperator,
@@ -33,8 +33,8 @@ export enum FaultID {
   ExportAssignment, ImportAssignment, PropertyRuntimeCheck,
   GenericCallNoTypeArgs, ParameterProperties,
   InstanceofUnsupported, ShorthandAmbientModuleDecl, WildcardsInModuleName, UMDModuleDefinition,
-  NewTarget, DefiniteAssignment, IifeAsNamespace, Prototype, GlobalThis,
-  UtilityType, PropertyDeclOnFunction, FunctionApplyBindCall, ReadonlyArr, ConstAssertion, ImportAssertion,
+  NewTarget, DefiniteAssignment, Prototype, GlobalThis,
+  UtilityType, PropertyDeclOnFunction, FunctionApplyBindCall, ConstAssertion, ImportAssertion,
   SpreadOperator, LimitedStdLibApi, ErrorSuppression, StrictDiagnostic, UnsupportedDecorators, ImportAfterStatement,
   EsObjectType, EsObjectAssignment, EsObjectAccess,
   LAST_ID, // this should always be last enum`
@@ -56,8 +56,6 @@ faultsAttrs[FaultID.DeclWithDuplicateName] = { migratable: true, cookBookRef: "4
 faultsAttrs[FaultID.VarDeclaration] = { migratable: true, cookBookRef: "5", };
 faultsAttrs[FaultID.AnyType] = { cookBookRef: "8" };
 faultsAttrs[FaultID.UnknownType] = { cookBookRef: "8", };
-faultsAttrs[FaultID.TupleType] = { cookBookRef: "13", };
-faultsAttrs[FaultID.TupleLiteral] = { cookBookRef: "13", };
 faultsAttrs[FaultID.CallSignature] = { cookBookRef: "14", };
 faultsAttrs[FaultID.ConstructorType] = { cookBookRef: "15", };
 faultsAttrs[FaultID.MultipleStaticBlocks] = { cookBookRef: "16", };
@@ -103,7 +101,6 @@ faultsAttrs[FaultID.FunctionContainsThis] = { cookBookRef: "93", };
 faultsAttrs[FaultID.GeneratorFunction] = { cookBookRef: "94", };
 faultsAttrs[FaultID.YieldExpression] = { cookBookRef: "94", };
 faultsAttrs[FaultID.IsOperator] = { cookBookRef: "96", };
-faultsAttrs[FaultID.KeyOfOperator] = { cookBookRef: "97", };
 faultsAttrs[FaultID.SpreadOperator] = { cookBookRef: "99", };
 faultsAttrs[FaultID.IntefaceExtendDifProps] = { cookBookRef: "102", };
 faultsAttrs[FaultID.InterfaceMerging] = { cookBookRef: "103", };
@@ -125,19 +122,17 @@ faultsAttrs[FaultID.WildcardsInModuleName] = { cookBookRef: "129", };
 faultsAttrs[FaultID.UMDModuleDefinition] = { cookBookRef: "130", };
 faultsAttrs[FaultID.NewTarget] = { cookBookRef: "132", };
 faultsAttrs[FaultID.DefiniteAssignment] = { cookBookRef: "134", };
-faultsAttrs[FaultID.IifeAsNamespace] = { cookBookRef: "135", };
 faultsAttrs[FaultID.Prototype] = { cookBookRef: "136", };
 faultsAttrs[FaultID.GlobalThis] = { cookBookRef: "137", };
 faultsAttrs[FaultID.UtilityType] = { cookBookRef: "138", };
 faultsAttrs[FaultID.PropertyDeclOnFunction] = { cookBookRef: "139", };
 faultsAttrs[FaultID.FunctionApplyBindCall] = { cookBookRef: "140", };
-faultsAttrs[FaultID.ReadonlyArr] = { migratable: true, cookBookRef: "141", };
 faultsAttrs[FaultID.ConstAssertion] = { cookBookRef: "142", };
 faultsAttrs[FaultID.ImportAssertion] = { cookBookRef: "143", };
 faultsAttrs[FaultID.LimitedStdLibApi] = { cookBookRef: "144", };
 faultsAttrs[FaultID.StrictDiagnostic] = { cookBookRef: "145", };
 faultsAttrs[FaultID.ErrorSuppression] = { cookBookRef: "146", };
-faultsAttrs[FaultID.UnsupportedDecorators] = { cookBookRef: "148", };
+faultsAttrs[FaultID.UnsupportedDecorators] = { warning: true, cookBookRef: "148", };
 faultsAttrs[FaultID.ClassAsObject] = { cookBookRef: "149", };
 faultsAttrs[FaultID.ImportAfterStatement] = { cookBookRef: "150", };
 faultsAttrs[FaultID.EsObjectType] = { warning: true, cookBookRef: "8" };
