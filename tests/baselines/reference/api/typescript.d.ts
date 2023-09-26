@@ -7604,32 +7604,31 @@ declare namespace ts {
             DefaultImport = 62,
             ExportAssignment = 63,
             ImportAssignment = 64,
-            PropertyRuntimeCheck = 65,
-            GenericCallNoTypeArgs = 66,
-            ParameterProperties = 67,
-            InstanceofUnsupported = 68,
-            ShorthandAmbientModuleDecl = 69,
-            WildcardsInModuleName = 70,
-            UMDModuleDefinition = 71,
-            NewTarget = 72,
-            DefiniteAssignment = 73,
-            Prototype = 74,
-            GlobalThis = 75,
-            UtilityType = 76,
-            PropertyDeclOnFunction = 77,
-            FunctionApplyBindCall = 78,
-            ConstAssertion = 79,
-            ImportAssertion = 80,
-            SpreadOperator = 81,
-            LimitedStdLibApi = 82,
-            ErrorSuppression = 83,
-            StrictDiagnostic = 84,
-            UnsupportedDecorators = 85,
-            ImportAfterStatement = 86,
-            EsObjectType = 87,
-            EsObjectAssignment = 88,
-            EsObjectAccess = 89,
-            LAST_ID = 90
+            GenericCallNoTypeArgs = 65,
+            ParameterProperties = 66,
+            InstanceofUnsupported = 67,
+            ShorthandAmbientModuleDecl = 68,
+            WildcardsInModuleName = 69,
+            UMDModuleDefinition = 70,
+            NewTarget = 71,
+            DefiniteAssignment = 72,
+            Prototype = 73,
+            GlobalThis = 74,
+            UtilityType = 75,
+            PropertyDeclOnFunction = 76,
+            FunctionApplyBindCall = 77,
+            ConstAssertion = 78,
+            ImportAssertion = 79,
+            SpreadOperator = 80,
+            LimitedStdLibApi = 81,
+            ErrorSuppression = 82,
+            StrictDiagnostic = 83,
+            UnsupportedDecorators = 84,
+            ImportAfterStatement = 85,
+            EsObjectType = 86,
+            EsObjectAssignment = 87,
+            EsObjectAccess = 88,
+            LAST_ID = 89
         }
         class FaultAttributs {
             migratable?: boolean;
@@ -7644,6 +7643,7 @@ declare namespace ts {
         import AutofixInfo = Common.AutofixInfo;
         const PROPERTY_HAS_NO_INITIALIZER_ERROR_CODE = 2564;
         const NON_INITIALIZABLE_PROPERTY_DECORATORS: string[];
+        const NON_INITIALIZABLE_PROPERTY_ClASS_DECORATORS: string[];
         const LIMITED_STANDARD_UTILITY_TYPES: string[];
         enum ProblemSeverity {
             WARNING = 1,
@@ -7851,7 +7851,6 @@ declare namespace ts {
         private countDeclarationsWithDuplicateName;
         private countClassMembersWithDuplicateName;
         private functionContainsThis;
-        private isPropertyRuntimeCheck;
         private isPrototypePropertyAccess;
         private interfaceInharitanceLint;
         private lintForInterfaceExtendsDifferentPorpertyTypes;
@@ -7921,6 +7920,8 @@ declare namespace ts {
         private handleDeclarationInferredType;
         private handleDefiniteAssignmentAssertion;
         private validatedTypesSet;
+        private checkAnyOrUnknownChildNode;
+        private handleInferredObjectreference;
         private validateDeclInferredType;
         lint(): void;
     }

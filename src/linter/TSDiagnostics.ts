@@ -68,6 +68,7 @@ function formTscOptions(rootNames: readonly string[], compilerOptions: CompilerO
 
   options.options.allowJs = true;
   options.options.checkJs = true;
+  options.options.maxNodeModuleJsDepth = 2;
 
   return options;
 }
@@ -110,7 +111,8 @@ class TypeScriptDiagnosticsExtractor {
    * Returns diagnostics which appear in strict compilation mode only
    */
    public getStrictDiagnostics(fileName: string): Diagnostic[] {
-    const strict = getAllDiagnostics(this.strictProgram, fileName);
+    // workaround for a tsc bug
+    const strict = getAllDiagnostics(this.strictProgram, fileName).filter(diag => !(diag.length === 0 && diag.start === 0));
     const nonStrict = getAllDiagnostics(this.nonStrictProgram, fileName);
 
     // collect hashes for later easier comparison

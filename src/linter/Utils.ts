@@ -25,6 +25,8 @@ export const PROPERTY_HAS_NO_INITIALIZER_ERROR_CODE = 2564;
 
 export const NON_INITIALIZABLE_PROPERTY_DECORATORS = ["Link", "Consume", "ObjectLink", "Prop", "BuilderParam"];
 
+export const NON_INITIALIZABLE_PROPERTY_ClASS_DECORATORS = ['CustomDialog']
+
 export const LIMITED_STANDARD_UTILITY_TYPES = [
   "Awaited", "Required", "Readonly", "Pick", "Omit", "Exclude", "Extract", "NonNullable", "Parameters",
   "ConstructorParameters", "ReturnType", "InstanceType", "ThisParameterType", "OmitThisParameter",
@@ -803,6 +805,10 @@ function findDeclaration(type: ClassDeclaration | InterfaceDeclaration, name: st
 export function areTypesAssignable(lhsType: Type | undefined, rhsExpr: Expression): boolean {
   if (lhsType === undefined) { return false; }
 
+  if (isAnyType(lhsType)) {
+    return true;
+  }
+
   if (lhsType.isUnion()) {
     for (const compType of lhsType.types) {
       if (areTypesAssignable(compType, rhsExpr)) return true;
@@ -1171,7 +1177,16 @@ export function isStdPartialType(type: Type): boolean {
 
 
 export function isLibraryType(type: Type): boolean {
-  return isLibrarySymbol(type.aliasSymbol ?? type.getSymbol());
+  const nonNullableType = type.getNonNullableType();
+  if (nonNullableType.isUnion()) {
+    for (const componentType of nonNullableType.types) {
+      if (!isLibraryType(componentType)) {
+        return false;
+      }
+    }
+    return true;
+  }
+  return isLibrarySymbol(nonNullableType.aliasSymbol ?? nonNullableType.getSymbol());
 }
 
 export function hasLibraryType(node: Node): boolean {
