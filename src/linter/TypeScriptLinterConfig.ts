@@ -99,7 +99,6 @@ export class LinterConfig {
     LinterConfig.nodeDesc[FaultID.DefaultImport] = "Default import declarations";
     LinterConfig.nodeDesc[FaultID.ExportAssignment] = "Export assignments (export = ..)";
     LinterConfig.nodeDesc[FaultID.ImportAssignment] = "Import assignments (import = ..)";
-    LinterConfig.nodeDesc[FaultID.PropertyRuntimeCheck] = "Property-based runtime checks";
     LinterConfig.nodeDesc[FaultID.GenericCallNoTypeArgs] = "Generic calls without type arguments";
     LinterConfig.nodeDesc[FaultID.ParameterProperties] = "Parameter properties in constructor";
     LinterConfig.nodeDesc[FaultID.InstanceofUnsupported] = "Left-hand side of \"instanceof\" is wrong";
