@@ -7537,6 +7537,36 @@ declare namespace ts {
     const cookBookTag: string[];
 }
 declare namespace ts {
+    namespace DiagnosticCheckerNamespace {
+        interface DiagnosticChecker {
+            checkDiagnosticMessage(msgText: string | ts.DiagnosticMessageChain): boolean;
+        }
+    }
+}
+declare namespace ts {
+    import DiagnosticChecker = DiagnosticCheckerNamespace.DiagnosticChecker;
+    namespace LibraryTypeCallDiagnosticCheckerNamespace {
+        const TYPE_0_IS_NOT_ASSIGNABLE_TO_TYPE_1_ERROR_CODE = 2322;
+        const TYPE_UNKNOWN_IS_NOT_ASSIGNABLE_TO_TYPE_1_RE: RegExp;
+        const TYPE_NULL_IS_NOT_ASSIGNABLE_TO_TYPE_1_RE: RegExp;
+        const TYPE_UNDEFINED_IS_NOT_ASSIGNABLE_TO_TYPE_1_RE: RegExp;
+        const ARGUMENT_OF_TYPE_0_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_ERROR_CODE = 2345;
+        const ARGUMENT_OF_TYPE_NULL_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_RE: RegExp;
+        const ARGUMENT_OF_TYPE_UNDEFINED_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_RE: RegExp;
+        class LibraryTypeCallDiagnosticChecker implements DiagnosticChecker {
+            inLibCall: boolean;
+            diagnosticMessages: Array<ts.DiagnosticMessageChain> | undefined;
+            filteredDiagnosticMessages: DiagnosticMessageChain[];
+            constructor(filteredDiagnosticMessages: DiagnosticMessageChain[]);
+            configure(inLibCall: boolean, diagnosticMessages: Array<ts.DiagnosticMessageChain>): void;
+            checkMessageText(msg: string): boolean;
+            checkMessageChain(chain: ts.DiagnosticMessageChain): boolean;
+            checkFilteredDiagnosticMessages(msgText: ts.DiagnosticMessageChain | string): boolean;
+            checkDiagnosticMessage(msgText: string | ts.DiagnosticMessageChain): boolean;
+        }
+    }
+}
+declare namespace ts {
     namespace Problems {
         enum FaultID {
             AnyType = 0,
@@ -7695,6 +7725,7 @@ declare namespace ts {
         function isUnsupportedUnionType(tsType: Type): boolean;
         function isFunctionOrMethod(tsSymbol: Symbol | undefined): boolean;
         function isMethodAssignment(tsSymbol: Symbol | undefined): boolean;
+        function getDeclaration(tsSymbol: ts.Symbol | undefined): ts.Declaration | undefined;
         function isValidEnumMemberInit(tsExpr: Expression): boolean;
         function isCompileTimeExpression(tsExpr: Expression): boolean;
         function isConst(tsNode: Node): boolean;
@@ -7741,6 +7772,7 @@ declare namespace ts {
         const NON_RETURN_FUNCTION_DECORATORS: string[];
         const STANDARD_LIBRARIES: string[];
         const TYPED_ARRAYS: string[];
+        function getParentSymbolName(symbol: Symbol): string | undefined;
         function isGlobalSymbol(symbol: Symbol): boolean;
         function isStdObjectAPI(symbol: Symbol): boolean;
         function isStdReflectAPI(symbol: Symbol): boolean;
@@ -7767,7 +7799,9 @@ declare namespace ts {
         function isEsObjectType(typeNode: TypeNode): boolean;
         function isEsObjectAllowed(typeRef: TypeReferenceNode): boolean;
         function getVariableDeclarationTypeNode(node: Node): TypeNode | undefined;
+        function getSymbolDeclarationTypeNode(sym: ts.Symbol): ts.TypeNode | undefined;
         function hasEsObjectType(node: Node): boolean;
+        function symbolHasEsObjectType(sym: ts.Symbol): boolean;
         function isEsObjectSymbol(sym: Symbol): boolean;
         function isAnonymousType(type: Type): boolean;
         function getSymbolOfCallExpression(callExpr: CallExpression): Symbol | undefined;
@@ -7805,6 +7839,7 @@ declare namespace ts {
 }
 declare namespace ts {
     import Autofix = Autofixer.Autofix;
+    import LibraryTypeCallDiagnosticChecker = LibraryTypeCallDiagnosticCheckerNamespace.LibraryTypeCallDiagnosticChecker;
     interface ProblemInfo {
         line: number;
         column: number;
@@ -7843,6 +7878,7 @@ declare namespace ts {
         currentErrorLine: number;
         currentWarningLine: number;
         staticBlocks: Set<string>;
+        libraryTypeCallDiagnosticChecker: LibraryTypeCallDiagnosticChecker;
         constructor(sourceFile: SourceFile, tsProgram: Program, tscStrictDiagnostics?: Map<Diagnostic[]> | undefined);
         readonly handlersMap: ESMap<SyntaxKind, (node: Node) => void>;
         incrementCounters(node: Node | CommentRange, faultId: number, autofixable?: boolean, autofix?: Autofix[]): void;
@@ -7852,7 +7888,7 @@ declare namespace ts {
         private countClassMembersWithDuplicateName;
         private functionContainsThis;
         private isPrototypePropertyAccess;
-        private interfaceInharitanceLint;
+        private interfaceInheritanceLint;
         private lintForInterfaceExtendsDifferentPorpertyTypes;
         private handleObjectLiteralExpression;
         private handleArrayLiteralExpression;
@@ -7900,8 +7936,10 @@ declare namespace ts {
         private handleImportCall;
         private handleRequireCall;
         private handleGenericCallWithNoTypeArgs;
+        private static listApplyBindCallApis;
         private handleFunctionApplyBindPropCall;
         private handleStructIdentAndUndefinedInArgs;
+        private static LimitedApis;
         private handleStdlibAPICall;
         private handleLibraryTypeCall;
         private handleNewExpression;
