@@ -228,9 +228,22 @@ export function followIfAliased(sym: Symbol): Symbol {
   return sym;
 }
 
+let trueSymbolAtLocationCache = new Map<ts.Node, ts.Symbol | null>();
+
 export function trueSymbolAtLocation(node: Node): Symbol | undefined {
-  const sym = typeChecker.getSymbolAtLocation(node);
-  return sym === undefined ? undefined : followIfAliased(sym);
+  let cache = trueSymbolAtLocationCache;
+  let val = cache.get(node);
+  if (val !== undefined) {
+    return val !== null ? val : undefined;
+  }
+  let sym = typeChecker.getSymbolAtLocation(node);
+  if (sym === undefined) {
+    cache.set(node, null);
+    return undefined;
+  }
+  sym = followIfAliased(sym);
+  cache.set(node, sym);
+  return sym;
 }
 
 export function isTypeDeclSyntaxKind(kind: SyntaxKind) {
@@ -405,11 +418,11 @@ export function isMethodAssignment(tsSymbol: Symbol | undefined): boolean {
   );
 }
 
-function getDeclaration(tsSymbol: Symbol | undefined): Declaration | null {
+export function getDeclaration(tsSymbol: ts.Symbol | undefined): ts.Declaration | undefined {
   if (tsSymbol && tsSymbol.declarations && tsSymbol.declarations.length > 0) {
     return tsSymbol.declarations[0];
   }
-  return null;
+  return undefined;
 }
 
 function isVarDeclaration(tsDecl: Node): boolean {
@@ -1090,7 +1103,7 @@ export const TYPED_ARRAYS = [
   "BigUint64Array",
   ];
 
-function getParentSymbolName(symbol: Symbol): string | undefined {
+export function getParentSymbolName(symbol: Symbol): string | undefined {
   const name = typeChecker.getFullyQualifiedName(symbol);
   const dotPosition = name.lastIndexOf(".");
   return (dotPosition === -1) ? undefined : name.substring(0, dotPosition);
@@ -1123,12 +1136,8 @@ export function isStdArrayBufferAPI(symbol: Symbol): boolean {
 
 export function isSymbolAPI(symbol: Symbol): boolean {
   const parentName = getParentSymbolName(symbol);
-  if(!!parentName) {
-    return (parentName === "Symbol" || parentName === "SymbolConstructor");
-  }
-  else {
-    return (symbol.escapedName === "Symbol" || symbol.escapedName === "SymbolConstructor");
-  }
+  let name = parentName ? parentName : symbol.escapedName;
+  return name === 'Symbol' || name === "SymbolConstructor";
 }
 
 export function isDefaultImport(importSpec: ImportSpecifier): boolean {
@@ -1229,7 +1238,6 @@ export function pathContainsDirectory(targetPath: string, dir: string): boolean 
   }
   return false;
 }
-
 
 export function getScriptKind(srcFile: SourceFile): ScriptKind {
   const fileName = srcFile.fileName;
@@ -1389,8 +1397,15 @@ export function isEsObjectAllowed(typeRef: TypeReferenceNode): boolean {
 }
 
 export function getVariableDeclarationTypeNode(node: Node): TypeNode | undefined {
-  const symbol = typeChecker.getSymbolAtLocation(node);
-  const decl = getDeclaration(symbol);
+  let sym = trueSymbolAtLocation(node);
+    if (sym === undefined) {
+      return undefined;
+    }
+    return getSymbolDeclarationTypeNode(sym);
+  }
+
+export function getSymbolDeclarationTypeNode(sym: ts.Symbol): ts.TypeNode | undefined {
+    const decl = getDeclaration(sym);
   if (!!decl && isVariableDeclaration(decl)) {
     return decl.type;
   }
@@ -1399,6 +1414,11 @@ export function getVariableDeclarationTypeNode(node: Node): TypeNode | undefined
 
 export function hasEsObjectType(node: Node): boolean {
   const typeNode = getVariableDeclarationTypeNode(node);
+  return typeNode !== undefined && isEsObjectType(typeNode);
+}
+
+export function symbolHasEsObjectType(sym: ts.Symbol): boolean {
+  const typeNode = getSymbolDeclarationTypeNode(sym);
   return typeNode !== undefined && isEsObjectType(typeNode);
 }
 

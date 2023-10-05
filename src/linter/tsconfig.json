@@ -16,6 +16,8 @@
     "files": [
         "Common.ts",
         "CookBookMsg.ts",
+        "DiagnosticChecker.ts",
+        "LibraryTypeCallDiagnosticChecker.ts",
         "Problems.ts",
         "Utils.ts",
         "Autofixer.ts",
