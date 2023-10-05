@@ -30,6 +30,12 @@ import Autofix = Autofixer.Autofix;
 
 import Logger = ts.perfLogger;
 
+import DiagnosticChecker = DiagnosticCheckerNamespace.DiagnosticChecker;
+import ARGUMENT_OF_TYPE_0_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_ERROR_CODE =
+      LibraryTypeCallDiagnosticCheckerNamespace.ARGUMENT_OF_TYPE_0_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_ERROR_CODE;
+import LibraryTypeCallDiagnosticChecker =
+      LibraryTypeCallDiagnosticCheckerNamespace.LibraryTypeCallDiagnosticChecker;
+
 //const logger = Logger.getLogger();
 
 export interface ProblemInfo {
@@ -125,6 +131,7 @@ export class TypeScriptLinter {
   currentErrorLine: number;
   currentWarningLine: number;
   staticBlocks: Set<string>;
+  libraryTypeCallDiagnosticChecker: LibraryTypeCallDiagnosticChecker;
 
   constructor(private sourceFile: SourceFile,
               /* private */ tsProgram: Program,
@@ -133,6 +140,7 @@ export class TypeScriptLinter {
     this.currentErrorLine = 0;
     this.currentWarningLine = 0;
     this.staticBlocks = new Set<string>();
+    this.libraryTypeCallDiagnosticChecker = new LibraryTypeCallDiagnosticChecker(TypeScriptLinter.filteredDiagnosticMessages);
   }
 
   readonly handlersMap = new Map([
@@ -372,7 +380,7 @@ export class TypeScriptLinter {
     return found;
   }
 
-  private isPrototypePropertyAccess(tsPropertyAccess: PropertyAccessExpression): boolean {
+  private isPrototypePropertyAccess(tsPropertyAccess: ts.PropertyAccessExpression, propAccessSym: ts.Symbol | undefined, baseExprSym: ts.Symbol | undefined, baseExprType: ts.Type): boolean {
     if (!(isIdentifier(tsPropertyAccess.name) && tsPropertyAccess.name.text === "prototype")) {
       return false;
     }
@@ -392,12 +400,9 @@ export class TypeScriptLinter {
       }
     }
     // Check if property symbol is "Prototype"
-    const propAccessSym = Utils.trueSymbolAtLocation(tsPropertyAccess);
     if (Utils.isPrototypeSymbol(propAccessSym)) return true;
 
     // Check if symbol of LHS-expression is Class or Function.
-    const tsBaseExpr = tsPropertyAccess.expression;
-    const baseExprSym = Utils.trueSymbolAtLocation(tsBaseExpr);
     if (Utils.isTypeSymbol(baseExprSym) || Utils.isFunctionSymbol(baseExprSym)) {
       return true;
     }
@@ -405,7 +410,6 @@ export class TypeScriptLinter {
     // The latter check is to cover cases with multiple prototype
     // chain (as the 'Prototype' property should be 'Any' type):
     //      X.prototype.prototype.prototype = ...
-    const baseExprType = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(tsBaseExpr);
     const baseExprTypeNode = TypeScriptLinter.tsTypeChecker.typeToTypeNode(
       baseExprType, undefined, NodeBuilderFlags.None
     );
@@ -413,7 +417,7 @@ export class TypeScriptLinter {
     return ((baseExprTypeNode && isFunctionTypeNode(baseExprTypeNode)) || Utils.isAnyType(baseExprType));
   }
 
-  private interfaceInharitanceLint(node: Node, heritageClauses: NodeArray<HeritageClause>): void {
+  private interfaceInheritanceLint(node: Node, heritageClauses: NodeArray<HeritageClause>): void {
     for (const hClause of heritageClauses) {
       if (hClause.token !== SyntaxKind.ExtendsKeyword) continue;
 
@@ -565,7 +569,7 @@ export class TypeScriptLinter {
       if (iDeclCount > 1) this.incrementCounters(node, FaultID.InterfaceMerging);
     }
 
-    if (interfaceNode.heritageClauses) this.interfaceInharitanceLint(node, interfaceNode.heritageClauses);
+    if (interfaceNode.heritageClauses) this.interfaceInheritanceLint(node, interfaceNode.heritageClauses);
 
     this.countDeclarationsWithDuplicateName(interfaceNode.name, interfaceNode);
   }
@@ -641,16 +645,22 @@ export class TypeScriptLinter {
   }
 
   private handlePropertyAccessExpression(node: Node): void {
+    if (ts.isCallExpression(node.parent) && node == node.parent.expression) {
+      return;
+    }
+
     const propertyAccessNode = node as PropertyAccessExpression;
-    if (this.isPrototypePropertyAccess(propertyAccessNode)) {
+    const exprSym = Utils.trueSymbolAtLocation(propertyAccessNode);
+    const baseExprSym = Utils.trueSymbolAtLocation(propertyAccessNode.expression);
+    const baseExprType = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(propertyAccessNode.expression);
+    if (this.isPrototypePropertyAccess(propertyAccessNode, exprSym, baseExprSym, baseExprType)) { 
       this.incrementCounters(propertyAccessNode.name, FaultID.Prototype);
     }
-    const symbol = Utils.trueSymbolAtLocation(propertyAccessNode);
-    if(!!symbol && Utils.isSymbolAPI(symbol)) {
-      this.incrementCounters(node, FaultID.SymbolType);
+    if (!!exprSym && Utils.isSymbolAPI(exprSym)) {
+      this.incrementCounters(propertyAccessNode, FaultID.SymbolType);
     }
-    if (Utils.hasEsObjectType(propertyAccessNode.expression)) {
-      this.incrementCounters(node, FaultID.EsObjectAccess);
+    if (baseExprSym !== undefined && Utils.symbolHasEsObjectType(baseExprSym)) {
+      this.incrementCounters(propertyAccessNode, FaultID.EsObjectAccess);
     }
   }
 
@@ -736,7 +746,7 @@ export class TypeScriptLinter {
   }
 
   private filterStrictDiagnostics(range: { begin: number, end: number }, code: number,
-    chainCheck: (n: string | DiagnosticMessageChain) => boolean): boolean {
+    diagnosticChecker: DiagnosticChecker): boolean {
     if (!this.tscStrictDiagnostics || !this.sourceFile) {
       return false;
     }
@@ -753,7 +763,7 @@ export class TypeScriptLinter {
       if (val.start === undefined || val.start < range.begin || val.start > range.end) {
         return true;
       }
-      return chainCheck(val.messageText);
+      return diagnosticChecker.checkDiagnosticMessage(val.messageText);
     };
 
     if (tscDiagnostics.every(checkDiagnostic)) {
@@ -1264,9 +1274,7 @@ export class TypeScriptLinter {
     const tsIdentifier = node as Identifier;
     const tsIdentSym = Utils.trueSymbolAtLocation(tsIdentifier);
 
-    if (tsIdentSym) {
-      this.handleRestrictedValues(tsIdentifier, tsIdentSym);
-
+    if (tsIdentSym !== undefined) {
       if (
         (tsIdentSym.flags & SymbolFlags.Module) !== 0 &&
         (tsIdentSym.flags & SymbolFlags.Transient) !== 0 &&
@@ -1274,9 +1282,11 @@ export class TypeScriptLinter {
       ) {
         this.incrementCounters(node, FaultID.GlobalThis);
       }
-      if (Utils.isGlobalSymbol(tsIdentSym) && Utils.LIMITED_STD_GLOBAL_VAR.includes(tsIdentSym.getName())) {
+      else if (Utils.isGlobalSymbol(tsIdentSym) && Utils.LIMITED_STD_GLOBAL_VAR.includes(tsIdentSym.getName())) {
         this.incrementCounters(node, FaultID.LimitedStdLibApi);
       }
+      else
+        this.handleRestrictedValues(tsIdentifier, tsIdentSym);
     }
   }
 
@@ -1455,16 +1465,29 @@ export class TypeScriptLinter {
   private handleCallExpression(node: Node): void {
     const tsCallExpr = node as CallExpression;
 
+    const calleeSym = Utils.trueSymbolAtLocation(tsCallExpr.expression);
+    const calleeType = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(tsCallExpr.expression);
+    const callSignature = TypeScriptLinter.tsTypeChecker.getResolvedSignature(tsCallExpr);
+
     this.handleImportCall(tsCallExpr);
     this.handleRequireCall(tsCallExpr);
     // NOTE: Keep handleFunctionApplyBindPropCall above handleGenericCallWithNoTypeArgs here!!!
-    this.handleFunctionApplyBindPropCall(tsCallExpr);
-    this.handleGenericCallWithNoTypeArgs(tsCallExpr);
-    this.handleStructIdentAndUndefinedInArgs(tsCallExpr);
-    this.handleStdlibAPICall(tsCallExpr);
-    this.handleLibraryTypeCall(tsCallExpr);
-
-    if (Utils.hasEsObjectType(tsCallExpr.expression)) {
+    if (calleeSym !== undefined) {
+      this.handleStdlibAPICall(tsCallExpr, calleeSym);
+      this.handleFunctionApplyBindPropCall(tsCallExpr, calleeSym);
+      if (Utils.symbolHasEsObjectType(calleeSym)) {
+        this.incrementCounters(tsCallExpr, FaultID.EsObjectAccess);
+      }
+    }
+    if (callSignature !== undefined) {
+      if (!Utils.isLibrarySymbol(calleeSym)) {
+        this.handleGenericCallWithNoTypeArgs(tsCallExpr, callSignature);
+      }
+      this.handleStructIdentAndUndefinedInArgs(tsCallExpr, callSignature);
+    }
+    this.handleLibraryTypeCall(tsCallExpr, calleeType);
+    
+    if (ts.isPropertyAccessExpression(tsCallExpr.expression) && Utils.hasEsObjectType(tsCallExpr.expression.expression)) {
       this.incrementCounters(node, FaultID.EsObjectAccess);
     }
   }
@@ -1501,14 +1524,11 @@ export class TypeScriptLinter {
     }
   }
 
-  private handleGenericCallWithNoTypeArgs(callLikeExpr: CallExpression | NewExpression): void {
-    const callSignature = TypeScriptLinter.tsTypeChecker.getResolvedSignature(callLikeExpr);
-    if (!callSignature) return;
+  private handleGenericCallWithNoTypeArgs(callLikeExpr: ts.CallExpression | ts.NewExpression, callSignature: ts.Signature) {
 
     const tsSyntaxKind = isNewExpression(callLikeExpr) ? SyntaxKind.Constructor : SyntaxKind.FunctionDeclaration;
-    const sym = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(callLikeExpr.expression).symbol;
     const signDecl = TypeScriptLinter.tsTypeChecker.signatureToSignatureDeclaration(callSignature, tsSyntaxKind,
-      (!!sym && !!sym.declarations) ? sym.declarations[0] : undefined, NodeBuilderFlags.WriteTypeArgumentsOfSignature | NodeBuilderFlags.IgnoreErrors);
+        undefined, NodeBuilderFlags.WriteTypeArgumentsOfSignature | NodeBuilderFlags.IgnoreErrors);
 
     if (signDecl?.typeArguments) {
       const resolvedTypeArgs = signDecl.typeArguments;
@@ -1523,40 +1543,33 @@ export class TypeScriptLinter {
     }
   }
 
-  private handleFunctionApplyBindPropCall(tsCallExpr: CallExpression): void {
-    const stdFunction = "Function";
-    const callableFunction = "CallableFunction";
-    const funcProps = [
-      `${stdFunction}.apply`,
-      `${stdFunction}.call`,
-      `${stdFunction}.bind`,
-      `${callableFunction}.apply`,
-      `${callableFunction}.call`,
-      `${callableFunction}.bind`,
-    ];
-
-    const exprSymbol = Utils.trueSymbolAtLocation(tsCallExpr.expression);
-    if (exprSymbol === undefined) {
-      return;
-    }
-
-    const exprName = TypeScriptLinter.tsTypeChecker.getFullyQualifiedName(exprSymbol);
-    if (funcProps.includes(exprName)) {
+  private static listApplyBindCallApis = [
+    "Function.apply",
+    "Function.call",
+    "Function.bind",
+    "CallableFunction.apply",
+    "CallableFunction.call",
+    "CallableFunction.bind"
+  ];
+  private handleFunctionApplyBindPropCall(tsCallExpr: ts.CallExpression, calleeSym: ts.Symbol) {
+    const exprName = TypeScriptLinter.tsTypeChecker.getFullyQualifiedName(calleeSym);
+    if (TypeScriptLinter.listApplyBindCallApis.includes(exprName)) {
       this.incrementCounters(tsCallExpr, FaultID.FunctionApplyBindCall);
     }
   }
 
-  private handleStructIdentAndUndefinedInArgs(tsCallOrNewExpr: CallExpression | NewExpression): void {
-    const tsSignature = TypeScriptLinter.tsTypeChecker.getResolvedSignature(tsCallOrNewExpr);
-    if (!tsSignature || !tsCallOrNewExpr.arguments) return;
+  private handleStructIdentAndUndefinedInArgs(tsCallOrNewExpr: ts.CallExpression | ts.NewExpression, callSignature: ts.Signature) {
+    if (!tsCallOrNewExpr.arguments) {
+      return;
+    }
 
     for (let argIndex = 0; argIndex < tsCallOrNewExpr.arguments.length; ++argIndex) {
       const tsArg = tsCallOrNewExpr.arguments[argIndex];
       const tsArgType = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(tsArg);
       if (!tsArgType) continue;
 
-      const paramIndex = argIndex < tsSignature.parameters.length ? argIndex : tsSignature.parameters.length-1;
-      const tsParamSym = tsSignature.parameters[paramIndex];
+      let paramIndex = argIndex < callSignature.parameters.length ? argIndex : callSignature.parameters.length-1;
+      let tsParamSym = callSignature.parameters[paramIndex];
       if (!tsParamSym) continue;
 
       const tsParamDecl = tsParamSym.valueDeclaration;
@@ -1574,128 +1587,48 @@ export class TypeScriptLinter {
     }
   }
 
-  private handleStdlibAPICall(callExpr: CallExpression): void {
-    const callSignature = TypeScriptLinter.tsTypeChecker.getResolvedSignature(callExpr);
-    if (!callSignature) return;
+  // let re = new RegExp("^(" + arr.reduce((acc, v) => ((acc ? (acc + "|") : "") + v)) +")$")
+  private static LimitedApis = new Map<string, {arr: Array<string> | null, fault: FaultID}> ([
+    ["global", {arr: Utils.LIMITED_STD_GLOBAL_FUNC, fault: FaultID.LimitedStdLibApi}],
+    ["Object", {arr: Utils.LIMITED_STD_OBJECT_API, fault: FaultID.LimitedStdLibApi}],
+    ["ObjectConstructor", {arr: Utils.LIMITED_STD_OBJECT_API, fault: FaultID.LimitedStdLibApi}],
+    ["Reflect", {arr: Utils.LIMITED_STD_REFLECT_API, fault: FaultID.LimitedStdLibApi}],
+    ["ProxyHandler", {arr: Utils.LIMITED_STD_PROXYHANDLER_API, fault: FaultID.LimitedStdLibApi}],
+    ["ArrayBuffer", {arr: Utils.LIMITED_STD_ARRAYBUFFER_API, fault: FaultID.LimitedStdLibApi}],
+    ["ArrayBufferConstructor", {arr: Utils.LIMITED_STD_ARRAYBUFFER_API, fault: FaultID.LimitedStdLibApi}],
+    ["Symbol", {arr: null, fault: FaultID.SymbolType}],
+    ["SymbolConstructor", {arr: null, fault: FaultID.SymbolType}],
+  ])
 
-    const sym = Utils.trueSymbolAtLocation(callExpr.expression);
-    if (sym) {
-      const name = sym.getName();
-      if (
-        (Utils.isGlobalSymbol(sym) && Utils.LIMITED_STD_GLOBAL_FUNC.includes(name)) ||
-        (Utils.isStdObjectAPI(sym) && Utils.LIMITED_STD_OBJECT_API.includes(name)) ||
-        (Utils.isStdReflectAPI(sym) && Utils.LIMITED_STD_REFLECT_API.includes(name)) ||
-        (Utils.isStdProxyHandlerAPI(sym) && Utils.LIMITED_STD_PROXYHANDLER_API.includes(name)) ||
-        (Utils.isStdArrayBufferAPI(sym) && Utils.LIMITED_STD_ARRAYBUFFER_API.includes(name))
-      ) {
+  private handleStdlibAPICall(callExpr: ts.CallExpression, calleeSym: ts.Symbol) {
+    const name = calleeSym.getName();
+    const parName = Utils.getParentSymbolName(calleeSym);
+    if (parName === undefined) {
+      if (Utils.LIMITED_STD_GLOBAL_FUNC.includes(name)) {
         this.incrementCounters(callExpr, FaultID.LimitedStdLibApi);
+        return;
       }
-      if(Utils.isSymbolAPI(sym)) {
+      let escapedName = calleeSym.escapedName;
+      if (escapedName === 'Symbol' || escapedName === 'SymbolConstructor') {
         this.incrementCounters(callExpr, FaultID.SymbolType);
       }
+      return;
     }
+    let lookup = TypeScriptLinter.LimitedApis.get(parName);
+    if (lookup !== undefined && (lookup.arr === null || lookup.arr.includes(name))) {
+      this.incrementCounters(callExpr, lookup.fault);
+    };
   }
 
-  private handleLibraryTypeCall(callExpr: CallExpression) {
-    // Current approach relates on error code and error message matching and it is quite fragile,
-    // so this place should be checked thoroughly in the case of typescript upgrade
-    const TYPE_0_IS_NOT_ASSIGNABLE_TO_TYPE_1_ERROR_CODE = 2322;
-    const TYPE_UNKNOWN_IS_NOT_ASSIGNABLE_TO_TYPE_1_RE = /^Type '(.*)\bunknown\b(.*)' is not assignable to type '.*'\.$/;
-    const TYPE_NULL_IS_NOT_ASSIGNABLE_TO_TYPE_1_RE = /^Type 'null' is not assignable to type '.*'\.$/;
-    const TYPE_UNDEFINED_IS_NOT_ASSIGNABLE_TO_TYPE_1_RE = /^Type 'undefined' is not assignable to type '.*'\.$/;
-
-    const ARGUMENT_OF_TYPE_0_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_ERROR_CODE = 2345;
-    const ARGUMENT_OF_TYPE_NULL_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_RE = /^Argument of type 'null' is not assignable to parameter of type '.*'\.$/;
-    const ARGUMENT_OF_TYPE_UNDEFINED_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_RE = /^Argument of type 'undefined' is not assignable to parameter of type '.*'\.$/;
-
-    const inLibCall = Utils.isLibraryType(TypeScriptLinter.tsTypeChecker.getTypeAtLocation(callExpr.expression));
-    const chainCheck = (n: DiagnosticMessageChain): boolean => {
-      if (n.code === TYPE_0_IS_NOT_ASSIGNABLE_TO_TYPE_1_ERROR_CODE) {
-        if (n.messageText.match(TYPE_UNKNOWN_IS_NOT_ASSIGNABLE_TO_TYPE_1_RE)) {
-          return false;
-        }
-        if (inLibCall && n.messageText.match(TYPE_UNDEFINED_IS_NOT_ASSIGNABLE_TO_TYPE_1_RE)) {
-          return false;
-        }
-        if (inLibCall && n.messageText.match(TYPE_NULL_IS_NOT_ASSIGNABLE_TO_TYPE_1_RE)) {
-          return false;
-        }
-      }
-      return n.next === undefined ? true : chainCheck(n.next[0]);
-    };
-
-    const msgCheck = (msg: string): boolean => {
-      if (inLibCall) {
-        const match = msg.match(ARGUMENT_OF_TYPE_NULL_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_RE) ||
-        msg.match(ARGUMENT_OF_TYPE_UNDEFINED_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_RE);
-        return !match;
-      }
-      return true;
-    };
-
-    const checkFilteredDiagnosticMessages = (msg: DiagnosticMessageChain | string) => {
-      if (TypeScriptLinter.filteredDiagnosticMessages.length === 0) {
-        return true;
-      }
-
-      if (typeof msg !== "string" && (TypeScriptLinter.filteredDiagnosticMessages.indexOf(msg) !== -1) /*this.filteredDiagnosticMessages.has(msg)*/) {
-        return false;
-      }
-
-      for (const msgChain of TypeScriptLinter.filteredDiagnosticMessages) {
-        if (typeof msg === "string") {
-          if (msg === msgChain.messageText) {
-            return false;
-          }
-          continue;
-        }
-
-        let curMsg: DiagnosticMessageChain | undefined = msg;
-        let curFilteredMsg: DiagnosticMessageChain | undefined = msgChain;
-        while (curMsg) {
-          if (!curFilteredMsg) {
-            return true;
-          }
-
-          if (curMsg.code !== curFilteredMsg.code) {
-            return true;
-          }
-
-          if (curMsg.messageText !== curFilteredMsg.messageText) {
-            return true;
-          }
-
-          curMsg = curMsg.next ? curMsg.next[0]: undefined;
-          curFilteredMsg = curFilteredMsg.next ? curFilteredMsg.next[0]: undefined;
-        }
-
-        return false;
-      }
-      return true;
-    };
-
-    // TypeScript 4.2 supports only sets of strings so use array
-    // const diagnosticMessages = new Set<DiagnosticMessageChain>()
-    const diagnosticMessages: DiagnosticMessageChain[] = [];
-
+    
+  private handleLibraryTypeCall(callExpr: ts.CallExpression, calleeType: ts.Type) {
+    let inLibCall = Utils.isLibraryType(calleeType);
+    const diagnosticMessages: Array<ts.DiagnosticMessageChain> = []
+    this.libraryTypeCallDiagnosticChecker.configure(inLibCall, diagnosticMessages);
 
     this.filterStrictDiagnostics({ begin: callExpr.pos, end: callExpr.end },
       ARGUMENT_OF_TYPE_0_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_ERROR_CODE,
-      (msg) => {
-        if (inLibCall && !checkFilteredDiagnosticMessages(msg)) {
-          return false;
-        }
-
-        if (typeof msg === "string") {
-          return msgCheck(msg);
-        }
-
-        const res = chainCheck(msg);
-        if (!res) {
-          diagnosticMessages.push(msg);
-        }
-        return res;
-      }
+      this.libraryTypeCallDiagnosticChecker
     );
 
     for (const msgChain of diagnosticMessages) {
@@ -1705,8 +1638,11 @@ export class TypeScriptLinter {
 
   private handleNewExpression(node: Node): void {
     const tsNewExpr = node as NewExpression;
-    this.handleGenericCallWithNoTypeArgs(tsNewExpr);
-    this.handleStructIdentAndUndefinedInArgs(tsNewExpr);
+    let callSignature = TypeScriptLinter.tsTypeChecker.getResolvedSignature(tsNewExpr);
+    if (callSignature !== undefined) {
+      this.handleStructIdentAndUndefinedInArgs(tsNewExpr, callSignature);
+      this.handleGenericCallWithNoTypeArgs(tsNewExpr, callSignature);
+    }
   }
 
   private handleAsExpression(node: Node): void {
