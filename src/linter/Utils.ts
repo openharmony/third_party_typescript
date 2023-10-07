@@ -815,22 +815,45 @@ function findDeclaration(type: ClassDeclaration | InterfaceDeclaration, name: st
 }
 */
 
-export function areTypesAssignable(lhsType: Type | undefined, rhsExpr: Expression): boolean {
-  if (lhsType === undefined) { return false; }
+export function isExpressionAssignableToType(lhsType: ts.Type | undefined, rhsExpr: ts.Expression): boolean {
+  if (lhsType === undefined) {
+    return false;
+  }
 
-  if (isAnyType(lhsType)) {
+  // Allow initializing with anything when the type
+  // originates from the library.
+  if (isAnyType(lhsType) || isLibraryType(lhsType)) {
     return true;
+  }
+
+  // Always compare the non-nullable variant of types.
+  lhsType = lhsType.getNonNullableType();
+  let rhsType = typeChecker.getTypeAtLocation(rhsExpr).getNonNullableType();
+
+  // For Partial<T> type, validate its argument type.
+  if (isStdPartialType(lhsType)) {
+    if (lhsType.aliasTypeArguments && lhsType.aliasTypeArguments.length === 1) {
+      lhsType = lhsType.aliasTypeArguments[0];
+    } else {
+      return false;
+    }
+  }
+
+  if (rhsType.isUnion()) {
+    let res = true;
+    for (const compType of rhsType.types) {
+      res &&= areTypesAssignable(lhsType, compType)
+    }
+    return res;
   }
 
   if (lhsType.isUnion()) {
     for (const compType of lhsType.types) {
-      if (areTypesAssignable(compType, rhsExpr)) return true;
+      if (isExpressionAssignableToType(compType, rhsExpr)) {
+        return true;
+      }
     }
   }
-
-  // Allow initializing with object literal when the type
-  // originates from the library.
-  if (isLibraryType(lhsType)) return true;
 
   // issue 13412:
   // Allow initializing with a dynamic object when the LHS type
@@ -839,30 +862,46 @@ export function areTypesAssignable(lhsType: Type | undefined, rhsExpr: Expressio
     return true;
   }
 
-
   // Allow initializing Record objects with object initializer.
   // Record supports any type for a its value, but the key value
   // must be either a string or number literal.
-  if (isStdRecordType(lhsType) && isObjectLiteralExpression(rhsExpr)) {
+  if (isStdRecordType(lhsType) && ts.isObjectLiteralExpression(rhsExpr)) {
     return validateRecordObjectKeys(rhsExpr);
   }
-  // For Partial<T> type, validate its argument type.
-  if (isStdPartialType(lhsType)) {
-    if (lhsType.aliasTypeArguments && lhsType.aliasTypeArguments.length === 1) {
-      lhsType = lhsType.aliasTypeArguments[0];
-    }
-    else {
-      return false;
-    }
-  }
 
-  if (isObjectLiteralExpression(rhsExpr)) {
+  if (ts.isObjectLiteralExpression(rhsExpr)) {
     return isObjectLiteralAssignable(lhsType, rhsExpr);
   }
+  
+  return areTypesAssignable(lhsType, rhsType)
+}
 
-  // Always compare the non-nullable variant of types.
-  lhsType = lhsType.getNonNullableType();
-  let rhsType = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(rhsExpr).getNonNullableType();
+function areTypesAssignable(lhsType: ts.Type, rhsType: ts.Type): boolean {
+  if (rhsType.isUnion()) {
+    for (const compType of rhsType.types) {
+      if (areTypesAssignable(lhsType, compType)) {
+        return true;
+      }
+    }
+  }
+  
+  if (lhsType.isUnion()) {
+    for (const compType of lhsType.types) {
+      if (areTypesAssignable(compType, rhsType)) {
+        return true;
+      }
+    }
+  }
+  
+  // Allow initializing with anything when the type
+  // originates from the library.
+  if (isAnyType(lhsType) || isLibraryType(lhsType)) {
+    return true;
+  }
+  
+  // If type is a literal type, compare its base type.
+  lhsType = typeChecker.getBaseTypeOfLiteralType(lhsType);
+  rhsType = typeChecker.getBaseTypeOfLiteralType(rhsType);
 
   // issue 13114:
   // Const enum values are convertible to string/number type.
@@ -873,15 +912,12 @@ export function areTypesAssignable(lhsType: Type | undefined, rhsExpr: Expressio
     return true;
   }
 
-  // If type is a literal type, compare its base type.
-  lhsType = typeChecker.getBaseTypeOfLiteralType(lhsType);
-  rhsType = typeChecker.getBaseTypeOfLiteralType(rhsType);
-
   // issue 13033:
   // If both types are functional, they are considered compatible.
   if (areCompatibleFunctionals(lhsType, rhsType)) {
     return true;
   }
+
   return lhsType === rhsType || relatedByInheritanceOrIdentical(rhsType, getTargetType(lhsType));
 }
 
@@ -945,7 +981,7 @@ export function validateFields(type: Type, objectLiteral: ObjectLiteralExpressio
       if (!propSym || !propSym.declarations?.length) return false;
 
       const propType = typeChecker.getTypeOfSymbolAtLocation(propSym, propSym.declarations[0]);
-      if (!areTypesAssignable(propType, propAssignment.initializer)) {
+      if (!isExpressionAssignableToType(propType, propAssignment.initializer)) {
         return false;
       }
     }
