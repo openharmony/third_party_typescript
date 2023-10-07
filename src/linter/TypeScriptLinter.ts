@@ -475,7 +475,7 @@ export class TypeScriptLinter {
     const objectLiteralType = TypeScriptLinter.tsTypeChecker.getContextualType(objectLiteralExpr);
     if (!Utils.isStructObjectInitializer(objectLiteralExpr) &&
         !Utils.isDynamicLiteralInitializer(objectLiteralExpr) &&
-        !Utils.areTypesAssignable(objectLiteralType, objectLiteralExpr)
+        !Utils.isExpressionAssignableToType(objectLiteralType, objectLiteralExpr)
       //  !Utils.validateObjectLiteralType(objectLiteralType) || Utils.hasMemberFunction(objectLiteralExpr) ||
       //  !Utils.validateFields(objectLiteralType, objectLiteralExpr)
     ) {
@@ -498,7 +498,7 @@ export class TypeScriptLinter {
       if(element.kind === SyntaxKind.ObjectLiteralExpression) {
         const objectLiteralType = TypeScriptLinter.tsTypeChecker.getContextualType(element);
         if (!Utils.isDynamicLiteralInitializer(arrayLitNode) &&
-            !Utils.areTypesAssignable(objectLiteralType, element)) {
+            !Utils.isExpressionAssignableToType(objectLiteralType, element)) {
           noContextTypeForArrayLiteral = true;
           break;
         }
