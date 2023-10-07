@@ -23,7 +23,7 @@ export enum FaultID {
   ImportFromPath, FunctionExpression, IntersectionType,
   ObjectTypeLiteral, CommaOperator, LimitedReturnTypeInference,
   LambdaWithTypeParameters, ClassExpression, DestructuringAssignment,
-  DestructuringDeclaration, ForOfNonArray, VarDeclaration, CatchWithUnsupportedType, DeleteOperator,
+  DestructuringDeclaration, VarDeclaration, CatchWithUnsupportedType, DeleteOperator,
   DeclWithDuplicateName, UnaryArithmNotNumber, ConstructorType, ConstructorIface, ConstructorFuncs, CallSignature,
   TypeAssertion, PrivateIdentifier, LocalFunction,
   ConditionalType, MappedType, NamespaceAsObject, ClassAsObject,
@@ -90,7 +90,6 @@ faultsAttrs[FaultID.CommaOperator] = { cookBookRef: "71", };
 faultsAttrs[FaultID.DestructuringDeclaration] = { migratable: true, cookBookRef: "74", };
 faultsAttrs[FaultID.CatchWithUnsupportedType] = { migratable: true, cookBookRef: "79", };
 faultsAttrs[FaultID.ForInStatement] = { cookBookRef: "80", };
-faultsAttrs[FaultID.ForOfNonArray] = { migratable: true, cookBookRef: "82", };
 faultsAttrs[FaultID.MappedType] = { cookBookRef: "83", };
 faultsAttrs[FaultID.WithStatement] = { cookBookRef: "84", };
 faultsAttrs[FaultID.ThrowStatement] = { migratable: true, cookBookRef: "87", };
