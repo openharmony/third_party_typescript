@@ -11530,7 +11530,7 @@ declare namespace ts {
         function isStructDeclaration(node: Node): boolean;
         function isStructObjectInitializer(objectLiteral: ObjectLiteralExpression): boolean;
         function hasMethods(type: Type): boolean;
-        function areTypesAssignable(lhsType: Type | undefined, rhsExpr: Expression): boolean;
+        function isExpressionAssignableToType(lhsType: ts.Type | undefined, rhsExpr: ts.Expression): boolean;
         function isLiteralType(type: Type): boolean;
         function validateFields(type: Type, objectLiteral: ObjectLiteralExpression): boolean;
         function isSupportedType(typeNode: TypeNode): boolean;
