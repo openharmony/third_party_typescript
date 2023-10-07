@@ -605,26 +605,6 @@ export class TypeScriptLinter {
     if (isArrayLiteralExpression(tsForOfInit) || isObjectLiteralExpression(tsForOfInit)) {
       this.incrementCounters(tsForOfInit, FaultID.DestructuringAssignment);
     }
-    const expr = tsForOfStmt.expression;
-    const exprType = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(expr);
-    const exprTypeNode = TypeScriptLinter.tsTypeChecker.typeToTypeNode(
-      exprType, undefined, NodeBuilderFlags.None
-    );
-
-    const isArrayLike =
-      isArrayLiteralExpression(expr) ||
-      (exprTypeNode && isArrayTypeNode(exprTypeNode)) ||
-      Utils.isTypedArray(exprTypeNode) ||
-      Utils.isDerivedFrom(exprType, Utils.CheckType.Array);
-    const isStringLike = exprType.isStringLiteral() || Utils.isStringType(exprType) ||
-                          Utils.isDerivedFrom(exprType, Utils.CheckType.String);
-    const isSetLike = Utils.isType(exprTypeNode, "Set") ||
-                      Utils.isDerivedFrom(exprType, Utils.CheckType.Set);
-    const isMapLike = Utils.isType(exprTypeNode, "Map") ||
-                      Utils.isDerivedFrom(exprType, Utils.CheckType.Map);
-    if (!isArrayLike && !isStringLike && !isSetLike && !isMapLike) {
-      this.incrementCounters(node, FaultID.ForOfNonArray);
-    }
   }
 
   private handleImportDeclaration(node: Node): void {
@@ -656,7 +636,7 @@ export class TypeScriptLinter {
     if (this.isPrototypePropertyAccess(propertyAccessNode, exprSym, baseExprSym, baseExprType)) { 
       this.incrementCounters(propertyAccessNode.name, FaultID.Prototype);
     }
-    if (!!exprSym && Utils.isSymbolAPI(exprSym)) {
+    if (!!exprSym && Utils.isSymbolAPI(exprSym) && !Utils.ALLOWED_STD_SYMBOL_API.includes(exprSym.getName())) {
       this.incrementCounters(propertyAccessNode, FaultID.SymbolType);
     }
     if (baseExprSym !== undefined && Utils.symbolHasEsObjectType(baseExprSym)) {
