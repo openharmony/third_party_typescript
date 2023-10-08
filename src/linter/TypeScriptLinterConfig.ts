@@ -64,7 +64,6 @@ export class LinterConfig {
     LinterConfig.nodeDesc[FaultID.ClassExpression] = "Class expressions";
     LinterConfig.nodeDesc[FaultID.DestructuringAssignment] = "Destructuring assignments";
     LinterConfig.nodeDesc[FaultID.DestructuringDeclaration] = "Destructuring variable declarations";
-    LinterConfig.nodeDesc[FaultID.ForOfNonArray] = "\"for-of\" statement for non-array object";
     LinterConfig.nodeDesc[FaultID.VarDeclaration] = "\"var\" declarations";
     LinterConfig.nodeDesc[FaultID.CatchWithUnsupportedType] = "\"catch\" clause with unsupported exception type";
     LinterConfig.nodeDesc[FaultID.DeleteOperator] = "\"delete\" operations";
