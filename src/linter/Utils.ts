@@ -28,10 +28,12 @@ export const NON_INITIALIZABLE_PROPERTY_DECORATORS = ["Link", "Consume", "Object
 export const NON_INITIALIZABLE_PROPERTY_ClASS_DECORATORS = ['CustomDialog']
 
 export const LIMITED_STANDARD_UTILITY_TYPES = [
-  "Awaited", "Required", "Readonly", "Pick", "Omit", "Exclude", "Extract", "NonNullable", "Parameters",
+  "Awaited", "Pick", "Omit", "Exclude", "Extract", "NonNullable", "Parameters",
   "ConstructorParameters", "ReturnType", "InstanceType", "ThisParameterType", "OmitThisParameter",
   "ThisType", "Uppercase", "Lowercase", "Capitalize", "Uncapitalize",
 ];
+
+export const ALLOWED_STD_SYMBOL_API = ["iterator"]
 
 export enum ProblemSeverity { WARNING = 1, ERROR = 2 }
 
@@ -830,8 +832,8 @@ export function isExpressionAssignableToType(lhsType: ts.Type | undefined, rhsEx
   lhsType = lhsType.getNonNullableType();
   let rhsType = typeChecker.getTypeAtLocation(rhsExpr).getNonNullableType();
 
-  // For Partial<T> type, validate its argument type.
-  if (isStdPartialType(lhsType)) {
+  // For Partial<T>, Required<T>, Readonly<T> types, validate its argument type.
+  if (isStdPartialType(lhsType) || isStdRequiredType(lhsType) || isStdReadonlyType(lhsType)) {
     if (lhsType.aliasTypeArguments && lhsType.aliasTypeArguments.length === 1) {
       lhsType = lhsType.aliasTypeArguments[0];
     } else {
@@ -1058,8 +1060,8 @@ export enum CheckType {
 export const ES_OBJECT = "ESObject";
 
 export const LIMITED_STD_GLOBAL_FUNC = [
-  "eval", "isFinite", "isNaN", "parseFloat", "parseInt", /*"encodeURI", "encodeURIComponent", */ "Encode", /*"decodeURI",
-  "decodeURIComponent", */ "Decode", /* "escape", "unescape", */ "ParseHexOctet"
+  "eval", "isFinite", "isNaN", "parseFloat", "parseInt", /*"encodeURI", "encodeURIComponent", "Encode", "decodeURI",
+  "decodeURIComponent",  "Decode",  "escape", "unescape", "ParseHexOctet"*/
 ];
 export const LIMITED_STD_GLOBAL_VAR = ["Infinity", "NaN"];
 export const LIMITED_STD_OBJECT_API = [
@@ -1218,6 +1220,16 @@ export function isStdRecordType(type: Type): boolean {
 export function isStdPartialType(type: Type): boolean {
   const sym = type.aliasSymbol;
   return !!sym && sym.getName() === "Partial" && isGlobalSymbol(sym);
+}
+
+export function isStdRequiredType(type: Type): boolean {
+  const sym = type.aliasSymbol;
+  return !!sym && sym.getName() === "Required" && isGlobalSymbol(sym);
+}
+
+export function isStdReadonlyType(type: Type): boolean {
+  const sym = type.aliasSymbol;
+  return !!sym && sym.getName() === "Readonly" && isGlobalSymbol(sym);
 }
 
 
