@@ -29327,29 +29327,23 @@ namespace ts {
                             conditionCheck(node, jsDoc, sourceFile, config);
                         }
                         else if (!config.tagNameShouldExisted) {
-                            const diagnostic = createDiagnosticForNodeInSourceFile(sourceFile, node, Diagnostics.This_API_has_been_Special_Markings_exercise_caution_when_using_this_API);
-                            diagnostic.messageText = config.message;
-                            if (config.type === DiagnosticCategory.Warning) {
-                                suggestionDiagnostics.add(diagnostic);
-                            }
-                            else {
-                                diagnostic.category = DiagnosticCategory.Error;
-                                diagnostics.add(diagnostic);
-                            }
+                            getTypeText(sourceFile, node, config);
                         }
                     }
                 });
                 if (config.tagNameShouldExisted && !tagNameExisted) {
-                    const diagnostic = createDiagnosticForNodeInSourceFile(sourceFile, node, Diagnostics.This_API_has_been_Special_Markings_exercise_caution_when_using_this_API);
-                    // @ts-ignore
-                    diagnostic.messageText = config.message.replace("{0}", node.getText() === "" ? node.text : node.getText());
-                    diagnostic.category = DiagnosticCategory.Error;
-                    diagnostics.add(diagnostic);
-                    suggestionDiagnostics.add(diagnostic);
+                    getTypeText(sourceFile, node, config);
                 }
             });
         }
-
+        function getTypeText(sourceFile: SourceFile, node: Identifier | PrivateIdentifier, config: TagCheckConfig) {
+            const diagnostic = createDiagnosticForNodeInSourceFile(sourceFile, node, Diagnostics.This_API_has_been_Special_Markings_exercise_caution_when_using_this_API);
+            // @ts-ignore
+            diagnostic.messageText = config.message.replace("{0}", node.getText() === "" ? node.text : node.getText());
+            diagnostic.category = config.type;
+            diagnostics.add(diagnostic);
+            suggestionDiagnostics.add(diagnostic);
+        }
         function getSpecifyJsDocTagValue(jsDocs: JSDocTagInfo[], specifyTag: string): string {
             let specifyJsDocTagValue = "";
             jsDocs.forEach(item => {
