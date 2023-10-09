@@ -88,13 +88,10 @@ export class LinterConfig {
     LinterConfig.nodeDesc[FaultID.EnumMemberNonConstInit] = "Enum members with non-constant initializer";
     LinterConfig.nodeDesc[FaultID.ImplementsClass] = "Class type mentioned in \"implements\" clause";
     LinterConfig.nodeDesc[FaultID.NoUndefinedPropAccess] = "Access to undefined field";
-    //LinterConfig.nodeDesc[FaultID.MethodReassignment] = "Access to undefined field";
     LinterConfig.nodeDesc[FaultID.MultipleStaticBlocks] = "Multiple static blocks";
     LinterConfig.nodeDesc[FaultID.ThisType] = "\"this\" type";
     LinterConfig.nodeDesc[FaultID.IntefaceExtendDifProps] = "Extends same properties with different types";
     LinterConfig.nodeDesc[FaultID.StructuralIdentity] = "Use of type structural identity";
-    LinterConfig.nodeDesc[FaultID.TypeOnlyImport] = "Type-only imports";
-    LinterConfig.nodeDesc[FaultID.TypeOnlyExport] = "Type-only exports";
     LinterConfig.nodeDesc[FaultID.DefaultImport] = "Default import declarations";
     LinterConfig.nodeDesc[FaultID.ExportAssignment] = "Export assignments (export = ..)";
     LinterConfig.nodeDesc[FaultID.ImportAssignment] = "Import assignments (import = ..)";
@@ -119,11 +116,7 @@ export class LinterConfig {
     LinterConfig.nodeDesc[FaultID.StrictDiagnostic] = "Strict diagnostic";
     LinterConfig.nodeDesc[FaultID.UnsupportedDecorators] = "Unsupported decorators";
     LinterConfig.nodeDesc[FaultID.ImportAfterStatement] = "Import declaration after other declaration or statement";
-    LinterConfig.nodeDesc[FaultID.EsObjectType] = '"ESObject" type';
-    LinterConfig.nodeDesc[FaultID.EsObjectAssignment] = '"ESObject" type assignment';
-    LinterConfig.nodeDesc[FaultID.EsObjectAccess] = '"ESObject" access';
-
-   // LinterConfig.initTsSyntaxKindNames();
+    LinterConfig.nodeDesc[FaultID.EsObjectType] = 'Restricted "ESObject" type';
   }
 
   /*
@@ -170,7 +163,6 @@ export class LinterConfig {
   static incrementOnlyTokens: ESMap<SyntaxKind , FaultID> = new Map([
     [SyntaxKind.AnyKeyword, FaultID.AnyType], [SyntaxKind.SymbolKeyword, FaultID.SymbolType],
     [SyntaxKind.ThisType, FaultID.ThisType],
-    [SyntaxKind.ComputedPropertyName, FaultID.ComputedPropertyName],
     [SyntaxKind.TypeQuery, FaultID.TypeQuery],
     [SyntaxKind.DeleteExpression, FaultID.DeleteOperator],
     [SyntaxKind.RegularExpressionLiteral, FaultID.RegexLiteral],
@@ -180,7 +172,6 @@ export class LinterConfig {
     [SyntaxKind.InKeyword, FaultID.InOperator], [SyntaxKind.CallSignature, FaultID.CallSignature],
     [SyntaxKind.IntersectionType, FaultID.IntersectionType],
     [SyntaxKind.TypeLiteral, FaultID.ObjectTypeLiteral], [SyntaxKind.ConstructorType, FaultID.ConstructorFuncs],
-   // [SyntaxKind.ConstructSignature, FaultID.ConstructorType],
     [SyntaxKind.PrivateIdentifier, FaultID.PrivateIdentifier],
     [SyntaxKind.ConditionalType, FaultID.ConditionalType], [SyntaxKind.MappedType, FaultID.MappedType],
     [SyntaxKind.JsxElement, FaultID.JsxElement], [SyntaxKind.JsxSelfClosingElement, FaultID.JsxElement],

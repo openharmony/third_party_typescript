@@ -68,7 +68,6 @@ function formTscOptions(rootNames: readonly string[], compilerOptions: CompilerO
 
   options.options.allowJs = true;
   options.options.checkJs = true;
-  options.options.maxNodeModuleJsDepth = 2;
 
   return options;
 }

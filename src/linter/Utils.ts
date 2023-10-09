@@ -780,66 +780,51 @@ function findProperty(type: Type, name: string): Symbol | undefined {
   return undefined;
 }
 
-/*
-function findDeclaration(type: ClassDeclaration | InterfaceDeclaration, name: string): NamedDeclaration | undefined {
-  const members: NodeArray<ClassElement> | NodeArray<TypeElement> = type.members;
-  let declFound: NamedDeclaration | undefined;
 
-  for(const m of members) {
-    if (m.name && m.name.getText() === name) {
-      declFound = m;
-      break;
-    }
+function getNonNullableType(t: ts.Type) {
+  if (t.isUnion()) {
+    return t.getNonNullableType();
   }
-
-  if (declFound || !type.heritageClauses) return declFound;
-
-  // Search in base classes/interfaces
-  for (let i1 = 0; i1 < type.heritageClauses.length; i1++) {
-    const v1 = type.heritageClauses[i1];
-    for (let i2 = 0; i2 < v1.types.length; i2++) {
-      const v2 = v1.types[i2];
-      const symbol = typeChecker.getTypeAtLocation(v2.expression).symbol;
-      if (
-        (symbol.flags === SymbolFlags.Class || symbol.flags === SymbolFlags.Interface) &&
-        symbol.declarations && symbol.declarations.length > 0
-      ) {
-        declFound = findDelaration(symbol.declarations[0] as (ClassDeclaration | InterfaceDeclaration), name);
-      }
-
-      if (declFound) break;
-    };
-
-    if (declFound) break;
-  };
-
-  return declFound;
+  return t;
 }
-*/
 
 export function isExpressionAssignableToType(lhsType: ts.Type | undefined, rhsExpr: ts.Expression): boolean {
   if (lhsType === undefined) {
     return false;
   }
 
+  let nonNullableLhs = getNonNullableType(lhsType);
+
   // Allow initializing with anything when the type
   // originates from the library.
-  if (isAnyType(lhsType) || isLibraryType(lhsType)) {
+  if (isAnyType(nonNullableLhs) || isLibraryType(nonNullableLhs)) {
     return true;
   }
 
-  // Always compare the non-nullable variant of types.
-  lhsType = lhsType.getNonNullableType();
-  let rhsType = typeChecker.getTypeAtLocation(rhsExpr).getNonNullableType();
+  // issue 13412:
+  // Allow initializing with a dynamic object when the LHS type
+  // is primitive or defined in standard library.
+  if (isDynamicObjectAssignedToStdType(nonNullableLhs, rhsExpr)) {
+    return true;
+  }
 
-  // For Partial<T>, Required<T>, Readonly<T> types, validate its argument type.
-  if (isStdPartialType(lhsType) || isStdRequiredType(lhsType) || isStdReadonlyType(lhsType)) {
-    if (lhsType.aliasTypeArguments && lhsType.aliasTypeArguments.length === 1) {
-      lhsType = lhsType.aliasTypeArguments[0];
+  // Allow initializing Record objects with object initializer.
+  // Record supports any type for a its value, but the key value
+  // must be either a string or number literal.
+  if (isStdRecordType(nonNullableLhs) && ts.isObjectLiteralExpression(rhsExpr)) {
+    return validateRecordObjectKeys(rhsExpr);
+  }
+
+  // For Partial<T>, Required<T>, Readonly<T> types, validate their argument type.
+  if (isStdPartialType(nonNullableLhs) || isStdRequiredType(nonNullableLhs) || isStdReadonlyType(nonNullableLhs)) {
+    if (nonNullableLhs.aliasTypeArguments && nonNullableLhs.aliasTypeArguments.length === 1) {
+      nonNullableLhs = nonNullableLhs.aliasTypeArguments[0];
     } else {
       return false;
     }
   }
+
+  let rhsType = getNonNullableType(typeChecker.getTypeAtLocation(rhsExpr));
 
   if (rhsType.isUnion()) {
     let res = true;
@@ -857,34 +842,20 @@ export function isExpressionAssignableToType(lhsType: ts.Type | undefined, rhsEx
     }
   }
 
-  // issue 13412:
-  // Allow initializing with a dynamic object when the LHS type
-  // is primitive or defined in standard library.
-  if (isDynamicObjectAssignedToStdType(lhsType, rhsExpr)) {
-    return true;
-  }
-
-  // Allow initializing Record objects with object initializer.
-  // Record supports any type for a its value, but the key value
-  // must be either a string or number literal.
-  if (isStdRecordType(lhsType) && ts.isObjectLiteralExpression(rhsExpr)) {
-    return validateRecordObjectKeys(rhsExpr);
-  }
-
   if (ts.isObjectLiteralExpression(rhsExpr)) {
-    return isObjectLiteralAssignable(lhsType, rhsExpr);
+    return isObjectLiteralAssignable(nonNullableLhs, rhsExpr);
   }
-  
+
   return areTypesAssignable(lhsType, rhsType)
 }
 
 function areTypesAssignable(lhsType: ts.Type, rhsType: ts.Type): boolean {
   if (rhsType.isUnion()) {
+    let res = true;
     for (const compType of rhsType.types) {
-      if (areTypesAssignable(lhsType, compType)) {
-        return true;
-      }
+      res &&= areTypesAssignable(lhsType, compType)
     }
+    return res;
   }
   
   if (lhsType.isUnion()) {
@@ -894,7 +865,16 @@ function areTypesAssignable(lhsType: ts.Type, rhsType: ts.Type): boolean {
       }
     }
   }
-  
+
+  // we pretend to be non strict mode to avoid incompatibilities with IDE/RT linter,
+  // where execution environments differ. in IDE this error will be reported anyways by 
+  // StrictModeError
+  const isRhsUndefined: boolean = !!(rhsType.flags & ts.TypeFlags.Undefined);
+  const isRhsNull: boolean = !!(rhsType.flags & ts.TypeFlags.Null);
+  if (isRhsUndefined || isRhsNull) {
+    return true;
+  }
+
   // Allow initializing with anything when the type
   // originates from the library.
   if (isAnyType(lhsType) || isLibraryType(lhsType)) {
@@ -994,9 +974,9 @@ export function validateFields(type: Type, objectLiteral: ObjectLiteralExpressio
 
 function isSupportedTypeNodeKind(kind: SyntaxKind): boolean {
   return kind !== SyntaxKind.AnyKeyword && kind !== SyntaxKind.UnknownKeyword &&
-    kind !== SyntaxKind.SymbolKeyword && kind !== SyntaxKind.UndefinedKeyword &&
+    kind !== SyntaxKind.SymbolKeyword && kind !== SyntaxKind.IndexedAccessType &&
     kind !== SyntaxKind.ConditionalType && kind !== SyntaxKind.MappedType &&
-    kind !== SyntaxKind.InferType && kind !== SyntaxKind.IndexedAccessType;
+    kind !== SyntaxKind.InferType;
 
 }
 
@@ -1019,9 +999,16 @@ export function isSupportedType(typeNode: TypeNode): boolean {
     return true;
   }
 
+  if (isTupleTypeNode(typeNode)) {
+    for (const elem of typeNode.elements) {
+      if (isTypeNode(elem) && !isSupportedType(elem)) return false;
+      if (isNamedTupleMember(elem) && !isSupportedType(elem.type)) return false;
+    }
+    return true;
+  }
+
   return !isTypeLiteralNode(typeNode) && !isTypeQueryNode(typeNode) &&
-    !isIntersectionTypeNode(typeNode) && !isTupleTypeNode(typeNode) &&
-    isSupportedTypeNodeKind(typeNode.kind);
+    !isIntersectionTypeNode(typeNode) && isSupportedTypeNodeKind(typeNode.kind);
 }
 
 export function isStruct(symbol: Symbol) {
@@ -1060,10 +1047,8 @@ export enum CheckType {
 export const ES_OBJECT = "ESObject";
 
 export const LIMITED_STD_GLOBAL_FUNC = [
-  "eval", "isFinite", "isNaN", "parseFloat", "parseInt", /*"encodeURI", "encodeURIComponent", "Encode", "decodeURI",
-  "decodeURIComponent",  "Decode",  "escape", "unescape", "ParseHexOctet"*/
+  "eval"
 ];
-export const LIMITED_STD_GLOBAL_VAR = ["Infinity", "NaN"];
 export const LIMITED_STD_OBJECT_API = [
   "__proto__", "__defineGetter__", "__defineSetter__", "__lookupGetter__", "__lookupSetter__", "assign", "create",
   "defineProperties", "defineProperty", "freeze", "fromEntries", "getOwnPropertyDescriptor",
@@ -1079,8 +1064,6 @@ export const LIMITED_STD_PROXYHANDLER_API = [
   "apply", "construct", "defineProperty", "deleteProperty", "get", "getOwnPropertyDescriptor", "getPrototypeOf",
   "has", "isExtensible", "ownKeys", "preventExtensions", "set", "setPrototypeOf"
 ];
-export const LIMITED_STD_ARRAYBUFFER_API = ["isView"];
-
 export const ARKUI_DECORATORS = [
     "AnimatableExtend",
     "Builder",
@@ -1151,26 +1134,6 @@ export function isGlobalSymbol(symbol: Symbol): boolean {
   const parentName = getParentSymbolName(symbol);
   return !parentName || parentName === "global";
 }
-export function isStdObjectAPI(symbol: Symbol): boolean {
-  const parentName = getParentSymbolName(symbol);
-  return !!parentName && (parentName === "Object" || parentName === "ObjectConstructor");
-}
-export function isStdReflectAPI(symbol: Symbol): boolean {
-  const parentName = getParentSymbolName(symbol);
-  return !!parentName && (parentName === "Reflect");
-}
-export function isStdProxyHandlerAPI(symbol: Symbol): boolean {
-  const parentName = getParentSymbolName(symbol);
-  return !!parentName && (parentName === "ProxyHandler");
-}
-export function isStdArrayAPI(symbol: Symbol): boolean {
-  const parentName = getParentSymbolName(symbol);
-  return !!parentName && (parentName === "Array" || parentName === "ArrayConstructor");
-}
-export function isStdArrayBufferAPI(symbol: Symbol): boolean {
-  const parentName = getParentSymbolName(symbol);
-  return !!parentName && (parentName === "ArrayBuffer" || parentName === "ArrayBufferConstructor");
-}
 
 export function isSymbolAPI(symbol: Symbol): boolean {
   const parentName = getParentSymbolName(symbol);
@@ -1178,9 +1141,21 @@ export function isSymbolAPI(symbol: Symbol): boolean {
   return name === 'Symbol' || name === "SymbolConstructor";
 }
 
+export function isStdSymbol(symbol: ts.Symbol): boolean {
+  const name = TypeScriptLinter.tsTypeChecker.getFullyQualifiedName(symbol)
+  return name === 'Symbol' && isGlobalSymbol(symbol);
+}
+
+export function isSymbolIterator(symbol: ts.Symbol): boolean {
+  const name = symbol.name;
+  const parName = getParentSymbolName(symbol);
+  return (parName === 'Symbol' || parName === 'SymbolConstructor') && name === 'iterator'
+}
+
 export function isDefaultImport(importSpec: ImportSpecifier): boolean {
   return importSpec?.propertyName?.text === "default";
 }
+
 export function hasAccessModifier(decl: Declaration): boolean {
   const modifiers = decl.modifiers; // TSC 4.2 doesn't have 'getModifiers()' method
   return (
@@ -1231,7 +1206,6 @@ export function isStdReadonlyType(type: Type): boolean {
   const sym = type.aliasSymbol;
   return !!sym && sym.getName() === "Readonly" && isGlobalSymbol(sym);
 }
-
 
 export function isLibraryType(type: Type): boolean {
   const nonNullableType = type.getNonNullableType();
@@ -1428,20 +1402,27 @@ export function isEsObjectType(typeNode: TypeNode): boolean {
     typeNode.typeName.text === ES_OBJECT;
 }
 
-export function isEsObjectAllowed(typeRef: TypeReferenceNode): boolean {
-  let node = typeRef.parent;
-
-  if (!isVarDeclaration(node)) {
-    return false;
-  }
-
-  while (node) {
-    if (isBlock(node)) {
+export function isInsideBlock(node: ts.Node): boolean {
+  let par = node.parent
+  while (par) {
+    if (ts.isBlock(par)) {
       return true;
     }
-    node = node.parent;
+    par = par.parent;
   }
   return false;
+}
+
+export function  isEsObjectPossiblyAllowed(typeRef: ts.TypeReferenceNode): boolean {
+  return ts.isVariableDeclaration(typeRef.parent);
+}
+
+export function  isValueAssignableToESObject(node: ts.Node): boolean {
+  if (ts.isArrayLiteralExpression(node) || ts.isObjectLiteralExpression(node)) {
+    return false;
+  }
+  const valueType = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(node);
+  return isUnsupportedType(valueType) || isAnonymousType(valueType)
 }
 
 export function getVariableDeclarationTypeNode(node: Node): TypeNode | undefined {

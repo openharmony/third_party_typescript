@@ -3339,15 +3339,6 @@ namespace ts {
                 error(errorNode, diagnosticType, moduleReference);
             }
 
-            // It should in standard mode, or will return before.
-            if (isSoFile && moduleNotFoundError !== undefined &&
-                ((currentSourceFile && normalizePath(currentSourceFile.fileName).indexOf("/oh_modules/") !== -1) ||
-                (resolvedModule && normalizePath(resolvedModule.resolvedFileName).indexOf("/oh_modules/") !== -1))) {
-                const diagnostic = createDiagnosticForNode(errorNode, Diagnostics.Currently_module_for_0_is_not_verified_If_you_re_importing_napi_its_verification_will_be_enabled_in_later_SDK_version_Please_make_sure_the_corresponding_d_ts_file_is_provided_and_the_napis_are_correctly_declared, moduleReference);
-                diagnostics.add(diagnostic);
-                moduleNotFoundError = undefined;
-            }
-
             const resolutionDiagnostic = resolvedModule && getResolutionDiagnostic(compilerOptions, resolvedModule);
             const sourceFile = resolvedModule && !resolutionDiagnostic && host.getSourceFile(resolvedModule.resolvedFileName);
             if (sourceFile) {
@@ -3429,7 +3420,12 @@ namespace ts {
                         error(errorNode, Diagnostics.Cannot_find_module_0_Consider_using_resolveJsonModule_to_import_module_with_json_extension, moduleReference);
                     }
                     else {
-                        error(errorNode, moduleNotFoundError, moduleReference);
+                        if (isSoFile) {
+                            const diagnostic = createDiagnosticForNode(errorNode, Diagnostics.Currently_module_for_0_is_not_verified_If_you_re_importing_napi_its_verification_will_be_enabled_in_later_SDK_version_Please_make_sure_the_corresponding_d_ts_file_is_provided_and_the_napis_are_correctly_declared, moduleReference);
+                            diagnostics.add(diagnostic);
+                        } else {
+                            error(errorNode, moduleNotFoundError, moduleReference);
+                        }
                     }
                 }
             }
@@ -23405,7 +23401,6 @@ namespace ts {
                 return errorType;
             }
 
-            checkIdentifierJsDoc(node, symbol);
             // As noted in ECMAScript 6 language spec, arrow functions never have an arguments objects.
             // Although in down-level emit of arrow function, we emit it using function expression which means that
             // arguments objects will be bound to the inner object; emitting arrow function natively in ES6, arguments objects
@@ -23424,6 +23419,7 @@ namespace ts {
                 }
 
                 getNodeLinks(container).flags |= NodeCheckFlags.CaptureArguments;
+                checkIdentifierJsDoc(node, symbol);
                 return getTypeOfSymbol(symbol);
             }
 
@@ -23435,6 +23431,7 @@ namespace ts {
 
             const localOrExportSymbol = getExportSymbolOfValueSymbolIfExported(symbol);
             const sourceSymbol = localOrExportSymbol.flags & SymbolFlags.Alias ? resolveAlias(localOrExportSymbol) : localOrExportSymbol;
+            checkIdentifierJsDoc(node, sourceSymbol);
             if (getDeclarationNodeFlagsFromSymbol(sourceSymbol) & NodeFlags.Deprecated && isUncalledFunctionReference(node, sourceSymbol)) {
                 addDeprecatedSuggestion(node, sourceSymbol.declarations, node.escapedText as string);
             }
