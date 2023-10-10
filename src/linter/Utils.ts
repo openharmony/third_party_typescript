@@ -780,66 +780,51 @@ function findProperty(type: Type, name: string): Symbol | undefined {
   return undefined;
 }
 
-/*
-function findDeclaration(type: ClassDeclaration | InterfaceDeclaration, name: string): NamedDeclaration | undefined {
-  const members: NodeArray<ClassElement> | NodeArray<TypeElement> = type.members;
-  let declFound: NamedDeclaration | undefined;
 
-  for(const m of members) {
-    if (m.name && m.name.getText() === name) {
-      declFound = m;
-      break;
-    }
+function getNonNullableType(t: ts.Type) {
+  if (t.isUnion()) {
+    return t.getNonNullableType();
   }
-
-  if (declFound || !type.heritageClauses) return declFound;
-
-  // Search in base classes/interfaces
-  for (let i1 = 0; i1 < type.heritageClauses.length; i1++) {
-    const v1 = type.heritageClauses[i1];
-    for (let i2 = 0; i2 < v1.types.length; i2++) {
-      const v2 = v1.types[i2];
-      const symbol = typeChecker.getTypeAtLocation(v2.expression).symbol;
-      if (
-        (symbol.flags === SymbolFlags.Class || symbol.flags === SymbolFlags.Interface) &&
-        symbol.declarations && symbol.declarations.length > 0
-      ) {
-        declFound = findDelaration(symbol.declarations[0] as (ClassDeclaration | InterfaceDeclaration), name);
-      }
-
-      if (declFound) break;
-    };
-
-    if (declFound) break;
-  };
-
-  return declFound;
+  return t;
 }
-*/
 
 export function isExpressionAssignableToType(lhsType: ts.Type | undefined, rhsExpr: ts.Expression): boolean {
   if (lhsType === undefined) {
     return false;
   }
 
+  let nonNullableLhs = getNonNullableType(lhsType);
+
   // Allow initializing with anything when the type
   // originates from the library.
-  if (isAnyType(lhsType) || isLibraryType(lhsType)) {
+  if (isAnyType(nonNullableLhs) || isLibraryType(nonNullableLhs)) {
     return true;
   }
 
-  // Always compare the non-nullable variant of types.
-  lhsType = lhsType.getNonNullableType();
-  let rhsType = typeChecker.getTypeAtLocation(rhsExpr).getNonNullableType();
+  // issue 13412:
+  // Allow initializing with a dynamic object when the LHS type
+  // is primitive or defined in standard library.
+  if (isDynamicObjectAssignedToStdType(nonNullableLhs, rhsExpr)) {
+    return true;
+  }
 
-  // For Partial<T>, Required<T>, Readonly<T> types, validate its argument type.
-  if (isStdPartialType(lhsType) || isStdRequiredType(lhsType) || isStdReadonlyType(lhsType)) {
-    if (lhsType.aliasTypeArguments && lhsType.aliasTypeArguments.length === 1) {
-      lhsType = lhsType.aliasTypeArguments[0];
+  // Allow initializing Record objects with object initializer.
+  // Record supports any type for a its value, but the key value
+  // must be either a string or number literal.
+  if (isStdRecordType(nonNullableLhs) && ts.isObjectLiteralExpression(rhsExpr)) {
+    return validateRecordObjectKeys(rhsExpr);
+  }
+
+  // For Partial<T>, Required<T>, Readonly<T> types, validate their argument type.
+  if (isStdPartialType(nonNullableLhs) || isStdRequiredType(nonNullableLhs) || isStdReadonlyType(nonNullableLhs)) {
+    if (nonNullableLhs.aliasTypeArguments && nonNullableLhs.aliasTypeArguments.length === 1) {
+      nonNullableLhs = nonNullableLhs.aliasTypeArguments[0];
     } else {
       return false;
     }
   }
+
+  let rhsType = getNonNullableType(typeChecker.getTypeAtLocation(rhsExpr));
 
   if (rhsType.isUnion()) {
     let res = true;
@@ -857,34 +842,20 @@ export function isExpressionAssignableToType(lhsType: ts.Type | undefined, rhsEx
     }
   }
 
-  // issue 13412:
-  // Allow initializing with a dynamic object when the LHS type
-  // is primitive or defined in standard library.
-  if (isDynamicObjectAssignedToStdType(lhsType, rhsExpr)) {
-    return true;
-  }
-
-  // Allow initializing Record objects with object initializer.
-  // Record supports any type for a its value, but the key value
-  // must be either a string or number literal.
-  if (isStdRecordType(lhsType) && ts.isObjectLiteralExpression(rhsExpr)) {
-    return validateRecordObjectKeys(rhsExpr);
-  }
-
   if (ts.isObjectLiteralExpression(rhsExpr)) {
-    return isObjectLiteralAssignable(lhsType, rhsExpr);
+    return isObjectLiteralAssignable(nonNullableLhs, rhsExpr);
   }
-  
+
   return areTypesAssignable(lhsType, rhsType)
 }
 
 function areTypesAssignable(lhsType: ts.Type, rhsType: ts.Type): boolean {
   if (rhsType.isUnion()) {
+    let res = true;
     for (const compType of rhsType.types) {
-      if (areTypesAssignable(lhsType, compType)) {
-        return true;
-      }
+      res &&= areTypesAssignable(lhsType, compType)
     }
+    return res;
   }
   
   if (lhsType.isUnion()) {
@@ -994,9 +965,9 @@ export function validateFields(type: Type, objectLiteral: ObjectLiteralExpressio
 
 function isSupportedTypeNodeKind(kind: SyntaxKind): boolean {
   return kind !== SyntaxKind.AnyKeyword && kind !== SyntaxKind.UnknownKeyword &&
-    kind !== SyntaxKind.SymbolKeyword && kind !== SyntaxKind.UndefinedKeyword &&
+    kind !== SyntaxKind.SymbolKeyword && kind !== SyntaxKind.IndexedAccessType &&
     kind !== SyntaxKind.ConditionalType && kind !== SyntaxKind.MappedType &&
-    kind !== SyntaxKind.InferType && kind !== SyntaxKind.IndexedAccessType;
+    kind !== SyntaxKind.InferType;
 
 }
 
@@ -1019,9 +990,16 @@ export function isSupportedType(typeNode: TypeNode): boolean {
     return true;
   }
 
+  if (isTupleTypeNode(typeNode)) {
+    for (const elem of typeNode.elements) {
+      if (isTypeNode(elem) && !isSupportedType(elem)) return false;
+      if (isNamedTupleMember(elem) && !isSupportedType(elem.type)) return false;
+    }
+    return true;
+  }
+
   return !isTypeLiteralNode(typeNode) && !isTypeQueryNode(typeNode) &&
-    !isIntersectionTypeNode(typeNode) && !isTupleTypeNode(typeNode) &&
-    isSupportedTypeNodeKind(typeNode.kind);
+    !isIntersectionTypeNode(typeNode) && isSupportedTypeNodeKind(typeNode.kind);
 }
 
 export function isStruct(symbol: Symbol) {
@@ -1231,7 +1209,6 @@ export function isStdReadonlyType(type: Type): boolean {
   const sym = type.aliasSymbol;
   return !!sym && sym.getName() === "Readonly" && isGlobalSymbol(sym);
 }
-
 
 export function isLibraryType(type: Type): boolean {
   const nonNullableType = type.getNonNullableType();
