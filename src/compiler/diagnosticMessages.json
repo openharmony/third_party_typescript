@@ -6424,7 +6424,7 @@
         "code": 18049
     },
     "Importing ArkTS files in JS and TS files is forbidden.": {
-        "category": "Error",
+        "category": "Warning",
         "code": 18050
     }
 }
