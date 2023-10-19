@@ -23401,7 +23401,6 @@ namespace ts {
                 return errorType;
             }
 
-            checkIdentifierJsDoc(node, symbol);
             // As noted in ECMAScript 6 language spec, arrow functions never have an arguments objects.
             // Although in down-level emit of arrow function, we emit it using function expression which means that
             // arguments objects will be bound to the inner object; emitting arrow function natively in ES6, arguments objects
@@ -23420,6 +23419,7 @@ namespace ts {
                 }
 
                 getNodeLinks(container).flags |= NodeCheckFlags.CaptureArguments;
+                checkIdentifierJsDoc(node, symbol);
                 return getTypeOfSymbol(symbol);
             }
 
@@ -23431,6 +23431,7 @@ namespace ts {
 
             const localOrExportSymbol = getExportSymbolOfValueSymbolIfExported(symbol);
             const sourceSymbol = localOrExportSymbol.flags & SymbolFlags.Alias ? resolveAlias(localOrExportSymbol) : localOrExportSymbol;
+            checkIdentifierJsDoc(node, sourceSymbol);
             if (getDeclarationNodeFlagsFromSymbol(sourceSymbol) & NodeFlags.Deprecated && isUncalledFunctionReference(node, sourceSymbol)) {
                 addDeprecatedSuggestion(node, sourceSymbol.declarations, node.escapedText as string);
             }
