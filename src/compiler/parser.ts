@@ -6762,6 +6762,8 @@ namespace ts {
             diagnosticMessage?: DiagnosticMessage
         ): MethodDeclaration {
             const methodName = getPropertyNameForPropertyNameNode(name)?.toString();
+            const orignalEtsBuildContext = inBuildContext();
+            const orignalEtsBuilderContext = inBuilderContext();
             setEtsBuildContext(methodName === sourceFileCompilerOptions?.ets?.render?.method?.find(render => render === "build"));
             setEtsBuilderContext(hasEtsBuilderDecoratorNames(decorators, sourceFileCompilerOptions));
             if (inStructContext() && hasEtsStylesDecoratorNames(decorators, sourceFileCompilerOptions)) {
@@ -6774,6 +6776,7 @@ namespace ts {
                 }
                 setEtsStylesComponentsContext(!!stylesEtsComponentDeclaration);
             }
+            const orignalEtsComponentsContext: boolean = inEtsComponentsContext();
             setEtsComponentsContext(inStructContext() && (isTokenInsideStructBuild(name) || isTokenInsideStructBuilder(decorators) ||
                 isTokenInsideStructPageTransition(name)));
             const isGenerator = asteriskToken ? SignatureFlags.Yield : SignatureFlags.None;
@@ -6796,11 +6799,11 @@ namespace ts {
             );
             // An exclamation token on a method is invalid syntax and will be handled by the grammar checker
             node.exclamationToken = exclamationToken;
-            setEtsBuildContext(false);
-            setEtsBuilderContext(false);
+            setEtsBuildContext(orignalEtsBuildContext);
+            setEtsBuilderContext(orignalEtsBuilderContext);
             setEtsStylesComponentsContext(false);
             stylesEtsComponentDeclaration = undefined;
-            setEtsComponentsContext(false);
+            setEtsComponentsContext(orignalEtsComponentsContext);
             return withJSDoc(finishNode(node, pos), hasJSDoc);
 
             function getMethodDeclarationReturnType(): TypeNode | undefined {
