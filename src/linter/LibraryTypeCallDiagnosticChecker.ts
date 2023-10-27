@@ -45,7 +45,9 @@ export class LibraryTypeCallDiagnosticChecker implements DiagnosticChecker {
   checkMessageText(msg: string): boolean {
     if (this.inLibCall) {
       const match = msg.match(ARGUMENT_OF_TYPE_NULL_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_RE) ||
-        msg.match(ARGUMENT_OF_TYPE_UNDEFINED_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_RE);
+        msg.match(ARGUMENT_OF_TYPE_UNDEFINED_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_RE) ||
+        msg.match(TYPE_UNDEFINED_IS_NOT_ASSIGNABLE_TO_TYPE_1_RE) ||
+        msg.match(TYPE_NULL_IS_NOT_ASSIGNABLE_TO_TYPE_1_RE);
       return !match;
     }
     return true;
