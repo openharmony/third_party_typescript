@@ -135,7 +135,7 @@ cookBookTag[112] = "";
 cookBookTag[113] = "\"enum\" declaration merging is not supported (arkts-no-enum-merging)";
 cookBookTag[114] = "Namespaces cannot be used as objects (arkts-no-ns-as-obj)";
 cookBookTag[115] = "";
-cookBookTag[116] = "Non-declaration statements in namespaces are not supported (arkts-no-ns-statements)";
+cookBookTag[116] = "Non-declaration statements in namespaces are not supported (single semicolons are considered as empty non-delcaration statements) (arkts-no-ns-statements)";
 cookBookTag[117] = "";
 cookBookTag[118] = "Special import type declarations are not supported (arkts-no-special-imports)";
 cookBookTag[119] = "Importing a module for side-effects only is not supported (arkts-no-side-effects-imports)";
@@ -170,4 +170,5 @@ cookBookTag[147] = "No dependencies on TypeScript code are currently allowed (ar
 cookBookTag[148] = "No decorators except ArkUI decorators are currently allowed (arkts-no-decorators-except-arkui)";
 cookBookTag[149] = "Classes cannot be used as objects (arkts-no-classes-as-obj)";
 cookBookTag[150] = "\"import\" statements after other statements are not allowed (arkts-no-misplaced-imports)";
+cookBookTag[151] = 'Usage of "ESObject" type is restricted (arkts-limited-esobject)';
 }
