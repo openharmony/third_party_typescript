@@ -865,7 +865,16 @@ function areTypesAssignable(lhsType: ts.Type, rhsType: ts.Type): boolean {
       }
     }
   }
-  
+
+  // we pretend to be non strict mode to avoid incompatibilities with IDE/RT linter,
+  // where execution environments differ. in IDE this error will be reported anyways by 
+  // StrictModeError
+  const isRhsUndefined: boolean = !!(rhsType.flags & ts.TypeFlags.Undefined);
+  const isRhsNull: boolean = !!(rhsType.flags & ts.TypeFlags.Null);
+  if (isRhsUndefined || isRhsNull) {
+    return true;
+  }
+
   // Allow initializing with anything when the type
   // originates from the library.
   if (isAnyType(lhsType) || isLibraryType(lhsType)) {
@@ -1038,10 +1047,8 @@ export enum CheckType {
 export const ES_OBJECT = "ESObject";
 
 export const LIMITED_STD_GLOBAL_FUNC = [
-  "eval", "isFinite", "isNaN", "parseFloat", "parseInt", /*"encodeURI", "encodeURIComponent", "Encode", "decodeURI",
-  "decodeURIComponent",  "Decode",  "escape", "unescape", "ParseHexOctet"*/
+  "eval"
 ];
-export const LIMITED_STD_GLOBAL_VAR = ["Infinity", "NaN"];
 export const LIMITED_STD_OBJECT_API = [
   "__proto__", "__defineGetter__", "__defineSetter__", "__lookupGetter__", "__lookupSetter__", "assign", "create",
   "defineProperties", "defineProperty", "freeze", "fromEntries", "getOwnPropertyDescriptor",
@@ -1057,8 +1064,6 @@ export const LIMITED_STD_PROXYHANDLER_API = [
   "apply", "construct", "defineProperty", "deleteProperty", "get", "getOwnPropertyDescriptor", "getPrototypeOf",
   "has", "isExtensible", "ownKeys", "preventExtensions", "set", "setPrototypeOf"
 ];
-export const LIMITED_STD_ARRAYBUFFER_API = ["isView"];
-
 export const ARKUI_DECORATORS = [
     "AnimatableExtend",
     "Builder",
@@ -1129,26 +1134,6 @@ export function isGlobalSymbol(symbol: Symbol): boolean {
   const parentName = getParentSymbolName(symbol);
   return !parentName || parentName === "global";
 }
-export function isStdObjectAPI(symbol: Symbol): boolean {
-  const parentName = getParentSymbolName(symbol);
-  return !!parentName && (parentName === "Object" || parentName === "ObjectConstructor");
-}
-export function isStdReflectAPI(symbol: Symbol): boolean {
-  const parentName = getParentSymbolName(symbol);
-  return !!parentName && (parentName === "Reflect");
-}
-export function isStdProxyHandlerAPI(symbol: Symbol): boolean {
-  const parentName = getParentSymbolName(symbol);
-  return !!parentName && (parentName === "ProxyHandler");
-}
-export function isStdArrayAPI(symbol: Symbol): boolean {
-  const parentName = getParentSymbolName(symbol);
-  return !!parentName && (parentName === "Array" || parentName === "ArrayConstructor");
-}
-export function isStdArrayBufferAPI(symbol: Symbol): boolean {
-  const parentName = getParentSymbolName(symbol);
-  return !!parentName && (parentName === "ArrayBuffer" || parentName === "ArrayBufferConstructor");
-}
 
 export function isSymbolAPI(symbol: Symbol): boolean {
   const parentName = getParentSymbolName(symbol);
@@ -1156,9 +1141,21 @@ export function isSymbolAPI(symbol: Symbol): boolean {
   return name === 'Symbol' || name === "SymbolConstructor";
 }
 
+export function isStdSymbol(symbol: ts.Symbol): boolean {
+  const name = TypeScriptLinter.tsTypeChecker.getFullyQualifiedName(symbol)
+  return name === 'Symbol' && isGlobalSymbol(symbol);
+}
+
+export function isSymbolIterator(symbol: ts.Symbol): boolean {
+  const name = symbol.name;
+  const parName = getParentSymbolName(symbol);
+  return (parName === 'Symbol' || parName === 'SymbolConstructor') && name === 'iterator'
+}
+
 export function isDefaultImport(importSpec: ImportSpecifier): boolean {
   return importSpec?.propertyName?.text === "default";
 }
+
 export function hasAccessModifier(decl: Declaration): boolean {
   const modifiers = decl.modifiers; // TSC 4.2 doesn't have 'getModifiers()' method
   return (
@@ -1405,20 +1402,27 @@ export function isEsObjectType(typeNode: TypeNode): boolean {
     typeNode.typeName.text === ES_OBJECT;
 }
 
-export function isEsObjectAllowed(typeRef: TypeReferenceNode): boolean {
-  let node = typeRef.parent;
-
-  if (!isVarDeclaration(node)) {
-    return false;
-  }
-
-  while (node) {
-    if (isBlock(node)) {
+export function isInsideBlock(node: ts.Node): boolean {
+  let par = node.parent
+  while (par) {
+    if (ts.isBlock(par)) {
       return true;
     }
-    node = node.parent;
+    par = par.parent;
   }
   return false;
+}
+
+export function  isEsObjectPossiblyAllowed(typeRef: ts.TypeReferenceNode): boolean {
+  return ts.isVariableDeclaration(typeRef.parent);
+}
+
+export function  isValueAssignableToESObject(node: ts.Node): boolean {
+  if (ts.isArrayLiteralExpression(node) || ts.isObjectLiteralExpression(node)) {
+    return false;
+  }
+  const valueType = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(node);
+  return isUnsupportedType(valueType) || isAnonymousType(valueType)
 }
 
 export function getVariableDeclarationTypeNode(node: Node): TypeNode | undefined {
