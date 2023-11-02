@@ -49,6 +49,7 @@ File '/home/user/projects/myproject/node_modules/a.ts' does not exist.
 File '/home/user/projects/myproject/node_modules/a.tsx' does not exist.
 File '/home/user/projects/myproject/node_modules/a.d.ts' does not exist.
 File '/home/user/projects/myproject/node_modules/a.ets' does not exist.
+File '/home/user/projects/myproject/node_modules/a.d.ets' does not exist.
 File '/home/user/projects/myproject/node_modules/a/index.ts' does not exist.
 File '/home/user/projects/myproject/node_modules/a/index.tsx' does not exist.
 File '/home/user/projects/myproject/node_modules/a/index.d.ts' exist - use it as a name resolution result.
@@ -81,33 +82,38 @@ Semantic diagnostics in builder refreshed for::
 /home/user/projects/myproject/node_modules/reala/index.d.ts
 /home/user/projects/myproject/src/file.ts
 
-WatchedFiles::
-/home/user/projects/myproject/tsconfig.json:
-  {"fileName":"/home/user/projects/myproject/tsconfig.json","pollingInterval":250}
-/home/user/projects/myproject/src/file.ts:
-  {"fileName":"/home/user/projects/myproject/src/file.ts","pollingInterval":250}
-/home/user/projects/myproject/node_modules/reala/index.d.ts:
-  {"fileName":"/home/user/projects/myproject/node_modules/reala/index.d.ts","pollingInterval":250}
-/a/lib/lib.d.ts:
-  {"fileName":"/a/lib/lib.d.ts","pollingInterval":250}
+Shape signatures in builder refreshed for::
+/a/lib/lib.d.ts (used version)
+/home/user/projects/myproject/node_modules/reala/index.d.ts (used version)
+/home/user/projects/myproject/src/file.ts (used version)
+
+PolledWatches::
+/home/user/projects/myproject/node_modules/@types:
+  {"pollingInterval":500}
 
 FsWatches::
+/home/user/projects/myproject/tsconfig.json:
+  {}
+/home/user/projects/myproject/src/file.ts:
+  {}
+/home/user/projects/myproject/node_modules/reala/index.d.ts:
+  {}
+/a/lib/lib.d.ts:
+  {}
 /home/user/projects/myproject/src:
-  {"directoryName":"/home/user/projects/myproject/src","fallbackPollingInterval":500,"fallbackOptions":{"watchFile":"PriorityPollingInterval"}}
+  {}
 /home/user/projects/myproject/node_modules:
-  {"directoryName":"/home/user/projects/myproject/node_modules","fallbackPollingInterval":500,"fallbackOptions":{"watchFile":"PriorityPollingInterval"}}
+  {}
 /home/user/projects/myproject/node_modules/reala:
-  {"directoryName":"/home/user/projects/myproject/node_modules/reala","fallbackPollingInterval":500,"fallbackOptions":{"watchFile":"PriorityPollingInterval"}}
+  {}
 /home/user/projects/myproject/node_modules/reala/node_modules:
-  {"directoryName":"/home/user/projects/myproject/node_modules/reala/node_modules","fallbackPollingInterval":500,"fallbackOptions":{"watchFile":"PriorityPollingInterval"}}
+  {}
 /home/user/projects/myproject/node_modules/realb:
-  {"directoryName":"/home/user/projects/myproject/node_modules/realb","fallbackPollingInterval":500,"fallbackOptions":{"watchFile":"PriorityPollingInterval"}}
+  {}
 /home/user/projects/myproject/node_modules/realb/node_modules:
-  {"directoryName":"/home/user/projects/myproject/node_modules/realb/node_modules","fallbackPollingInterval":500,"fallbackOptions":{"watchFile":"PriorityPollingInterval"}}
-/home/user/projects/myproject/node_modules/@types:
-  {"directoryName":"/home/user/projects/myproject/node_modules/@types","fallbackPollingInterval":500,"fallbackOptions":{"watchFile":"PriorityPollingInterval"}}
+  {}
 /home/user/projects/myproject:
-  {"directoryName":"/home/user/projects/myproject","fallbackPollingInterval":500,"fallbackOptions":{"watchFile":"PriorityPollingInterval"}}
+  {}
 
 FsWatchesRecursive::
 

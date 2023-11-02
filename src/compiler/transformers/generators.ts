@@ -337,13 +337,13 @@ namespace ts {
         function visitJavaScriptInStatementContainingYield(node: Node): VisitResult<Node> {
             switch (node.kind) {
                 case SyntaxKind.DoStatement:
-                    return visitDoStatement(<DoStatement>node);
+                    return visitDoStatement(node as DoStatement);
                 case SyntaxKind.WhileStatement:
-                    return visitWhileStatement(<WhileStatement>node);
+                    return visitWhileStatement(node as WhileStatement);
                 case SyntaxKind.SwitchStatement:
-                    return visitSwitchStatement(<SwitchStatement>node);
+                    return visitSwitchStatement(node as SwitchStatement);
                 case SyntaxKind.LabeledStatement:
-                    return visitLabeledStatement(<LabeledStatement>node);
+                    return visitLabeledStatement(node as LabeledStatement);
                 default:
                     return visitJavaScriptInGeneratorFunctionBody(node);
             }
@@ -357,24 +357,24 @@ namespace ts {
         function visitJavaScriptInGeneratorFunctionBody(node: Node): VisitResult<Node> {
             switch (node.kind) {
                 case SyntaxKind.FunctionDeclaration:
-                    return visitFunctionDeclaration(<FunctionDeclaration>node);
+                    return visitFunctionDeclaration(node as FunctionDeclaration);
                 case SyntaxKind.FunctionExpression:
-                    return visitFunctionExpression(<FunctionExpression>node);
+                    return visitFunctionExpression(node as FunctionExpression);
                 case SyntaxKind.GetAccessor:
                 case SyntaxKind.SetAccessor:
-                    return visitAccessorDeclaration(<AccessorDeclaration>node);
+                    return visitAccessorDeclaration(node as AccessorDeclaration);
                 case SyntaxKind.VariableStatement:
-                    return visitVariableStatement(<VariableStatement>node);
+                    return visitVariableStatement(node as VariableStatement);
                 case SyntaxKind.ForStatement:
-                    return visitForStatement(<ForStatement>node);
+                    return visitForStatement(node as ForStatement);
                 case SyntaxKind.ForInStatement:
-                    return visitForInStatement(<ForInStatement>node);
+                    return visitForInStatement(node as ForInStatement);
                 case SyntaxKind.BreakStatement:
-                    return visitBreakStatement(<BreakStatement>node);
+                    return visitBreakStatement(node as BreakStatement);
                 case SyntaxKind.ContinueStatement:
-                    return visitContinueStatement(<ContinueStatement>node);
+                    return visitContinueStatement(node as ContinueStatement);
                 case SyntaxKind.ReturnStatement:
-                    return visitReturnStatement(<ReturnStatement>node);
+                    return visitReturnStatement(node as ReturnStatement);
                 default:
                     if (node.transformFlags & TransformFlags.ContainsYield) {
                         return visitJavaScriptContainingYield(node);
@@ -396,23 +396,23 @@ namespace ts {
         function visitJavaScriptContainingYield(node: Node): VisitResult<Node> {
             switch (node.kind) {
                 case SyntaxKind.BinaryExpression:
-                    return visitBinaryExpression(<BinaryExpression>node);
+                    return visitBinaryExpression(node as BinaryExpression);
                 case SyntaxKind.CommaListExpression:
-                    return visitCommaListExpression(<CommaListExpression>node);
+                    return visitCommaListExpression(node as CommaListExpression);
                 case SyntaxKind.ConditionalExpression:
-                    return visitConditionalExpression(<ConditionalExpression>node);
+                    return visitConditionalExpression(node as ConditionalExpression);
                 case SyntaxKind.YieldExpression:
-                    return visitYieldExpression(<YieldExpression>node);
+                    return visitYieldExpression(node as YieldExpression);
                 case SyntaxKind.ArrayLiteralExpression:
-                    return visitArrayLiteralExpression(<ArrayLiteralExpression>node);
+                    return visitArrayLiteralExpression(node as ArrayLiteralExpression);
                 case SyntaxKind.ObjectLiteralExpression:
-                    return visitObjectLiteralExpression(<ObjectLiteralExpression>node);
+                    return visitObjectLiteralExpression(node as ObjectLiteralExpression);
                 case SyntaxKind.ElementAccessExpression:
-                    return visitElementAccessExpression(<ElementAccessExpression>node);
+                    return visitElementAccessExpression(node as ElementAccessExpression);
                 case SyntaxKind.CallExpression:
-                    return visitCallExpression(<CallExpression>node);
+                    return visitCallExpression(node as CallExpression);
                 case SyntaxKind.NewExpression:
-                    return visitNewExpression(<NewExpression>node);
+                    return visitNewExpression(node as NewExpression);
                 default:
                     return visitEachChild(node, visitor, context);
             }
@@ -426,10 +426,10 @@ namespace ts {
         function visitGenerator(node: Node): VisitResult<Node> {
             switch (node.kind) {
                 case SyntaxKind.FunctionDeclaration:
-                    return visitFunctionDeclaration(<FunctionDeclaration>node);
+                    return visitFunctionDeclaration(node as FunctionDeclaration);
 
                 case SyntaxKind.FunctionExpression:
-                    return visitFunctionExpression(<FunctionExpression>node);
+                    return visitFunctionExpression(node as FunctionExpression);
 
                 default:
                     return Debug.failBadSyntaxKind(node);
@@ -451,7 +451,6 @@ namespace ts {
                 node = setOriginalNode(
                     setTextRange(
                         factory.createFunctionDeclaration(
-                            /*decorators*/ undefined,
                             node.modifiers,
                             /*asteriskToken*/ undefined,
                             node.name,
@@ -632,7 +631,7 @@ namespace ts {
                 }
 
                 for (const variable of node.declarationList.declarations) {
-                    hoistVariableDeclaration(<Identifier>variable.name);
+                    hoistVariableDeclaration(variable.name as Identifier);
                 }
 
                 const variables = getInitializedVariables(node.declarationList);
@@ -693,9 +692,9 @@ namespace ts {
                         //      _a.b = %sent%;
 
                         target = factory.updatePropertyAccessExpression(
-                            <PropertyAccessExpression>left,
-                            cacheExpression(visitNode((<PropertyAccessExpression>left).expression, visitor, isLeftHandSideExpression)),
-                            (<PropertyAccessExpression>left).name
+                            left as PropertyAccessExpression,
+                            cacheExpression(visitNode((left as PropertyAccessExpression).expression, visitor, isLeftHandSideExpression)),
+                            (left as PropertyAccessExpression).name
                         );
                         break;
 
@@ -711,9 +710,9 @@ namespace ts {
                         //  .mark resumeLabel
                         //      _a[_b] = %sent%;
 
-                        target = factory.updateElementAccessExpression(<ElementAccessExpression>left,
-                            cacheExpression(visitNode((<ElementAccessExpression>left).expression, visitor, isLeftHandSideExpression)),
-                            cacheExpression(visitNode((<ElementAccessExpression>left).argumentExpression, visitor, isExpression))
+                        target = factory.updateElementAccessExpression(left as ElementAccessExpression,
+                            cacheExpression(visitNode((left as ElementAccessExpression).expression, visitor, isLeftHandSideExpression)),
+                            cacheExpression(visitNode((left as ElementAccessExpression).argumentExpression, visitor, isExpression))
                         );
                         break;
 
@@ -1000,7 +999,7 @@ namespace ts {
                 leadingElement = undefined;
             }
 
-            const expressions = reduceLeft(elements, reduceElement, <Expression[]>[], numInitialElements);
+            const expressions = reduceLeft(elements, reduceElement, [] as Expression[], numInitialElements);
             return temp
                 ? factory.createArrayConcatCall(temp, [factory.createArrayLiteralExpression(expressions, multiLine)])
                 : setTextRange(
@@ -1067,7 +1066,7 @@ namespace ts {
                 )
             );
 
-            const expressions = reduceLeft(properties, reduceProperty, <Expression[]>[], numInitialProperties);
+            const expressions = reduceLeft(properties, reduceProperty, [] as Expression[], numInitialProperties);
             // TODO(rbuckton): Does this need to be parented?
             expressions.push(multiLine ? startOnNewLine(setParent(setTextRange(factory.cloneNode(temp), temp), temp.parent)) : temp);
             return factory.inlineExpressions(expressions);
@@ -1209,35 +1208,35 @@ namespace ts {
         function transformAndEmitStatementWorker(node: Statement): void {
             switch (node.kind) {
                 case SyntaxKind.Block:
-                    return transformAndEmitBlock(<Block>node);
+                    return transformAndEmitBlock(node as Block);
                 case SyntaxKind.ExpressionStatement:
-                    return transformAndEmitExpressionStatement(<ExpressionStatement>node);
+                    return transformAndEmitExpressionStatement(node as ExpressionStatement);
                 case SyntaxKind.IfStatement:
-                    return transformAndEmitIfStatement(<IfStatement>node);
+                    return transformAndEmitIfStatement(node as IfStatement);
                 case SyntaxKind.DoStatement:
-                    return transformAndEmitDoStatement(<DoStatement>node);
+                    return transformAndEmitDoStatement(node as DoStatement);
                 case SyntaxKind.WhileStatement:
-                    return transformAndEmitWhileStatement(<WhileStatement>node);
+                    return transformAndEmitWhileStatement(node as WhileStatement);
                 case SyntaxKind.ForStatement:
-                    return transformAndEmitForStatement(<ForStatement>node);
+                    return transformAndEmitForStatement(node as ForStatement);
                 case SyntaxKind.ForInStatement:
-                    return transformAndEmitForInStatement(<ForInStatement>node);
+                    return transformAndEmitForInStatement(node as ForInStatement);
                 case SyntaxKind.ContinueStatement:
-                    return transformAndEmitContinueStatement(<ContinueStatement>node);
+                    return transformAndEmitContinueStatement(node as ContinueStatement);
                 case SyntaxKind.BreakStatement:
-                    return transformAndEmitBreakStatement(<BreakStatement>node);
+                    return transformAndEmitBreakStatement(node as BreakStatement);
                 case SyntaxKind.ReturnStatement:
-                    return transformAndEmitReturnStatement(<ReturnStatement>node);
+                    return transformAndEmitReturnStatement(node as ReturnStatement);
                 case SyntaxKind.WithStatement:
-                    return transformAndEmitWithStatement(<WithStatement>node);
+                    return transformAndEmitWithStatement(node as WithStatement);
                 case SyntaxKind.SwitchStatement:
-                    return transformAndEmitSwitchStatement(<SwitchStatement>node);
+                    return transformAndEmitSwitchStatement(node as SwitchStatement);
                 case SyntaxKind.LabeledStatement:
-                    return transformAndEmitLabeledStatement(<LabeledStatement>node);
+                    return transformAndEmitLabeledStatement(node as LabeledStatement);
                 case SyntaxKind.ThrowStatement:
-                    return transformAndEmitThrowStatement(<ThrowStatement>node);
+                    return transformAndEmitThrowStatement(node as ThrowStatement);
                 case SyntaxKind.TryStatement:
-                    return transformAndEmitTryStatement(<TryStatement>node);
+                    return transformAndEmitTryStatement(node as TryStatement);
                 default:
                     return emitStatement(visitNode(node, visitor, isStatement));
             }
@@ -1258,7 +1257,7 @@ namespace ts {
 
         function transformAndEmitVariableDeclarationList(node: VariableDeclarationList): VariableDeclarationList | undefined {
             for (const variable of node.declarations) {
-                const name = factory.cloneNode(<Identifier>variable.name);
+                const name = factory.cloneNode(variable.name as Identifier);
                 setCommentRange(name, variable.name);
                 hoistVariableDeclaration(name);
             }
@@ -1290,7 +1289,7 @@ namespace ts {
         function transformInitializedVariable(node: InitializedVariableDeclaration) {
             return setSourceMapRange(
                 factory.createAssignment(
-                    setSourceMapRange(<Identifier>factory.cloneNode(node.name), node.name),
+                    setSourceMapRange(factory.cloneNode(node.name) as Identifier, node.name),
                     visitNode(node.initializer, visitor, isExpression)
                 ),
                 node
@@ -1492,7 +1491,7 @@ namespace ts {
             const initializer = node.initializer;
             if (initializer && isVariableDeclarationList(initializer)) {
                 for (const variable of initializer.declarations) {
-                    hoistVariableDeclaration(<Identifier>variable.name);
+                    hoistVariableDeclaration(variable.name as Identifier);
                 }
 
                 const variables = getInitializedVariables(initializer);
@@ -1502,7 +1501,7 @@ namespace ts {
                         : undefined,
                     visitNode(node.condition, visitor, isExpression),
                     visitNode(node.incrementor, visitor, isExpression),
-                    visitNode(node.statement, visitor, isStatement, factory.liftToBlock)
+                    visitIterationBody(node.statement, visitor, context)
                 );
             }
             else {
@@ -1517,7 +1516,6 @@ namespace ts {
         }
 
         function transformAndEmitForInStatement(node: ForInStatement) {
-            // TODO(rbuckton): Source map locations
             if (containsYield(node)) {
                 // [source]
                 //      for (var p in o) {
@@ -1525,32 +1523,37 @@ namespace ts {
                 //      }
                 //
                 // [intermediate]
-                //  .local _a, _b, _i
-                //      _a = [];
-                //      for (_b in o) _a.push(_b);
+                //  .local _b, _a, _c, _i
+                //      _b = [];
+                //      _a = o;
+                //      for (_c in _a) _b.push(_c);
                 //      _i = 0;
                 //  .loop incrementLabel, endLoopLabel
                 //  .mark conditionLabel
-                //  .brfalse endLoopLabel, (_i < _a.length)
-                //      p = _a[_i];
+                //  .brfalse endLoopLabel, (_i < _b.length)
+                //      _c = _b[_i];
+                //  .brfalse incrementLabel, (_c in _a)
+                //      p = _c;
                 //      /*body*/
                 //  .mark incrementLabel
-                //      _b++;
+                //      _c++;
                 //  .br conditionLabel
                 //  .endloop
                 //  .mark endLoopLabel
 
-                const keysArray = declareLocal(); // _a
-                const key = declareLocal(); // _b
+                const obj = declareLocal(); // _a
+                const keysArray = declareLocal(); // _b
+                const key = declareLocal(); // _c
                 const keysIndex = factory.createLoopVariable(); // _i
                 const initializer = node.initializer;
                 hoistVariableDeclaration(keysIndex);
+                emitAssignment(obj, visitNode(node.expression, visitor, isExpression));
                 emitAssignment(keysArray, factory.createArrayLiteralExpression());
 
                 emitStatement(
                     factory.createForInStatement(
                         key,
-                        visitNode(node.expression, visitor, isExpression),
+                        obj,
                         factory.createExpressionStatement(
                             factory.createCallExpression(
                                 factory.createPropertyAccessExpression(keysArray, "push"),
@@ -1565,25 +1568,28 @@ namespace ts {
 
                 const conditionLabel = defineLabel();
                 const incrementLabel = defineLabel();
-                const endLabel = beginLoopBlock(incrementLabel);
+                const endLoopLabel = beginLoopBlock(incrementLabel);
 
                 markLabel(conditionLabel);
-                emitBreakWhenFalse(endLabel, factory.createLessThan(keysIndex, factory.createPropertyAccessExpression(keysArray, "length")));
+                emitBreakWhenFalse(endLoopLabel, factory.createLessThan(keysIndex, factory.createPropertyAccessExpression(keysArray, "length")));
+
+                emitAssignment(key, factory.createElementAccessExpression(keysArray, keysIndex));
+                emitBreakWhenFalse(incrementLabel, factory.createBinaryExpression(key, SyntaxKind.InKeyword, obj));
 
                 let variable: Expression;
                 if (isVariableDeclarationList(initializer)) {
                     for (const variable of initializer.declarations) {
-                        hoistVariableDeclaration(<Identifier>variable.name);
+                        hoistVariableDeclaration(variable.name as Identifier);
                     }
 
-                    variable = <Identifier>factory.cloneNode(initializer.declarations[0].name);
+                    variable = factory.cloneNode(initializer.declarations[0].name) as Identifier;
                 }
                 else {
                     variable = visitNode(initializer, visitor, isExpression);
                     Debug.assert(isLeftHandSideExpression(variable));
                 }
 
-                emitAssignment(variable, factory.createElementAccessExpression(keysArray, keysIndex));
+                emitAssignment(variable, key);
                 transformAndEmitEmbeddedStatement(node.statement);
 
                 markLabel(incrementLabel);
@@ -1618,11 +1624,11 @@ namespace ts {
             const initializer = node.initializer;
             if (isVariableDeclarationList(initializer)) {
                 for (const variable of initializer.declarations) {
-                    hoistVariableDeclaration(<Identifier>variable.name);
+                    hoistVariableDeclaration(variable.name as Identifier);
                 }
 
                 node = factory.updateForInStatement(node,
-                    <Identifier>initializer.declarations[0].name,
+                    initializer.declarations[0].name as Identifier,
                     visitNode(node.expression, visitor, isExpression),
                     visitNode(node.statement, visitor, isStatement, factory.liftToBlock)
                 );
@@ -1951,7 +1957,7 @@ namespace ts {
         function onSubstituteNode(hint: EmitHint, node: Node): Node {
             node = previousOnSubstituteNode(hint, node);
             if (hint === EmitHint.Expression) {
-                return substituteExpression(<Expression>node);
+                return substituteExpression(node as Expression);
             }
             return node;
         }
@@ -1986,7 +1992,7 @@ namespace ts {
 
         function cacheExpression(node: Expression): Identifier {
             if (isGeneratedIdentifier(node) || getEmitFlags(node) & EmitFlags.HelperName) {
-                return <Identifier>node;
+                return node as Identifier;
             }
 
             const temp = factory.createTempVariable(hoistVariableDeclaration);
@@ -2064,7 +2070,7 @@ namespace ts {
          * Gets the current open block.
          */
         function peekBlock() {
-            return lastOrUndefined(blockStack!);
+            return lastOrUndefined(blockStack);
         }
 
         /**
@@ -2097,7 +2103,7 @@ namespace ts {
          */
         function endWithBlock(): void {
             Debug.assert(peekBlockKind() === CodeBlockKind.With);
-            const block = <WithBlock>endBlock();
+            const block = endBlock() as WithBlock;
             markLabel(block.endLabel);
         }
 
@@ -2133,7 +2139,7 @@ namespace ts {
                 hoistVariableDeclaration(variable.name);
             }
             else {
-                const text = idText(<Identifier>variable.name);
+                const text = idText(variable.name as Identifier);
                 name = declareLocal(text);
                 if (!renamedCatchVariables) {
                     renamedCatchVariables = new Map<string, boolean>();
@@ -2145,7 +2151,7 @@ namespace ts {
                 renamedCatchVariableDeclarations[getOriginalNodeId(variable)] = name;
             }
 
-            const exception = <ExceptionBlock>peekBlock();
+            const exception = peekBlock() as ExceptionBlock;
             Debug.assert(exception.state < ExceptionBlockState.Catch);
 
             const endLabel = exception.endLabel;
@@ -2167,7 +2173,7 @@ namespace ts {
         function beginFinallyBlock(): void {
             Debug.assert(peekBlockKind() === CodeBlockKind.Exception);
 
-            const exception = <ExceptionBlock>peekBlock();
+            const exception = peekBlock() as ExceptionBlock;
             Debug.assert(exception.state < ExceptionBlockState.Finally);
 
             const endLabel = exception.endLabel;
@@ -2184,7 +2190,7 @@ namespace ts {
          */
         function endExceptionBlock(): void {
             Debug.assert(peekBlockKind() === CodeBlockKind.Exception);
-            const exception = <ExceptionBlock>endBlock();
+            const exception = endBlock() as ExceptionBlock;
             const state = exception.state;
             if (state < ExceptionBlockState.Finally) {
                 emitBreak(exception.endLabel);
@@ -2238,7 +2244,7 @@ namespace ts {
          */
         function endLoopBlock(): void {
             Debug.assert(peekBlockKind() === CodeBlockKind.Loop);
-            const block = <SwitchBlock>endBlock();
+            const block = endBlock() as SwitchBlock;
             const breakLabel = block.breakLabel;
             if (!block.isScript) {
                 markLabel(breakLabel);
@@ -2278,7 +2284,7 @@ namespace ts {
          */
         function endSwitchBlock(): void {
             Debug.assert(peekBlockKind() === CodeBlockKind.Switch);
-            const block = <SwitchBlock>endBlock();
+            const block = endBlock() as SwitchBlock;
             const breakLabel = block.breakLabel;
             if (!block.isScript) {
                 markLabel(breakLabel);
@@ -2306,7 +2312,7 @@ namespace ts {
 
         function endLabeledBlock() {
             Debug.assert(peekBlockKind() === CodeBlockKind.Labeled);
-            const block = <LabeledBlock>endBlock();
+            const block = endBlock() as LabeledBlock;
             if (!block.isScript) {
                 markLabel(block.breakLabel);
             }
@@ -2658,7 +2664,7 @@ namespace ts {
                         /*asteriskToken*/ undefined,
                         /*name*/ undefined,
                         /*typeParameters*/ undefined,
-                        [factory.createParameterDeclaration(/*decorators*/ undefined, /*modifiers*/ undefined, /*dotDotDotToken*/ undefined, state)],
+                        [factory.createParameterDeclaration(/*modifiers*/ undefined, /*dotDotDotToken*/ undefined, state)],
                         /*type*/ undefined,
                         factory.createBlock(
                             buildResult,
@@ -2945,27 +2951,27 @@ namespace ts {
 
             const args = operationArguments![operationIndex]!;
             if (opcode === OpCode.Statement) {
-                return writeStatement(<Statement>args[0]);
+                return writeStatement(args[0] as Statement);
             }
 
             const location = operationLocations![operationIndex];
             switch (opcode) {
                 case OpCode.Assign:
-                    return writeAssign(<Expression>args[0], <Expression>args[1], location);
+                    return writeAssign(args[0] as Expression, args[1] as Expression, location);
                 case OpCode.Break:
-                    return writeBreak(<Label>args[0], location);
+                    return writeBreak(args[0] as Label, location);
                 case OpCode.BreakWhenTrue:
-                    return writeBreakWhenTrue(<Label>args[0], <Expression>args[1], location);
+                    return writeBreakWhenTrue(args[0] as Label, args[1] as Expression, location);
                 case OpCode.BreakWhenFalse:
-                    return writeBreakWhenFalse(<Label>args[0], <Expression>args[1], location);
+                    return writeBreakWhenFalse(args[0] as Label, args[1] as Expression, location);
                 case OpCode.Yield:
-                    return writeYield(<Expression>args[0], location);
+                    return writeYield(args[0] as Expression, location);
                 case OpCode.YieldStar:
-                    return writeYieldStar(<Expression>args[0], location);
+                    return writeYieldStar(args[0] as Expression, location);
                 case OpCode.Return:
-                    return writeReturn(<Expression>args[0], location);
+                    return writeReturn(args[0] as Expression, location);
                 case OpCode.Throw:
-                    return writeThrow(<Expression>args[0], location);
+                    return writeThrow(args[0] as Expression, location);
             }
         }
 

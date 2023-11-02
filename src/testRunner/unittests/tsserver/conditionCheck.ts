@@ -15,6 +15,13 @@ namespace ts.projectSystem {
             const bUser: File = {
                 path: "/b.ts",
                 content: `
+/**
+ * @sysCap SystemCapability.ArkUI.Core1
+ */
+interface InfoType {
+
+}
+
 export class y {
 /**
  * @sysCap SystemCapability.ArkUI.Core
@@ -25,7 +32,7 @@ static test(): void {
 /**
  * @sysCap SystemCapability.ArkUI.Core
  */
-static test2: number = 2;
+static test2: InfoType; 
 }`
             };
             const cUser: File = {
@@ -57,13 +64,21 @@ static test2: number = 2;
 
             const projectFiles = [aUser, bUser, cUser, tsconfigFile];
             const host = createServerHost(projectFiles);
-            host.getTagNameNeededCheckByFile = (containFilePath: string, sourceFilePath: string) => {
-                Debug.log(containFilePath);
+            host.getFileCheckedModuleInfo = (sourceFilePath: string) => {
                 Debug.log(sourceFilePath);
                 return {
-                    needCheck: true,
+                    fileNeedCheck: true,
+                    checkPayload: undefined,
+                    currentFileName: "",
+                }
+            }
+            host.getJsDocNodeCheckedConfig = (jsDocFileCheckInfo: FileCheckModuleInfo, sourceFilePath: string) => {
+                Debug.log(jsDocFileCheckInfo.fileNeedCheck.toString());
+                Debug.log(sourceFilePath);
+                return {
+                    nodeNeedCheck: true,
                     checkConfig: [{
-                        tagName: "sysCap",
+                        tagName: ["sysCap"],
                         message: "The statement must be written use the function 'canIUse' under the if condition.",
                         needConditionCheck: true,
                         specifyCheckConditionFuncName: "canIUse",
@@ -72,11 +87,13 @@ static test2: number = 2;
                     }]
                 };
             };
-            host.getExpressionCheckedResultsByFile = (filePath: string, jsDocs: JSDocTagInfo[]) => {
-                Debug.log(filePath);
+            host.getJsDocNodeConditionCheckedResult = (jsDocFileCheckedInfo: FileCheckModuleInfo, jsDocs: JsDocTagInfo[]) => {
+                Debug.log(jsDocFileCheckedInfo.fileNeedCheck.toString());
                 Debug.log(jsDocs.toString());
                 return {
                     valid: false,
+                    message: "",
+                    type: DiagnosticCategory.Warning
                 };
             };
             const session = createSession(host);

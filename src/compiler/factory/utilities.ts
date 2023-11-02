@@ -4,7 +4,7 @@ namespace ts {
     // Compound nodes
 
     export function createEmptyExports(factory: NodeFactory) {
-        return factory.createExportDeclaration(/*decorators*/ undefined, /*modifiers*/ undefined, /*isTypeOnly*/ false, factory.createNamedExports([]), /*moduleSpecifier*/ undefined);
+        return factory.createExportDeclaration(/*modifiers*/ undefined, /*isTypeOnly*/ false, factory.createNamedExports([]), /*moduleSpecifier*/ undefined);
     }
 
     export function createMemberAccessForPropertyName(factory: NodeFactory, target: Expression, memberName: PropertyName, location?: TextRange): MemberExpression {
@@ -13,7 +13,7 @@ namespace ts {
         }
         else {
             const expression = setTextRange(
-                isIdentifierOrPrivateIdentifier(memberName)
+                isMemberName(memberName)
                     ? factory.createPropertyAccessExpression(target, memberName)
                     : factory.createElementAccessExpression(target, memberName),
                 memberName
@@ -197,7 +197,7 @@ namespace ts {
                         get: getAccessor && setTextRange(
                             setOriginalNode(
                                 factory.createFunctionExpression(
-                                    getAccessor.modifiers,
+                                    getModifiers(getAccessor),
                                     /*asteriskToken*/ undefined,
                                     /*name*/ undefined,
                                     /*typeParameters*/ undefined,
@@ -212,7 +212,7 @@ namespace ts {
                         set: setAccessor && setTextRange(
                             setOriginalNode(
                                 factory.createFunctionExpression(
-                                    setAccessor.modifiers,
+                                    getModifiers(setAccessor),
                                     /*asteriskToken*/ undefined,
                                     /*name*/ undefined,
                                     /*typeParameters*/ undefined,
@@ -267,7 +267,7 @@ namespace ts {
                     setOriginalNode(
                         setTextRange(
                             factory.createFunctionExpression(
-                                method.modifiers,
+                                getModifiers(method),
                                 method.asteriskToken,
                                 /*name*/ undefined,
                                 /*typeParameters*/ undefined,
@@ -301,6 +301,67 @@ namespace ts {
             case SyntaxKind.MethodDeclaration:
                 return createExpressionForMethodDeclaration(factory, property, receiver);
         }
+    }
+
+    /**
+     * Expand the read and increment/decrement operations a pre- or post-increment or pre- or post-decrement expression.
+     *
+     * ```ts
+     * // input
+     * <expression>++
+     * // output (if result is not discarded)
+     * var <temp>;
+     * (<temp> = <expression>, <resultVariable> = <temp>++, <temp>)
+     * // output (if result is discarded)
+     * var <temp>;
+     * (<temp> = <expression>, <temp>++, <temp>)
+     *
+     * // input
+     * ++<expression>
+     * // output (if result is not discarded)
+     * var <temp>;
+     * (<temp> = <expression>, <resultVariable> = ++<temp>)
+     * // output (if result is discarded)
+     * var <temp>;
+     * (<temp> = <expression>, ++<temp>)
+     * ```
+     *
+     * It is up to the caller to supply a temporary variable for `<resultVariable>` if one is needed.
+     * The temporary variable `<temp>` is injected so that `++` and `--` work uniformly with `number` and `bigint`.
+     * The result of the expression is always the final result of incrementing or decrementing the expression, so that it can be used for storage.
+     *
+     * @param factory {@link NodeFactory} used to create the expanded representation.
+     * @param node The original prefix or postfix unary node.
+     * @param expression The expression to use as the value to increment or decrement
+     * @param resultVariable A temporary variable in which to store the result. Pass `undefined` if the result is discarded, or if the value of `<temp>` is the expected result.
+     */
+    export function expandPreOrPostfixIncrementOrDecrementExpression(factory: NodeFactory, node: PrefixUnaryExpression | PostfixUnaryExpression, expression: Expression, recordTempVariable: (node: Identifier) => void, resultVariable: Identifier | undefined) {
+        const operator = node.operator;
+        Debug.assert(operator === SyntaxKind.PlusPlusToken || operator === SyntaxKind.MinusMinusToken, "Expected 'node' to be a pre- or post-increment or pre- or post-decrement expression");
+
+        const temp = factory.createTempVariable(recordTempVariable);
+        expression = factory.createAssignment(temp, expression);
+        setTextRange(expression, node.operand);
+
+        let operation: Expression = isPrefixUnaryExpression(node) ?
+            factory.createPrefixUnaryExpression(operator, temp) :
+            factory.createPostfixUnaryExpression(temp, operator);
+        setTextRange(operation, node);
+
+        if (resultVariable) {
+            operation = factory.createAssignment(resultVariable, operation);
+            setTextRange(operation, node);
+        }
+
+        expression = factory.createComma(expression, operation);
+        setTextRange(expression, node);
+
+        if (isPostfixUnaryExpression(node)) {
+            expression = factory.createComma(expression, temp);
+            setTextRange(expression, node);
+        }
+
+        return expression;
     }
 
     /**
@@ -351,16 +412,32 @@ namespace ts {
     }
 
     export function isCommaSequence(node: Expression): node is BinaryExpression & {operatorToken: Token<SyntaxKind.CommaToken>} | CommaListExpression {
-        return node.kind === SyntaxKind.BinaryExpression && (<BinaryExpression>node).operatorToken.kind === SyntaxKind.CommaToken ||
+        return node.kind === SyntaxKind.BinaryExpression && (node as BinaryExpression).operatorToken.kind === SyntaxKind.CommaToken ||
             node.kind === SyntaxKind.CommaListExpression;
+    }
+
+    export function isJSDocTypeAssertion(node: Node): node is JSDocTypeAssertion {
+        return isParenthesizedExpression(node)
+            && isInJSFile(node)
+            && !!getJSDocTypeTag(node);
+    }
+
+    export function getJSDocTypeAssertionType(node: JSDocTypeAssertion) {
+        const type = getJSDocType(node);
+        Debug.assertIsDefined(type);
+        return type;
     }
 
     export function isOuterExpression(node: Node, kinds = OuterExpressionKinds.All): node is OuterExpression {
         switch (node.kind) {
             case SyntaxKind.ParenthesizedExpression:
+                if (kinds & OuterExpressionKinds.ExcludeJSDocTypeAssertion && isJSDocTypeAssertion(node)) {
+                    return false;
+                }
                 return (kinds & OuterExpressionKinds.Parentheses) !== 0;
             case SyntaxKind.TypeAssertionExpression:
             case SyntaxKind.AsExpression:
+            case SyntaxKind.SatisfiesExpression:
                 return (kinds & OuterExpressionKinds.TypeAssertions) !== 0;
             case SyntaxKind.NonNullExpression:
                 return (kinds & OuterExpressionKinds.NonNullAssertions) !== 0;
@@ -405,14 +482,14 @@ namespace ts {
         if (compilerOptions.importHelpers && isEffectiveExternalModule(sourceFile, compilerOptions)) {
             let namedBindings: NamedImportBindings | undefined;
             const moduleKind = getEmitModuleKind(compilerOptions);
-            if (moduleKind >= ModuleKind.ES2015 && moduleKind <= ModuleKind.ESNext) {
+            if ((moduleKind >= ModuleKind.ES2015 && moduleKind <= ModuleKind.ESNext) || sourceFile.impliedNodeFormat === ModuleKind.ESNext) {
                 // use named imports
                 const helpers = getEmitHelpers(sourceFile);
                 if (helpers) {
                     const helperNames: string[] = [];
                     for (const helper of helpers) {
                         if (!helper.scoped) {
-                            const importName = (helper as UnscopedEmitHelper).importName;
+                            const importName = helper.importName;
                             if (importName) {
                                 pushIfUnique(helperNames, importName);
                             }
@@ -424,8 +501,8 @@ namespace ts {
                         // NOTE: We don't need to care about global import collisions as this is a module.
                         namedBindings = nodeFactory.createNamedImports(
                             map(helperNames, name => isFileLevelUniqueName(sourceFile, name)
-                                ? nodeFactory.createImportSpecifier(/*propertyName*/ undefined, nodeFactory.createIdentifier(name))
-                                : nodeFactory.createImportSpecifier(nodeFactory.createIdentifier(name), helperFactory.getUnscopedHelperName(name))
+                                ? nodeFactory.createImportSpecifier(/*isTypeOnly*/ false, /*propertyName*/ undefined, nodeFactory.createIdentifier(name))
+                                : nodeFactory.createImportSpecifier(/*isTypeOnly*/ false, nodeFactory.createIdentifier(name), helperFactory.getUnscopedHelperName(name))
                             )
                         );
                         const parseNode = getOriginalNode(sourceFile, isSourceFile);
@@ -443,10 +520,10 @@ namespace ts {
             }
             if (namedBindings) {
                 const externalHelpersImportDeclaration = nodeFactory.createImportDeclaration(
-                    /*decorators*/ undefined,
                     /*modifiers*/ undefined,
                     nodeFactory.createImportClause(/*isTypeOnly*/ false, /*name*/ undefined, namedBindings),
-                    nodeFactory.createStringLiteral(externalHelpersModuleNameText)
+                    nodeFactory.createStringLiteral(externalHelpersModuleNameText),
+                     /*assertClause*/ undefined
                 );
                 addEmitFlags(externalHelpersImportDeclaration, EmitFlags.NeverApplyImportHelper);
                 return externalHelpersImportDeclaration;
@@ -462,9 +539,9 @@ namespace ts {
             }
 
             const moduleKind = getEmitModuleKind(compilerOptions);
-            let create = (hasExportStarsToExportValues || (compilerOptions.esModuleInterop && hasImportStarOrImportDefault))
+            let create = (hasExportStarsToExportValues || (getESModuleInterop(compilerOptions) && hasImportStarOrImportDefault))
                 && moduleKind !== ModuleKind.System
-                && moduleKind < ModuleKind.ES2015;
+                && (moduleKind < ModuleKind.ES2015 || node.impliedNodeFormat === ModuleKind.CommonJS);
             if (!create) {
                 const helpers = getEmitHelpers(node);
                 if (helpers) {
@@ -594,7 +671,7 @@ namespace ts {
 
         if (isSpreadElement(bindingElement)) {
             // Recovery consistent with existing emit.
-            return getInitializerOfBindingOrAssignmentElement(<BindingOrAssignmentElement>bindingElement.expression);
+            return getInitializerOfBindingOrAssignmentElement(bindingElement.expression as BindingOrAssignmentElement);
         }
     }
 
@@ -635,7 +712,7 @@ namespace ts {
                     // `b.c` in `({ a: b.c = 1 } = ...)`
                     // `b[0]` in `({ a: b[0] } = ...)`
                     // `b[0]` in `({ a: b[0] = 1 } = ...)`
-                    return getTargetOfBindingOrAssignmentElement(<BindingOrAssignmentElement>bindingElement.initializer);
+                    return getTargetOfBindingOrAssignmentElement(bindingElement.initializer as BindingOrAssignmentElement);
 
                 case SyntaxKind.ShorthandPropertyAssignment:
                     // `a` in `({ a } = ...)`
@@ -644,11 +721,9 @@ namespace ts {
 
                 case SyntaxKind.SpreadAssignment:
                     // `a` in `({ ...a } = ...)`
-                    return getTargetOfBindingOrAssignmentElement(<BindingOrAssignmentElement>bindingElement.expression);
+                    return getTargetOfBindingOrAssignmentElement(bindingElement.expression as BindingOrAssignmentElement);
             }
 
-            // no target
-            return undefined;
         }
 
         if (isAssignmentExpression(bindingElement, /*excludeCompoundAssignment*/ true)) {
@@ -657,12 +732,12 @@ namespace ts {
             // `[a]` in `[[a] = 1] = ...`
             // `a.b` in `[a.b = 1] = ...`
             // `a[0]` in `[a[0] = 1] = ...`
-            return getTargetOfBindingOrAssignmentElement(<BindingOrAssignmentElement>bindingElement.left);
+            return getTargetOfBindingOrAssignmentElement(bindingElement.left as BindingOrAssignmentElement);
         }
 
         if (isSpreadElement(bindingElement)) {
             // `a` in `[...a] = ...`
-            return getTargetOfBindingOrAssignmentElement(<BindingOrAssignmentElement>bindingElement.expression);
+            return getTargetOfBindingOrAssignmentElement(bindingElement.expression as BindingOrAssignmentElement);
         }
 
         // `a` in `[a] = ...`
@@ -767,11 +842,11 @@ namespace ts {
             case SyntaxKind.ArrayLiteralExpression:
                 // `a` in `{a}`
                 // `a` in `[a]`
-                return <readonly BindingOrAssignmentElement[]>name.elements;
+                return name.elements as readonly BindingOrAssignmentElement[];
 
             case SyntaxKind.ObjectLiteralExpression:
                 // `a` in `{a}`
-                return <readonly BindingOrAssignmentElement[]>name.properties;
+                return name.properties as readonly BindingOrAssignmentElement[];
         }
     }
 
@@ -788,46 +863,520 @@ namespace ts {
         }
     }
 
-    export function canHaveModifiers(node: Node): node is HasModifiers {
+    export function canHaveIllegalType(node: Node): node is HasIllegalType {
         const kind = node.kind;
-        return kind === SyntaxKind.Parameter
-            || kind === SyntaxKind.PropertySignature
-            || kind === SyntaxKind.PropertyDeclaration
-            || kind === SyntaxKind.MethodSignature
-            || kind === SyntaxKind.MethodDeclaration
-            || kind === SyntaxKind.Constructor
+        return kind === SyntaxKind.Constructor
+            || kind === SyntaxKind.SetAccessor;
+    }
+
+    export function canHaveIllegalTypeParameters(node: Node): node is HasIllegalTypeParameters {
+        const kind = node.kind;
+        return kind === SyntaxKind.Constructor
             || kind === SyntaxKind.GetAccessor
-            || kind === SyntaxKind.SetAccessor
-            || kind === SyntaxKind.IndexSignature
-            || kind === SyntaxKind.FunctionExpression
-            || kind === SyntaxKind.ArrowFunction
-            || kind === SyntaxKind.ClassExpression
-            || kind === SyntaxKind.VariableStatement
+            || kind === SyntaxKind.SetAccessor;
+    }
+
+    export function canHaveIllegalDecorators(node: Node): node is HasIllegalDecorators {
+        const kind = node.kind;
+        return kind === SyntaxKind.PropertyAssignment
+            || kind === SyntaxKind.ShorthandPropertyAssignment
             || kind === SyntaxKind.FunctionDeclaration
-            || kind === SyntaxKind.ClassDeclaration
-            || kind === SyntaxKind.StructDeclaration
+            || kind === SyntaxKind.Constructor
+            || kind === SyntaxKind.IndexSignature
+            || kind === SyntaxKind.ClassStaticBlockDeclaration
+            || kind === SyntaxKind.MissingDeclaration
+            || kind === SyntaxKind.VariableStatement
             || kind === SyntaxKind.InterfaceDeclaration
             || kind === SyntaxKind.TypeAliasDeclaration
             || kind === SyntaxKind.EnumDeclaration
             || kind === SyntaxKind.ModuleDeclaration
             || kind === SyntaxKind.ImportEqualsDeclaration
             || kind === SyntaxKind.ImportDeclaration
-            || kind === SyntaxKind.ExportAssignment
-            || kind === SyntaxKind.ExportDeclaration;
+            || kind === SyntaxKind.NamespaceExportDeclaration
+            || kind === SyntaxKind.ExportDeclaration
+            || kind === SyntaxKind.ExportAssignment;
     }
 
-    /* @internal */
-    export function isExportModifier(node: Modifier): node is ExportKeyword {
-        return node.kind === SyntaxKind.ExportKeyword;
+    export function canHaveIllegalModifiers(node: Node): node is HasIllegalModifiers {
+        const kind = node.kind;
+        return kind === SyntaxKind.ClassStaticBlockDeclaration
+            || kind === SyntaxKind.PropertyAssignment
+            || kind === SyntaxKind.ShorthandPropertyAssignment
+            || kind === SyntaxKind.FunctionType
+            || kind === SyntaxKind.MissingDeclaration
+            || kind === SyntaxKind.NamespaceExportDeclaration;
     }
 
-    /* @internal */
-    export function isAsyncModifier(node: Modifier): node is AsyncKeyword {
-        return node.kind === SyntaxKind.AsyncKeyword;
+    export const isTypeNodeOrTypeParameterDeclaration = or(isTypeNode, isTypeParameterDeclaration) as (node: Node) => node is TypeNode | TypeParameterDeclaration;
+    export const isQuestionOrExclamationToken = or(isQuestionToken, isExclamationToken) as (node: Node) => node is QuestionToken | ExclamationToken;
+    export const isIdentifierOrThisTypeNode = or(isIdentifier, isThisTypeNode) as (node: Node) => node is Identifier | ThisTypeNode;
+    export const isReadonlyKeywordOrPlusOrMinusToken = or(isReadonlyKeyword, isPlusToken, isMinusToken) as (node: Node) => node is ReadonlyKeyword | PlusToken | MinusToken;
+    export const isQuestionOrPlusOrMinusToken = or(isQuestionToken, isPlusToken, isMinusToken) as (node: Node) => node is QuestionToken | PlusToken | MinusToken;
+    export const isModuleName = or(isIdentifier, isStringLiteral) as (node: Node) => node is ModuleName;
+
+    export function isLiteralTypeLikeExpression(node: Node): node is NullLiteral | BooleanLiteral | LiteralExpression | PrefixUnaryExpression {
+        const kind = node.kind;
+        return kind === SyntaxKind.NullKeyword
+            || kind === SyntaxKind.TrueKeyword
+            || kind === SyntaxKind.FalseKeyword
+            || isLiteralExpression(node)
+            || isPrefixUnaryExpression(node);
     }
 
-    /* @internal */
-    export function isStaticModifier(node: Modifier): node is StaticKeyword {
-        return node.kind === SyntaxKind.StaticKeyword;
+    function isExponentiationOperator(kind: SyntaxKind): kind is ExponentiationOperator {
+        return kind === SyntaxKind.AsteriskAsteriskToken;
+    }
+
+    function isMultiplicativeOperator(kind: SyntaxKind): kind is MultiplicativeOperator {
+        return kind === SyntaxKind.AsteriskToken
+            || kind === SyntaxKind.SlashToken
+            || kind === SyntaxKind.PercentToken;
+    }
+
+    function isMultiplicativeOperatorOrHigher(kind: SyntaxKind): kind is MultiplicativeOperatorOrHigher {
+        return isExponentiationOperator(kind)
+            || isMultiplicativeOperator(kind);
+    }
+
+    function isAdditiveOperator(kind: SyntaxKind): kind is AdditiveOperator {
+        return kind === SyntaxKind.PlusToken
+            || kind === SyntaxKind.MinusToken;
+    }
+
+    function isAdditiveOperatorOrHigher(kind: SyntaxKind): kind is AdditiveOperatorOrHigher {
+        return isAdditiveOperator(kind)
+            || isMultiplicativeOperatorOrHigher(kind);
+    }
+
+    function isShiftOperator(kind: SyntaxKind): kind is ShiftOperator {
+        return kind === SyntaxKind.LessThanLessThanToken
+            || kind === SyntaxKind.GreaterThanGreaterThanToken
+            || kind === SyntaxKind.GreaterThanGreaterThanGreaterThanToken;
+    }
+
+    function isShiftOperatorOrHigher(kind: SyntaxKind): kind is ShiftOperatorOrHigher {
+        return isShiftOperator(kind)
+            || isAdditiveOperatorOrHigher(kind);
+    }
+
+    function isRelationalOperator(kind: SyntaxKind): kind is RelationalOperator {
+        return kind === SyntaxKind.LessThanToken
+            || kind === SyntaxKind.LessThanEqualsToken
+            || kind === SyntaxKind.GreaterThanToken
+            || kind === SyntaxKind.GreaterThanEqualsToken
+            || kind === SyntaxKind.InstanceOfKeyword
+            || kind === SyntaxKind.InKeyword;
+    }
+
+    function isRelationalOperatorOrHigher(kind: SyntaxKind): kind is RelationalOperatorOrHigher {
+        return isRelationalOperator(kind)
+            || isShiftOperatorOrHigher(kind);
+    }
+
+    function isEqualityOperator(kind: SyntaxKind): kind is EqualityOperator {
+        return kind === SyntaxKind.EqualsEqualsToken
+            || kind === SyntaxKind.EqualsEqualsEqualsToken
+            || kind === SyntaxKind.ExclamationEqualsToken
+            || kind === SyntaxKind.ExclamationEqualsEqualsToken;
+    }
+
+    function isEqualityOperatorOrHigher(kind: SyntaxKind): kind is EqualityOperatorOrHigher {
+        return isEqualityOperator(kind)
+            || isRelationalOperatorOrHigher(kind);
+    }
+
+    function isBitwiseOperator(kind: SyntaxKind): kind is BitwiseOperator {
+        return kind === SyntaxKind.AmpersandToken
+            || kind === SyntaxKind.BarToken
+            || kind === SyntaxKind.CaretToken;
+    }
+
+    function isBitwiseOperatorOrHigher(kind: SyntaxKind): kind is BitwiseOperatorOrHigher {
+        return isBitwiseOperator(kind)
+            || isEqualityOperatorOrHigher(kind);
+    }
+
+    // NOTE: The version in utilities includes ExclamationToken, which is not a binary operator.
+    function isLogicalOperator(kind: SyntaxKind): kind is LogicalOperator {
+        return kind === SyntaxKind.AmpersandAmpersandToken
+            || kind === SyntaxKind.BarBarToken;
+    }
+
+    function isLogicalOperatorOrHigher(kind: SyntaxKind): kind is LogicalOperatorOrHigher {
+        return isLogicalOperator(kind)
+            || isBitwiseOperatorOrHigher(kind);
+    }
+
+    function isAssignmentOperatorOrHigher(kind: SyntaxKind): kind is AssignmentOperatorOrHigher {
+        return kind === SyntaxKind.QuestionQuestionToken
+            || isLogicalOperatorOrHigher(kind)
+            || isAssignmentOperator(kind);
+    }
+
+    function isBinaryOperator(kind: SyntaxKind): kind is BinaryOperator {
+        return isAssignmentOperatorOrHigher(kind)
+            || kind === SyntaxKind.CommaToken;
+    }
+
+    export function isBinaryOperatorToken(node: Node): node is BinaryOperatorToken {
+        return isBinaryOperator(node.kind);
+    }
+
+    type BinaryExpressionState = <TOuterState, TState, TResult>(machine: BinaryExpressionStateMachine<TOuterState, TState, TResult>, stackIndex: number, stateStack: BinaryExpressionState[], nodeStack: BinaryExpression[], userStateStack: TState[], resultHolder: { value: TResult }, outerState: TOuterState) => number;
+
+    namespace BinaryExpressionState {
+        /**
+         * Handles walking into a `BinaryExpression`.
+         * @param machine State machine handler functions
+         * @param frame The current frame
+         * @returns The new frame
+         */
+        export function enter<TOuterState, TState, TResult>(machine: BinaryExpressionStateMachine<TOuterState, TState, TResult>, stackIndex: number, stateStack: BinaryExpressionState[], nodeStack: BinaryExpression[], userStateStack: TState[], _resultHolder: { value: TResult }, outerState: TOuterState): number {
+            const prevUserState = stackIndex > 0 ? userStateStack[stackIndex - 1] : undefined;
+            Debug.assertEqual(stateStack[stackIndex], enter);
+            userStateStack[stackIndex] = machine.onEnter(nodeStack[stackIndex], prevUserState, outerState);
+            stateStack[stackIndex] = nextState(machine, enter);
+            return stackIndex;
+        }
+
+        /**
+         * Handles walking the `left` side of a `BinaryExpression`.
+         * @param machine State machine handler functions
+         * @param frame The current frame
+         * @returns The new frame
+         */
+        export function left<TOuterState, TState, TResult>(machine: BinaryExpressionStateMachine<TOuterState, TState, TResult>, stackIndex: number, stateStack: BinaryExpressionState[], nodeStack: BinaryExpression[], userStateStack: TState[], _resultHolder: { value: TResult }, _outerState: TOuterState): number {
+            Debug.assertEqual(stateStack[stackIndex], left);
+            Debug.assertIsDefined(machine.onLeft);
+            stateStack[stackIndex] = nextState(machine, left);
+            const nextNode = machine.onLeft(nodeStack[stackIndex].left, userStateStack[stackIndex], nodeStack[stackIndex]);
+            if (nextNode) {
+                checkCircularity(stackIndex, nodeStack, nextNode);
+                return pushStack(stackIndex, stateStack, nodeStack, userStateStack, nextNode);
+            }
+            return stackIndex;
+        }
+
+        /**
+         * Handles walking the `operatorToken` of a `BinaryExpression`.
+         * @param machine State machine handler functions
+         * @param frame The current frame
+         * @returns The new frame
+         */
+        export function operator<TOuterState, TState, TResult>(machine: BinaryExpressionStateMachine<TOuterState, TState, TResult>, stackIndex: number, stateStack: BinaryExpressionState[], nodeStack: BinaryExpression[], userStateStack: TState[], _resultHolder: { value: TResult }, _outerState: TOuterState): number {
+            Debug.assertEqual(stateStack[stackIndex], operator);
+            Debug.assertIsDefined(machine.onOperator);
+            stateStack[stackIndex] = nextState(machine, operator);
+            machine.onOperator(nodeStack[stackIndex].operatorToken, userStateStack[stackIndex], nodeStack[stackIndex]);
+            return stackIndex;
+        }
+
+        /**
+         * Handles walking the `right` side of a `BinaryExpression`.
+         * @param machine State machine handler functions
+         * @param frame The current frame
+         * @returns The new frame
+         */
+        export function right<TOuterState, TState, TResult>(machine: BinaryExpressionStateMachine<TOuterState, TState, TResult>, stackIndex: number, stateStack: BinaryExpressionState[], nodeStack: BinaryExpression[], userStateStack: TState[], _resultHolder: { value: TResult }, _outerState: TOuterState): number {
+            Debug.assertEqual(stateStack[stackIndex], right);
+            Debug.assertIsDefined(machine.onRight);
+            stateStack[stackIndex] = nextState(machine, right);
+            const nextNode = machine.onRight(nodeStack[stackIndex].right, userStateStack[stackIndex], nodeStack[stackIndex]);
+            if (nextNode) {
+                checkCircularity(stackIndex, nodeStack, nextNode);
+                return pushStack(stackIndex, stateStack, nodeStack, userStateStack, nextNode);
+            }
+            return stackIndex;
+        }
+
+        /**
+         * Handles walking out of a `BinaryExpression`.
+         * @param machine State machine handler functions
+         * @param frame The current frame
+         * @returns The new frame
+         */
+        export function exit<TOuterState, TState, TResult>(machine: BinaryExpressionStateMachine<TOuterState, TState, TResult>, stackIndex: number, stateStack: BinaryExpressionState[], nodeStack: BinaryExpression[], userStateStack: TState[], resultHolder: { value: TResult }, _outerState: TOuterState): number {
+            Debug.assertEqual(stateStack[stackIndex], exit);
+            stateStack[stackIndex] = nextState(machine, exit);
+            const result = machine.onExit(nodeStack[stackIndex], userStateStack[stackIndex]);
+            if (stackIndex > 0) {
+                stackIndex--;
+                if (machine.foldState) {
+                    const side = stateStack[stackIndex] === exit ? "right" : "left";
+                    userStateStack[stackIndex] = machine.foldState(userStateStack[stackIndex], result, side);
+                }
+            }
+            else {
+                resultHolder.value = result;
+            }
+            return stackIndex;
+        }
+
+        /**
+         * Handles a frame that is already done.
+         * @returns The `done` state.
+         */
+        export function done<TOuterState, TState, TResult>(_machine: BinaryExpressionStateMachine<TOuterState, TState, TResult>, stackIndex: number, stateStack: BinaryExpressionState[], _nodeStack: BinaryExpression[], _userStateStack: TState[], _resultHolder: { value: TResult }, _outerState: TOuterState): number {
+            Debug.assertEqual(stateStack[stackIndex], done);
+            return stackIndex;
+        }
+
+        export function nextState<TOuterState, TState, TResult>(machine: BinaryExpressionStateMachine<TOuterState, TState, TResult>, currentState: BinaryExpressionState) {
+            switch (currentState) {
+                case enter:
+                    if (machine.onLeft) return left;
+                    // falls through
+                case left:
+                    if (machine.onOperator) return operator;
+                    // falls through
+                case operator:
+                    if (machine.onRight) return right;
+                    // falls through
+                case right: return exit;
+                case exit: return done;
+                case done: return done;
+                default: Debug.fail("Invalid state");
+            }
+        }
+
+        function pushStack<TState>(stackIndex: number, stateStack: BinaryExpressionState[], nodeStack: BinaryExpression[], userStateStack: TState[], node: BinaryExpression) {
+            stackIndex++;
+            stateStack[stackIndex] = enter;
+            nodeStack[stackIndex] = node;
+            userStateStack[stackIndex] = undefined!;
+            return stackIndex;
+        }
+
+        function checkCircularity(stackIndex: number, nodeStack: BinaryExpression[], node: BinaryExpression) {
+            if (Debug.shouldAssert(AssertionLevel.Aggressive)) {
+                while (stackIndex >= 0) {
+                    Debug.assert(nodeStack[stackIndex] !== node, "Circular traversal detected.");
+                    stackIndex--;
+                }
+            }
+        }
+    }
+
+    /**
+     * Holds state machine handler functions
+     */
+    class BinaryExpressionStateMachine<TOuterState, TState, TResult> {
+        constructor(
+            readonly onEnter: (node: BinaryExpression, prev: TState | undefined, outerState: TOuterState) => TState,
+            readonly onLeft: ((left: Expression, userState: TState, node: BinaryExpression) => BinaryExpression | void) | undefined,
+            readonly onOperator: ((operatorToken: BinaryOperatorToken, userState: TState, node: BinaryExpression) => void) | undefined,
+            readonly onRight: ((right: Expression, userState: TState, node: BinaryExpression) => BinaryExpression | void) | undefined,
+            readonly onExit: (node: BinaryExpression, userState: TState) => TResult,
+            readonly foldState: ((userState: TState, result: TResult, side: "left" | "right") => TState) | undefined,
+        ) {
+        }
+    }
+
+    /**
+     * Creates a state machine that walks a `BinaryExpression` using the heap to reduce call-stack depth on a large tree.
+     * @param onEnter Callback evaluated when entering a `BinaryExpression`. Returns new user-defined state to associate with the node while walking.
+     * @param onLeft Callback evaluated when walking the left side of a `BinaryExpression`. Return a `BinaryExpression` to continue walking, or `void` to advance to the right side.
+     * @param onRight Callback evaluated when walking the right side of a `BinaryExpression`. Return a `BinaryExpression` to continue walking, or `void` to advance to the end of the node.
+     * @param onExit Callback evaluated when exiting a `BinaryExpression`. The result returned will either be folded into the parent's state, or returned from the walker if at the top frame.
+     * @param foldState Callback evaluated when the result from a nested `onExit` should be folded into the state of that node's parent.
+     * @returns A function that walks a `BinaryExpression` node using the above callbacks, returning the result of the call to `onExit` from the outermost `BinaryExpression` node.
+     */
+     export function createBinaryExpressionTrampoline<TState, TResult>(
+        onEnter: (node: BinaryExpression, prev: TState | undefined) => TState,
+        onLeft: ((left: Expression, userState: TState, node: BinaryExpression) => BinaryExpression | void) | undefined,
+        onOperator: ((operatorToken: BinaryOperatorToken, userState: TState, node: BinaryExpression) => void) | undefined,
+        onRight: ((right: Expression, userState: TState, node: BinaryExpression) => BinaryExpression | void) | undefined,
+        onExit: (node: BinaryExpression, userState: TState) => TResult,
+        foldState: ((userState: TState, result: TResult, side: "left" | "right") => TState) | undefined,
+    ): (node: BinaryExpression) => TResult;
+    /**
+     * Creates a state machine that walks a `BinaryExpression` using the heap to reduce call-stack depth on a large tree.
+     * @param onEnter Callback evaluated when entering a `BinaryExpression`. Returns new user-defined state to associate with the node while walking.
+     * @param onLeft Callback evaluated when walking the left side of a `BinaryExpression`. Return a `BinaryExpression` to continue walking, or `void` to advance to the right side.
+     * @param onRight Callback evaluated when walking the right side of a `BinaryExpression`. Return a `BinaryExpression` to continue walking, or `void` to advance to the end of the node.
+     * @param onExit Callback evaluated when exiting a `BinaryExpression`. The result returned will either be folded into the parent's state, or returned from the walker if at the top frame.
+     * @param foldState Callback evaluated when the result from a nested `onExit` should be folded into the state of that node's parent.
+     * @returns A function that walks a `BinaryExpression` node using the above callbacks, returning the result of the call to `onExit` from the outermost `BinaryExpression` node.
+     */
+    export function createBinaryExpressionTrampoline<TOuterState, TState, TResult>(
+        onEnter: (node: BinaryExpression, prev: TState | undefined, outerState: TOuterState) => TState,
+        onLeft: ((left: Expression, userState: TState, node: BinaryExpression) => BinaryExpression | void) | undefined,
+        onOperator: ((operatorToken: BinaryOperatorToken, userState: TState, node: BinaryExpression) => void) | undefined,
+        onRight: ((right: Expression, userState: TState, node: BinaryExpression) => BinaryExpression | void) | undefined,
+        onExit: (node: BinaryExpression, userState: TState) => TResult,
+        foldState: ((userState: TState, result: TResult, side: "left" | "right") => TState) | undefined,
+    ): (node: BinaryExpression, outerState: TOuterState) => TResult;
+    export function createBinaryExpressionTrampoline<TOuterState, TState, TResult>(
+        onEnter: (node: BinaryExpression, prev: TState | undefined, outerState: TOuterState) => TState,
+        onLeft: ((left: Expression, userState: TState, node: BinaryExpression) => BinaryExpression | void) | undefined,
+        onOperator: ((operatorToken: BinaryOperatorToken, userState: TState, node: BinaryExpression) => void) | undefined,
+        onRight: ((right: Expression, userState: TState, node: BinaryExpression) => BinaryExpression | void) | undefined,
+        onExit: (node: BinaryExpression, userState: TState) => TResult,
+        foldState: ((userState: TState, result: TResult, side: "left" | "right") => TState) | undefined,
+    ) {
+        const machine = new BinaryExpressionStateMachine(onEnter, onLeft, onOperator, onRight, onExit, foldState);
+        return trampoline;
+
+        function trampoline(node: BinaryExpression, outerState?: TOuterState) {
+            const resultHolder: { value: TResult } = { value: undefined! };
+            const stateStack: BinaryExpressionState[] = [BinaryExpressionState.enter];
+            const nodeStack: BinaryExpression[] = [node];
+            const userStateStack: TState[] = [undefined!];
+            let stackIndex = 0;
+            while (stateStack[stackIndex] !== BinaryExpressionState.done) {
+                stackIndex = stateStack[stackIndex](machine, stackIndex, stateStack, nodeStack, userStateStack, resultHolder, outerState);
+            }
+            Debug.assertEqual(stackIndex, 0);
+            return resultHolder.value;
+        }
+    }
+
+    /**
+     * If `nodes` is not undefined, creates an empty `NodeArray` that preserves the `pos` and `end` of `nodes`.
+     * @internal
+     */
+    export function elideNodes<T extends Node>(factory: NodeFactory, nodes: NodeArray<T>): NodeArray<T>;
+    export function elideNodes<T extends Node>(factory: NodeFactory, nodes: NodeArray<T> | undefined): NodeArray<T> | undefined;
+    export function elideNodes<T extends Node>(factory: NodeFactory, nodes: NodeArray<T> | undefined): NodeArray<T> | undefined {
+        if (nodes === undefined) return undefined;
+        if (nodes.length === 0) return nodes;
+        return setTextRange(factory.createNodeArray([], nodes.hasTrailingComma), nodes);
+    }
+
+    /**
+     * Gets the node from which a name should be generated.
+     */
+    export function getNodeForGeneratedName(name: GeneratedIdentifier | GeneratedPrivateIdentifier) {
+        if (name.autoGenerateFlags & GeneratedIdentifierFlags.Node) {
+            const autoGenerateId = name.autoGenerateId;
+            let node = name as Node;
+            let original = node.original;
+            while (original) {
+                node = original;
+
+                // if "node" is a different generated name (having a different "autoGenerateId"), use it and stop traversing.
+                if (isMemberName(node)
+                    && !!(node.autoGenerateFlags! & GeneratedIdentifierFlags.Node)
+                    && node.autoGenerateId !== autoGenerateId) {
+                    break;
+                }
+
+                original = node.original;
+            }
+            // otherwise, return the original node for the source
+            return node;
+        }
+        return name;
+    }
+
+    /**
+     * Formats a prefix or suffix of a generated name.
+     */
+    export function formatGeneratedNamePart(part: string | undefined): string;
+    /**
+     * Formats a prefix or suffix of a generated name. If the part is a {@link GeneratedNamePart}, calls {@link generateName} to format the source node.
+     */
+    export function formatGeneratedNamePart(part: string | GeneratedNamePart | undefined, generateName: (name: GeneratedIdentifier | GeneratedPrivateIdentifier) => string): string;
+    export function formatGeneratedNamePart(part: string | GeneratedNamePart | undefined, generateName?: (name: GeneratedIdentifier | GeneratedPrivateIdentifier) => string): string {
+        return typeof part === "object" ? formatGeneratedName(/*privateName*/ false, part.prefix, part.node, part.suffix, generateName!) :
+            typeof part === "string" ? part.length > 0 && part.charCodeAt(0) === CharacterCodes.hash ? part.slice(1) : part :
+            "";
+    }
+
+    function formatIdentifier(name: string | Identifier | PrivateIdentifier, generateName?: (name: GeneratedIdentifier | GeneratedPrivateIdentifier) => string) {
+        return typeof name === "string" ? name :
+            formatIdentifierWorker(name, Debug.checkDefined(generateName));
+    }
+
+    function formatIdentifierWorker(node: Identifier | PrivateIdentifier, generateName: (name: GeneratedIdentifier | GeneratedPrivateIdentifier) => string) {
+        return isGeneratedPrivateIdentifier(node) ? generateName(node).slice(1) :
+            isGeneratedIdentifier(node) ? generateName(node) :
+            isPrivateIdentifier(node) ? (node.escapedText as string).slice(1) :
+            idText(node);
+    }
+
+    /**
+     * Formats a generated name.
+     * @param privateName When `true`, inserts a `#` character at the start of the result.
+     * @param prefix The prefix (if any) to include before the base name.
+     * @param baseName The base name for the generated name.
+     * @param suffix The suffix (if any) to include after the base name.
+     */
+    export function formatGeneratedName(privateName: boolean, prefix: string | undefined, baseName: string, suffix: string | undefined): string;
+    /**
+     * Formats a generated name.
+     * @param privateName When `true`, inserts a `#` character at the start of the result.
+     * @param prefix The prefix (if any) to include before the base name.
+     * @param baseName The base name for the generated name.
+     * @param suffix The suffix (if any) to include after the base name.
+     * @param generateName Called to format the source node of {@link prefix} when it is a {@link GeneratedNamePart}.
+     */
+    export function formatGeneratedName(privateName: boolean, prefix: string | GeneratedNamePart | undefined, baseName: string | Identifier | PrivateIdentifier, suffix: string | GeneratedNamePart | undefined, generateName: (name: GeneratedIdentifier | GeneratedPrivateIdentifier) => string): string;
+    export function formatGeneratedName(privateName: boolean, prefix: string | GeneratedNamePart | undefined, baseName: string | Identifier | PrivateIdentifier, suffix: string | GeneratedNamePart | undefined, generateName?: (name: GeneratedIdentifier | GeneratedPrivateIdentifier) => string) {
+        prefix = formatGeneratedNamePart(prefix, generateName!);
+        suffix = formatGeneratedNamePart(suffix, generateName!);
+        baseName = formatIdentifier(baseName, generateName);
+        return `${privateName ? "#" : ""}${prefix}${baseName}${suffix}`;
+    }
+
+
+    /**
+     * Creates a private backing field for an `accessor` {@link PropertyDeclaration}.
+     */
+    export function createAccessorPropertyBackingField(factory: NodeFactory, node: PropertyDeclaration, modifiers: ModifiersArray | undefined, initializer: Expression | undefined) {
+        return factory.updatePropertyDeclaration(
+            node,
+            modifiers,
+            factory.getGeneratedPrivateNameForNode(node.name, /*prefix*/ undefined, "_accessor_storage"),
+            /*questionOrExclamationToken*/ undefined,
+            /*type*/ undefined,
+            initializer
+        );
+    }
+
+    /**
+     * Creates a {@link GetAccessorDeclaration} that reads from a private backing field.
+     */
+    export function createAccessorPropertyGetRedirector(factory: NodeFactory, node: PropertyDeclaration, modifiers: ModifiersArray | undefined, name: PropertyName) {
+        return factory.createGetAccessorDeclaration(
+            modifiers,
+            name,
+            [],
+            /*type*/ undefined,
+            factory.createBlock([
+                factory.createReturnStatement(
+                    factory.createPropertyAccessExpression(
+                        factory.createThis(),
+                        factory.getGeneratedPrivateNameForNode(node.name, /*prefix*/ undefined, "_accessor_storage")
+                    )
+                )
+            ])
+        );
+    }
+
+    /**
+     * Creates a {@link SetAccessorDeclaration} that writes to a private backing field.
+     */
+    export function createAccessorPropertySetRedirector(factory: NodeFactory, node: PropertyDeclaration, modifiers: ModifiersArray | undefined, name: PropertyName) {
+        return factory.createSetAccessorDeclaration(
+            modifiers,
+            name,
+            [factory.createParameterDeclaration(
+                /*modifiers*/ undefined,
+                /*dotdotDotToken*/ undefined,
+                "value"
+            )],
+            factory.createBlock([
+                factory.createExpressionStatement(
+                    factory.createAssignment(
+                        factory.createPropertyAccessExpression(
+                            factory.createThis(),
+                            factory.getGeneratedPrivateNameForNode(node.name, /*prefix*/ undefined, "_accessor_storage")
+                        ),
+                        factory.createIdentifier("value")
+                    )
+                )
+            ])
+        );
     }
 }

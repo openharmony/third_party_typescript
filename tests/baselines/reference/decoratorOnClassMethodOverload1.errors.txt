@@ -6,7 +6,7 @@ tests/cases/conformance/decorators/class/method/decoratorOnClassMethodOverload1.
     
     class C {
         @dec
-        ~
+        ~~~~
 !!! error TS1249: A decorator can only decorate a method implementation, not an overload.
         method()
         method() { }

@@ -98,6 +98,7 @@ File '/user/username/projects/myproject/plugin-one/node_modules/plugin-two.ts' d
 File '/user/username/projects/myproject/plugin-one/node_modules/plugin-two.tsx' does not exist.
 File '/user/username/projects/myproject/plugin-one/node_modules/plugin-two.d.ts' does not exist.
 File '/user/username/projects/myproject/plugin-one/node_modules/plugin-two.ets' does not exist.
+File '/user/username/projects/myproject/plugin-one/node_modules/plugin-two.d.ets' does not exist.
 'package.json' does not have a 'typings' field.
 'package.json' does not have a 'types' field.
 'package.json' has 'main' field 'dist/commonjs/index.js' that references '/user/username/projects/myproject/plugin-one/node_modules/plugin-two/dist/commonjs/index.js'.
@@ -107,6 +108,7 @@ File '/user/username/projects/myproject/plugin-one/node_modules/plugin-two/dist/
 File '/user/username/projects/myproject/plugin-one/node_modules/plugin-two/dist/commonjs/index.js.tsx' does not exist.
 File '/user/username/projects/myproject/plugin-one/node_modules/plugin-two/dist/commonjs/index.js.d.ts' does not exist.
 File '/user/username/projects/myproject/plugin-one/node_modules/plugin-two/dist/commonjs/index.js.ets' does not exist.
+File '/user/username/projects/myproject/plugin-one/node_modules/plugin-two/dist/commonjs/index.js.d.ets' does not exist.
 File name '/user/username/projects/myproject/plugin-one/node_modules/plugin-two/dist/commonjs/index.js' has a '.js' extension - stripping it.
 File '/user/username/projects/myproject/plugin-one/node_modules/plugin-two/dist/commonjs/index.ts' does not exist.
 File '/user/username/projects/myproject/plugin-one/node_modules/plugin-two/dist/commonjs/index.tsx' does not exist.
@@ -122,6 +124,7 @@ File '/user/username/projects/myproject/plugin-one/node_modules/typescript-fsa.t
 File '/user/username/projects/myproject/plugin-one/node_modules/typescript-fsa.tsx' does not exist.
 File '/user/username/projects/myproject/plugin-one/node_modules/typescript-fsa.d.ts' does not exist.
 File '/user/username/projects/myproject/plugin-one/node_modules/typescript-fsa.ets' does not exist.
+File '/user/username/projects/myproject/plugin-one/node_modules/typescript-fsa.d.ets' does not exist.
 'package.json' does not have a 'typings' field.
 'package.json' does not have a 'types' field.
 'package.json' does not have a 'main' field.
@@ -141,6 +144,7 @@ File '/user/username/projects/myProject/plugin-two/node_modules/typescript-fsa.t
 File '/user/username/projects/myProject/plugin-two/node_modules/typescript-fsa.tsx' does not exist.
 File '/user/username/projects/myProject/plugin-two/node_modules/typescript-fsa.d.ts' does not exist.
 File '/user/username/projects/myProject/plugin-two/node_modules/typescript-fsa.ets' does not exist.
+File '/user/username/projects/myProject/plugin-two/node_modules/typescript-fsa.d.ets' does not exist.
 'package.json' does not have a 'typings' field.
 'package.json' does not have a 'types' field.
 'package.json' does not have a 'main' field.
@@ -159,7 +163,7 @@ plugin-one/node_modules/typescript-fsa/index.d.ts
   Imported via "typescript-fsa" from file 'plugin-one/index.ts' with packageId 'typescript-fsa/index.d.ts@3.0.0-beta-2'
   File redirects to file 'plugin-two/node_modules/typescript-fsa/index.d.ts'
 plugin-one/index.ts
-  Matched by include pattern '**/*' in 'plugin-one/tsconfig.json'
+  Matched by default include pattern '**/*'
 
 
 Program root files: ["/user/username/projects/myproject/plugin-one/index.ts"]
@@ -172,7 +176,7 @@ Program files::
 /user/username/projects/myproject/plugin-one/node_modules/typescript-fsa/index.d.ts
 /user/username/projects/myproject/plugin-one/index.ts
 
-WatchedFiles::
+PolledWatches::
 
 FsWatches::
 
@@ -185,7 +189,7 @@ exitCode:: ExitStatus.Success
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.actions = void 0;
 var typescript_fsa_1 = require("typescript-fsa"); // Include version of shared lib
-var action = typescript_fsa_1.actionCreatorFactory("somekey");
+var action = (0, typescript_fsa_1.actionCreatorFactory)("somekey");
 var featureOne = action("feature-one");
 exports.actions = { featureOne: featureOne };
 

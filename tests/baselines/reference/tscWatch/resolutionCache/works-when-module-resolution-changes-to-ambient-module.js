@@ -41,19 +41,23 @@ Semantic diagnostics in builder refreshed for::
 /a/lib/lib.d.ts
 /a/b/foo.ts
 
-WatchedFiles::
-/a/b/foo.ts:
-  {"fileName":"/a/b/foo.ts","pollingInterval":250}
-/a/lib/lib.d.ts:
-  {"fileName":"/a/lib/lib.d.ts","pollingInterval":250}
+Shape signatures in builder refreshed for::
+/a/lib/lib.d.ts (used version)
+/a/b/foo.ts (used version)
+
+PolledWatches::
+/a/b/node_modules:
+  {"pollingInterval":500}
+/a/b/node_modules/@types:
+  {"pollingInterval":500}
 
 FsWatches::
+/a/b/foo.ts:
+  {}
+/a/lib/lib.d.ts:
+  {}
 
 FsWatchesRecursive::
-/a/b/node_modules:
-  {"directoryName":"/a/b/node_modules","fallbackPollingInterval":500,"fallbackOptions":{"watchFile":"PriorityPollingInterval"}}
-/a/b/node_modules/@types:
-  {"directoryName":"/a/b/node_modules/@types","fallbackPollingInterval":500,"fallbackOptions":{"watchFile":"PriorityPollingInterval"}}
 
 exitCode:: ExitStatus.undefined
 
@@ -83,6 +87,9 @@ declare module "fs" {
 
 
 Output::
+sysLog:: /a/b/node_modules:: Changing watcher to PresentFileSystemEntryWatcher
+sysLog:: /a/b/node_modules/@types:: Changing watcher to PresentFileSystemEntryWatcher
+
 >> Screen clear
 [[90m12:00:27 AM[0m] File change detected. Starting incremental compilation...
 
@@ -102,19 +109,25 @@ Semantic diagnostics in builder refreshed for::
 /a/b/foo.ts
 /a/b/node_modules/@types/node/index.d.ts
 
-WatchedFiles::
-/a/b/foo.ts:
-  {"fileName":"/a/b/foo.ts","pollingInterval":250}
-/a/lib/lib.d.ts:
-  {"fileName":"/a/lib/lib.d.ts","pollingInterval":250}
-/a/b/node_modules/@types/node/index.d.ts:
-  {"fileName":"/a/b/node_modules/@types/node/index.d.ts","pollingInterval":250}
+Shape signatures in builder refreshed for::
+/a/b/foo.ts (computed .d.ts)
+/a/b/node_modules/@types/node/index.d.ts (used version)
+
+PolledWatches::
 
 FsWatches::
+/a/b/foo.ts:
+  {}
+/a/lib/lib.d.ts:
+  {}
+/a/b/node_modules/@types/node/index.d.ts:
+  {}
+/a/b/node_modules/@types/node/package.json:
+  {}
 
 FsWatchesRecursive::
 /a/b/node_modules/@types:
-  {"directoryName":"/a/b/node_modules/@types","fallbackPollingInterval":500,"fallbackOptions":{"watchFile":"PriorityPollingInterval"}}
+  {}
 
 exitCode:: ExitStatus.undefined
 

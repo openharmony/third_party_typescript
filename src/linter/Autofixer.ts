@@ -165,13 +165,13 @@ export function fixCtorParameterProperties(ctorDecl: ConstructorDeclaration, par
       const propIdent = factory.createIdentifier(param.name.text);
 
       const newFieldNode = factory.createPropertyDeclaration(
-        undefined, param.modifiers, propIdent, undefined, paramTypes[i], undefined
+        param.modifiers, propIdent, undefined, paramTypes[i], undefined
       );
       const newFieldText = printer.printNode(EmitHint.Unspecified, newFieldNode, ctorDecl.getSourceFile()) + "\n";
       autofixes[0].replacementText += newFieldText;
 
       const newParamDecl = factory.createParameterDeclaration(
-        undefined, undefined, undefined, param.name, param.questionToken, param.type, param.initializer
+        undefined, undefined, param.name, param.questionToken, param.type, param.initializer
       );
       const newParamText = printer.printNode(EmitHint.Unspecified, newParamDecl, ctorDecl.getSourceFile());
       autofixes.push({ start: param.getStart(), end: param.getEnd(), replacementText: newParamText });

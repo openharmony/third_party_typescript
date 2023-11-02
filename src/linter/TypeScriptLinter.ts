@@ -517,7 +517,7 @@ export class TypeScriptLinter {
     if (isArrayBindingPattern(tsParam.name) || isObjectBindingPattern(tsParam.name)) {
       this.incrementCounters(node, FaultID.DestructuringParameter);
     }
-    const tsParamMods = tsParam.modifiers;
+    const tsParamMods = ts.getModifiers(tsParam); //tsParam.modifiers;
     if (
       tsParamMods &&
       (Utils.hasModifier(tsParamMods, SyntaxKind.PublicKeyword) ||
@@ -527,7 +527,7 @@ export class TypeScriptLinter {
     ) {
       this.incrementCounters(node, FaultID.ParameterProperties);
     }
-    this.handleDecorators(tsParam.decorators);
+    this.handleDecorators(ts.getDecorators(tsParam));
 
     this.handleDeclarationInferredType(tsParam);
   }
@@ -635,7 +635,7 @@ export class TypeScriptLinter {
     const exprSym = Utils.trueSymbolAtLocation(propertyAccessNode);
     const baseExprSym = Utils.trueSymbolAtLocation(propertyAccessNode.expression);
     const baseExprType = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(propertyAccessNode.expression);
-    if (this.isPrototypePropertyAccess(propertyAccessNode, exprSym, baseExprSym, baseExprType)) { 
+    if (this.isPrototypePropertyAccess(propertyAccessNode, exprSym, baseExprSym, baseExprType)) {
       this.incrementCounters(propertyAccessNode.name, FaultID.Prototype);
     }
     if (!!exprSym && Utils.isSymbolAPI(exprSym) && !Utils.ALLOWED_STD_SYMBOL_API.includes(exprSym.getName())) {
@@ -672,7 +672,7 @@ export class TypeScriptLinter {
     }
 
     if (isPropertyDeclaration(node)) {
-      const decorators = node.decorators;
+      const decorators = ts.getDecorators(node);
       this.handleDecorators(decorators);
       this.filterOutDecoratorsDiagnostics(
           decorators,
@@ -680,7 +680,7 @@ export class TypeScriptLinter {
           { begin: propName.getStart(), end: propName.getStart() },
           Utils.PROPERTY_HAS_NO_INITIALIZER_ERROR_CODE
         );
-      const classDecorators = node.parent.decorators;
+      const classDecorators = ts.getDecorators(node.parent);
       const propType = (node as ts.PropertyDeclaration).type?.getText();
       this.filterOutDecoratorsDiagnostics(classDecorators, Utils.NON_INITIALIZABLE_PROPERTY_ClASS_DECORATORS,
         {begin: propName.getStart(), end: propName.getStart()}, Utils.PROPERTY_HAS_NO_INITIALIZER_ERROR_CODE, propType);
@@ -1143,7 +1143,7 @@ export class TypeScriptLinter {
       }
     }
 
-    this.handleDecorators(tsClassDecl.decorators);
+    this.handleDecorators(ts.getDecorators(tsClassDecl));
   }
 
   private handleModuleDeclaration(node: Node): void {
@@ -1255,8 +1255,8 @@ export class TypeScriptLinter {
     if (tsMethodDecl.asteriskToken) {
       this.incrementCounters(node, FaultID.GeneratorFunction);
     }
-    this.handleDecorators(tsMethodDecl.decorators);
-    this.filterOutDecoratorsDiagnostics(Utils.getDecorators(tsMethodDecl), Utils.NON_RETURN_FUNCTION_DECORATORS,
+    this.handleDecorators(ts.getDecorators(tsMethodDecl));
+    this.filterOutDecoratorsDiagnostics(ts.getDecorators(tsMethodDecl), Utils.NON_RETURN_FUNCTION_DECORATORS,
       { begin: tsMethodDecl.parameters.end, end: tsMethodDecl.body?.getStart() ?? tsMethodDecl.parameters.end },
       Utils.FUNCTION_HAS_NO_RETURN_ERROR_CODE);
   }
@@ -1466,7 +1466,7 @@ export class TypeScriptLinter {
       this.handleStructIdentAndUndefinedInArgs(tsCallExpr, callSignature);
     }
     this.handleLibraryTypeCall(tsCallExpr, calleeType);
-    
+
     if (ts.isPropertyAccessExpression(tsCallExpr.expression) && Utils.hasEsObjectType(tsCallExpr.expression.expression)) {
       this.incrementCounters(node, FaultID.EsObjectType);
     }
@@ -1832,11 +1832,11 @@ export class TypeScriptLinter {
   }
 
   private handleGetAccessor(node: Node) {
-    this.handleDecorators((node as GetAccessorDeclaration).decorators);
+    this.handleDecorators(ts.getDecorators(node as GetAccessorDeclaration));
   }
 
   private handleSetAccessor(node: Node) {
-    this.handleDecorators((node as SetAccessorDeclaration).decorators);
+    this.handleDecorators(ts.getDecorators(node as SetAccessorDeclaration));
   }
 
   private handleDeclarationInferredType(

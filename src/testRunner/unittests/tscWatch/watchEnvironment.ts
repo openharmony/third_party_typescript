@@ -66,6 +66,60 @@ namespace ts.tscWatch {
             ]
         });
 
+        verifyTscWatch({
+            scenario,
+            subScenario: "watchFile/using fixed chunk size polling",
+            commandLineArgs: ["-w", "-p", "/a/b/tsconfig.json"],
+            sys: () => {
+                const configFile: File = {
+                    path: "/a/b/tsconfig.json",
+                    content: JSON.stringify({
+                        watchOptions: {
+                            watchFile: "FixedChunkSizePolling"
+                        }
+                    })
+                };
+                const files = [libFile, commonFile1, commonFile2, configFile];
+                return createWatchedSystem(files);
+            },
+            changes: [
+                {
+                    caption: "The timeout is to check the status of all files",
+                    change: noop,
+                    timeouts: (sys, programs) => {
+                        // On each timeout file does not change
+                        const initialProgram = programs[0][0];
+                        for (let index = 0; index < 4; index++) {
+                            sys.checkTimeoutQueueLengthAndRun(1);
+                            assert.deepEqual(programs[0][0], initialProgram);
+                        }
+                    },
+                },
+                {
+                    caption: "Make change to file but should detect as changed and schedule program update",
+                    // Make a change to file
+                    change: sys => sys.writeFile(commonFile1.path, "var zz30 = 100;"),
+                    timeouts: checkSingleTimeoutQueueLengthAndRun,
+                },
+                {
+                    caption: "Callbacks: queue and scheduled program update",
+                    change: noop,
+                    // Callbacks: scheduled program update and queue for the polling
+                    timeouts: sys => sys.checkTimeoutQueueLengthAndRun(2),
+                },
+                {
+                    caption: "The timeout is to check the status of all files",
+                    change: noop,
+                    timeouts: (sys, programs) => {
+                        // On each timeout file does not change
+                        const initialProgram = programs[0][0];
+                        sys.checkTimeoutQueueLengthAndRun(1);
+                        assert.deepEqual(programs[0][0], initialProgram);
+                    },
+                },
+            ]
+        });
+
         describe("tsc-watch when watchDirectories implementation", () => {
             function verifyRenamingFileInSubFolder(subScenario: string, tscWatchDirectory: Tsc_WatchDirectory) {
                 const projectFolder = "/a/username/project";
@@ -496,6 +550,174 @@ namespace ts.tscWatch {
                 verifyWorker();
                 verifyWorker("-extendedDiagnostics");
             });
+        });
+
+        verifyTscWatch({
+            scenario,
+            subScenario: `fsWatch/when using file watching thats when rename occurs when file is still on the disk`,
+            commandLineArgs: ["-w", "--extendedDiagnostics"],
+            sys: () => createWatchedSystem(
+                {
+                    [libFile.path]: libFile.content,
+                    [`${projectRoot}/main.ts`]: `import { foo } from "./foo"; foo();`,
+                    [`${projectRoot}/foo.ts`]: `export declare function foo(): string;`,
+                    [`${projectRoot}/tsconfig.json`]: JSON.stringify({
+                        watchOptions: { watchFile: "useFsEvents" },
+                        files: ["foo.ts", "main.ts"]
+                    }),
+                },
+                { currentDirectory: projectRoot, }
+            ),
+            changes: [
+                {
+                    caption: "Introduce error such that when callback happens file is already appeared",
+                    // vm's wq generates this kind of event
+                    // Skip delete event so inode changes but when the create's rename occurs file is on disk
+                    change: sys => sys.modifyFile(`${projectRoot}/foo.ts`, `export declare function foo2(): string;`, {
+                        invokeFileDeleteCreateAsPartInsteadOfChange: true,
+                        ignoreDelete: true,
+                    }),
+                    timeouts: sys => sys.checkTimeoutQueueLengthAndRun(1),
+                },
+                {
+                    caption: "Replace file with rename event that fixes error",
+                    change: sys => sys.modifyFile(`${projectRoot}/foo.ts`, `export declare function foo(): string;`, { invokeFileDeleteCreateAsPartInsteadOfChange: true, }),
+                    timeouts: sys => sys.checkTimeoutQueueLengthAndRun(1),
+                },
+            ]
+        });
+
+        describe("with fsWatch on inodes", () => {
+            verifyTscWatch({
+                scenario,
+                subScenario: `fsWatch/when using file watching thats on inode`,
+                commandLineArgs: ["-w", "--extendedDiagnostics"],
+                sys: () => createWatchedSystem(
+                    {
+                        [libFile.path]: libFile.content,
+                        [`${projectRoot}/main.ts`]: `import { foo } from "./foo"; foo();`,
+                        [`${projectRoot}/foo.d.ts`]: `export function foo(): string;`,
+                        [`${projectRoot}/tsconfig.json`]: JSON.stringify({ watchOptions: { watchFile: "useFsEvents" }, files: ["foo.d.ts", "main.ts"] }),
+                    },
+                    {
+                        currentDirectory: projectRoot,
+                        inodeWatching: true
+                    }
+                ),
+                changes: [
+                    {
+                        caption: "Replace file with rename event that introduces error",
+                        change: sys => sys.modifyFile(`${projectRoot}/foo.d.ts`, `export function foo2(): string;`, { invokeFileDeleteCreateAsPartInsteadOfChange: true }),
+                        timeouts: sys => sys.checkTimeoutQueueLengthAndRun(2),
+                    },
+                    {
+                        caption: "Replace file with rename event that fixes error",
+                        change: sys => sys.modifyFile(`${projectRoot}/foo.d.ts`, `export function foo(): string;`, { invokeFileDeleteCreateAsPartInsteadOfChange: true }),
+                        timeouts: sys => sys.checkTimeoutQueueLengthAndRun(2),
+                    },
+                ]
+            });
+
+            verifyTscWatch({
+                scenario,
+                subScenario: `fsWatch/when using file watching thats on inode when rename event ends with tilde`,
+                commandLineArgs: ["-w", "--extendedDiagnostics"],
+                sys: () => createWatchedSystem(
+                    {
+                        [libFile.path]: libFile.content,
+                        [`${projectRoot}/main.ts`]: `import { foo } from "./foo"; foo();`,
+                        [`${projectRoot}/foo.d.ts`]: `export function foo(): string;`,
+                        [`${projectRoot}/tsconfig.json`]: JSON.stringify({ watchOptions: { watchFile: "useFsEvents" }, files: ["foo.d.ts", "main.ts"] }),
+                    },
+                    {
+                        currentDirectory: projectRoot,
+                        inodeWatching: true
+                    }
+                ),
+                changes: [
+                    {
+                        caption: "Replace file with rename event that introduces error",
+                        change: sys => sys.modifyFile(`${projectRoot}/foo.d.ts`, `export function foo2(): string;`, { invokeFileDeleteCreateAsPartInsteadOfChange: true, useTildeAsSuffixInRenameEventFileName: true }),
+                        timeouts: sys => sys.checkTimeoutQueueLengthAndRun(2),
+                    },
+                    {
+                        caption: "Replace file with rename event that fixes error",
+                        change: sys => sys.modifyFile(`${projectRoot}/foo.d.ts`, `export function foo(): string;`, { invokeFileDeleteCreateAsPartInsteadOfChange: true, useTildeAsSuffixInRenameEventFileName: true }),
+                        timeouts: sys => sys.checkTimeoutQueueLengthAndRun(2),
+                    },
+                ]
+            });
+
+            verifyTscWatch({
+                scenario,
+                subScenario: `fsWatch/when using file watching thats on inode when rename occurs when file is still on the disk`,
+                commandLineArgs: ["-w", "--extendedDiagnostics"],
+                sys: () => createWatchedSystem(
+                    {
+                        [libFile.path]: libFile.content,
+                        [`${projectRoot}/main.ts`]: `import { foo } from "./foo"; foo();`,
+                        [`${projectRoot}/foo.ts`]: `export declare function foo(): string;`,
+                        [`${projectRoot}/tsconfig.json`]: JSON.stringify({
+                            watchOptions: { watchFile: "useFsEvents" },
+                            files: ["foo.ts", "main.ts"]
+                        }),
+                    },
+                    {
+                        currentDirectory: projectRoot,
+                        inodeWatching: true,
+                    }
+                ),
+                changes: [
+                    {
+                        caption: "Introduce error such that when callback happens file is already appeared",
+                        // vm's wq generates this kind of event
+                        // Skip delete event so inode changes but when the create's rename occurs file is on disk
+                        change: sys => sys.modifyFile(`${projectRoot}/foo.ts`, `export declare function foo2(): string;`, {
+                            invokeFileDeleteCreateAsPartInsteadOfChange: true,
+                            ignoreDelete: true,
+                            skipInodeCheckOnCreate: true
+                        }),
+                        timeouts: sys => sys.checkTimeoutQueueLengthAndRun(1),
+                    },
+                    {
+                        caption: "Replace file with rename event that fixes error",
+                        change: sys => sys.modifyFile(`${projectRoot}/foo.ts`, `export declare function foo(): string;`, { invokeFileDeleteCreateAsPartInsteadOfChange: true, }),
+                        timeouts: sys => sys.checkTimeoutQueueLengthAndRun(1),
+                    },
+                ]
+            });
+        });
+
+        verifyTscWatch({
+            scenario,
+            subScenario: "fsEvent for change is repeated",
+            commandLineArgs: ["-w", "main.ts", "--extendedDiagnostics"],
+            sys: () => createWatchedSystem({
+                "/user/username/projects/project/main.ts": `let a: string = "Hello"`,
+                [libFile.path]: libFile.content,
+            }, { currentDirectory: "/user/username/projects/project" }),
+            changes: [
+                {
+                    caption: "change main.ts",
+                    change: sys => replaceFileText(sys, "/user/username/projects/project/main.ts", "Hello", "Hello World"),
+                    timeouts: sys => sys.runQueuedTimeoutCallbacks(),
+                },
+                {
+                    caption: "receive another change event without modifying the file",
+                    change: sys => sys.invokeFsWatches("/user/username/projects/project/main.ts", "change", /*modifiedTime*/ undefined, /*useTildeSuffix*/ undefined),
+                    timeouts: sys => sys.runQueuedTimeoutCallbacks(),
+                },
+                {
+                    caption: "change main.ts to empty text",
+                    change: sys => sys.writeFile("/user/username/projects/project/main.ts", ""),
+                    timeouts: sys => sys.runQueuedTimeoutCallbacks(),
+                },
+                {
+                    caption: "receive another change event without modifying the file",
+                    change: sys => sys.invokeFsWatches("/user/username/projects/project/main.ts", "change", /*modifiedTime*/ undefined, /*useTildeSuffix*/ undefined),
+                    timeouts: sys => sys.runQueuedTimeoutCallbacks(),
+                }
+            ]
         });
     });
 }

@@ -75,12 +75,12 @@ var testRecFun = function (parent) {
     return {
         result: parent,
         deeper: function (child) {
-            return exports.testRecFun(__assign(__assign({}, parent), child));
+            return (0, exports.testRecFun)(__assign(__assign({}, parent), child));
         }
     };
 };
 exports.testRecFun = testRecFun;
-var p1 = exports.testRecFun({ one: '1' });
+var p1 = (0, exports.testRecFun)({ one: '1' });
 void p1.result.one;
 var p2 = p1.deeper({ two: '2' });
 void p2.result.one;
@@ -92,8 +92,8 @@ void p3.result.three;
 
 
 //// [declarationsWithRecursiveInternalTypesProduceUniqueTypeParams.d.ts]
-export declare type Key<U> = keyof U;
-export declare type Value<K extends Key<U>, U> = U[K];
+export type Key<U> = keyof U;
+export type Value<K extends Key<U>, U> = U[K];
 export declare const updateIfChanged: <T>(t: T) => (<K extends keyof T>(key: K) => (<K_1 extends keyof Value<K, T>>(key: K_1) => (<K_2 extends keyof Value<K_1, Value<K, T>>>(key: K_2) => (<K_3 extends keyof Value<K_2, Value<K_1, Value<K, T>>>>(key: K_3) => (<K_4 extends keyof Value<K_3, Value<K_2, Value<K_1, Value<K, T>>>>>(key: K_4) => (<K_5 extends keyof Value<K_4, Value<K_3, Value<K_2, Value<K_1, Value<K, T>>>>>>(key: K_5) => (<K_6 extends keyof Value<K_5, Value<K_4, Value<K_3, Value<K_2, Value<K_1, Value<K, T>>>>>>>(key: K_6) => (<K_7 extends keyof Value<K_6, Value<K_5, Value<K_4, Value<K_3, Value<K_2, Value<K_1, Value<K, T>>>>>>>>(key: K_7) => (<K_8 extends keyof Value<K_7, Value<K_6, Value<K_5, Value<K_4, Value<K_3, Value<K_2, Value<K_1, Value<K, T>>>>>>>>>(key: K_8) => (<K_9 extends keyof Value<K_8, Value<K_7, Value<K_6, Value<K_5, Value<K_4, Value<K_3, Value<K_2, Value<K_1, Value<K, T>>>>>>>>>>(key: K_9) => (<K_10 extends keyof Value<K_9, Value<K_8, Value<K_7, Value<K_6, Value<K_5, Value<K_4, Value<K_3, Value<K_2, Value<K_1, Value<K, T>>>>>>>>>>>(key: K_10) => any & {
     map: (updater: (u: Value<K_10, Value<K_9, Value<K_8, Value<K_7, Value<K_6, Value<K_5, Value<K_4, Value<K_3, Value<K_2, Value<K_1, Value<K, T>>>>>>>>>>>) => Value<K_10, Value<K_9, Value<K_8, Value<K_7, Value<K_6, Value<K_5, Value<K_4, Value<K_3, Value<K_2, Value<K_1, Value<K, T>>>>>>>>>>>) => T;
     set: (newU: Value<K_10, Value<K_9, Value<K_8, Value<K_7, Value<K_6, Value<K_5, Value<K_4, Value<K_3, Value<K_2, Value<K_1, Value<K, T>>>>>>>>>>>) => T;

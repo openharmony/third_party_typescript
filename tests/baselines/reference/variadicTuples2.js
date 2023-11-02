@@ -134,10 +134,14 @@ const e1 = foo('blah1', 'blah2', 1, 2, 3);  // Error
 //// [variadicTuples2.js]
 "use strict";
 // Declarations
-var __spreadArray = (this && this.__spreadArray) || function (to, from) {
-    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
-        to[j] = from[i];
-    return to;
+var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
 };
 tt1 = [5];
 tt1 = ['abc', 5];
@@ -191,14 +195,14 @@ pipe("foo", 123, true, function () {
     }
     x; // [string, number, boolean]
 });
-pipe.apply(void 0, __spreadArray(__spreadArray([], sa), [function () {
+pipe.apply(void 0, __spreadArray(__spreadArray([], sa, false), [function () {
         var x = [];
         for (var _i = 0; _i < arguments.length; _i++) {
             x[_i] = arguments[_i];
         }
         x; // string[]
-    }]));
-pipe.apply(void 0, __spreadArray(__spreadArray([1], sa), [2, function () {
+    }], false));
+pipe.apply(void 0, __spreadArray(__spreadArray([1], sa, false), [2, function () {
         var x = [];
         for (var _i = 0; _i < arguments.length; _i++) {
             x[_i] = arguments[_i];
@@ -206,7 +210,7 @@ pipe.apply(void 0, __spreadArray(__spreadArray([1], sa), [2, function () {
         x; // [number, ...string[], number]
         var qq = x[x.length - 1];
         var ww = x[0];
-    }]));
+    }], false));
 pipe(1, 2, 3, 4); // Error
 pipe.apply(void 0, sa); // Error
 fn1([]); // Error
@@ -225,30 +229,30 @@ var e1 = foo('blah1', 'blah2', 1, 2, 3); // Error
 
 
 //// [variadicTuples2.d.ts]
-declare type V00 = [number, ...string[]];
-declare type V01 = [...string[], number];
-declare type V03 = [number, ...string[], number];
-declare type V10 = [number, ...string[], ...boolean[]];
-declare type V11 = [number, ...string[], boolean?];
-declare type V12 = [number, string?, boolean];
-declare type Tup3<T extends unknown[], U extends unknown[], V extends unknown[]> = [...T, ...U, ...V];
-declare type V20 = Tup3<[number], string[], [number]>;
-declare type V21 = Tup3<[number], [string?], [boolean]>;
-declare type V22 = Tup3<[number], string[], boolean[]>;
-declare type V23 = Tup3<[number], string[], [boolean?]>;
-declare type V24 = Tup3<[number], [boolean?], string[]>;
-declare type V25 = Tup3<string[], number[], boolean[]>;
-declare type V26 = Tup3<string[], number[], [boolean]>;
-declare type V27 = Tup3<[number?], [string], [boolean?]>;
-declare type V30<A extends unknown[]> = Tup3<A, string[], number[]>;
-declare type V31<A extends unknown[]> = Tup3<string[], A, number[]>;
-declare type V32<A extends unknown[]> = Tup3<string[], number[], A>;
-declare type V40<A extends unknown[]> = Tup3<A, [string?], number[]>;
-declare type V41<A extends unknown[]> = Tup3<[string?], A, number[]>;
-declare type V42<A extends unknown[]> = Tup3<[string?], number[], A>;
-declare type V50<A extends unknown[]> = Tup3<A, string[], [number?]>;
-declare type V51<A extends unknown[]> = Tup3<string[], A, [number?]>;
-declare type V52<A extends unknown[]> = Tup3<string[], [number?], A>;
+type V00 = [number, ...string[]];
+type V01 = [...string[], number];
+type V03 = [number, ...string[], number];
+type V10 = [number, ...string[], ...boolean[]];
+type V11 = [number, ...string[], boolean?];
+type V12 = [number, string?, boolean];
+type Tup3<T extends unknown[], U extends unknown[], V extends unknown[]> = [...T, ...U, ...V];
+type V20 = Tup3<[number], string[], [number]>;
+type V21 = Tup3<[number], [string?], [boolean]>;
+type V22 = Tup3<[number], string[], boolean[]>;
+type V23 = Tup3<[number], string[], [boolean?]>;
+type V24 = Tup3<[number], [boolean?], string[]>;
+type V25 = Tup3<string[], number[], boolean[]>;
+type V26 = Tup3<string[], number[], [boolean]>;
+type V27 = Tup3<[number?], [string], [boolean?]>;
+type V30<A extends unknown[]> = Tup3<A, string[], number[]>;
+type V31<A extends unknown[]> = Tup3<string[], A, number[]>;
+type V32<A extends unknown[]> = Tup3<string[], number[], A>;
+type V40<A extends unknown[]> = Tup3<A, [string?], number[]>;
+type V41<A extends unknown[]> = Tup3<[string?], A, number[]>;
+type V42<A extends unknown[]> = Tup3<[string?], number[], A>;
+type V50<A extends unknown[]> = Tup3<A, string[], [number?]>;
+type V51<A extends unknown[]> = Tup3<string[], A, [number?]>;
+type V52<A extends unknown[]> = Tup3<string[], [number?], A>;
 declare let tt1: [...string[], number];
 declare function ft1(...args: [...strs: string[], num: number]): void;
 declare let tt2: [number, ...string[], number];

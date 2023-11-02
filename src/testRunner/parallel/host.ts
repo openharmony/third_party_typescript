@@ -14,7 +14,7 @@ namespace Harness.Parallel.Host {
         const { statSync } = require("fs") as typeof import("fs");
 
         // NOTE: paths for module and types for FailedTestReporter _do not_ line up due to our use of --outFile for run.js
-        const FailedTestReporter = require(path.resolve(__dirname, "../../scripts/failed-tests")) as typeof import("../../../scripts/failed-tests");
+        const FailedTestReporter = require(Utils.findUpFile("scripts/failed-tests.cjs")) as typeof import("../../../scripts/failed-tests.cjs");
 
         const perfdataFileNameFragment = ".parallelperf";
         const perfData = readSavedPerfData(configOption);
@@ -45,7 +45,7 @@ namespace Harness.Parallel.Host {
             constructor(info: ErrorInfo | TestInfo) {
                 super(info.name[info.name.length - 1]);
                 this.info = info;
-                this.state = "error" in info ? "failed" : "passed"; // eslint-disable-line no-in-operator
+                this.state = "error" in info ? "failed" : "passed"; // eslint-disable-line local/no-in-operator
                 this.pending = false;
             }
         }
@@ -285,7 +285,7 @@ namespace Harness.Parallel.Host {
                 worker.process.on("message", (data: ParallelClientMessage) => {
                     switch (data.type) {
                         case "error": {
-                            console.error(`Test worker encounted unexpected error${data.payload.name ? ` during the execution of test ${data.payload.name}` : ""} and was forced to close:
+                            console.error(`Test worker encountered unexpected error${data.payload.name ? ` during the execution of test ${data.payload.name}` : ""} and was forced to close:
             Message: ${data.payload.error}
             Stack: ${data.payload.stack}`);
                             return process.exit(2);
@@ -512,7 +512,7 @@ namespace Harness.Parallel.Host {
                 function replayTest(runner: Mocha.Runner, test: RemoteTest) {
                     runner.emit("test", test);
                     if (test.isFailed()) {
-                        runner.emit("fail", test, "error" in test.info ? rebuildError(test.info) : new Error("Unknown error")); // eslint-disable-line no-in-operator
+                        runner.emit("fail", test, "error" in test.info ? rebuildError(test.info) : new Error("Unknown error")); // eslint-disable-line local/no-in-operator
                     }
                     else {
                         runner.emit("pass", test);
@@ -525,7 +525,7 @@ namespace Harness.Parallel.Host {
                 completeBar();
                 progressBars.disable();
 
-                const replayRunner = new Mocha.Runner(new Mocha.Suite(""), /*delay*/ false);
+                const replayRunner = new Mocha.Runner(new Mocha.Suite(""), { delay: false });
                 replayRunner.started = true;
                 const createStatsCollector = require("mocha/lib/stats-collector");
                 createStatsCollector(replayRunner); // manually init stats collector like mocha.run would
@@ -534,7 +534,7 @@ namespace Harness.Parallel.Host {
                 patchStats(consoleReporter.stats);
 
                 let xunitReporter: import("mocha").reporters.XUnit | undefined;
-                let failedTestReporter: import("../../../scripts/failed-tests") | undefined;
+                let failedTestReporter: import("../../../scripts/failed-tests.cjs") | undefined;
                 if (process.env.CI === "true") {
                     xunitReporter = new Mocha.reporters.XUnit(replayRunner, {
                         reporterOptions: {

@@ -12,4 +12,4 @@
 ////     build() {
 ////     }
 //// }
-verify.getSemanticDiagnostics([{message:  "The struct name cannot contain reserved tag name: 'Button'.", code: 28001}]);
+verify.getSemanticDiagnostics([{message:  "The struct name cannot contain reserved tag name: 'Button'.", code: 28006}]);

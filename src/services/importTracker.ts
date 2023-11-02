@@ -62,9 +62,11 @@ namespace ts.FindAllReferences {
             }
 
             // Module augmentations may use this module's exports without importing it.
-            for (const decl of exportingModuleSymbol.declarations) {
-                if (isExternalModuleAugmentation(decl) && sourceFilesSet.has(decl.getSourceFile().fileName)) {
-                    addIndirectUser(decl);
+            if (exportingModuleSymbol.declarations) {
+                for (const decl of exportingModuleSymbol.declarations) {
+                    if (isExternalModuleAugmentation(decl) && sourceFilesSet.has(decl.getSourceFile().fileName)) {
+                        addIndirectUser(decl);
+                    }
                 }
             }
 
@@ -135,7 +137,7 @@ namespace ts.FindAllReferences {
 
                         case SyntaxKind.ImportType:
                             // Only check for typeof import('xyz')
-                            if (direct.isTypeOf && !direct.qualifier && isExported(direct)) {
+                            if (!isAvailableThroughGlobal && direct.isTypeOf && !direct.qualifier && isExported(direct)) {
                                 addIndirectUser(direct.getSourceFile(), /** addTransitiveDependencies */ true);
                             }
                             directImports.push(direct);
@@ -156,7 +158,7 @@ namespace ts.FindAllReferences {
         function isExported(node: Node, stopAtAmbientModule = false) {
             return findAncestor(node, node => {
                 if (stopAtAmbientModule && isAmbientModuleDeclaration(node)) return "quit";
-                return some(node.modifiers, mod => mod.kind === SyntaxKind.ExportKeyword);
+                return canHaveModifiers(node) && some(node.modifiers, isExportModifier);
             });
         }
 
@@ -358,14 +360,14 @@ namespace ts.FindAllReferences {
         const checker = program.getTypeChecker();
         for (const referencingFile of sourceFiles) {
             const searchSourceFile = searchModuleSymbol.valueDeclaration;
-            if (searchSourceFile.kind === SyntaxKind.SourceFile) {
+            if (searchSourceFile?.kind === SyntaxKind.SourceFile) {
                 for (const ref of referencingFile.referencedFiles) {
                     if (program.getSourceFileFromReference(referencingFile, ref) === searchSourceFile) {
                         refs.push({ kind: "reference", referencingFile, ref });
                     }
                 }
                 for (const ref of referencingFile.typeReferenceDirectives) {
-                    const referenced = program.getResolvedTypeReferenceDirectives().get(ref.fileName);
+                    const referenced = program.getResolvedTypeReferenceDirectives().get(ref.fileName, ref.resolutionMode || referencingFile.impliedNodeFormat);
                     if (referenced !== undefined && referenced.resolvedFileName === (searchSourceFile as SourceFile).fileName) {
                         refs.push({ kind: "reference", referencingFile, ref });
                     }
@@ -463,13 +465,13 @@ namespace ts.FindAllReferences {
 
         function getExport(): ExportedSymbol | ImportedSymbol | undefined {
             const { parent } = node;
-            const grandParent = parent.parent;
+            const grandparent = parent.parent;
             if (symbol.exportSymbol) {
                 if (parent.kind === SyntaxKind.PropertyAccessExpression) {
                     // When accessing an export of a JS module, there's no alias. The symbol will still be flagged as an export even though we're at the use.
                     // So check that we are at the declaration.
-                    return symbol.declarations.some(d => d === parent) && isBinaryExpression(grandParent)
-                        ? getSpecialPropertyExport(grandParent, /*useLhsSymbol*/ false)
+                    return symbol.declarations?.some(d => d === parent) && isBinaryExpression(grandparent)
+                        ? getSpecialPropertyExport(grandparent, /*useLhsSymbol*/ false)
                         : undefined;
                 }
                 else {
@@ -500,26 +502,26 @@ namespace ts.FindAllReferences {
                     return getExportAssignmentExport(parent);
                 }
                 // If we are in `export = class A {};` (or `export = class A {};`) at `A`, `parent.parent` is the export assignment.
-                else if (isExportAssignment(grandParent)) {
-                    return getExportAssignmentExport(grandParent);
+                else if (isExportAssignment(grandparent)) {
+                    return getExportAssignmentExport(grandparent);
                 }
                 // Similar for `module.exports =` and `exports.A =`.
                 else if (isBinaryExpression(parent)) {
                     return getSpecialPropertyExport(parent, /*useLhsSymbol*/ true);
                 }
-                else if (isBinaryExpression(grandParent)) {
-                    return getSpecialPropertyExport(grandParent, /*useLhsSymbol*/ true);
+                else if (isBinaryExpression(grandparent)) {
+                    return getSpecialPropertyExport(grandparent, /*useLhsSymbol*/ true);
                 }
                 else if (isJSDocTypedefTag(parent)) {
                     return exportInfo(symbol, ExportKind.Named);
                 }
             }
 
-            function getExportAssignmentExport(ex: ExportAssignment): ExportedSymbol {
+            function getExportAssignmentExport(ex: ExportAssignment): ExportedSymbol | undefined {
                 // Get the symbol for the `export =` node; its parent is the module it's the export of.
-                const exportingModuleSymbol = Debug.checkDefined(ex.symbol.parent, "Expected export symbol to have a parent");
+                if (!ex.symbol.parent) return undefined;
                 const exportKind = ex.isExportEquals ? ExportKind.ExportEquals : ExportKind.Default;
-                return { kind: ImportExport.Export, symbol, exportInfo: { exportingModuleSymbol, exportKind } };
+                return { kind: ImportExport.Export, symbol, exportInfo: { exportingModuleSymbol: ex.symbol.parent, exportKind } };
             }
 
             function getSpecialPropertyExport(node: BinaryExpression, useLhsSymbol: boolean): ExportedSymbol | undefined {
@@ -553,6 +555,7 @@ namespace ts.FindAllReferences {
             // Similarly, skip past the symbol for 'export ='
             if (importedSymbol.escapedName === "export=") {
                 importedSymbol = getExportEqualsLocalSymbol(importedSymbol, checker);
+                if (importedSymbol === undefined) return undefined;
             }
 
             // If the import has a different name than the export, do not continue searching.
@@ -575,22 +578,22 @@ namespace ts.FindAllReferences {
         }
     }
 
-    function getExportEqualsLocalSymbol(importedSymbol: Symbol, checker: TypeChecker): Symbol {
+    function getExportEqualsLocalSymbol(importedSymbol: Symbol, checker: TypeChecker): Symbol | undefined {
         if (importedSymbol.flags & SymbolFlags.Alias) {
-            return Debug.checkDefined(checker.getImmediateAliasedSymbol(importedSymbol));
+            return checker.getImmediateAliasedSymbol(importedSymbol);
         }
 
-        const decl = importedSymbol.valueDeclaration;
+        const decl = Debug.checkDefined(importedSymbol.valueDeclaration);
         if (isExportAssignment(decl)) { // `export = class {}`
-            return Debug.checkDefined(decl.expression.symbol);
+            return decl.expression.symbol;
         }
         else if (isBinaryExpression(decl)) { // `module.exports = class {}`
-            return Debug.checkDefined(decl.right.symbol);
+            return decl.right.symbol;
         }
         else if (isSourceFile(decl)) { // json module
-            return Debug.checkDefined(decl.symbol);
+            return decl.symbol;
         }
-        return Debug.fail();
+        return undefined;
     }
 
     // If a reference is a class expression, the exported node would be its parent.
@@ -619,7 +622,7 @@ namespace ts.FindAllReferences {
                 Debug.assert((parent as ImportClause | NamespaceImport).name === node);
                 return true;
             case SyntaxKind.BindingElement:
-                return isInJSFile(node) && isRequireVariableDeclaration(parent, /*requireStringLiteralLikeArgument*/ true);
+                return isInJSFile(node) && isVariableDeclarationInitializedToBareOrAccessedRequire(parent.parent.parent);
             default:
                 return false;
         }
@@ -642,7 +645,8 @@ namespace ts.FindAllReferences {
                     return checker.getExportSpecifierLocalTargetSymbol(declaration)!;
                 }
                 else if (isPropertyAccessExpression(declaration) && isModuleExportsAccessExpression(declaration.expression) && !isPrivateIdentifier(declaration.name)) {
-                    return checker.getExportSpecifierLocalTargetSymbol(declaration.name)!;
+                    // Export of form 'module.exports.propName = expr';
+                    return checker.getSymbolAtLocation(declaration)!;
                 }
                 else if (isShorthandPropertyAssignment(declaration)
                     && isBinaryExpression(declaration.parent.parent)

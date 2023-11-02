@@ -46,15 +46,17 @@ Program files::
 
 No cached semantic diagnostics in the builder::
 
-WatchedFiles::
-/a/tsconfig.json:
-  {"fileName":"/a/tsconfig.json","pollingInterval":250}
+No shapes updated in the builder::
+
+PolledWatches::
 
 FsWatches::
+/a/tsconfig.json:
+  {}
 
 FsWatchesRecursive::
 /a/node_modules/@types:
-  {"directoryName":"/a/node_modules/@types","fallbackPollingInterval":500,"fallbackOptions":{"watchFile":"PriorityPollingInterval"}}
+  {}
 
 exitCode:: ExitStatus.undefined
 

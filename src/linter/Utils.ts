@@ -687,7 +687,7 @@ function hasReadonlyFields(type: Type): boolean {
       value.declarations !== undefined && value.declarations.length > 0 &&
       isPropertyDeclaration(value.declarations[0])
     ) {
-      const propmMods = value.declarations[0].modifiers; // TSC 4.2 doesn't have 'getModifiers()' method
+      const propmMods = ts.getModifiers(value.declarations[0] as ts.PropertyDeclaration);//value.declarations[0].modifiers; // TSC 4.2 doesn't have 'getModifiers()' method
       if (hasModifier(propmMods, SyntaxKind.ReadonlyKeyword)) {
         result = true;
         return;
@@ -724,7 +724,7 @@ function hasDefaultCtor(type: Type): boolean {
 function isAbstractClass(type: Type): boolean {
   if (type.isClass() && type.symbol.declarations && type.symbol.declarations.length > 0) {
     const declClass = type.symbol.declarations[0] as ClassDeclaration;
-    const classMods = declClass.modifiers; // TSC 4.2 doesn't have 'getModifiers()' method
+    const classMods = ts.getModifiers(declClass); //declClass.modifiers; // TSC 4.2 doesn't have 'getModifiers()' method
     if (hasModifier(classMods, SyntaxKind.AbstractKeyword)) {
       return true;
     }
@@ -857,7 +857,7 @@ function areTypesAssignable(lhsType: ts.Type, rhsType: ts.Type): boolean {
     }
     return res;
   }
-  
+
   if (lhsType.isUnion()) {
     for (const compType of lhsType.types) {
       if (areTypesAssignable(compType, rhsType)) {
@@ -880,7 +880,7 @@ function areTypesAssignable(lhsType: ts.Type, rhsType: ts.Type): boolean {
   if (isAnyType(lhsType) || isLibraryType(lhsType)) {
     return true;
   }
-  
+
   // If type is a literal type, compare its base type.
   lhsType = typeChecker.getBaseTypeOfLiteralType(lhsType);
   rhsType = typeChecker.getBaseTypeOfLiteralType(rhsType);
@@ -1030,11 +1030,13 @@ function validateRecordObjectKeys(objectLiteral: ObjectLiteralExpression): boole
   return true;
 }
 
+/* Not need in Tsc 4.9
 export function getDecorators(node: Node): readonly Decorator[] | undefined {
   if (node.decorators) {
     return filter(node.decorators, isDecorator);
   }
 }
+*/
 
 export enum CheckType {
   Array,
@@ -1155,9 +1157,8 @@ export function isSymbolIterator(symbol: ts.Symbol): boolean {
 export function isDefaultImport(importSpec: ImportSpecifier): boolean {
   return importSpec?.propertyName?.text === "default";
 }
-
 export function hasAccessModifier(decl: Declaration): boolean {
-  const modifiers = decl.modifiers; // TSC 4.2 doesn't have 'getModifiers()' method
+  const modifiers = ts.getModifiers(decl as HasModifiers); //decl.modifiers; // TSC 4.2 doesn't have 'getModifiers()' method
   return (
     !!modifiers &&
     (hasModifier(modifiers, SyntaxKind.PublicKeyword) ||

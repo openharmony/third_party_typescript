@@ -6,25 +6,21 @@ namespace ts.tscWatch {
                 scenario,
                 subScenario: `emit with outFile or out setting/${subScenario}`,
                 commandLineArgs: ["--w", "-p", "/a/tsconfig.json"],
-                sys: () => {
-                    const config: File = {
-                        path: "/a/tsconfig.json",
-                        content: JSON.stringify({ compilerOptions: { out, outFile } })
-                    };
-                    const f1: File = {
-                        path: "/a/a.ts",
-                        content: "let x = 1"
-                    };
-                    const f2: File = {
-                        path: "/a/b.ts",
-                        content: "let y = 1"
-                    };
-                    return createWatchedSystem([f1, f2, config, libFile]);
-                },
+                sys: () => createWatchedSystem({
+                    "/a/a.ts": "let x = 1",
+                    "/a/b.ts": "let y = 1",
+                    "/a/tsconfig.json": JSON.stringify({ compilerOptions: { out, outFile } }),
+                    [libFile.path]: libFile.content,
+                }),
                 changes: [
                     {
                         caption: "Make change in the file",
                         change: sys => sys.writeFile("/a/a.ts", "let x = 11"),
+                        timeouts: runQueuedTimeoutCallbacks
+                    },
+                    {
+                        caption: "Make change in the file again",
+                        change: sys => sys.writeFile("/a/a.ts", "let xy = 11"),
                         timeouts: runQueuedTimeoutCallbacks
                     }
                 ]
@@ -409,6 +405,11 @@ export var x = Foo();`
                 {
                     caption: "Append content to f1",
                     change: sys => sys.appendFile("/a/b/f1.ts", "export function foo2() { return 2; }"),
+                    timeouts: checkSingleTimeoutQueueLengthAndRun,
+                },
+                {
+                    caption: "Again Append content to f1",
+                    change: sys => sys.appendFile("/a/b/f1.ts", "export function fooN() { return 2; }"),
                     timeouts: checkSingleTimeoutQueueLengthAndRun,
                 }
             ],

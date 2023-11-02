@@ -20,7 +20,7 @@ Some search tips:
 ## 3. Do you have a question?
 
 The issue tracker is for **issues**, in other words, bugs and suggestions.
-If you have a *question*, please use [Stack Overflow](http://stackoverflow.com/questions/tagged/typescript), [Gitter](https://gitter.im/Microsoft/TypeScript), your favorite search engine, or other resources.
+If you have a *question*, please use [Stack Overflow](https://stackoverflow.com/questions/tagged/typescript), [Gitter](https://gitter.im/Microsoft/TypeScript), your favorite search engine, or other resources.
 Due to increased traffic, we can no longer answer questions in the issue tracker.
 
 ## 4. Did you find a bug?
@@ -65,14 +65,49 @@ In general, things we find useful when reviewing suggestions are:
 5. Change to the TypeScript folder you made: `cd TypeScript`
 6. Install dependencies: `npm ci`
 7. Make sure everything builds and tests pass: `gulp runtests-parallel`
-8. Open the Typescript folder in your editor.
+8. Open the TypeScript folder in your editor.
 9. Follow the directions below to add and debug a test.
 
+## Helpful tasks
+
+Running `gulp --tasks --depth 1` provides the full listing, but here are a few common tasks you might use.
+
+```
+gulp local             # Build the compiler into built/local.
+gulp clean             # Delete the built compiler.
+gulp LKG               # Replace the last known good with the built one.
+                       # Bootstrapping step to be executed when the built compiler reaches a stable state.
+gulp tests             # Build the test infrastructure using the built compiler.
+gulp runtests          # Run tests using the built compiler and test infrastructure.
+                       # You can override the specific suite runner used or specify a test for this command.
+                       # Use --tests=<testPath> for a specific test and/or --runner=<runnerName> for a specific suite.
+                       # Valid runners include conformance, compiler, fourslash, project, user, and docker
+                       # The user and docker runners are extended test suite runners - the user runner
+                       # works on disk in the tests/cases/user directory, while the docker runner works in containers.
+                       # You'll need to have the docker executable in your system path for the docker runner to work.
+gulp runtests-parallel # Like runtests, but split across multiple threads. Uses a number of threads equal to the system
+                       # core count by default. Use --workers=<number> to adjust this.
+gulp baseline-accept   # This replaces the baseline test results with the results obtained from gulp runtests.
+gulp lint              # Runs eslint on the TypeScript source.
+gulp help              # List the above commands.
+```
+
 ## Tips
+
+### Using a development container
+
+If you prefer to develop using containers, this repository includes a [development container](https://code.visualstudio.com/docs/remote/containers) that you can use to quickly create an isolated development environment with all the tools you need to start working on TypeScript. To get started with a dev container and VS Code, either:
+
+- Clone the TypeScript repository locally and use the `Open Folder in Container` command.
+- Use the `Clone Repository in Container Volume` command to clone the TypeScript repository into a new container.
 
 ### Faster clones
 
 The TypeScript repository is relatively large. To save some time, you might want to clone it without the repo's full history using `git clone --depth=1`.
+
+### Filename too long on Windows
+
+You might need to run `git config --global core.longpaths true` before cloning TypeScript on Windows.
 
 ### Using local builds
 
@@ -86,6 +121,14 @@ TypeScript is currently accepting contributions in the form of bug fixes. A bug 
 
 Features (things that add new or improved functionality to TypeScript) may be accepted, but will need to first be approved (labelled ["help wanted"](https://github.com/Microsoft/TypeScript/issues?q=is%3Aopen+is%3Aissue+label%3A%22help+wanted%22) or in the "Backlog" milestone) by a TypeScript project maintainer in the suggestion issue. Features with language design impact, or that are adequately satisfied with external tools, will not be accepted.
 
+## Issue claiming
+
+If you intend to work on an issue, please avoid leaving comments like "I'm going to work on this". There are a few reasons for this. These comments tend to [discourage anyone from working in the area](https://devblogs.microsoft.com/oldnewthing/20091201-00/?p=15843), yet many issues are much more difficult than they first appear, and you might find yourself trying to fix several issues before finding one that can be completed. Many issues have a long trail of people indicating that they're going to try to fix it, but no PR.
+
+Conversely, you do not need to ask anyone's permission before starting work on an issue marked as "help wanted". It's always fine to try! We ask that you choose issues tagged in the "Backlog" milestone as these are issues that we've identified as needing fixes / implementations.
+
+The sheer quantity of open issues, combined with their general difficulty, makes it extremely unlikely that you and another contributor are a) working on the same issue and b) both going to find a solution.
+
 ## Legal
 
 You will need to complete a Contributor License Agreement (CLA). Briefly, this agreement testifies that you are granting us permission to use the submitted change according to the terms of the project's license, and that the work being submitted is under appropriate copyright. Upon submitting a pull request, you will automatically be given instructions on how to sign the CLA.
@@ -95,13 +138,17 @@ You will need to complete a Contributor License Agreement (CLA). Briefly, this a
 Your pull request should:
 
 * Include a description of what your change intends to do
-* Be based on reasonably recent commit in the **master** branch
+* Be based on reasonably recent commit in the **main** branch
 * Include adequate tests
     * At least one test should fail in the absence of your non-test code changes. If your PR does not match this criteria, please specify why
     * Tests should include reasonable permutations of the target fix/change
     * Include baseline changes with your change
 * Follow the code conventions described in [Coding guidelines](https://github.com/Microsoft/TypeScript/wiki/Coding-guidelines)
 * To avoid line ending issues, set `autocrlf = input` and `whitespace = cr-at-eol` in your git configuration
+
+## Force-pushing
+
+Avoid force-pushing your changes, especially when updating your PR based on review feedback. Force-pushed changes are not easily viewable on GitHub, and not at all viewable if a force-push also rebases against main. TypeScript PRs are squash merged, so the specific commits on your PR branch do not matter, only the PR title itself. Don't worry about having a perfect commit history; instead focus on making your changes as easy to review and merge as possible.
 
 ## Contributing `lib.d.ts` fixes
 
@@ -111,7 +158,7 @@ There are three relevant locations to be aware of when it comes to TypeScript's 
 * `lib`: the location of the last-known-good (LKG) versions of the files which are updated periodically.
 * `built/local`: the build output location, including where `src/lib` files will be copied to.
 
-Any changes should be made to [src/lib](https://github.com/Microsoft/TypeScript/tree/master/src/lib). **Most** of these files can be updated by hand, with the exception of any generated files (see below).
+Any changes should be made to [src/lib](https://github.com/Microsoft/TypeScript/tree/main/src/lib). **Most** of these files can be updated by hand, with the exception of any generated files (see below).
 
 Library files in `built/local/` are updated automatically by running the standard build task:
 
@@ -124,6 +171,10 @@ The files in `lib/` are used to bootstrap compilation and usually **should not**
 ### Modifying generated library files
 
 The files `src/lib/dom.generated.d.ts` and `src/lib/webworker.generated.d.ts` both represent type declarations for the DOM and are auto-generated. To make any modifications to them, you will have to direct changes to https://github.com/Microsoft/TSJS-lib-generator
+
+## Documentation on TypeScript Compiler
+
+If you need a head start understanding how the compiler works, or how the code in different parts of the compiler works, there is a separate repo: [TypeScript Compiler Notes](https://github.com/microsoft/TypeScript-Compiler-Notes). As the name implies, it contains notes understood by different engineers about different parts of the compiler.
 
 ## Running the Tests
 
@@ -153,17 +204,17 @@ gulp runtests --tests=2dArrays
 
 ## Debugging the tests
 
-You can debug with VS Code or Node instead with `gulp runtests --inspect`:
+You can debug with VS Code or Node instead with `gulp runtests -i`:
 
 ```Shell
-gulp runtests --tests=2dArrays --inspect
+gulp runtests --tests=2dArrays -i
 ```
 
 You can also use the [provided VS Code launch configuration](./.vscode/launch.template.json) to launch a debug session for an open test file. Rename the file 'launch.json', open the test file of interest, and launch the debugger from the debug panel (or press F5).
 
 ## Adding a Test
 
-To add a new test case, add a `.ts` file in `tests\cases\compiler` with code that shows the your bug is now fixed, or your new feature now works.
+To add a new test case, add a `.ts` file in `tests\cases\compiler` with code that shows the bug is now fixed, or your new feature now works.
 
 These files support metadata tags in the format  `// @metaDataName: value`.
 The supported names and values are the same as those supported in the compiler itself, with the addition of the `fileName` flag.

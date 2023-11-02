@@ -19,6 +19,7 @@ namespace ts {
         warnAfter?: Version | string;
         errorAfter?: Version | string;
         typeScriptVersion?: Version | string;
+        name?: string;
     }
 
     export namespace Debug {
@@ -29,6 +30,7 @@ namespace ts {
         export let currentLogLevel = LogLevel.Warning;
         export let isDebugging = false;
         export let loggingHost: LoggingHost | undefined;
+        export let enableDeprecationWarnings = true;
         /* eslint-enable prefer-const */
 
         type AssertionKeys = MatchingKeys<typeof Debug, AnyFunction>;
@@ -112,8 +114,8 @@ namespace ts {
         export function fail(message?: string, stackCrawlMark?: AnyFunction): never {
             debugger;
             const e = new Error(message ? `Debug Failure. ${message}` : "Debug Failure.");
-            if ((<any>Error).captureStackTrace) {
-                (<any>Error).captureStackTrace(e, stackCrawlMark || fail);
+            if ((Error as any).captureStackTrace) {
+                (Error as any).captureStackTrace(e, stackCrawlMark || fail);
             }
             throw e;
         }
@@ -171,12 +173,6 @@ namespace ts {
             return value;
         }
 
-        /**
-         * @deprecated Use `checkDefined` to check whether a value is defined inline. Use `assertIsDefined` to check whether
-         * a value is defined at the statement level.
-         */
-        export const assertDefined = checkDefined;
-
         export function assertEachIsDefined<T extends Node>(value: NodeArray<T>, message?: string, stackCrawlMark?: AnyFunction): asserts value is NodeArray<T>;
         export function assertEachIsDefined<T>(value: readonly T[], message?: string, stackCrawlMark?: AnyFunction): asserts value is readonly NonNullable<T>[];
         export function assertEachIsDefined<T>(value: readonly T[], message?: string, stackCrawlMark?: AnyFunction) {
@@ -190,21 +186,17 @@ namespace ts {
             return value;
         }
 
-        /**
-         * @deprecated Use `checkEachDefined` to check whether the elements of an array are defined inline. Use `assertEachIsDefined` to check whether
-         * the elements of an array are defined at the statement level.
-         */
-        export const assertEachDefined = checkEachDefined;
-
         export function assertNever(member: never, message = "Illegal value:", stackCrawlMark?: AnyFunction): never {
-            const detail = typeof member === "object" && hasProperty(member, "kind") && hasProperty(member, "pos") && formatSyntaxKind ? "SyntaxKind: " + formatSyntaxKind((member as Node).kind) : JSON.stringify(member);
+            const detail = typeof member === "object" && hasProperty(member, "kind") && hasProperty(member, "pos") ? "SyntaxKind: " + formatSyntaxKind((member as Node).kind) : JSON.stringify(member);
             return fail(`${message} ${detail}`, stackCrawlMark || assertNever);
         }
 
         export function assertEachNode<T extends Node, U extends T>(nodes: NodeArray<T>, test: (node: T) => node is U, message?: string, stackCrawlMark?: AnyFunction): asserts nodes is NodeArray<U>;
         export function assertEachNode<T extends Node, U extends T>(nodes: readonly T[], test: (node: T) => node is U, message?: string, stackCrawlMark?: AnyFunction): asserts nodes is readonly U[];
+        export function assertEachNode<T extends Node, U extends T>(nodes: NodeArray<T> | undefined, test: (node: T) => node is U, message?: string, stackCrawlMark?: AnyFunction): asserts nodes is NodeArray<U> | undefined;
+        export function assertEachNode<T extends Node, U extends T>(nodes: readonly T[] | undefined, test: (node: T) => node is U, message?: string, stackCrawlMark?: AnyFunction): asserts nodes is readonly U[] | undefined;
         export function assertEachNode(nodes: readonly Node[], test: (node: Node) => boolean, message?: string, stackCrawlMark?: AnyFunction): void;
-        export function assertEachNode(nodes: readonly Node[], test: (node: Node) => boolean, message?: string, stackCrawlMark?: AnyFunction) {
+        export function assertEachNode(nodes: readonly Node[] | undefined, test: (node: Node) => boolean, message?: string, stackCrawlMark?: AnyFunction) {
             if (shouldAssertFunction(AssertionLevel.Normal, "assertEachNode")) {
                 assert(
                     test === undefined || every(nodes, test),
@@ -221,7 +213,7 @@ namespace ts {
                 assert(
                     node !== undefined && (test === undefined || test(node)),
                     message || "Unexpected node.",
-                    () => `Node ${formatSyntaxKind(node!.kind)} did not pass test '${getFunctionName(test!)}'.`,
+                    () => `Node ${formatSyntaxKind(node?.kind)} did not pass test '${getFunctionName(test!)}'.`,
                     stackCrawlMark || assertNode);
             }
         }
@@ -246,7 +238,7 @@ namespace ts {
                 assert(
                     test === undefined || node === undefined || test(node),
                     message || "Unexpected node.",
-                    () => `Node ${formatSyntaxKind(node!.kind)} did not pass test '${getFunctionName(test!)}'.`,
+                    () => `Node ${formatSyntaxKind(node?.kind)} did not pass test '${getFunctionName(test!)}'.`,
                     stackCrawlMark || assertOptionalNode);
             }
         }
@@ -259,7 +251,7 @@ namespace ts {
                 assert(
                     kind === undefined || node === undefined || node.kind === kind,
                     message || "Unexpected node.",
-                    () => `Node ${formatSyntaxKind(node!.kind)} was not a '${formatSyntaxKind(kind)}' token.`,
+                    () => `Node ${formatSyntaxKind(node?.kind)} was not a '${formatSyntaxKind(kind)}' token.`,
                     stackCrawlMark || assertOptionalToken);
             }
         }
@@ -275,12 +267,20 @@ namespace ts {
             }
         }
 
+        /**
+         * Asserts a value has the specified type in typespace only (does not perform a runtime assertion).
+         * This is useful in cases where we switch on `node.kind` and can be reasonably sure the type is accurate, and
+         * as a result can reduce the number of unnecessary casts.
+         */
+        export function type<T>(value: unknown): asserts value is T;
+        export function type(_value: unknown) { }
+
         export function getFunctionName(func: AnyFunction) {
             if (typeof func !== "function") {
                 return "";
             }
-            else if (func.hasOwnProperty("name")) {
-                return (<any>func).name;
+            else if (hasProperty(func, "name")) {
+                return (func as any).name;
             }
             else {
                 const text = Function.prototype.toString.call(func);
@@ -302,19 +302,19 @@ namespace ts {
                 return members.length > 0 && members[0][0] === 0 ? members[0][1] : "0";
             }
             if (isFlags) {
-                let result = "";
+                const result: string[] = [];
                 let remainingFlags = value;
                 for (const [enumValue, enumName] of members) {
                     if (enumValue > value) {
                         break;
                     }
                     if (enumValue !== 0 && enumValue & value) {
-                        result = `${result}${result ? "|" : ""}${enumName}`;
+                        result.push(enumName);
                         remainingFlags &= ~enumValue;
                     }
                 }
                 if (remainingFlags === 0) {
-                    return result;
+                    return result.join("|");
                 }
             }
             else {
@@ -327,7 +327,17 @@ namespace ts {
             return value.toString();
         }
 
+        const enumMemberCache = new Map<any, SortedReadonlyArray<[number, string]>>();
+
         function getEnumMembers(enumObject: any) {
+            // Assuming enum objects do not change at runtime, we can cache the enum members list
+            // to reuse later. This saves us from reconstructing this each and every time we call
+            // a formatting function (which can be expensive for large enums like SyntaxKind).
+            const existing = enumMemberCache.get(enumObject);
+            if (existing) {
+                return existing;
+            }
+
             const result: [number, string][] = [];
             for (const name in enumObject) {
                 const value = enumObject[name];
@@ -336,47 +346,69 @@ namespace ts {
                 }
             }
 
-            return stableSort<[number, string]>(result, (x, y) => compareValues(x[0], y[0]));
+            const sorted = stableSort<[number, string]>(result, (x, y) => compareValues(x[0], y[0]));
+            enumMemberCache.set(enumObject, sorted);
+            return sorted;
         }
 
         export function formatSyntaxKind(kind: SyntaxKind | undefined): string {
-            return formatEnum(kind, (<any>ts).SyntaxKind, /*isFlags*/ false);
+            return formatEnum(kind, (ts as any).SyntaxKind, /*isFlags*/ false);
+        }
+
+        export function formatSnippetKind(kind: SnippetKind | undefined): string {
+            return formatEnum(kind, (ts as any).SnippetKind, /*isFlags*/ false);
         }
 
         export function formatNodeFlags(flags: NodeFlags | undefined): string {
-            return formatEnum(flags, (<any>ts).NodeFlags, /*isFlags*/ true);
+            return formatEnum(flags, (ts as any).NodeFlags, /*isFlags*/ true);
         }
 
         export function formatModifierFlags(flags: ModifierFlags | undefined): string {
-            return formatEnum(flags, (<any>ts).ModifierFlags, /*isFlags*/ true);
+            return formatEnum(flags, (ts as any).ModifierFlags, /*isFlags*/ true);
         }
 
         export function formatTransformFlags(flags: TransformFlags | undefined): string {
-            return formatEnum(flags, (<any>ts).TransformFlags, /*isFlags*/ true);
+            return formatEnum(flags, (ts as any).TransformFlags, /*isFlags*/ true);
         }
 
         export function formatEmitFlags(flags: EmitFlags | undefined): string {
-            return formatEnum(flags, (<any>ts).EmitFlags, /*isFlags*/ true);
+            return formatEnum(flags, (ts as any).EmitFlags, /*isFlags*/ true);
         }
 
         export function formatSymbolFlags(flags: SymbolFlags | undefined): string {
-            return formatEnum(flags, (<any>ts).SymbolFlags, /*isFlags*/ true);
+            return formatEnum(flags, (ts as any).SymbolFlags, /*isFlags*/ true);
         }
 
         export function formatTypeFlags(flags: TypeFlags | undefined): string {
-            return formatEnum(flags, (<any>ts).TypeFlags, /*isFlags*/ true);
+            return formatEnum(flags, (ts as any).TypeFlags, /*isFlags*/ true);
         }
 
         export function formatSignatureFlags(flags: SignatureFlags | undefined): string {
-            return formatEnum(flags, (<any>ts).SignatureFlags, /*isFlags*/ true);
+            return formatEnum(flags, (ts as any).SignatureFlags, /*isFlags*/ true);
         }
 
         export function formatObjectFlags(flags: ObjectFlags | undefined): string {
-            return formatEnum(flags, (<any>ts).ObjectFlags, /*isFlags*/ true);
+            return formatEnum(flags, (ts as any).ObjectFlags, /*isFlags*/ true);
         }
 
         export function formatFlowFlags(flags: FlowFlags | undefined): string {
-            return formatEnum(flags, (<any>ts).FlowFlags, /*isFlags*/ true);
+            return formatEnum(flags, (ts as any).FlowFlags, /*isFlags*/ true);
+        }
+
+        export function formatRelationComparisonResult(result: RelationComparisonResult | undefined): string {
+            return formatEnum(result, (ts as any).RelationComparisonResult, /*isFlags*/ true);
+        }
+
+        export function formatCheckMode(mode: CheckMode | undefined): string {
+            return formatEnum(mode, (ts as any).CheckMode, /*isFlags*/ true);
+        }
+
+        export function formatSignatureCheckMode(mode: SignatureCheckMode | undefined): string {
+            return formatEnum(mode, (ts as any).SignatureCheckMode, /*isFlags*/ true);
+        }
+
+        export function formatTypeFacts(facts: TypeFacts | undefined): string {
+            return formatEnum(facts, (ts as any).TypeFacts, /*isFlags*/ true);
         }
 
         let isDebugInfoEnabled = false;
@@ -407,7 +439,7 @@ namespace ts {
         let flowNodeProto: FlowNodeBase | undefined;
 
         function attachFlowNodeDebugInfoWorker(flowNode: FlowNodeBase) {
-            if (!("__debugFlowFlags" in flowNode)) { // eslint-disable-line no-in-operator
+            if (!("__debugFlowFlags" in flowNode)) { // eslint-disable-line local/no-in-operator
                 Object.defineProperties(flowNode, {
                     // for use with vscode-js-debug's new customDescriptionGenerator in launch.json
                     __tsDebuggerDisplay: {
@@ -456,13 +488,16 @@ namespace ts {
         let nodeArrayProto: NodeArray<Node> | undefined;
 
         function attachNodeArrayDebugInfoWorker(array: NodeArray<Node>) {
-            if (!("__tsDebuggerDisplay" in array)) { // eslint-disable-line no-in-operator
+            if (!("__tsDebuggerDisplay" in array)) { // eslint-disable-line local/no-in-operator
                 Object.defineProperties(array, {
                     __tsDebuggerDisplay: {
                         value(this: NodeArray<Node>, defaultValue: string) {
                             // An `Array` with extra properties is rendered as `[A, B, prop1: 1, prop2: 2]`. Most of
                             // these aren't immediately useful so we trim off the `prop1: ..., prop2: ...` part from the
                             // formatted string.
+                            // This regex can trigger slow backtracking because of overlapping potential captures.
+                            // We don't care, this is debug code that's only enabled with a debugger attached -
+                            // we're just taking note of it for anyone checking regex performance in the future.
                             defaultValue = String(defaultValue).replace(/(?:,[\s\w\d_]+:[^,]+)+\]$/, "]");
                             return `NodeArray ${defaultValue}`;
                         }
@@ -562,7 +597,7 @@ namespace ts {
                     }
                 },
                 __debugFlags: { get(this: Type) { return formatTypeFlags(this.flags); } },
-                __debugObjectFlags: { get(this: Type) { return this.flags & TypeFlags.Object ? formatObjectFlags((<ObjectType>this).objectFlags) : ""; } },
+                __debugObjectFlags: { get(this: Type) { return this.flags & TypeFlags.Object ? formatObjectFlags((this as ObjectType).objectFlags) : ""; } },
                 __debugTypeToString: {
                     value(this: Type) {
                         // avoid recomputing
@@ -590,7 +625,7 @@ namespace ts {
             ];
 
             for (const ctor of nodeConstructors) {
-                if (!ctor.prototype.hasOwnProperty("__debugKind")) {
+                if (!hasProperty(ctor.prototype, "__debugKind")) {
                     Object.defineProperties(ctor.prototype, {
                         // for use with vscode-js-debug's new customDescriptionGenerator in launch.json
                         __tsDebuggerDisplay: {
@@ -651,7 +686,7 @@ namespace ts {
                                 if (text === undefined) {
                                     const parseNode = getParseTreeNode(this);
                                     const sourceFile = parseNode && getSourceFileOfNode(parseNode);
-                                    text = sourceFile ? getSourceTextOfNodeFromSourceFile(sourceFile, parseNode!, includeTrivia) : "";
+                                    text = sourceFile ? getSourceTextOfNodeFromSourceFile(sourceFile, parseNode, includeTrivia) : "";
                                     map?.set(this, text);
                                 }
                                 return text;
@@ -698,16 +733,16 @@ namespace ts {
         function createWarningDeprecation(name: string, errorAfter: Version | undefined, since: Version | undefined, message: string | undefined) {
             let hasWrittenDeprecation = false;
             return () => {
-                if (!hasWrittenDeprecation) {
+                if (enableDeprecationWarnings && !hasWrittenDeprecation) {
                     log.warn(formatDeprecationMessage(name, /*error*/ false, errorAfter, since, message));
                     hasWrittenDeprecation = true;
                 }
             };
         }
 
-        function createDeprecation(name: string, options: DeprecationOptions & { error: true }): () => never;
-        function createDeprecation(name: string, options?: DeprecationOptions): () => void;
-        function createDeprecation(name: string, options: DeprecationOptions = {}) {
+        export function createDeprecation(name: string, options: DeprecationOptions & { error: true }): () => never;
+        export function createDeprecation(name: string, options?: DeprecationOptions): () => void;
+        export function createDeprecation(name: string, options: DeprecationOptions = {}) {
             const version = typeof options.typeScriptVersion === "string" ? new Version(options.typeScriptVersion) : options.typeScriptVersion ?? getTypeScriptVersion();
             const errorAfter = typeof options.errorAfter === "string" ? new Version(options.errorAfter) : options.errorAfter;
             const warnAfter = typeof options.warnAfter === "string" ? new Version(options.warnAfter) : options.warnAfter;
@@ -727,8 +762,56 @@ namespace ts {
         }
 
         export function deprecate<F extends (...args: any[]) => any>(func: F, options?: DeprecationOptions): F {
-            const deprecation = createDeprecation(getFunctionName(func), options);
+            const deprecation = createDeprecation(options?.name ?? getFunctionName(func), options);
             return wrapFunction(deprecation, func);
+        }
+
+        export function formatVariance(varianceFlags: VarianceFlags) {
+            const variance = varianceFlags & VarianceFlags.VarianceMask;
+            let result =
+                variance === VarianceFlags.Invariant ? "in out" :
+                variance === VarianceFlags.Bivariant ? "[bivariant]" :
+                variance === VarianceFlags.Contravariant ? "in" :
+                variance === VarianceFlags.Covariant ? "out" :
+                variance === VarianceFlags.Independent ? "[independent]" : "";
+            if (varianceFlags & VarianceFlags.Unmeasurable) {
+                result += " (unmeasurable)";
+            }
+            else if (varianceFlags & VarianceFlags.Unreliable) {
+                result += " (unreliable)";
+            }
+            return result;
+        }
+
+        export type DebugType = Type & { __debugTypeToString(): string }; // eslint-disable-line @typescript-eslint/naming-convention
+        export class DebugTypeMapper {
+            declare kind: TypeMapKind;
+            __debugToString(): string { // eslint-disable-line @typescript-eslint/naming-convention
+                type<TypeMapper>(this);
+                switch (this.kind) {
+                    case TypeMapKind.Function: return this.debugInfo?.() || "(function mapper)";
+                    case TypeMapKind.Simple: return `${(this.source as DebugType).__debugTypeToString()} -> ${(this.target as DebugType).__debugTypeToString()}`;
+                    case TypeMapKind.Array: return zipWith<DebugType, DebugType | string, unknown>(
+                        this.sources as readonly DebugType[],
+                        this.targets as readonly DebugType[] || map(this.sources, () => "any"),
+                        (s, t) => `${s.__debugTypeToString()} -> ${typeof t === "string" ? t : t.__debugTypeToString()}`).join(", ");
+                    case TypeMapKind.Deferred: return zipWith(
+                        this.sources,
+                        this.targets,
+                        (s, t) => `${(s as DebugType).__debugTypeToString()} -> ${(t() as DebugType).__debugTypeToString()}`).join(", ");
+                    case TypeMapKind.Merged:
+                    case TypeMapKind.Composite: return `m1: ${(this.mapper1 as unknown as DebugTypeMapper).__debugToString().split("\n").join("\n    ")}
+m2: ${(this.mapper2 as unknown as DebugTypeMapper).__debugToString().split("\n").join("\n    ")}`;
+                    default: return assertNever(this);
+                }
+            }
+        }
+
+        export function attachDebugPrototypeIfDebug(mapper: TypeMapper): TypeMapper {
+            if (isDebugging) {
+                return Object.setPrototypeOf(mapper, DebugTypeMapper.prototype);
+            }
+            return mapper;
         }
     }
 }

@@ -170,5 +170,5 @@ cookBookTag[147] = "No dependencies on TypeScript code are currently allowed (ar
 cookBookTag[148] = "No decorators except ArkUI decorators are currently allowed (arkts-no-decorators-except-arkui)";
 cookBookTag[149] = "Classes cannot be used as objects (arkts-no-classes-as-obj)";
 cookBookTag[150] = "\"import\" statements after other statements are not allowed (arkts-no-misplaced-imports)";
-cookBookTag[151] = 'Usage of "ESObject" type is restricted (arkts-limited-esobject)';
+cookBookTag[151] = 'Usage of "ESObject" type is restricted (arkts-limited-esobj)';
 }
