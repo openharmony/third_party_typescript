@@ -35,6 +35,8 @@ import ARGUMENT_OF_TYPE_0_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_ERROR_CODE =
       LibraryTypeCallDiagnosticCheckerNamespace.ARGUMENT_OF_TYPE_0_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_ERROR_CODE;
 import TYPE_0_IS_NOT_ASSIGNABLE_TO_TYPE_1_ERROR_CODE =
       LibraryTypeCallDiagnosticCheckerNamespace.TYPE_0_IS_NOT_ASSIGNABLE_TO_TYPE_1_ERROR_CODE;
+import NO_OVERLOAD_MATCHES_THIS_CALL_ERROR_CODE =
+      LibraryTypeCallDiagnosticCheckerNamespace.NO_OVERLOAD_MATCHES_THIS_CALL_ERROR_CODE;
 import LibraryTypeCallDiagnosticChecker =
       LibraryTypeCallDiagnosticCheckerNamespace.LibraryTypeCallDiagnosticChecker;
 
@@ -1294,7 +1296,9 @@ export class TypeScriptLinter {
 
     if (isCallExpression(ctx.parent) || isNewExpression(ctx.parent)) {
       const callee = ctx.parent.expression;
-      if (callee !== ctx && Utils.hasLibraryType(callee)) {
+      const isAny = Utils.isAnyType(TypeScriptLinter.tsTypeChecker.getTypeAtLocation(callee));
+      const isDynamic = isAny || Utils.hasLibraryType(callee);
+      if (callee !== ctx && isDynamic) {
         return true;
       }
     }
@@ -1344,8 +1348,7 @@ export class TypeScriptLinter {
       // treat TypeQuery as valid because it's already forbidden (FaultID.TypeQuery)
       (isTypeNode(parent) && !isTypeOfExpression(parent)) ||
       // ElementAccess is allowed for enum types
-      (isElementAccessExpression(parent)
-        && (parent as ElementAccessExpression).expression == ident && (tsSym.flags & SymbolFlags.Enum)) ||
+      this.isEnumPropAccess(ident, tsSym, parent) ||
       isExpressionWithTypeArguments(parent) ||
       isExportAssignment(parent) ||
       isExportSpecifier(parent) ||
@@ -1367,6 +1370,12 @@ export class TypeScriptLinter {
         qualifiedStart.parent.operatorToken.kind ===
         SyntaxKind.InstanceOfKeyword)
     );
+  }
+
+  private isEnumPropAccess(ident: ts.Identifier, tsSym: ts.Symbol, context: ts.Node): boolean {
+    return ts.isElementAccessExpression(context) && !!(tsSym.flags & ts.SymbolFlags.Enum) &&
+      (context.expression == ident ||
+        (ts.isPropertyAccessExpression(context.expression) && context.expression.name == ident));
   }
 
   private handleElementAccessExpression(node: Node): void {
@@ -1639,6 +1648,9 @@ export class TypeScriptLinter {
 
     this.filterStrictDiagnostics({
         [ARGUMENT_OF_TYPE_0_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_ERROR_CODE]: (pos: number) => {
+          return this.checkInRange([{begin: callExpr.pos, end: callExpr.end}], pos);
+        },
+        [NO_OVERLOAD_MATCHES_THIS_CALL_ERROR_CODE]: (pos: number) => {
           return this.checkInRange([{begin: callExpr.pos, end: callExpr.end}], pos);
         },
         [TYPE_0_IS_NOT_ASSIGNABLE_TO_TYPE_1_ERROR_CODE]: (pos: number) => {
