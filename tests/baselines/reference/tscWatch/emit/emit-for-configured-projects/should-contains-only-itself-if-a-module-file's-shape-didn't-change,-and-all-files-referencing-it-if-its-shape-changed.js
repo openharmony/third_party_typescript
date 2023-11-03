@@ -59,29 +59,37 @@ Semantic diagnostics in builder refreshed for::
 /a/b/globalFile3.ts
 /a/b/moduleFile2.ts
 
-WatchedFiles::
-/a/b/tsconfig.json:
-  {"fileName":"/a/b/tsconfig.json","pollingInterval":250}
-/a/b/file1consumer1.ts:
-  {"fileName":"/a/b/file1Consumer1.ts","pollingInterval":250}
-/a/b/modulefile1.ts:
-  {"fileName":"/a/b/moduleFile1.ts","pollingInterval":250}
-/a/b/file1consumer2.ts:
-  {"fileName":"/a/b/file1Consumer2.ts","pollingInterval":250}
-/a/b/globalfile3.ts:
-  {"fileName":"/a/b/globalFile3.ts","pollingInterval":250}
-/a/b/modulefile2.ts:
-  {"fileName":"/a/b/moduleFile2.ts","pollingInterval":250}
-/a/lib/lib.d.ts:
-  {"fileName":"/a/lib/lib.d.ts","pollingInterval":250}
+Shape signatures in builder refreshed for::
+/a/lib/lib.d.ts (used version)
+/a/b/modulefile1.ts (used version)
+/a/b/file1consumer1.ts (used version)
+/a/b/file1consumer2.ts (used version)
+/a/b/globalfile3.ts (used version)
+/a/b/modulefile2.ts (used version)
+
+PolledWatches::
+/a/b/node_modules/@types:
+  {"pollingInterval":500}
 
 FsWatches::
+/a/b/tsconfig.json:
+  {}
+/a/b/file1consumer1.ts:
+  {}
+/a/b/modulefile1.ts:
+  {}
+/a/b/file1consumer2.ts:
+  {}
+/a/b/globalfile3.ts:
+  {}
+/a/b/modulefile2.ts:
+  {}
+/a/lib/lib.d.ts:
+  {}
 
 FsWatchesRecursive::
-/a/b/node_modules/@types:
-  {"directoryName":"/a/b/node_modules/@types","fallbackPollingInterval":500,"fallbackOptions":{"watchFile":"PriorityPollingInterval"}}
 /a/b:
-  {"directoryName":"/a/b","fallbackPollingInterval":500,"fallbackOptions":{"watchFile":"PriorityPollingInterval"}}
+  {}
 
 exitCode:: ExitStatus.undefined
 
@@ -149,29 +157,34 @@ Semantic diagnostics in builder refreshed for::
 /a/b/file1Consumer1.ts
 /a/b/file1Consumer2.ts
 
-WatchedFiles::
-/a/b/tsconfig.json:
-  {"fileName":"/a/b/tsconfig.json","pollingInterval":250}
-/a/b/file1consumer1.ts:
-  {"fileName":"/a/b/file1Consumer1.ts","pollingInterval":250}
-/a/b/modulefile1.ts:
-  {"fileName":"/a/b/moduleFile1.ts","pollingInterval":250}
-/a/b/file1consumer2.ts:
-  {"fileName":"/a/b/file1Consumer2.ts","pollingInterval":250}
-/a/b/globalfile3.ts:
-  {"fileName":"/a/b/globalFile3.ts","pollingInterval":250}
-/a/b/modulefile2.ts:
-  {"fileName":"/a/b/moduleFile2.ts","pollingInterval":250}
-/a/lib/lib.d.ts:
-  {"fileName":"/a/lib/lib.d.ts","pollingInterval":250}
+Shape signatures in builder refreshed for::
+/a/b/modulefile1.ts (computed .d.ts)
+/a/b/file1consumer2.ts (computed .d.ts)
+/a/b/file1consumer1.ts (computed .d.ts)
+
+PolledWatches::
+/a/b/node_modules/@types:
+  {"pollingInterval":500}
 
 FsWatches::
+/a/b/tsconfig.json:
+  {}
+/a/b/file1consumer1.ts:
+  {}
+/a/b/modulefile1.ts:
+  {}
+/a/b/file1consumer2.ts:
+  {}
+/a/b/globalfile3.ts:
+  {}
+/a/b/modulefile2.ts:
+  {}
+/a/lib/lib.d.ts:
+  {}
 
 FsWatchesRecursive::
-/a/b/node_modules/@types:
-  {"directoryName":"/a/b/node_modules/@types","fallbackPollingInterval":500,"fallbackOptions":{"watchFile":"PriorityPollingInterval"}}
 /a/b:
-  {"directoryName":"/a/b","fallbackPollingInterval":500,"fallbackOptions":{"watchFile":"PriorityPollingInterval"}}
+  {}
 
 exitCode:: ExitStatus.undefined
 
@@ -198,7 +211,7 @@ Output::
 >> Screen clear
 [[90m12:00:52 AM[0m] File change detected. Starting incremental compilation...
 
-[96ma/b/moduleFile1.ts[0m:[93m1[0m:[93m46[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the `lib` compiler option to include 'dom'.
+[96ma/b/moduleFile1.ts[0m:[93m1[0m:[93m46[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
 
 [7m1[0m export var T: number;export function Foo() { console.log('hi'); };
 [7m [0m [91m                                             ~~~~~~~[0m
@@ -221,29 +234,32 @@ Program files::
 Semantic diagnostics in builder refreshed for::
 /a/b/moduleFile1.ts
 
-WatchedFiles::
-/a/b/tsconfig.json:
-  {"fileName":"/a/b/tsconfig.json","pollingInterval":250}
-/a/b/file1consumer1.ts:
-  {"fileName":"/a/b/file1Consumer1.ts","pollingInterval":250}
-/a/b/modulefile1.ts:
-  {"fileName":"/a/b/moduleFile1.ts","pollingInterval":250}
-/a/b/file1consumer2.ts:
-  {"fileName":"/a/b/file1Consumer2.ts","pollingInterval":250}
-/a/b/globalfile3.ts:
-  {"fileName":"/a/b/globalFile3.ts","pollingInterval":250}
-/a/b/modulefile2.ts:
-  {"fileName":"/a/b/moduleFile2.ts","pollingInterval":250}
-/a/lib/lib.d.ts:
-  {"fileName":"/a/lib/lib.d.ts","pollingInterval":250}
+Shape signatures in builder refreshed for::
+/a/b/modulefile1.ts (computed .d.ts)
+
+PolledWatches::
+/a/b/node_modules/@types:
+  {"pollingInterval":500}
 
 FsWatches::
+/a/b/tsconfig.json:
+  {}
+/a/b/file1consumer1.ts:
+  {}
+/a/b/modulefile1.ts:
+  {}
+/a/b/file1consumer2.ts:
+  {}
+/a/b/globalfile3.ts:
+  {}
+/a/b/modulefile2.ts:
+  {}
+/a/lib/lib.d.ts:
+  {}
 
 FsWatchesRecursive::
-/a/b/node_modules/@types:
-  {"directoryName":"/a/b/node_modules/@types","fallbackPollingInterval":500,"fallbackOptions":{"watchFile":"PriorityPollingInterval"}}
 /a/b:
-  {"directoryName":"/a/b","fallbackPollingInterval":500,"fallbackOptions":{"watchFile":"PriorityPollingInterval"}}
+  {}
 
 exitCode:: ExitStatus.undefined
 

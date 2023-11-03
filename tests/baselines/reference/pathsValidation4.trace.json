@@ -10,6 +10,7 @@
     "File 'tests/cases/compiler/src/someModule.tsx' does not exist.",
     "File 'tests/cases/compiler/src/someModule.d.ts' does not exist.",
     "File 'tests/cases/compiler/src/someModule.ets' does not exist.",
+    "File 'tests/cases/compiler/src/someModule.d.ets' does not exist.",
     "Directory 'tests/cases/compiler/src/someModule' does not exist, skipping all lookups in it.",
     "Loading module 'someModule' from 'node_modules' folder, target file type 'TypeScript'.",
     "Directory 'tests/cases/compiler/src/node_modules' does not exist, skipping all lookups in it.",

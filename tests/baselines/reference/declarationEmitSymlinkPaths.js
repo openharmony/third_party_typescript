@@ -38,12 +38,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.NotificationScenario = void 0;
 var index_1 = require("search/lib/index");
 var NotificationAPIUtils_1 = require("../API/NotificationAPIUtils");
-exports.NotificationScenario = index_1.test(NotificationAPIUtils_1.getNotification);
+exports.NotificationScenario = (0, index_1.test)(NotificationAPIUtils_1.getNotification);
 
 
 //// [NotificationAPIUtils.d.ts]
-export declare type NotificationRequest = {};
-export declare type NotificationResponse = {};
+export type NotificationRequest = {};
+export type NotificationResponse = {};
 export declare function getNotification(): NotificationResponse;
 //// [NotificationStore.d.ts]
 export declare const NotificationScenario: () => import("../API/NotificationAPIUtils").NotificationResponse;

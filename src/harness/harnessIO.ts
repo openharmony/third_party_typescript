@@ -25,6 +25,7 @@ namespace Harness {
         tryEnableSourceMapsForHost?(): void;
         getEnvironmentVariable?(name: string): string;
         getMemoryUsage?(): number | undefined;
+        joinPath(...components: string[]): string
     }
 
     export let IO: IO;
@@ -40,6 +41,7 @@ namespace Harness {
     export const virtualFileSystemRoot = "/";
 
     function createNodeIO(): IO {
+        const workspaceRoot = Utils.findUpRoot();
         let fs: any, pathModule: any;
         if (require) {
             fs = require("fs");
@@ -62,6 +64,10 @@ namespace Harness {
             return dirPath === path ? undefined : dirPath;
         }
 
+        function joinPath(...components: string[]) {
+            return pathModule.join(...components);
+        }
+
         function enumerateTestFiles(runner: RunnerBase) {
             return runner.getTestFiles();
         }
@@ -72,6 +78,7 @@ namespace Harness {
 
                 for (const file of fs.readdirSync(folder)) {
                     const pathToFile = pathModule.join(folder, file);
+                    if (!fs.existsSync(pathToFile)) continue; // ignore invalid symlinks
                     const stat = fs.statSync(pathToFile);
                     if (options.recursive && stat.isDirectory()) {
                         paths = paths.concat(filesInFolder(pathToFile));
@@ -148,13 +155,14 @@ namespace Harness {
             log: s => console.log(s),
             args: () => ts.sys.args,
             getExecutingFilePath: () => ts.sys.getExecutingFilePath(),
-            getWorkspaceRoot: () => vpath.resolve(__dirname, "../.."),
+            getWorkspaceRoot: () => workspaceRoot,
             exit: exitCode => ts.sys.exit(exitCode),
             readDirectory: (path, extension, exclude, include, depth) => ts.sys.readDirectory(path, extension, exclude, include, depth),
             getAccessibleFileSystemEntries,
             tryEnableSourceMapsForHost: () => ts.sys.tryEnableSourceMapsForHost && ts.sys.tryEnableSourceMapsForHost(),
             getMemoryUsage: () => ts.sys.getMemoryUsage && ts.sys.getMemoryUsage(),
             getEnvironmentVariable: name => ts.sys.getEnvironmentVariable(name),
+            joinPath
         };
     }
 
@@ -169,8 +177,6 @@ namespace Harness {
     }
 
     export const libFolder = "built/local/";
-    const tcServicesFileName = ts.combinePaths(libFolder, "typescriptServices.js");
-    export const tcServicesFile = IO.readFile(tcServicesFileName) + IO.newLine() + `//# sourceURL=${IO.resolvePath(tcServicesFileName)}`;
 
     export type SourceMapEmitterCallback = (
         emittedFile: string,
@@ -212,7 +218,7 @@ namespace Harness {
             }
 
             public Close() {
-                if (this.currentLine !== undefined) { this.lines.push(this.currentLine); }
+                if (this.currentLine !== undefined) this.lines.push(this.currentLine);
                 this.currentLine = undefined!;
             }
 
@@ -264,7 +270,7 @@ namespace Harness {
         }
 
         export function getDefaultLibFileName(options: ts.CompilerOptions): string {
-            switch (options.target) {
+            switch (ts.getEmitScriptTarget(options)) {
                 case ts.ScriptTarget.ESNext:
                 case ts.ScriptTarget.ES2017:
                     return "lib.es2017.d.ts";
@@ -296,21 +302,21 @@ namespace Harness {
 
         // Additional options not already in ts.optionDeclarations
         const harnessOptionDeclarations: ts.CommandLineOption[] = [
-            { name: "allowNonTsExtensions", type: "boolean" },
-            { name: "useCaseSensitiveFileNames", type: "boolean" },
+            { name: "allowNonTsExtensions", type: "boolean", defaultValueDescription: false },
+            { name: "useCaseSensitiveFileNames", type: "boolean", defaultValueDescription: false },
             { name: "baselineFile", type: "string" },
             { name: "includeBuiltFile", type: "string" },
             { name: "fileName", type: "string" },
             { name: "libFiles", type: "string" },
-            { name: "noErrorTruncation", type: "boolean" },
-            { name: "suppressOutputPathCheck", type: "boolean" },
-            { name: "noImplicitReferences", type: "boolean" },
+            { name: "noErrorTruncation", type: "boolean", defaultValueDescription: false },
+            { name: "suppressOutputPathCheck", type: "boolean", defaultValueDescription: false },
+            { name: "noImplicitReferences", type: "boolean", defaultValueDescription: false },
             { name: "currentDirectory", type: "string" },
             { name: "symlink", type: "string" },
             { name: "link", type: "string" },
-            { name: "noTypesAndSymbols", type: "boolean" },
+            { name: "noTypesAndSymbols", type: "boolean", defaultValueDescription: false },
             // Emitted js baseline will print full paths for every output file
-            { name: "fullEmitPaths", type: "boolean" }
+            { name: "fullEmitPaths", type: "boolean", defaultValueDescription: false },
         ];
 
         let optionsIndex: ts.ESMap<string, ts.CommandLineOption>;
@@ -327,7 +333,7 @@ namespace Harness {
 
         export function setCompilerOptionsFromHarnessSetting(settings: TestCaseParser.CompilerSettings, options: ts.CompilerOptions & HarnessOptions): void {
             for (const name in settings) {
-                if (settings.hasOwnProperty(name)) {
+                if (ts.hasProperty(settings, name)) {
                     const value = settings[name];
                     if (value === undefined) {
                         throw new Error(`Cannot have undefined value for compiler option '${name}'.`);
@@ -376,7 +382,7 @@ namespace Harness {
                         etsOption.libs = etsLibs;
                         return etsOption;
                     }
-                    return ts.parseCustomTypeOption(<ts.CommandLineOptionOfCustomType>option, value, errors);
+                    return ts.parseCustomTypeOption(option as ts.CommandLineOptionOfCustomType, value, errors);
             }
         }
 
@@ -396,7 +402,7 @@ namespace Harness {
             symlinks?: vfs.FileSet
         ): compiler.CompilationResult {
             const options: ts.CompilerOptions & HarnessOptions = compilerOptions ? ts.cloneCompilerOptions(compilerOptions) : { noResolve: false };
-            options.target = options.target || ts.ScriptTarget.ES3;
+            options.target = ts.getEmitScriptTarget(options);
             options.newLine = options.newLine || ts.NewLineKind.CarriageReturnLineFeed;
             options.noErrorTruncation = true;
             options.skipDefaultLibCheck = typeof options.skipDefaultLibCheck === "undefined" ? true : options.skipDefaultLibCheck;
@@ -510,7 +516,7 @@ namespace Harness {
                     sourceFileName = outFile;
                 }
 
-                const dTsFileName = ts.removeFileExtension(sourceFileName) + ts.Extension.Dts;
+                const dTsFileName = ts.removeFileExtension(sourceFileName) + ts.getDeclarationEmitExtensionForPath(sourceFileName);
                 return result.dts.get(dTsFileName);
             }
 
@@ -541,7 +547,7 @@ namespace Harness {
                 outputLines += content;
             }
             if (pretty) {
-                outputLines += ts.getErrorSummaryText(ts.getErrorCountForSummary(diagnostics), IO.newLine());
+                outputLines += ts.getErrorSummaryText(ts.getErrorCountForSummary(diagnostics), ts.getFilesInErrorForSummary(diagnostics), IO.newLine(), { getCurrentDirectory: () => "" });
             }
             return outputLines;
         }
@@ -721,7 +727,7 @@ namespace Harness {
             // These types are equivalent, but depend on what order the compiler observed
             // certain parts of the program.
 
-            const fullWalker = new TypeWriterWalker(program, /*fullTypeCheck*/ true, !!hasErrorBaseline);
+            const fullWalker = new TypeWriterWalker(program, !!hasErrorBaseline);
 
             // Produce baselines.  The first gives the types for all expressions.
             // The second gives symbols for all identifiers.
@@ -814,21 +820,14 @@ namespace Harness {
                         typeLines += ">" + formattedLine + "\r\n";
                     }
 
-                    // Preserve legacy behavior
-                    if (lastIndexWritten === undefined) {
-                        for (const codeLine of codeLines) {
-                            typeLines += codeLine + "\r\nNo type information for this code.";
+                    lastIndexWritten ??= -1;
+                    if (lastIndexWritten + 1 < codeLines.length) {
+                        if (!((lastIndexWritten + 1 < codeLines.length) && (codeLines[lastIndexWritten + 1].match(/^\s*[{|}]\s*$/) || codeLines[lastIndexWritten + 1].trim() === ""))) {
+                            typeLines += "\r\n";
                         }
+                        typeLines += codeLines.slice(lastIndexWritten + 1).join("\r\n");
                     }
-                    else {
-                        if (lastIndexWritten + 1 < codeLines.length) {
-                            if (!((lastIndexWritten + 1 < codeLines.length) && (codeLines[lastIndexWritten + 1].match(/^\s*[{|}]\s*$/) || codeLines[lastIndexWritten + 1].trim() === ""))) {
-                                typeLines += "\r\n";
-                            }
-                            typeLines += codeLines.slice(lastIndexWritten + 1).join("\r\n");
-                        }
-                        typeLines += "\r\n";
-                    }
+                    typeLines += "\r\n";
                     yield [checkDuplicatedFileName(unitName, dupeCase), Utils.removeTestPathPrefixes(typeLines)];
                 }
             }
@@ -902,7 +901,7 @@ namespace Harness {
                     jsCode += "\r\n";
                 }
                 if (!result.diagnostics.length && !ts.endsWith(file.file, ts.Extension.Json)) {
-                    const fileParseResult = ts.createSourceFile(file.file, file.text, options.target || ts.ScriptTarget.ES3, /*parentNodes*/ false, ts.endsWith(file.file, "x") ? ts.ScriptKind.JSX : ts.ScriptKind.JS);
+                    const fileParseResult = ts.createSourceFile(file.file, file.text, ts.getEmitScriptTarget(options), /*parentNodes*/ false, ts.endsWith(file.file, "x") ? ts.ScriptKind.JSX : ts.ScriptKind.JS);
                     if (ts.length(fileParseResult.parseDiagnostics)) {
                         jsCode += getErrorBaseline([file.asTestFile()], fileParseResult.parseDiagnostics);
                         return;
@@ -1393,15 +1392,25 @@ namespace Harness {
                 else {
                     IO.writeFile(actualFileName, encodedActual);
                 }
+                const errorMessage = getBaselineFileChangedErrorMessage(relativeFileName);
                 if (!!require && opts && opts.PrintDiff) {
                     const Diff = require("diff");
                     const patch = Diff.createTwoFilesPatch("Expected", "Actual", expected, actual, "The current baseline", "The new version");
-                    throw new Error(`The baseline file ${relativeFileName} has changed.${ts.ForegroundColorEscapeSequences.Grey}\n\n${patch}`);
+                    throw new Error(`${errorMessage}${ts.ForegroundColorEscapeSequences.Grey}\n\n${patch}`);
                 }
                 else {
-                    throw new Error(`The baseline file ${relativeFileName} has changed.`);
+                    if (!IO.fileExists(expected)) {
+                        throw new Error(`New baseline created at ${IO.joinPath("tests", "baselines","local", relativeFileName)}`);
+                    }
+                    else {
+                        throw new Error(errorMessage);
+                    }
                 }
             }
+        }
+
+        function getBaselineFileChangedErrorMessage(relativeFileName: string): string {
+            return `The baseline file ${relativeFileName} has changed. (Run "gulp baseline-accept" if the new baseline is correct.)`;
         }
 
         export function runBaseline(relativeFileName: string, actual: string | null, opts?: BaselineOptions): void {
@@ -1490,8 +1499,8 @@ namespace Harness {
 
     export function getConfigNameFromFileName(filename: string): "tsconfig.json" | "jsconfig.json" | undefined {
         const flc = ts.getBaseFileName(filename).toLowerCase();
-        return ts.find(["tsconfig.json" as "tsconfig.json", "jsconfig.json" as "jsconfig.json"], x => x === flc);
+        return ts.find(["tsconfig.json" as const, "jsconfig.json" as const], x => x === flc);
     }
 
-    if (Error) (<any>Error).stackTraceLimit = 100;
+    if (Error) (Error as any).stackTraceLimit = 100;
 }

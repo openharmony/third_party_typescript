@@ -21,6 +21,7 @@
     "File '/bar.tsx' does not exist.",
     "File '/bar.d.ts' does not exist.",
     "File '/bar.ets' does not exist.",
+    "File '/bar.d.ets' does not exist.",
     "Directory '/bar' does not exist, skipping all lookups in it.",
     "'baseUrl' option is set to '/root', using this value to resolve non-relative module name '/bar'.",
     "'paths' option is specified, looking for a pattern to match module name '/bar'.",

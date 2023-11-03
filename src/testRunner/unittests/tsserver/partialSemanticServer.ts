@@ -1,5 +1,5 @@
 namespace ts.projectSystem {
-    describe("unittests:: tsserver:: Semantic operations on PartialSemantic server", () => {
+    describe("unittests:: tsserver:: Semantic operations on partialSemanticServer", () => {
         function setup() {
             const file1: File = {
                 path: `${tscWatch.projectRoot}/a.ts`,
@@ -26,17 +26,19 @@ import { something } from "something";
                 content: "{}"
             };
             const host = createServerHost([file1, file2, file3, something, libFile, configFile]);
-            const session = createSession(host, { serverMode: LanguageServiceMode.PartialSemantic, useSingleInferredProject: true });
+            const session = createSession(host, {
+                serverMode: LanguageServiceMode.PartialSemantic,
+                useSingleInferredProject: true,
+                logger: createLoggerWithInMemoryLogs(host),
+            });
             return { host, session, file1, file2, file3, something, configFile };
         }
 
         it("open files are added to inferred project even if config file is present and semantic operations succeed", () => {
-            const { host, session, file1, file2 } = setup();
+            const { session, file1, file2 } = setup();
             const service = session.getProjectService();
             openFilesForSession([file1], session);
-            checkNumberOfProjects(service, { inferredProjects: 1 });
             const project = service.inferredProjects[0];
-            checkProjectActualFiles(project, [libFile.path, file1.path]); // no imports are resolved
             verifyCompletions();
 
             openFilesForSession([file2], session);
@@ -44,108 +46,13 @@ import { something } from "something";
             checkProjectActualFiles(project, [libFile.path, file1.path, file2.path]);
             verifyCompletions();
 
+            baselineTsserverLogs("partialSemanticServer", "files are added to inferred project", session);
+
             function verifyCompletions() {
-                assert.isTrue(project.languageServiceEnabled);
-                checkWatchedFiles(host, emptyArray);
-                checkWatchedDirectories(host, emptyArray, /*recursive*/ true);
-                checkWatchedDirectories(host, emptyArray, /*recursive*/ false);
-                const response = session.executeCommandSeq<protocol.CompletionsRequest>({
+                session.executeCommandSeq<protocol.CompletionsRequest>({
                     command: protocol.CommandTypes.Completions,
                     arguments: protocolFileLocationFromSubstring(file1, "prop", { index: 1 })
-                }).response as protocol.CompletionEntry[];
-                const displayPartsProp = [
-                    {
-                        text: "(",
-                        kind: "punctuation"
-                    },{
-                        text: "property",
-                        kind: "text"
-                    },{
-                        text: ")",
-                        kind: "punctuation"
-                    },{
-                        text: " ",
-                        kind: "space"
-                    },{
-                        text: "c",
-                        kind: "className"
-                    },{
-                        text: ".",
-                        kind: "punctuation"
-                    },{
-                        text: "prop",
-                        kind: "propertyName"
-                    },{
-                        text: ":",
-                        kind: "punctuation"
-                    },{
-                        text: " ",
-                        kind: "space"
-                    },{
-                        text: "string",
-                        kind: "keyword"
-                    }
-                ];
-                const displayPartsFoo = [
-                    {
-                        text: "(",
-                        kind: "punctuation"
-                    },{
-                        text: "method",
-                        kind: "text"
-                    },{
-                        text: ")",
-                        kind: "punctuation"
-                    },{
-                        text: " ",
-                        kind: "space"
-                    },{
-                        text: "c",
-                        kind: "className"
-                    },{
-                        text: ".",
-                        kind: "punctuation"
-                    },{
-                        text: "foo",
-                        kind: "methodName"
-                    },{
-                        text: "(",
-                        kind: "punctuation"
-                    },{
-                        text: ")",
-                        kind: "punctuation"
-                    },{
-                        text: ":",
-                        kind: "punctuation"
-                    },{
-                        text: " ",
-                        kind: "space"
-                    },{
-                        text: "string",
-                        kind: "keyword"
-                    }
-                ];
-                assert.deepEqual(response, [
-                    completionEntry("foo", ScriptElementKind.memberFunctionElement, displayPartsFoo),
-                    completionEntry("prop", ScriptElementKind.memberVariableElement, displayPartsProp),
-                ]);
-            }
-
-            function completionEntry(name: string, kind: ScriptElementKind, displayParts: SymbolDisplayPart[]): protocol.CompletionEntry {
-                return {
-                    name,
-                    kind,
-                    kindModifiers: "",
-                    sortText: Completions.SortText.LocationPriority,
-                    hasAction: undefined,
-                    insertText: undefined,
-                    isPackageJsonImport: undefined,
-                    isRecommended: undefined,
-                    replacementSpan: undefined,
-                    source: undefined,
-                    jsDoc: undefined,
-                    displayParts
-                };
+                });
             }
         });
 
@@ -153,7 +60,6 @@ import { something } from "something";
             const { session, file1 } = setup();
             const service = session.getProjectService();
             openFilesForSession([file1], session);
-            let hasException = false;
             const request: protocol.SemanticDiagnosticsSyncRequest = {
                 type: "request",
                 seq: 1,
@@ -164,21 +70,57 @@ import { something } from "something";
                 session.executeCommand(request);
             }
             catch (e) {
-                assert.equal(e.message, `Request: semanticDiagnosticsSync not allowed in LanguageServiceMode.PartialSemantic`);
-                hasException = true;
+                session.logger.info(e.message);
             }
-            assert.isTrue(hasException);
 
-            hasException = false;
             const project = service.inferredProjects[0];
             try {
                 project.getLanguageService().getSemanticDiagnostics(file1.path);
             }
             catch (e) {
-                assert.equal(e.message, `LanguageService Operation: getSemanticDiagnostics not allowed in LanguageServiceMode.PartialSemantic`);
-                hasException = true;
+                session.logger.info(e.message);
             }
-            assert.isTrue(hasException);
+            baselineTsserverLogs("partialSemanticServer", "throws unsupported commands", session);
+        });
+
+        it("allows syntactic diagnostic commands", () => {
+            const file1: File = {
+                path: `${tscWatch.projectRoot}/a.ts`,
+                content: `if (a < (b + c) { }`
+            };
+            const configFile: File = {
+                path: `${tscWatch.projectRoot}/tsconfig.json`,
+                content: `{}`
+            };
+            const expectedErrorMessage = "')' expected.";
+
+            const host = createServerHost([file1, libFile, configFile]);
+            const session = createSession(host, {
+                serverMode: LanguageServiceMode.PartialSemantic,
+                useSingleInferredProject: true,
+                logger: createLoggerWithInMemoryLogs(host)
+            });
+
+            const service = session.getProjectService();
+            openFilesForSession([file1], session);
+            const request: protocol.SyntacticDiagnosticsSyncRequest = {
+                type: "request",
+                seq: 1,
+                command: protocol.CommandTypes.SyntacticDiagnosticsSync,
+                arguments: { file: file1.path }
+            };
+            const response = session.executeCommandSeq(request).response as protocol.SyntacticDiagnosticsSyncResponse["body"];
+            assert.isDefined(response);
+            assert.equal(response!.length, 1);
+            assert.equal((response![0] as protocol.Diagnostic).text, expectedErrorMessage);
+
+            const project = service.inferredProjects[0];
+            const diagnostics = project.getLanguageService().getSyntacticDiagnostics(file1.path);
+            assert.isTrue(diagnostics.length === 1);
+            assert.equal(diagnostics[0].messageText, expectedErrorMessage);
+
+            verifyGetErrRequest({ session, host, files: [file1], skip: [{ semantic: true, suggestion: true }] });
+            baselineTsserverLogs("partialSemanticServer", "syntactic diagnostics are returned with no error", session);
         });
 
         it("should not include auto type reference directives", () => {
@@ -188,11 +130,8 @@ import { something } from "something";
                 content: "export const something = 10;"
             };
             host.ensureFileOrFolder(atTypes);
-            const service = session.getProjectService();
             openFilesForSession([file1], session);
-            checkNumberOfProjects(service, { inferredProjects: 1 });
-            const project = service.inferredProjects[0];
-            checkProjectActualFiles(project, [libFile.path, file1.path]); // Should not contain atTypes
+            baselineTsserverLogs("partialSemanticServer", "should not include auto type reference directives", session);
         });
 
         it("should not include referenced files from unopened files", () => {
@@ -221,30 +160,26 @@ function fooB() { }`
                 content: "{}"
             };
             const host = createServerHost([file1, file2, file3, something, libFile, configFile]);
-            const session = createSession(host, { serverMode: LanguageServiceMode.PartialSemantic, useSingleInferredProject: true });
-            const service = session.getProjectService();
+            const session = createSession(host, {
+                serverMode: LanguageServiceMode.PartialSemantic,
+                useSingleInferredProject: true,
+                logger: createLoggerWithInMemoryLogs(host),
+            });
             openFilesForSession([file1], session);
-            checkNumberOfProjects(service, { inferredProjects: 1 });
-            const project = service.inferredProjects[0];
-            checkProjectActualFiles(project, [libFile.path, file1.path]); // no resolve
+            baselineTsserverLogs("partialSemanticServer", "should not include referenced files from unopened files", session);
         });
 
         it("should not crash when external module name resolution is reused", () => {
             const { session, file1, file2, file3 } = setup();
-            const service = session.getProjectService();
             openFilesForSession([file1], session);
-            checkNumberOfProjects(service, { inferredProjects: 1 });
-            const project = service.inferredProjects[0];
-            checkProjectActualFiles(project, [libFile.path, file1.path]);
 
             // Close the file that contains non relative external module name and open some file that doesnt have non relative external module import
             closeFilesForSession([file1], session);
             openFilesForSession([file3], session);
-            checkProjectActualFiles(project, [libFile.path, file3.path]);
 
             // Open file with non relative external module name
             openFilesForSession([file2], session);
-            checkProjectActualFiles(project, [libFile.path, file2.path, file3.path]);
+            baselineTsserverLogs("partialSemanticServer", "should not crash when external module name resolution is reused", session);
         });
 
         it("should not create autoImportProvider or handle package jsons", () => {
@@ -276,6 +211,16 @@ function fooB() { }`
             assert.isFalse(project.autoImportProviderHost);
             assert.isUndefined(project.getPackageJsonAutoImportProvider());
             assert.deepEqual(project.getPackageJsonsForAutoImport(), emptyArray);
+        });
+
+        it("should support go-to-definition on module specifiers", () => {
+            const { session, file1 } = setup();
+            openFilesForSession([file1], session);
+            session.executeCommandSeq<protocol.DefinitionAndBoundSpanRequest>({
+                command: protocol.CommandTypes.DefinitionAndBoundSpan,
+                arguments: protocolFileLocationFromSubstring(file1, `"./b"`)
+            });
+            baselineTsserverLogs("partialSemanticServer", "should support go-to-definition on module specifiers", session);
         });
     });
 }

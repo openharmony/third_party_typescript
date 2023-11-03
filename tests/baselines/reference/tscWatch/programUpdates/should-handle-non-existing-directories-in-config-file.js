@@ -39,23 +39,27 @@ Semantic diagnostics in builder refreshed for::
 /a/lib/lib.d.ts
 /a/src/app.ts
 
-WatchedFiles::
-/a/tsconfig.json:
-  {"fileName":"/a/tsconfig.json","pollingInterval":250}
-/a/src/app.ts:
-  {"fileName":"/a/src/app.ts","pollingInterval":250}
-/a/lib/lib.d.ts:
-  {"fileName":"/a/lib/lib.d.ts","pollingInterval":250}
+Shape signatures in builder refreshed for::
+/a/lib/lib.d.ts (used version)
+/a/src/app.ts (used version)
+
+PolledWatches::
+/a/node_modules/@types:
+  {"pollingInterval":500}
+/a/notexistingfolder:
+  {"pollingInterval":500}
 
 FsWatches::
-/a/notexistingfolder:
-  {"directoryName":"/a/notexistingfolder","fallbackPollingInterval":500,"fallbackOptions":{"watchFile":"PriorityPollingInterval"}}
+/a/tsconfig.json:
+  {}
+/a/src/app.ts:
+  {}
+/a/lib/lib.d.ts:
+  {}
 
 FsWatchesRecursive::
-/a/node_modules/@types:
-  {"directoryName":"/a/node_modules/@types","fallbackPollingInterval":500,"fallbackOptions":{"watchFile":"PriorityPollingInterval"}}
 /a/src:
-  {"directoryName":"/a/src","fallbackPollingInterval":500,"fallbackOptions":{"watchFile":"PriorityPollingInterval"}}
+  {}
 
 exitCode:: ExitStatus.undefined
 

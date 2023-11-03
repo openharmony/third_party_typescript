@@ -41,17 +41,21 @@ Semantic diagnostics in builder refreshed for::
 /a/lib/lib.d.ts
 /a/b/file1.ts
 
-WatchedFiles::
-/a/b/file1.ts:
-  {"fileName":"/a/b/file1.ts","pollingInterval":250}
-/a/lib/lib.d.ts:
-  {"fileName":"/a/lib/lib.d.ts","pollingInterval":250}
+Shape signatures in builder refreshed for::
+/a/lib/lib.d.ts (used version)
+/a/b/file1.ts (used version)
+
+PolledWatches::
 
 FsWatches::
+/a/b/file1.ts:
+  {}
+/a/lib/lib.d.ts:
+  {}
 
 FsWatchesRecursive::
 /a:
-  {"directoryName":"/a","fallbackPollingInterval":500,"fallbackOptions":{"watchFile":"PriorityPollingInterval"}}
+  {}
 
 exitCode:: ExitStatus.undefined
 
@@ -90,15 +94,19 @@ Semantic diagnostics in builder refreshed for::
 /a/b/moduleFile.ts
 /a/b/file1.ts
 
-WatchedFiles::
-/a/b/file1.ts:
-  {"fileName":"/a/b/file1.ts","pollingInterval":250}
-/a/lib/lib.d.ts:
-  {"fileName":"/a/lib/lib.d.ts","pollingInterval":250}
-/a/b/modulefile.ts:
-  {"fileName":"/a/b/moduleFile.ts","pollingInterval":250}
+Shape signatures in builder refreshed for::
+/a/b/modulefile.ts (computed .d.ts)
+/a/b/file1.ts (computed .d.ts)
+
+PolledWatches::
 
 FsWatches::
+/a/b/file1.ts:
+  {}
+/a/lib/lib.d.ts:
+  {}
+/a/b/modulefile.ts:
+  {}
 
 FsWatchesRecursive::
 

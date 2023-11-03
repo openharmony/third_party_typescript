@@ -20,13 +20,13 @@ namespace ts {
 
   const rootPath = path.resolve(__dirname);
 
-  function tscEtsCompile() {
+  async function tscEtsCompile() {
     const tsconfigPath = path.join(rootPath, '../../tests/dets/tsconfig.json');
     const tscpath = path.join(rootPath, '../../lib/tsc.js');
 
     const cmd = 'node ' + tscpath + ' -p ' + tsconfigPath;
 
-    childProcess.exec(cmd, {
+    await childProcess.exec(cmd, {
       maxBuffer: 1 * 1024 * 1024,
       cwd: undefined
     }, (error, stdout, stderr) => {
@@ -51,6 +51,11 @@ namespace ts {
   }
   describe('unittests:: tsc:: run ets tests::', () => {
     tscEtsCompile();
+
+    it("arkuiGrammarChecker.ets", () => {
+      const {actualDeclaration, expectedDeclaration} = getActualAndExpect("arkuiGrammarChecker.d.ets");
+      expect(expectedDeclaration).to.be.equal(actualDeclaration);
+    });
 
     it('componentParameterIsObject.ets', () => {
       const {actualDeclaration, expectedDeclaration} = getActualAndExpect('componentParameterIsObject.d.ets');

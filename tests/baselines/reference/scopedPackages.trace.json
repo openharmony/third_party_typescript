@@ -7,6 +7,7 @@
     "File '/node_modules/@cow/boy.tsx' does not exist.",
     "File '/node_modules/@cow/boy.d.ts' does not exist.",
     "File '/node_modules/@cow/boy.ets' does not exist.",
+    "File '/node_modules/@cow/boy.d.ets' does not exist.",
     "File '/node_modules/@cow/boy/index.ts' does not exist.",
     "File '/node_modules/@cow/boy/index.tsx' does not exist.",
     "File '/node_modules/@cow/boy/index.d.ts' exist - use it as a name resolution result.",
@@ -25,7 +26,7 @@
     "Module resolution kind is not specified, using 'NodeJs'.",
     "Loading module '@be/bop/e/z' from 'node_modules' folder, target file type 'TypeScript'.",
     "Scoped package detected, looking in 'be__bop/e/z'",
-    "File '/node_modules/@types/be__bop/package.json' does not exist.",
+    "File '/node_modules/@types/be__bop/package.json' does not exist according to earlier cached lookups.",
     "File '/node_modules/@types/be__bop/e/z.d.ts' exist - use it as a name resolution result.",
     "Resolving real path for '/node_modules/@types/be__bop/e/z.d.ts', result '/node_modules/@types/be__bop/e/z.d.ts'.",
     "======== Module name '@be/bop/e/z' was successfully resolved to '/node_modules/@types/be__bop/e/z.d.ts'. ========"

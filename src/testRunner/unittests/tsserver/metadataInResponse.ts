@@ -149,6 +149,7 @@ namespace ts.projectSystem {
                     command: protocol.CommandTypes.CompletionInfo,
                     arguments: completionRequestArgs
                 }, {
+                    flags: 0,
                     isGlobalCompletion: false,
                     isMemberCompletion: true,
                     isNewIdentifierLocation: false,

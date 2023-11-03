@@ -1,7 +1,14 @@
 namespace ts {
     interface Statistic {
         name: string;
-        value: string;
+        value: number;
+        type: StatisticType;
+    }
+
+    export enum StatisticType {
+        time,
+        count,
+        memory,
     }
 
     function countLines(program: Program): Map<number> {
@@ -14,17 +21,8 @@ namespace ts {
         return counts;
     }
 
-    function countNodes(program: Program): Map<number> {
-        const counts = getCountsMap();
-        forEach(program.getSourceFiles(), file => {
-            const key = getCountKey(program, file);
-            counts.set(key, counts.get(key)! + file.nodeCount);
-        });
-        return counts;
-    }
-
     function getCountsMap() {
-        const counts = createMap<number>();
+        const counts = new Map<string, number>();
         counts.set("Library", 0);
         counts.set("Definitions", 0);
         counts.set("TypeScript", 0);
@@ -43,10 +41,10 @@ namespace ts {
         }
 
         const path = file.path;
-        if (fileExtensionIsOneOf(path, supportedTSExtensions)) {
+        if (fileExtensionIsOneOf(path, supportedTSExtensionsFlat)) {
             return "TypeScript";
         }
-        else if (fileExtensionIsOneOf(path, supportedJSExtensions)) {
+        else if (fileExtensionIsOneOf(path, supportedJSExtensionsFlat)) {
             return "JavaScript";
         }
         else if (fileExtensionIs(path, Extension.Json)) {
@@ -68,7 +66,7 @@ namespace ts {
     }
 
     function defaultIsPretty(sys: System) {
-        return !!sys.writeOutputIsTTY && sys.writeOutputIsTTY();
+        return !!sys.writeOutputIsTTY && sys.writeOutputIsTTY() && !sys.getEnvironmentVariable("NO_COLOR");
     }
 
     function shouldBePretty(sys: System, options: CompilerOptions | BuildOptions) {
@@ -89,111 +87,376 @@ namespace ts {
         sys.write(getDiagnosticText(Diagnostics.Version_0, version) + sys.newLine);
     }
 
-    function printHelp(sys: System, optionsList: readonly CommandLineOption[], syntaxPrefix = "") {
-        const output: string[] = [];
+    function createColors(sys: System) {
+        const showColors = defaultIsPretty(sys);
+        if (!showColors) {
+            return {
+                bold: (str: string) => str,
+                blue: (str: string) => str,
+                blueBackground: (str: string) => str,
+                brightWhite: (str: string) => str
+            };
+        }
 
-        // We want to align our "syntax" and "examples" commands to a certain margin.
-        const syntaxLength = getDiagnosticText(Diagnostics.Syntax_Colon_0, "").length;
-        const examplesLength = getDiagnosticText(Diagnostics.Examples_Colon_0, "").length;
-        let marginLength = Math.max(syntaxLength, examplesLength);
+        function bold(str: string) {
+            return `\x1b[1m${str}\x1b[22m`;
+        }
 
-        // Build up the syntactic skeleton.
-        let syntax = makePadding(marginLength - syntaxLength);
-        syntax += `tsc ${syntaxPrefix}[${getDiagnosticText(Diagnostics.options)}] [${getDiagnosticText(Diagnostics.file)}...]`;
+        const isWindows = sys.getEnvironmentVariable("OS") && stringContains(sys.getEnvironmentVariable("OS").toLowerCase(), "windows");
+        const isWindowsTerminal = sys.getEnvironmentVariable("WT_SESSION");
+        const isVSCode = sys.getEnvironmentVariable("TERM_PROGRAM") && sys.getEnvironmentVariable("TERM_PROGRAM") === "vscode";
 
-        output.push(getDiagnosticText(Diagnostics.Syntax_Colon_0, syntax));
-        output.push(sys.newLine + sys.newLine);
-
-        // Build up the list of examples.
-        const padding = makePadding(marginLength);
-        output.push(getDiagnosticText(Diagnostics.Examples_Colon_0, makePadding(marginLength - examplesLength) + "tsc hello.ts") + sys.newLine);
-        output.push(padding + "tsc --outFile file.js file.ts" + sys.newLine);
-        output.push(padding + "tsc @args.txt" + sys.newLine);
-        output.push(padding + "tsc --build tsconfig.json" + sys.newLine);
-        output.push(sys.newLine);
-
-        output.push(getDiagnosticText(Diagnostics.Options_Colon) + sys.newLine);
-
-        // We want our descriptions to align at the same column in our output,
-        // so we keep track of the longest option usage string.
-        marginLength = 0;
-        const usageColumn: string[] = []; // Things like "-d, --declaration" go in here.
-        const descriptionColumn: string[] = [];
-
-        const optionsDescriptionMap = new Map<string, string[]>();  // Map between option.description and list of option.type if it is a kind
-
-        for (const option of optionsList) {
-            // If an option lacks a description,
-            // it is not officially supported.
-            if (!option.description) {
-                continue;
+        function blue(str: string) {
+            // Effectively Powershell and Command prompt users use cyan instead
+            // of blue because the default theme doesn't show blue with enough contrast.
+            if (isWindows && !isWindowsTerminal && !isVSCode) {
+                return brightWhite(str);
             }
 
-            let usageText = " ";
-            if (option.shortName) {
-                usageText += "-" + option.shortName;
-                usageText += getParamType(option);
-                usageText += ", ";
-            }
+            return `\x1b[94m${str}\x1b[39m`;
+        }
 
-            usageText += "--" + option.name;
-            usageText += getParamType(option);
-
-            usageColumn.push(usageText);
-            let description: string;
-
-            if (option.name === "lib") {
-                description = getDiagnosticText(option.description);
-                const element = (<CommandLineOptionOfListType>option).element;
-                const typeMap = <ESMap<string, number | string>>element.type;
-                optionsDescriptionMap.set(description, arrayFrom(typeMap.keys()).map(key => `'${key}'`));
+        // There are ~3 types of terminal color support: 16 colors, 256 and 16m colors
+        // If there is richer color support, e.g. 256+ we can use extended ANSI codes which are not just generic 'blue'
+        // but a 'lighter blue' which is closer to the blue in the TS logo.
+        const supportsRicherColors = sys.getEnvironmentVariable("COLORTERM") === "truecolor" || sys.getEnvironmentVariable("TERM") === "xterm-256color";
+        function blueBackground(str: string) {
+            if (supportsRicherColors) {
+                return `\x1B[48;5;68m${str}\x1B[39;49m`;
             }
             else {
+                return `\x1b[44m${str}\x1B[39;49m`;
+            }
+        }
+        function brightWhite(str: string) {
+            return `\x1b[97m${str}\x1b[39m`;
+        }
+        return {
+            bold,
+            blue,
+            brightWhite,
+            blueBackground
+        };
+    }
+
+    function getDisplayNameTextOfOption(option: CommandLineOption) {
+        return `--${option.name}${option.shortName ? `, -${option.shortName}` : ""}`;
+    }
+
+    function generateOptionOutput(sys: System, option: CommandLineOption, rightAlignOfLeft: number, leftAlignOfRight: number) {
+        interface ValueCandidate {
+            // "one or more" or "any of"
+            valueType: string;
+            possibleValues: string;
+        }
+
+        const text: string[] = [];
+        const colors = createColors(sys);
+
+        // name and description
+        const name = getDisplayNameTextOfOption(option);
+
+        // value type and possible value
+        const valueCandidates = getValueCandidate(option);
+        const defaultValueDescription =
+            typeof option.defaultValueDescription === "object"
+                ? getDiagnosticText(option.defaultValueDescription)
+                : formatDefaultValue(
+                      option.defaultValueDescription,
+                      option.type === "list" ? option.element.type : option.type
+                  );
+        const terminalWidth = sys.getWidthOfTerminal?.() ?? 0;
+
+        // Note: child_process might return `terminalWidth` as undefined.
+        if (terminalWidth >= 80) {
+            let description = "";
+            if (option.description) {
                 description = getDiagnosticText(option.description);
             }
+            text.push(...getPrettyOutput(name, description, rightAlignOfLeft, leftAlignOfRight, terminalWidth, /*colorLeft*/ true), sys.newLine);
+            if (showAdditionalInfoOutput(valueCandidates, option)) {
+                if (valueCandidates) {
+                    text.push(...getPrettyOutput(valueCandidates.valueType, valueCandidates.possibleValues, rightAlignOfLeft, leftAlignOfRight, terminalWidth, /*colorLeft*/ false), sys.newLine);
+                }
+                if (defaultValueDescription) {
+                    text.push(...getPrettyOutput(getDiagnosticText(Diagnostics.default_Colon), defaultValueDescription, rightAlignOfLeft, leftAlignOfRight, terminalWidth, /*colorLeft*/ false), sys.newLine);
+                }
+            }
+            text.push(sys.newLine);
+        }
+        else {
+            text.push(colors.blue(name), sys.newLine);
+            if (option.description) {
+                const description = getDiagnosticText(option.description);
+                text.push(description);
+            }
+            text.push(sys.newLine);
+            if (showAdditionalInfoOutput(valueCandidates, option)) {
+                if (valueCandidates) {
+                    text.push(`${valueCandidates.valueType} ${valueCandidates.possibleValues}`);
+                }
+                if (defaultValueDescription) {
+                    if (valueCandidates) text.push(sys.newLine);
+                    const diagType = getDiagnosticText(Diagnostics.default_Colon);
+                    text.push(`${diagType} ${defaultValueDescription}`);
+                }
 
-            descriptionColumn.push(description);
+                text.push(sys.newLine);
+            }
+            text.push(sys.newLine);
+        }
+        return text;
 
-            // Set the new margin for the description column if necessary.
-            marginLength = Math.max(usageText.length, marginLength);
+        function formatDefaultValue(
+            defaultValue: CommandLineOption["defaultValueDescription"],
+            type: CommandLineOption["type"]
+        ) {
+            return defaultValue !== undefined && typeof type === "object"
+                // e.g. ScriptTarget.ES2015 -> "es6/es2015"
+                ? arrayFrom(type.entries())
+                      .filter(([, value]) => value === defaultValue)
+                      .map(([name]) => name)
+                      .join("/")
+                : String(defaultValue);
         }
 
-        // Special case that can't fit in the loop.
-        const usageText = " @<" + getDiagnosticText(Diagnostics.file) + ">";
-        usageColumn.push(usageText);
-        descriptionColumn.push(getDiagnosticText(Diagnostics.Insert_command_line_options_and_files_from_a_file));
-        marginLength = Math.max(usageText.length, marginLength);
+        function showAdditionalInfoOutput(valueCandidates: ValueCandidate | undefined, option: CommandLineOption): boolean {
+            const ignoreValues = ["string"];
+            const ignoredDescriptions = [undefined, "false", "n/a"];
+            const defaultValueDescription = option.defaultValueDescription;
+            if (option.category === Diagnostics.Command_line_Options) return false;
 
-        // Print out each row, aligning all the descriptions on the same column.
-        for (let i = 0; i < usageColumn.length; i++) {
-            const usage = usageColumn[i];
-            const description = descriptionColumn[i];
-            const kindsList = optionsDescriptionMap.get(description);
-            output.push(usage + makePadding(marginLength - usage.length + 2) + description + sys.newLine);
+            if (contains(ignoreValues, valueCandidates?.possibleValues) && contains(ignoredDescriptions, defaultValueDescription)) {
+                return false;
+            }
+            return true;
+        }
 
-            if (kindsList) {
-                output.push(makePadding(marginLength + 4));
-                for (const kind of kindsList) {
-                    output.push(kind + " ");
+        function getPrettyOutput(left: string, right: string, rightAlignOfLeft: number, leftAlignOfRight: number, terminalWidth: number, colorLeft: boolean) {
+            const res = [];
+            let isFirstLine = true;
+            let remainRight = right;
+            const rightCharacterNumber = terminalWidth - leftAlignOfRight;
+            while (remainRight.length > 0) {
+                let curLeft = "";
+                if (isFirstLine) {
+                    curLeft = padLeft(left, rightAlignOfLeft);
+                    curLeft = padRight(curLeft, leftAlignOfRight);
+                    curLeft = colorLeft ? colors.blue(curLeft) : curLeft;
                 }
-                output.push(sys.newLine);
+                else {
+                    curLeft = padLeft("", leftAlignOfRight);
+                }
+
+                const curRight = remainRight.substr(0, rightCharacterNumber);
+                remainRight = remainRight.slice(rightCharacterNumber);
+                res.push(`${curLeft}${curRight}`);
+                isFirstLine = false;
+            }
+            return res;
+        }
+
+        function getValueCandidate(option: CommandLineOption): ValueCandidate | undefined {
+            // option.type might be "string" | "number" | "boolean" | "object" | "list" | ESMap<string, number | string>
+            // string -- any of: string
+            // number -- any of: number
+            // boolean -- any of: boolean
+            // object -- null
+            // list -- one or more: , content depends on `option.element.type`, the same as others
+            // ESMap<string, number | string> -- any of: key1, key2, ....
+            if (option.type === "object") {
+                return undefined;
+            }
+
+            return {
+                valueType: getValueType(option),
+                possibleValues: getPossibleValues(option)
+            };
+
+            function getValueType(option: CommandLineOption) {
+                switch (option.type) {
+                    case "string":
+                    case "number":
+                    case "boolean":
+                        return getDiagnosticText(Diagnostics.type_Colon);
+                    case "list":
+                        return getDiagnosticText(Diagnostics.one_or_more_Colon);
+                    default:
+                        return getDiagnosticText(Diagnostics.one_of_Colon);
+                }
+            }
+
+            function getPossibleValues(option: CommandLineOption) {
+                let possibleValues: string;
+                switch (option.type) {
+                    case "string":
+                    case "number":
+                    case "boolean":
+                        possibleValues = option.type;
+                        break;
+                    case "list":
+                        // TODO: check infinite loop
+                        possibleValues = getPossibleValues(option.element);
+                        break;
+                    case "object":
+                        possibleValues = "";
+                        break;
+                    default:
+                        // ESMap<string, number | string>
+                        // Group synonyms: es6/es2015
+                        const inverted: { [value: string]: string[] } = {};
+                        option.type.forEach((value, name) => {
+                            (inverted[value] ||= []).push(name);
+                        });
+                        return getEntries(inverted)
+                            .map(([, synonyms]) => synonyms.join("/"))
+                            .join(", ");
+                }
+                return possibleValues;
             }
         }
+    }
+
+    function generateGroupOptionOutput(sys: System, optionsList: readonly CommandLineOption[]) {
+        let maxLength = 0;
+        for (const option of optionsList) {
+            const curLength = getDisplayNameTextOfOption(option).length;
+            maxLength = maxLength > curLength ? maxLength : curLength;
+        }
+
+        // left part should be right align, right part should be left align
+
+        // assume 2 space between left margin and left part.
+        const rightAlignOfLeftPart = maxLength + 2;
+        // assume 2 space between left and right part
+        const leftAlignOfRightPart = rightAlignOfLeftPart + 2;
+        let lines: string[] = [];
+        for (const option of optionsList) {
+            const tmp = generateOptionOutput(sys, option, rightAlignOfLeftPart, leftAlignOfRightPart);
+            lines = [...lines, ...tmp];
+        }
+        // make sure always a blank line in the end.
+        if (lines[lines.length - 2] !== sys.newLine) {
+            lines.push(sys.newLine);
+        }
+        return lines;
+    }
+
+    function generateSectionOptionsOutput(sys: System, sectionName: string, options: readonly CommandLineOption[], subCategory: boolean, beforeOptionsDescription?: string, afterOptionsDescription?: string) {
+        let res: string[] = [];
+        res.push(createColors(sys).bold(sectionName) + sys.newLine + sys.newLine);
+        if (beforeOptionsDescription) {
+            res.push(beforeOptionsDescription + sys.newLine + sys.newLine);
+        }
+        if (!subCategory) {
+            res = [...res, ...generateGroupOptionOutput(sys, options)];
+            if (afterOptionsDescription) {
+                res.push(afterOptionsDescription + sys.newLine + sys.newLine);
+            }
+            return res;
+        }
+        const categoryMap = new Map<string, CommandLineOption[]>();
+        for (const option of options) {
+            if (!option.category) {
+                continue;
+            }
+            const curCategory = getDiagnosticText(option.category);
+            const optionsOfCurCategory = categoryMap.get(curCategory) ?? [];
+            optionsOfCurCategory.push(option);
+            categoryMap.set(curCategory, optionsOfCurCategory);
+        }
+        categoryMap.forEach((value, key) => {
+            res.push(`### ${key}${sys.newLine}${sys.newLine}`);
+            res = [...res, ...generateGroupOptionOutput(sys, value)];
+        });
+        if (afterOptionsDescription) {
+            res.push(afterOptionsDescription + sys.newLine + sys.newLine);
+        }
+        return res;
+    }
+
+    function printEasyHelp(sys: System, simpleOptions: readonly CommandLineOption[]) {
+        const colors = createColors(sys);
+        let output: string[] = [...getHeader(sys,`${getDiagnosticText(Diagnostics.tsc_Colon_The_TypeScript_Compiler)} - ${getDiagnosticText(Diagnostics.Version_0, version)}`)];
+        output.push(colors.bold(getDiagnosticText(Diagnostics.COMMON_COMMANDS)) + sys.newLine + sys.newLine);
+
+        example("tsc", Diagnostics.Compiles_the_current_project_tsconfig_json_in_the_working_directory);
+        example("tsc app.ts util.ts", Diagnostics.Ignoring_tsconfig_json_compiles_the_specified_files_with_default_compiler_options);
+        example("tsc -b", Diagnostics.Build_a_composite_project_in_the_working_directory);
+        example("tsc --init", Diagnostics.Creates_a_tsconfig_json_with_the_recommended_settings_in_the_working_directory);
+        example("tsc -p ./path/to/tsconfig.json", Diagnostics.Compiles_the_TypeScript_project_located_at_the_specified_path);
+        example("tsc --help --all", Diagnostics.An_expanded_version_of_this_information_showing_all_possible_compiler_options);
+        example(["tsc --noEmit", "tsc --target esnext"], Diagnostics.Compiles_the_current_project_with_additional_settings);
+
+        const cliCommands = simpleOptions.filter(opt => opt.isCommandLineOnly || opt.category === Diagnostics.Command_line_Options);
+        const configOpts = simpleOptions.filter(opt => !contains(cliCommands, opt));
+
+        output = [
+            ...output,
+            ...generateSectionOptionsOutput(sys, getDiagnosticText(Diagnostics.COMMAND_LINE_FLAGS), cliCommands, /*subCategory*/ false, /* beforeOptionsDescription */ undefined, /* afterOptionsDescription*/ undefined),
+            ...generateSectionOptionsOutput(sys, getDiagnosticText(Diagnostics.COMMON_COMPILER_OPTIONS), configOpts, /*subCategory*/ false, /* beforeOptionsDescription */ undefined, formatMessage(/*_dummy*/ undefined, Diagnostics.You_can_learn_about_all_of_the_compiler_options_at_0, "https://aka.ms/tsc"))
+        ];
 
         for (const line of output) {
             sys.write(line);
         }
-        return;
 
-        function getParamType(option: CommandLineOption) {
-            if (option.paramType !== undefined) {
-                return " " + getDiagnosticText(option.paramType);
+        function example(ex: string | string[], desc: DiagnosticMessage) {
+            const examples = typeof ex === "string" ? [ex] : ex;
+            for (const example of examples) {
+                output.push("  " + colors.blue(example) + sys.newLine);
             }
-            return "";
+            output.push("  " + getDiagnosticText(desc) + sys.newLine + sys.newLine);
         }
+    }
 
-        function makePadding(paddingLength: number): string {
-            return Array(paddingLength + 1).join(" ");
+    function printAllHelp(sys: System, compilerOptions: readonly CommandLineOption[], buildOptions: readonly CommandLineOption[], watchOptions: readonly CommandLineOption[]) {
+        let output: string[] = [...getHeader(sys,`${getDiagnosticText(Diagnostics.tsc_Colon_The_TypeScript_Compiler)} - ${getDiagnosticText(Diagnostics.Version_0, version)}`)];
+        output = [...output, ...generateSectionOptionsOutput(sys, getDiagnosticText(Diagnostics.ALL_COMPILER_OPTIONS), compilerOptions, /*subCategory*/ true, /* beforeOptionsDescription */ undefined, formatMessage(/*_dummy*/ undefined, Diagnostics.You_can_learn_about_all_of_the_compiler_options_at_0, "https://aka.ms/tsc"))];
+        output = [...output, ...generateSectionOptionsOutput(sys, getDiagnosticText(Diagnostics.WATCH_OPTIONS), watchOptions, /*subCategory*/ false, getDiagnosticText(Diagnostics.Including_watch_w_will_start_watching_the_current_project_for_the_file_changes_Once_set_you_can_config_watch_mode_with_Colon))];
+        output = [...output, ...generateSectionOptionsOutput(sys, getDiagnosticText(Diagnostics.BUILD_OPTIONS), buildOptions, /*subCategory*/ false, formatMessage(/*_dummy*/ undefined, Diagnostics.Using_build_b_will_make_tsc_behave_more_like_a_build_orchestrator_than_a_compiler_This_is_used_to_trigger_building_composite_projects_which_you_can_learn_more_about_at_0, "https://aka.ms/tsc-composite-builds"))];
+        for (const line of output) {
+            sys.write(line);
+        }
+    }
+
+    function printBuildHelp(sys: System, buildOptions: readonly CommandLineOption[]) {
+        let output: string[] = [...getHeader(sys,`${getDiagnosticText(Diagnostics.tsc_Colon_The_TypeScript_Compiler)} - ${getDiagnosticText(Diagnostics.Version_0, version)}`)];
+        output = [...output, ...generateSectionOptionsOutput(sys, getDiagnosticText(Diagnostics.BUILD_OPTIONS), buildOptions, /*subCategory*/ false, formatMessage(/*_dummy*/ undefined, Diagnostics.Using_build_b_will_make_tsc_behave_more_like_a_build_orchestrator_than_a_compiler_This_is_used_to_trigger_building_composite_projects_which_you_can_learn_more_about_at_0, "https://aka.ms/tsc-composite-builds"))];
+        for (const line of output) {
+            sys.write(line);
+        }
+    }
+
+    function getHeader(sys: System, message: string) {
+        const colors = createColors(sys);
+        const header: string[] = [];
+        const terminalWidth = sys.getWidthOfTerminal?.() ?? 0;
+        const tsIconLength = 5;
+
+        const tsIconFirstLine = colors.blueBackground(padLeft("", tsIconLength));
+        const tsIconSecondLine = colors.blueBackground(colors.brightWhite(padLeft("TS ", tsIconLength)));
+        // If we have enough space, print TS icon.
+        if (terminalWidth >= message.length + tsIconLength) {
+            // right align of the icon is 120 at most.
+            const rightAlign = terminalWidth > 120 ? 120 : terminalWidth;
+            const leftAlign = rightAlign - tsIconLength;
+            header.push(padRight(message, leftAlign) + tsIconFirstLine + sys.newLine);
+            header.push(padLeft("", leftAlign) + tsIconSecondLine + sys.newLine);
+        }
+        else {
+            header.push(message + sys.newLine);
+            header.push(sys.newLine);
+        }
+        return header;
+    }
+
+    function printHelp(sys: System, commandLine: ParsedCommandLine) {
+        if (!commandLine.options.all) {
+            printEasyHelp(sys, getOptionsForHelp(commandLine));
+        }
+        else {
+            printAllHelp(sys, getOptionsForHelp(commandLine), optionsForBuild, optionsForWatch);
         }
     }
 
@@ -232,8 +495,7 @@ namespace ts {
         }
 
         if (commandLine.options.help || commandLine.options.all) {
-            printVersion(sys);
-            printHelp(sys, getOptionsForHelp(commandLine));
+            printHelp(sys, commandLine);
             return sys.exit(ExitStatus.Success);
         }
 
@@ -275,7 +537,7 @@ namespace ts {
             }
             else {
                 printVersion(sys);
-                printHelp(sys, getOptionsForHelp(commandLine));
+                printHelp(sys, commandLine);
             }
             return sys.exit(ExitStatus.DiagnosticsPresent_OutputsSkipped);
         }
@@ -286,7 +548,8 @@ namespace ts {
             fileName => getNormalizedAbsolutePath(fileName, currentDirectory)
         );
         if (configFileName) {
-            const configParseResult = parseConfigFileWithSystem(configFileName, commandLineOptions, commandLine.watchOptions, sys, reportDiagnostic)!; // TODO: GH#18217
+            const extendedConfigCache = new Map<string, ExtendedConfigCacheEntry>();
+            const configParseResult = parseConfigFileWithSystem(configFileName, commandLineOptions, extendedConfigCache, commandLine.watchOptions, sys, reportDiagnostic)!; // TODO: GH#18217
             if (commandLineOptions.showConfig) {
                 if (configParseResult.errors.length !== 0) {
                     reportDiagnostic = updateReportDiagnostic(
@@ -315,6 +578,7 @@ namespace ts {
                     configParseResult,
                     commandLineOptions,
                     commandLine.watchOptions,
+                    extendedConfigCache,
                 );
             }
             else if (isIncrementalCompilation(configParseResult.options)) {
@@ -383,7 +647,7 @@ namespace ts {
         return false;
     }
 
-    export type ExecuteCommandLineCallbacks = (program: Program | EmitAndSemanticDiagnosticsBuilderProgram | ParsedCommandLine) => void;
+    export type ExecuteCommandLineCallbacks = (program: Program | BuilderProgram | ParsedCommandLine) => void;
     export function executeCommandLine(
         system: System,
         cb: ExecuteCommandLineCallbacks,
@@ -461,13 +725,13 @@ namespace ts {
 
         if (buildOptions.help) {
             printVersion(sys);
-            printHelp(sys, buildOpts, "--build ");
+            printBuildHelp(sys, buildOpts);
             return sys.exit(ExitStatus.Success);
         }
 
         if (projects.length === 0) {
             printVersion(sys);
-            printHelp(sys, buildOpts, "--build ");
+            printBuildHelp(sys, buildOpts);
             return sys.exit(ExitStatus.Success);
         }
 
@@ -485,7 +749,16 @@ namespace ts {
                 createBuilderStatusReporter(sys, shouldBePretty(sys, buildOptions)),
                 createWatchStatusReporter(sys, buildOptions)
             );
-            updateSolutionBuilderHost(sys, cb, buildHost);
+            const solutionPerformance = enableSolutionPerformance(sys, buildOptions);
+            updateSolutionBuilderHost(sys, cb, buildHost, solutionPerformance);
+            const onWatchStatusChange = buildHost.onWatchStatusChange;
+            buildHost.onWatchStatusChange = (d, newLine, options, errorCount) => {
+                onWatchStatusChange?.(d, newLine, options, errorCount);
+                if (d.code === Diagnostics.Found_0_errors_Watching_for_file_changes.code ||
+                    d.code === Diagnostics.Found_1_error_Watching_for_file_changes.code) {
+                    reportSolutionBuilderTimes(builder, solutionPerformance);
+                }
+            };
             const builder = createSolutionBuilderWithWatch(buildHost, projects, buildOptions, watchOptions);
             builder.build();
             return builder;
@@ -498,16 +771,18 @@ namespace ts {
             createBuilderStatusReporter(sys, shouldBePretty(sys, buildOptions)),
             createReportErrorSummary(sys, buildOptions)
         );
-        updateSolutionBuilderHost(sys, cb, buildHost);
+        const solutionPerformance = enableSolutionPerformance(sys, buildOptions);
+        updateSolutionBuilderHost(sys, cb, buildHost, solutionPerformance);
         const builder = createSolutionBuilder(buildHost, projects, buildOptions);
         const exitStatus = buildOptions.clean ? builder.clean() : builder.build();
-        tracing?.dumpLegend();
+        reportSolutionBuilderTimes(builder, solutionPerformance);
+        dumpTracingLegend(); // Will no-op if there hasn't been any tracing
         return sys.exit(exitStatus);
     }
 
     function createReportErrorSummary(sys: System, options: CompilerOptions | BuildOptions): ReportEmitErrorSummary | undefined {
         return shouldBePretty(sys, options) ?
-            errorCount => sys.write(getErrorSummaryText(errorCount, sys.newLine)) :
+            (errorCount, filesInError) => sys.write(getErrorSummaryText(errorCount, filesInError, sys.newLine, sys)) :
             undefined;
     }
 
@@ -538,7 +813,7 @@ namespace ts {
             s => sys.write(s + sys.newLine),
             createReportErrorSummary(sys, options)
         );
-        reportStatistics(sys, program);
+        reportStatistics(sys, program, /*builder*/ undefined);
         cb(program);
         return sys.exit(exitStatus);
     }
@@ -562,7 +837,7 @@ namespace ts {
             reportDiagnostic,
             reportErrorSummary: createReportErrorSummary(sys, options),
             afterProgramEmitAndDiagnostics: builderProgram => {
-                reportStatistics(sys, builderProgram.getProgram());
+                reportStatistics(sys, builderProgram.getProgram(), /*builder*/ undefined);
                 cb(builderProgram);
             }
         });
@@ -572,22 +847,23 @@ namespace ts {
     function updateSolutionBuilderHost(
         sys: System,
         cb: ExecuteCommandLineCallbacks,
-        buildHost: SolutionBuilderHostBase<EmitAndSemanticDiagnosticsBuilderProgram>
+        buildHost: SolutionBuilderHostBase<EmitAndSemanticDiagnosticsBuilderProgram>,
+        solutionPerformance: SolutionPerformance | undefined,
     ) {
-        updateCreateProgram(sys, buildHost);
+        updateCreateProgram(sys, buildHost, /*isBuildMode*/ true);
         buildHost.afterProgramEmitAndDiagnostics = program => {
-            reportStatistics(sys, program.getProgram());
+            reportStatistics(sys, program.getProgram(), solutionPerformance);
             cb(program);
         };
         buildHost.afterEmitBundle = cb;
     }
 
-    function updateCreateProgram<T extends BuilderProgram>(sys: System, host: { createProgram: CreateProgram<T>; }) {
+    function updateCreateProgram<T extends BuilderProgram>(sys: System, host: { createProgram: CreateProgram<T>; }, isBuildMode: boolean) {
         const compileUsingBuilder = host.createProgram;
         host.createProgram = (rootNames, options, host, oldProgram, configFileParsingDiagnostics, projectReferences) => {
             Debug.assert(rootNames !== undefined || (options === undefined && !!oldProgram));
             if (options !== undefined) {
-                enableStatisticsAndTracing(sys, options, /*isBuildMode*/ true);
+                enableStatisticsAndTracing(sys, options, isBuildMode);
             }
             return compileUsingBuilder(rootNames, options, host, oldProgram, configFileParsingDiagnostics, projectReferences);
         };
@@ -598,11 +874,11 @@ namespace ts {
         cb: ExecuteCommandLineCallbacks,
         watchCompilerHost: WatchCompilerHost<EmitAndSemanticDiagnosticsBuilderProgram>,
     ) {
-        updateCreateProgram(sys, watchCompilerHost);
+        updateCreateProgram(sys, watchCompilerHost, /*isBuildMode*/ false);
         const emitFilesUsingBuilder = watchCompilerHost.afterProgramCreate!; // TODO: GH#18217
         watchCompilerHost.afterProgramCreate = builderProgram => {
             emitFilesUsingBuilder(builderProgram);
-            reportStatistics(sys, builderProgram.getProgram());
+            reportStatistics(sys, builderProgram.getProgram(), /*builder*/ undefined);
             cb(builderProgram);
         };
     }
@@ -618,6 +894,7 @@ namespace ts {
         configParseResult: ParsedCommandLine,
         optionsToExtend: CompilerOptions,
         watchOptionsToExtend: WatchOptions | undefined,
+        extendedConfigCache: Map<ExtendedConfigCacheEntry>,
     ) {
         const watchCompilerHost = createWatchCompilerHostOfConfigFile({
             configFileName: configParseResult.options.configFilePath!,
@@ -629,6 +906,7 @@ namespace ts {
         });
         updateWatchCompilationHost(system, cb, watchCompilerHost);
         watchCompilerHost.configFileParsingResult = configParseResult;
+        watchCompilerHost.extendedConfigCache = extendedConfigCache;
         return createWatchProgram(watchCompilerHost);
     }
 
@@ -652,6 +930,88 @@ namespace ts {
         return createWatchProgram(watchCompilerHost);
     }
 
+    interface SolutionPerformance {
+        addAggregateStatistic(s: Statistic): void;
+        forEachAggregateStatistics(cb: (s: Statistic) => void): void;
+        clear(): void;
+    }
+
+    function enableSolutionPerformance(system: System, options: BuildOptions) {
+        if (system === sys && options.extendedDiagnostics) {
+            performance.enable();
+            return createSolutionPerfomrance();
+        }
+    }
+
+    function createSolutionPerfomrance(): SolutionPerformance {
+        let statistics: ESMap<string, Statistic> | undefined;
+        return {
+            addAggregateStatistic,
+            forEachAggregateStatistics: forEachAggreateStatistics,
+            clear,
+        };
+
+        function addAggregateStatistic(s: Statistic) {
+            const existing = statistics?.get(s.name);
+            if (existing) {
+                if (existing.type === StatisticType.memory) existing.value = Math.max(existing.value, s.value);
+                else existing.value += s.value;
+            }
+            else {
+                (statistics ??= new Map()).set(s.name, s);
+            }
+        }
+
+        function forEachAggreateStatistics(cb: (s: Statistic) => void) {
+            statistics?.forEach(cb);
+        }
+
+        function clear() {
+            statistics = undefined;
+        }
+    }
+
+    function reportSolutionBuilderTimes(
+        builder: SolutionBuilder<EmitAndSemanticDiagnosticsBuilderProgram>,
+        solutionPerformance: SolutionPerformance | undefined) {
+        if (!solutionPerformance) return;
+
+        if (!performance.isEnabled()) {
+            sys.write(Diagnostics.Performance_timings_for_diagnostics_or_extendedDiagnostics_are_not_available_in_this_session_A_native_implementation_of_the_Web_Performance_API_could_not_be_found.message + "\n");
+            return;
+        }
+
+        const statistics: Statistic[] = [];
+        statistics.push(
+            { name: "Projects in scope", value: getBuildOrderFromAnyBuildOrder(builder.getBuildOrder()).length, type: StatisticType.count },
+        );
+        reportSolutionBuilderCountStatistic("SolutionBuilder::Projects built");
+        reportSolutionBuilderCountStatistic("SolutionBuilder::Timestamps only updates");
+        reportSolutionBuilderCountStatistic("SolutionBuilder::Bundles updated");
+        solutionPerformance.forEachAggregateStatistics(s => {
+            s.name = `Aggregate ${s.name}`;
+            statistics.push(s);
+        });
+        performance.forEachMeasure((name, duration) => {
+            if (isSolutionMarkOrMeasure(name)) statistics.push({ name: `${getNameFromSolutionBuilderMarkOrMeasure(name)} time`, value: duration, type: StatisticType.time });
+        });
+        performance.disable();
+        performance.enable();
+
+        reportAllStatistics(sys, statistics);
+
+        function reportSolutionBuilderCountStatistic(name: string) {
+            const value = performance.getCount(name);
+            if (value) {
+                statistics.push({ name: getNameFromSolutionBuilderMarkOrMeasure(name), value, type: StatisticType.count });
+            }
+        }
+
+        function getNameFromSolutionBuilderMarkOrMeasure(name: string) {
+            return name.replace("SolutionBuilder::", "");
+        }
+    }
+
     function canReportDiagnostics(system: System, compilerOptions: CompilerOptions) {
         return system === sys && (compilerOptions.diagnostics || compilerOptions.extendedDiagnostics);
     }
@@ -666,16 +1026,20 @@ namespace ts {
         }
 
         if (canTrace(system, compilerOptions)) {
-            startTracing(isBuildMode ? tracingEnabled.Mode.Build : tracingEnabled.Mode.Project,
-                         compilerOptions.generateTrace!, compilerOptions.configFilePath);
+            startTracing(isBuildMode ? "build" : "project",
+                compilerOptions.generateTrace!, compilerOptions.configFilePath);
         }
     }
 
-    function reportStatistics(sys: System, program: Program) {
+    function isSolutionMarkOrMeasure(name: string) {
+        return startsWith(name, "SolutionBuilder::");
+    }
+
+    function reportStatistics(sys: System, program: Program, solutionPerformance: SolutionPerformance | undefined) {
         const compilerOptions = program.getCompilerOptions();
 
         if (canTrace(sys, compilerOptions)) {
-            tracing?.stopTracing(program.getTypeCatalog());
+            tracing?.stopTracing();
         }
 
         let statistics: Statistic[];
@@ -685,18 +1049,13 @@ namespace ts {
             reportCountStatistic("Files", program.getSourceFiles().length);
 
             const lineCounts = countLines(program);
-            const nodeCounts = countNodes(program);
             if (compilerOptions.extendedDiagnostics) {
                 for (const key of arrayFrom(lineCounts.keys())) {
                     reportCountStatistic("Lines of " + key, lineCounts.get(key)!);
                 }
-                for (const key of arrayFrom(nodeCounts.keys())) {
-                    reportCountStatistic("Nodes of " + key, nodeCounts.get(key)!);
-                }
             }
             else {
                 reportCountStatistic("Lines", reduceLeftIterator(lineCounts.values(), (sum, count) => sum + count, 0));
-                reportCountStatistic("Nodes", reduceLeftIterator(nodeCounts.values(), (sum, count) => sum + count, 0));
             }
 
             reportCountStatistic("Identifiers", program.getIdentifierCount());
@@ -705,7 +1064,7 @@ namespace ts {
             reportCountStatistic("Instantiations", program.getInstantiationCount());
 
             if (memoryUsed >= 0) {
-                reportStatisticalValue("Memory used", Math.round(memoryUsed / 1000) + "K");
+                reportStatisticalValue({ name: "Memory used", value: memoryUsed, type: StatisticType.memory }, /*aggregate*/ true);
             }
 
             const isPerformanceEnabled = performance.isEnabled();
@@ -720,7 +1079,9 @@ namespace ts {
                 reportCountStatistic("Subtype cache size", caches.subtype);
                 reportCountStatistic("Strict subtype cache size", caches.strictSubtype);
                 if (isPerformanceEnabled) {
-                    performance.forEachMeasure((name, duration) => reportTimeStatistic(`${name} time`, duration));
+                    performance.forEachMeasure((name, duration) => {
+                        if (!isSolutionMarkOrMeasure(name)) reportTimeStatistic(`${name} time`, duration, /*aggregate*/ true);
+                    });
                 }
             }
             else if (isPerformanceEnabled) {
@@ -728,53 +1089,79 @@ namespace ts {
                 // Note: To match the behavior of previous versions of the compiler, the reported parse time includes
                 // I/O read time and processing time for triple-slash references and module imports, and the reported
                 // emit time includes I/O write time. We preserve this behavior so we can accurately compare times.
-                reportTimeStatistic("I/O read", performance.getDuration("I/O Read"));
-                reportTimeStatistic("I/O write", performance.getDuration("I/O Write"));
-                reportTimeStatistic("Parse time", programTime);
-                reportTimeStatistic("Bind time", bindTime);
-                reportTimeStatistic("Check time", checkTime);
-                reportTimeStatistic("Emit time", emitTime);
+                reportTimeStatistic("I/O read", performance.getDuration("I/O Read"), /*aggregate*/ true);
+                reportTimeStatistic("I/O write", performance.getDuration("I/O Write"), /*aggregate*/ true);
+                reportTimeStatistic("Parse time", programTime, /*aggregate*/ true);
+                reportTimeStatistic("Bind time", bindTime, /*aggregate*/ true);
+                reportTimeStatistic("Check time", checkTime, /*aggregate*/ true);
+                reportTimeStatistic("Emit time", emitTime, /*aggregate*/ true);
             }
             if (isPerformanceEnabled) {
-                reportTimeStatistic("Total time", programTime + bindTime + checkTime + emitTime);
+                reportTimeStatistic("Total time", programTime + bindTime + checkTime + emitTime, /*aggregate*/ false);
             }
-            reportStatistics();
+            reportAllStatistics(sys, statistics);
             if (!isPerformanceEnabled) {
                 sys.write(Diagnostics.Performance_timings_for_diagnostics_or_extendedDiagnostics_are_not_available_in_this_session_A_native_implementation_of_the_Web_Performance_API_could_not_be_found.message + "\n");
             }
             else {
-                performance.disable();
+                if (solutionPerformance) {
+                    // Clear selected marks and measures
+                    performance.forEachMeasure(name => {
+                        if (!isSolutionMarkOrMeasure(name)) performance.clearMeasures(name);
+                    });
+                    performance.forEachMark(name => {
+                        if (!isSolutionMarkOrMeasure(name)) performance.clearMarks(name);
+                    });
+                }
+                else {
+                    performance.disable();
+                }
             }
         }
 
-        function reportStatistics() {
-            let nameSize = 0;
-            let valueSize = 0;
-            for (const { name, value } of statistics) {
-                if (name.length > nameSize) {
-                    nameSize = name.length;
-                }
-
-                if (value.length > valueSize) {
-                    valueSize = value.length;
-                }
-            }
-
-            for (const { name, value } of statistics) {
-                sys.write(padRight(name + ":", nameSize + 2) + padLeft(value.toString(), valueSize) + sys.newLine);
-            }
-        }
-
-        function reportStatisticalValue(name: string, value: string) {
-            statistics.push({ name, value });
+        function reportStatisticalValue(s: Statistic, aggregate: boolean) {
+            statistics.push(s);
+            if (aggregate) solutionPerformance?.addAggregateStatistic(s);
         }
 
         function reportCountStatistic(name: string, count: number) {
-            reportStatisticalValue(name, "" + count);
+            reportStatisticalValue({ name, value: count, type: StatisticType.count }, /*aggregate*/ true);
         }
 
-        function reportTimeStatistic(name: string, time: number) {
-            reportStatisticalValue(name, (time / 1000).toFixed(2) + "s");
+        function reportTimeStatistic(name: string, time: number, aggregate: boolean) {
+            reportStatisticalValue({ name, value: time, type: StatisticType.time }, aggregate);
+        }
+    }
+
+    function reportAllStatistics(sys: System, statistics: Statistic[]) {
+        let nameSize = 0;
+        let valueSize = 0;
+        for (const s of statistics) {
+            if (s.name.length > nameSize) {
+                nameSize = s.name.length;
+            }
+
+            const value = statisticValue(s);
+            if (value.length > valueSize) {
+                valueSize = value.length;
+            }
+        }
+
+        for (const s of statistics) {
+            sys.write(padRight(s.name + ":", nameSize + 2) + padLeft(statisticValue(s).toString(), valueSize) + sys.newLine);
+        }
+    }
+
+    function statisticValue(s: Statistic) {
+        switch (s.type) {
+            case StatisticType.count:
+                return "" + s.value;
+            case StatisticType.time:
+                return (s.value / 1000).toFixed(2) + "s";
+            case StatisticType.memory:
+                return Math.round(s.value / 1000) + "K";
+            default:
+                Debug.assertNever(s.type);
         }
     }
 
@@ -791,7 +1178,12 @@ namespace ts {
         }
         else {
             sys.writeFile(file, generateTSConfig(options, fileNames, sys.newLine));
-            reportDiagnostic(createCompilerDiagnostic(Diagnostics.Successfully_created_a_tsconfig_json_file));
+            const output: string[] = [sys.newLine, ...getHeader(sys,"Created a new tsconfig.json with:")];
+            output.push(getCompilerOptionsDiffValue(options, sys.newLine) + sys.newLine + sys.newLine);
+            output.push(`You can learn more at https://aka.ms/tsconfig` + sys.newLine);
+            for (const line of output) {
+                sys.write(line);
+            }
         }
 
         return;

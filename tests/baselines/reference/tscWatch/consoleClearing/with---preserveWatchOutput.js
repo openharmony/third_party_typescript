@@ -35,13 +35,17 @@ Semantic diagnostics in builder refreshed for::
 /a/lib/lib.d.ts
 /f.ts
 
-WatchedFiles::
-/f.ts:
-  {"fileName":"/f.ts","pollingInterval":250}
-/a/lib/lib.d.ts:
-  {"fileName":"/a/lib/lib.d.ts","pollingInterval":250}
+Shape signatures in builder refreshed for::
+/a/lib/lib.d.ts (used version)
+/f.ts (used version)
+
+PolledWatches::
 
 FsWatches::
+/f.ts:
+  {}
+/a/lib/lib.d.ts:
+  {}
 
 FsWatchesRecursive::
 
@@ -75,13 +79,16 @@ Program files::
 Semantic diagnostics in builder refreshed for::
 /f.ts
 
-WatchedFiles::
-/f.ts:
-  {"fileName":"/f.ts","pollingInterval":250}
-/a/lib/lib.d.ts:
-  {"fileName":"/a/lib/lib.d.ts","pollingInterval":250}
+Shape signatures in builder refreshed for::
+/f.ts (computed .d.ts)
+
+PolledWatches::
 
 FsWatches::
+/f.ts:
+  {}
+/a/lib/lib.d.ts:
+  {}
 
 FsWatchesRecursive::
 

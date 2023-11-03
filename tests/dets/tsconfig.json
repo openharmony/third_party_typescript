@@ -1,6 +1,7 @@
 {
   "compileOnSave": false,
   "files": [
+    "cases/arkuiGrammarChecker.ets",
     "cases/componentParameterIsObject.ets",
     "cases/customDecorator.ets",
     "cases/decoratorWithParameters.ets",
@@ -700,6 +701,7 @@
       },
       "customComponent": "CustomComponent",
     },
+    "emitDeclarationOnly": true,
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,

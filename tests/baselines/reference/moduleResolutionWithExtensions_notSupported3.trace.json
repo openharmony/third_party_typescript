@@ -6,6 +6,7 @@
     "File '/jsx.tsx' does not exist.",
     "File '/jsx.d.ts' does not exist.",
     "File '/jsx.ets' does not exist.",
+    "File '/jsx.d.ets' does not exist.",
     "Directory '/jsx' does not exist, skipping all lookups in it.",
     "Loading module as file / folder, candidate module location '/jsx', target file type 'JavaScript'.",
     "File '/jsx.js' does not exist.",

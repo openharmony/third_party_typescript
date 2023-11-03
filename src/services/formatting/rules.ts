@@ -59,7 +59,7 @@ namespace ts.formatting {
             // in other cases there should be no space between '?' and next token
             rule("NoSpaceAfterQuestionMark", SyntaxKind.QuestionToken, anyToken, [isNonJsxSameLineTokenContext], RuleAction.DeleteSpace),
 
-            rule("NoSpaceBeforeDot", anyToken, [SyntaxKind.DotToken, SyntaxKind.QuestionDotToken], [isNonJsxSameLineTokenContext], RuleAction.DeleteSpace),
+            rule("NoSpaceBeforeDot", anyToken, [SyntaxKind.DotToken, SyntaxKind.QuestionDotToken], [isNonJsxSameLineTokenContext, isNotPropertyAccessOnIntegerLiteral], RuleAction.DeleteSpace),
             rule("NoSpaceAfterDot", [SyntaxKind.DotToken, SyntaxKind.QuestionDotToken], anyToken, [isNonJsxSameLineTokenContext], RuleAction.DeleteSpace),
 
             rule("NoSpaceBetweenImportParenInImportType", SyntaxKind.ImportKeyword, SyntaxKind.OpenParenToken, [isNonJsxSameLineTokenContext, isImportTypeContext], RuleAction.DeleteSpace),
@@ -149,6 +149,7 @@ namespace ts.formatting {
                 "SpaceAfterCertainTypeScriptKeywords",
                 [
                     SyntaxKind.AbstractKeyword,
+                    SyntaxKind.AccessorKeyword,
                     SyntaxKind.ClassKeyword,
                     SyntaxKind.StructKeyword,
                     SyntaxKind.DeclareKeyword,
@@ -412,23 +413,23 @@ namespace ts.formatting {
     }
 
     function isOptionEnabled(optionName: keyof FormatCodeSettings): (context: FormattingContext) => boolean {
-        return (context) => context.options && context.options.hasOwnProperty(optionName) && !!context.options[optionName];
+        return (context) => context.options && hasProperty(context.options, optionName) && !!context.options[optionName];
     }
 
     function isOptionDisabled(optionName: keyof FormatCodeSettings): (context: FormattingContext) => boolean {
-        return (context) => context.options && context.options.hasOwnProperty(optionName) && !context.options[optionName];
+        return (context) => context.options && hasProperty(context.options, optionName) && !context.options[optionName];
     }
 
     function isOptionDisabledOrUndefined(optionName: keyof FormatCodeSettings): (context: FormattingContext) => boolean {
-        return (context) => !context.options || !context.options.hasOwnProperty(optionName) || !context.options[optionName];
+        return (context) => !context.options || !hasProperty(context.options, optionName) || !context.options[optionName];
     }
 
     function isOptionDisabledOrUndefinedOrTokensOnSameLine(optionName: keyof FormatCodeSettings): (context: FormattingContext) => boolean {
-        return (context) => !context.options || !context.options.hasOwnProperty(optionName) || !context.options[optionName] || context.TokensAreOnSameLine();
+        return (context) => !context.options || !hasProperty(context.options, optionName) || !context.options[optionName] || context.TokensAreOnSameLine();
     }
 
     function isOptionEnabledOrUndefined(optionName: keyof FormatCodeSettings): (context: FormattingContext) => boolean {
-        return (context) => !context.options || !context.options.hasOwnProperty(optionName) || !!context.options[optionName];
+        return (context) => !context.options || !hasProperty(context.options, optionName) || !!context.options[optionName];
     }
 
     function isForContext(context: FormattingContext): boolean {
@@ -442,7 +443,7 @@ namespace ts.formatting {
     function isBinaryOpContext(context: FormattingContext): boolean {
         switch (context.contextNode.kind) {
             case SyntaxKind.BinaryExpression:
-                return (<BinaryExpression>context.contextNode).operatorToken.kind !== SyntaxKind.CommaToken;
+                return (context.contextNode as BinaryExpression).operatorToken.kind !== SyntaxKind.CommaToken;
             case SyntaxKind.ConditionalExpression:
             case SyntaxKind.ConditionalType:
             case SyntaxKind.AsExpression:
@@ -451,6 +452,7 @@ namespace ts.formatting {
             case SyntaxKind.TypePredicate:
             case SyntaxKind.UnionType:
             case SyntaxKind.IntersectionType:
+            case SyntaxKind.SatisfiesExpression:
                 return true;
 
             // equals in binding elements: function foo([[x, y] = [1, 2]])
@@ -461,6 +463,9 @@ namespace ts.formatting {
             // equal in import a = module('a');
             // falls through
             case SyntaxKind.ImportEqualsDeclaration:
+            // equal in export = 1
+            // falls through
+            case SyntaxKind.ExportAssignment:
             // equal in let a = 0
             // falls through
             case SyntaxKind.VariableDeclaration:
@@ -725,16 +730,16 @@ namespace ts.formatting {
 
     function isEndOfDecoratorContextOnSameLine(context: FormattingContext): boolean {
         return context.TokensAreOnSameLine() &&
-            !!context.contextNode.decorators &&
+            hasDecorators(context.contextNode) &&
             nodeIsInDecoratorContext(context.currentTokenParent) &&
             !nodeIsInDecoratorContext(context.nextTokenParent);
     }
 
     function nodeIsInDecoratorContext(node: Node): boolean {
-        while (isExpressionNode(node)) {
+        while (node && isExpression(node)) {
             node = node.parent;
         }
-        return node.kind === SyntaxKind.Decorator;
+        return node && node.kind === SyntaxKind.Decorator;
     }
 
     function isStartOfVariableDeclarationList(context: FormattingContext): boolean {
@@ -801,7 +806,7 @@ namespace ts.formatting {
     }
 
     function isYieldOrYieldStarWithOperand(context: FormattingContext): boolean {
-        return context.contextNode.kind === SyntaxKind.YieldExpression && (<YieldExpression>context.contextNode).expression !== undefined;
+        return context.contextNode.kind === SyntaxKind.YieldExpression && (context.contextNode as YieldExpression).expression !== undefined;
     }
 
     function isNonNullAssertionContext(context: FormattingContext): boolean {
@@ -893,5 +898,11 @@ namespace ts.formatting {
 
     function isSemicolonInsertionContext(context: FormattingContext): boolean {
         return positionIsASICandidate(context.currentTokenSpan.end, context.currentTokenParent, context.sourceFile);
+    }
+
+    function isNotPropertyAccessOnIntegerLiteral(context: FormattingContext): boolean {
+        return !isPropertyAccessExpression(context.contextNode)
+            || !isNumericLiteral(context.contextNode.expression)
+            || context.contextNode.expression.getText().indexOf(".") !== -1;
     }
 }

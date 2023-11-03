@@ -452,7 +452,9 @@ namespace ts {
      * Normalize path separators, converting `\` into `/`.
      */
     export function normalizeSlashes(path: string): string {
-        return path.replace(backslashRegExp, directorySeparator);
+        return path.indexOf("\\") !== -1
+            ? path.replace(backslashRegExp, directorySeparator)
+            : path;
     }
 
     /**
@@ -547,6 +549,19 @@ namespace ts {
 
     export function normalizePath(path: string): string {
         path = normalizeSlashes(path);
+        // Most paths don't require normalization
+        if (!relativePathSegmentRegExp.test(path)) {
+            return path;
+        }
+        // Some paths only require cleanup of `/./` or leading `./`
+        const simplified = path.replace(/\/\.\//g, "/").replace(/^\.\//, "");
+        if (simplified !== path) {
+            path = simplified;
+            if (!relativePathSegmentRegExp.test(path)) {
+                return path;
+            }
+        }
+        // Other paths require full normalization
         const normalized = getPathFromPathComponents(reducePathComponents(getPathComponents(path)));
         return normalized && hasTrailingDirectorySeparator(path) ? ensureTrailingDirectorySeparator(normalized) : normalized;
     }
@@ -564,19 +579,7 @@ namespace ts {
         const nonCanonicalizedPath = isRootedDiskPath(fileName)
             ? normalizePath(fileName)
             : getNormalizedAbsolutePath(fileName, basePath);
-        return <Path>getCanonicalFileName(nonCanonicalizedPath);
-    }
-
-    export function normalizePathAndParts(path: string): { path: string, parts: string[] } {
-        path = normalizeSlashes(path);
-        const [root, ...parts] = reducePathComponents(getPathComponents(path));
-        if (parts.length) {
-            const joinedParts = root + parts.join(directorySeparator);
-            return { path: hasTrailingDirectorySeparator(path) ? ensureTrailingDirectorySeparator(joinedParts) : joinedParts, parts };
-        }
-        else {
-            return { path: root, parts };
-        }
+        return getCanonicalFileName(nonCanonicalizedPath) as Path;
     }
 
     //// Path Mutation
@@ -658,7 +661,7 @@ namespace ts {
     //// Path Comparisons
 
     // check path for these segments: '', '.'. '..'
-    const relativePathSegmentRegExp = /(^|\/)\.{0,2}($|\/)/;
+    const relativePathSegmentRegExp = /(?:\/\/)|(?:^|\/)\.\.?(?:$|\/)/;
 
     function comparePathsWorker(a: string, b: string, componentComparer: (a: string, b: string) => Comparison) {
         if (a === b) return Comparison.EqualTo;
@@ -864,9 +867,5 @@ namespace ts {
 
     export function isNodeModulesDirectory(dirPath: Path) {
         return endsWith(dirPath, "/node_modules");
-    }
-
-    export function isOHModulesDirectory(dirPath: Path) {
-        return endsWith(dirPath, "/oh_modules");
     }
 }

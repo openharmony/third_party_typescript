@@ -23,6 +23,10 @@ namespace FourSlashInterface {
             return this.state.getRanges();
         }
 
+        public rangesInFile(fileName?: string): FourSlash.Range[] {
+            return this.state.getRangesInFile(fileName);
+        }
+
         public spans(): ts.TextSpan[] {
             return this.ranges().map(r => ts.createTextSpan(r.pos, r.end - r.pos));
         }
@@ -44,12 +48,16 @@ namespace FourSlashInterface {
         }
     }
 
-    export class Plugins {
+    export class Config {
         constructor(private state: FourSlash.TestState) {
         }
 
         public configurePlugin(pluginName: string, configuration: any): void {
             this.state.configurePlugin(pluginName, configuration);
+        }
+
+        public setCompilerOptionsForInferredProjects(options: ts.server.protocol.CompilerOptions): void {
+            this.state.setCompilerOptionsForInferredProjects(options);
         }
     }
 
@@ -207,8 +215,8 @@ namespace FourSlashInterface {
             this.state.verifyRefactorsAvailable(names);
         }
 
-        public refactorAvailable(name: string, actionName?: string) {
-            this.state.verifyRefactorAvailable(this.negative, "implicit", name, actionName);
+        public refactorAvailable(name: string, actionName?: string, actionDescription?: string) {
+            this.state.verifyRefactorAvailable(this.negative, "implicit", name, actionName, actionDescription);
         }
 
         public refactorAvailableForTriggerReason(triggerReason: ts.RefactorTriggerReason, name: string, actionName?: string) {
@@ -247,12 +255,16 @@ namespace FourSlashInterface {
             }
         }
 
-        public quickInfoIs(expectedText: string, expectedDocumentation?: string) {
-            this.state.verifyQuickInfoString(expectedText, expectedDocumentation);
+        public getInlayHints(expected: readonly VerifyInlayHintsOptions[], span: ts.TextSpan, preference?: ts.UserPreferences) {
+            this.state.verifyInlayHints(expected, span, preference);
         }
 
-        public quickInfoAt(markerName: string | FourSlash.Range, expectedText: string, expectedDocumentation?: string) {
-            this.state.verifyQuickInfoAt(markerName, expectedText, expectedDocumentation);
+        public quickInfoIs(expectedText: string, expectedDocumentation?: string, expectedTags?: { name: string; text: string; }[]) {
+            this.state.verifyQuickInfoString(expectedText, expectedDocumentation, expectedTags);
+        }
+
+        public quickInfoAt(markerName: string | FourSlash.Range, expectedText: string, expectedDocumentation?: string, expectedTags?: { name: string; text: string; }[]) {
+            this.state.verifyQuickInfoAt(markerName, expectedText, expectedDocumentation, expectedTags);
         }
 
         public quickInfos(namesAndTexts: { [name: string]: string }) {
@@ -312,6 +324,10 @@ namespace FourSlashInterface {
             this.state.verifyGoToType(arg0, endMarkerName);
         }
 
+        public goToSourceDefinition(startMarkerNames: ArrayOrSingle<string>, end: { file: string } | ArrayOrSingle<string>) {
+            this.state.verifyGoToSourceDefinition(startMarkerNames, end);
+        }
+
         public goToDefinitionForMarkers(...markerNames: string[]) {
             this.state.verifyGoToDefinitionForMarkers(markerNames);
         }
@@ -340,24 +356,12 @@ namespace FourSlashInterface {
             this.state.verifyBaselineFindAllReferences(...markerNames);
         }
 
+        public baselineFindAllReferencesMulti(seq: number, ...markerNames: string[]) {
+            this.state.verifyBaselineFindAllReferencesMulti(seq, ...markerNames);
+        }
+
         public baselineGetFileReferences(fileName: string) {
             this.state.verifyBaselineGetFileReferences(fileName);
-        }
-
-        public referenceGroups(starts: ArrayOrSingle<string> | ArrayOrSingle<FourSlash.Range>, parts: ReferenceGroup[]) {
-            this.state.verifyReferenceGroups(starts, parts);
-        }
-
-        public noReferences(markerNameOrRange?: string | FourSlash.Range) {
-            this.state.verifyNoReferences(markerNameOrRange);
-        }
-
-        public getReferencesForServerTest(expected: readonly ts.ReferenceEntry[]) {
-            this.state.verifyGetReferencesForServerTest(expected);
-        }
-
-        public singleReferenceGroup(definition: ReferenceGroupDefinition, ranges?: FourSlash.Range[] | string) {
-            this.state.verifySingleReferenceGroup(definition, ranges);
         }
 
         public findReferencesDefinitionDisplayPartsAtCaretAre(expected: ts.SymbolDisplayPart[]) {
@@ -394,6 +398,14 @@ namespace FourSlashInterface {
 
         public baselineQuickInfo() {
             this.state.baselineQuickInfo();
+        }
+
+        public baselineSignatureHelp() {
+            this.state.baselineSignatureHelp();
+        }
+
+        public baselineCompletions(preferences?: ts.UserPreferences) {
+            this.state.baselineCompletions(preferences);
         }
 
         public baselineSmartSelection() {
@@ -470,8 +482,8 @@ namespace FourSlashInterface {
             this.state.verifyImportFixAtPosition(expectedTextArray, errorCode, preferences);
         }
 
-        public importFixModuleSpecifiers(marker: string, moduleSpecifiers: string[]) {
-            this.state.verifyImportFixModuleSpecifiers(marker, moduleSpecifiers);
+        public importFixModuleSpecifiers(marker: string, moduleSpecifiers: string[], preferences?: ts.UserPreferences) {
+            this.state.verifyImportFixModuleSpecifiers(marker, moduleSpecifiers, preferences);
         }
 
         public navigationBar(json: any, options?: { checkSpans?: boolean }) {
@@ -529,6 +541,14 @@ namespace FourSlashInterface {
             this.state.verifySyntacticClassifications(classifications);
         }
 
+        public encodedSyntacticClassificationsLength(length: number) {
+            this.state.verifyEncodedSyntacticClassificationsLength(length);
+        }
+
+        public encodedSemanticClassificationsLength(format: ts.SemanticClassificationFormat, length: number) {
+            this.state.verifyEncodedSemanticClassificationsLength(format, length);
+        }
+
         /**
          * This method *requires* an ordered stream of classifications for a file, and spans are highly recommended.
          */
@@ -540,12 +560,19 @@ namespace FourSlashInterface {
             this.state.replaceWithSemanticClassifications(format);
         }
 
-        public renameInfoSucceeded(displayName?: string, fullDisplayName?: string, kind?: string, kindModifiers?: string, fileToRename?: string, expectedRange?: FourSlash.Range, options?: ts.RenameInfoOptions) {
-            this.state.verifyRenameInfoSucceeded(displayName, fullDisplayName, kind, kindModifiers, fileToRename, expectedRange, options);
+        public renameInfoSucceeded(
+            displayName?: string,
+            fullDisplayName?: string,
+            kind?: string,
+            kindModifiers?: string,
+            fileToRename?: string,
+            expectedRange?: FourSlash.Range,
+            preferences?: ts.UserPreferences) {
+            this.state.verifyRenameInfoSucceeded(displayName, fullDisplayName, kind, kindModifiers, fileToRename, expectedRange, preferences);
         }
 
-        public renameInfoFailed(message?: string, allowRenameOfImportPath?: boolean) {
-            this.state.verifyRenameInfoFailed(message, allowRenameOfImportPath);
+        public renameInfoFailed(message?: string, preferences?: ts.UserPreferences) {
+            this.state.verifyRenameInfoFailed(message, preferences);
         }
 
         public renameLocations(startRanges: ArrayOrSingle<FourSlash.Range>, options: RenameLocationsOptions) {
@@ -597,8 +624,8 @@ namespace FourSlashInterface {
             this.state.noMoveToNewFile();
         }
 
-        public organizeImports(newContent: string) {
-            this.state.verifyOrganizeImports(newContent);
+        public organizeImports(newContent: string, mode?: ts.OrganizeImportsMode): void {
+            this.state.verifyOrganizeImports(newContent, mode);
         }
     }
 
@@ -938,14 +965,47 @@ namespace FourSlashInterface {
     }
 
     export namespace Completion {
-        export import SortText = ts.Completions.SortText;
+        import SortTextType = ts.Completions.SortText;
+        export type SortText = SortTextType;
         export import CompletionSource = ts.Completions.CompletionSource;
+
+        export const SortText = {
+            // Presets
+            LocalDeclarationPriority: "10" as SortText,
+            LocationPriority: "11" as SortText,
+            OptionalMember: "12" as SortText,
+            MemberDeclaredBySpreadAssignment: "13" as SortText,
+            SuggestedClassMembers: "14" as SortText,
+            GlobalsOrKeywords: "15" as SortText,
+            AutoImportSuggestions: "16" as SortText,
+            ClassMemberSnippets: "17" as SortText,
+            JavascriptIdentifiers: "18" as SortText,
+
+            // Transformations
+            Deprecated(sortText: SortText): SortText {
+                return "z" + sortText as SortText;
+            },
+
+            ObjectLiteralProperty(presetSortText: SortText, symbolDisplayName: string): SortText {
+                return `${presetSortText}\0${symbolDisplayName}\0` as SortText;
+            },
+
+            SortBelow(sortText: SortText): SortText {
+                return sortText + "1" as SortText;
+            },
+        };
 
         const functionEntry = (name: string): ExpectedCompletionEntryObject => ({
             name,
             kind: "function",
             kindModifiers: "declare",
             sortText: SortText.GlobalsOrKeywords
+        });
+        const deprecatedFunctionEntry = (name: string): ExpectedCompletionEntryObject => ({
+            name,
+            kind: "function",
+            kindModifiers: "deprecated,declare",
+            sortText: "z15" as SortText,
         });
         const varEntry = (name: string): ExpectedCompletionEntryObject => ({
             name,
@@ -969,6 +1029,12 @@ namespace FourSlashInterface {
             kind: "method",
             kindModifiers: "declare",
             sortText: SortText.LocationPriority
+        });
+        const deprecatedMethodEntry = (name: string): ExpectedCompletionEntryObject => ({
+            name,
+            kind: "method",
+            kindModifiers: "deprecated,declare",
+            sortText: "z11" as SortText,
         });
         const propertyEntry = (name: string): ExpectedCompletionEntryObject => ({
             name,
@@ -1000,8 +1066,48 @@ namespace FourSlashInterface {
         export const keywordsWithUndefined: readonly ExpectedCompletionEntryObject[] = res;
         export const keywords: readonly ExpectedCompletionEntryObject[] = keywordsWithUndefined.filter(k => k.name !== "undefined");
 
-        export const typeKeywords: readonly ExpectedCompletionEntryObject[] =
-            ["false", "null", "true", "void", "asserts", "any", "boolean", "infer", "keyof", "never", "readonly", "number", "object", "string", "symbol", "undefined", "unique", "unknown", "bigint"].map(keywordEntry);
+        export const typeKeywords: readonly ExpectedCompletionEntryObject[] = [
+            "any",
+            "asserts",
+            "bigint",
+            "boolean",
+            "false",
+            "infer",
+            "keyof",
+            "never",
+            "null",
+            "number",
+            "object",
+            "readonly",
+            "string",
+            "symbol",
+            "true",
+            "undefined",
+            "unique",
+            "unknown",
+            "void",
+        ].map(keywordEntry);
+
+        export function sorted(entries: readonly ExpectedCompletionEntry[]): readonly ExpectedCompletionEntry[] {
+            return ts.stableSort(entries, compareExpectedCompletionEntries);
+        }
+
+        // If you want to use a function like `globalsPlus`, that function needs to sort
+        // the concatted array since the entries provided as "plus" could be interleaved
+        // among the "globals." However, we still want to assert that the "plus" array
+        // was internally sorted correctly, so we tack it onto the sorted concatted array
+        // so `verify.completions` can assert that it represents the same order as the response.
+        function combineExpectedCompletionEntries(
+            functionName: string,
+            providedByHarness: readonly ExpectedCompletionEntry[],
+            providedByTest: readonly ExpectedCompletionEntry[],
+        ): ExpectedExactCompletionsPlus {
+            return Object.assign(sorted([...providedByHarness, ...providedByTest]), { plusFunctionName: functionName, plusArgument: providedByTest });
+        }
+
+        export function typeKeywordsPlus(plus: readonly ExpectedCompletionEntry[]) {
+            return combineExpectedCompletionEntries("typeKeywordsPlus", typeKeywords, plus);
+        }
 
         const globalTypeDecls: readonly ExpectedCompletionEntryObject[] = [
             interfaceEntry("Symbol"),
@@ -1025,6 +1131,8 @@ namespace FourSlashInterface {
             interfaceEntry("NumberConstructor"),
             interfaceEntry("TemplateStringsArray"),
             interfaceEntry("ImportMeta"),
+            interfaceEntry("ImportCallOptions"),
+            interfaceEntry("ImportAssertions"),
             varEntry("Math"),
             varEntry("Date"),
             interfaceEntry("DateConstructor"),
@@ -1059,6 +1167,7 @@ namespace FourSlashInterface {
             typeEntry("PromiseConstructorLike"),
             interfaceEntry("PromiseLike"),
             interfaceEntry("Promise"),
+            typeEntry("Awaited"),
             interfaceEntry("ArrayLike"),
             typeEntry("Partial"),
             typeEntry("Required"),
@@ -1113,13 +1222,12 @@ namespace FourSlashInterface {
             sortText: SortText.GlobalsOrKeywords
         };
         export const globalTypes = globalTypesPlus([]);
-        export function globalTypesPlus(plus: readonly ExpectedCompletionEntry[]): readonly ExpectedCompletionEntry[] {
-            return [
-                globalThisEntry,
-                ...globalTypeDecls,
-                ...plus,
-                ...typeKeywords,
-            ];
+        export function globalTypesPlus(plus: readonly ExpectedCompletionEntry[]) {
+            return combineExpectedCompletionEntries(
+                "globalTypesPlus",
+                [globalThisEntry, ...globalTypeDecls, ...typeKeywords],
+                plus
+            );
         }
 
         export const typeAssertionKeywords: readonly ExpectedCompletionEntry[] =
@@ -1151,6 +1259,7 @@ namespace FourSlashInterface {
                     case "symbol":
                     case "type":
                     case "unique":
+                    case "override":
                     case "unknown":
                     case "global":
                     case "bigint":
@@ -1161,13 +1270,26 @@ namespace FourSlashInterface {
             });
         }
 
-        export const classElementKeywords: readonly ExpectedCompletionEntryObject[] =
-            ["private", "protected", "public", "static", "abstract", "async", "constructor", "declare", "get", "readonly", "set"].map(keywordEntry);
+        export const classElementKeywords: readonly ExpectedCompletionEntryObject[] = [
+            "abstract",
+            "accessor",
+            "async",
+            "constructor",
+            "declare",
+            "get",
+            "override",
+            "private",
+            "protected",
+            "public",
+            "readonly",
+            "set",
+            "static",
+        ].map(keywordEntry);
 
         export const classElementInJsKeywords = getInJsKeywords(classElementKeywords);
 
         export const constructorParameterKeywords: readonly ExpectedCompletionEntryObject[] =
-            ["private", "protected", "public", "readonly"].map((name): ExpectedCompletionEntryObject => ({
+            ["override", "private", "protected", "public", "readonly"].map((name): ExpectedCompletionEntryObject => ({
                 name,
                 kind: "keyword",
                 sortText: SortText.GlobalsOrKeywords
@@ -1181,7 +1303,11 @@ namespace FourSlashInterface {
             propertyEntry("length"),
             { name: "arguments", kind: "property", kindModifiers: "declare", text: "(property) Function.arguments: any" },
             propertyEntry("caller"),
-        ];
+        ].sort(compareExpectedCompletionEntries);
+
+        export function functionMembersPlus(plus: readonly ExpectedCompletionEntryObject[]) {
+            return combineExpectedCompletionEntries("functionMembersPlus", functionMembers, plus);
+        }
 
         export const stringMembers: readonly ExpectedCompletionEntryObject[] = [
             methodEntry("toString"),
@@ -1203,18 +1329,29 @@ namespace FourSlashInterface {
             methodEntry("toLocaleUpperCase"),
             methodEntry("trim"),
             propertyEntry("length"),
-            methodEntry("substr"),
+            deprecatedMethodEntry("substr"),
             methodEntry("valueOf"),
-        ];
+        ].sort(compareExpectedCompletionEntries);
 
         export const functionMembersWithPrototype: readonly ExpectedCompletionEntryObject[] = [
-            ...functionMembers.slice(0, 4),
+            ...functionMembers,
             propertyEntry("prototype"),
-            ...functionMembers.slice(4),
-        ];
+        ].sort(compareExpectedCompletionEntries);
+
+        export function functionMembersWithPrototypePlus(plus: readonly ExpectedCompletionEntryObject[]) {
+            return [...functionMembersWithPrototype, ...plus].sort(compareExpectedCompletionEntries);
+        }
 
         // TODO: Shouldn't propose type keywords in statement position
         export const statementKeywordsWithTypes: readonly ExpectedCompletionEntryObject[] = [
+            "abstract",
+            "any",
+            "as",
+            "asserts",
+            "async",
+            "await",
+            "bigint",
+            "boolean",
             "break",
             "case",
             "catch",
@@ -1223,6 +1360,7 @@ namespace FourSlashInterface {
             "const",
             "continue",
             "debugger",
+            "declare",
             "default",
             "delete",
             "do",
@@ -1235,49 +1373,42 @@ namespace FourSlashInterface {
             "for",
             "function",
             "if",
+            "implements",
             "import",
             "in",
+            "infer",
             "instanceof",
+            "interface",
+            "keyof",
+            "let",
+            "module",
+            "namespace",
+            "never",
             "new",
             "null",
+            "number",
+            "object",
+            "package",
+            "readonly",
             "return",
+            "satisfies",
+            "string",
             "super",
             "switch",
+            "symbol",
             "this",
             "throw",
             "true",
             "try",
+            "type",
             "typeof",
+            "unique",
+            "unknown",
             "var",
             "void",
             "while",
             "with",
-            "implements",
-            "interface",
-            "let",
-            "package",
             "yield",
-            "as",
-            "asserts",
-            "any",
-            "async",
-            "await",
-            "boolean",
-            "declare",
-            "infer",
-            "keyof",
-            "module",
-            "namespace",
-            "never",
-            "readonly",
-            "number",
-            "object",
-            "string",
-            "symbol",
-            "type",
-            "unique",
-            "unknown",
-            "bigint",
         ].map(keywordEntry);
 
         export const statementKeywords: readonly ExpectedCompletionEntryObject[] = statementKeywordsWithTypes.filter(k => {
@@ -1299,56 +1430,58 @@ namespace FourSlashInterface {
         export const statementInJsKeywords = getInJsKeywords(statementKeywords);
 
         export const globalsVars: readonly ExpectedCompletionEntryObject[] = [
-            functionEntry("eval"),
-            functionEntry("parseInt"),
-            functionEntry("parseFloat"),
-            functionEntry("isNaN"),
-            functionEntry("isFinite"),
+            varEntry("Array"),
+            varEntry("ArrayBuffer"),
+            varEntry("Boolean"),
+            varEntry("DataView"),
+            varEntry("Date"),
             functionEntry("decodeURI"),
             functionEntry("decodeURIComponent"),
             functionEntry("encodeURI"),
             functionEntry("encodeURIComponent"),
-            functionEntry("escape"),
-            functionEntry("unescape"),
-            varEntry("NaN"),
-            varEntry("Infinity"),
-            varEntry("Object"),
-            varEntry("Function"),
-            varEntry("String"),
-            varEntry("Boolean"),
-            varEntry("Number"),
-            varEntry("Math"),
-            varEntry("Date"),
-            varEntry("RegExp"),
             varEntry("Error"),
+            deprecatedFunctionEntry("escape"),
+            functionEntry("eval"),
             varEntry("EvalError"),
-            varEntry("RangeError"),
-            varEntry("ReferenceError"),
-            varEntry("SyntaxError"),
-            varEntry("TypeError"),
-            varEntry("URIError"),
-            varEntry("JSON"),
-            varEntry("Array"),
-            varEntry("ArrayBuffer"),
-            varEntry("DataView"),
-            varEntry("Int8Array"),
-            varEntry("Uint8Array"),
-            varEntry("Uint8ClampedArray"),
-            varEntry("Int16Array"),
-            varEntry("Uint16Array"),
-            varEntry("Int32Array"),
-            varEntry("Uint32Array"),
             varEntry("Float32Array"),
             varEntry("Float64Array"),
+            varEntry("Function"),
+            varEntry("Infinity"),
             moduleEntry("Intl"),
+            varEntry("Int16Array"),
+            varEntry("Int32Array"),
+            varEntry("Int8Array"),
+            functionEntry("isFinite"),
+            functionEntry("isNaN"),
+            varEntry("JSON"),
+            varEntry("Math"),
+            varEntry("NaN"),
+            varEntry("Number"),
+            varEntry("Object"),
+            functionEntry("parseFloat"),
+            functionEntry("parseInt"),
+            varEntry("RangeError"),
+            varEntry("ReferenceError"),
+            varEntry("RegExp"),
+            varEntry("String"),
+            varEntry("SyntaxError"),
+            varEntry("TypeError"),
+            varEntry("Uint16Array"),
+            varEntry("Uint32Array"),
+            varEntry("Uint8Array"),
+            varEntry("Uint8ClampedArray"),
+            deprecatedFunctionEntry("unescape"),
+            varEntry("URIError"),
         ];
 
         const globalKeywordsInsideFunction: readonly ExpectedCompletionEntryObject[] = [
+            "as",
+            "async",
+            "await",
             "break",
             "case",
             "catch",
             "class",
-            "struct",
             "const",
             "continue",
             "debugger",
@@ -1364,70 +1497,86 @@ namespace FourSlashInterface {
             "for",
             "function",
             "if",
+            "implements",
             "import",
             "in",
             "instanceof",
+            "interface",
+            "let",
             "new",
             "null",
+            "package",
             "return",
+            "satisfies",
+            "struct",
             "super",
             "switch",
             "this",
             "throw",
             "true",
             "try",
+            "type",
             "typeof",
             "var",
             "void",
             "while",
             "with",
-            "implements",
-            "interface",
-            "let",
-            "package",
             "yield",
-            "as",
-            "async",
-            "await",
         ].map(keywordEntry);
 
-        export const undefinedVarEntry: ExpectedCompletionEntry = {
+        function compareExpectedCompletionEntries(a: ExpectedCompletionEntry, b: ExpectedCompletionEntry) {
+            const aSortText = typeof a !== "string" && a.sortText || ts.Completions.SortText.LocationPriority;
+            const bSortText = typeof b !== "string" && b.sortText || ts.Completions.SortText.LocationPriority;
+            const bySortText = ts.compareStringsCaseSensitiveUI(aSortText, bSortText);
+            if (bySortText !== ts.Comparison.EqualTo) return bySortText;
+            return ts.compareStringsCaseSensitiveUI(typeof a === "string" ? a : a.name, typeof b === "string" ? b : b.name);
+        }
+
+        export const undefinedVarEntry: ExpectedCompletionEntryObject = {
             name: "undefined",
             kind: "var",
             sortText: SortText.GlobalsOrKeywords
         };
         // TODO: many of these are inappropriate to always provide
-        export const globalsInsideFunction = (plus: readonly ExpectedCompletionEntry[]): readonly ExpectedCompletionEntry[] => [
+        export const globalsInsideFunction = (plus: readonly ExpectedCompletionEntry[], options?: { noLib?: boolean }): readonly ExpectedCompletionEntry[] => [
             { name: "arguments", kind: "local var" },
             ...plus,
             globalThisEntry,
-            ...globalsVars,
+            ...options?.noLib ? [] : globalsVars,
             undefinedVarEntry,
             ...globalKeywordsInsideFunction,
-        ];
+        ].sort(compareExpectedCompletionEntries);
 
         const globalInJsKeywordsInsideFunction = getInJsKeywords(globalKeywordsInsideFunction);
 
         // TODO: many of these are inappropriate to always provide
-        export const globalsInJsInsideFunction = (plus: readonly ExpectedCompletionEntry[]): readonly ExpectedCompletionEntry[] => [
+        export const globalsInJsInsideFunction = (plus: readonly ExpectedCompletionEntry[], options?: { noLib?: boolean }): readonly ExpectedCompletionEntry[] => [
             { name: "arguments", kind: "local var" },
             globalThisEntry,
-            ...globalsVars,
+            ...options?.noLib ? [] : globalsVars,
             ...plus,
             undefinedVarEntry,
             ...globalInJsKeywordsInsideFunction,
-        ];
+        ].sort(compareExpectedCompletionEntries);
 
         // TODO: many of these are inappropriate to always provide
         export const globalKeywords: readonly ExpectedCompletionEntryObject[] = [
+            "abstract",
+            "any",
+            "as",
+            "asserts",
+            "async",
+            "await",
+            "bigint",
+            "boolean",
             "break",
             "case",
             "catch",
             "class",
-            "struct",
             "const",
             "continue",
             "debugger",
+            "declare",
             "default",
             "delete",
             "do",
@@ -1440,59 +1589,55 @@ namespace FourSlashInterface {
             "for",
             "function",
             "if",
+            "implements",
             "import",
             "in",
+            "infer",
             "instanceof",
+            "interface",
+            "keyof",
+            "let",
+            "module",
+            "namespace",
+            "never",
             "new",
             "null",
+            "number",
+            "object",
+            "package",
+            "readonly",
             "return",
+            "satisfies",
+            "string",
+            "struct",
             "super",
             "switch",
+            "symbol",
             "this",
             "throw",
             "true",
             "try",
+            "type",
             "typeof",
+            "unique",
+            "unknown",
             "var",
             "void",
             "while",
             "with",
-            "implements",
-            "interface",
-            "let",
-            "package",
             "yield",
-            "as",
-            "asserts",
-            "any",
-            "async",
-            "await",
-            "boolean",
-            "declare",
-            "infer",
-            "keyof",
-            "module",
-            "namespace",
-            "never",
-            "readonly",
-            "number",
-            "object",
-            "string",
-            "symbol",
-            "type",
-            "unique",
-            "unknown",
-            "bigint",
         ].map(keywordEntry);
 
         export const globalInJsKeywords = getInJsKeywords(globalKeywords);
 
         export const insideMethodKeywords: readonly ExpectedCompletionEntryObject[] = [
+            "as",
+            "async",
+            "await",
             "break",
             "case",
             "catch",
             "class",
-            "struct",
             "const",
             "continue",
             "debugger",
@@ -1508,31 +1653,31 @@ namespace FourSlashInterface {
             "for",
             "function",
             "if",
+            "implements",
             "import",
             "in",
             "instanceof",
+            "interface",
+            "let",
             "new",
             "null",
+            "package",
             "return",
+            "satisfies",
+            "struct",
             "super",
             "switch",
             "this",
             "throw",
             "true",
             "try",
+            "type",
             "typeof",
             "var",
             "void",
             "while",
             "with",
-            "implements",
-            "interface",
-            "let",
-            "package",
             "yield",
-            "as",
-            "async",
-            "await",
         ].map(keywordEntry);
 
         export const insideMethodInJsKeywords = getInJsKeywords(insideMethodKeywords);
@@ -1542,31 +1687,31 @@ namespace FourSlashInterface {
             ...globalsVars,
             undefinedVarEntry,
             ...globalKeywords
-        ];
+        ].sort(compareExpectedCompletionEntries);
 
         export const globalsInJs: readonly ExpectedCompletionEntryObject[] = [
             globalThisEntry,
             ...globalsVars,
             undefinedVarEntry,
             ...globalInJsKeywords
-        ];
+        ].sort(compareExpectedCompletionEntries);
 
-        export function globalsPlus(plus: readonly ExpectedCompletionEntry[]): readonly ExpectedCompletionEntry[] {
-            return [
+        export function globalsPlus(plus: readonly ExpectedCompletionEntry[], options?: { noLib?: boolean }) {
+            return combineExpectedCompletionEntries("globalsPlus", [
                 globalThisEntry,
-                ...globalsVars,
-                ...plus,
+                ...options?.noLib ? [] : globalsVars,
                 undefinedVarEntry,
-                ...globalKeywords];
+                ...globalKeywords,
+            ], plus);
         }
 
-        export function globalsInJsPlus(plus: readonly ExpectedCompletionEntry[]): readonly ExpectedCompletionEntry[] {
-            return [
+        export function globalsInJsPlus(plus: readonly ExpectedCompletionEntry[], options?: { noLib?: boolean }) {
+            return combineExpectedCompletionEntries("globalsInJsPlus", [
                 globalThisEntry,
-                ...globalsVars,
-                ...plus,
+                ...options?.noLib ? [] : globalsVars,
                 undefinedVarEntry,
-                ...globalInJsKeywords];
+                ...globalInJsKeywords,
+            ], plus);
         }
     }
 
@@ -1596,20 +1741,33 @@ namespace FourSlashInterface {
         readonly isFromUncheckedFile?: boolean; // If not specified, won't assert about this
         readonly kind?: string; // If not specified, won't assert about this
         readonly isPackageJsonImport?: boolean; // If not specified, won't assert about this
+        readonly isSnippet?: boolean;
         readonly kindModifiers?: string; // Must be paired with 'kind'
         readonly text?: string;
         readonly documentation?: string;
         readonly sourceDisplay?: string;
+        readonly labelDetails?: ExpectedCompletionEntryLabelDetails;
         readonly tags?: readonly ts.JSDocTagInfo[];
         readonly sortText?: ts.Completions.SortText;
     }
+
+    export interface ExpectedCompletionEntryLabelDetails {
+        detail?: string;
+        description?: string;
+    }
+
+    export type ExpectedExactCompletionsPlus = readonly ExpectedCompletionEntry[] & {
+        plusFunctionName: string,
+        plusArgument: readonly ExpectedCompletionEntry[]
+    };
 
     export interface VerifyCompletionsOptions {
         readonly marker?: ArrayOrSingle<string | FourSlash.Marker>;
         readonly isNewIdentifierLocation?: boolean; // Always tested
         readonly isGlobalCompletion?: boolean; // Only tested if set
         readonly optionalReplacementSpan?: FourSlash.Range; // Only tested if set
-        readonly exact?: ArrayOrSingle<ExpectedCompletionEntry>;
+        readonly exact?: ArrayOrSingle<ExpectedCompletionEntry> | ExpectedExactCompletionsPlus;
+        readonly unsorted?: readonly ExpectedCompletionEntry[];
         readonly includes?: ArrayOrSingle<ExpectedCompletionEntry>;
         readonly excludes?: ArrayOrSingle<string>;
         readonly preferences?: ts.UserPreferences;
@@ -1652,6 +1810,14 @@ namespace FourSlashInterface {
         readonly range: FourSlash.Range;
         readonly containerName?: string;
         readonly containerKind?: ts.ScriptElementKind;
+    }
+
+    export interface VerifyInlayHintsOptions {
+        text: string;
+        position: number;
+        kind?: ts.InlayHintKind;
+        whitespaceBefore?: boolean;
+        whitespaceAfter?: boolean;
     }
 
     export type ArrayOrSingle<T> = T | readonly T[];
@@ -1706,6 +1872,7 @@ namespace FourSlashInterface {
     export interface VerifyCompletionActionOptions extends NewContentOptions {
         name: string;
         source?: string;
+        data?: ts.CompletionEntryData;
         description: string;
         preferences?: ts.UserPreferences;
     }
@@ -1738,11 +1905,11 @@ namespace FourSlashInterface {
     };
     export interface DiagnosticIgnoredInterpolations {
         template: string
-    };
+    }
     export type RenameLocationOptions = FourSlash.Range | { readonly range: FourSlash.Range, readonly prefixText?: string, readonly suffixText?: string };
     export interface RenameOptions {
         readonly findInStrings?: boolean;
         readonly findInComments?: boolean;
         readonly providePrefixAndSuffixTextForRename?: boolean;
-    };
+    }
 }

@@ -1,25 +1,5 @@
 /* @internal */
 namespace ts {
-    type GetIteratorCallback = <I extends readonly any[] | ReadonlySet<any> | ReadonlyESMap<any, any> | undefined>(iterable: I) => Iterator<
-        I extends ReadonlyESMap<infer K, infer V> ? [K, V] :
-        I extends ReadonlySet<infer T> ? T :
-        I extends readonly (infer T)[] ? T :
-        I extends undefined ? undefined :
-        never>;
-
-    function getCollectionImplementation<
-        K1 extends MatchingKeys<typeof NativeCollections, () => any>,
-        K2 extends MatchingKeys<typeof ShimCollections, (getIterator?: GetIteratorCallback) => ReturnType<(typeof NativeCollections)[K1]>>
-    >(name: string, nativeFactory: K1, shimFactory: K2): NonNullable<ReturnType<(typeof NativeCollections)[K1]>> {
-        // NOTE: ts.ShimCollections will be defined for typescriptServices.js but not for tsc.js, so we must test for it.
-        const constructor = NativeCollections[nativeFactory]() ?? ShimCollections?.[shimFactory](getIterator);
-        if (constructor) return constructor as NonNullable<ReturnType<(typeof NativeCollections)[K1]>>;
-        throw new Error(`TypeScript requires an environment that provides a compatible native ${name} implementation.`);
-    }
-
-    export const Map = getCollectionImplementation("Map", "tryGetNativeMap", "createMapShim");
-    export const Set = getCollectionImplementation("Set", "tryGetNativeSet", "createSetShim");
-
     export function getIterator<I extends readonly any[] | ReadonlySet<any> | ReadonlyESMap<any, any> | undefined>(iterable: I): Iterator<
         I extends ReadonlyESMap<infer K, infer V> ? [K, V] :
         I extends ReadonlySet<infer T> ? T :
@@ -42,34 +22,6 @@ namespace ts {
     export const emptyArray: never[] = [] as never[];
     export const emptyMap: ReadonlyESMap<never, never> = new Map<never, never>();
     export const emptySet: ReadonlySet<never> = new Set<never>();
-
-    /**
-     * Create a new map.
-     * @deprecated Use `new Map()` instead.
-     */
-    export function createMap<K, V>(): ESMap<K, V>;
-    export function createMap<T>(): ESMap<string, T>;
-    export function createMap<K, V>(): ESMap<K, V> {
-        return new Map<K, V>();
-    }
-
-    /**
-     * Create a new map from a template object is provided, the map will copy entries from it.
-     * @deprecated Use `new Map(getEntries(template))` instead.
-     */
-    export function createMapFromTemplate<T>(template: MapLike<T>): ESMap<string, T> {
-        const map: ESMap<string, T> = new Map<string, T>();
-
-        // Copies keys/values from template. Note that for..in will not throw if
-        // template is undefined, and instead will just exit the loop.
-        for (const key in template) {
-            if (hasOwnProperty.call(template, key)) {
-                map.set(key, template[key]);
-            }
-        }
-
-        return map;
-    }
 
     export function length(array: readonly any[] | undefined): number {
         return array ? array.length : 0;
@@ -211,10 +163,11 @@ namespace ts {
     }
 
     /** Works like Array.prototype.find, returning `undefined` if no element satisfying the predicate is found. */
-    export function find<T, U extends T>(array: readonly T[], predicate: (element: T, index: number) => element is U): U | undefined;
-    export function find<T>(array: readonly T[], predicate: (element: T, index: number) => boolean): T | undefined;
-    export function find<T>(array: readonly T[], predicate: (element: T, index: number) => boolean): T | undefined {
-        for (let i = 0; i < array.length; i++) {
+    export function find<T, U extends T>(array: readonly T[] | undefined, predicate: (element: T, index: number) => element is U, startIndex?: number): U | undefined;
+    export function find<T>(array: readonly T[] | undefined, predicate: (element: T, index: number) => boolean, startIndex?: number): T | undefined;
+    export function find<T>(array: readonly T[] | undefined, predicate: (element: T, index: number) => boolean, startIndex?: number): T | undefined {
+        if (array === undefined) return undefined;
+        for (let i = startIndex ?? 0; i < array.length; i++) {
             const value = array[i];
             if (predicate(value, i)) {
                 return value;
@@ -223,10 +176,11 @@ namespace ts {
         return undefined;
     }
 
-    export function findLast<T, U extends T>(array: readonly T[], predicate: (element: T, index: number) => element is U): U | undefined;
-    export function findLast<T>(array: readonly T[], predicate: (element: T, index: number) => boolean): T | undefined;
-    export function findLast<T>(array: readonly T[], predicate: (element: T, index: number) => boolean): T | undefined {
-        for (let i = array.length - 1; i >= 0; i--) {
+    export function findLast<T, U extends T>(array: readonly T[] | undefined, predicate: (element: T, index: number) => element is U, startIndex?: number): U | undefined;
+    export function findLast<T>(array: readonly T[] | undefined, predicate: (element: T, index: number) => boolean, startIndex?: number): T | undefined;
+    export function findLast<T>(array: readonly T[] | undefined, predicate: (element: T, index: number) => boolean, startIndex?: number): T | undefined {
+        if (array === undefined) return undefined;
+        for (let i = startIndex ?? array.length - 1; i >= 0; i--) {
             const value = array[i];
             if (predicate(value, i)) {
                 return value;
@@ -236,8 +190,9 @@ namespace ts {
     }
 
     /** Works like Array.prototype.findIndex, returning `-1` if no element satisfying the predicate is found. */
-    export function findIndex<T>(array: readonly T[], predicate: (element: T, index: number) => boolean, startIndex?: number): number {
-        for (let i = startIndex || 0; i < array.length; i++) {
+    export function findIndex<T>(array: readonly T[] | undefined, predicate: (element: T, index: number) => boolean, startIndex?: number): number {
+        if (array === undefined) return -1;
+        for (let i = startIndex ?? 0; i < array.length; i++) {
             if (predicate(array[i], i)) {
                 return i;
             }
@@ -245,8 +200,9 @@ namespace ts {
         return -1;
     }
 
-    export function findLastIndex<T>(array: readonly T[], predicate: (element: T, index: number) => boolean, startIndex?: number): number {
-        for (let i = startIndex === undefined ? array.length - 1 : startIndex; i >= 0; i--) {
+    export function findLastIndex<T>(array: readonly T[] | undefined, predicate: (element: T, index: number) => boolean, startIndex?: number): number {
+        if (array === undefined) return -1;
+        for (let i = startIndex ?? array.length - 1; i >= 0; i--) {
             if (predicate(array[i], i)) {
                 return i;
             }
@@ -292,7 +248,7 @@ namespace ts {
         return -1;
     }
 
-    export function countWhere<T>(array: readonly T[], predicate: (x: T, i: number) => boolean): number {
+    export function countWhere<T>(array: readonly T[] | undefined, predicate: (x: T, i: number) => boolean): number {
         let count = 0;
         if (array) {
             for (let i = 0; i < array.length; i++) {
@@ -349,7 +305,7 @@ namespace ts {
         array.length = outIndex;
     }
 
-    export function clear(array: {}[]): void {
+    export function clear(array: unknown[]): void {
         array.length = 0;
     }
 
@@ -818,16 +774,28 @@ namespace ts {
         return deduplicated as any as SortedReadonlyArray<T>;
     }
 
-    export function insertSorted<T>(array: SortedArray<T>, insert: T, compare: Comparer<T>): void {
+    export function createSortedArray<T>(): SortedArray<T> {
+        return [] as any as SortedArray<T>; // TODO: GH#19873
+    }
+
+    export function insertSorted<T>(array: SortedArray<T>, insert: T, compare: Comparer<T>, allowDuplicates?: boolean): boolean {
         if (array.length === 0) {
             array.push(insert);
-            return;
+            return true;
         }
 
         const insertIndex = binarySearch(array, insert, identity, compare);
         if (insertIndex < 0) {
             array.splice(~insertIndex, 0, insert);
+            return true;
         }
+
+        if (allowDuplicates) {
+            array.splice(insertIndex, 0, insert);
+            return true;
+        }
+
+        return false;
     }
 
     export function sortAndDeduplicate<T>(array: readonly string[]): SortedReadonlyArray<string>;
@@ -1120,8 +1088,8 @@ namespace ts {
     /**
      * Returns the first element of an array if non-empty, `undefined` otherwise.
      */
-    export function firstOrUndefined<T>(array: readonly T[]): T | undefined {
-        return array.length === 0 ? undefined : array[0];
+    export function firstOrUndefined<T>(array: readonly T[] | undefined): T | undefined {
+        return array === undefined || array.length === 0 ? undefined : array[0];
     }
 
     export function first<T>(array: readonly T[]): T {
@@ -1132,8 +1100,8 @@ namespace ts {
     /**
      * Returns the last element of an array if non-empty, `undefined` otherwise.
      */
-    export function lastOrUndefined<T>(array: readonly T[]): T | undefined {
-        return array.length === 0 ? undefined : array[array.length - 1];
+    export function lastOrUndefined<T>(array: readonly T[] | undefined): T | undefined {
+        return array === undefined || array.length === 0 ? undefined : array[array.length - 1];
     }
 
     export function last<T>(array: readonly T[]): T {
@@ -1148,6 +1116,13 @@ namespace ts {
         return array && array.length === 1
             ? array[0]
             : undefined;
+    }
+
+    /**
+     * Returns the only element of an array if it contains only one element; throws otherwise.
+     */
+    export function single<T>(array: readonly T[]): T {
+        return Debug.checkDefined(singleOrUndefined(array));
     }
 
     /**
@@ -1293,11 +1268,11 @@ namespace ts {
         return result;
     }
 
-    export function getOwnValues<T>(sparseArray: T[]): T[] {
+    export function getOwnValues<T>(collection: MapLike<T> | T[]): T[] {
         const values: T[] = [];
-        for (const key in sparseArray) {
-            if (hasOwnProperty.call(sparseArray, key)) {
-                values.push(sparseArray[key]);
+        for (const key in collection) {
+            if (hasOwnProperty.call(collection, key)) {
+                values.push((collection as MapLike<T>)[key]);
             }
         }
 
@@ -1429,7 +1404,7 @@ namespace ts {
         const result: any = {};
         for (const id in object) {
             if (hasOwnProperty.call(object, id)) {
-                result[id] = (<any>object)[id];
+                result[id] = (object as any)[id];
             }
         }
         return result;
@@ -1441,7 +1416,7 @@ namespace ts {
      * NOTE: This means that if a property exists in both `first` and `second`, the property in `first` will be chosen.
      */
     export function extend<T1, T2>(first: T1, second: T2): T1 & T2 {
-        const result: T1 & T2 = <any>{};
+        const result: T1 & T2 = {} as any;
         for (const id in second) {
             if (hasOwnProperty.call(second, id)) {
                 (result as any)[id] = (second as any)[id];
@@ -1529,10 +1504,204 @@ namespace ts {
         return createMultiMap() as UnderscoreEscapedMultiMap<T>;
     }
 
+    export function createQueue<T>(items?: readonly T[]): Queue<T> {
+        const elements: (T | undefined)[] = items?.slice() || [];
+        let headIndex = 0;
+
+        function isEmpty() {
+            return headIndex === elements.length;
+        }
+
+        function enqueue(...items: T[]) {
+            elements.push(...items);
+        }
+
+        function dequeue(): T {
+            if (isEmpty()) {
+                throw new Error("Queue is empty");
+            }
+
+            const result = elements[headIndex] as T;
+            elements[headIndex] = undefined; // Don't keep referencing dequeued item
+            headIndex++;
+
+            // If more than half of the queue is empty, copy the remaining elements to the
+            // front and shrink the array (unless we'd be saving fewer than 100 slots)
+            if (headIndex > 100 && headIndex > (elements.length >> 1)) {
+                const newLength = elements.length - headIndex;
+                elements.copyWithin(/*target*/ 0, /*start*/ headIndex);
+
+                elements.length = newLength;
+                headIndex = 0;
+            }
+
+            return result;
+        }
+
+        return {
+            enqueue,
+            dequeue,
+            isEmpty,
+        };
+    }
+
+    /**
+     * Creates a Set with custom equality and hash code functionality.  This is useful when you
+     * want to use something looser than object identity - e.g. "has the same span".
+     *
+     * If `equals(a, b)`, it must be the case that `getHashCode(a) === getHashCode(b)`.
+     * The converse is not required.
+     *
+     * To facilitate a perf optimization (lazy allocation of bucket arrays), `TElement` is
+     * assumed not to be an array type.
+     */
+    export function createSet<TElement, THash = number>(getHashCode: (element: TElement) => THash, equals: EqualityComparer<TElement>): Set<TElement> {
+        const multiMap = new Map<THash, TElement | TElement[]>();
+        let size = 0;
+
+        function getElementIterator(): Iterator<TElement> {
+            const valueIt = multiMap.values();
+            let arrayIt: Iterator<TElement> | undefined;
+            return {
+                next: () => {
+                    while (true) {
+                        if (arrayIt) {
+                            const n = arrayIt.next();
+                            if (!n.done) {
+                                return { value: n.value };
+                            }
+                            arrayIt = undefined;
+                        }
+                        else {
+                            const n = valueIt.next();
+                            if (n.done) {
+                                return { value: undefined, done: true };
+                            }
+                            if (!isArray(n.value)) {
+                                return { value: n.value };
+                            }
+                            arrayIt = arrayIterator(n.value);
+                        }
+                    }
+                }
+            };
+        }
+
+        const set: Set<TElement> = {
+            has(element: TElement): boolean {
+                const hash = getHashCode(element);
+                if (!multiMap.has(hash)) return false;
+                const candidates = multiMap.get(hash)!;
+                if (!isArray(candidates)) return equals(candidates, element);
+
+                for (const candidate of candidates) {
+                    if (equals(candidate, element)) {
+                        return true;
+                    }
+                }
+                return false;
+            },
+            add(element: TElement): Set<TElement> {
+                const hash = getHashCode(element);
+                if (multiMap.has(hash)) {
+                    const values = multiMap.get(hash)!;
+                    if (isArray(values)) {
+                        if (!contains(values, element, equals)) {
+                            values.push(element);
+                            size++;
+                        }
+                    }
+                    else {
+                        const value = values;
+                        if (!equals(value, element)) {
+                            multiMap.set(hash, [ value, element ]);
+                            size++;
+                        }
+                    }
+                }
+                else {
+                    multiMap.set(hash, element);
+                    size++;
+                }
+
+                return this;
+            },
+            delete(element: TElement): boolean {
+                const hash = getHashCode(element);
+                if (!multiMap.has(hash)) return false;
+                const candidates = multiMap.get(hash)!;
+                if (isArray(candidates)) {
+                    for (let i = 0; i < candidates.length; i++) {
+                        if (equals(candidates[i], element)) {
+                            if (candidates.length === 1) {
+                                multiMap.delete(hash);
+                            }
+                            else if (candidates.length === 2) {
+                                multiMap.set(hash, candidates[1 - i]);
+                            }
+                            else {
+                                unorderedRemoveItemAt(candidates, i);
+                            }
+                            size--;
+                            return true;
+                        }
+                    }
+                }
+                else {
+                    const candidate = candidates;
+                    if (equals(candidate, element)) {
+                        multiMap.delete(hash);
+                        size--;
+                        return true;
+                    }
+                }
+
+                return false;
+            },
+            clear(): void {
+                multiMap.clear();
+                size = 0;
+            },
+            get size() {
+                return size;
+            },
+            forEach(action: (value: TElement, key: TElement) => void): void {
+                for (const elements of arrayFrom(multiMap.values())) {
+                    if (isArray(elements)) {
+                        for (const element of elements) {
+                            action(element, element);
+                        }
+                    }
+                    else {
+                        const element = elements;
+                        action(element, element);
+                    }
+                }
+            },
+            keys(): Iterator<TElement> {
+                return getElementIterator();
+            },
+            values(): Iterator<TElement> {
+                return getElementIterator();
+            },
+            entries(): Iterator<[TElement, TElement]> {
+                const it = getElementIterator();
+                return {
+                    next: () => {
+                        const n = it.next();
+                        return n.done ? n : { value: [ n.value, n.value ] };
+                    }
+                };
+            },
+        };
+
+        return set;
+    }
+
     /**
      * Tests whether a value is an array.
      */
-    export function isArray(value: any): value is readonly {}[] {
+    export function isArray(value: any): value is readonly unknown[] {
         return Array.isArray ? Array.isArray(value) : value instanceof Array;
     }
 
@@ -1565,22 +1734,37 @@ namespace ts {
     }
 
     /** Does nothing. */
-    export function noop(_?: {} | null | undefined): void { }
+    export function noop(_?: unknown): void { }
+
+    export const noopPush: Push<any> = {
+        push: noop,
+        length: 0
+    };
 
     /** Do nothing and return false */
-    export function returnFalse(): false { return false; }
+    export function returnFalse(): false {
+        return false;
+    }
 
     /** Do nothing and return true */
-    export function returnTrue(): true { return true; }
+    export function returnTrue(): true {
+        return true;
+    }
 
     /** Do nothing and return undefined */
-    export function returnUndefined(): undefined { return undefined; }
+    export function returnUndefined(): undefined {
+        return undefined;
+    }
 
     /** Returns its argument. */
-    export function identity<T>(x: T) { return x; }
+    export function identity<T>(x: T) {
+        return x;
+    }
 
     /** Returns lower case string */
-    export function toLowerCase(x: string) { return x.toLowerCase(); }
+    export function toLowerCase(x: string) {
+        return x.toLowerCase();
+    }
 
     // We convert the file names to lower case as key for file name on case insensitive file system
     // While doing so we need to handle special characters (eg \u0130) to ensure that we dont convert
@@ -1753,8 +1937,10 @@ namespace ts {
         return compareValues(a?.start, b?.start) || compareValues(a?.length, b?.length);
     }
 
-    export function min<T>(a: T, b: T, compare: Comparer<T>): T {
-        return compare(a, b) === Comparison.LessThan ? a : b;
+    export function min<T>(items: readonly [T, ...T[]], compare: Comparer<T>): T;
+    export function min<T>(items: readonly T[], compare: Comparer<T>): T | undefined;
+    export function min<T>(items: readonly T[], compare: Comparer<T>): T | undefined {
+        return reduceLeft(items, (x, y) => compare(x, y) === Comparison.LessThan ? x : y);
     }
 
     /**
@@ -1913,7 +2099,7 @@ namespace ts {
         return comparer(a, b);
     }
 
-    export function compareProperties<T, K extends keyof T>(a: T | undefined, b: T | undefined, key: K, comparer: Comparer<T[K]>): Comparison {
+    export function compareProperties<T extends object, K extends keyof T>(a: T | undefined, b: T | undefined, key: K, comparer: Comparer<T[K]>): Comparison {
         return a === b ? Comparison.EqualTo :
             a === undefined ? Comparison.LessThan :
             b === undefined ? Comparison.GreaterThan :
@@ -1938,7 +2124,7 @@ namespace ts {
      *         and 1 insertion/deletion at 3 characters)
      */
     export function getSpellingSuggestion<T>(name: string, candidates: T[], getName: (candidate: T) => string | undefined): T | undefined {
-        const maximumLengthDifference = Math.min(2, Math.floor(name.length * 0.34));
+        const maximumLengthDifference = Math.max(2, Math.floor(name.length * 0.34));
         let bestDistance = Math.floor(name.length * 0.4) + 1; // If the best result is worse than this, don't bother.
         let bestCandidate: T | undefined;
         for (const candidate of candidates) {
@@ -2035,11 +2221,51 @@ namespace ts {
      * Takes a string like "jquery-min.4.2.3" and returns "jquery"
      */
     export function removeMinAndVersionNumbers(fileName: string) {
-        // Match a "." or "-" followed by a version number or 'min' at the end of the name
-        const trailingMinOrVersion = /[.-]((min)|(\d+(\.\d+)*))$/;
+        // We used to use the regex /[.-]((min)|(\d+(\.\d+)*))$/ and would just .replace it twice.
+        // Unfortunately, that regex has O(n^2) performance because v8 doesn't match from the end of the string.
+        // Instead, we now essentially scan the filename (backwards) ourselves.
 
-        // The "min" or version may both be present, in either order, so try applying the above twice.
-        return fileName.replace(trailingMinOrVersion, "").replace(trailingMinOrVersion, "");
+        let end: number = fileName.length;
+
+        for (let pos = end - 1; pos > 0; pos--) {
+            let ch: number = fileName.charCodeAt(pos);
+            if (ch >= CharacterCodes._0 && ch <= CharacterCodes._9) {
+                // Match a \d+ segment
+                do {
+                    --pos;
+                    ch = fileName.charCodeAt(pos);
+                } while (pos > 0 && ch >= CharacterCodes._0 && ch <= CharacterCodes._9);
+            }
+            else if (pos > 4 && (ch === CharacterCodes.n || ch === CharacterCodes.N)) {
+                // Looking for "min" or "min"
+                // Already matched the 'n'
+                --pos;
+                ch = fileName.charCodeAt(pos);
+                if (ch !== CharacterCodes.i && ch !== CharacterCodes.I) {
+                    break;
+                }
+                --pos;
+                ch = fileName.charCodeAt(pos);
+                if (ch !== CharacterCodes.m && ch !== CharacterCodes.M) {
+                    break;
+                }
+                --pos;
+                ch = fileName.charCodeAt(pos);
+            }
+            else {
+                // This character is not part of either suffix pattern
+                break;
+            }
+
+            if (ch !== CharacterCodes.minus && ch !== CharacterCodes.dot) {
+                break;
+            }
+
+            end = pos;
+        }
+
+        // end might be fileName.length, in which case this should internally no-op
+        return end === fileName.length ? fileName : fileName.slice(0, end);
     }
 
     /** Remove an item from an array, moving everything to its right one space left. */
@@ -2137,7 +2363,7 @@ namespace ts {
         return startsWith(getCanonicalFileName(str), getCanonicalFileName(prefix)) ? str.substring(prefix.length) : undefined;
     }
 
-    function isPatternMatch({ prefix, suffix }: Pattern, candidate: string) {
+    export function isPatternMatch({ prefix, suffix }: Pattern, candidate: string) {
         return candidate.length >= prefix.length + suffix.length &&
             startsWith(candidate, prefix) &&
             endsWith(candidate, suffix);
@@ -2147,14 +2373,19 @@ namespace ts {
         return (arg: T) => f(arg) && g(arg);
     }
 
-    export function or<T extends unknown[]>(...fs: ((...args: T) => boolean)[]): (...args: T) => boolean {
+    export function or<P, R1 extends P, R2 extends P>(f1: (p1: P) => p1 is R1, f2: (p2: P) => p2 is R2): (p: P) => p is R1 | R2;
+    export function or<P, R1 extends P, R2 extends P, R3 extends P>(f1: (p1: P) => p1 is R1, f2: (p2: P) => p2 is R2, f3: (p3: P) => p3 is R3): (p: P) => p is R1 | R2 | R3;
+    export function or<T extends unknown[], U>(...fs: ((...args: T) => U)[]): (...args: T) => U;
+    export function or<T extends unknown[], U>(...fs: ((...args: T) => U)[]): (...args: T) => U {
         return (...args) => {
+            let lastResult: U;
             for (const f of fs) {
-                if (f(...args)) {
-                    return true;
+                lastResult = f(...args);
+                if (lastResult) {
+                    return lastResult;
                 }
             }
-            return false;
+            return lastResult!;
         };
     }
 
@@ -2270,5 +2501,35 @@ namespace ts {
             index++;
         }
         return array.slice(0, index);
+    }
+
+    /**
+     * Removes the leading and trailing white space and line terminator characters from a string.
+     */
+    export const trimString = !!String.prototype.trim ? ((s: string) => s.trim()) : (s: string) => trimStringEnd(trimStringStart(s));
+
+    /**
+     * Returns a copy with trailing whitespace removed.
+     */
+    export const trimStringEnd = !!String.prototype.trimEnd ? ((s: string) => s.trimEnd()) : trimEndImpl;
+
+    /**
+     * Returns a copy with leading whitespace removed.
+     */
+    export const trimStringStart = !!String.prototype.trimStart ? ((s: string) => s.trimStart()) : (s: string) => s.replace(/^\s+/g, "");
+
+    /**
+     * https://jsbench.me/gjkoxld4au/1
+     * The simple regex for this, /\s+$/g is O(n^2) in v8.
+     * The native .trimEnd method is by far best, but since that's technically ES2019,
+     * we provide a (still much faster than the simple regex) fallback.
+     */
+    function trimEndImpl(s: string) {
+        let end = s.length - 1;
+        while (end >= 0) {
+            if (!isWhiteSpaceLike(s.charCodeAt(end))) break;
+            end--;
+        }
+        return s.slice(0, end + 1);
     }
 }

@@ -33,379 +33,1628 @@ fn2();
             })
         };
 
-        interface VerifySingleScenarioWorker extends VerifySingleScenario {
-            withProject: boolean;
-        }
-        function verifySingleScenarioWorker({
-            withProject, scenario, openFiles, requestArgs, change, expectedResult
-        }: VerifySingleScenarioWorker) {
-            it(scenario, () => {
-                const host = TestFSWithWatch.changeToHostTrackingWrittenFiles(
-                    createServerHost([dependencyTs, dependencyConfig, usageTs, usageConfig, libFile])
-                );
-                const session = createSession(host);
-                openFilesForSession(openFiles(), session);
-                const reqArgs = requestArgs();
-                const {
-                    expectedAffected,
-                    expectedEmit: { expectedEmitSuccess, expectedFiles },
-                    expectedEmitOutput
-                } = expectedResult(withProject);
+        const localChange = "function fn3() { }";
+        const change = `export ${localChange}`;
 
-                if (change) {
+        describe("when dependency project is not open", () => {
+            describe("Of usageTs", () => {
+                it("with initial file open, without specifying project file", () => {
+                    const host = createServerHost([dependencyTs, dependencyConfig, usageTs, usageConfig, libFile]);
+                    const session = createSession(host, { logger: createLoggerWithInMemoryLogs(host) });
+                    openFilesForSession([usageTs], session);
+
+                    // Verify CompileOnSaveAffectedFileList
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: usageTs.path }
+                    });
+
+                    // Verify CompileOnSaveEmit
+                    session.executeCommandSeq<protocol.CompileOnSaveEmitFileRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveEmitFile,
+                        arguments: { file: usageTs.path }
+                    });
+
+                    // Verify EmitOutput
+                    session.executeCommandSeq<protocol.EmitOutputRequest>({
+                        command: protocol.CommandTypes.EmitOutput,
+                        arguments: { file: usageTs.path }
+                    });
+                    baselineTsserverLogs("projectReferenceCompileOnSave", "when dependency project is not open and save on usage", session);
+                });
+                it("with initial file open, with specifying project file", () => {
+                    const host = createServerHost([dependencyTs, dependencyConfig, usageTs, usageConfig, libFile]);
+                    const session = createSession(host, { logger: createLoggerWithInMemoryLogs(host) });
+                    openFilesForSession([usageTs], session);
+
+                    // Verify CompileOnSaveAffectedFileList
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: usageTs.path, projectFileName: usageConfig.path }
+                    });
+
+                    // Verify CompileOnSaveEmit
+                    session.executeCommandSeq<protocol.CompileOnSaveEmitFileRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveEmitFile,
+                        arguments: { file: usageTs.path, projectFileName: usageConfig.path }
+                    });
+
+                    // Verify EmitOutput
+                    session.executeCommandSeq<protocol.EmitOutputRequest>({
+                        command: protocol.CommandTypes.EmitOutput,
+                        arguments: { file: usageTs.path, projectFileName: usageConfig.path }
+                    });
+                    baselineTsserverLogs("projectReferenceCompileOnSave", "when dependency project is not open and save on usage with project", session);
+                });
+                it("with local change to dependency, without specifying project file", () => {
+                    const host = createServerHost([dependencyTs, dependencyConfig, usageTs, usageConfig, libFile]);
+                    const session = createSession(host, { logger: createLoggerWithInMemoryLogs(host) });
+                    openFilesForSession([usageTs], session);
+
                     session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
                         command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
                         arguments: { file: dependencyTs.path }
                     });
-                    const { file, insertString } = change();
-                    if (session.getProjectService().openFiles.has(file.path as Path)) {
-                        const toLocation = protocolToLocation(file.content);
-                        const location = toLocation(file.content.length);
-                        session.executeCommandSeq<protocol.ChangeRequest>({
-                            command: protocol.CommandTypes.Change,
-                            arguments: {
-                                file: file.path,
-                                ...location,
-                                endLine: location.line,
-                                endOffset: location.offset,
-                                insertString
-                            }
-                        });
-                    }
-                    else {
-                        host.writeFile(file.path, `${file.content}${insertString}`);
-                    }
-                    host.writtenFiles.clear();
-                }
+                    host.writeFile(dependencyTs.path, `${dependencyTs.content}${localChange}`);
 
-                const args = withProject ? reqArgs : { file: reqArgs.file };
-                // Verify CompileOnSaveAffectedFileList
-                const actualAffectedFiles = session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
-                    command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
-                    arguments: args
-                }).response as protocol.CompileOnSaveAffectedFileListSingleProject[];
-                assert.deepEqual(actualAffectedFiles, expectedAffected, "Affected files");
+                    // Verify CompileOnSaveAffectedFileList
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: usageTs.path }
+                    });
 
-                // Verify CompileOnSaveEmit
-                const actualEmit = session.executeCommandSeq<protocol.CompileOnSaveEmitFileRequest>({
-                    command: protocol.CommandTypes.CompileOnSaveEmitFile,
-                    arguments: args
-                }).response;
-                assert.deepEqual(actualEmit, expectedEmitSuccess, "Emit files");
-                assert.equal(host.writtenFiles.size, expectedFiles.length);
-                for (const file of expectedFiles) {
-                    assert.equal(host.readFile(file.path), file.content, `Expected to write ${file.path}`);
-                    assert.isTrue(host.writtenFiles.has(file.path as Path), `${file.path} is newly written`);
-                }
+                    // Verify CompileOnSaveEmit
+                    session.executeCommandSeq<protocol.CompileOnSaveEmitFileRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveEmitFile,
+                        arguments: { file: usageTs.path }
+                    });
 
-                // Verify EmitOutput
-                const { exportedModulesFromDeclarationEmit: _1, ...actualEmitOutput } = session.executeCommandSeq<protocol.EmitOutputRequest>({
-                    command: protocol.CommandTypes.EmitOutput,
-                    arguments: args
-                }).response as EmitOutput;
-                assert.deepEqual(actualEmitOutput, expectedEmitOutput, "Emit output");
+                    // Verify EmitOutput
+                    session.executeCommandSeq<protocol.EmitOutputRequest>({
+                        command: protocol.CommandTypes.EmitOutput,
+                        arguments: { file: usageTs.path }
+                    });
+                    baselineTsserverLogs("projectReferenceCompileOnSave", "when dependency project is not open and save on usage and local change to dependency", session);
+                });
+                it("with local change to dependency, with specifying project file", () => {
+                    const host = createServerHost([dependencyTs, dependencyConfig, usageTs, usageConfig, libFile]);
+                    const session = createSession(host, { logger: createLoggerWithInMemoryLogs(host) });
+                    openFilesForSession([usageTs], session);
+
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: dependencyTs.path }
+                    });
+                    host.writeFile(dependencyTs.path, `${dependencyTs.content}${localChange}`);
+
+                    // Verify CompileOnSaveAffectedFileList
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: usageTs.path, projectFileName: usageConfig.path }
+                    });
+
+                    // Verify CompileOnSaveEmit
+                    session.executeCommandSeq<protocol.CompileOnSaveEmitFileRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveEmitFile,
+                        arguments: { file: usageTs.path, projectFileName: usageConfig.path }
+                    });
+
+                    // Verify EmitOutput
+                    session.executeCommandSeq<protocol.EmitOutputRequest>({
+                        command: protocol.CommandTypes.EmitOutput,
+                        arguments: { file: usageTs.path, projectFileName: usageConfig.path }
+                    });
+                    baselineTsserverLogs("projectReferenceCompileOnSave", "when dependency project is not open and save on usage with project and local change to dependency", session);
+                });
+                it("with local change to usage, without specifying project file", () => {
+                    const host = createServerHost([dependencyTs, dependencyConfig, usageTs, usageConfig, libFile]);
+                    const session = createSession(host, { logger: createLoggerWithInMemoryLogs(host) });
+                    openFilesForSession([usageTs], session);
+
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: dependencyTs.path }
+                    });
+                    const toLocation = protocolToLocation(usageTs.content);
+                    const location = toLocation(usageTs.content.length);
+                    session.executeCommandSeq<protocol.ChangeRequest>({
+                        command: protocol.CommandTypes.Change,
+                        arguments: {
+                            file: usageTs.path,
+                            ...location,
+                            endLine: location.line,
+                            endOffset: location.offset,
+                            insertString: localChange
+                        }
+                    });
+
+                    // Verify CompileOnSaveAffectedFileList
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: usageTs.path }
+                    });
+
+                    // Verify CompileOnSaveEmit
+                    session.executeCommandSeq<protocol.CompileOnSaveEmitFileRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveEmitFile,
+                        arguments: { file: usageTs.path }
+                    });
+
+                    // Verify EmitOutput
+                    session.executeCommandSeq<protocol.EmitOutputRequest>({
+                        command: protocol.CommandTypes.EmitOutput,
+                        arguments: { file: usageTs.path }
+                    });
+                    baselineTsserverLogs("projectReferenceCompileOnSave", "when dependency project is not open and save on usage and local change to usage", session);
+                });
+                it("with local change to usage, with specifying project file", () => {
+                    const host = createServerHost([dependencyTs, dependencyConfig, usageTs, usageConfig, libFile]);
+                    const session = createSession(host, { logger: createLoggerWithInMemoryLogs(host) });
+                    openFilesForSession([usageTs], session);
+
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: dependencyTs.path }
+                    });
+                    const toLocation = protocolToLocation(usageTs.content);
+                    const location = toLocation(usageTs.content.length);
+                    session.executeCommandSeq<protocol.ChangeRequest>({
+                        command: protocol.CommandTypes.Change,
+                        arguments: {
+                            file: usageTs.path,
+                            ...location,
+                            endLine: location.line,
+                            endOffset: location.offset,
+                            insertString: localChange
+                        }
+                    });
+
+                    // Verify CompileOnSaveAffectedFileList
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: usageTs.path, projectFileName: usageConfig.path }
+                    });
+
+                    // Verify CompileOnSaveEmit
+                    session.executeCommandSeq<protocol.CompileOnSaveEmitFileRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveEmitFile,
+                        arguments: { file: usageTs.path, projectFileName: usageConfig.path }
+                    });
+
+                    // Verify EmitOutput
+                    session.executeCommandSeq<protocol.EmitOutputRequest>({
+                        command: protocol.CommandTypes.EmitOutput,
+                        arguments: { file: usageTs.path, projectFileName: usageConfig.path }
+                    });
+                    baselineTsserverLogs("projectReferenceCompileOnSave", "when dependency project is not open and save on usage with project and local change to usage", session);
+                });
+                it("with change to dependency, without specifying project file", () => {
+                    const host = createServerHost([dependencyTs, dependencyConfig, usageTs, usageConfig, libFile]);
+                    const session = createSession(host, { logger: createLoggerWithInMemoryLogs(host) });
+                    openFilesForSession([usageTs], session);
+
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: dependencyTs.path }
+                    });
+                    host.writeFile(dependencyTs.path, `${dependencyTs.content}${change}`);
+
+                    // Verify CompileOnSaveAffectedFileList
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: usageTs.path }
+                    });
+
+                    // Verify CompileOnSaveEmit
+                    session.executeCommandSeq<protocol.CompileOnSaveEmitFileRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveEmitFile,
+                        arguments: { file: usageTs.path }
+                    });
+
+                    // Verify EmitOutput
+                    session.executeCommandSeq<protocol.EmitOutputRequest>({
+                        command: protocol.CommandTypes.EmitOutput,
+                        arguments: { file: usageTs.path }
+                    });
+                    baselineTsserverLogs("projectReferenceCompileOnSave", "when dependency project is not open and save on usage and change to depenedency", session);
+                });
+                it("with change to dependency, with specifying project file", () => {
+                    const host = createServerHost([dependencyTs, dependencyConfig, usageTs, usageConfig, libFile]);
+                    const session = createSession(host, { logger: createLoggerWithInMemoryLogs(host) });
+                    openFilesForSession([usageTs], session);
+
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: dependencyTs.path }
+                    });
+                    host.writeFile(dependencyTs.path, `${dependencyTs.content}${change}`);
+
+                    // Verify CompileOnSaveAffectedFileList
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: usageTs.path, projectFileName: usageConfig.path }
+                    });
+
+                    // Verify CompileOnSaveEmit
+                    session.executeCommandSeq<protocol.CompileOnSaveEmitFileRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveEmitFile,
+                        arguments: { file: usageTs.path, projectFileName: usageConfig.path }
+                    });
+
+                    // Verify EmitOutput
+                    session.executeCommandSeq<protocol.EmitOutputRequest>({
+                        command: protocol.CommandTypes.EmitOutput,
+                        arguments: { file: usageTs.path, projectFileName: usageConfig.path }
+                    });
+                    baselineTsserverLogs("projectReferenceCompileOnSave", "when dependency project is not open and save on usage with project and change to depenedency", session);
+                });
+                it("with change to usage, without specifying project file", () => {
+                    const host = createServerHost([dependencyTs, dependencyConfig, usageTs, usageConfig, libFile]);
+                    const session = createSession(host, { logger: createLoggerWithInMemoryLogs(host) });
+                    openFilesForSession([usageTs], session);
+
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: dependencyTs.path }
+                    });
+                    const toLocation = protocolToLocation(usageTs.content);
+                    const location = toLocation(usageTs.content.length);
+                    session.executeCommandSeq<protocol.ChangeRequest>({
+                        command: protocol.CommandTypes.Change,
+                        arguments: {
+                            file: usageTs.path,
+                            ...location,
+                            endLine: location.line,
+                            endOffset: location.offset,
+                            insertString: change
+                        }
+                    });
+
+                    // Verify CompileOnSaveAffectedFileList
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: usageTs.path }
+                    });
+
+                    // Verify CompileOnSaveEmit
+                    session.executeCommandSeq<protocol.CompileOnSaveEmitFileRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveEmitFile,
+                        arguments: { file: usageTs.path }
+                    });
+
+                    // Verify EmitOutput
+                    session.executeCommandSeq<protocol.EmitOutputRequest>({
+                        command: protocol.CommandTypes.EmitOutput,
+                        arguments: { file: usageTs.path }
+                    });
+                    baselineTsserverLogs("projectReferenceCompileOnSave", "when dependency project is not open and save on usage and change to usage", session);
+                });
+                it("with change to usage, with specifying project file", () => {
+                    const host = createServerHost([dependencyTs, dependencyConfig, usageTs, usageConfig, libFile]);
+                    const session = createSession(host, { logger: createLoggerWithInMemoryLogs(host) });
+                    openFilesForSession([usageTs], session);
+
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: dependencyTs.path }
+                    });
+                    const toLocation = protocolToLocation(usageTs.content);
+                    const location = toLocation(usageTs.content.length);
+                    session.executeCommandSeq<protocol.ChangeRequest>({
+                        command: protocol.CommandTypes.Change,
+                        arguments: {
+                            file: usageTs.path,
+                            ...location,
+                            endLine: location.line,
+                            endOffset: location.offset,
+                            insertString: change
+                        }
+                    });
+
+                    // Verify CompileOnSaveAffectedFileList
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: usageTs.path, projectFileName: usageConfig.path }
+                    });
+
+                    // Verify CompileOnSaveEmit
+                    session.executeCommandSeq<protocol.CompileOnSaveEmitFileRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveEmitFile,
+                        arguments: { file: usageTs.path, projectFileName: usageConfig.path }
+                    });
+
+                    // Verify EmitOutput
+                    session.executeCommandSeq<protocol.EmitOutputRequest>({
+                        command: protocol.CommandTypes.EmitOutput,
+                        arguments: { file: usageTs.path, projectFileName: usageConfig.path }
+                    });
+                    baselineTsserverLogs("projectReferenceCompileOnSave", "when dependency project is not open and save on usage with project and change to usage", session);
+                });
             });
-        }
 
-        interface VerifySingleScenario {
-            scenario: string;
-            openFiles: () => readonly File[];
-            requestArgs: () => protocol.FileRequestArgs;
-            skipWithoutProject?: boolean;
-            change?: () => SingleScenarioChange;
-            expectedResult: GetSingleScenarioResult;
-        }
-        function verifySingleScenario(scenario: VerifySingleScenario) {
-            if (!scenario.skipWithoutProject) {
-                describe("without specifying project file", () => {
-                    verifySingleScenarioWorker({
-                        withProject: false,
-                        ...scenario
+            describe("Of dependencyTs in usage project", () => {
+                it("with initial file open, without specifying project file", () => {
+                    const host = createServerHost([dependencyTs, dependencyConfig, usageTs, usageConfig, libFile]);
+                    const session = createSession(host, { logger: createLoggerWithInMemoryLogs(host) });
+                    openFilesForSession([usageTs], session);
+
+                    // Verify CompileOnSaveAffectedFileList
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: dependencyTs.path }
                     });
+
+                    // Verify CompileOnSaveEmit
+                    session.executeCommandSeq<protocol.CompileOnSaveEmitFileRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveEmitFile,
+                        arguments: { file: dependencyTs.path }
+                    });
+
+                    // Verify EmitOutput
+                    session.executeCommandSeq<protocol.EmitOutputRequest>({
+                        command: protocol.CommandTypes.EmitOutput,
+                        arguments: { file: dependencyTs.path }
+                    });
+                    baselineTsserverLogs("projectReferenceCompileOnSave", "when dependency project is not open and save on dependency", session);
                 });
-            }
-            describe("with specifying project file", () => {
-                verifySingleScenarioWorker({
-                    withProject: true,
-                    ...scenario
+                it("with initial file open, with specifying project file", () => {
+                    const host = createServerHost([dependencyTs, dependencyConfig, usageTs, usageConfig, libFile]);
+                    const session = createSession(host, { logger: createLoggerWithInMemoryLogs(host) });
+                    openFilesForSession([usageTs], session);
+
+                    // Verify CompileOnSaveAffectedFileList
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: dependencyTs.path, projectFileName: usageConfig.path }
+                    });
+
+                    // Verify CompileOnSaveEmit
+                    session.executeCommandSeq<protocol.CompileOnSaveEmitFileRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveEmitFile,
+                        arguments: { file: dependencyTs.path, projectFileName: usageConfig.path }
+                    });
+
+                    // Verify EmitOutput
+                    session.executeCommandSeq<protocol.EmitOutputRequest>({
+                        command: protocol.CommandTypes.EmitOutput,
+                        arguments: { file: dependencyTs.path, projectFileName: usageConfig.path }
+                    });
+                    baselineTsserverLogs("projectReferenceCompileOnSave", "when dependency project is not open and save on dependency with project", session);
                 });
-            });
-        }
+                it("with local change to dependency, without specifying project file", () => {
+                    const host = createServerHost([dependencyTs, dependencyConfig, usageTs, usageConfig, libFile]);
+                    const session = createSession(host, { logger: createLoggerWithInMemoryLogs(host) });
+                    openFilesForSession([usageTs], session);
 
-        interface SingleScenarioExpectedEmit {
-            expectedEmitSuccess: boolean;
-            expectedFiles: readonly File[];
-        }
-        interface SingleScenarioResult {
-            expectedAffected: protocol.CompileOnSaveAffectedFileListSingleProject[];
-            expectedEmit: SingleScenarioExpectedEmit;
-            expectedEmitOutput: EmitOutput;
-        }
-        type GetSingleScenarioResult = (withProject: boolean) => SingleScenarioResult;
-        interface SingleScenarioChange {
-            file: File;
-            insertString: string;
-        }
-        interface ScenarioDetails {
-            scenarioName: string;
-            requestArgs: () => protocol.FileRequestArgs;
-            skipWithoutProject?: boolean;
-            initial: GetSingleScenarioResult;
-            localChangeToDependency: GetSingleScenarioResult;
-            localChangeToUsage: GetSingleScenarioResult;
-            changeToDependency: GetSingleScenarioResult;
-            changeToUsage: GetSingleScenarioResult;
-        }
-        interface VerifyScenario {
-            openFiles: () => readonly File[];
-            scenarios: readonly ScenarioDetails[];
-        }
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: dependencyTs.path }
+                    });
+                    host.writeFile(dependencyTs.path, `${dependencyTs.content}${localChange}`);
 
-        const localChange = "function fn3() { }";
-        const change = `export ${localChange}`;
-        const changeJs = `function fn3() { }
-exports.fn3 = fn3;`;
-        const changeDts = "export declare function fn3(): void;";
-        function verifyScenario({ openFiles, scenarios }: VerifyScenario) {
-            for (const {
-                scenarioName, requestArgs, skipWithoutProject, initial,
-                localChangeToDependency, localChangeToUsage,
-                changeToDependency, changeToUsage
-            } of scenarios) {
-                describe(scenarioName, () => {
-                    verifySingleScenario({
-                        scenario: "with initial file open",
-                        openFiles,
-                        requestArgs,
-                        skipWithoutProject,
-                        expectedResult: initial
+                    // Verify CompileOnSaveAffectedFileList
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: dependencyTs.path }
                     });
 
-                    verifySingleScenario({
-                        scenario: "with local change to dependency",
-                        openFiles,
-                        requestArgs,
-                        skipWithoutProject,
-                        change: () => ({ file: dependencyTs, insertString: localChange }),
-                        expectedResult: localChangeToDependency
+                    // Verify CompileOnSaveEmit
+                    session.executeCommandSeq<protocol.CompileOnSaveEmitFileRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveEmitFile,
+                        arguments: { file: dependencyTs.path }
                     });
 
-                    verifySingleScenario({
-                        scenario: "with local change to usage",
-                        openFiles,
-                        requestArgs,
-                        skipWithoutProject,
-                        change: () => ({ file: usageTs, insertString: localChange }),
-                        expectedResult: localChangeToUsage
+                    // Verify EmitOutput
+                    session.executeCommandSeq<protocol.EmitOutputRequest>({
+                        command: protocol.CommandTypes.EmitOutput,
+                        arguments: { file: dependencyTs.path }
                     });
-
-                    verifySingleScenario({
-                        scenario: "with change to dependency",
-                        openFiles,
-                        requestArgs,
-                        skipWithoutProject,
-                        change: () => ({ file: dependencyTs, insertString: change }),
-                        expectedResult: changeToDependency
-                    });
-
-                    verifySingleScenario({
-                        scenario: "with change to usage",
-                        openFiles,
-                        requestArgs,
-                        skipWithoutProject,
-                        change: () => ({ file: usageTs, insertString: change }),
-                        expectedResult: changeToUsage
-                    });
+                    baselineTsserverLogs("projectReferenceCompileOnSave", "when dependency project is not open and save on dependency and local change to dependency", session);
                 });
-            }
-        }
+                it("with local change to dependency, with specifying project file", () => {
+                    const host = createServerHost([dependencyTs, dependencyConfig, usageTs, usageConfig, libFile]);
+                    const session = createSession(host, { logger: createLoggerWithInMemoryLogs(host) });
+                    openFilesForSession([usageTs], session);
 
-        function expectedAffectedFiles(config: File, fileNames: File[]): protocol.CompileOnSaveAffectedFileListSingleProject {
-            return {
-                projectFileName: config.path,
-                fileNames: fileNames.map(f => f.path),
-                projectUsesOutFile: false
-            };
-        }
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: dependencyTs.path }
+                    });
+                    host.writeFile(dependencyTs.path, `${dependencyTs.content}${localChange}`);
 
-        function expectedUsageEmit(appendJsText?: string): SingleScenarioExpectedEmit {
-            const appendJs = appendJsText ? `${appendJsText}
-` : "";
-            return {
-                expectedEmitSuccess: true,
-                expectedFiles: [{
-                    path: `${usageLocation}/usage.js`,
-                    content: `"use strict";
-exports.__esModule = true;${appendJsText === changeJs ? "\nexports.fn3 = void 0;" : ""}
-var fns_1 = require("../decls/fns");
-fns_1.fn1();
-fns_1.fn2();
-${appendJs}`
-                }]
-            };
-        }
+                    // Verify CompileOnSaveAffectedFileList
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: dependencyTs.path, projectFileName: usageConfig.path }
+                    });
 
-        function expectedEmitOutput({ expectedFiles }: SingleScenarioExpectedEmit): EmitOutput {
-            return {
-                outputFiles: expectedFiles.map(({ path, content }) => ({
-                    name: path,
-                    text: content,
-                    writeByteOrderMark: false
-                })),
-                emitSkipped: false,
-                diagnostics: emptyArray
-            };
-        }
+                    // Verify CompileOnSaveEmit
+                    session.executeCommandSeq<protocol.CompileOnSaveEmitFileRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveEmitFile,
+                        arguments: { file: dependencyTs.path, projectFileName: usageConfig.path }
+                    });
 
-        function expectedUsageEmitOutput(appendJsText?: string): EmitOutput {
-            return expectedEmitOutput(expectedUsageEmit(appendJsText));
-        }
+                    // Verify EmitOutput
+                    session.executeCommandSeq<protocol.EmitOutputRequest>({
+                        command: protocol.CommandTypes.EmitOutput,
+                        arguments: { file: dependencyTs.path, projectFileName: usageConfig.path }
+                    });
+                    baselineTsserverLogs("projectReferenceCompileOnSave", "when dependency project is not open and save on dependency with project and local change to dependency", session);
+                });
+                it("with local change to usage, without specifying project file", () => {
+                    const host = createServerHost([dependencyTs, dependencyConfig, usageTs, usageConfig, libFile]);
+                    const session = createSession(host, { logger: createLoggerWithInMemoryLogs(host) });
+                    openFilesForSession([usageTs], session);
 
-        function noEmit(): SingleScenarioExpectedEmit {
-            return {
-                expectedEmitSuccess: false,
-                expectedFiles: emptyArray
-            };
-        }
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: dependencyTs.path }
+                    });
+                    const toLocation = protocolToLocation(usageTs.content);
+                    const location = toLocation(usageTs.content.length);
+                    session.executeCommandSeq<protocol.ChangeRequest>({
+                        command: protocol.CommandTypes.Change,
+                        arguments: {
+                            file: usageTs.path,
+                            ...location,
+                            endLine: location.line,
+                            endOffset: location.offset,
+                            insertString: localChange
+                        }
+                    });
 
-        function noEmitOutput(): EmitOutput {
-            return {
-                emitSkipped: true,
-                outputFiles: [],
-                diagnostics: emptyArray
-            };
-        }
+                    // Verify CompileOnSaveAffectedFileList
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: dependencyTs.path }
+                    });
 
-        function expectedDependencyEmit(appendJsText?: string, appendDtsText?: string): SingleScenarioExpectedEmit {
-            const appendJs = appendJsText ? `${appendJsText}
-` : "";
-            const appendDts = appendDtsText ? `${appendDtsText}
-` : "";
-            return {
-                expectedEmitSuccess: true,
-                expectedFiles: [
-                    {
-                        path: `${dependecyLocation}/fns.js`,
-                        content: `"use strict";
-exports.__esModule = true;
-${appendJsText === changeJs ? "exports.fn3 = " : ""}exports.fn2 = exports.fn1 = void 0;
-function fn1() { }
-exports.fn1 = fn1;
-function fn2() { }
-exports.fn2 = fn2;
-${appendJs}`
-                    },
-                    {
-                        path: `${tscWatch.projectRoot}/decls/fns.d.ts`,
-                        content: `export declare function fn1(): void;
-export declare function fn2(): void;
-${appendDts}`
-                    }
-                ]
-            };
-        }
+                    // Verify CompileOnSaveEmit
+                    session.executeCommandSeq<protocol.CompileOnSaveEmitFileRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveEmitFile,
+                        arguments: { file: dependencyTs.path }
+                    });
 
-        function expectedDependencyEmitOutput(appendJsText?: string, appendDtsText?: string): EmitOutput {
-            return expectedEmitOutput(expectedDependencyEmit(appendJsText, appendDtsText));
-        }
+                    // Verify EmitOutput
+                    session.executeCommandSeq<protocol.EmitOutputRequest>({
+                        command: protocol.CommandTypes.EmitOutput,
+                        arguments: { file: dependencyTs.path }
+                    });
+                    baselineTsserverLogs("projectReferenceCompileOnSave", "when dependency project is not open and save on dependency and local change to usage", session);
+                });
+                it("with local change to usage, with specifying project file", () => {
+                    const host = createServerHost([dependencyTs, dependencyConfig, usageTs, usageConfig, libFile]);
+                    const session = createSession(host, { logger: createLoggerWithInMemoryLogs(host) });
+                    openFilesForSession([usageTs], session);
 
-        function scenarioDetailsOfUsage(isDependencyOpen?: boolean): ScenarioDetails[] {
-            return [
-                {
-                    scenarioName: "Of usageTs",
-                    requestArgs: () => ({ file: usageTs.path, projectFileName: usageConfig.path }),
-                    initial: () => initialUsageTs(),
-                    // no change to usage so same as initial only usage file
-                    localChangeToDependency: () => initialUsageTs(),
-                    localChangeToUsage: () => initialUsageTs(localChange),
-                    changeToDependency: () => initialUsageTs(),
-                    changeToUsage: () => initialUsageTs(changeJs)
-                },
-                {
-                    scenarioName: "Of dependencyTs in usage project",
-                    requestArgs: () => ({ file: dependencyTs.path, projectFileName: usageConfig.path }),
-                    skipWithoutProject: !!isDependencyOpen,
-                    initial: () => initialDependencyTs(),
-                    localChangeToDependency: () => initialDependencyTs(/*noUsageFiles*/ true),
-                    localChangeToUsage: () => initialDependencyTs(/*noUsageFiles*/ true),
-                    changeToDependency: () => initialDependencyTs(),
-                    changeToUsage: () => initialDependencyTs(/*noUsageFiles*/ true)
-                }
-            ];
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: dependencyTs.path }
+                    });
+                    const toLocation = protocolToLocation(usageTs.content);
+                    const location = toLocation(usageTs.content.length);
+                    session.executeCommandSeq<protocol.ChangeRequest>({
+                        command: protocol.CommandTypes.Change,
+                        arguments: {
+                            file: usageTs.path,
+                            ...location,
+                            endLine: location.line,
+                            endOffset: location.offset,
+                            insertString: localChange
+                        }
+                    });
 
-            function initialUsageTs(jsText?: string) {
-                return {
-                    expectedAffected: [
-                        expectedAffectedFiles(usageConfig, [usageTs])
-                    ],
-                    expectedEmit: expectedUsageEmit(jsText),
-                    expectedEmitOutput: expectedUsageEmitOutput(jsText)
-                };
-            }
+                    // Verify CompileOnSaveAffectedFileList
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: dependencyTs.path, projectFileName: usageConfig.path }
+                    });
 
-            function initialDependencyTs(noUsageFiles?: true) {
-                return {
-                    expectedAffected: [
-                        expectedAffectedFiles(usageConfig, noUsageFiles ? [] : [usageTs])
-                    ],
-                    expectedEmit: noEmit(),
-                    expectedEmitOutput: noEmitOutput()
-                };
-            }
-        }
+                    // Verify CompileOnSaveEmit
+                    session.executeCommandSeq<protocol.CompileOnSaveEmitFileRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveEmitFile,
+                        arguments: { file: dependencyTs.path, projectFileName: usageConfig.path }
+                    });
 
-        function scenarioDetailsOfDependencyWhenOpen(): ScenarioDetails {
-            return {
-                scenarioName: "Of dependencyTs",
-                requestArgs: () => ({ file: dependencyTs.path, projectFileName: dependencyConfig.path }),
-                initial,
-                localChangeToDependency: withProject => ({
-                    expectedAffected: withProject ?
-                        [
-                            expectedAffectedFiles(dependencyConfig, [dependencyTs])
-                        ] :
-                        [
-                            expectedAffectedFiles(usageConfig, []),
-                            expectedAffectedFiles(dependencyConfig, [dependencyTs])
-                        ],
-                    expectedEmit: expectedDependencyEmit(localChange),
-                    expectedEmitOutput: expectedDependencyEmitOutput(localChange)
-                }),
-                localChangeToUsage: withProject => initial(withProject, /*noUsageFiles*/ true),
-                changeToDependency: withProject => initial(withProject, /*noUsageFiles*/ undefined, changeJs, changeDts),
-                changeToUsage: withProject => initial(withProject, /*noUsageFiles*/ true)
-            };
+                    // Verify EmitOutput
+                    session.executeCommandSeq<protocol.EmitOutputRequest>({
+                        command: protocol.CommandTypes.EmitOutput,
+                        arguments: { file: dependencyTs.path, projectFileName: usageConfig.path }
+                    });
+                    baselineTsserverLogs("projectReferenceCompileOnSave", "when dependency project is not open and save on dependency with project and local change to usage", session);
+                });
+                it("with change to dependency, without specifying project file", () => {
+                    const host = createServerHost([dependencyTs, dependencyConfig, usageTs, usageConfig, libFile]);
+                    const session = createSession(host, { logger: createLoggerWithInMemoryLogs(host) });
+                    openFilesForSession([usageTs], session);
 
-            function initial(withProject: boolean, noUsageFiles?: true, appendJs?: string, appendDts?: string): SingleScenarioResult {
-                return {
-                    expectedAffected: withProject ?
-                        [
-                            expectedAffectedFiles(dependencyConfig, [dependencyTs])
-                        ] :
-                        [
-                            expectedAffectedFiles(usageConfig, noUsageFiles ? [] : [usageTs]),
-                            expectedAffectedFiles(dependencyConfig, [dependencyTs])
-                        ],
-                    expectedEmit: expectedDependencyEmit(appendJs, appendDts),
-                    expectedEmitOutput: expectedDependencyEmitOutput(appendJs, appendDts)
-                };
-            }
-        }
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: dependencyTs.path }
+                    });
+                    host.writeFile(dependencyTs.path, `${dependencyTs.content}${change}`);
 
-        describe("when dependency project is not open", () => {
-            verifyScenario({
-                openFiles: () => [usageTs],
-                scenarios: scenarioDetailsOfUsage()
+                    // Verify CompileOnSaveAffectedFileList
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: dependencyTs.path }
+                    });
+
+                    // Verify CompileOnSaveEmit
+                    session.executeCommandSeq<protocol.CompileOnSaveEmitFileRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveEmitFile,
+                        arguments: { file: dependencyTs.path }
+                    });
+
+                    // Verify EmitOutput
+                    session.executeCommandSeq<protocol.EmitOutputRequest>({
+                        command: protocol.CommandTypes.EmitOutput,
+                        arguments: { file: dependencyTs.path }
+                    });
+                    baselineTsserverLogs("projectReferenceCompileOnSave", "when dependency project is not open and save on dependency and change to dependency", session);
+                });
+                it("with change to dependency, with specifying project file", () => {
+                    const host = createServerHost([dependencyTs, dependencyConfig, usageTs, usageConfig, libFile]);
+                    const session = createSession(host, { logger: createLoggerWithInMemoryLogs(host) });
+                    openFilesForSession([usageTs], session);
+
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: dependencyTs.path }
+                    });
+                    host.writeFile(dependencyTs.path, `${dependencyTs.content}${change}`);
+
+                    // Verify CompileOnSaveAffectedFileList
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: dependencyTs.path, projectFileName: usageConfig.path }
+                    });
+
+                    // Verify CompileOnSaveEmit
+                    session.executeCommandSeq<protocol.CompileOnSaveEmitFileRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveEmitFile,
+                        arguments: { file: dependencyTs.path, projectFileName: usageConfig.path }
+                    });
+
+                    // Verify EmitOutput
+                    session.executeCommandSeq<protocol.EmitOutputRequest>({
+                        command: protocol.CommandTypes.EmitOutput,
+                        arguments: { file: dependencyTs.path, projectFileName: usageConfig.path }
+                    });
+                    baselineTsserverLogs("projectReferenceCompileOnSave", "when dependency project is not open and save on dependency with project and change to dependency", session);
+                });
+                it("with change to usage, without specifying project file", () => {
+                    const host = createServerHost([dependencyTs, dependencyConfig, usageTs, usageConfig, libFile]);
+                    const session = createSession(host, { logger: createLoggerWithInMemoryLogs(host) });
+                    openFilesForSession([usageTs], session);
+
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: dependencyTs.path }
+                    });
+                    const toLocation = protocolToLocation(usageTs.content);
+                    const location = toLocation(usageTs.content.length);
+                    session.executeCommandSeq<protocol.ChangeRequest>({
+                        command: protocol.CommandTypes.Change,
+                        arguments: {
+                            file: usageTs.path,
+                            ...location,
+                            endLine: location.line,
+                            endOffset: location.offset,
+                            insertString: change
+                        }
+                    });
+
+                    // Verify CompileOnSaveAffectedFileList
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: dependencyTs.path }
+                    });
+
+                    // Verify CompileOnSaveEmit
+                    session.executeCommandSeq<protocol.CompileOnSaveEmitFileRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveEmitFile,
+                        arguments: { file: dependencyTs.path }
+                    });
+
+                    // Verify EmitOutput
+                    session.executeCommandSeq<protocol.EmitOutputRequest>({
+                        command: protocol.CommandTypes.EmitOutput,
+                        arguments: { file: dependencyTs.path }
+                    });
+                    baselineTsserverLogs("projectReferenceCompileOnSave", "when dependency project is not open and save on dependency and change to usage", session);
+                });
+                it("with change to usage, with specifying project file", () => {
+                    const host = createServerHost([dependencyTs, dependencyConfig, usageTs, usageConfig, libFile]);
+                    const session = createSession(host, { logger: createLoggerWithInMemoryLogs(host) });
+                    openFilesForSession([usageTs], session);
+
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: dependencyTs.path }
+                    });
+                    const toLocation = protocolToLocation(usageTs.content);
+                    const location = toLocation(usageTs.content.length);
+                    session.executeCommandSeq<protocol.ChangeRequest>({
+                        command: protocol.CommandTypes.Change,
+                        arguments: {
+                            file: usageTs.path,
+                            ...location,
+                            endLine: location.line,
+                            endOffset: location.offset,
+                            insertString: change
+                        }
+                    });
+
+                    // Verify CompileOnSaveAffectedFileList
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: dependencyTs.path, projectFileName: usageConfig.path }
+                    });
+
+                    // Verify CompileOnSaveEmit
+                    session.executeCommandSeq<protocol.CompileOnSaveEmitFileRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveEmitFile,
+                        arguments: { file: dependencyTs.path, projectFileName: usageConfig.path }
+                    });
+
+                    // Verify EmitOutput
+                    session.executeCommandSeq<protocol.EmitOutputRequest>({
+                        command: protocol.CommandTypes.EmitOutput,
+                        arguments: { file: dependencyTs.path, projectFileName: usageConfig.path }
+                    });
+                    baselineTsserverLogs("projectReferenceCompileOnSave", "when dependency project is not open and save on dependency with project and change to usage", session);
+                });
             });
         });
 
         describe("when the depedency file is open", () => {
-            verifyScenario({
-                openFiles: () => [usageTs, dependencyTs],
-                scenarios: [
-                    ...scenarioDetailsOfUsage(/*isDependencyOpen*/ true),
-                    scenarioDetailsOfDependencyWhenOpen(),
-                ]
+            describe("Of usageTs", () => {
+                it("with initial file open, without specifying project file", () => {
+                    const host = createServerHost([dependencyTs, dependencyConfig, usageTs, usageConfig, libFile]);
+                    const session = createSession(host, { logger: createLoggerWithInMemoryLogs(host) });
+                    openFilesForSession([usageTs, dependencyTs], session);
+
+                    // Verify CompileOnSaveAffectedFileList
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: usageTs.path }
+                    });
+
+                    // Verify CompileOnSaveEmit
+                    session.executeCommandSeq<protocol.CompileOnSaveEmitFileRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveEmitFile,
+                        arguments: { file: usageTs.path }
+                    });
+
+                    // Verify EmitOutput
+                    session.executeCommandSeq<protocol.EmitOutputRequest>({
+                        command: protocol.CommandTypes.EmitOutput,
+                        arguments: { file: usageTs.path }
+                    });
+                    baselineTsserverLogs("projectReferenceCompileOnSave", "save on usage", session);
+                });
+                it("with initial file open, with specifying project file", () => {
+                    const host = createServerHost([dependencyTs, dependencyConfig, usageTs, usageConfig, libFile]);
+                    const session = createSession(host, { logger: createLoggerWithInMemoryLogs(host) });
+                    openFilesForSession([usageTs, dependencyTs], session);
+
+                    // Verify CompileOnSaveAffectedFileList
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: usageTs.path, projectFileName: usageConfig.path }
+                    });
+
+                    // Verify CompileOnSaveEmit
+                    session.executeCommandSeq<protocol.CompileOnSaveEmitFileRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveEmitFile,
+                        arguments: { file: usageTs.path, projectFileName: usageConfig.path }
+                    });
+
+                    // Verify EmitOutput
+                    session.executeCommandSeq<protocol.EmitOutputRequest>({
+                        command: protocol.CommandTypes.EmitOutput,
+                        arguments: { file: usageTs.path, projectFileName: usageConfig.path }
+                    });
+                    baselineTsserverLogs("projectReferenceCompileOnSave", "save on usage with project", session);
+                });
+                it("with local change to dependency, without specifying project file", () => {
+                    const host = createServerHost([dependencyTs, dependencyConfig, usageTs, usageConfig, libFile]);
+                    const session = createSession(host, { logger: createLoggerWithInMemoryLogs(host) });
+                    openFilesForSession([usageTs, dependencyTs], session);
+
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: dependencyTs.path }
+                    });
+                    const toLocation = protocolToLocation(dependencyTs.content);
+                    const location = toLocation(dependencyTs.content.length);
+                    session.executeCommandSeq<protocol.ChangeRequest>({
+                        command: protocol.CommandTypes.Change,
+                        arguments: {
+                            file: dependencyTs.path,
+                            ...location,
+                            endLine: location.line,
+                            endOffset: location.offset,
+                            insertString: localChange
+                        }
+                    });
+
+                    // Verify CompileOnSaveAffectedFileList
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: usageTs.path }
+                    });
+
+                    // Verify CompileOnSaveEmit
+                    session.executeCommandSeq<protocol.CompileOnSaveEmitFileRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveEmitFile,
+                        arguments: { file: usageTs.path }
+                    });
+
+                    // Verify EmitOutput
+                    session.executeCommandSeq<protocol.EmitOutputRequest>({
+                        command: protocol.CommandTypes.EmitOutput,
+                        arguments: { file: usageTs.path }
+                    });
+                    baselineTsserverLogs("projectReferenceCompileOnSave", "save on usage and local change to dependency", session);
+                });
+                it("with local change to dependency, with specifying project file", () => {
+                    const host = createServerHost([dependencyTs, dependencyConfig, usageTs, usageConfig, libFile]);
+                    const session = createSession(host, { logger: createLoggerWithInMemoryLogs(host) });
+                    openFilesForSession([usageTs, dependencyTs], session);
+
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: dependencyTs.path }
+                    });
+                    const toLocation = protocolToLocation(dependencyTs.content);
+                    const location = toLocation(dependencyTs.content.length);
+                    session.executeCommandSeq<protocol.ChangeRequest>({
+                        command: protocol.CommandTypes.Change,
+                        arguments: {
+                            file: dependencyTs.path,
+                            ...location,
+                            endLine: location.line,
+                            endOffset: location.offset,
+                            insertString: localChange
+                        }
+                    });
+
+                    // Verify CompileOnSaveAffectedFileList
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: usageTs.path, projectFileName: usageConfig.path }
+                    });
+
+                    // Verify CompileOnSaveEmit
+                    session.executeCommandSeq<protocol.CompileOnSaveEmitFileRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveEmitFile,
+                        arguments: { file: usageTs.path, projectFileName: usageConfig.path }
+                    });
+
+                    // Verify EmitOutput
+                    session.executeCommandSeq<protocol.EmitOutputRequest>({
+                        command: protocol.CommandTypes.EmitOutput,
+                        arguments: { file: usageTs.path, projectFileName: usageConfig.path }
+                    });
+                    baselineTsserverLogs("projectReferenceCompileOnSave", "save on usage and local change to dependency with file", session);
+                });
+                it("with local change to usage, without specifying project file", () => {
+                    const host = createServerHost([dependencyTs, dependencyConfig, usageTs, usageConfig, libFile]);
+                    const session = createSession(host, { logger: createLoggerWithInMemoryLogs(host) });
+                    openFilesForSession([usageTs, dependencyTs], session);
+
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: dependencyTs.path }
+                    });
+                    const toLocation = protocolToLocation(usageTs.content);
+                    const location = toLocation(usageTs.content.length);
+                    session.executeCommandSeq<protocol.ChangeRequest>({
+                        command: protocol.CommandTypes.Change,
+                        arguments: {
+                            file: usageTs.path,
+                            ...location,
+                            endLine: location.line,
+                            endOffset: location.offset,
+                            insertString: localChange
+                        }
+                    });
+
+                    // Verify CompileOnSaveAffectedFileList
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: usageTs.path }
+                    });
+
+                    // Verify CompileOnSaveEmit
+                    session.executeCommandSeq<protocol.CompileOnSaveEmitFileRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveEmitFile,
+                        arguments: { file: usageTs.path }
+                    });
+
+                    // Verify EmitOutput
+                    session.executeCommandSeq<protocol.EmitOutputRequest>({
+                        command: protocol.CommandTypes.EmitOutput,
+                        arguments: { file: usageTs.path }
+                    });
+                    baselineTsserverLogs("projectReferenceCompileOnSave", "save on usage and local change to usage", session);
+                });
+                it("with local change to usage, with specifying project file", () => {
+                    const host = createServerHost([dependencyTs, dependencyConfig, usageTs, usageConfig, libFile]);
+                    const session = createSession(host, { logger: createLoggerWithInMemoryLogs(host) });
+                    openFilesForSession([usageTs, dependencyTs], session);
+
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: dependencyTs.path }
+                    });
+                    const toLocation = protocolToLocation(usageTs.content);
+                    const location = toLocation(usageTs.content.length);
+                    session.executeCommandSeq<protocol.ChangeRequest>({
+                        command: protocol.CommandTypes.Change,
+                        arguments: {
+                            file: usageTs.path,
+                            ...location,
+                            endLine: location.line,
+                            endOffset: location.offset,
+                            insertString: localChange
+                        }
+                    });
+
+                    // Verify CompileOnSaveAffectedFileList
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: usageTs.path, projectFileName: usageConfig.path }
+                    });
+
+                    // Verify CompileOnSaveEmit
+                    session.executeCommandSeq<protocol.CompileOnSaveEmitFileRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveEmitFile,
+                        arguments: { file: usageTs.path, projectFileName: usageConfig.path }
+                    });
+
+                    // Verify EmitOutput
+                    session.executeCommandSeq<protocol.EmitOutputRequest>({
+                        command: protocol.CommandTypes.EmitOutput,
+                        arguments: { file: usageTs.path, projectFileName: usageConfig.path }
+                    });
+                    baselineTsserverLogs("projectReferenceCompileOnSave", "save on usage and local change to usage with project", session);
+                });
+                it("with change to dependency, without specifying project file", () => {
+                    const host = createServerHost([dependencyTs, dependencyConfig, usageTs, usageConfig, libFile]);
+                    const session = createSession(host, { logger: createLoggerWithInMemoryLogs(host) });
+                    openFilesForSession([usageTs, dependencyTs], session);
+
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: dependencyTs.path }
+                    });
+                    const toLocation = protocolToLocation(dependencyTs.content);
+                    const location = toLocation(dependencyTs.content.length);
+                    session.executeCommandSeq<protocol.ChangeRequest>({
+                        command: protocol.CommandTypes.Change,
+                        arguments: {
+                            file: dependencyTs.path,
+                            ...location,
+                            endLine: location.line,
+                            endOffset: location.offset,
+                            insertString: change
+                        }
+                    });
+
+                    // Verify CompileOnSaveAffectedFileList
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: usageTs.path }
+                    });
+
+                    // Verify CompileOnSaveEmit
+                    session.executeCommandSeq<protocol.CompileOnSaveEmitFileRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveEmitFile,
+                        arguments: { file: usageTs.path }
+                    });
+
+                    // Verify EmitOutput
+                    session.executeCommandSeq<protocol.EmitOutputRequest>({
+                        command: protocol.CommandTypes.EmitOutput,
+                        arguments: { file: usageTs.path }
+                    });
+                    baselineTsserverLogs("projectReferenceCompileOnSave", "save on usage and change to dependency", session);
+                });
+                it("with change to dependency, with specifying project file", () => {
+                    const host = createServerHost([dependencyTs, dependencyConfig, usageTs, usageConfig, libFile]);
+                    const session = createSession(host, { logger: createLoggerWithInMemoryLogs(host) });
+                    openFilesForSession([usageTs, dependencyTs], session);
+
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: dependencyTs.path }
+                    });
+                    const toLocation = protocolToLocation(dependencyTs.content);
+                    const location = toLocation(dependencyTs.content.length);
+                    session.executeCommandSeq<protocol.ChangeRequest>({
+                        command: protocol.CommandTypes.Change,
+                        arguments: {
+                            file: dependencyTs.path,
+                            ...location,
+                            endLine: location.line,
+                            endOffset: location.offset,
+                            insertString: change
+                        }
+                    });
+
+                    // Verify CompileOnSaveAffectedFileList
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: usageTs.path, projectFileName: usageConfig.path }
+                    });
+
+                    // Verify CompileOnSaveEmit
+                    session.executeCommandSeq<protocol.CompileOnSaveEmitFileRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveEmitFile,
+                        arguments: { file: usageTs.path, projectFileName: usageConfig.path }
+                    });
+
+                    // Verify EmitOutput
+                    session.executeCommandSeq<protocol.EmitOutputRequest>({
+                        command: protocol.CommandTypes.EmitOutput,
+                        arguments: { file: usageTs.path, projectFileName: usageConfig.path }
+                    });
+                    baselineTsserverLogs("projectReferenceCompileOnSave", "save on usage with project and change to dependency", session);
+                });
+                it("with change to usage, without specifying project file", () => {
+                    const host = createServerHost([dependencyTs, dependencyConfig, usageTs, usageConfig, libFile]);
+                    const session = createSession(host, { logger: createLoggerWithInMemoryLogs(host) });
+                    openFilesForSession([usageTs, dependencyTs], session);
+
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: dependencyTs.path }
+                    });
+                    const toLocation = protocolToLocation(usageTs.content);
+                    const location = toLocation(usageTs.content.length);
+                    session.executeCommandSeq<protocol.ChangeRequest>({
+                        command: protocol.CommandTypes.Change,
+                        arguments: {
+                            file: usageTs.path,
+                            ...location,
+                            endLine: location.line,
+                            endOffset: location.offset,
+                            insertString: change
+                        }
+                    });
+
+                    // Verify CompileOnSaveAffectedFileList
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: usageTs.path }
+                    });
+
+                    // Verify CompileOnSaveEmit
+                    session.executeCommandSeq<protocol.CompileOnSaveEmitFileRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveEmitFile,
+                        arguments: { file: usageTs.path }
+                    });
+
+                    // Verify EmitOutput
+                    session.executeCommandSeq<protocol.EmitOutputRequest>({
+                        command: protocol.CommandTypes.EmitOutput,
+                        arguments: { file: usageTs.path }
+                    });
+                    baselineTsserverLogs("projectReferenceCompileOnSave", "save on usage and change to usage", session);
+                });
+                it("with change to usage, with specifying project file", () => {
+                    const host = createServerHost([dependencyTs, dependencyConfig, usageTs, usageConfig, libFile]);
+                    const session = createSession(host, { logger: createLoggerWithInMemoryLogs(host) });
+                    openFilesForSession([usageTs, dependencyTs], session);
+
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: dependencyTs.path }
+                    });
+                    const toLocation = protocolToLocation(usageTs.content);
+                    const location = toLocation(usageTs.content.length);
+                    session.executeCommandSeq<protocol.ChangeRequest>({
+                        command: protocol.CommandTypes.Change,
+                        arguments: {
+                            file: usageTs.path,
+                            ...location,
+                            endLine: location.line,
+                            endOffset: location.offset,
+                            insertString: change
+                        }
+                    });
+
+                    // Verify CompileOnSaveAffectedFileList
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: usageTs.path, projectFileName: usageConfig.path }
+                    });
+
+                    // Verify CompileOnSaveEmit
+                    session.executeCommandSeq<protocol.CompileOnSaveEmitFileRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveEmitFile,
+                        arguments: { file: usageTs.path, projectFileName: usageConfig.path }
+                    });
+                    // Verify EmitOutput
+                    session.executeCommandSeq<protocol.EmitOutputRequest>({
+                        command: protocol.CommandTypes.EmitOutput,
+                        arguments: { file: usageTs.path, projectFileName: usageConfig.path }
+                    });
+                    baselineTsserverLogs("projectReferenceCompileOnSave", "save on usage with project and change to usage", session);
+                });
+            });
+
+            describe("Of dependencyTs in usage project", () => {
+                it("with initial file open, with specifying project file", () => {
+                    const host = createServerHost([dependencyTs, dependencyConfig, usageTs, usageConfig, libFile]);
+                    const session = createSession(host, { logger: createLoggerWithInMemoryLogs(host) });
+                    openFilesForSession([usageTs, dependencyTs], session);
+
+                    // Verify CompileOnSaveAffectedFileList
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: dependencyTs.path, projectFileName: usageConfig.path }
+                    });
+
+                    // Verify CompileOnSaveEmit
+                    session.executeCommandSeq<protocol.CompileOnSaveEmitFileRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveEmitFile,
+                        arguments: { file: dependencyTs.path, projectFileName: usageConfig.path }
+                    });
+
+                    // Verify EmitOutput
+                    session.executeCommandSeq<protocol.EmitOutputRequest>({
+                        command: protocol.CommandTypes.EmitOutput,
+                        arguments: { file: dependencyTs.path, projectFileName: usageConfig.path }
+                    });
+                    baselineTsserverLogs("projectReferenceCompileOnSave", "save on dependency with usage project", session);
+                });
+                it("with local change to dependency, with specifying project file", () => {
+                    const host = createServerHost([dependencyTs, dependencyConfig, usageTs, usageConfig, libFile]);
+                    const session = createSession(host, { logger: createLoggerWithInMemoryLogs(host) });
+                    openFilesForSession([usageTs, dependencyTs], session);
+
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: dependencyTs.path }
+                    });
+                    const toLocation = protocolToLocation(dependencyTs.content);
+                    const location = toLocation(dependencyTs.content.length);
+                    session.executeCommandSeq<protocol.ChangeRequest>({
+                        command: protocol.CommandTypes.Change,
+                        arguments: {
+                            file: dependencyTs.path,
+                            ...location,
+                            endLine: location.line,
+                            endOffset: location.offset,
+                            insertString: localChange
+                        }
+                    });
+
+                    // Verify CompileOnSaveAffectedFileList
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: dependencyTs.path, projectFileName: usageConfig.path }
+                    });
+
+                    // Verify CompileOnSaveEmit
+                    session.executeCommandSeq<protocol.CompileOnSaveEmitFileRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveEmitFile,
+                        arguments: { file: dependencyTs.path, projectFileName: usageConfig.path }
+                    });
+
+                    // Verify EmitOutput
+                    session.executeCommandSeq<protocol.EmitOutputRequest>({
+                        command: protocol.CommandTypes.EmitOutput,
+                        arguments: { file: dependencyTs.path, projectFileName: usageConfig.path }
+                    });
+                    baselineTsserverLogs("projectReferenceCompileOnSave", "save on dependency with usage project and local change to dependency", session);
+                });
+                it("with local change to usage, with specifying project file", () => {
+                    const host = createServerHost([dependencyTs, dependencyConfig, usageTs, usageConfig, libFile]);
+                    const session = createSession(host, { logger: createLoggerWithInMemoryLogs(host) });
+                    openFilesForSession([usageTs, dependencyTs], session);
+
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: dependencyTs.path }
+                    });
+                    const toLocation = protocolToLocation(usageTs.content);
+                    const location = toLocation(usageTs.content.length);
+                    session.executeCommandSeq<protocol.ChangeRequest>({
+                        command: protocol.CommandTypes.Change,
+                        arguments: {
+                            file: usageTs.path,
+                            ...location,
+                            endLine: location.line,
+                            endOffset: location.offset,
+                            insertString: localChange
+                        }
+                    });
+
+                    // Verify CompileOnSaveAffectedFileList
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: dependencyTs.path, projectFileName: usageConfig.path }
+                    });
+
+                    // Verify CompileOnSaveEmit
+                    session.executeCommandSeq<protocol.CompileOnSaveEmitFileRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveEmitFile,
+                        arguments: { file: dependencyTs.path, projectFileName: usageConfig.path }
+                    });
+
+                    // Verify EmitOutput
+                    session.executeCommandSeq<protocol.EmitOutputRequest>({
+                        command: protocol.CommandTypes.EmitOutput,
+                        arguments: { file: dependencyTs.path, projectFileName: usageConfig.path }
+                    });
+                    baselineTsserverLogs("projectReferenceCompileOnSave", "save on dependency with usage project and local change to usage", session);
+                });
+                it("with change to dependency, with specifying project file", () => {
+                    const host = createServerHost([dependencyTs, dependencyConfig, usageTs, usageConfig, libFile]);
+                    const session = createSession(host, { logger: createLoggerWithInMemoryLogs(host) });
+                    openFilesForSession([usageTs, dependencyTs], session);
+
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: dependencyTs.path }
+                    });
+                    const toLocation = protocolToLocation(dependencyTs.content);
+                    const location = toLocation(dependencyTs.content.length);
+                    session.executeCommandSeq<protocol.ChangeRequest>({
+                        command: protocol.CommandTypes.Change,
+                        arguments: {
+                            file: dependencyTs.path,
+                            ...location,
+                            endLine: location.line,
+                            endOffset: location.offset,
+                            insertString: change
+                        }
+                    });
+
+                    // Verify CompileOnSaveAffectedFileList
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: dependencyTs.path, projectFileName: usageConfig.path }
+                    });
+
+                    // Verify CompileOnSaveEmit
+                    session.executeCommandSeq<protocol.CompileOnSaveEmitFileRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveEmitFile,
+                        arguments: { file: dependencyTs.path, projectFileName: usageConfig.path }
+                    });
+
+                    // Verify EmitOutput
+                    session.executeCommandSeq<protocol.EmitOutputRequest>({
+                        command: protocol.CommandTypes.EmitOutput,
+                        arguments: { file: dependencyTs.path, projectFileName: usageConfig.path }
+                    });
+                    baselineTsserverLogs("projectReferenceCompileOnSave", "save on dependency with usage project and change to dependency", session);
+                });
+                it("with change to usage, with specifying project file", () => {
+                    const host = createServerHost([dependencyTs, dependencyConfig, usageTs, usageConfig, libFile]);
+                    const session = createSession(host, { logger: createLoggerWithInMemoryLogs(host) });
+                    openFilesForSession([usageTs, dependencyTs], session);
+
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: dependencyTs.path }
+                    });
+                    const toLocation = protocolToLocation(usageTs.content);
+                    const location = toLocation(usageTs.content.length);
+                    session.executeCommandSeq<protocol.ChangeRequest>({
+                        command: protocol.CommandTypes.Change,
+                        arguments: {
+                            file: usageTs.path,
+                            ...location,
+                            endLine: location.line,
+                            endOffset: location.offset,
+                            insertString: change
+                        }
+                    });
+
+                    // Verify CompileOnSaveAffectedFileList
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: dependencyTs.path, projectFileName: usageConfig.path }
+                    });
+
+                    // Verify CompileOnSaveEmit
+                    session.executeCommandSeq<protocol.CompileOnSaveEmitFileRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveEmitFile,
+                        arguments: { file: dependencyTs.path, projectFileName: usageConfig.path }
+                    });
+
+                    // Verify EmitOutput
+                    session.executeCommandSeq<protocol.EmitOutputRequest>({
+                        command: protocol.CommandTypes.EmitOutput,
+                        arguments: { file: dependencyTs.path, projectFileName: usageConfig.path }
+                    });
+                    baselineTsserverLogs("projectReferenceCompileOnSave", "save on dependency with usage project and change to usage", session);
+                });
+            });
+
+            describe("Of dependencyTs", () => {
+                it("with initial file open, without specifying project file", () => {
+                    const host = createServerHost([dependencyTs, dependencyConfig, usageTs, usageConfig, libFile]);
+                    const session = createSession(host, { logger: createLoggerWithInMemoryLogs(host) });
+                    openFilesForSession([usageTs, dependencyTs], session);
+
+                    // Verify CompileOnSaveAffectedFileList
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: dependencyTs.path }
+                    });
+
+                    // Verify CompileOnSaveEmit
+                    session.executeCommandSeq<protocol.CompileOnSaveEmitFileRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveEmitFile,
+                        arguments: { file: dependencyTs.path }
+                    });
+
+                    // Verify EmitOutput
+                    session.executeCommandSeq<protocol.EmitOutputRequest>({
+                        command: protocol.CommandTypes.EmitOutput,
+                        arguments: { file: dependencyTs.path }
+                    });
+                    baselineTsserverLogs("projectReferenceCompileOnSave", "save on dependency", session);
+                });
+                it("with initial file open, with specifying project file", () => {
+                    const host = createServerHost([dependencyTs, dependencyConfig, usageTs, usageConfig, libFile]);
+                    const session = createSession(host, { logger: createLoggerWithInMemoryLogs(host) });
+                    openFilesForSession([usageTs, dependencyTs], session);
+
+                    // Verify CompileOnSaveAffectedFileList
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: dependencyTs.path, projectFileName: dependencyConfig.path }
+                    });
+
+                    // Verify CompileOnSaveEmit
+                    session.executeCommandSeq<protocol.CompileOnSaveEmitFileRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveEmitFile,
+                        arguments: { file: dependencyTs.path, projectFileName: dependencyConfig.path }
+                    });
+
+                    // Verify EmitOutput
+                    session.executeCommandSeq<protocol.EmitOutputRequest>({
+                        command: protocol.CommandTypes.EmitOutput,
+                        arguments: { file: dependencyTs.path, projectFileName: dependencyConfig.path }
+                    });
+                    baselineTsserverLogs("projectReferenceCompileOnSave", "save on dependency with project", session);
+                });
+                it("with local change to dependency, without specifying project file", () => {
+                    const host = createServerHost([dependencyTs, dependencyConfig, usageTs, usageConfig, libFile]);
+                    const session = createSession(host, { logger: createLoggerWithInMemoryLogs(host) });
+                    openFilesForSession([usageTs, dependencyTs], session);
+
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: dependencyTs.path }
+                    });
+                    const toLocation = protocolToLocation(dependencyTs.content);
+                    const location = toLocation(dependencyTs.content.length);
+                    session.executeCommandSeq<protocol.ChangeRequest>({
+                        command: protocol.CommandTypes.Change,
+                        arguments: {
+                            file: dependencyTs.path,
+                            ...location,
+                            endLine: location.line,
+                            endOffset: location.offset,
+                            insertString: localChange
+                        }
+                    });
+
+                    // Verify CompileOnSaveAffectedFileList
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: dependencyTs.path }
+                    });
+
+                    // Verify CompileOnSaveEmit
+                    session.executeCommandSeq<protocol.CompileOnSaveEmitFileRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveEmitFile,
+                        arguments: { file: dependencyTs.path }
+                    });
+
+                    // Verify EmitOutput
+                    session.executeCommandSeq<protocol.EmitOutputRequest>({
+                        command: protocol.CommandTypes.EmitOutput,
+                        arguments: { file: dependencyTs.path }
+                    });
+                    baselineTsserverLogs("projectReferenceCompileOnSave", "save on dependency and local change to dependency", session);
+                });
+                it("with local change to dependency, with specifying project file", () => {
+                    const host = createServerHost([dependencyTs, dependencyConfig, usageTs, usageConfig, libFile]);
+                    const session = createSession(host, { logger: createLoggerWithInMemoryLogs(host) });
+                    openFilesForSession([usageTs, dependencyTs], session);
+
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: dependencyTs.path }
+                    });
+                    const toLocation = protocolToLocation(dependencyTs.content);
+                    const location = toLocation(dependencyTs.content.length);
+                    session.executeCommandSeq<protocol.ChangeRequest>({
+                        command: protocol.CommandTypes.Change,
+                        arguments: {
+                            file: dependencyTs.path,
+                            ...location,
+                            endLine: location.line,
+                            endOffset: location.offset,
+                            insertString: localChange
+                        }
+                    });
+
+                    // Verify CompileOnSaveAffectedFileList
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: dependencyTs.path, projectFileName: dependencyConfig.path }
+                    });
+
+                    // Verify CompileOnSaveEmit
+                    session.executeCommandSeq<protocol.CompileOnSaveEmitFileRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveEmitFile,
+                        arguments: { file: dependencyTs.path, projectFileName: dependencyConfig.path }
+                    });
+
+                    // Verify EmitOutput
+                    session.executeCommandSeq<protocol.EmitOutputRequest>({
+                        command: protocol.CommandTypes.EmitOutput,
+                        arguments: { file: dependencyTs.path, projectFileName: dependencyConfig.path }
+                    });
+                    baselineTsserverLogs("projectReferenceCompileOnSave", "save on dependency with project and local change to dependency", session);
+                });
+                it("with local change to usage, without specifying project file", () => {
+                    const host = createServerHost([dependencyTs, dependencyConfig, usageTs, usageConfig, libFile]);
+                    const session = createSession(host, { logger: createLoggerWithInMemoryLogs(host) });
+                    openFilesForSession([usageTs, dependencyTs], session);
+
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: dependencyTs.path }
+                    });
+                    const toLocation = protocolToLocation(usageTs.content);
+                    const location = toLocation(usageTs.content.length);
+                    session.executeCommandSeq<protocol.ChangeRequest>({
+                        command: protocol.CommandTypes.Change,
+                        arguments: {
+                            file: usageTs.path,
+                            ...location,
+                            endLine: location.line,
+                            endOffset: location.offset,
+                            insertString: localChange
+                        }
+                    });
+
+                    // Verify CompileOnSaveAffectedFileList
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: dependencyTs.path }
+                    });
+
+                    // Verify CompileOnSaveEmit
+                    session.executeCommandSeq<protocol.CompileOnSaveEmitFileRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveEmitFile,
+                        arguments: { file: dependencyTs.path }
+                    });
+
+                    // Verify EmitOutput
+                    session.executeCommandSeq<protocol.EmitOutputRequest>({
+                        command: protocol.CommandTypes.EmitOutput,
+                        arguments: { file: dependencyTs.path }
+                    });
+                    baselineTsserverLogs("projectReferenceCompileOnSave", "save on dependency and local change to usage", session);
+                });
+                it("with local change to usage, with specifying project file", () => {
+                    const host = createServerHost([dependencyTs, dependencyConfig, usageTs, usageConfig, libFile]);
+                    const session = createSession(host, { logger: createLoggerWithInMemoryLogs(host) });
+                    openFilesForSession([usageTs, dependencyTs], session);
+
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: dependencyTs.path }
+                    });
+                    const toLocation = protocolToLocation(usageTs.content);
+                    const location = toLocation(usageTs.content.length);
+                    session.executeCommandSeq<protocol.ChangeRequest>({
+                        command: protocol.CommandTypes.Change,
+                        arguments: {
+                            file: usageTs.path,
+                            ...location,
+                            endLine: location.line,
+                            endOffset: location.offset,
+                            insertString: localChange
+                        }
+                    });
+
+                    // Verify CompileOnSaveAffectedFileList
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: dependencyTs.path, projectFileName: dependencyConfig.path }
+                    });
+
+                    // Verify CompileOnSaveEmit
+                    session.executeCommandSeq<protocol.CompileOnSaveEmitFileRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveEmitFile,
+                        arguments: { file: dependencyTs.path, projectFileName: dependencyConfig.path }
+                    });
+
+                    // Verify EmitOutput
+                    session.executeCommandSeq<protocol.EmitOutputRequest>({
+                        command: protocol.CommandTypes.EmitOutput,
+                        arguments: { file: dependencyTs.path, projectFileName: dependencyConfig.path }
+                    });
+                    baselineTsserverLogs("projectReferenceCompileOnSave", "save on dependency with project and local change to usage", session);
+                });
+                it("with change to dependency, without specifying project file", () => {
+                    const host = createServerHost([dependencyTs, dependencyConfig, usageTs, usageConfig, libFile]);
+                    const session = createSession(host, { logger: createLoggerWithInMemoryLogs(host) });
+                    openFilesForSession([usageTs, dependencyTs], session);
+
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: dependencyTs.path }
+                    });
+                    const toLocation = protocolToLocation(dependencyTs.content);
+                    const location = toLocation(dependencyTs.content.length);
+                    session.executeCommandSeq<protocol.ChangeRequest>({
+                        command: protocol.CommandTypes.Change,
+                        arguments: {
+                            file: dependencyTs.path,
+                            ...location,
+                            endLine: location.line,
+                            endOffset: location.offset,
+                            insertString: change
+                        }
+                    });
+
+                    // Verify CompileOnSaveAffectedFileList
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: dependencyTs.path }
+                    });
+
+                    // Verify CompileOnSaveEmit
+                    session.executeCommandSeq<protocol.CompileOnSaveEmitFileRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveEmitFile,
+                        arguments: { file: dependencyTs.path }
+                    });
+
+                    // Verify EmitOutput
+                    session.executeCommandSeq<protocol.EmitOutputRequest>({
+                        command: protocol.CommandTypes.EmitOutput,
+                        arguments: { file: dependencyTs.path }
+                    });
+                    baselineTsserverLogs("projectReferenceCompileOnSave", "save on dependency and change to dependency", session);
+                });
+                it("with change to dependency, with specifying project file", () => {
+                    const host = createServerHost([dependencyTs, dependencyConfig, usageTs, usageConfig, libFile]);
+                    const session = createSession(host, { logger: createLoggerWithInMemoryLogs(host) });
+                    openFilesForSession([usageTs, dependencyTs], session);
+
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: dependencyTs.path }
+                    });
+                    const toLocation = protocolToLocation(dependencyTs.content);
+                    const location = toLocation(dependencyTs.content.length);
+                    session.executeCommandSeq<protocol.ChangeRequest>({
+                        command: protocol.CommandTypes.Change,
+                        arguments: {
+                            file: dependencyTs.path,
+                            ...location,
+                            endLine: location.line,
+                            endOffset: location.offset,
+                            insertString: change
+                        }
+                    });
+
+                    // Verify CompileOnSaveAffectedFileList
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: dependencyTs.path, projectFileName: dependencyConfig.path }
+                    });
+
+                    // Verify CompileOnSaveEmit
+                    session.executeCommandSeq<protocol.CompileOnSaveEmitFileRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveEmitFile,
+                        arguments: { file: dependencyTs.path, projectFileName: dependencyConfig.path }
+                    });
+
+                    // Verify EmitOutput
+                    session.executeCommandSeq<protocol.EmitOutputRequest>({
+                        command: protocol.CommandTypes.EmitOutput,
+                        arguments: { file: dependencyTs.path, projectFileName: dependencyConfig.path }
+                    });
+                    baselineTsserverLogs("projectReferenceCompileOnSave", "save on dependency with project and change to dependency", session);
+                });
+                it("with change to usage, without specifying project file", () => {
+                    const host = createServerHost([dependencyTs, dependencyConfig, usageTs, usageConfig, libFile]);
+                    const session = createSession(host, { logger: createLoggerWithInMemoryLogs(host) });
+                    openFilesForSession([usageTs, dependencyTs], session);
+
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: dependencyTs.path }
+                    });
+                    const toLocation = protocolToLocation(usageTs.content);
+                    const location = toLocation(usageTs.content.length);
+                    session.executeCommandSeq<protocol.ChangeRequest>({
+                        command: protocol.CommandTypes.Change,
+                        arguments: {
+                            file: usageTs.path,
+                            ...location,
+                            endLine: location.line,
+                            endOffset: location.offset,
+                            insertString: change
+                        }
+                    });
+
+                    // Verify CompileOnSaveAffectedFileList
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: dependencyTs.path }
+                    });
+
+                    // Verify CompileOnSaveEmit
+                    session.executeCommandSeq<protocol.CompileOnSaveEmitFileRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveEmitFile,
+                        arguments: { file: dependencyTs.path }
+                    });
+
+                    // Verify EmitOutput
+                    session.executeCommandSeq<protocol.EmitOutputRequest>({
+                        command: protocol.CommandTypes.EmitOutput,
+                        arguments: { file: dependencyTs.path }
+                    });
+                    baselineTsserverLogs("projectReferenceCompileOnSave", "save on dependency and change to usage", session);
+                });
+                it("with change to usage, with specifying project file", () => {
+                    const host = createServerHost([dependencyTs, dependencyConfig, usageTs, usageConfig, libFile]);
+                    const session = createSession(host, { logger: createLoggerWithInMemoryLogs(host) });
+                    openFilesForSession([usageTs, dependencyTs], session);
+
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: dependencyTs.path }
+                    });
+                    const toLocation = protocolToLocation(usageTs.content);
+                    const location = toLocation(usageTs.content.length);
+                    session.executeCommandSeq<protocol.ChangeRequest>({
+                        command: protocol.CommandTypes.Change,
+                        arguments: {
+                            file: usageTs.path,
+                            ...location,
+                            endLine: location.line,
+                            endOffset: location.offset,
+                            insertString: change
+                        }
+                    });
+
+                    // Verify CompileOnSaveAffectedFileList
+                    session.executeCommandSeq<protocol.CompileOnSaveAffectedFileListRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveAffectedFileList,
+                        arguments: { file: dependencyTs.path, projectFileName: dependencyConfig.path }
+                    });
+
+                    // Verify CompileOnSaveEmit
+                    session.executeCommandSeq<protocol.CompileOnSaveEmitFileRequest>({
+                        command: protocol.CommandTypes.CompileOnSaveEmitFile,
+                        arguments: { file: dependencyTs.path, projectFileName: dependencyConfig.path }
+                    });
+
+                    // Verify EmitOutput
+                    session.executeCommandSeq<protocol.EmitOutputRequest>({
+                        command: protocol.CommandTypes.EmitOutput,
+                        arguments: { file: dependencyTs.path, projectFileName: dependencyConfig.path }
+                    });
+                    baselineTsserverLogs("projectReferenceCompileOnSave", "save on dependency with project and change to usage", session);
+                });
             });
         });
     });
@@ -470,10 +1719,8 @@ ${appendDts}`
 
             // ts build should succeed
             tscWatch.ensureErrorFreeBuild(host, [siblingConfig.path]);
-            const sourceJs = changeExtension(siblingSource.path, ".js");
-            const expectedSiblingJs = host.readFile(sourceJs);
 
-            const session = createSession(host);
+            const session = createSession(host, { logger: createLoggerWithInMemoryLogs(host) });
             openFilesForSession([siblingSource], session);
 
             session.executeCommandSeq<protocol.CompileOnSaveEmitFileRequest>({
@@ -483,7 +1730,7 @@ ${appendDts}`
                     projectFileName: siblingConfig.path
                 }
             });
-            assert.equal(host.readFile(sourceJs), expectedSiblingJs);
+            baselineTsserverLogs("projectReferenceCompileOnSave", "compile on save emits same output as project build with external project", session);
         });
     });
 }

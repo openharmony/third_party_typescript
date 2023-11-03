@@ -42,13 +42,17 @@ Semantic diagnostics in builder refreshed for::
 /a/lib/lib.d.ts
 /f.ts
 
-WatchedFiles::
-/f.ts:
-  {"fileName":"/f.ts","pollingInterval":250}
-/a/lib/lib.d.ts:
-  {"fileName":"/a/lib/lib.d.ts","pollingInterval":250}
+Shape signatures in builder refreshed for::
+/a/lib/lib.d.ts (used version)
+/f.ts (used version)
+
+PolledWatches::
 
 FsWatches::
+/f.ts:
+  {}
+/a/lib/lib.d.ts:
+  {}
 
 FsWatchesRecursive::
 
@@ -69,9 +73,9 @@ Output::
 FileWatcher:: Triggered with /f.ts 1:: WatchInfo: /f.ts 250 undefined Source file
 Scheduling update
 Elapsed:: *ms FileWatcher:: Triggered with /f.ts 1:: WatchInfo: /f.ts 250 undefined Source file
+Synchronizing program
 [[90m12:00:17 AM[0m] File change detected. Starting incremental compilation...
 
-Synchronizing program
 CreatingProgramWith::
   roots: ["/f.ts"]
   options: {"watch":true,"extendedDiagnostics":true}
@@ -89,13 +93,16 @@ Program files::
 Semantic diagnostics in builder refreshed for::
 /f.ts
 
-WatchedFiles::
-/f.ts:
-  {"fileName":"/f.ts","pollingInterval":250}
-/a/lib/lib.d.ts:
-  {"fileName":"/a/lib/lib.d.ts","pollingInterval":250}
+Shape signatures in builder refreshed for::
+/f.ts (computed .d.ts)
+
+PolledWatches::
 
 FsWatches::
+/f.ts:
+  {}
+/a/lib/lib.d.ts:
+  {}
 
 FsWatchesRecursive::
 

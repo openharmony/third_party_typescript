@@ -1,4 +1,7 @@
 /*@internal*/
+/// <reference lib="dom" />
+/// <reference lib="webworker.importscripts" />
+
 namespace ts.server {
     export interface HostWithWriteMessage {
         writeMessage(s: any): void;
@@ -101,11 +104,24 @@ namespace ts.server {
                 default:
                     Debug.assertNever(type);
             }
-            this.host.writeMessage(<LoggingMessage>{
+            this.host.writeMessage({
                 type: "log",
                 level,
                 body,
-            });
+            } as LoggingMessage);
+        }
+    }
+
+    export declare const dynamicImport: ((id: string) => Promise<any>) | undefined;
+
+    // Attempt to load `dynamicImport`
+    if (typeof importScripts === "function") {
+        try {
+            // NOTE: importScripts is synchronous
+            importScripts("dynamicImportCompat.js");
+        }
+        catch {
+            // ignored
         }
     }
 
@@ -114,6 +130,16 @@ namespace ts.server {
         const getExecutingDirectoryPath = memoize(() => memoize(() => ensureTrailingDirectorySeparator(getDirectoryPath(getExecutingFilePath()))));
         // Later we could map ^memfs:/ to do something special if we want to enable more functionality like module resolution or something like that
         const getWebPath = (path: string) => startsWith(path, directorySeparator) ? path.replace(directorySeparator, getExecutingDirectoryPath()) : undefined;
+
+        const dynamicImport = async (id: string): Promise<any> => {
+            // Use syntactic dynamic import first, if available
+            if (server.dynamicImport) {
+                return server.dynamicImport(id);
+            }
+
+            throw new Error("Dynamic import not implemented");
+        };
+
         return {
             args,
             newLine: "\r\n", // This can be configured by clients
@@ -122,7 +148,6 @@ namespace ts.server {
                 const webPath = getWebPath(path);
                 return webPath && host.readFile(webPath);
             },
-
             write: host.writeMessage.bind(host),
             watchFile: returnNoopFileWatcher,
             watchDirectory: returnNoopFileWatcher,
@@ -131,13 +156,38 @@ namespace ts.server {
             getCurrentDirectory: returnEmptyString, // For inferred project root if projectRoot path is not set, normalizing the paths
 
             /* eslint-disable no-restricted-globals */
-            setTimeout,
-            clearTimeout,
+            setTimeout: (cb, ms, ...args) => setTimeout(cb, ms, ...args),
+            clearTimeout: handle => clearTimeout(handle),
             setImmediate: x => setTimeout(x, 0),
-            clearImmediate: clearTimeout,
+            clearImmediate: handle => clearTimeout(handle),
             /* eslint-enable no-restricted-globals */
 
-            require: () => ({ module: undefined, error: new Error("Not implemented") }),
+            importPlugin: async (initialDir: string, moduleName: string): Promise<ModuleImportResult> => {
+                const packageRoot = combinePaths(initialDir, moduleName);
+
+                let packageJson: any | undefined;
+                try {
+                    const packageJsonResponse = await fetch(combinePaths(packageRoot, "package.json"));
+                    packageJson = await packageJsonResponse.json();
+                }
+                catch (e) {
+                    return { module: undefined, error: new Error("Could not load plugin. Could not load 'package.json'.") };
+                }
+
+                const browser = packageJson.browser;
+                if (!browser) {
+                    return { module: undefined, error: new Error("Could not load plugin. No 'browser' field found in package.json.") };
+                }
+
+                const scriptPath = combinePaths(packageRoot, browser);
+                try {
+                    const { default: module } = await dynamicImport(scriptPath);
+                    return { module, error: undefined };
+                }
+                catch (e) {
+                    return { module: undefined, error: e };
+                }
+            },
             exit: notImplemented,
 
             // Debugging related
@@ -188,7 +238,7 @@ namespace ts.server {
                 byteLength: notImplemented, // Formats the message text in send of Session which is overriden in this class so not needed
                 hrtime,
                 logger,
-                canUseEvents: false,
+                canUseEvents: true,
             });
         }
 
@@ -206,7 +256,7 @@ namespace ts.server {
         }
 
         protected parseMessage(message: {}): protocol.Request {
-            return <protocol.Request>message;
+            return message as protocol.Request;
         }
 
         protected toStringMessage(message: {}) {

@@ -1,7 +1,7 @@
 /* @internal */
 namespace ts.refactor.convertParamsToDestructuredObject {
     const refactorName = "Convert parameters to destructured object";
-    const minimumParameterLength = 2;
+    const minimumParameterLength = 1;
     const refactorDescription = getLocaleSpecificMessage(Diagnostics.Convert_parameters_to_destructured_object);
 
     const toDestructuredAction = {
@@ -11,11 +11,11 @@ namespace ts.refactor.convertParamsToDestructuredObject {
     };
     registerRefactor(refactorName, {
         kinds: [toDestructuredAction.kind],
-        getEditsForAction,
-        getAvailableActions
+        getEditsForAction: getRefactorEditsToConvertParametersToDestructuredObject,
+        getAvailableActions: getRefactorActionsToConvertParametersToDestructuredObject
     });
 
-    function getAvailableActions(context: RefactorContext): readonly ApplicableRefactorInfo[] {
+    function getRefactorActionsToConvertParametersToDestructuredObject(context: RefactorContext): readonly ApplicableRefactorInfo[] {
         const { file, startPosition } = context;
         const isJSFile = isSourceFileJS(file);
         if (isJSFile) return emptyArray; // TODO: GH#30113
@@ -29,7 +29,7 @@ namespace ts.refactor.convertParamsToDestructuredObject {
         }];
     }
 
-    function getEditsForAction(context: RefactorContext, actionName: string): RefactorEditInfo | undefined {
+    function getRefactorEditsToConvertParametersToDestructuredObject(context: RefactorContext, actionName: string): RefactorEditInfo | undefined {
         Debug.assert(actionName === refactorName, "Unexpected action name");
         const { file, startPosition, program, cancellationToken, host } = context;
         const functionDeclaration = getFunctionDeclarationAtPosition(file, startPosition, program.getTypeChecker());
@@ -220,7 +220,7 @@ namespace ts.refactor.convertParamsToDestructuredObject {
     function getSymbolForContextualType(node: Node, checker: TypeChecker): Symbol | undefined {
         const element = getContainingObjectLiteralElement(node);
         if (element) {
-            const contextualType = checker.getContextualTypeForObjectLiteralElement(<ObjectLiteralElementLike>element);
+            const contextualType = checker.getContextualTypeForObjectLiteralElement(element as ObjectLiteralElementLike);
             const symbol = contextualType?.getSymbol();
             if (symbol && !(getCheckFlags(symbol) & CheckFlags.Synthetic)) {
                 return symbol;
@@ -360,7 +360,7 @@ namespace ts.refactor.convertParamsToDestructuredObject {
                 if (isObjectLiteralExpression(functionDeclaration.parent)) {
                     const contextualSymbol = getSymbolForContextualType(functionDeclaration.name, checker);
                     // don't offer the refactor when there are multiple signatures since we won't know which ones the user wants to change
-                    return contextualSymbol?.declarations.length === 1 && isSingleImplementation(functionDeclaration, checker);
+                    return contextualSymbol?.declarations?.length === 1 && isSingleImplementation(functionDeclaration, checker);
                 }
                 return isSingleImplementation(functionDeclaration, checker);
             case SyntaxKind.Constructor:
@@ -404,7 +404,7 @@ namespace ts.refactor.convertParamsToDestructuredObject {
             const type = checker.getTypeAtLocation(parameterDeclaration);
             if (!checker.isArrayType(type) && !checker.isTupleType(type)) return false;
         }
-        return !parameterDeclaration.modifiers && !parameterDeclaration.decorators && isIdentifier(parameterDeclaration.name);
+        return !parameterDeclaration.modifiers && isIdentifier(parameterDeclaration.name);
     }
 
     function isValidVariableDeclaration(node: Node): node is ValidVariableDeclaration {
@@ -474,7 +474,6 @@ namespace ts.refactor.convertParamsToDestructuredObject {
         }
 
         const objectParameter = factory.createParameterDeclaration(
-            /*decorators*/ undefined,
             /*modifiers*/ undefined,
             /*dotDotDotToken*/ undefined,
             objectParameterName,
@@ -485,7 +484,6 @@ namespace ts.refactor.convertParamsToDestructuredObject {
         if (hasThisParameter(functionDeclaration.parameters)) {
             const thisParameter = functionDeclaration.parameters[0];
             const newThisParameter = factory.createParameterDeclaration(
-                /*decorators*/ undefined,
                 /*modifiers*/ undefined,
                 /*dotDotDotToken*/ undefined,
                 thisParameter.name,
@@ -655,7 +653,7 @@ namespace ts.refactor.convertParamsToDestructuredObject {
     interface ValidParameterDeclaration extends ParameterDeclaration {
         name: Identifier;
         modifiers: undefined;
-        decorators: undefined;
+        illegalDecorators: undefined;
     }
 
     interface GroupedReferences {

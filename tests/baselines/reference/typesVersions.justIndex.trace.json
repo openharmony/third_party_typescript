@@ -8,6 +8,7 @@
     "File '/a.tsx' does not exist.",
     "File '/a.d.ts' does not exist.",
     "File '/a.ets' does not exist.",
+    "File '/a.d.ets' does not exist.",
     "Found 'package.json' at '/a/package.json'.",
     "'package.json' has a 'typesVersions' field with version-specific path mappings.",
     "'package.json' does not have a 'typings' field.",

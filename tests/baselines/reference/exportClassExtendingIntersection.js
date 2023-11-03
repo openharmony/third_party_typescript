@@ -101,7 +101,7 @@ var MyExtendedClass = /** @class */ (function (_super) {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     return MyExtendedClass;
-}(MixinClass_1.MyMixin(BaseClass_1.MyBaseClass)));
+}((0, MixinClass_1.MyMixin)(BaseClass_1.MyBaseClass)));
 exports.MyExtendedClass = MyExtendedClass;
 //// [Main.js]
 "use strict";
@@ -109,11 +109,11 @@ exports.__esModule = true;
 var FinalClass_1 = require("./FinalClass");
 var MixinClass_1 = require("./MixinClass");
 var myExtendedClass = new FinalClass_1.MyExtendedClass('string');
-var AnotherMixedClass = MixinClass_1.MyMixin(FinalClass_1.MyExtendedClass);
+var AnotherMixedClass = (0, MixinClass_1.MyMixin)(FinalClass_1.MyExtendedClass);
 
 
 //// [BaseClass.d.ts]
-export declare type Constructor<T> = new (...args: any[]) => T;
+export type Constructor<T> = new (...args: any[]) => T;
 export declare class MyBaseClass<T> {
     baseProperty: string;
     constructor(value: T);
