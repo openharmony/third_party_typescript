@@ -16,7 +16,7 @@ namespace ts {
 export const cookBookMsg: string[] = [];
 export const cookBookTag: string[] = [];
 
-for(let i = 0; i <= 150; i++) {
+for(let i = 0; i <= 151; i++) {
   cookBookMsg[ i ] = "";
 }
 

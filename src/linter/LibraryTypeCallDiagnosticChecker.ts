@@ -28,6 +28,8 @@ export const ARGUMENT_OF_TYPE_0_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_ERROR_C
 export const ARGUMENT_OF_TYPE_NULL_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_RE = /^Argument of type 'null' is not assignable to parameter of type '.*'\.$/;
 export const ARGUMENT_OF_TYPE_UNDEFINED_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_RE = /^Argument of type 'undefined' is not assignable to parameter of type '.*'\.$/;
 
+export const NO_OVERLOAD_MATCHES_THIS_CALL_ERROR_CODE = 2769;
+
 export class LibraryTypeCallDiagnosticChecker implements DiagnosticChecker {
   inLibCall: boolean = false;
   diagnosticMessages: Array<ts.DiagnosticMessageChain> | undefined;
@@ -36,7 +38,7 @@ export class LibraryTypeCallDiagnosticChecker implements DiagnosticChecker {
   constructor(filteredDiagnosticMessages: DiagnosticMessageChain[]) {
     this.filteredDiagnosticMessages = filteredDiagnosticMessages;
   }
-  
+
   configure(inLibCall: boolean, diagnosticMessages: Array<ts.DiagnosticMessageChain>) {
     this.inLibCall = inLibCall;
     this.diagnosticMessages = diagnosticMessages;
@@ -62,6 +64,14 @@ export class LibraryTypeCallDiagnosticChecker implements DiagnosticChecker {
         return false;
       }
       if (this.inLibCall && chain.messageText.match(TYPE_NULL_IS_NOT_ASSIGNABLE_TO_TYPE_1_RE)) {
+        return false;
+      }
+    }
+    if (chain.code == ARGUMENT_OF_TYPE_0_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_ERROR_CODE) {
+      if (this.inLibCall && chain.messageText.match(ARGUMENT_OF_TYPE_UNDEFINED_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_RE)) {
+        return false;
+      }
+      if (this.inLibCall && chain.messageText.match(ARGUMENT_OF_TYPE_NULL_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_RE)) {
         return false;
       }
     }
