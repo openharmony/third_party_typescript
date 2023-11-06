@@ -12504,6 +12504,7 @@ declare namespace ts {
         const ARGUMENT_OF_TYPE_0_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_ERROR_CODE = 2345;
         const ARGUMENT_OF_TYPE_NULL_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_RE: RegExp;
         const ARGUMENT_OF_TYPE_UNDEFINED_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_RE: RegExp;
+        const NO_OVERLOAD_MATCHES_THIS_CALL_ERROR_CODE = 2769;
         class LibraryTypeCallDiagnosticChecker implements DiagnosticChecker {
             inLibCall: boolean;
             diagnosticMessages: Array<ts.DiagnosticMessageChain> | undefined;
@@ -12875,6 +12876,7 @@ declare namespace ts {
         private isAllowedClassValueContext;
         private handleRestrictedValues;
         private identiferUseInValueContext;
+        private isEnumPropAccess;
         private handleElementAccessExpression;
         private handleEnumMember;
         private handleExportAssignment;
