@@ -11336,6 +11336,7 @@ declare namespace ts {
         const ARGUMENT_OF_TYPE_0_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_ERROR_CODE = 2345;
         const ARGUMENT_OF_TYPE_NULL_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_RE: RegExp;
         const ARGUMENT_OF_TYPE_UNDEFINED_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_RE: RegExp;
+        const NO_OVERLOAD_MATCHES_THIS_CALL_ERROR_CODE = 2769;
         class LibraryTypeCallDiagnosticChecker implements DiagnosticChecker {
             inLibCall: boolean;
             diagnosticMessages: Array<ts.DiagnosticMessageChain> | undefined;
@@ -11411,36 +11412,32 @@ declare namespace ts {
             ThisType = 56,
             IntefaceExtendDifProps = 57,
             StructuralIdentity = 58,
-            TypeOnlyImport = 59,
-            TypeOnlyExport = 60,
-            DefaultImport = 61,
-            ExportAssignment = 62,
-            ImportAssignment = 63,
-            GenericCallNoTypeArgs = 64,
-            ParameterProperties = 65,
-            InstanceofUnsupported = 66,
-            ShorthandAmbientModuleDecl = 67,
-            WildcardsInModuleName = 68,
-            UMDModuleDefinition = 69,
-            NewTarget = 70,
-            DefiniteAssignment = 71,
-            Prototype = 72,
-            GlobalThis = 73,
-            UtilityType = 74,
-            PropertyDeclOnFunction = 75,
-            FunctionApplyBindCall = 76,
-            ConstAssertion = 77,
-            ImportAssertion = 78,
-            SpreadOperator = 79,
-            LimitedStdLibApi = 80,
-            ErrorSuppression = 81,
-            StrictDiagnostic = 82,
-            UnsupportedDecorators = 83,
-            ImportAfterStatement = 84,
-            EsObjectType = 85,
-            EsObjectAssignment = 86,
-            EsObjectAccess = 87,
-            LAST_ID = 88
+            DefaultImport = 59,
+            ExportAssignment = 60,
+            ImportAssignment = 61,
+            GenericCallNoTypeArgs = 62,
+            ParameterProperties = 63,
+            InstanceofUnsupported = 64,
+            ShorthandAmbientModuleDecl = 65,
+            WildcardsInModuleName = 66,
+            UMDModuleDefinition = 67,
+            NewTarget = 68,
+            DefiniteAssignment = 69,
+            Prototype = 70,
+            GlobalThis = 71,
+            UtilityType = 72,
+            PropertyDeclOnFunction = 73,
+            FunctionApplyBindCall = 74,
+            ConstAssertion = 75,
+            ImportAssertion = 76,
+            SpreadOperator = 77,
+            LimitedStdLibApi = 78,
+            ErrorSuppression = 79,
+            StrictDiagnostic = 80,
+            UnsupportedDecorators = 81,
+            ImportAfterStatement = 82,
+            EsObjectType = 83,
+            LAST_ID = 84
         }
         class FaultAttributs {
             migratable?: boolean;
@@ -11545,11 +11542,9 @@ declare namespace ts {
         }
         const ES_OBJECT = "ESObject";
         const LIMITED_STD_GLOBAL_FUNC: string[];
-        const LIMITED_STD_GLOBAL_VAR: string[];
         const LIMITED_STD_OBJECT_API: string[];
         const LIMITED_STD_REFLECT_API: string[];
         const LIMITED_STD_PROXYHANDLER_API: string[];
-        const LIMITED_STD_ARRAYBUFFER_API: string[];
         const ARKUI_DECORATORS: string[];
         const FUNCTION_HAS_NO_RETURN_ERROR_CODE = 2366;
         const NON_RETURN_FUNCTION_DECORATORS: string[];
@@ -11557,12 +11552,9 @@ declare namespace ts {
         const TYPED_ARRAYS: string[];
         function getParentSymbolName(symbol: Symbol): string | undefined;
         function isGlobalSymbol(symbol: Symbol): boolean;
-        function isStdObjectAPI(symbol: Symbol): boolean;
-        function isStdReflectAPI(symbol: Symbol): boolean;
-        function isStdProxyHandlerAPI(symbol: Symbol): boolean;
-        function isStdArrayAPI(symbol: Symbol): boolean;
-        function isStdArrayBufferAPI(symbol: Symbol): boolean;
         function isSymbolAPI(symbol: Symbol): boolean;
+        function isStdSymbol(symbol: ts.Symbol): boolean;
+        function isSymbolIterator(symbol: ts.Symbol): boolean;
         function isDefaultImport(importSpec: ImportSpecifier): boolean;
         function hasAccessModifier(decl: Declaration): boolean;
         function getModifier(modifiers: readonly Modifier[] | undefined, modifierKind: SyntaxKind): Modifier | undefined;
@@ -11582,7 +11574,9 @@ declare namespace ts {
         function isDynamicType(type: Type | undefined): boolean | undefined;
         function isDynamicLiteralInitializer(expr: Expression): boolean;
         function isEsObjectType(typeNode: TypeNode): boolean;
-        function isEsObjectAllowed(typeRef: TypeReferenceNode): boolean;
+        function isInsideBlock(node: ts.Node): boolean;
+        function isEsObjectPossiblyAllowed(typeRef: ts.TypeReferenceNode): boolean;
+        function isValueAssignableToESObject(node: ts.Node): boolean;
         function getVariableDeclarationTypeNode(node: Node): TypeNode | undefined;
         function getSymbolDeclarationTypeNode(sym: ts.Symbol): ts.TypeNode | undefined;
         function hasEsObjectType(node: Node): boolean;
@@ -11688,6 +11682,7 @@ declare namespace ts {
         private handlePropertyAccessExpression;
         private handlePropertyAssignmentOrDeclaration;
         private filterOutDecoratorsDiagnostics;
+        private checkInRange;
         private filterStrictDiagnostics;
         private handleFunctionExpression;
         private handleArrowFunction;
@@ -11699,6 +11694,7 @@ declare namespace ts {
         private handleBinaryExpression;
         private handleVariableDeclarationList;
         private handleVariableDeclaration;
+        private handleEsObjectDelaration;
         private handleEsObjectAssignment;
         private handleCatchClause;
         private handleClassDeclaration;
@@ -11713,9 +11709,9 @@ declare namespace ts {
         private isAllowedClassValueContext;
         private handleRestrictedValues;
         private identiferUseInValueContext;
+        private isEnumPropAccess;
         private handleElementAccessExpression;
         private handleEnumMember;
-        private handleExportDeclaration;
         private handleExportAssignment;
         private handleCallExpression;
         private handleImportCall;
@@ -11726,6 +11722,7 @@ declare namespace ts {
         private handleStructIdentAndUndefinedInArgs;
         private static LimitedApis;
         private handleStdlibAPICall;
+        private findNonFilteringRangesFunctionCalls;
         private handleLibraryTypeCall;
         private handleNewExpression;
         private handleAsExpression;
@@ -11736,6 +11733,7 @@ declare namespace ts {
         private handleConstructSignature;
         private handleComments;
         private handleExpressionWithTypeArguments;
+        private handleComputedPropertyName;
         private checkErrorSuppressingAnnotation;
         private handleDecorators;
         private handleGetAccessor;
