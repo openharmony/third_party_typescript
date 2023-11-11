@@ -654,13 +654,15 @@ export class TypeScriptLinter {
     if (propName && (propName.kind === SyntaxKind.NumericLiteral || propName.kind === SyntaxKind.StringLiteral)) {
       // We can use literals as property names only when creating Record or any interop instances.
       let isRecordObjectInitializer = false;
+      let isLibraryType = false;
       let isDynamic = false;
       if (isPropertyAssignment(node)) {
         let objectLiteralType = TypeScriptLinter.tsTypeChecker.getContextualType(node.parent);
         if (objectLiteralType) {
           isRecordObjectInitializer = Utils.isStdRecordType(objectLiteralType);
-          isDynamic = Utils.isLibraryType(objectLiteralType) || Utils.isDynamicLiteralInitializer(node.parent);
+          isLibraryType = Utils.isLibraryType(objectLiteralType);
         }
+        isDynamic = isLibraryType || Utils.isDynamicLiteralInitializer(node.parent);
       }
 
       if (!isRecordObjectInitializer && !isDynamic) {
