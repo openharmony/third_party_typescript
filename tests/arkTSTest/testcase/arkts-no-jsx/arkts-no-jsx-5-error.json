@@ -1,0 +1,9 @@
+[
+    {
+        "messageText": "arkts-no-jsx",
+        "expectLineAndCharacter": {
+            "line": 20,
+            "character": 15
+        }
+    }
+]

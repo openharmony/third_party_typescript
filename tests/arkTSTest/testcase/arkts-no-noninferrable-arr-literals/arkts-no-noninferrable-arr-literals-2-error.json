@@ -1,0 +1,16 @@
+[
+    {
+        "messageText": "arkts-no-noninferrable-arr-literals",
+        "expectLineAndCharacter": {
+            "line": 17,
+            "character": 15
+        }
+    },
+    {
+        "messageText": "arkts-no-untyped-obj-literals",
+        "expectLineAndCharacter": {
+            "line": 17,
+            "character": 32
+        }
+    }
+]

@@ -1,0 +1,30 @@
+[
+    {
+        "messageText": "arkts-no-intersection-types",
+        "expectLineAndCharacter": {
+            "line": 22,
+            "character": 16
+        }
+    },
+    {
+        "messageText": "arkts-no-obj-literals-as-types",
+        "expectLineAndCharacter": {
+            "line": 22,
+            "character": 25
+        }
+    },
+    {
+        "messageText": "arkts-no-intersection-types",
+        "expectLineAndCharacter": {
+            "line": 26,
+            "character": 13
+        }
+    },
+    {
+        "messageText": "arkts-no-obj-literals-as-types",
+        "expectLineAndCharacter": {
+            "line": 26,
+            "character": 23
+        }
+    }
+]

@@ -1,0 +1,9 @@
+[
+    {
+        "messageText": "arkts-no-aliases-by-index",
+        "expectLineAndCharacter": {
+            "line": 20,
+            "character": 10
+        }
+    }
+]

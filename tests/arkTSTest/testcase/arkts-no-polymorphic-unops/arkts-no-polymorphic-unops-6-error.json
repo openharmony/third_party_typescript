@@ -1,0 +1,23 @@
+[
+  {
+    "messageText": "arkts-no-polymorphic-unops",
+    "expectLineAndCharacter": {
+      "line": 19,
+      "character": 33
+    }
+  },
+  {
+    "messageText": "arkts-no-polymorphic-unops",
+    "expectLineAndCharacter": {
+      "line": 20,
+      "character": 33
+    }
+  },
+  {
+    "messageText": "arkts-no-polymorphic-unops",
+    "expectLineAndCharacter": {
+      "line": 21,
+      "character": 33
+    }
+  }
+]

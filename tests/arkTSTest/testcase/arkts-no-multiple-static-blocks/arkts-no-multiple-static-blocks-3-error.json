@@ -1,0 +1,9 @@
+[
+  {
+    "messageText": "arkts-no-multiple-static-blocks",
+    "expectLineAndCharacter": {
+      "line": 24,
+      "character": 3
+    }
+  }
+]

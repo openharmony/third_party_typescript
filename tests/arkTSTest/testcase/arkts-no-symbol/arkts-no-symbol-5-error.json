@@ -1,0 +1,23 @@
+[
+  {
+    "messageText": "arkts-no-symbol",
+    "expectLineAndCharacter": {
+      "line": 17,
+      "character": 18
+    }
+  },
+  {
+    "messageText": "arkts-no-untyped-obj-literals",
+    "expectLineAndCharacter": {
+      "line": 18,
+      "character": 14
+    }
+  },
+  {
+    "messageText": "arkts-identifiers-as-prop-names",
+    "expectLineAndCharacter": {
+      "line": 19,
+      "character": 3
+    }
+  }
+]

@@ -1,0 +1,9 @@
+[
+    {
+        "messageText": "arkts-no-method-reassignment",
+        "expectLineAndCharacter": {
+            "line": 26,
+            "character": 1
+        }
+    }
+]

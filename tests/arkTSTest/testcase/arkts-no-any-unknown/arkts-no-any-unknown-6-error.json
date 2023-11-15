@@ -1,0 +1,30 @@
+[
+  {
+    "messageText": "arkts-no-any-unknown",
+    "expectLineAndCharacter": {
+      "line": 19,
+      "character": 11
+    }
+  },
+  {
+    "messageText": "arkts-no-any-unknown",
+    "expectLineAndCharacter": {
+      "line": 22,
+      "character": 19
+    }
+  },
+  {
+    "messageText": "arkts-no-any-unknown",
+    "expectLineAndCharacter": {
+      "line": 23,
+      "character": 23
+    }
+  },
+  {
+    "messageText": "arkts-no-any-unknown",
+    "expectLineAndCharacter": {
+      "line": 24,
+      "character": 11
+    }
+  }
+]

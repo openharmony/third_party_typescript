@@ -1,0 +1,44 @@
+[
+  {
+    "messageText": "arkts-no-private-identifiers",
+    "expectLineAndCharacter": {
+      "line": 19,
+      "character": 12
+    }
+  },
+  {
+    "messageText": "arkts-no-private-identifiers",
+    "expectLineAndCharacter": {
+      "line": 20,
+      "character": 12
+    }
+  },
+  {
+    "messageText": "arkts-no-private-identifiers",
+    "expectLineAndCharacter": {
+      "line": 22,
+      "character": 10
+    }
+  },
+  {
+    "messageText": "arkts-no-private-identifiers",
+    "expectLineAndCharacter": {
+      "line": 23,
+      "character": 10
+    }
+  },
+  {
+    "messageText": "arkts-no-private-identifiers",
+    "expectLineAndCharacter": {
+      "line": 26,
+      "character": 21
+    }
+  },
+  {
+    "messageText": "arkts-no-private-identifiers",
+    "expectLineAndCharacter": {
+      "line": 26,
+      "character": 33
+    }
+  }
+]

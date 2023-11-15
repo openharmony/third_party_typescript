@@ -1,0 +1,9 @@
+[
+    {
+        "messageText": "arkts-no-inferred-generic-params",
+        "expectLineAndCharacter": {
+            "line": 19,
+            "character": 1
+        }
+    }
+]

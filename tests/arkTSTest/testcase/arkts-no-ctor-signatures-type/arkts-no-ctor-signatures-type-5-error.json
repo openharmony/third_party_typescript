@@ -1,0 +1,23 @@
+[
+  {
+    "messageText": "arkts-no-obj-literals-as-types",
+    "expectLineAndCharacter": {
+      "line": 26,
+      "character": 30
+    }
+  },
+  {
+    "messageText": "arkts-no-ctor-signatures-type",
+    "expectLineAndCharacter": {
+      "line": 27,
+      "character": 3
+    }
+  },
+  {
+    "messageText": "arkts-no-classes-as-obj",
+    "expectLineAndCharacter": {
+      "line": 31,
+      "character": 39
+    }
+  }
+]

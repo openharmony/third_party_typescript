@@ -1,0 +1,9 @@
+[
+    {
+        "messageText": "arkts-no-regexp-literals",
+        "expectLineAndCharacter": {
+            "line": 20,
+            "character": 29
+        }
+    }
+]
