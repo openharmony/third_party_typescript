@@ -17,7 +17,7 @@ export namespace Problems {
 
 export enum FaultID {
   AnyType, SymbolType, ObjectLiteralNoContextType, ArrayLiteralNoContextType,
-  ComputedPropertyName, LiteralAsPropertyName, TypeQuery, RegexLiteral, IsOperator,
+  ComputedPropertyName, LiteralAsPropertyName, TypeQuery, IsOperator,
   DestructuringParameter, YieldExpression, InterfaceMerging, EnumMerging, InterfaceExtendsClass, IndexMember, WithStatement,
   ThrowStatement, IndexedAccessType, UnknownType, ForInStatement, InOperator,
   ImportFromPath, FunctionExpression, IntersectionType,
@@ -28,109 +28,111 @@ export enum FaultID {
   TypeAssertion, PrivateIdentifier, LocalFunction,
   ConditionalType, MappedType, NamespaceAsObject, ClassAsObject,
   NonDeclarationInNamespace, GeneratorFunction, FunctionContainsThis, PropertyAccessByIndex, JsxElement,
-  EnumMemberNonConstInit, ImplementsClass, NoUndefinedPropAccess, MultipleStaticBlocks, ThisType,
+  EnumMemberNonConstInit, ImplementsClass, MethodReassignment, MultipleStaticBlocks, ThisType,
   IntefaceExtendDifProps, StructuralIdentity, DefaultImport,
   ExportAssignment, ImportAssignment,
   GenericCallNoTypeArgs, ParameterProperties,
   InstanceofUnsupported, ShorthandAmbientModuleDecl, WildcardsInModuleName, UMDModuleDefinition,
   NewTarget, DefiniteAssignment, Prototype, GlobalThis,
-  UtilityType, PropertyDeclOnFunction, FunctionApplyBindCall, ConstAssertion, ImportAssertion,
+  UtilityType, PropertyDeclOnFunction, FunctionApplyCall, FunctionBind, ConstAssertion, ImportAssertion,
   SpreadOperator, LimitedStdLibApi, ErrorSuppression, StrictDiagnostic, UnsupportedDecorators, ImportAfterStatement,
   EsObjectType,
   LAST_ID, // this should always be last enum`
 }
 
-export class FaultAttributs {
-  migratable?: boolean;
-  warning?: boolean;
-  cookBookRef = "-1";
+export class FaultAttributes {
+  constructor(
+    public cookBookRef: number,
+    public migratable: boolean = false,
+    public severity: Utils.ProblemSeverity = Utils.ProblemSeverity.ERROR
+  ) {}
 }
 
-export const faultsAttrs: FaultAttributs[] = [];
+export const faultsAttrs: FaultAttributes[] = [];
 
-faultsAttrs[FaultID.LiteralAsPropertyName] = { migratable: true, cookBookRef: "1", };
-faultsAttrs[FaultID.ComputedPropertyName] = { cookBookRef: "1", };
-faultsAttrs[FaultID.SymbolType] = { cookBookRef: "2", };
-faultsAttrs[FaultID.PrivateIdentifier] = { migratable: true, cookBookRef: "3", };
-faultsAttrs[FaultID.DeclWithDuplicateName] = { migratable: true, cookBookRef: "4", };
-faultsAttrs[FaultID.VarDeclaration] = { migratable: true, cookBookRef: "5", };
-faultsAttrs[FaultID.AnyType] = { cookBookRef: "8" };
-faultsAttrs[FaultID.UnknownType] = { cookBookRef: "8", };
-faultsAttrs[FaultID.CallSignature] = { cookBookRef: "14", };
-faultsAttrs[FaultID.ConstructorType] = { cookBookRef: "15", };
-faultsAttrs[FaultID.MultipleStaticBlocks] = { cookBookRef: "16", };
-faultsAttrs[FaultID.IndexMember] = { cookBookRef: "17", };
-faultsAttrs[FaultID.IntersectionType] = { cookBookRef: "19", };
-faultsAttrs[FaultID.ThisType] = { cookBookRef: "21", };
-faultsAttrs[FaultID.ConditionalType] = { cookBookRef: "22", };
-faultsAttrs[FaultID.ParameterProperties] = { migratable: true, cookBookRef: "25", };
-faultsAttrs[FaultID.ConstructorIface] = { cookBookRef: "27", };
-faultsAttrs[FaultID.IndexedAccessType] = { cookBookRef: "28", };
-faultsAttrs[FaultID.PropertyAccessByIndex] = { migratable: true, cookBookRef: "29", };
-faultsAttrs[FaultID.StructuralIdentity] = { cookBookRef: "30", };
-faultsAttrs[FaultID.GenericCallNoTypeArgs] = { cookBookRef: "34", };
-faultsAttrs[FaultID.RegexLiteral] = { cookBookRef: "37", };
-faultsAttrs[FaultID.ObjectLiteralNoContextType] = { cookBookRef: "38", };
-faultsAttrs[FaultID.ObjectTypeLiteral] = { cookBookRef: "40", };
-faultsAttrs[FaultID.ArrayLiteralNoContextType] = { cookBookRef: "43", };
-faultsAttrs[FaultID.FunctionExpression] = { migratable: true, cookBookRef: "46", };
-faultsAttrs[FaultID.LambdaWithTypeParameters] = { migratable: true, cookBookRef: "49", };
-faultsAttrs[FaultID.ClassExpression] = { migratable: true, cookBookRef: "50", };
-faultsAttrs[FaultID.ImplementsClass] = { cookBookRef: "51", };
-faultsAttrs[FaultID.NoUndefinedPropAccess] = { cookBookRef: "52", };
-faultsAttrs[FaultID.TypeAssertion] = { migratable: true, cookBookRef: "53", };
-faultsAttrs[FaultID.JsxElement] = { cookBookRef: "54", };
-faultsAttrs[FaultID.UnaryArithmNotNumber] = { cookBookRef: "55", };
-faultsAttrs[FaultID.DeleteOperator] = { cookBookRef: "59", };
-faultsAttrs[FaultID.TypeQuery] = { cookBookRef: "60", };
-faultsAttrs[FaultID.InstanceofUnsupported] = { cookBookRef: "65", };
-faultsAttrs[FaultID.InOperator] = { cookBookRef: "66", };
-faultsAttrs[FaultID.DestructuringAssignment] = { migratable: true, cookBookRef: "69", };
-faultsAttrs[FaultID.CommaOperator] = { cookBookRef: "71", };
-faultsAttrs[FaultID.DestructuringDeclaration] = { migratable: true, cookBookRef: "74", };
-faultsAttrs[FaultID.CatchWithUnsupportedType] = { migratable: true, cookBookRef: "79", };
-faultsAttrs[FaultID.ForInStatement] = { cookBookRef: "80", };
-faultsAttrs[FaultID.MappedType] = { cookBookRef: "83", };
-faultsAttrs[FaultID.WithStatement] = { cookBookRef: "84", };
-faultsAttrs[FaultID.ThrowStatement] = { migratable: true, cookBookRef: "87", };
-faultsAttrs[FaultID.LimitedReturnTypeInference] = { migratable: true, cookBookRef: "90", };
-faultsAttrs[FaultID.DestructuringParameter] = { cookBookRef: "91", };
-faultsAttrs[FaultID.LocalFunction] = { migratable: true, cookBookRef: "92", };
-faultsAttrs[FaultID.FunctionContainsThis] = { cookBookRef: "93", };
-faultsAttrs[FaultID.GeneratorFunction] = { cookBookRef: "94", };
-faultsAttrs[FaultID.YieldExpression] = { cookBookRef: "94", };
-faultsAttrs[FaultID.IsOperator] = { cookBookRef: "96", };
-faultsAttrs[FaultID.SpreadOperator] = { cookBookRef: "99", };
-faultsAttrs[FaultID.IntefaceExtendDifProps] = { cookBookRef: "102", };
-faultsAttrs[FaultID.InterfaceMerging] = { cookBookRef: "103", };
-faultsAttrs[FaultID.InterfaceExtendsClass] = { cookBookRef: "104", };
-faultsAttrs[FaultID.ConstructorFuncs] = { cookBookRef: "106", };
-faultsAttrs[FaultID.EnumMemberNonConstInit] = { cookBookRef: "111", };
-faultsAttrs[FaultID.EnumMerging] = { cookBookRef: "113", };
-faultsAttrs[FaultID.NamespaceAsObject] = { cookBookRef: "114", };
-faultsAttrs[FaultID.NonDeclarationInNamespace] = { cookBookRef: "116", };
-faultsAttrs[FaultID.ImportFromPath] = { cookBookRef: "119", };
-faultsAttrs[FaultID.DefaultImport] = { migratable: true, cookBookRef: "120", };
-faultsAttrs[FaultID.ImportAssignment] = { cookBookRef: "121", };
-faultsAttrs[FaultID.ExportAssignment] = { cookBookRef: "126", };
-faultsAttrs[FaultID.ShorthandAmbientModuleDecl] = { cookBookRef: "128", };
-faultsAttrs[FaultID.WildcardsInModuleName] = { cookBookRef: "129", };
-faultsAttrs[FaultID.UMDModuleDefinition] = { cookBookRef: "130", };
-faultsAttrs[FaultID.NewTarget] = { cookBookRef: "132", };
-faultsAttrs[FaultID.DefiniteAssignment] = { warning: true, cookBookRef: "134", };
-faultsAttrs[FaultID.Prototype] = { cookBookRef: "136", };
-faultsAttrs[FaultID.GlobalThis] = { cookBookRef: "137", };
-faultsAttrs[FaultID.UtilityType] = { cookBookRef: "138", };
-faultsAttrs[FaultID.PropertyDeclOnFunction] = { cookBookRef: "139", };
-faultsAttrs[FaultID.FunctionApplyBindCall] = { cookBookRef: "140", };
-faultsAttrs[FaultID.ConstAssertion] = { cookBookRef: "142", };
-faultsAttrs[FaultID.ImportAssertion] = { cookBookRef: "143", };
-faultsAttrs[FaultID.LimitedStdLibApi] = { cookBookRef: "144", };
-faultsAttrs[FaultID.StrictDiagnostic] = { cookBookRef: "145", };
-faultsAttrs[FaultID.ErrorSuppression] = { cookBookRef: "146", };
-faultsAttrs[FaultID.UnsupportedDecorators] = { warning: true, cookBookRef: "148", };
-faultsAttrs[FaultID.ClassAsObject] = { cookBookRef: "149", };
-faultsAttrs[FaultID.ImportAfterStatement] = { cookBookRef: "150", };
-faultsAttrs[FaultID.EsObjectType] = { warning: true, cookBookRef: "151" };
+faultsAttrs[FaultID.LiteralAsPropertyName] = new FaultAttributes(1, true)
+faultsAttrs[FaultID.ComputedPropertyName] = new FaultAttributes(1)
+faultsAttrs[FaultID.SymbolType] = new FaultAttributes(2)
+faultsAttrs[FaultID.PrivateIdentifier] = new FaultAttributes(3, true)
+faultsAttrs[FaultID.DeclWithDuplicateName] = new FaultAttributes(4, true)
+faultsAttrs[FaultID.VarDeclaration] = new FaultAttributes(5, true)
+faultsAttrs[FaultID.AnyType] = new FaultAttributes(8)
+faultsAttrs[FaultID.UnknownType] = new FaultAttributes(8)
+faultsAttrs[FaultID.CallSignature] = new FaultAttributes(14)
+faultsAttrs[FaultID.ConstructorType] = new FaultAttributes(15)
+faultsAttrs[FaultID.MultipleStaticBlocks] = new FaultAttributes(16)
+faultsAttrs[FaultID.IndexMember] = new FaultAttributes(17)
+faultsAttrs[FaultID.IntersectionType] = new FaultAttributes(19)
+faultsAttrs[FaultID.ThisType] = new FaultAttributes(21)
+faultsAttrs[FaultID.ConditionalType] = new FaultAttributes(22)
+faultsAttrs[FaultID.ParameterProperties] = new FaultAttributes(25, true)
+faultsAttrs[FaultID.ConstructorIface] = new FaultAttributes(27)
+faultsAttrs[FaultID.IndexedAccessType] = new FaultAttributes(28)
+faultsAttrs[FaultID.PropertyAccessByIndex] = new FaultAttributes(29, true)
+faultsAttrs[FaultID.StructuralIdentity] = new FaultAttributes(30)
+faultsAttrs[FaultID.GenericCallNoTypeArgs] = new FaultAttributes(34)
+faultsAttrs[FaultID.ObjectLiteralNoContextType] = new FaultAttributes(38)
+faultsAttrs[FaultID.ObjectTypeLiteral] = new FaultAttributes(40)
+faultsAttrs[FaultID.ArrayLiteralNoContextType] = new FaultAttributes(43)
+faultsAttrs[FaultID.FunctionExpression] = new FaultAttributes(46, true)
+faultsAttrs[FaultID.LambdaWithTypeParameters] = new FaultAttributes(49, true)
+faultsAttrs[FaultID.ClassExpression] = new FaultAttributes(50, true)
+faultsAttrs[FaultID.ImplementsClass] = new FaultAttributes(51)
+faultsAttrs[FaultID.MethodReassignment] = new FaultAttributes(52)
+faultsAttrs[FaultID.TypeAssertion] = new FaultAttributes(53, true)
+faultsAttrs[FaultID.JsxElement] = new FaultAttributes(54)
+faultsAttrs[FaultID.UnaryArithmNotNumber] = new FaultAttributes(55)
+faultsAttrs[FaultID.DeleteOperator] = new FaultAttributes(59)
+faultsAttrs[FaultID.TypeQuery] = new FaultAttributes(60)
+faultsAttrs[FaultID.InstanceofUnsupported] = new FaultAttributes(65)
+faultsAttrs[FaultID.InOperator] = new FaultAttributes(66)
+faultsAttrs[FaultID.DestructuringAssignment] = new FaultAttributes(69, true)
+faultsAttrs[FaultID.CommaOperator] = new FaultAttributes(71)
+faultsAttrs[FaultID.DestructuringDeclaration] = new FaultAttributes(74, true)
+faultsAttrs[FaultID.CatchWithUnsupportedType] = new FaultAttributes(79, true)
+faultsAttrs[FaultID.ForInStatement] = new FaultAttributes(80)
+faultsAttrs[FaultID.MappedType] = new FaultAttributes(83)
+faultsAttrs[FaultID.WithStatement] = new FaultAttributes(84)
+faultsAttrs[FaultID.ThrowStatement] = new FaultAttributes(87, true)
+faultsAttrs[FaultID.LimitedReturnTypeInference] = new FaultAttributes(90, true)
+faultsAttrs[FaultID.DestructuringParameter] = new FaultAttributes(91)
+faultsAttrs[FaultID.LocalFunction] = new FaultAttributes(92, true)
+faultsAttrs[FaultID.FunctionContainsThis] = new FaultAttributes(93)
+faultsAttrs[FaultID.GeneratorFunction] = new FaultAttributes(94)
+faultsAttrs[FaultID.YieldExpression] = new FaultAttributes(94)
+faultsAttrs[FaultID.IsOperator] = new FaultAttributes(96)
+faultsAttrs[FaultID.SpreadOperator] = new FaultAttributes(99)
+faultsAttrs[FaultID.IntefaceExtendDifProps] = new FaultAttributes(102)
+faultsAttrs[FaultID.InterfaceMerging] = new FaultAttributes(103)
+faultsAttrs[FaultID.InterfaceExtendsClass] = new FaultAttributes(104)
+faultsAttrs[FaultID.ConstructorFuncs] = new FaultAttributes(106)
+faultsAttrs[FaultID.EnumMemberNonConstInit] = new FaultAttributes(111)
+faultsAttrs[FaultID.EnumMerging] = new FaultAttributes(113)
+faultsAttrs[FaultID.NamespaceAsObject] = new FaultAttributes(114)
+faultsAttrs[FaultID.NonDeclarationInNamespace] = new FaultAttributes(116)
+faultsAttrs[FaultID.ImportFromPath] = new FaultAttributes(119)
+faultsAttrs[FaultID.DefaultImport] = new FaultAttributes(120, true)
+faultsAttrs[FaultID.ImportAssignment] = new FaultAttributes(121)
+faultsAttrs[FaultID.ExportAssignment] = new FaultAttributes(126)
+faultsAttrs[FaultID.ShorthandAmbientModuleDecl] = new FaultAttributes(128)
+faultsAttrs[FaultID.WildcardsInModuleName] = new FaultAttributes(129)
+faultsAttrs[FaultID.UMDModuleDefinition] = new FaultAttributes(130)
+faultsAttrs[FaultID.NewTarget] = new FaultAttributes(132)
+faultsAttrs[FaultID.DefiniteAssignment] = new FaultAttributes(134, false, Utils.ProblemSeverity.WARNING)
+faultsAttrs[FaultID.Prototype] = new FaultAttributes(136)
+faultsAttrs[FaultID.GlobalThis] = new FaultAttributes(137, false, Utils.ProblemSeverity.WARNING)
+faultsAttrs[FaultID.UtilityType] = new FaultAttributes(138)
+faultsAttrs[FaultID.PropertyDeclOnFunction] = new FaultAttributes(139)
+faultsAttrs[FaultID.FunctionApplyCall] = new FaultAttributes(140)
+faultsAttrs[FaultID.FunctionBind] = new FaultAttributes(140, false, Utils.ProblemSeverity.WARNING)
+faultsAttrs[FaultID.ConstAssertion] = new FaultAttributes(142)
+faultsAttrs[FaultID.ImportAssertion] = new FaultAttributes(143)
+faultsAttrs[FaultID.LimitedStdLibApi] = new FaultAttributes(144)
+faultsAttrs[FaultID.StrictDiagnostic] = new FaultAttributes(145)
+faultsAttrs[FaultID.ErrorSuppression] = new FaultAttributes(146)
+faultsAttrs[FaultID.UnsupportedDecorators] = new FaultAttributes(148, false, Utils.ProblemSeverity.WARNING)
+faultsAttrs[FaultID.ClassAsObject] = new FaultAttributes(149, false, Utils.ProblemSeverity.WARNING)
+faultsAttrs[FaultID.ImportAfterStatement] = new FaultAttributes(150)
+faultsAttrs[FaultID.EsObjectType] = new FaultAttributes(151, false, Utils.ProblemSeverity.WARNING)
 }
 }
