@@ -32718,7 +32718,15 @@ namespace ts {
 
         function expressionCheckByJsDoc(declaration: Declaration, node: Identifier, sourceFile: SourceFile, checkConfig: JsDocNodeCheckConfigItem[]): void {
             const jsDocTags = getJSDocTags(declaration);
-            checkConfig.forEach(config => {
+            for (let i = 0; i < checkConfig.length; i++) {
+                const config = checkConfig[i];
+                let tagNameCheckNecessity = false;
+                if (config.checkJsDocSpecialValidCallback) {
+                    tagNameCheckNecessity = config.checkJsDocSpecialValidCallback(jsDocTags, config);
+                }
+                if (!tagNameCheckNecessity) {
+                    continue;
+                }
                 let tagNameExisted = false;
                 if (!config.tagNameShouldExisted && config.needConditionCheck) {
                     conditionCheck(node, jsDocTags, sourceFile, config);
@@ -32738,7 +32746,7 @@ namespace ts {
                 if (config.tagNameShouldExisted && !tagNameExisted) {
                     collectDiagnostics(config, node, sourceFile);
                 }
-            });
+            }
         }
         
         function collectDiagnostics(config: JsDocNodeCheckConfigItem, node: Identifier, sourceFile: SourceFile): void {
