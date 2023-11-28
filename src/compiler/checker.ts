@@ -32720,7 +32720,7 @@ namespace ts {
             const jsDocTags = getJSDocTags(declaration);
             for (let i = 0; i < checkConfig.length; i++) {
                 const config = checkConfig[i];
-                let tagNameCheckNecessity = false;
+                let tagNameCheckNecessity = true;
                 if (config.checkJsDocSpecialValidCallback) {
                     tagNameCheckNecessity = config.checkJsDocSpecialValidCallback(jsDocTags, config);
                 }
