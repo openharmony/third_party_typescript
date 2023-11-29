@@ -7301,6 +7301,7 @@ namespace ts {
         specifyCheckConditionFuncName: string;
         tagNameShouldExisted: boolean;
         checkValidCallback?: (jsDocTag: JSDocTag, config: JsDocNodeCheckConfigItem) => boolean;
+        checkJsDocSpecialValidCallback?: (jsDocTags: readonly JSDocTag[], config: JsDocNodeCheckConfigItem) => boolean;
     }
 
     export interface TagCheckParam {
