@@ -7790,7 +7790,7 @@ namespace ts {
             const hasJSDoc = hasPrecedingJSDocComment();
             const decorators = parseDecorators();
             const modifiers = parseModifiers(/*permitInvalidConstAsModifier*/ true, /*stopOnStartOfClassStaticBlock*/ true);
-            if (token() === SyntaxKind.StaticKeyword && lookAhead(nextTokenIsOpenBrace) && !sourceFileCompilerOptions.ets) {
+            if (token() === SyntaxKind.StaticKeyword && lookAhead(nextTokenIsOpenBrace)) {
                 return parseClassStaticBlockDeclaration(pos, hasJSDoc, decorators, modifiers);
             }
 
