@@ -8581,103 +8581,6 @@ declare namespace ts {
     }
 }
 declare namespace ts {
-    namespace Problems {
-        enum FaultID {
-            AnyType = 0,
-            SymbolType = 1,
-            ObjectLiteralNoContextType = 2,
-            ArrayLiteralNoContextType = 3,
-            ComputedPropertyName = 4,
-            LiteralAsPropertyName = 5,
-            TypeQuery = 6,
-            RegexLiteral = 7,
-            IsOperator = 8,
-            DestructuringParameter = 9,
-            YieldExpression = 10,
-            InterfaceMerging = 11,
-            EnumMerging = 12,
-            InterfaceExtendsClass = 13,
-            IndexMember = 14,
-            WithStatement = 15,
-            ThrowStatement = 16,
-            IndexedAccessType = 17,
-            UnknownType = 18,
-            ForInStatement = 19,
-            InOperator = 20,
-            ImportFromPath = 21,
-            FunctionExpression = 22,
-            IntersectionType = 23,
-            ObjectTypeLiteral = 24,
-            CommaOperator = 25,
-            LimitedReturnTypeInference = 26,
-            LambdaWithTypeParameters = 27,
-            ClassExpression = 28,
-            DestructuringAssignment = 29,
-            DestructuringDeclaration = 30,
-            VarDeclaration = 31,
-            CatchWithUnsupportedType = 32,
-            DeleteOperator = 33,
-            DeclWithDuplicateName = 34,
-            UnaryArithmNotNumber = 35,
-            ConstructorType = 36,
-            ConstructorIface = 37,
-            ConstructorFuncs = 38,
-            CallSignature = 39,
-            TypeAssertion = 40,
-            PrivateIdentifier = 41,
-            LocalFunction = 42,
-            ConditionalType = 43,
-            MappedType = 44,
-            NamespaceAsObject = 45,
-            ClassAsObject = 46,
-            NonDeclarationInNamespace = 47,
-            GeneratorFunction = 48,
-            FunctionContainsThis = 49,
-            PropertyAccessByIndex = 50,
-            JsxElement = 51,
-            EnumMemberNonConstInit = 52,
-            ImplementsClass = 53,
-            NoUndefinedPropAccess = 54,
-            MultipleStaticBlocks = 55,
-            ThisType = 56,
-            IntefaceExtendDifProps = 57,
-            StructuralIdentity = 58,
-            DefaultImport = 59,
-            ExportAssignment = 60,
-            ImportAssignment = 61,
-            GenericCallNoTypeArgs = 62,
-            ParameterProperties = 63,
-            InstanceofUnsupported = 64,
-            ShorthandAmbientModuleDecl = 65,
-            WildcardsInModuleName = 66,
-            UMDModuleDefinition = 67,
-            NewTarget = 68,
-            DefiniteAssignment = 69,
-            Prototype = 70,
-            GlobalThis = 71,
-            UtilityType = 72,
-            PropertyDeclOnFunction = 73,
-            FunctionApplyBindCall = 74,
-            ConstAssertion = 75,
-            ImportAssertion = 76,
-            SpreadOperator = 77,
-            LimitedStdLibApi = 78,
-            ErrorSuppression = 79,
-            StrictDiagnostic = 80,
-            UnsupportedDecorators = 81,
-            ImportAfterStatement = 82,
-            EsObjectType = 83,
-            LAST_ID = 84
-        }
-        class FaultAttributs {
-            migratable?: boolean;
-            warning?: boolean;
-            cookBookRef: string;
-        }
-        const faultsAttrs: FaultAttributs[];
-    }
-}
-declare namespace ts {
     namespace Utils {
         import AutofixInfo = Common.AutofixInfo;
         const PROPERTY_HAS_NO_INITIALIZER_ERROR_CODE = 2564;
@@ -8696,19 +8599,18 @@ declare namespace ts {
         function getStartPos(nodeOrComment: Node | CommentRange): number;
         function getEndPos(nodeOrComment: Node | CommentRange): number;
         function isAssignmentOperator(tsBinOp: BinaryOperatorToken): boolean;
-        function isTypedArray(tsType: TypeNode | undefined): boolean;
         function isType(tsType: TypeNode | undefined, checkType: string): boolean;
         function entityNameToString(name: EntityName): string;
         function isNumberType(tsType: Type): boolean;
         function isBooleanType(tsType: Type): boolean;
         function isStringLikeType(tsType: Type): boolean;
-        function isStringType(type: Type): boolean;
-        function isPrimitiveEnumType(type: Type, primitiveType: TypeFlags): boolean;
+        function isStringType(tsType: ts.Type): boolean;
         function isPrimitiveEnumMemberType(type: Type, primitiveType: TypeFlags): boolean;
         function unwrapParenthesizedType(tsType: TypeNode): TypeNode;
         function findParentIf(asExpr: AsExpression): IfStatement | null;
         function isDestructuringAssignmentLHS(tsExpr: ArrayLiteralExpression | ObjectLiteralExpression): boolean;
-        function isEnumType(tsType: Type): boolean;
+        function isEnumType(tsType: ts.Type): boolean;
+        function isEnum(tsSymbol: ts.Symbol): boolean;
         function isEnumMemberType(tsType: Type): boolean;
         function isObjectLiteralType(tsType: Type): boolean;
         function isNumberLikeType(tsType: Type): boolean;
@@ -8722,7 +8624,10 @@ declare namespace ts {
         function isPrimitiveType(type: Type): boolean;
         function isTypeSymbol(symbol: Symbol | undefined): boolean;
         function isGenericArrayType(tsType: Type): tsType is TypeReference;
-        function isDerivedFrom(tsType: Type, checkType: CheckType): tsType is TypeReference;
+        function isTypedArray(tsType: ts.Type): boolean;
+        function isArray(tsType: ts.Type): boolean;
+        function isTuple(tsType: ts.Type): boolean;
+        function isOrDerivedFrom(tsType: ts.Type, checkType: CheckType): boolean;
         function isTypeReference(tsType: Type): tsType is TypeReference;
         function isNullType(tsTypeNode: TypeNode): boolean;
         function isThisOrSuperExpr(tsExpr: Expression): boolean;
@@ -8743,11 +8648,10 @@ declare namespace ts {
         function isIntegerConstantValue(tsExpr: EnumMember | PropertyAccessExpression | ElementAccessExpression | NumericLiteral): boolean;
         function isStringConstantValue(tsExpr: EnumMember | PropertyAccessExpression | ElementAccessExpression): boolean;
         function relatedByInheritanceOrIdentical(typeA: Type, typeB: Type): boolean;
-        function needToDeduceStructuralIdentity(typeFrom: Type, typeTo: Type, allowPromotion?: boolean): boolean;
+        function needToDeduceStructuralIdentity(lhsType: ts.Type, rhsType: ts.Type, rhsExpr: ts.Expression, allowPromotion?: boolean): boolean;
         function hasPredecessor(node: Node, predicate: (node: Node) => boolean): boolean;
         function processParentTypes(parentTypes: NodeArray<ExpressionWithTypeArguments>, typeB: Type, processInterfaces: boolean): boolean;
-        function processParentTypesCheck(parentTypes: NodeArray<ExpressionWithTypeArguments>, checkType: CheckType): boolean;
-        function isObjectType(tsType: Type): boolean;
+        function isObject(tsType: Type): boolean;
         function logTscDiagnostic(diagnostics: readonly Diagnostic[], log: (message: any, ...args: any[]) => void): void;
         function encodeProblemInfo(problem: ProblemInfo): string;
         function decodeAutofixInfo(info: string): AutofixInfo;
@@ -8757,18 +8661,13 @@ declare namespace ts {
         function isStructDeclaration(node: Node): boolean;
         function isStructObjectInitializer(objectLiteral: ObjectLiteralExpression): boolean;
         function hasMethods(type: Type): boolean;
-        function isExpressionAssignableToType(lhsType: ts.Type | undefined, rhsExpr: ts.Expression): boolean;
+        function getNonNullableType(t: ts.Type): Type;
+        function isObjectLiteralAssignable(lhsType: ts.Type | undefined, rhsExpr: ts.ObjectLiteralExpression): boolean;
         function isLiteralType(type: Type): boolean;
-        function validateFields(type: Type, objectLiteral: ObjectLiteralExpression): boolean;
+        function validateFields(objectType: Type, objectLiteral: ObjectLiteralExpression): boolean;
         function isSupportedType(typeNode: TypeNode): boolean;
         function isStruct(symbol: Symbol): boolean;
-        enum CheckType {
-            Array = 0,
-            String = "String",
-            Set = "Set",
-            Map = "Map",
-            Error = "Error"
-        }
+        type CheckType = ((t: ts.Type) => boolean);
         const ES_OBJECT = "ESObject";
         const LIMITED_STD_GLOBAL_FUNC: string[];
         const LIMITED_STD_OBJECT_API: string[];
@@ -8789,6 +8688,8 @@ declare namespace ts {
         function getModifier(modifiers: readonly Modifier[] | undefined, modifierKind: SyntaxKind): Modifier | undefined;
         function getAccessModifier(modifiers: readonly Modifier[] | undefined): Modifier | undefined;
         function isStdRecordType(type: Type): boolean;
+        function isStdMapType(type: Type): boolean;
+        function isStdErrorType(type: ts.Type): boolean;
         function isStdPartialType(type: Type): boolean;
         function isStdRequiredType(type: Type): boolean;
         function isStdReadonlyType(type: Type): boolean;
@@ -8801,8 +8702,10 @@ declare namespace ts {
         function isStdLibrarySymbol(sym: Symbol | undefined): boolean;
         function isIntrinsicObjectType(type: Type): boolean;
         function isDynamicType(type: Type | undefined): boolean | undefined;
+        function isObjectType(type: ts.Type): type is ts.ObjectType;
+        function isAnonymous(type: ts.Type): boolean;
         function isDynamicLiteralInitializer(expr: Expression): boolean;
-        function isEsObjectType(typeNode: TypeNode): boolean;
+        function isEsObjectType(typeNode: ts.TypeNode | undefined): boolean;
         function isInsideBlock(node: ts.Node): boolean;
         function isEsObjectPossiblyAllowed(typeRef: ts.TypeReferenceNode): boolean;
         function isValueAssignableToESObject(node: ts.Node): boolean;
@@ -8814,6 +8717,105 @@ declare namespace ts {
         function isAnonymousType(type: Type): boolean;
         function getSymbolOfCallExpression(callExpr: CallExpression): Symbol | undefined;
         function typeIsRecursive(topType: Type, type?: Type | undefined): boolean;
+        function getTypeOrTypeConstraintAtLocation(expr: ts.Expression): ts.Type;
+    }
+}
+declare namespace ts {
+    namespace Problems {
+        enum FaultID {
+            AnyType = 0,
+            SymbolType = 1,
+            ObjectLiteralNoContextType = 2,
+            ArrayLiteralNoContextType = 3,
+            ComputedPropertyName = 4,
+            LiteralAsPropertyName = 5,
+            TypeQuery = 6,
+            IsOperator = 7,
+            DestructuringParameter = 8,
+            YieldExpression = 9,
+            InterfaceMerging = 10,
+            EnumMerging = 11,
+            InterfaceExtendsClass = 12,
+            IndexMember = 13,
+            WithStatement = 14,
+            ThrowStatement = 15,
+            IndexedAccessType = 16,
+            UnknownType = 17,
+            ForInStatement = 18,
+            InOperator = 19,
+            ImportFromPath = 20,
+            FunctionExpression = 21,
+            IntersectionType = 22,
+            ObjectTypeLiteral = 23,
+            CommaOperator = 24,
+            LimitedReturnTypeInference = 25,
+            LambdaWithTypeParameters = 26,
+            ClassExpression = 27,
+            DestructuringAssignment = 28,
+            DestructuringDeclaration = 29,
+            VarDeclaration = 30,
+            CatchWithUnsupportedType = 31,
+            DeleteOperator = 32,
+            DeclWithDuplicateName = 33,
+            UnaryArithmNotNumber = 34,
+            ConstructorType = 35,
+            ConstructorIface = 36,
+            ConstructorFuncs = 37,
+            CallSignature = 38,
+            TypeAssertion = 39,
+            PrivateIdentifier = 40,
+            LocalFunction = 41,
+            ConditionalType = 42,
+            MappedType = 43,
+            NamespaceAsObject = 44,
+            ClassAsObject = 45,
+            NonDeclarationInNamespace = 46,
+            GeneratorFunction = 47,
+            FunctionContainsThis = 48,
+            PropertyAccessByIndex = 49,
+            JsxElement = 50,
+            EnumMemberNonConstInit = 51,
+            ImplementsClass = 52,
+            MethodReassignment = 53,
+            MultipleStaticBlocks = 54,
+            ThisType = 55,
+            IntefaceExtendDifProps = 56,
+            StructuralIdentity = 57,
+            DefaultImport = 58,
+            ExportAssignment = 59,
+            ImportAssignment = 60,
+            GenericCallNoTypeArgs = 61,
+            ParameterProperties = 62,
+            InstanceofUnsupported = 63,
+            ShorthandAmbientModuleDecl = 64,
+            WildcardsInModuleName = 65,
+            UMDModuleDefinition = 66,
+            NewTarget = 67,
+            DefiniteAssignment = 68,
+            Prototype = 69,
+            GlobalThis = 70,
+            UtilityType = 71,
+            PropertyDeclOnFunction = 72,
+            FunctionApplyCall = 73,
+            FunctionBind = 74,
+            ConstAssertion = 75,
+            ImportAssertion = 76,
+            SpreadOperator = 77,
+            LimitedStdLibApi = 78,
+            ErrorSuppression = 79,
+            StrictDiagnostic = 80,
+            UnsupportedDecorators = 81,
+            ImportAfterStatement = 82,
+            EsObjectType = 83,
+            LAST_ID = 84
+        }
+        class FaultAttributes {
+            cookBookRef: number;
+            migratable: boolean;
+            severity: Utils.ProblemSeverity;
+            constructor(cookBookRef: number, migratable?: boolean, severity?: Utils.ProblemSeverity);
+        }
+        const faultsAttrs: FaultAttributes[];
     }
 }
 declare namespace ts {
@@ -8890,11 +8892,12 @@ declare namespace ts {
         constructor(sourceFile: SourceFile, tsProgram: Program, tscStrictDiagnostics?: Map<Diagnostic[]> | undefined);
         readonly handlersMap: ESMap<SyntaxKind, (node: Node) => void>;
         incrementCounters(node: Node | CommentRange, faultId: number, autofixable?: boolean, autofix?: Autofix[]): void;
-        visitTSNode(node: Node): void;
+        private forEachNodeInSubtree;
+        private visitSourceFile;
         private countInterfaceExtendsDifferentPropertyTypes;
         private countDeclarationsWithDuplicateName;
         private countClassMembersWithDuplicateName;
-        private functionContainsThis;
+        private static scopeContainsThis;
         private isPrototypePropertyAccess;
         private interfaceInheritanceLint;
         private lintForInterfaceExtendsDifferentPorpertyTypes;
@@ -8913,6 +8916,7 @@ declare namespace ts {
         private filterOutDecoratorsDiagnostics;
         private checkInRange;
         private filterStrictDiagnostics;
+        private static isClassLikeOrIface;
         private handleFunctionExpression;
         private handleArrowFunction;
         private handleClassExpression;
@@ -8934,19 +8938,23 @@ declare namespace ts {
         private handleNamespaceImport;
         private handleTypeAssertionExpression;
         private handleMethodDeclaration;
+        private handleMethodSignature;
         private handleIdentifier;
         private isAllowedClassValueContext;
         private handleRestrictedValues;
         private identiferUseInValueContext;
         private isEnumPropAccess;
+        private isElementAcessAllowed;
         private handleElementAccessExpression;
         private handleEnumMember;
         private handleExportAssignment;
         private handleCallExpression;
+        private handleEtsComponentExpression;
         private handleImportCall;
         private handleRequireCall;
         private handleGenericCallWithNoTypeArgs;
-        private static listApplyBindCallApis;
+        private static readonly listFunctionApplyCallApis;
+        private static readonly listFunctionBindApis;
         private handleFunctionApplyBindPropCall;
         private handleStructIdentAndUndefinedInArgs;
         private static LimitedApis;
@@ -8957,13 +8965,10 @@ declare namespace ts {
         private handleAsExpression;
         private handleTypeReference;
         private handleMetaProperty;
-        private handleStructDeclaration;
         private handleSpreadOp;
         private handleConstructSignature;
-        private handleComments;
         private handleExpressionWithTypeArguments;
         private handleComputedPropertyName;
-        private checkErrorSuppressingAnnotation;
         private handleDecorators;
         private handleGetAccessor;
         private handleSetAccessor;
@@ -8973,6 +8978,9 @@ declare namespace ts {
         private checkAnyOrUnknownChildNode;
         private handleInferredObjectreference;
         private validateDeclInferredType;
+        private processNoCheckEntry;
+        private reportThisKeywordsInScope;
+        private handleCommentDirectives;
         lint(): void;
     }
 }

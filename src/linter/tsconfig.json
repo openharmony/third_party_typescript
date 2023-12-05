@@ -18,12 +18,12 @@
         "CookBookMsg.ts",
         "DiagnosticChecker.ts",
         "LibraryTypeCallDiagnosticChecker.ts",
-        "Problems.ts",
         "Utils.ts",
+        "Problems.ts",
         "Autofixer.ts",
         "TypeScriptLinterConfig.ts",
         "TypeScriptLinter.ts",
         "TSDiagnostics.ts",
-	    "LinterRunner.ts",
+        "LinterRunner.ts",
     ]
 }

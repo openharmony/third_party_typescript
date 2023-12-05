@@ -66,13 +66,6 @@ export function isAssignmentOperator(tsBinOp: BinaryOperatorToken): boolean {
   return tsBinOp.kind >= SyntaxKind.FirstAssignment && tsBinOp.kind <= SyntaxKind.LastAssignment;
 }
 
-export function isTypedArray(tsType: TypeNode | undefined): boolean {
-  if (tsType === undefined || !isTypeReferenceNode(tsType)) {
-    return false;
-  }
-  return TYPED_ARRAYS.includes(entityNameToString(tsType.typeName));
-}
-
 export function isType(tsType: TypeNode | undefined, checkType: string): boolean {
   if (tsType === undefined || !isTypeReferenceNode(tsType)) {
     return false;
@@ -113,21 +106,18 @@ export function isStringLikeType(tsType: Type): boolean {
   return (tsType.getFlags() & TypeFlags.StringLike) !== 0;
 }
 
-export function isStringType(type: Type): boolean {
-  return (type.getFlags() & TypeFlags.String) !== 0;
-}
+export function isStringType(tsType: ts.Type): boolean {
+  if ((tsType.getFlags() & ts.TypeFlags.String) !== 0) {
+    return true;
+  }
 
-export function isPrimitiveEnumType(type: Type, primitiveType: TypeFlags): boolean {
-  const isNonPrimitive = (type.flags & TypeFlags.NonPrimitive) !== 0;
-  if (!isEnumType(type) || !type.isUnion() || isNonPrimitive) {
+  if (!isTypeReference(tsType)) {
     return false;
   }
-  for (const t of type.types) {
-    if ((t.flags & primitiveType) === 0) {
-      return false;
-    }
-  }
-  return true;
+
+  const symbol = tsType.symbol;
+  const name = typeChecker.getFullyQualifiedName(symbol);
+  return name === 'String' && isGlobalSymbol(symbol);
 }
 
 export function isPrimitiveEnumMemberType(type: Type, primitiveType: TypeFlags): boolean {
@@ -184,10 +174,16 @@ export function isDestructuringAssignmentLHS(
   return false;
 }
 
-export function isEnumType(tsType: Type): boolean {
-  // Note: For some reason, test (tsType.flags & TypeFlags.Enum) != 0 doesn't work here.
-  // Must use SymbolFlags to figure out if this is an enum type.
-  return tsType.symbol && (tsType.symbol.flags & SymbolFlags.Enum) !== 0;
+export function isEnumType(tsType: ts.Type): boolean {
+  // when type equals `typeof <Enum>`, only symbol contains information about it's type.
+  const isEnumSymbol = tsType.symbol && isEnum(tsType.symbol);
+  // otherwise, we should analyze flags of the type itself
+  const isEnumType = !!(tsType.flags & ts.TypeFlags.Enum) || !!(tsType.flags & ts.TypeFlags.EnumLiteral);
+  return isEnumSymbol || isEnumType;
+}
+
+export function isEnum(tsSymbol: ts.Symbol): boolean {
+  return !!(tsSymbol.flags & ts.SymbolFlags.Enum);
 }
 
 export function isEnumMemberType(tsType: Type): boolean {
@@ -313,22 +309,45 @@ export function isGenericArrayType(tsType: Type): tsType is TypeReference {
   );
 }
 
-// does something similar to relatedByInheritanceOrIdentical function
-export function isDerivedFrom(tsType: Type, checkType: CheckType): tsType is TypeReference {
-  if (isTypeReference(tsType) && tsType.target !== tsType) tsType = tsType.target;
+export function isTypedArray(tsType: ts.Type): boolean {
+  const symbol = tsType.symbol;
+  if (!symbol) {
+    return false;
+  }
+  const name = typeChecker.getFullyQualifiedName(symbol);
+  return isGlobalSymbol(symbol) && TYPED_ARRAYS.includes(name);
+}
 
-  const tsTypeNode = typeChecker.typeToTypeNode(tsType, undefined, NodeBuilderFlags.None);
-  if (checkType === CheckType.Array && (isGenericArrayType(tsType) || isTypedArray(tsTypeNode))) return true;
-  if (checkType !== CheckType.Array && isType(tsTypeNode, checkType.toString())) return true;
-  if (!tsType.symbol || !tsType.symbol.declarations) return false;
+export function isArray(tsType: ts.Type): boolean {
+  return isGenericArrayType(tsType) || isTypedArray(tsType);
+}
+
+export function isTuple(tsType: ts.Type): boolean {
+  return isTypeReference(tsType) && !!(tsType.objectFlags & ts.ObjectFlags.Tuple);
+}
+
+// does something similar to relatedByInheritanceOrIdentical function
+export function isOrDerivedFrom(tsType: ts.Type, checkType: CheckType): boolean {
+  if (isTypeReference(tsType) && tsType.target !== tsType) {
+    tsType = tsType.target;
+  }
+  if (checkType(tsType)) {
+    return true;
+  }
+  if (!tsType.symbol || !tsType.symbol.declarations) {
+    return false;
+  }
 
   for (const tsTypeDecl of tsType.symbol.declarations) {
-    if (
-      (!isClassDeclaration(tsTypeDecl) && !isInterfaceDeclaration(tsTypeDecl)) ||
-      !tsTypeDecl.heritageClauses
-    ) continue;
+    const isClassOrInterfaceDecl = ts.isClassDeclaration(tsTypeDecl) || ts.isInterfaceDeclaration(tsTypeDecl);
+    const isDerived = isClassOrInterfaceDecl && !!tsTypeDecl.heritageClauses;
+    if (!isDerived) {
+      continue;
+    }
     for (const heritageClause of tsTypeDecl.heritageClauses) {
-      if (processParentTypesCheck(heritageClause.types, checkType)) return true;
+      if (processParentTypesCheck(heritageClause.types, checkType)) {
+        return true;
+      }
     }
   }
 
@@ -388,11 +407,12 @@ export function isUnsupportedUnionType(tsType: Type): boolean {
 }
 
 function isNullableUnionType(tsUnionType: UnionType): boolean {
-  const tsTypes = tsUnionType.types;
-  return (
-    tsTypes.length === 2 &&
-    ((tsTypes[0].flags & TypeFlags.Null) !== 0 || (tsTypes[1].flags & TypeFlags.Null) !== 0)
-  );
+  for (const t of tsUnionType.types) {
+    if (!!(t.flags & ts.TypeFlags.Undefined) || !!(t.flags & ts.TypeFlags.Null)) {
+      return true;
+    }
+  }
+  return false;
 }
 
 function isBooleanUnionType(tsUnionType: UnionType): boolean {
@@ -569,7 +589,7 @@ export function relatedByInheritanceOrIdentical(typeA: Type, typeB: Type): boole
   if (isTypeReference(typeA) && typeA.target !== typeA) { typeA = typeA.target; }
   if (isTypeReference(typeB) && typeB.target !== typeB) { typeB = typeB.target; }
 
-  if (typeA === typeB || isObjectType(typeB)) { return true; }
+  if (typeA === typeB || isObject(typeB)) { return true; }
   if (!typeA.symbol || !typeA.symbol.declarations) { return false; }
 
   for (const typeADecl of typeA.symbol.declarations) {
@@ -587,15 +607,49 @@ export function relatedByInheritanceOrIdentical(typeA: Type, typeB: Type): boole
 }
 
 // return true if two class types are not related by inheritance and structural identity check is needed
-export function needToDeduceStructuralIdentity(typeFrom: Type, typeTo: Type, allowPromotion = false): boolean {
-  if (isLibraryType(typeTo)) {
+export function needToDeduceStructuralIdentity(lhsType: ts.Type, rhsType: ts.Type, rhsExpr: ts.Expression,
+  allowPromotion: boolean = false): boolean {
+  // Compare non-nullable version of types.
+  lhsType = getNonNullableType(lhsType);
+  rhsType = getNonNullableType(rhsType);
+
+  if (isLibraryType(lhsType)) {
     return false;
   }
 
-  let res = typeTo.isClassOrInterface() && typeFrom.isClassOrInterface() && !relatedByInheritanceOrIdentical(typeFrom, typeTo);
+  if (isDynamicObjectAssignedToStdType(lhsType, rhsExpr)) {
+    return false;
+  }
+
+  // #14569: Check for Function type.
+  if (areCompatibleFunctionals(lhsType, rhsType)) {
+    return false;
+  }
+
+  if (rhsType.isUnion()) {
+    // Each Class/Interface of the RHS union type must be compatible with LHS type.
+    for (const compType of rhsType.types) {
+      if (needToDeduceStructuralIdentity(lhsType, compType, rhsExpr, allowPromotion)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  if (lhsType.isUnion()) {
+    // RHS type needs to be compatible with at least one type of the LHS union.
+    for (const compType of lhsType.types) {
+      if (!needToDeduceStructuralIdentity(compType, rhsType, rhsExpr, allowPromotion)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  let res = lhsType.isClassOrInterface() && rhsType.isClassOrInterface() && !relatedByInheritanceOrIdentical(rhsType, lhsType);
 
   if (allowPromotion) {
-    res &&= !relatedByInheritanceOrIdentical(typeTo, typeFrom);
+    res &&= !relatedByInheritanceOrIdentical(lhsType, rhsType);
   }
 
   return res;
@@ -621,17 +675,21 @@ export function processParentTypes(parentTypes: NodeArray<ExpressionWithTypeArgu
   return false;
 }
 
-export function processParentTypesCheck(parentTypes: NodeArray<ExpressionWithTypeArguments>, checkType: CheckType): boolean {
+function processParentTypesCheck(parentTypes: NodeArray<ExpressionWithTypeArguments>, checkType: CheckType): boolean {
   for (const baseTypeExpr of parentTypes) {
     let baseType = typeChecker.getTypeAtLocation(baseTypeExpr);
-    if (isTypeReference(baseType) && baseType.target !== baseType) baseType = baseType.target;
-    if (baseType && isDerivedFrom(baseType, checkType)) return true;
+    if (isTypeReference(baseType) && baseType.target !== baseType) {
+      baseType = baseType.target;
+    }
+    if (baseType && isOrDerivedFrom(baseType, checkType)) {
+      return true;
+    }
   }
   return false;
 }
 
 
-export function isObjectType(tsType: Type): boolean {
+export function isObject(tsType: Type): boolean {
   if (!tsType) {
     return false;
   }
@@ -781,98 +839,27 @@ function findProperty(type: Type, name: string): Symbol | undefined {
 }
 
 
-function getNonNullableType(t: ts.Type) {
+export function getNonNullableType(t: ts.Type) {
   if (t.isUnion()) {
     return t.getNonNullableType();
   }
   return t;
 }
 
-export function isExpressionAssignableToType(lhsType: ts.Type | undefined, rhsExpr: ts.Expression): boolean {
+export function isObjectLiteralAssignable(lhsType: ts.Type | undefined, rhsExpr: ts.ObjectLiteralExpression): boolean {
   if (lhsType === undefined) {
     return false;
   }
 
-  let nonNullableLhs = getNonNullableType(lhsType);
-
-  // Allow initializing with anything when the type
-  // originates from the library.
-  if (isAnyType(nonNullableLhs) || isLibraryType(nonNullableLhs)) {
-    return true;
-  }
-
-  // issue 13412:
-  // Allow initializing with a dynamic object when the LHS type
-  // is primitive or defined in standard library.
-  if (isDynamicObjectAssignedToStdType(nonNullableLhs, rhsExpr)) {
-    return true;
-  }
-
-  // Allow initializing Record objects with object initializer.
-  // Record supports any type for a its value, but the key value
-  // must be either a string or number literal.
-  if (isStdRecordType(nonNullableLhs) && ts.isObjectLiteralExpression(rhsExpr)) {
-    return validateRecordObjectKeys(rhsExpr);
-  }
-
-  // For Partial<T>, Required<T>, Readonly<T> types, validate their argument type.
-  if (isStdPartialType(nonNullableLhs) || isStdRequiredType(nonNullableLhs) || isStdReadonlyType(nonNullableLhs)) {
-    if (nonNullableLhs.aliasTypeArguments && nonNullableLhs.aliasTypeArguments.length === 1) {
-      nonNullableLhs = nonNullableLhs.aliasTypeArguments[0];
-    } else {
-      return false;
-    }
-  }
-
-  let rhsType = getNonNullableType(typeChecker.getTypeAtLocation(rhsExpr));
-
-  if (rhsType.isUnion()) {
-    let res = true;
-    for (const compType of rhsType.types) {
-      res &&= areTypesAssignable(lhsType, compType)
-    }
-    return res;
-  }
+  // Always check with the non-nullable variant of lhs type.
+  lhsType = getNonNullableType(lhsType);
 
   if (lhsType.isUnion()) {
     for (const compType of lhsType.types) {
-      if (isExpressionAssignableToType(compType, rhsExpr)) {
+      if (isObjectLiteralAssignable(compType, rhsExpr)) {
         return true;
       }
     }
-  }
-
-  if (ts.isObjectLiteralExpression(rhsExpr)) {
-    return isObjectLiteralAssignable(nonNullableLhs, rhsExpr);
-  }
-
-  return areTypesAssignable(lhsType, rhsType)
-}
-
-function areTypesAssignable(lhsType: ts.Type, rhsType: ts.Type): boolean {
-  if (rhsType.isUnion()) {
-    let res = true;
-    for (const compType of rhsType.types) {
-      res &&= areTypesAssignable(lhsType, compType)
-    }
-    return res;
-  }
-
-  if (lhsType.isUnion()) {
-    for (const compType of lhsType.types) {
-      if (areTypesAssignable(compType, rhsType)) {
-        return true;
-      }
-    }
-  }
-
-  // we pretend to be non strict mode to avoid incompatibilities with IDE/RT linter,
-  // where execution environments differ. in IDE this error will be reported anyways by 
-  // StrictModeError
-  const isRhsUndefined: boolean = !!(rhsType.flags & ts.TypeFlags.Undefined);
-  const isRhsNull: boolean = !!(rhsType.flags & ts.TypeFlags.Null);
-  if (isRhsUndefined || isRhsNull) {
-    return true;
   }
 
   // Allow initializing with anything when the type
@@ -881,26 +868,30 @@ function areTypesAssignable(lhsType: ts.Type, rhsType: ts.Type): boolean {
     return true;
   }
 
-  // If type is a literal type, compare its base type.
-  lhsType = typeChecker.getBaseTypeOfLiteralType(lhsType);
-  rhsType = typeChecker.getBaseTypeOfLiteralType(rhsType);
-
-  // issue 13114:
-  // Const enum values are convertible to string/number type.
-  // Note: This check should appear before calling TypeChecker.getBaseTypeOfLiteralType()
-  // to ensure that lhsType has its original form, as it can be a literal type with
-  // specific number or string value, which shouldn't pass this check.
-  if (isEnumAssignment(lhsType, rhsType)) {
+  // issue 13412:
+  // Allow initializing with a dynamic object when the LHS type
+  // is primitive or defined in standard library.
+  if (isDynamicObjectAssignedToStdType(lhsType, rhsExpr)) {
     return true;
   }
 
-  // issue 13033:
-  // If both types are functional, they are considered compatible.
-  if (areCompatibleFunctionals(lhsType, rhsType)) {
-    return true;
+  // For Partial<T>, Required<T>, Readonly<T> types, validate their argument type.
+  if (isStdPartialType(lhsType) || isStdRequiredType(lhsType) || isStdReadonlyType(lhsType)) {
+    if (lhsType.aliasTypeArguments && lhsType.aliasTypeArguments.length === 1) {
+      lhsType = lhsType.aliasTypeArguments[0];
+    } else {
+      return false;
+    }
   }
 
-  return lhsType === rhsType || relatedByInheritanceOrIdentical(rhsType, getTargetType(lhsType));
+  // Allow initializing Record objects with object initializer.
+  // Record supports any type for a its value, but the key value
+  // must be either a string or number literal.
+  if (isStdRecordType(lhsType)) {
+    return validateRecordObjectKeys(rhsExpr);
+  }
+
+  return validateObjectLiteralType(lhsType) && !hasMethods(lhsType) && validateFields(lhsType, rhsExpr);
 }
 
 function isDynamicObjectAssignedToStdType(lhsType: Type, rhsExpr: Expression): boolean {
@@ -914,37 +905,6 @@ function isDynamicObjectAssignedToStdType(lhsType: Type, rhsExpr: Expression): b
   return false;
 }
 
-function isObjectLiteralAssignable(lhsType: Type, rhsExpr: Expression): boolean {
-  if (isObjectLiteralExpression(rhsExpr)) {
-    return validateObjectLiteralType(lhsType) && !hasMethods(lhsType) &&
-      validateFields(lhsType, rhsExpr);
-  }
-  return false;
-}
-
-function isEnumAssignment(lhsType: Type, rhsType: Type) {
-  const isNumberEnum = isPrimitiveEnumType(rhsType, TypeFlags.NumberLiteral) ||
-                         isPrimitiveEnumMemberType(rhsType, TypeFlags.NumberLiteral);
-  const isStringEnum = isPrimitiveEnumType(rhsType, TypeFlags.StringLiteral) ||
-                         isPrimitiveEnumMemberType(rhsType, TypeFlags.StringLiteral);
-  return (isNumberType(lhsType) && isNumberEnum) || (isStringType(lhsType) && isStringEnum);
-}
-
-function areCompatibleFunctionals(lhsType: Type, rhsType: Type) {
-  return (isStdFunctionType(lhsType) || isFunctionalType(lhsType)) &&
-          (isStdFunctionType(rhsType) || isFunctionalType(rhsType));
-}
-
-function isFunctionalType(type: Type): boolean {
-  const callSigns = type.getCallSignatures();
-  return callSigns && callSigns.length > 0;
-}
-
-function isStdFunctionType(type: Type) {
-  const sym = type.getSymbol();
-  return sym && sym.getName() === "Function" && isGlobalSymbol(sym);
-}
-
 function getTargetType(type: Type): Type {
   return (type.getFlags() & TypeFlags.Object) &&
     (type as ObjectType).objectFlags & ObjectFlags.Reference ? (type as TypeReference).target : type;
@@ -954,20 +914,38 @@ export function isLiteralType(type: Type): boolean {
   return type.isLiteral() || (type.flags & TypeFlags.BooleanLiteral) !== 0;
 }
 
-export function validateFields(type: Type, objectLiteral: ObjectLiteralExpression): boolean {
+export function validateFields(objectType: Type, objectLiteral: ObjectLiteralExpression): boolean {
   for (const prop of objectLiteral.properties) {
     if (isPropertyAssignment(prop)) {
-      const propAssignment = prop;
-      const propName = propAssignment.name.getText();
-      const propSym = findProperty(type, propName);
-      if (!propSym || !propSym.declarations?.length) return false;
-
-      const propType = typeChecker.getTypeOfSymbolAtLocation(propSym, propSym.declarations[0]);
-      if (!isExpressionAssignableToType(propType, propAssignment.initializer)) {
+      if (!validateField(objectType, prop)) {
         return false;
       }
     }
   };
+
+  return true;
+}
+
+function validateField(type: ts.Type, prop: ts.PropertyAssignment): boolean {
+  const propNameSymbol = TypeScriptLinter.tsTypeChecker.getSymbolAtLocation(prop.name);
+  const propName = propNameSymbol?.escapedName.toString() ?? prop.name.getText();
+  const propSym = findProperty(type, propName);
+  if (!propSym || !propSym.declarations?.length) {
+    return false;
+  }
+
+  const propType = TypeScriptLinter.tsTypeChecker.getTypeOfSymbolAtLocation(propSym, propSym.declarations[0]);
+  const initExpr = unwrapParenthesized(prop.initializer);
+  if (ts.isObjectLiteralExpression(initExpr)) {
+    if (!isObjectLiteralAssignable(propType, initExpr)) {
+      return false;
+    } 
+  } else {
+    // Only check for structural sub-typing.
+    if (needToDeduceStructuralIdentity(propType, TypeScriptLinter.tsTypeChecker.getTypeAtLocation(initExpr), initExpr)) {
+      return false;
+    }
+  }
 
   return true;
 }
@@ -1038,13 +1016,7 @@ export function getDecorators(node: Node): readonly Decorator[] | undefined {
 }
 */
 
-export enum CheckType {
-  Array,
-  String = "String",
-  Set = "Set",
-  Map = "Map",
-  Error = "Error",
-};
+export type CheckType = ((t: ts.Type) => boolean);
 
 export const ES_OBJECT = "ESObject";
 
@@ -1193,6 +1165,20 @@ export function isStdRecordType(type: Type): boolean {
   return false;
 }
 
+export function isStdMapType(type: Type): boolean {
+  const sym = type.symbol;
+  return !!sym && sym.getName() === "Map" && isGlobalSymbol(sym);
+}
+
+export function isStdErrorType(type: ts.Type): boolean {
+  const symbol = type.symbol;
+  if (!symbol) {
+    return false;
+  }
+  const name = typeChecker.getFullyQualifiedName(symbol);
+  return name === 'Error' && isGlobalSymbol(symbol);
+}
+
 export function isStdPartialType(type: Type): boolean {
   const sym = type.aliasSymbol;
   return !!sym && sym.getName() === "Partial" && isGlobalSymbol(sym);
@@ -1243,11 +1229,11 @@ export function isLibrarySymbol(sym: Symbol | undefined) {
     const isEts = (ext === '.ets');
     const isTs = (ext === '.ts' && !srcFile.isDeclarationFile);
     const isStatic = (isEts || (isTs && testMode)) && !isThirdPartyCode;
+    const isStdLib = STANDARD_LIBRARIES.includes(getBaseFileName(fileName).toLowerCase());
     // We still need to confirm support for certain API from the
     // TypeScript standard library in ArkTS. Thus, for now do not
-    // count standard library modules.
-    return !isStatic &&
-      !STANDARD_LIBRARIES.includes(getBaseFileName(srcFile.fileName).toLowerCase());
+    // count standard library modules as dynamic.
+    return !isStatic && !isStdLib;
   }
 
   return false;
@@ -1334,6 +1320,18 @@ export function isDynamicType(type: Type | undefined): boolean | undefined {
   return undefined;
 }
 
+export function isObjectType(type: ts.Type): type is ts.ObjectType {
+  return !!(type.flags & ts.TypeFlags.Object)
+}
+
+export function isAnonymous(type: ts.Type): boolean {
+  if (isObjectType(type)) {
+    return !!(type.objectFlags & ts.ObjectFlags.Anonymous);
+  }
+  return false;
+}
+
+
 export function isDynamicLiteralInitializer(expr: Expression): boolean {
   if (!isObjectLiteralExpression(expr) && !isArrayLiteralExpression(expr)) {
     return false;
@@ -1344,7 +1342,7 @@ export function isDynamicLiteralInitializer(expr: Expression): boolean {
   let curNode: Node = expr;
   while (isObjectLiteralExpression(curNode) || isArrayLiteralExpression(curNode)) {
     const exprType = typeChecker.getContextualType(curNode);
-    if (exprType !== undefined) {
+    if (exprType !== undefined && !isAnonymous(exprType)) {
       const res = isDynamicType(exprType);
       if (res !== undefined) {
         return res;
@@ -1398,8 +1396,8 @@ export function isDynamicLiteralInitializer(expr: Expression): boolean {
   return false;
 }
 
-export function isEsObjectType(typeNode: TypeNode): boolean {
-  return isTypeReferenceNode(typeNode) && isIdentifier(typeNode.typeName) &&
+export function isEsObjectType(typeNode: ts.TypeNode | undefined): boolean {
+  return !!typeNode && ts.isTypeReferenceNode(typeNode) && ts.isIdentifier(typeNode.typeName) &&
     typeNode.typeName.text === ES_OBJECT;
 }
 
@@ -1512,6 +1510,33 @@ export function typeIsRecursive(topType: Type, type: Type | undefined = undefine
   return false;
 }
 
+export function getTypeOrTypeConstraintAtLocation(expr: ts.Expression): ts.Type {
+  let type = typeChecker.getTypeAtLocation(expr);
+  if (type.isTypeParameter()) {
+    let constraint = type.getConstraint();
+    if (constraint) {
+      return constraint;
+    }
+  }
+  return type;
+}
+
+function areCompatibleFunctionals(lhsType: ts.Type, rhsType: ts.Type): boolean {
+  return (
+    (isStdFunctionType(lhsType) || isFunctionalType(lhsType)) &&
+    (isStdFunctionType(rhsType) || isFunctionalType(rhsType))
+  );
+}
+
+function isFunctionalType(type: ts.Type): boolean {
+  const callSigns = type.getCallSignatures();
+  return callSigns && callSigns.length > 0;
+}
+
+function isStdFunctionType(type: ts.Type): boolean {
+  const sym = type.getSymbol();
+  return !!sym && sym.getName() === 'Function' && isGlobalSymbol(sym);
+}
 
 }
 }
