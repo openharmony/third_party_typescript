@@ -1,0 +1,16 @@
+[
+  {
+    "messageText": "arkts-unique-names",
+    "expectLineAndCharacter": {
+      "line": 21,
+      "character": 1
+    }
+  },
+  {
+    "messageText": "arkts-unique-names",
+    "expectLineAndCharacter": {
+      "line": 25,
+      "character": 5
+    }
+  }
+]

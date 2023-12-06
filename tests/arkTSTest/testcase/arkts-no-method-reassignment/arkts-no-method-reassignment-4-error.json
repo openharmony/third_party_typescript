@@ -1,0 +1,16 @@
+[
+    {
+        "messageText": "arkts-no-method-reassignment",
+        "expectLineAndCharacter": {
+            "line": 27,
+            "character": 1
+        }
+    },
+    {
+        "messageText": "arkts-no-prototype-assignment",
+        "expectLineAndCharacter": {
+            "line": 27,
+            "character": 9
+        }
+    }
+]

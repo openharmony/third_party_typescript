@@ -1,0 +1,23 @@
+[
+  {
+    "messageText": "arkts-no-private-identifiers",
+    "expectLineAndCharacter": {
+      "line": 19,
+      "character": 3
+    }
+  },
+  {
+    "messageText": "arkts-no-private-identifiers",
+    "expectLineAndCharacter": {
+      "line": 21,
+      "character": 10
+    }
+  },
+  {
+    "messageText": "arkts-no-private-identifiers",
+    "expectLineAndCharacter": {
+      "line": 24,
+      "character": 25
+    }
+  }
+]

@@ -1,0 +1,9 @@
+[
+    {
+      "messageText": "arkts-no-ctor-prop-decls",
+      "expectLineAndCharacter": {
+        "line": 22,
+        "character": 15
+      }
+    }
+]

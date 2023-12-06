@@ -1,0 +1,9 @@
+[
+    {
+        "messageText": "arkts-no-typing-with-this",
+        "expectLineAndCharacter": {
+            "line": 20,
+            "character": 26
+        }
+    }
+]

@@ -1,0 +1,9 @@
+[
+    {
+        "messageText": "arkts-implements-only-iface",
+        "expectLineAndCharacter": {
+            "line": 27,
+            "character": 46
+        }
+    }
+]

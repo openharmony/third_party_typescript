@@ -1,0 +1,16 @@
+[
+    {
+        "messageText": "arkts-no-untyped-obj-literals",
+        "expectLineAndCharacter": {
+            "line": 18,
+            "character": 11
+        }
+    },
+    {
+        "messageText": "arkts-no-aliases-by-index",
+        "expectLineAndCharacter": {
+            "line": 22,
+            "character": 10
+        }
+    }
+]

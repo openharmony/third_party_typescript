@@ -1,0 +1,9 @@
+[
+    {
+        "messageText": "arkts-no-ctor-signatures-iface",
+        "expectLineAndCharacter": {
+            "line": 19,
+            "character": 3
+        }
+    }
+]

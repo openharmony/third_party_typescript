@@ -1,0 +1,9 @@
+[
+    {
+        "messageText": "arkts-no-intersection-types",
+        "expectLineAndCharacter": {
+            "line": 27,
+            "character": 19
+        }
+    }
+]

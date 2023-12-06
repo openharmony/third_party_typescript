@@ -1,0 +1,23 @@
+[
+  {
+    "messageText": "arkts-no-call-signatures",
+    "expectLineAndCharacter": {
+      "line": 19,
+      "character": 3
+    }
+  },
+  {
+    "messageText": "arkts-no-implicit-return-types",
+    "expectLineAndCharacter": {
+      "line": 22,
+      "character": 47
+    }
+  },
+  {
+    "messageText": "arkts-no-untyped-obj-literals",
+    "expectLineAndCharacter": {
+      "line": 23,
+      "character": 25
+    }
+  }
+]

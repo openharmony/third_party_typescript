@@ -1,0 +1,9 @@
+[
+    {
+        "messageText": "arkts-no-generic-lambdas",
+        "expectLineAndCharacter": {
+            "line": 17,
+            "character": 33
+        }
+    }
+]

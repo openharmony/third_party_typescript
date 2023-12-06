@@ -1,0 +1,9 @@
+[
+    {
+      "messageText": "arkts-no-call-signatures",
+      "expectLineAndCharacter": {
+        "line": 19,
+        "character": 3
+      }
+    }
+]

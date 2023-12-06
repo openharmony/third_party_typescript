@@ -1,0 +1,9 @@
+[
+  {
+    "messageText": "arkts-no-delete",
+    "expectLineAndCharacter": {
+      "line": 28,
+      "character": 1
+    }
+  }
+]

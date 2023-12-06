@@ -1,0 +1,9 @@
+[
+  {
+    "messageText": "arkts-no-polymorphic-unops",
+    "expectLineAndCharacter": {
+      "line": 19,
+      "character": 21
+    }
+  }
+]

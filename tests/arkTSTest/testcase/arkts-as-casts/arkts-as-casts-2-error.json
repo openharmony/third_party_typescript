@@ -1,0 +1,9 @@
+[
+    {
+        "messageText": "arkts-as-casts",
+        "expectLineAndCharacter": {
+            "line": 26,
+            "character": 9
+        }
+    }
+]
