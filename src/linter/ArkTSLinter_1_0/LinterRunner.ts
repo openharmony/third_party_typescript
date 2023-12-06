@@ -14,6 +14,7 @@
  */
 
 namespace ts {
+export namespace ArkTSLinter_1_0 {
 
 function makeDiag(category: DiagnosticCategory, code: number, file: SourceFile, start: number, length: number, messageText: string): Diagnostic {
   return { category, code, file, start, length, messageText };
@@ -89,4 +90,5 @@ function getTscDiagnostics(
   return strictDiagnostics;
 }
 
+}
 }

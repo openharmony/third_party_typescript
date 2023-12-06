@@ -1,0 +1,138 @@
+/*
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+namespace ts {
+export namespace ArkTSLinter_1_0 {
+export namespace Problems {
+
+export enum FaultID {
+  AnyType, SymbolType, ObjectLiteralNoContextType, ArrayLiteralNoContextType,
+  ComputedPropertyName, LiteralAsPropertyName, TypeQuery, RegexLiteral, IsOperator,
+  DestructuringParameter, YieldExpression, InterfaceMerging, EnumMerging, InterfaceExtendsClass, IndexMember, WithStatement,
+  ThrowStatement, IndexedAccessType, UnknownType, ForInStatement, InOperator,
+  ImportFromPath, FunctionExpression, IntersectionType,
+  ObjectTypeLiteral, CommaOperator, LimitedReturnTypeInference,
+  LambdaWithTypeParameters, ClassExpression, DestructuringAssignment,
+  DestructuringDeclaration, VarDeclaration, CatchWithUnsupportedType, DeleteOperator,
+  DeclWithDuplicateName, UnaryArithmNotNumber, ConstructorType, ConstructorIface, ConstructorFuncs, CallSignature,
+  TypeAssertion, PrivateIdentifier, LocalFunction,
+  ConditionalType, MappedType, NamespaceAsObject, ClassAsObject,
+  NonDeclarationInNamespace, GeneratorFunction, FunctionContainsThis, PropertyAccessByIndex, JsxElement,
+  EnumMemberNonConstInit, ImplementsClass, NoUndefinedPropAccess, MultipleStaticBlocks, ThisType,
+  IntefaceExtendDifProps, StructuralIdentity, DefaultImport,
+  ExportAssignment, ImportAssignment,
+  GenericCallNoTypeArgs, ParameterProperties,
+  InstanceofUnsupported, ShorthandAmbientModuleDecl, WildcardsInModuleName, UMDModuleDefinition,
+  NewTarget, DefiniteAssignment, Prototype, GlobalThis,
+  UtilityType, PropertyDeclOnFunction, FunctionApplyBindCall, ConstAssertion, ImportAssertion,
+  SpreadOperator, LimitedStdLibApi, ErrorSuppression, StrictDiagnostic, UnsupportedDecorators, ImportAfterStatement,
+  EsObjectType,
+  LAST_ID, // this should always be last enum`
+}
+
+export class FaultAttributs {
+  migratable?: boolean;
+  warning?: boolean;
+  cookBookRef = "-1";
+}
+
+export const faultsAttrs: FaultAttributs[] = [];
+
+faultsAttrs[FaultID.LiteralAsPropertyName] = { migratable: true, cookBookRef: "1", };
+faultsAttrs[FaultID.ComputedPropertyName] = { cookBookRef: "1", };
+faultsAttrs[FaultID.SymbolType] = { cookBookRef: "2", };
+faultsAttrs[FaultID.PrivateIdentifier] = { migratable: true, cookBookRef: "3", };
+faultsAttrs[FaultID.DeclWithDuplicateName] = { migratable: true, cookBookRef: "4", };
+faultsAttrs[FaultID.VarDeclaration] = { migratable: true, cookBookRef: "5", };
+faultsAttrs[FaultID.AnyType] = { cookBookRef: "8" };
+faultsAttrs[FaultID.UnknownType] = { cookBookRef: "8", };
+faultsAttrs[FaultID.CallSignature] = { cookBookRef: "14", };
+faultsAttrs[FaultID.ConstructorType] = { cookBookRef: "15", };
+faultsAttrs[FaultID.MultipleStaticBlocks] = { cookBookRef: "16", };
+faultsAttrs[FaultID.IndexMember] = { cookBookRef: "17", };
+faultsAttrs[FaultID.IntersectionType] = { cookBookRef: "19", };
+faultsAttrs[FaultID.ThisType] = { cookBookRef: "21", };
+faultsAttrs[FaultID.ConditionalType] = { cookBookRef: "22", };
+faultsAttrs[FaultID.ParameterProperties] = { migratable: true, cookBookRef: "25", };
+faultsAttrs[FaultID.ConstructorIface] = { cookBookRef: "27", };
+faultsAttrs[FaultID.IndexedAccessType] = { cookBookRef: "28", };
+faultsAttrs[FaultID.PropertyAccessByIndex] = { migratable: true, cookBookRef: "29", };
+faultsAttrs[FaultID.StructuralIdentity] = { cookBookRef: "30", };
+faultsAttrs[FaultID.GenericCallNoTypeArgs] = { cookBookRef: "34", };
+faultsAttrs[FaultID.RegexLiteral] = { cookBookRef: "37", };
+faultsAttrs[FaultID.ObjectLiteralNoContextType] = { cookBookRef: "38", };
+faultsAttrs[FaultID.ObjectTypeLiteral] = { cookBookRef: "40", };
+faultsAttrs[FaultID.ArrayLiteralNoContextType] = { cookBookRef: "43", };
+faultsAttrs[FaultID.FunctionExpression] = { migratable: true, cookBookRef: "46", };
+faultsAttrs[FaultID.LambdaWithTypeParameters] = { migratable: true, cookBookRef: "49", };
+faultsAttrs[FaultID.ClassExpression] = { migratable: true, cookBookRef: "50", };
+faultsAttrs[FaultID.ImplementsClass] = { cookBookRef: "51", };
+faultsAttrs[FaultID.NoUndefinedPropAccess] = { cookBookRef: "52", };
+faultsAttrs[FaultID.TypeAssertion] = { migratable: true, cookBookRef: "53", };
+faultsAttrs[FaultID.JsxElement] = { cookBookRef: "54", };
+faultsAttrs[FaultID.UnaryArithmNotNumber] = { cookBookRef: "55", };
+faultsAttrs[FaultID.DeleteOperator] = { cookBookRef: "59", };
+faultsAttrs[FaultID.TypeQuery] = { cookBookRef: "60", };
+faultsAttrs[FaultID.InstanceofUnsupported] = { cookBookRef: "65", };
+faultsAttrs[FaultID.InOperator] = { cookBookRef: "66", };
+faultsAttrs[FaultID.DestructuringAssignment] = { migratable: true, cookBookRef: "69", };
+faultsAttrs[FaultID.CommaOperator] = { cookBookRef: "71", };
+faultsAttrs[FaultID.DestructuringDeclaration] = { migratable: true, cookBookRef: "74", };
+faultsAttrs[FaultID.CatchWithUnsupportedType] = { migratable: true, cookBookRef: "79", };
+faultsAttrs[FaultID.ForInStatement] = { cookBookRef: "80", };
+faultsAttrs[FaultID.MappedType] = { cookBookRef: "83", };
+faultsAttrs[FaultID.WithStatement] = { cookBookRef: "84", };
+faultsAttrs[FaultID.ThrowStatement] = { migratable: true, cookBookRef: "87", };
+faultsAttrs[FaultID.LimitedReturnTypeInference] = { migratable: true, cookBookRef: "90", };
+faultsAttrs[FaultID.DestructuringParameter] = { cookBookRef: "91", };
+faultsAttrs[FaultID.LocalFunction] = { migratable: true, cookBookRef: "92", };
+faultsAttrs[FaultID.FunctionContainsThis] = { cookBookRef: "93", };
+faultsAttrs[FaultID.GeneratorFunction] = { cookBookRef: "94", };
+faultsAttrs[FaultID.YieldExpression] = { cookBookRef: "94", };
+faultsAttrs[FaultID.IsOperator] = { cookBookRef: "96", };
+faultsAttrs[FaultID.SpreadOperator] = { cookBookRef: "99", };
+faultsAttrs[FaultID.IntefaceExtendDifProps] = { cookBookRef: "102", };
+faultsAttrs[FaultID.InterfaceMerging] = { cookBookRef: "103", };
+faultsAttrs[FaultID.InterfaceExtendsClass] = { cookBookRef: "104", };
+faultsAttrs[FaultID.ConstructorFuncs] = { cookBookRef: "106", };
+faultsAttrs[FaultID.EnumMemberNonConstInit] = { cookBookRef: "111", };
+faultsAttrs[FaultID.EnumMerging] = { cookBookRef: "113", };
+faultsAttrs[FaultID.NamespaceAsObject] = { cookBookRef: "114", };
+faultsAttrs[FaultID.NonDeclarationInNamespace] = { cookBookRef: "116", };
+faultsAttrs[FaultID.ImportFromPath] = { cookBookRef: "119", };
+faultsAttrs[FaultID.DefaultImport] = { migratable: true, cookBookRef: "120", };
+faultsAttrs[FaultID.ImportAssignment] = { cookBookRef: "121", };
+faultsAttrs[FaultID.ExportAssignment] = { cookBookRef: "126", };
+faultsAttrs[FaultID.ShorthandAmbientModuleDecl] = { cookBookRef: "128", };
+faultsAttrs[FaultID.WildcardsInModuleName] = { cookBookRef: "129", };
+faultsAttrs[FaultID.UMDModuleDefinition] = { cookBookRef: "130", };
+faultsAttrs[FaultID.NewTarget] = { cookBookRef: "132", };
+faultsAttrs[FaultID.DefiniteAssignment] = { warning: true, cookBookRef: "134", };
+faultsAttrs[FaultID.Prototype] = { cookBookRef: "136", };
+faultsAttrs[FaultID.GlobalThis] = { cookBookRef: "137", };
+faultsAttrs[FaultID.UtilityType] = { cookBookRef: "138", };
+faultsAttrs[FaultID.PropertyDeclOnFunction] = { cookBookRef: "139", };
+faultsAttrs[FaultID.FunctionApplyBindCall] = { cookBookRef: "140", };
+faultsAttrs[FaultID.ConstAssertion] = { cookBookRef: "142", };
+faultsAttrs[FaultID.ImportAssertion] = { cookBookRef: "143", };
+faultsAttrs[FaultID.LimitedStdLibApi] = { cookBookRef: "144", };
+faultsAttrs[FaultID.StrictDiagnostic] = { cookBookRef: "145", };
+faultsAttrs[FaultID.ErrorSuppression] = { cookBookRef: "146", };
+faultsAttrs[FaultID.UnsupportedDecorators] = { warning: true, cookBookRef: "148", };
+faultsAttrs[FaultID.ClassAsObject] = { cookBookRef: "149", };
+faultsAttrs[FaultID.ImportAfterStatement] = { cookBookRef: "150", };
+faultsAttrs[FaultID.EsObjectType] = { warning: true, cookBookRef: "151" };
+}
+}
+}

@@ -14,6 +14,7 @@
  */
 
 namespace ts {
+export namespace ArkTSLinter_1_1 {
 export namespace Autofixer {
 
 import AutofixInfo = Common.AutofixInfo;
@@ -196,5 +197,6 @@ export function fixCtorParameterProperties(ctorDecl: ConstructorDeclaration, par
   return autofixes;
 }
 
+}
 }
 }

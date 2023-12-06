@@ -13,6 +13,8 @@
  * limitations under the License.
  */
 namespace ts {
+export namespace ArkTSLinter_1_0 {
+
 export const cookBookMsg: string[] = [];
 export const cookBookTag: string[] = [];
 
@@ -56,7 +58,7 @@ cookBookTag[33] = "";
 cookBookTag[34] = "Type inference in case of generic function calls is limited (arkts-no-inferred-generic-params)";
 cookBookTag[35] = "";
 cookBookTag[36] = "";
-cookBookTag[37] = "";
+cookBookTag[37] = "RegExp literals are not supported (arkts-no-regexp-literals)";
 cookBookTag[38] = "Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)";
 cookBookTag[39] = "";
 cookBookTag[40] = "Object literals cannot be used as type declarations (arkts-no-obj-literals-as-types)";
@@ -171,4 +173,5 @@ cookBookTag[148] = "No decorators except ArkUI decorators are currently allowed 
 cookBookTag[149] = "Classes cannot be used as objects (arkts-no-classes-as-obj)";
 cookBookTag[150] = "\"import\" statements after other statements are not allowed (arkts-no-misplaced-imports)";
 cookBookTag[151] = 'Usage of "ESObject" type is restricted (arkts-limited-esobj)';
+}
 }

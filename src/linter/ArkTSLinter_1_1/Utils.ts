@@ -14,6 +14,7 @@
  */
 
 namespace ts {
+export namespace ArkTSLinter_1_1 {
 export namespace Utils {
 //import * as path from 'node:path';
 //import * as ts from 'typescript';
@@ -839,7 +840,7 @@ function findProperty(type: Type, name: string): Symbol | undefined {
 }
 
 
-export function getNonNullableType(t: ts.Type) {
+export function getNonNullableType(t: ts.Type): ts.Type {
   if (t.isUnion()) {
     return t.getNonNullableType();
   }
@@ -1321,7 +1322,7 @@ export function isDynamicType(type: Type | undefined): boolean | undefined {
 }
 
 export function isObjectType(type: ts.Type): type is ts.ObjectType {
-  return !!(type.flags & ts.TypeFlags.Object)
+  return !!(type.flags & ts.TypeFlags.Object);
 }
 
 export function isAnonymous(type: ts.Type): boolean {
@@ -1538,5 +1539,6 @@ function isStdFunctionType(type: ts.Type): boolean {
   return !!sym && sym.getName() === 'Function' && isGlobalSymbol(sym);
 }
 
+}
 }
 }

@@ -15,6 +15,7 @@
 
 //import * as ts from 'ts';
 namespace ts {
+export namespace ArkTSLinter_1_0 {
 export namespace Common {
 
 export interface AutofixInfo {
@@ -40,5 +41,6 @@ export interface LintOptions {
   [key: string]: any;
 }
 
+}
 }
 }
