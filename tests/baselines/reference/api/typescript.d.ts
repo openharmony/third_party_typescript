@@ -8523,480 +8523,992 @@ declare namespace ts {
     }
 }
 declare namespace ts {
-    namespace Common {
-        interface AutofixInfo {
-            problemID: string;
-            start: number;
-            end: number;
-        }
-        interface CommandLineOptions {
-            strictMode?: boolean;
-            ideMode?: boolean;
-            logTscErrors?: boolean;
-            warningsAsErrors: boolean;
-            parsedConfigFile?: ParsedCommandLine;
-            inputFiles: string[];
-            autofixInfo?: AutofixInfo[];
-        }
-        interface LintOptions {
-            cmdOptions: CommandLineOptions;
-            tsProgram?: Program;
-            [key: string]: any;
-        }
-    }
-}
-declare namespace ts {
-    const cookBookMsg: string[];
-    const cookBookTag: string[];
-}
-declare namespace ts {
-    namespace DiagnosticCheckerNamespace {
-        interface DiagnosticChecker {
-            checkDiagnosticMessage(msgText: string | ts.DiagnosticMessageChain): boolean;
+    namespace ArkTSLinter_1_0 {
+        namespace Common {
+            interface AutofixInfo {
+                problemID: string;
+                start: number;
+                end: number;
+            }
+            interface CommandLineOptions {
+                strictMode?: boolean;
+                ideMode?: boolean;
+                logTscErrors?: boolean;
+                warningsAsErrors: boolean;
+                parsedConfigFile?: ParsedCommandLine;
+                inputFiles: string[];
+                autofixInfo?: AutofixInfo[];
+            }
+            interface LintOptions {
+                cmdOptions: CommandLineOptions;
+                tsProgram?: Program;
+                [key: string]: any;
+            }
         }
     }
 }
 declare namespace ts {
-    import DiagnosticChecker = DiagnosticCheckerNamespace.DiagnosticChecker;
-    namespace LibraryTypeCallDiagnosticCheckerNamespace {
-        const TYPE_0_IS_NOT_ASSIGNABLE_TO_TYPE_1_ERROR_CODE = 2322;
-        const TYPE_UNKNOWN_IS_NOT_ASSIGNABLE_TO_TYPE_1_RE: RegExp;
-        const TYPE_NULL_IS_NOT_ASSIGNABLE_TO_TYPE_1_RE: RegExp;
-        const TYPE_UNDEFINED_IS_NOT_ASSIGNABLE_TO_TYPE_1_RE: RegExp;
-        const ARGUMENT_OF_TYPE_0_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_ERROR_CODE = 2345;
-        const ARGUMENT_OF_TYPE_NULL_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_RE: RegExp;
-        const ARGUMENT_OF_TYPE_UNDEFINED_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_RE: RegExp;
-        const NO_OVERLOAD_MATCHES_THIS_CALL_ERROR_CODE = 2769;
-        class LibraryTypeCallDiagnosticChecker implements DiagnosticChecker {
-            inLibCall: boolean;
-            diagnosticMessages: Array<ts.DiagnosticMessageChain> | undefined;
-            filteredDiagnosticMessages: DiagnosticMessageChain[];
-            constructor(filteredDiagnosticMessages: DiagnosticMessageChain[]);
-            configure(inLibCall: boolean, diagnosticMessages: Array<ts.DiagnosticMessageChain>): void;
-            checkMessageText(msg: string): boolean;
-            checkMessageChain(chain: ts.DiagnosticMessageChain): boolean;
-            checkFilteredDiagnosticMessages(msgText: ts.DiagnosticMessageChain | string): boolean;
-            checkDiagnosticMessage(msgText: string | ts.DiagnosticMessageChain): boolean;
+    namespace ArkTSLinter_1_0 {
+        const cookBookMsg: string[];
+        const cookBookTag: string[];
+    }
+}
+declare namespace ts {
+    namespace ArkTSLinter_1_0 {
+        namespace DiagnosticCheckerNamespace {
+            interface DiagnosticChecker {
+                checkDiagnosticMessage(msgText: string | ts.DiagnosticMessageChain): boolean;
+            }
         }
     }
 }
 declare namespace ts {
-    namespace Utils {
-        import AutofixInfo = Common.AutofixInfo;
-        const PROPERTY_HAS_NO_INITIALIZER_ERROR_CODE = 2564;
-        const NON_INITIALIZABLE_PROPERTY_DECORATORS: string[];
-        const NON_INITIALIZABLE_PROPERTY_ClASS_DECORATORS: string[];
-        const LIMITED_STANDARD_UTILITY_TYPES: string[];
-        const ALLOWED_STD_SYMBOL_API: string[];
-        enum ProblemSeverity {
-            WARNING = 1,
-            ERROR = 2
+    namespace ArkTSLinter_1_0 {
+        import DiagnosticChecker = DiagnosticCheckerNamespace.DiagnosticChecker;
+        namespace LibraryTypeCallDiagnosticCheckerNamespace {
+            const TYPE_0_IS_NOT_ASSIGNABLE_TO_TYPE_1_ERROR_CODE = 2322;
+            const TYPE_UNKNOWN_IS_NOT_ASSIGNABLE_TO_TYPE_1_RE: RegExp;
+            const TYPE_NULL_IS_NOT_ASSIGNABLE_TO_TYPE_1_RE: RegExp;
+            const TYPE_UNDEFINED_IS_NOT_ASSIGNABLE_TO_TYPE_1_RE: RegExp;
+            const ARGUMENT_OF_TYPE_0_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_ERROR_CODE = 2345;
+            const ARGUMENT_OF_TYPE_NULL_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_RE: RegExp;
+            const ARGUMENT_OF_TYPE_UNDEFINED_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_RE: RegExp;
+            const NO_OVERLOAD_MATCHES_THIS_CALL_ERROR_CODE = 2769;
+            class LibraryTypeCallDiagnosticChecker implements DiagnosticChecker {
+                inLibCall: boolean;
+                diagnosticMessages: Array<ts.DiagnosticMessageChain> | undefined;
+                filteredDiagnosticMessages: DiagnosticMessageChain[];
+                constructor(filteredDiagnosticMessages: DiagnosticMessageChain[]);
+                configure(inLibCall: boolean, diagnosticMessages: Array<ts.DiagnosticMessageChain>): void;
+                checkMessageText(msg: string): boolean;
+                checkMessageChain(chain: ts.DiagnosticMessageChain): boolean;
+                checkFilteredDiagnosticMessages(msgText: ts.DiagnosticMessageChain | string): boolean;
+                checkDiagnosticMessage(msgText: string | ts.DiagnosticMessageChain): boolean;
+            }
         }
-        const ARKTS_IGNORE_DIRS: string[];
-        const ARKTS_IGNORE_FILES: string[];
-        function setTypeChecker(tsTypeChecker: TypeChecker): void;
-        function setTestMode(tsTestMode: boolean): void;
-        function getStartPos(nodeOrComment: Node | CommentRange): number;
-        function getEndPos(nodeOrComment: Node | CommentRange): number;
-        function isAssignmentOperator(tsBinOp: BinaryOperatorToken): boolean;
-        function isType(tsType: TypeNode | undefined, checkType: string): boolean;
-        function entityNameToString(name: EntityName): string;
-        function isNumberType(tsType: Type): boolean;
-        function isBooleanType(tsType: Type): boolean;
-        function isStringLikeType(tsType: Type): boolean;
-        function isStringType(tsType: ts.Type): boolean;
-        function isPrimitiveEnumMemberType(type: Type, primitiveType: TypeFlags): boolean;
-        function unwrapParenthesizedType(tsType: TypeNode): TypeNode;
-        function findParentIf(asExpr: AsExpression): IfStatement | null;
-        function isDestructuringAssignmentLHS(tsExpr: ArrayLiteralExpression | ObjectLiteralExpression): boolean;
-        function isEnumType(tsType: ts.Type): boolean;
-        function isEnum(tsSymbol: ts.Symbol): boolean;
-        function isEnumMemberType(tsType: Type): boolean;
-        function isObjectLiteralType(tsType: Type): boolean;
-        function isNumberLikeType(tsType: Type): boolean;
-        function hasModifier(tsModifiers: readonly Modifier[] | undefined, tsModifierKind: number): boolean;
-        function unwrapParenthesized(tsExpr: Expression): Expression;
-        function followIfAliased(sym: Symbol): Symbol;
-        function trueSymbolAtLocation(node: Node): Symbol | undefined;
-        function isTypeDeclSyntaxKind(kind: SyntaxKind): boolean;
-        function symbolHasDuplicateName(symbol: Symbol, tsDeclKind: SyntaxKind): boolean;
-        function isReferenceType(tsType: Type): boolean;
-        function isPrimitiveType(type: Type): boolean;
-        function isTypeSymbol(symbol: Symbol | undefined): boolean;
-        function isGenericArrayType(tsType: Type): tsType is TypeReference;
-        function isTypedArray(tsType: ts.Type): boolean;
-        function isArray(tsType: ts.Type): boolean;
-        function isTuple(tsType: ts.Type): boolean;
-        function isOrDerivedFrom(tsType: ts.Type, checkType: CheckType): boolean;
-        function isTypeReference(tsType: Type): tsType is TypeReference;
-        function isNullType(tsTypeNode: TypeNode): boolean;
-        function isThisOrSuperExpr(tsExpr: Expression): boolean;
-        function isPrototypeSymbol(symbol: Symbol | undefined): boolean;
-        function isFunctionSymbol(symbol: Symbol | undefined): boolean;
-        function isInterfaceType(tsType: Type | undefined): boolean;
-        function isAnyType(tsType: Type): tsType is TypeReference;
-        function isUnknownType(tsType: Type): boolean;
-        function isUnsupportedType(tsType: Type): boolean;
-        function isUnsupportedUnionType(tsType: Type): boolean;
-        function isFunctionOrMethod(tsSymbol: Symbol | undefined): boolean;
-        function isMethodAssignment(tsSymbol: Symbol | undefined): boolean;
-        function getDeclaration(tsSymbol: ts.Symbol | undefined): ts.Declaration | undefined;
-        function isValidEnumMemberInit(tsExpr: Expression): boolean;
-        function isCompileTimeExpression(tsExpr: Expression): boolean;
-        function isConst(tsNode: Node): boolean;
-        function isNumberConstantValue(tsExpr: EnumMember | PropertyAccessExpression | ElementAccessExpression | NumericLiteral): boolean;
-        function isIntegerConstantValue(tsExpr: EnumMember | PropertyAccessExpression | ElementAccessExpression | NumericLiteral): boolean;
-        function isStringConstantValue(tsExpr: EnumMember | PropertyAccessExpression | ElementAccessExpression): boolean;
-        function relatedByInheritanceOrIdentical(typeA: Type, typeB: Type): boolean;
-        function needToDeduceStructuralIdentity(lhsType: ts.Type, rhsType: ts.Type, rhsExpr: ts.Expression, allowPromotion?: boolean): boolean;
-        function hasPredecessor(node: Node, predicate: (node: Node) => boolean): boolean;
-        function processParentTypes(parentTypes: NodeArray<ExpressionWithTypeArguments>, typeB: Type, processInterfaces: boolean): boolean;
-        function isObject(tsType: Type): boolean;
-        function logTscDiagnostic(diagnostics: readonly Diagnostic[], log: (message: any, ...args: any[]) => void): void;
-        function encodeProblemInfo(problem: ProblemInfo): string;
-        function decodeAutofixInfo(info: string): AutofixInfo;
-        function isCallToFunctionWithOmittedReturnType(tsExpr: Expression): boolean;
-        function validateObjectLiteralType(type: Type | undefined): boolean;
-        function isStructDeclarationKind(kind: SyntaxKind): boolean;
-        function isStructDeclaration(node: Node): boolean;
-        function isStructObjectInitializer(objectLiteral: ObjectLiteralExpression): boolean;
-        function hasMethods(type: Type): boolean;
-        function getNonNullableType(t: ts.Type): Type;
-        function isObjectLiteralAssignable(lhsType: ts.Type | undefined, rhsExpr: ts.ObjectLiteralExpression): boolean;
-        function isLiteralType(type: Type): boolean;
-        function validateFields(objectType: Type, objectLiteral: ObjectLiteralExpression): boolean;
-        function isSupportedType(typeNode: TypeNode): boolean;
-        function isStruct(symbol: Symbol): boolean;
-        type CheckType = ((t: ts.Type) => boolean);
-        const ES_OBJECT = "ESObject";
-        const LIMITED_STD_GLOBAL_FUNC: string[];
-        const LIMITED_STD_OBJECT_API: string[];
-        const LIMITED_STD_REFLECT_API: string[];
-        const LIMITED_STD_PROXYHANDLER_API: string[];
-        const ARKUI_DECORATORS: string[];
-        const FUNCTION_HAS_NO_RETURN_ERROR_CODE = 2366;
-        const NON_RETURN_FUNCTION_DECORATORS: string[];
-        const STANDARD_LIBRARIES: string[];
-        const TYPED_ARRAYS: string[];
-        function getParentSymbolName(symbol: Symbol): string | undefined;
-        function isGlobalSymbol(symbol: Symbol): boolean;
-        function isSymbolAPI(symbol: Symbol): boolean;
-        function isStdSymbol(symbol: ts.Symbol): boolean;
-        function isSymbolIterator(symbol: ts.Symbol): boolean;
-        function isDefaultImport(importSpec: ImportSpecifier): boolean;
-        function hasAccessModifier(decl: Declaration): boolean;
-        function getModifier(modifiers: readonly Modifier[] | undefined, modifierKind: SyntaxKind): Modifier | undefined;
-        function getAccessModifier(modifiers: readonly Modifier[] | undefined): Modifier | undefined;
-        function isStdRecordType(type: Type): boolean;
-        function isStdMapType(type: Type): boolean;
-        function isStdErrorType(type: ts.Type): boolean;
-        function isStdPartialType(type: Type): boolean;
-        function isStdRequiredType(type: Type): boolean;
-        function isStdReadonlyType(type: Type): boolean;
-        function isLibraryType(type: Type): boolean;
-        function hasLibraryType(node: Node): boolean;
-        function isLibrarySymbol(sym: Symbol | undefined): boolean;
-        function pathContainsDirectory(targetPath: string, dir: string): boolean;
-        function getScriptKind(srcFile: SourceFile): ScriptKind;
-        function isStdLibraryType(type: Type): boolean;
-        function isStdLibrarySymbol(sym: Symbol | undefined): boolean;
-        function isIntrinsicObjectType(type: Type): boolean;
-        function isDynamicType(type: Type | undefined): boolean | undefined;
-        function isObjectType(type: ts.Type): type is ts.ObjectType;
-        function isAnonymous(type: ts.Type): boolean;
-        function isDynamicLiteralInitializer(expr: Expression): boolean;
-        function isEsObjectType(typeNode: ts.TypeNode | undefined): boolean;
-        function isInsideBlock(node: ts.Node): boolean;
-        function isEsObjectPossiblyAllowed(typeRef: ts.TypeReferenceNode): boolean;
-        function isValueAssignableToESObject(node: ts.Node): boolean;
-        function getVariableDeclarationTypeNode(node: Node): TypeNode | undefined;
-        function getSymbolDeclarationTypeNode(sym: ts.Symbol): ts.TypeNode | undefined;
-        function hasEsObjectType(node: Node): boolean;
-        function symbolHasEsObjectType(sym: ts.Symbol): boolean;
-        function isEsObjectSymbol(sym: Symbol): boolean;
-        function isAnonymousType(type: Type): boolean;
-        function getSymbolOfCallExpression(callExpr: CallExpression): Symbol | undefined;
-        function typeIsRecursive(topType: Type, type?: Type | undefined): boolean;
-        function getTypeOrTypeConstraintAtLocation(expr: ts.Expression): ts.Type;
     }
 }
 declare namespace ts {
-    namespace Problems {
-        enum FaultID {
-            AnyType = 0,
-            SymbolType = 1,
-            ObjectLiteralNoContextType = 2,
-            ArrayLiteralNoContextType = 3,
-            ComputedPropertyName = 4,
-            LiteralAsPropertyName = 5,
-            TypeQuery = 6,
-            IsOperator = 7,
-            DestructuringParameter = 8,
-            YieldExpression = 9,
-            InterfaceMerging = 10,
-            EnumMerging = 11,
-            InterfaceExtendsClass = 12,
-            IndexMember = 13,
-            WithStatement = 14,
-            ThrowStatement = 15,
-            IndexedAccessType = 16,
-            UnknownType = 17,
-            ForInStatement = 18,
-            InOperator = 19,
-            ImportFromPath = 20,
-            FunctionExpression = 21,
-            IntersectionType = 22,
-            ObjectTypeLiteral = 23,
-            CommaOperator = 24,
-            LimitedReturnTypeInference = 25,
-            LambdaWithTypeParameters = 26,
-            ClassExpression = 27,
-            DestructuringAssignment = 28,
-            DestructuringDeclaration = 29,
-            VarDeclaration = 30,
-            CatchWithUnsupportedType = 31,
-            DeleteOperator = 32,
-            DeclWithDuplicateName = 33,
-            UnaryArithmNotNumber = 34,
-            ConstructorType = 35,
-            ConstructorIface = 36,
-            ConstructorFuncs = 37,
-            CallSignature = 38,
-            TypeAssertion = 39,
-            PrivateIdentifier = 40,
-            LocalFunction = 41,
-            ConditionalType = 42,
-            MappedType = 43,
-            NamespaceAsObject = 44,
-            ClassAsObject = 45,
-            NonDeclarationInNamespace = 46,
-            GeneratorFunction = 47,
-            FunctionContainsThis = 48,
-            PropertyAccessByIndex = 49,
-            JsxElement = 50,
-            EnumMemberNonConstInit = 51,
-            ImplementsClass = 52,
-            MethodReassignment = 53,
-            MultipleStaticBlocks = 54,
-            ThisType = 55,
-            IntefaceExtendDifProps = 56,
-            StructuralIdentity = 57,
-            DefaultImport = 58,
-            ExportAssignment = 59,
-            ImportAssignment = 60,
-            GenericCallNoTypeArgs = 61,
-            ParameterProperties = 62,
-            InstanceofUnsupported = 63,
-            ShorthandAmbientModuleDecl = 64,
-            WildcardsInModuleName = 65,
-            UMDModuleDefinition = 66,
-            NewTarget = 67,
-            DefiniteAssignment = 68,
-            Prototype = 69,
-            GlobalThis = 70,
-            UtilityType = 71,
-            PropertyDeclOnFunction = 72,
-            FunctionApplyCall = 73,
-            FunctionBind = 74,
-            ConstAssertion = 75,
-            ImportAssertion = 76,
-            SpreadOperator = 77,
-            LimitedStdLibApi = 78,
-            ErrorSuppression = 79,
-            StrictDiagnostic = 80,
-            UnsupportedDecorators = 81,
-            ImportAfterStatement = 82,
-            EsObjectType = 83,
-            LAST_ID = 84
+    namespace ArkTSLinter_1_0 {
+        namespace Utils {
+            import AutofixInfo = Common.AutofixInfo;
+            const PROPERTY_HAS_NO_INITIALIZER_ERROR_CODE = 2564;
+            const NON_INITIALIZABLE_PROPERTY_DECORATORS: string[];
+            const NON_INITIALIZABLE_PROPERTY_ClASS_DECORATORS: string[];
+            const LIMITED_STANDARD_UTILITY_TYPES: string[];
+            const ALLOWED_STD_SYMBOL_API: string[];
+            enum ProblemSeverity {
+                WARNING = 1,
+                ERROR = 2
+            }
+            const ARKTS_IGNORE_DIRS: string[];
+            const ARKTS_IGNORE_FILES: string[];
+            function setTypeChecker(tsTypeChecker: TypeChecker): void;
+            function setTestMode(tsTestMode: boolean): void;
+            function getStartPos(nodeOrComment: Node | CommentRange): number;
+            function getEndPos(nodeOrComment: Node | CommentRange): number;
+            function isAssignmentOperator(tsBinOp: BinaryOperatorToken): boolean;
+            function isTypedArray(tsType: TypeNode | undefined): boolean;
+            function isType(tsType: TypeNode | undefined, checkType: string): boolean;
+            function entityNameToString(name: EntityName): string;
+            function isNumberType(tsType: Type): boolean;
+            function isBooleanType(tsType: Type): boolean;
+            function isStringLikeType(tsType: Type): boolean;
+            function isStringType(type: Type): boolean;
+            function isPrimitiveEnumType(type: Type, primitiveType: TypeFlags): boolean;
+            function isPrimitiveEnumMemberType(type: Type, primitiveType: TypeFlags): boolean;
+            function unwrapParenthesizedType(tsType: TypeNode): TypeNode;
+            function findParentIf(asExpr: AsExpression): IfStatement | null;
+            function isDestructuringAssignmentLHS(tsExpr: ArrayLiteralExpression | ObjectLiteralExpression): boolean;
+            function isEnumType(tsType: Type): boolean;
+            function isEnumMemberType(tsType: Type): boolean;
+            function isObjectLiteralType(tsType: Type): boolean;
+            function isNumberLikeType(tsType: Type): boolean;
+            function hasModifier(tsModifiers: readonly Modifier[] | undefined, tsModifierKind: number): boolean;
+            function unwrapParenthesized(tsExpr: Expression): Expression;
+            function followIfAliased(sym: Symbol): Symbol;
+            function trueSymbolAtLocation(node: Node): Symbol | undefined;
+            function isTypeDeclSyntaxKind(kind: SyntaxKind): boolean;
+            function symbolHasDuplicateName(symbol: Symbol, tsDeclKind: SyntaxKind): boolean;
+            function isReferenceType(tsType: Type): boolean;
+            function isPrimitiveType(type: Type): boolean;
+            function isTypeSymbol(symbol: Symbol | undefined): boolean;
+            function isGenericArrayType(tsType: Type): tsType is TypeReference;
+            function isDerivedFrom(tsType: Type, checkType: CheckType): tsType is TypeReference;
+            function isTypeReference(tsType: Type): tsType is TypeReference;
+            function isNullType(tsTypeNode: TypeNode): boolean;
+            function isThisOrSuperExpr(tsExpr: Expression): boolean;
+            function isPrototypeSymbol(symbol: Symbol | undefined): boolean;
+            function isFunctionSymbol(symbol: Symbol | undefined): boolean;
+            function isInterfaceType(tsType: Type | undefined): boolean;
+            function isAnyType(tsType: Type): tsType is TypeReference;
+            function isUnknownType(tsType: Type): boolean;
+            function isUnsupportedType(tsType: Type): boolean;
+            function isUnsupportedUnionType(tsType: Type): boolean;
+            function isFunctionOrMethod(tsSymbol: Symbol | undefined): boolean;
+            function isMethodAssignment(tsSymbol: Symbol | undefined): boolean;
+            function getDeclaration(tsSymbol: ts.Symbol | undefined): ts.Declaration | undefined;
+            function isValidEnumMemberInit(tsExpr: Expression): boolean;
+            function isCompileTimeExpression(tsExpr: Expression): boolean;
+            function isConst(tsNode: Node): boolean;
+            function isNumberConstantValue(tsExpr: EnumMember | PropertyAccessExpression | ElementAccessExpression | NumericLiteral): boolean;
+            function isIntegerConstantValue(tsExpr: EnumMember | PropertyAccessExpression | ElementAccessExpression | NumericLiteral): boolean;
+            function isStringConstantValue(tsExpr: EnumMember | PropertyAccessExpression | ElementAccessExpression): boolean;
+            function relatedByInheritanceOrIdentical(typeA: Type, typeB: Type): boolean;
+            function needToDeduceStructuralIdentity(typeFrom: Type, typeTo: Type, allowPromotion?: boolean): boolean;
+            function hasPredecessor(node: Node, predicate: (node: Node) => boolean): boolean;
+            function processParentTypes(parentTypes: NodeArray<ExpressionWithTypeArguments>, typeB: Type, processInterfaces: boolean): boolean;
+            function processParentTypesCheck(parentTypes: NodeArray<ExpressionWithTypeArguments>, checkType: CheckType): boolean;
+            function isObjectType(tsType: Type): boolean;
+            function logTscDiagnostic(diagnostics: readonly Diagnostic[], log: (message: any, ...args: any[]) => void): void;
+            function encodeProblemInfo(problem: ProblemInfo): string;
+            function decodeAutofixInfo(info: string): AutofixInfo;
+            function isCallToFunctionWithOmittedReturnType(tsExpr: Expression): boolean;
+            function validateObjectLiteralType(type: Type | undefined): boolean;
+            function isStructDeclarationKind(kind: SyntaxKind): boolean;
+            function isStructDeclaration(node: Node): boolean;
+            function isStructObjectInitializer(objectLiteral: ObjectLiteralExpression): boolean;
+            function hasMethods(type: Type): boolean;
+            function isExpressionAssignableToType(lhsType: ts.Type | undefined, rhsExpr: ts.Expression): boolean;
+            function isLiteralType(type: Type): boolean;
+            function validateFields(type: Type, objectLiteral: ObjectLiteralExpression): boolean;
+            function isSupportedType(typeNode: TypeNode): boolean;
+            function isStruct(symbol: Symbol): boolean;
+            enum CheckType {
+                Array = 0,
+                String = "String",
+                Set = "Set",
+                Map = "Map",
+                Error = "Error"
+            }
+            const ES_OBJECT = "ESObject";
+            const LIMITED_STD_GLOBAL_FUNC: string[];
+            const LIMITED_STD_OBJECT_API: string[];
+            const LIMITED_STD_REFLECT_API: string[];
+            const LIMITED_STD_PROXYHANDLER_API: string[];
+            const ARKUI_DECORATORS: string[];
+            const FUNCTION_HAS_NO_RETURN_ERROR_CODE = 2366;
+            const NON_RETURN_FUNCTION_DECORATORS: string[];
+            const STANDARD_LIBRARIES: string[];
+            const TYPED_ARRAYS: string[];
+            function getParentSymbolName(symbol: Symbol): string | undefined;
+            function isGlobalSymbol(symbol: Symbol): boolean;
+            function isSymbolAPI(symbol: Symbol): boolean;
+            function isStdSymbol(symbol: ts.Symbol): boolean;
+            function isSymbolIterator(symbol: ts.Symbol): boolean;
+            function isDefaultImport(importSpec: ImportSpecifier): boolean;
+            function hasAccessModifier(decl: Declaration): boolean;
+            function getModifier(modifiers: readonly Modifier[] | undefined, modifierKind: SyntaxKind): Modifier | undefined;
+            function getAccessModifier(modifiers: readonly Modifier[] | undefined): Modifier | undefined;
+            function isStdRecordType(type: Type): boolean;
+            function isStdPartialType(type: Type): boolean;
+            function isStdRequiredType(type: Type): boolean;
+            function isStdReadonlyType(type: Type): boolean;
+            function isLibraryType(type: Type): boolean;
+            function hasLibraryType(node: Node): boolean;
+            function isLibrarySymbol(sym: Symbol | undefined): boolean;
+            function pathContainsDirectory(targetPath: string, dir: string): boolean;
+            function getScriptKind(srcFile: SourceFile): ScriptKind;
+            function isStdLibraryType(type: Type): boolean;
+            function isStdLibrarySymbol(sym: Symbol | undefined): boolean;
+            function isIntrinsicObjectType(type: Type): boolean;
+            function isDynamicType(type: Type | undefined): boolean | undefined;
+            function isDynamicLiteralInitializer(expr: Expression): boolean;
+            function isEsObjectType(typeNode: TypeNode): boolean;
+            function isInsideBlock(node: ts.Node): boolean;
+            function isEsObjectPossiblyAllowed(typeRef: ts.TypeReferenceNode): boolean;
+            function isValueAssignableToESObject(node: ts.Node): boolean;
+            function getVariableDeclarationTypeNode(node: Node): TypeNode | undefined;
+            function getSymbolDeclarationTypeNode(sym: ts.Symbol): ts.TypeNode | undefined;
+            function hasEsObjectType(node: Node): boolean;
+            function symbolHasEsObjectType(sym: ts.Symbol): boolean;
+            function isEsObjectSymbol(sym: Symbol): boolean;
+            function isAnonymousType(type: Type): boolean;
+            function getSymbolOfCallExpression(callExpr: CallExpression): Symbol | undefined;
+            function typeIsRecursive(topType: Type, type?: Type | undefined): boolean;
         }
-        class FaultAttributes {
-            cookBookRef: number;
-            migratable: boolean;
-            severity: Utils.ProblemSeverity;
-            constructor(cookBookRef: number, migratable?: boolean, severity?: Utils.ProblemSeverity);
-        }
-        const faultsAttrs: FaultAttributes[];
     }
 }
 declare namespace ts {
-    namespace Autofixer {
-        import AutofixInfo = Common.AutofixInfo;
+    namespace ArkTSLinter_1_0 {
+        namespace Problems {
+            enum FaultID {
+                AnyType = 0,
+                SymbolType = 1,
+                ObjectLiteralNoContextType = 2,
+                ArrayLiteralNoContextType = 3,
+                ComputedPropertyName = 4,
+                LiteralAsPropertyName = 5,
+                TypeQuery = 6,
+                RegexLiteral = 7,
+                IsOperator = 8,
+                DestructuringParameter = 9,
+                YieldExpression = 10,
+                InterfaceMerging = 11,
+                EnumMerging = 12,
+                InterfaceExtendsClass = 13,
+                IndexMember = 14,
+                WithStatement = 15,
+                ThrowStatement = 16,
+                IndexedAccessType = 17,
+                UnknownType = 18,
+                ForInStatement = 19,
+                InOperator = 20,
+                ImportFromPath = 21,
+                FunctionExpression = 22,
+                IntersectionType = 23,
+                ObjectTypeLiteral = 24,
+                CommaOperator = 25,
+                LimitedReturnTypeInference = 26,
+                LambdaWithTypeParameters = 27,
+                ClassExpression = 28,
+                DestructuringAssignment = 29,
+                DestructuringDeclaration = 30,
+                VarDeclaration = 31,
+                CatchWithUnsupportedType = 32,
+                DeleteOperator = 33,
+                DeclWithDuplicateName = 34,
+                UnaryArithmNotNumber = 35,
+                ConstructorType = 36,
+                ConstructorIface = 37,
+                ConstructorFuncs = 38,
+                CallSignature = 39,
+                TypeAssertion = 40,
+                PrivateIdentifier = 41,
+                LocalFunction = 42,
+                ConditionalType = 43,
+                MappedType = 44,
+                NamespaceAsObject = 45,
+                ClassAsObject = 46,
+                NonDeclarationInNamespace = 47,
+                GeneratorFunction = 48,
+                FunctionContainsThis = 49,
+                PropertyAccessByIndex = 50,
+                JsxElement = 51,
+                EnumMemberNonConstInit = 52,
+                ImplementsClass = 53,
+                NoUndefinedPropAccess = 54,
+                MultipleStaticBlocks = 55,
+                ThisType = 56,
+                IntefaceExtendDifProps = 57,
+                StructuralIdentity = 58,
+                DefaultImport = 59,
+                ExportAssignment = 60,
+                ImportAssignment = 61,
+                GenericCallNoTypeArgs = 62,
+                ParameterProperties = 63,
+                InstanceofUnsupported = 64,
+                ShorthandAmbientModuleDecl = 65,
+                WildcardsInModuleName = 66,
+                UMDModuleDefinition = 67,
+                NewTarget = 68,
+                DefiniteAssignment = 69,
+                Prototype = 70,
+                GlobalThis = 71,
+                UtilityType = 72,
+                PropertyDeclOnFunction = 73,
+                FunctionApplyBindCall = 74,
+                ConstAssertion = 75,
+                ImportAssertion = 76,
+                SpreadOperator = 77,
+                LimitedStdLibApi = 78,
+                ErrorSuppression = 79,
+                StrictDiagnostic = 80,
+                UnsupportedDecorators = 81,
+                ImportAfterStatement = 82,
+                EsObjectType = 83,
+                LAST_ID = 84
+            }
+            class FaultAttributs {
+                migratable?: boolean;
+                warning?: boolean;
+                cookBookRef: string;
+            }
+            const faultsAttrs: FaultAttributs[];
+        }
+    }
+}
+declare namespace ts {
+    namespace ArkTSLinter_1_0 {
+        namespace Autofixer {
+            import AutofixInfo = Common.AutofixInfo;
+            import FaultID = Problems.FaultID;
+            const AUTOFIX_ALL: AutofixInfo;
+            const autofixInfo: AutofixInfo[];
+            function shouldAutofix(node: Node, faultID: FaultID): boolean;
+            interface Autofix {
+                replacementText: string;
+                start: number;
+                end: number;
+            }
+            function fixLiteralAsPropertyName(node: Node): Autofix[] | undefined;
+            function fixPropertyAccessByIndex(node: Node): Autofix[] | undefined;
+            function fixFunctionExpression(funcExpr: FunctionExpression, params?: NodeArray<ParameterDeclaration>, retType?: TypeNode | undefined): Autofix;
+            function fixReturnType(funcLikeDecl: FunctionLikeDeclaration, typeNode: TypeNode): Autofix;
+            function fixCtorParameterProperties(ctorDecl: ConstructorDeclaration, paramTypes: TypeNode[]): Autofix[] | undefined;
+        }
+    }
+}
+declare namespace ts {
+    namespace ArkTSLinter_1_0 {
         import FaultID = Problems.FaultID;
-        const AUTOFIX_ALL: AutofixInfo;
-        const autofixInfo: AutofixInfo[];
-        function shouldAutofix(node: Node, faultID: FaultID): boolean;
-        interface Autofix {
-            replacementText: string;
+        class LinterConfig {
+            static nodeDesc: string[];
+            static tsSyntaxKindNames: string[];
+            static initStatic(): void;
+            static terminalTokens: Set<SyntaxKind>;
+            static incrementOnlyTokens: ESMap<SyntaxKind, FaultID>;
+        }
+    }
+}
+declare namespace ts {
+    namespace ArkTSLinter_1_0 {
+        import Autofix = Autofixer.Autofix;
+        import LibraryTypeCallDiagnosticChecker = LibraryTypeCallDiagnosticCheckerNamespace.LibraryTypeCallDiagnosticChecker;
+        interface ProblemInfo {
+            line: number;
+            column: number;
             start: number;
             end: number;
+            type: string;
+            severity: number;
+            problem: string;
+            suggest: string;
+            rule: string;
+            ruleTag: number;
+            autofixable: boolean;
+            autofix?: Autofix[];
         }
-        function fixLiteralAsPropertyName(node: Node): Autofix[] | undefined;
-        function fixPropertyAccessByIndex(node: Node): Autofix[] | undefined;
-        function fixFunctionExpression(funcExpr: FunctionExpression, params?: NodeArray<ParameterDeclaration>, retType?: TypeNode | undefined): Autofix;
-        function fixReturnType(funcLikeDecl: FunctionLikeDeclaration, typeNode: TypeNode): Autofix;
-        function fixCtorParameterProperties(ctorDecl: ConstructorDeclaration, paramTypes: TypeNode[]): Autofix[] | undefined;
+        class TypeScriptLinter {
+            private sourceFile;
+            private tscStrictDiagnostics?;
+            static ideMode: boolean;
+            static strictMode: boolean;
+            static logTscErrors: boolean;
+            static warningsAsErrors: boolean;
+            static lintEtsOnly: boolean;
+            static totalVisitedNodes: number;
+            static nodeCounters: number[];
+            static lineCounters: number[];
+            static totalErrorLines: number;
+            static errorLineNumbersString: string;
+            static totalWarningLines: number;
+            static warningLineNumbersString: string;
+            static reportDiagnostics: boolean;
+            static problemsInfos: ProblemInfo[];
+            static filteredDiagnosticMessages: DiagnosticMessageChain[];
+            static initGlobals(): void;
+            static initStatic(): void;
+            static tsTypeChecker: TypeChecker;
+            currentErrorLine: number;
+            currentWarningLine: number;
+            staticBlocks: Set<string>;
+            libraryTypeCallDiagnosticChecker: LibraryTypeCallDiagnosticChecker;
+            constructor(sourceFile: SourceFile, tsProgram: Program, tscStrictDiagnostics?: Map<Diagnostic[]> | undefined);
+            readonly handlersMap: ESMap<SyntaxKind, (node: Node) => void>;
+            incrementCounters(node: Node | CommentRange, faultId: number, autofixable?: boolean, autofix?: Autofix[]): void;
+            visitTSNode(node: Node): void;
+            private countInterfaceExtendsDifferentPropertyTypes;
+            private countDeclarationsWithDuplicateName;
+            private countClassMembersWithDuplicateName;
+            private functionContainsThis;
+            private isPrototypePropertyAccess;
+            private interfaceInheritanceLint;
+            private lintForInterfaceExtendsDifferentPorpertyTypes;
+            private handleObjectLiteralExpression;
+            private handleArrayLiteralExpression;
+            private handleParameter;
+            private handleEnumDeclaration;
+            private handleInterfaceDeclaration;
+            private handleThrowStatement;
+            private handleForStatement;
+            private handleForInStatement;
+            private handleForOfStatement;
+            private handleImportDeclaration;
+            private handlePropertyAccessExpression;
+            private handlePropertyAssignmentOrDeclaration;
+            private filterOutDecoratorsDiagnostics;
+            private checkInRange;
+            private filterStrictDiagnostics;
+            private handleFunctionExpression;
+            private handleArrowFunction;
+            private handleClassExpression;
+            private handleFunctionDeclaration;
+            private handleMissingReturnType;
+            private hasLimitedTypeInferenceFromReturnExpr;
+            private handlePrefixUnaryExpression;
+            private handleBinaryExpression;
+            private handleVariableDeclarationList;
+            private handleVariableDeclaration;
+            private handleEsObjectDelaration;
+            private handleEsObjectAssignment;
+            private handleCatchClause;
+            private handleClassDeclaration;
+            private handleModuleDeclaration;
+            private handleTypeAliasDeclaration;
+            private handleImportClause;
+            private handleImportSpecifier;
+            private handleNamespaceImport;
+            private handleTypeAssertionExpression;
+            private handleMethodDeclaration;
+            private handleIdentifier;
+            private isAllowedClassValueContext;
+            private handleRestrictedValues;
+            private identiferUseInValueContext;
+            private isEnumPropAccess;
+            private handleElementAccessExpression;
+            private handleEnumMember;
+            private handleExportAssignment;
+            private handleCallExpression;
+            private handleImportCall;
+            private handleRequireCall;
+            private handleGenericCallWithNoTypeArgs;
+            private static listApplyBindCallApis;
+            private handleFunctionApplyBindPropCall;
+            private handleStructIdentAndUndefinedInArgs;
+            private static LimitedApis;
+            private handleStdlibAPICall;
+            private findNonFilteringRangesFunctionCalls;
+            private handleLibraryTypeCall;
+            private handleNewExpression;
+            private handleAsExpression;
+            private handleTypeReference;
+            private handleMetaProperty;
+            private handleStructDeclaration;
+            private handleSpreadOp;
+            private handleConstructSignature;
+            private handleComments;
+            private handleExpressionWithTypeArguments;
+            private handleComputedPropertyName;
+            private checkErrorSuppressingAnnotation;
+            private handleDecorators;
+            private handleGetAccessor;
+            private handleSetAccessor;
+            private handleDeclarationInferredType;
+            private handleDefiniteAssignmentAssertion;
+            private validatedTypesSet;
+            private checkAnyOrUnknownChildNode;
+            private handleInferredObjectreference;
+            private validateDeclInferredType;
+            lint(): void;
+        }
     }
 }
 declare namespace ts {
-    import FaultID = Problems.FaultID;
-    class LinterConfig {
-        static nodeDesc: string[];
-        static tsSyntaxKindNames: string[];
-        static initStatic(): void;
-        static terminalTokens: Set<SyntaxKind>;
-        static incrementOnlyTokens: ESMap<SyntaxKind, FaultID>;
+    namespace ArkTSLinter_1_0 {
+        class TSCCompiledProgram {
+            private diagnosticsExtractor;
+            private wasStrict;
+            constructor(program: Program, host: CompilerHost);
+            getOriginalProgram(): Program;
+            getStrictProgram(): Program;
+            getStrictDiagnostics(fileName: string): Diagnostic[];
+        }
     }
 }
 declare namespace ts {
-    import Autofix = Autofixer.Autofix;
-    import LibraryTypeCallDiagnosticChecker = LibraryTypeCallDiagnosticCheckerNamespace.LibraryTypeCallDiagnosticChecker;
-    interface ProblemInfo {
-        line: number;
-        column: number;
-        start: number;
-        end: number;
-        type: string;
-        severity: number;
-        problem: string;
-        suggest: string;
-        rule: string;
-        ruleTag: number;
-        autofixable: boolean;
-        autofix?: Autofix[];
-    }
-    class TypeScriptLinter {
-        private sourceFile;
-        private tscStrictDiagnostics?;
-        static ideMode: boolean;
-        static strictMode: boolean;
-        static logTscErrors: boolean;
-        static warningsAsErrors: boolean;
-        static lintEtsOnly: boolean;
-        static totalVisitedNodes: number;
-        static nodeCounters: number[];
-        static lineCounters: number[];
-        static totalErrorLines: number;
-        static errorLineNumbersString: string;
-        static totalWarningLines: number;
-        static warningLineNumbersString: string;
-        static reportDiagnostics: boolean;
-        static problemsInfos: ProblemInfo[];
-        static filteredDiagnosticMessages: DiagnosticMessageChain[];
-        static initGlobals(): void;
-        static initStatic(): void;
-        static tsTypeChecker: TypeChecker;
-        currentErrorLine: number;
-        currentWarningLine: number;
-        staticBlocks: Set<string>;
-        libraryTypeCallDiagnosticChecker: LibraryTypeCallDiagnosticChecker;
-        constructor(sourceFile: SourceFile, tsProgram: Program, tscStrictDiagnostics?: Map<Diagnostic[]> | undefined);
-        readonly handlersMap: ESMap<SyntaxKind, (node: Node) => void>;
-        incrementCounters(node: Node | CommentRange, faultId: number, autofixable?: boolean, autofix?: Autofix[]): void;
-        private forEachNodeInSubtree;
-        private visitSourceFile;
-        private countInterfaceExtendsDifferentPropertyTypes;
-        private countDeclarationsWithDuplicateName;
-        private countClassMembersWithDuplicateName;
-        private static scopeContainsThis;
-        private isPrototypePropertyAccess;
-        private interfaceInheritanceLint;
-        private lintForInterfaceExtendsDifferentPorpertyTypes;
-        private handleObjectLiteralExpression;
-        private handleArrayLiteralExpression;
-        private handleParameter;
-        private handleEnumDeclaration;
-        private handleInterfaceDeclaration;
-        private handleThrowStatement;
-        private handleForStatement;
-        private handleForInStatement;
-        private handleForOfStatement;
-        private handleImportDeclaration;
-        private handlePropertyAccessExpression;
-        private handlePropertyAssignmentOrDeclaration;
-        private filterOutDecoratorsDiagnostics;
-        private checkInRange;
-        private filterStrictDiagnostics;
-        private static isClassLikeOrIface;
-        private handleFunctionExpression;
-        private handleArrowFunction;
-        private handleClassExpression;
-        private handleFunctionDeclaration;
-        private handleMissingReturnType;
-        private hasLimitedTypeInferenceFromReturnExpr;
-        private handlePrefixUnaryExpression;
-        private handleBinaryExpression;
-        private handleVariableDeclarationList;
-        private handleVariableDeclaration;
-        private handleEsObjectDelaration;
-        private handleEsObjectAssignment;
-        private handleCatchClause;
-        private handleClassDeclaration;
-        private handleModuleDeclaration;
-        private handleTypeAliasDeclaration;
-        private handleImportClause;
-        private handleImportSpecifier;
-        private handleNamespaceImport;
-        private handleTypeAssertionExpression;
-        private handleMethodDeclaration;
-        private handleMethodSignature;
-        private handleIdentifier;
-        private isAllowedClassValueContext;
-        private handleRestrictedValues;
-        private identiferUseInValueContext;
-        private isEnumPropAccess;
-        private isElementAcessAllowed;
-        private handleElementAccessExpression;
-        private handleEnumMember;
-        private handleExportAssignment;
-        private handleCallExpression;
-        private handleEtsComponentExpression;
-        private handleImportCall;
-        private handleRequireCall;
-        private handleGenericCallWithNoTypeArgs;
-        private static readonly listFunctionApplyCallApis;
-        private static readonly listFunctionBindApis;
-        private handleFunctionApplyBindPropCall;
-        private handleStructIdentAndUndefinedInArgs;
-        private static LimitedApis;
-        private handleStdlibAPICall;
-        private findNonFilteringRangesFunctionCalls;
-        private handleLibraryTypeCall;
-        private handleNewExpression;
-        private handleAsExpression;
-        private handleTypeReference;
-        private handleMetaProperty;
-        private handleSpreadOp;
-        private handleConstructSignature;
-        private handleExpressionWithTypeArguments;
-        private handleComputedPropertyName;
-        private handleDecorators;
-        private handleGetAccessor;
-        private handleSetAccessor;
-        private handleDeclarationInferredType;
-        private handleDefiniteAssignmentAssertion;
-        private validatedTypesSet;
-        private checkAnyOrUnknownChildNode;
-        private handleInferredObjectreference;
-        private validateDeclInferredType;
-        private processNoCheckEntry;
-        private reportThisKeywordsInScope;
-        private handleCommentDirectives;
-        lint(): void;
+    namespace ArkTSLinter_1_0 {
+        function translateDiag(srcFile: SourceFile, problemInfo: ProblemInfo): Diagnostic;
+        function runArkTSLinter(tsProgram: Program, host: CompilerHost, srcFile?: SourceFile): Diagnostic[];
     }
 }
 declare namespace ts {
-    class TSCCompiledProgram {
-        private diagnosticsExtractor;
-        private wasStrict;
-        constructor(program: Program, host: CompilerHost);
-        getOriginalProgram(): Program;
-        getStrictProgram(): Program;
-        getStrictDiagnostics(fileName: string): Diagnostic[];
+    namespace ArkTSLinter_1_1 {
+        namespace Common {
+            interface AutofixInfo {
+                problemID: string;
+                start: number;
+                end: number;
+            }
+            interface CommandLineOptions {
+                strictMode?: boolean;
+                ideMode?: boolean;
+                logTscErrors?: boolean;
+                warningsAsErrors: boolean;
+                parsedConfigFile?: ParsedCommandLine;
+                inputFiles: string[];
+                autofixInfo?: AutofixInfo[];
+            }
+            interface LintOptions {
+                cmdOptions: CommandLineOptions;
+                tsProgram?: Program;
+                [key: string]: any;
+            }
+        }
     }
 }
 declare namespace ts {
-    function translateDiag(srcFile: SourceFile, problemInfo: ProblemInfo): Diagnostic;
-    function runArkTSLinter(tsProgram: Program, host: CompilerHost, srcFile?: SourceFile): Diagnostic[];
+    namespace ArkTSLinter_1_1 {
+        const cookBookMsg: string[];
+        const cookBookTag: string[];
+    }
+}
+declare namespace ts {
+    namespace ArkTSLinter_1_1 {
+        namespace DiagnosticCheckerNamespace {
+            interface DiagnosticChecker {
+                checkDiagnosticMessage(msgText: string | ts.DiagnosticMessageChain): boolean;
+            }
+        }
+    }
+}
+declare namespace ts {
+    namespace ArkTSLinter_1_1 {
+        import DiagnosticChecker = DiagnosticCheckerNamespace.DiagnosticChecker;
+        namespace LibraryTypeCallDiagnosticCheckerNamespace {
+            const TYPE_0_IS_NOT_ASSIGNABLE_TO_TYPE_1_ERROR_CODE = 2322;
+            const TYPE_UNKNOWN_IS_NOT_ASSIGNABLE_TO_TYPE_1_RE: RegExp;
+            const TYPE_NULL_IS_NOT_ASSIGNABLE_TO_TYPE_1_RE: RegExp;
+            const TYPE_UNDEFINED_IS_NOT_ASSIGNABLE_TO_TYPE_1_RE: RegExp;
+            const ARGUMENT_OF_TYPE_0_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_ERROR_CODE = 2345;
+            const ARGUMENT_OF_TYPE_NULL_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_RE: RegExp;
+            const ARGUMENT_OF_TYPE_UNDEFINED_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_RE: RegExp;
+            const NO_OVERLOAD_MATCHES_THIS_CALL_ERROR_CODE = 2769;
+            class LibraryTypeCallDiagnosticChecker implements DiagnosticChecker {
+                inLibCall: boolean;
+                diagnosticMessages: Array<ts.DiagnosticMessageChain> | undefined;
+                filteredDiagnosticMessages: DiagnosticMessageChain[];
+                constructor(filteredDiagnosticMessages: DiagnosticMessageChain[]);
+                configure(inLibCall: boolean, diagnosticMessages: Array<ts.DiagnosticMessageChain>): void;
+                checkMessageText(msg: string): boolean;
+                checkMessageChain(chain: ts.DiagnosticMessageChain): boolean;
+                checkFilteredDiagnosticMessages(msgText: ts.DiagnosticMessageChain | string): boolean;
+                checkDiagnosticMessage(msgText: string | ts.DiagnosticMessageChain): boolean;
+            }
+        }
+    }
+}
+declare namespace ts {
+    namespace ArkTSLinter_1_1 {
+        namespace Utils {
+            import AutofixInfo = Common.AutofixInfo;
+            const PROPERTY_HAS_NO_INITIALIZER_ERROR_CODE = 2564;
+            const NON_INITIALIZABLE_PROPERTY_DECORATORS: string[];
+            const NON_INITIALIZABLE_PROPERTY_ClASS_DECORATORS: string[];
+            const LIMITED_STANDARD_UTILITY_TYPES: string[];
+            const ALLOWED_STD_SYMBOL_API: string[];
+            enum ProblemSeverity {
+                WARNING = 1,
+                ERROR = 2
+            }
+            const ARKTS_IGNORE_DIRS: string[];
+            const ARKTS_IGNORE_FILES: string[];
+            function setTypeChecker(tsTypeChecker: TypeChecker): void;
+            function setTestMode(tsTestMode: boolean): void;
+            function getStartPos(nodeOrComment: Node | CommentRange): number;
+            function getEndPos(nodeOrComment: Node | CommentRange): number;
+            function isAssignmentOperator(tsBinOp: BinaryOperatorToken): boolean;
+            function isType(tsType: TypeNode | undefined, checkType: string): boolean;
+            function entityNameToString(name: EntityName): string;
+            function isNumberType(tsType: Type): boolean;
+            function isBooleanType(tsType: Type): boolean;
+            function isStringLikeType(tsType: Type): boolean;
+            function isStringType(tsType: ts.Type): boolean;
+            function isPrimitiveEnumMemberType(type: Type, primitiveType: TypeFlags): boolean;
+            function unwrapParenthesizedType(tsType: TypeNode): TypeNode;
+            function findParentIf(asExpr: AsExpression): IfStatement | null;
+            function isDestructuringAssignmentLHS(tsExpr: ArrayLiteralExpression | ObjectLiteralExpression): boolean;
+            function isEnumType(tsType: ts.Type): boolean;
+            function isEnum(tsSymbol: ts.Symbol): boolean;
+            function isEnumMemberType(tsType: Type): boolean;
+            function isObjectLiteralType(tsType: Type): boolean;
+            function isNumberLikeType(tsType: Type): boolean;
+            function hasModifier(tsModifiers: readonly Modifier[] | undefined, tsModifierKind: number): boolean;
+            function unwrapParenthesized(tsExpr: Expression): Expression;
+            function followIfAliased(sym: Symbol): Symbol;
+            function trueSymbolAtLocation(node: Node): Symbol | undefined;
+            function isTypeDeclSyntaxKind(kind: SyntaxKind): boolean;
+            function symbolHasDuplicateName(symbol: Symbol, tsDeclKind: SyntaxKind): boolean;
+            function isReferenceType(tsType: Type): boolean;
+            function isPrimitiveType(type: Type): boolean;
+            function isTypeSymbol(symbol: Symbol | undefined): boolean;
+            function isGenericArrayType(tsType: Type): tsType is TypeReference;
+            function isTypedArray(tsType: ts.Type): boolean;
+            function isArray(tsType: ts.Type): boolean;
+            function isTuple(tsType: ts.Type): boolean;
+            function isOrDerivedFrom(tsType: ts.Type, checkType: CheckType): boolean;
+            function isTypeReference(tsType: Type): tsType is TypeReference;
+            function isNullType(tsTypeNode: TypeNode): boolean;
+            function isThisOrSuperExpr(tsExpr: Expression): boolean;
+            function isPrototypeSymbol(symbol: Symbol | undefined): boolean;
+            function isFunctionSymbol(symbol: Symbol | undefined): boolean;
+            function isInterfaceType(tsType: Type | undefined): boolean;
+            function isAnyType(tsType: Type): tsType is TypeReference;
+            function isUnknownType(tsType: Type): boolean;
+            function isUnsupportedType(tsType: Type): boolean;
+            function isUnsupportedUnionType(tsType: Type): boolean;
+            function isFunctionOrMethod(tsSymbol: Symbol | undefined): boolean;
+            function isMethodAssignment(tsSymbol: Symbol | undefined): boolean;
+            function getDeclaration(tsSymbol: ts.Symbol | undefined): ts.Declaration | undefined;
+            function isValidEnumMemberInit(tsExpr: Expression): boolean;
+            function isCompileTimeExpression(tsExpr: Expression): boolean;
+            function isConst(tsNode: Node): boolean;
+            function isNumberConstantValue(tsExpr: EnumMember | PropertyAccessExpression | ElementAccessExpression | NumericLiteral): boolean;
+            function isIntegerConstantValue(tsExpr: EnumMember | PropertyAccessExpression | ElementAccessExpression | NumericLiteral): boolean;
+            function isStringConstantValue(tsExpr: EnumMember | PropertyAccessExpression | ElementAccessExpression): boolean;
+            function relatedByInheritanceOrIdentical(typeA: Type, typeB: Type): boolean;
+            function needToDeduceStructuralIdentity(lhsType: ts.Type, rhsType: ts.Type, rhsExpr: ts.Expression, allowPromotion?: boolean): boolean;
+            function hasPredecessor(node: Node, predicate: (node: Node) => boolean): boolean;
+            function processParentTypes(parentTypes: NodeArray<ExpressionWithTypeArguments>, typeB: Type, processInterfaces: boolean): boolean;
+            function isObject(tsType: Type): boolean;
+            function logTscDiagnostic(diagnostics: readonly Diagnostic[], log: (message: any, ...args: any[]) => void): void;
+            function encodeProblemInfo(problem: ProblemInfo): string;
+            function decodeAutofixInfo(info: string): AutofixInfo;
+            function isCallToFunctionWithOmittedReturnType(tsExpr: Expression): boolean;
+            function validateObjectLiteralType(type: Type | undefined): boolean;
+            function isStructDeclarationKind(kind: SyntaxKind): boolean;
+            function isStructDeclaration(node: Node): boolean;
+            function isStructObjectInitializer(objectLiteral: ObjectLiteralExpression): boolean;
+            function hasMethods(type: Type): boolean;
+            function getNonNullableType(t: ts.Type): Type;
+            function isObjectLiteralAssignable(lhsType: ts.Type | undefined, rhsExpr: ts.ObjectLiteralExpression): boolean;
+            function isLiteralType(type: Type): boolean;
+            function validateFields(objectType: Type, objectLiteral: ObjectLiteralExpression): boolean;
+            function isSupportedType(typeNode: TypeNode): boolean;
+            function isStruct(symbol: Symbol): boolean;
+            type CheckType = ((t: ts.Type) => boolean);
+            const ES_OBJECT = "ESObject";
+            const LIMITED_STD_GLOBAL_FUNC: string[];
+            const LIMITED_STD_OBJECT_API: string[];
+            const LIMITED_STD_REFLECT_API: string[];
+            const LIMITED_STD_PROXYHANDLER_API: string[];
+            const ARKUI_DECORATORS: string[];
+            const FUNCTION_HAS_NO_RETURN_ERROR_CODE = 2366;
+            const NON_RETURN_FUNCTION_DECORATORS: string[];
+            const STANDARD_LIBRARIES: string[];
+            const TYPED_ARRAYS: string[];
+            function getParentSymbolName(symbol: Symbol): string | undefined;
+            function isGlobalSymbol(symbol: Symbol): boolean;
+            function isSymbolAPI(symbol: Symbol): boolean;
+            function isStdSymbol(symbol: ts.Symbol): boolean;
+            function isSymbolIterator(symbol: ts.Symbol): boolean;
+            function isDefaultImport(importSpec: ImportSpecifier): boolean;
+            function hasAccessModifier(decl: Declaration): boolean;
+            function getModifier(modifiers: readonly Modifier[] | undefined, modifierKind: SyntaxKind): Modifier | undefined;
+            function getAccessModifier(modifiers: readonly Modifier[] | undefined): Modifier | undefined;
+            function isStdRecordType(type: Type): boolean;
+            function isStdMapType(type: Type): boolean;
+            function isStdErrorType(type: ts.Type): boolean;
+            function isStdPartialType(type: Type): boolean;
+            function isStdRequiredType(type: Type): boolean;
+            function isStdReadonlyType(type: Type): boolean;
+            function isLibraryType(type: Type): boolean;
+            function hasLibraryType(node: Node): boolean;
+            function isLibrarySymbol(sym: Symbol | undefined): boolean;
+            function pathContainsDirectory(targetPath: string, dir: string): boolean;
+            function getScriptKind(srcFile: SourceFile): ScriptKind;
+            function isStdLibraryType(type: Type): boolean;
+            function isStdLibrarySymbol(sym: Symbol | undefined): boolean;
+            function isIntrinsicObjectType(type: Type): boolean;
+            function isDynamicType(type: Type | undefined): boolean | undefined;
+            function isObjectType(type: ts.Type): type is ts.ObjectType;
+            function isAnonymous(type: ts.Type): boolean;
+            function isDynamicLiteralInitializer(expr: Expression): boolean;
+            function isEsObjectType(typeNode: ts.TypeNode | undefined): boolean;
+            function isInsideBlock(node: ts.Node): boolean;
+            function isEsObjectPossiblyAllowed(typeRef: ts.TypeReferenceNode): boolean;
+            function isValueAssignableToESObject(node: ts.Node): boolean;
+            function getVariableDeclarationTypeNode(node: Node): TypeNode | undefined;
+            function getSymbolDeclarationTypeNode(sym: ts.Symbol): ts.TypeNode | undefined;
+            function hasEsObjectType(node: Node): boolean;
+            function symbolHasEsObjectType(sym: ts.Symbol): boolean;
+            function isEsObjectSymbol(sym: Symbol): boolean;
+            function isAnonymousType(type: Type): boolean;
+            function getSymbolOfCallExpression(callExpr: CallExpression): Symbol | undefined;
+            function typeIsRecursive(topType: Type, type?: Type | undefined): boolean;
+            function getTypeOrTypeConstraintAtLocation(expr: ts.Expression): ts.Type;
+        }
+    }
+}
+declare namespace ts {
+    namespace ArkTSLinter_1_1 {
+        namespace Problems {
+            enum FaultID {
+                AnyType = 0,
+                SymbolType = 1,
+                ObjectLiteralNoContextType = 2,
+                ArrayLiteralNoContextType = 3,
+                ComputedPropertyName = 4,
+                LiteralAsPropertyName = 5,
+                TypeQuery = 6,
+                IsOperator = 7,
+                DestructuringParameter = 8,
+                YieldExpression = 9,
+                InterfaceMerging = 10,
+                EnumMerging = 11,
+                InterfaceExtendsClass = 12,
+                IndexMember = 13,
+                WithStatement = 14,
+                ThrowStatement = 15,
+                IndexedAccessType = 16,
+                UnknownType = 17,
+                ForInStatement = 18,
+                InOperator = 19,
+                ImportFromPath = 20,
+                FunctionExpression = 21,
+                IntersectionType = 22,
+                ObjectTypeLiteral = 23,
+                CommaOperator = 24,
+                LimitedReturnTypeInference = 25,
+                LambdaWithTypeParameters = 26,
+                ClassExpression = 27,
+                DestructuringAssignment = 28,
+                DestructuringDeclaration = 29,
+                VarDeclaration = 30,
+                CatchWithUnsupportedType = 31,
+                DeleteOperator = 32,
+                DeclWithDuplicateName = 33,
+                UnaryArithmNotNumber = 34,
+                ConstructorType = 35,
+                ConstructorIface = 36,
+                ConstructorFuncs = 37,
+                CallSignature = 38,
+                TypeAssertion = 39,
+                PrivateIdentifier = 40,
+                LocalFunction = 41,
+                ConditionalType = 42,
+                MappedType = 43,
+                NamespaceAsObject = 44,
+                ClassAsObject = 45,
+                NonDeclarationInNamespace = 46,
+                GeneratorFunction = 47,
+                FunctionContainsThis = 48,
+                PropertyAccessByIndex = 49,
+                JsxElement = 50,
+                EnumMemberNonConstInit = 51,
+                ImplementsClass = 52,
+                MethodReassignment = 53,
+                MultipleStaticBlocks = 54,
+                ThisType = 55,
+                IntefaceExtendDifProps = 56,
+                StructuralIdentity = 57,
+                DefaultImport = 58,
+                ExportAssignment = 59,
+                ImportAssignment = 60,
+                GenericCallNoTypeArgs = 61,
+                ParameterProperties = 62,
+                InstanceofUnsupported = 63,
+                ShorthandAmbientModuleDecl = 64,
+                WildcardsInModuleName = 65,
+                UMDModuleDefinition = 66,
+                NewTarget = 67,
+                DefiniteAssignment = 68,
+                Prototype = 69,
+                GlobalThis = 70,
+                UtilityType = 71,
+                PropertyDeclOnFunction = 72,
+                FunctionApplyCall = 73,
+                FunctionBind = 74,
+                ConstAssertion = 75,
+                ImportAssertion = 76,
+                SpreadOperator = 77,
+                LimitedStdLibApi = 78,
+                ErrorSuppression = 79,
+                StrictDiagnostic = 80,
+                UnsupportedDecorators = 81,
+                ImportAfterStatement = 82,
+                EsObjectType = 83,
+                LAST_ID = 84
+            }
+            class FaultAttributes {
+                cookBookRef: number;
+                migratable: boolean;
+                severity: Utils.ProblemSeverity;
+                constructor(cookBookRef: number, migratable?: boolean, severity?: Utils.ProblemSeverity);
+            }
+            const faultsAttrs: FaultAttributes[];
+        }
+    }
+}
+declare namespace ts {
+    namespace ArkTSLinter_1_1 {
+        namespace Autofixer {
+            import AutofixInfo = Common.AutofixInfo;
+            import FaultID = Problems.FaultID;
+            const AUTOFIX_ALL: AutofixInfo;
+            const autofixInfo: AutofixInfo[];
+            function shouldAutofix(node: Node, faultID: FaultID): boolean;
+            interface Autofix {
+                replacementText: string;
+                start: number;
+                end: number;
+            }
+            function fixLiteralAsPropertyName(node: Node): Autofix[] | undefined;
+            function fixPropertyAccessByIndex(node: Node): Autofix[] | undefined;
+            function fixFunctionExpression(funcExpr: FunctionExpression, params?: NodeArray<ParameterDeclaration>, retType?: TypeNode | undefined): Autofix;
+            function fixReturnType(funcLikeDecl: FunctionLikeDeclaration, typeNode: TypeNode): Autofix;
+            function fixCtorParameterProperties(ctorDecl: ConstructorDeclaration, paramTypes: TypeNode[]): Autofix[] | undefined;
+        }
+    }
+}
+declare namespace ts {
+    namespace ArkTSLinter_1_1 {
+        import FaultID = Problems.FaultID;
+        class LinterConfig {
+            static nodeDesc: string[];
+            static tsSyntaxKindNames: string[];
+            static initStatic(): void;
+            static terminalTokens: Set<SyntaxKind>;
+            static incrementOnlyTokens: ESMap<SyntaxKind, FaultID>;
+        }
+    }
+}
+declare namespace ts {
+    namespace ArkTSLinter_1_1 {
+        import Autofix = Autofixer.Autofix;
+        import LibraryTypeCallDiagnosticChecker = LibraryTypeCallDiagnosticCheckerNamespace.LibraryTypeCallDiagnosticChecker;
+        interface ProblemInfo {
+            line: number;
+            column: number;
+            start: number;
+            end: number;
+            type: string;
+            severity: number;
+            problem: string;
+            suggest: string;
+            rule: string;
+            ruleTag: number;
+            autofixable: boolean;
+            autofix?: Autofix[];
+        }
+        class TypeScriptLinter {
+            private sourceFile;
+            private tscStrictDiagnostics?;
+            static ideMode: boolean;
+            static strictMode: boolean;
+            static logTscErrors: boolean;
+            static warningsAsErrors: boolean;
+            static lintEtsOnly: boolean;
+            static totalVisitedNodes: number;
+            static nodeCounters: number[];
+            static lineCounters: number[];
+            static totalErrorLines: number;
+            static errorLineNumbersString: string;
+            static totalWarningLines: number;
+            static warningLineNumbersString: string;
+            static reportDiagnostics: boolean;
+            static problemsInfos: ProblemInfo[];
+            static filteredDiagnosticMessages: DiagnosticMessageChain[];
+            static initGlobals(): void;
+            static initStatic(): void;
+            static tsTypeChecker: TypeChecker;
+            currentErrorLine: number;
+            currentWarningLine: number;
+            staticBlocks: Set<string>;
+            libraryTypeCallDiagnosticChecker: LibraryTypeCallDiagnosticChecker;
+            constructor(sourceFile: SourceFile, tsProgram: Program, tscStrictDiagnostics?: Map<Diagnostic[]> | undefined);
+            readonly handlersMap: ESMap<SyntaxKind, (node: Node) => void>;
+            incrementCounters(node: Node | CommentRange, faultId: number, autofixable?: boolean, autofix?: Autofix[]): void;
+            private forEachNodeInSubtree;
+            private visitSourceFile;
+            private countInterfaceExtendsDifferentPropertyTypes;
+            private countDeclarationsWithDuplicateName;
+            private countClassMembersWithDuplicateName;
+            private static scopeContainsThis;
+            private isPrototypePropertyAccess;
+            private interfaceInheritanceLint;
+            private lintForInterfaceExtendsDifferentPorpertyTypes;
+            private handleObjectLiteralExpression;
+            private handleArrayLiteralExpression;
+            private handleParameter;
+            private handleEnumDeclaration;
+            private handleInterfaceDeclaration;
+            private handleThrowStatement;
+            private handleForStatement;
+            private handleForInStatement;
+            private handleForOfStatement;
+            private handleImportDeclaration;
+            private handlePropertyAccessExpression;
+            private handlePropertyAssignmentOrDeclaration;
+            private filterOutDecoratorsDiagnostics;
+            private checkInRange;
+            private filterStrictDiagnostics;
+            private static isClassLikeOrIface;
+            private handleFunctionExpression;
+            private handleArrowFunction;
+            private handleClassExpression;
+            private handleFunctionDeclaration;
+            private handleMissingReturnType;
+            private hasLimitedTypeInferenceFromReturnExpr;
+            private handlePrefixUnaryExpression;
+            private handleBinaryExpression;
+            private handleVariableDeclarationList;
+            private handleVariableDeclaration;
+            private handleEsObjectDelaration;
+            private handleEsObjectAssignment;
+            private handleCatchClause;
+            private handleClassDeclaration;
+            private handleModuleDeclaration;
+            private handleTypeAliasDeclaration;
+            private handleImportClause;
+            private handleImportSpecifier;
+            private handleNamespaceImport;
+            private handleTypeAssertionExpression;
+            private handleMethodDeclaration;
+            private handleMethodSignature;
+            private handleIdentifier;
+            private isAllowedClassValueContext;
+            private handleRestrictedValues;
+            private identiferUseInValueContext;
+            private isEnumPropAccess;
+            private isElementAcessAllowed;
+            private handleElementAccessExpression;
+            private handleEnumMember;
+            private handleExportAssignment;
+            private handleCallExpression;
+            private handleEtsComponentExpression;
+            private handleImportCall;
+            private handleRequireCall;
+            private handleGenericCallWithNoTypeArgs;
+            private static readonly listFunctionApplyCallApis;
+            private static readonly listFunctionBindApis;
+            private handleFunctionApplyBindPropCall;
+            private handleStructIdentAndUndefinedInArgs;
+            private static LimitedApis;
+            private handleStdlibAPICall;
+            private findNonFilteringRangesFunctionCalls;
+            private handleLibraryTypeCall;
+            private handleNewExpression;
+            private handleAsExpression;
+            private handleTypeReference;
+            private handleMetaProperty;
+            private handleSpreadOp;
+            private handleConstructSignature;
+            private handleExpressionWithTypeArguments;
+            private handleComputedPropertyName;
+            private handleDecorators;
+            private handleGetAccessor;
+            private handleSetAccessor;
+            private handleDeclarationInferredType;
+            private handleDefiniteAssignmentAssertion;
+            private validatedTypesSet;
+            private checkAnyOrUnknownChildNode;
+            private handleInferredObjectreference;
+            private validateDeclInferredType;
+            private processNoCheckEntry;
+            private reportThisKeywordsInScope;
+            private handleCommentDirectives;
+            lint(): void;
+        }
+    }
+}
+declare namespace ts {
+    namespace ArkTSLinter_1_1 {
+        class TSCCompiledProgram {
+            private diagnosticsExtractor;
+            private wasStrict;
+            constructor(program: Program, host: CompilerHost);
+            getOriginalProgram(): Program;
+            getStrictProgram(): Program;
+            getStrictDiagnostics(fileName: string): Diagnostic[];
+        }
+    }
+}
+declare namespace ts {
+    namespace ArkTSLinter_1_1 {
+        function translateDiag(srcFile: SourceFile, problemInfo: ProblemInfo): Diagnostic;
+        function runArkTSLinter(tsProgram: Program, host: CompilerHost, srcFile?: SourceFile): Diagnostic[];
+    }
 }
 
 export = ts;

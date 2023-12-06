@@ -14,6 +14,7 @@
  */
 
 namespace ts {
+export namespace ArkTSLinter_1_1 {
 
 import DiagnosticChecker = DiagnosticCheckerNamespace.DiagnosticChecker
 // Current approach relates on error code and error message matching and it is quite fragile,
@@ -138,6 +139,7 @@ export class LibraryTypeCallDiagnosticChecker implements DiagnosticChecker {
     }
     return true;
   }
+}
 }
 }
 }

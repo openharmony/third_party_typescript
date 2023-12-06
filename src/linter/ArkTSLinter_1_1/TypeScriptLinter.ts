@@ -14,6 +14,7 @@
  */
 
 namespace ts {
+export namespace ArkTSLinter_1_1 {
 
 //import Utils = Utils;
 
@@ -254,7 +255,7 @@ export class TypeScriptLinter {
     }
   }
 
-  private forEachNodeInSubtree(node: ts.Node, cb: (n: ts.Node) => void, stopCond?: (n: ts.Node) => boolean) {
+  private forEachNodeInSubtree(node: ts.Node, cb: (n: ts.Node) => void, stopCond?: (n: ts.Node) => boolean): void {
     cb.call(this, node);
     if (stopCond?.call(this, node)) {
       return;
@@ -265,7 +266,7 @@ export class TypeScriptLinter {
   }
 
   private visitSourceFile(sf: ts.SourceFile): void {
-    const callback = (node: ts.Node) => {
+    const callback = (node: ts.Node): void => {
       TypeScriptLinter.totalVisitedNodes++;
       const incrementedType = LinterConfig.incrementOnlyTokens.get(node.kind);
       if (incrementedType !== undefined) {
@@ -277,8 +278,8 @@ export class TypeScriptLinter {
           handler.call(this, node);
         }
       }
-    }
-    const stopCondition = (node: ts.Node) => {
+    };
+    const stopCondition = (node: ts.Node): boolean => {
       if (node === null || node.kind === null) {
         return true;
       }
@@ -290,7 +291,7 @@ export class TypeScriptLinter {
         return true;
       }
       return false;
-    }
+    };
     this.forEachNodeInSubtree(sf, callback, stopCondition);
   }
 
@@ -902,8 +903,10 @@ export class TypeScriptLinter {
 
   private hasLimitedTypeInferenceFromReturnExpr(funBody: ConciseBody): boolean {
     let hasLimitedTypeInference = false;
-    const callback = (node: ts.Node) => {
-      if (hasLimitedTypeInference) return;
+    const callback = (node: ts.Node): void => {
+      if (hasLimitedTypeInference) {
+        return;
+      }
 
       if (
         ts.isReturnStatement(node) && node.expression &&
@@ -912,15 +915,15 @@ export class TypeScriptLinter {
         hasLimitedTypeInference = true;
       }
 
-    }
+    };
     // Don't traverse other nested function-like declarations.
-    const stopCondition = (node: ts.Node) => {
+    const stopCondition = (node: ts.Node): boolean => {
       return ts.isFunctionDeclaration(node) ||
         ts.isFunctionExpression(node) ||
         ts.isMethodDeclaration(node) ||
         ts.isAccessor(node) ||
         ts.isArrowFunction(node);
-    }
+    };
     if (isBlock(funBody)) {
       this.forEachNodeInSubtree(funBody, callback, stopCondition);
     }
@@ -1276,7 +1279,7 @@ export class TypeScriptLinter {
       Utils.FUNCTION_HAS_NO_RETURN_ERROR_CODE);
   }
 
-  private handleMethodSignature(node: ts.MethodSignature) {
+  private handleMethodSignature(node: ts.MethodSignature): void {
     const tsMethodSign = node as ts.MethodSignature;
     if (!tsMethodSign.type) {
       this.handleMissingReturnType(tsMethodSign);
@@ -1620,7 +1623,7 @@ export class TypeScriptLinter {
         }
         if (!tsParamType) continue;
 
-        if (Utils.needToDeduceStructuralIdentity(tsParamType, tsArgType, tsArg)){
+        if (Utils.needToDeduceStructuralIdentity(tsParamType, tsArgType, tsArg)) {
           this.incrementCounters(tsArg, FaultID.StructuralIdentity);
         }
       }
@@ -1871,8 +1874,8 @@ export class TypeScriptLinter {
     // see https://github.com/microsoft/TypeScript/pull/11263.
     // In this case, we still want to report the error, since ArkTS doesn't allow
     // to omit both type annotation and initializer. 
-    if (((ts.isVariableDeclaration(decl) && ts.isVariableStatement(decl.parent.parent)) || ts.isPropertyDeclaration(decl))
-      && !decl.initializer) {
+    if (((ts.isVariableDeclaration(decl) && ts.isVariableStatement(decl.parent.parent)) || ts.isPropertyDeclaration(decl)) &&
+      !decl.initializer) {
       this.incrementCounters(decl, FaultID.AnyType);
       return;
     }
@@ -1948,7 +1951,7 @@ export class TypeScriptLinter {
     }
   }
 
-  private processNoCheckEntry(entry: any): void {
+  private processNoCheckEntry(entry: PragmaPseudoMap[keyof PragmaPseudoMap]): void {
     if (entry.range?.kind === undefined || entry.range?.pos === undefined || entry.range?.end === undefined) {
       return;
     }
@@ -1956,17 +1959,17 @@ export class TypeScriptLinter {
   }
 
   private reportThisKeywordsInScope(scope: ts.Block | ts.Expression): void {
-    const callback = (node: ts.Node) => {
+    const callback = (node: ts.Node): void => {
       if (node.kind === ts.SyntaxKind.ThisKeyword) {
         this.incrementCounters(node, FaultID.FunctionContainsThis);
       }
-    }
-    const stopCondition = (node: ts.Node) => {
+    };
+    const stopCondition = (node: ts.Node): boolean => {
       const isClassLike = ts.isClassDeclaration(node) || ts.isClassExpression(node);
       const isFunctionLike = ts.isFunctionDeclaration(node) || ts.isFunctionExpression(node);
       const isModuleDecl = ts.isModuleDeclaration(node);
       return isClassLike || isFunctionLike || isModuleDecl;
-    }
+    };
     this.forEachNodeInSubtree(scope, callback, stopCondition);
   }
 
@@ -1978,15 +1981,15 @@ export class TypeScriptLinter {
      */
 
     // Handle comment directive '@ts-nocheck'
-    const pragmas = (sourceFile as any).pragmas;
+    const pragmas = sourceFile.pragmas;
     if (pragmas && pragmas instanceof Map) {
-      const noCheckPragma = pragmas.get('ts-nocheck');
+      const noCheckPragma: PragmaPseudoMap[keyof PragmaPseudoMap] | PragmaPseudoMap[keyof PragmaPseudoMap][] = pragmas.get('ts-nocheck');
       if (noCheckPragma) {
         /*
          * The value is either a single entry or an array of entries.
          * Wrap up single entry with array to simplify processing.
          */
-        const noCheckEntries: any[] = Array.isArray(noCheckPragma) ? noCheckPragma : [noCheckPragma];
+        const noCheckEntries = Array.isArray(noCheckPragma) ? noCheckPragma : [noCheckPragma];
         for (const entry of noCheckEntries) {
           this.processNoCheckEntry(entry);
         }
@@ -1994,7 +1997,7 @@ export class TypeScriptLinter {
     }
 
     // Handle comment directives '@ts-ignore' and '@ts-expect-error'
-    const commentDirectives = (sourceFile as any).commentDirectives;
+    const commentDirectives = sourceFile.commentDirectives;
     if (commentDirectives && Array.isArray(commentDirectives)) {
       for (const directive of commentDirectives) {
         if (directive.range?.pos === undefined || directive.range?.end === undefined) {
@@ -2022,5 +2025,6 @@ export class TypeScriptLinter {
     this.handleCommentDirectives(this.sourceFile);
   }
 
+}
 }
 }

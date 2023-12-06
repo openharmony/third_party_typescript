@@ -14,6 +14,7 @@
  */
 
 namespace ts {
+export namespace ArkTSLinter_1_1 {
 
 export class TSCCompiledProgram {
   private diagnosticsExtractor: TypeScriptDiagnosticsExtractor;
@@ -144,4 +145,5 @@ function hashDiagnostic(diagnostic: Diagnostic): string | undefined {
   return `${diagnostic.code}%${diagnostic.start}%${diagnostic.length}`;
 }
 
+}
 }

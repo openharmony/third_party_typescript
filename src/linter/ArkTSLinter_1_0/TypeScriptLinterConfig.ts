@@ -14,6 +14,7 @@
  */
 
 namespace ts {
+export namespace ArkTSLinter_1_0 {
 //import * as ts from 'typescript';
 import FaultID = Problems.FaultID;
 
@@ -40,6 +41,7 @@ export class LinterConfig {
     LinterConfig.nodeDesc[FaultID.ComputedPropertyName] = "Computed properties";
     LinterConfig.nodeDesc[FaultID.LiteralAsPropertyName] = "String or integer literal as property name";
     LinterConfig.nodeDesc[FaultID.TypeQuery] = "\"typeof\" operations";
+    LinterConfig.nodeDesc[FaultID.RegexLiteral] = "regex literals";
     LinterConfig.nodeDesc[FaultID.IsOperator] = "\"is\" operations";
     LinterConfig.nodeDesc[FaultID.DestructuringParameter] = "destructuring parameters";
     LinterConfig.nodeDesc[FaultID.YieldExpression] = "\"yield\" operations";
@@ -86,7 +88,7 @@ export class LinterConfig {
     LinterConfig.nodeDesc[FaultID.JsxElement] = "JSX Elements";
     LinterConfig.nodeDesc[FaultID.EnumMemberNonConstInit] = "Enum members with non-constant initializer";
     LinterConfig.nodeDesc[FaultID.ImplementsClass] = "Class type mentioned in \"implements\" clause";
-    LinterConfig.nodeDesc[FaultID.MethodReassignment] = "Method reassignment";
+    LinterConfig.nodeDesc[FaultID.NoUndefinedPropAccess] = "Access to undefined field";
     LinterConfig.nodeDesc[FaultID.MultipleStaticBlocks] = "Multiple static blocks";
     LinterConfig.nodeDesc[FaultID.ThisType] = "\"this\" type";
     LinterConfig.nodeDesc[FaultID.IntefaceExtendDifProps] = "Extends same properties with different types";
@@ -106,8 +108,7 @@ export class LinterConfig {
     LinterConfig.nodeDesc[FaultID.GlobalThis] = "Use of globalThis";
     LinterConfig.nodeDesc[FaultID.UtilityType] = "Standard Utility types";
     LinterConfig.nodeDesc[FaultID.PropertyDeclOnFunction] = "Property declaration on function";
-    LinterConfig.nodeDesc[FaultID.FunctionApplyCall] = "Invoking methods of function objects";
-    LinterConfig.nodeDesc[FaultID.FunctionBind] = "Invoking methods of function objects";
+    LinterConfig.nodeDesc[FaultID.FunctionApplyBindCall] = "Invoking methods of function objects";
     LinterConfig.nodeDesc[FaultID.ConstAssertion] = "\"as const\" assertion";
     LinterConfig.nodeDesc[FaultID.ImportAssertion] = "Import assertion";
     LinterConfig.nodeDesc[FaultID.SpreadOperator] = "Spread operation";
@@ -165,10 +166,11 @@ export class LinterConfig {
     [SyntaxKind.ThisType, FaultID.ThisType],
     [SyntaxKind.TypeQuery, FaultID.TypeQuery],
     [SyntaxKind.DeleteExpression, FaultID.DeleteOperator],
+    [SyntaxKind.RegularExpressionLiteral, FaultID.RegexLiteral],
     [SyntaxKind.TypePredicate, FaultID.IsOperator], [SyntaxKind.YieldExpression, FaultID.YieldExpression],
     [SyntaxKind.IndexSignature, FaultID.IndexMember], [SyntaxKind.WithStatement, FaultID.WithStatement],
     [SyntaxKind.IndexedAccessType, FaultID.IndexedAccessType],[SyntaxKind.UnknownKeyword, FaultID.UnknownType],
-    [SyntaxKind.CallSignature, FaultID.CallSignature],
+    [SyntaxKind.InKeyword, FaultID.InOperator], [SyntaxKind.CallSignature, FaultID.CallSignature],
     [SyntaxKind.IntersectionType, FaultID.IntersectionType],
     [SyntaxKind.TypeLiteral, FaultID.ObjectTypeLiteral], [SyntaxKind.ConstructorType, FaultID.ConstructorFuncs],
     [SyntaxKind.PrivateIdentifier, FaultID.PrivateIdentifier],
@@ -179,4 +181,5 @@ export class LinterConfig {
   ]);
 }
 
+}
 }

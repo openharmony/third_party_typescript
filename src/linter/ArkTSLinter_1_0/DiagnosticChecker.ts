@@ -14,6 +14,7 @@
  */
 
 namespace ts {
+export namespace ArkTSLinter_1_0 {
 
 export namespace DiagnosticCheckerNamespace {
 export interface DiagnosticChecker {
@@ -21,4 +22,5 @@ export interface DiagnosticChecker {
 }
 }
 
+}
 }
