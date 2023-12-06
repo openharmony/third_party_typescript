@@ -13025,7 +13025,6 @@ declare namespace ts {
             const NON_INITIALIZABLE_PROPERTY_DECORATORS: string[];
             const NON_INITIALIZABLE_PROPERTY_ClASS_DECORATORS: string[];
             const LIMITED_STANDARD_UTILITY_TYPES: string[];
-            const ALLOWED_STD_SYMBOL_API: string[];
             enum ProblemSeverity {
                 WARNING = 1,
                 ERROR = 2
@@ -13099,7 +13098,8 @@ declare namespace ts {
             function isStructDeclaration(node: Node): boolean;
             function isStructObjectInitializer(objectLiteral: ObjectLiteralExpression): boolean;
             function hasMethods(type: Type): boolean;
-            function getNonNullableType(t: ts.Type): Type;
+            function checkTypeSet(typeSet: ts.Type, predicate: CheckType): boolean;
+            function getNonNullableType(t: ts.Type): ts.Type;
             function isObjectLiteralAssignable(lhsType: ts.Type | undefined, rhsExpr: ts.ObjectLiteralExpression): boolean;
             function isLiteralType(type: Type): boolean;
             function validateFields(objectType: Type, objectLiteral: ObjectLiteralExpression): boolean;
@@ -13107,10 +13107,6 @@ declare namespace ts {
             function isStruct(symbol: Symbol): boolean;
             type CheckType = ((t: ts.Type) => boolean);
             const ES_OBJECT = "ESObject";
-            const LIMITED_STD_GLOBAL_FUNC: string[];
-            const LIMITED_STD_OBJECT_API: string[];
-            const LIMITED_STD_REFLECT_API: string[];
-            const LIMITED_STD_PROXYHANDLER_API: string[];
             const ARKUI_DECORATORS: string[];
             const FUNCTION_HAS_NO_RETURN_ERROR_CODE = 2366;
             const NON_RETURN_FUNCTION_DECORATORS: string[];
@@ -13385,6 +13381,7 @@ declare namespace ts {
             private handleTypeAssertionExpression;
             private handleMethodDeclaration;
             private handleMethodSignature;
+            private handleClassStaticBlockDeclaration;
             private handleIdentifier;
             private isAllowedClassValueContext;
             private handleRestrictedValues;
@@ -13399,12 +13396,8 @@ declare namespace ts {
             private handleImportCall;
             private handleRequireCall;
             private handleGenericCallWithNoTypeArgs;
-            private static readonly listFunctionApplyCallApis;
-            private static readonly listFunctionBindApis;
-            private handleFunctionApplyBindPropCall;
             private handleStructIdentAndUndefinedInArgs;
-            private static LimitedApis;
-            private handleStdlibAPICall;
+            private checkLimitedStdLib;
             private findNonFilteringRangesFunctionCalls;
             private handleLibraryTypeCall;
             private handleNewExpression;
@@ -13447,6 +13440,15 @@ declare namespace ts {
     namespace ArkTSLinter_1_1 {
         function translateDiag(srcFile: SourceFile, problemInfo: ProblemInfo): Diagnostic;
         function runArkTSLinter(tsProgram: Program, host: CompilerHost, srcFile?: SourceFile): Diagnostic[];
+    }
+}
+declare namespace ts {
+    namespace ArkTSLinter_1_1 {
+        type LimitedStdLibApiEntry = {
+            api: string[];
+            faultId: Problems.FaultID;
+        };
+        const LIMITED_STD_API: ESMap<string | undefined, LimitedStdLibApiEntry[]>;
     }
 }
 

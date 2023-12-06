@@ -36,5 +36,6 @@
         "./ArkTSLinter_1_1/TypeScriptLinter.ts",
         "./ArkTSLinter_1_1/TSDiagnostics.ts",
         "./ArkTSLinter_1_1/LinterRunner.ts",
+        "./ArkTSLinter_1_1/LimitedStdApi.ts",
     ]
 }
