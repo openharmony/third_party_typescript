@@ -154,8 +154,7 @@ export class TypeScriptLinter {
     [SyntaxKind.Parameter, this.handleParameter],
     [SyntaxKind.EnumDeclaration, this.handleEnumDeclaration],
     [SyntaxKind.InterfaceDeclaration, this.handleInterfaceDeclaration],
-    [SyntaxKind.ThrowStatement, this.handleThrowStatement],
-    [SyntaxKind.ImportClause, this.handleImportClause],
+    [SyntaxKind.ThrowStatement, this.handleThrowStatement], [SyntaxKind.ImportClause, this.handleImportClause],
     [SyntaxKind.ForStatement, this.handleForStatement],
     [SyntaxKind.ForInStatement, this.handleForInStatement],
     [SyntaxKind.ForOfStatement, this.handleForOfStatement],
@@ -165,8 +164,7 @@ export class TypeScriptLinter {
     [SyntaxKind.PropertyAssignment, this.handlePropertyAssignmentOrDeclaration],
     [SyntaxKind.FunctionExpression, this.handleFunctionExpression],
     [SyntaxKind.ArrowFunction, this.handleArrowFunction],
-    [SyntaxKind.ClassExpression, this.handleClassExpression],
-    [SyntaxKind.CatchClause, this.handleCatchClause],
+    [SyntaxKind.ClassExpression, this.handleClassExpression], [SyntaxKind.CatchClause, this.handleCatchClause],
     [SyntaxKind.FunctionDeclaration, this.handleFunctionDeclaration],
     [SyntaxKind.PrefixUnaryExpression, this.handlePrefixUnaryExpression],
     [SyntaxKind.BinaryExpression, this.handleBinaryExpression],
@@ -179,25 +177,19 @@ export class TypeScriptLinter {
     [SyntaxKind.NamespaceImport, this.handleNamespaceImport],
     [SyntaxKind.TypeAssertionExpression, this.handleTypeAssertionExpression],
     [SyntaxKind.MethodDeclaration, this.handleMethodDeclaration],
-    [SyntaxKind.MethodSignature, this.handleMethodSignature],
-    [SyntaxKind.ClassStaticBlockDeclaration, this.handleClassStaticBlockDeclaration],
+    [ts.SyntaxKind.MethodSignature, this.handleMethodSignature],
     [SyntaxKind.Identifier, this.handleIdentifier],
     [SyntaxKind.ElementAccessExpression, this.handleElementAccessExpression],
-    [SyntaxKind.EnumMember, this.handleEnumMember],
-    [SyntaxKind.TypeReference, this.handleTypeReference],
+    [SyntaxKind.EnumMember, this.handleEnumMember], [SyntaxKind.TypeReference, this.handleTypeReference],
     [SyntaxKind.ExportAssignment, this.handleExportAssignment],
-    [SyntaxKind.CallExpression, this.handleCallExpression],
-    [SyntaxKind.MetaProperty, this.handleMetaProperty],
-    [SyntaxKind.NewExpression, this.handleNewExpression],
-    [SyntaxKind.AsExpression, this.handleAsExpression],
-    [SyntaxKind.SpreadElement, this.handleSpreadOp],
-    [SyntaxKind.SpreadAssignment, this.handleSpreadOp],
-    [SyntaxKind.GetAccessor, this.handleGetAccessor],
-    [SyntaxKind.SetAccessor, this.handleSetAccessor],
+    [SyntaxKind.CallExpression, this.handleCallExpression], [SyntaxKind.MetaProperty, this.handleMetaProperty],
+    [SyntaxKind.NewExpression, this.handleNewExpression], [SyntaxKind.AsExpression, this.handleAsExpression],
+    [SyntaxKind.SpreadElement, this.handleSpreadOp], [SyntaxKind.SpreadAssignment, this.handleSpreadOp],
+    [SyntaxKind.GetAccessor, this.handleGetAccessor], [SyntaxKind.SetAccessor, this.handleSetAccessor],
     [SyntaxKind.ConstructSignature, this.handleConstructSignature],
     [SyntaxKind.ExpressionWithTypeArguments, this.handleExpressionWithTypeArguments],
-    [SyntaxKind.ComputedPropertyName, this.handleComputedPropertyName],
-    [SyntaxKind.EtsComponentExpression, this.handleEtsComponentExpression],
+    [ts.SyntaxKind.ComputedPropertyName, this.handleComputedPropertyName],
+    [ts.SyntaxKind.EtsComponentExpression, this.handleEtsComponentExpression],
   ]);
 
   public incrementCounters(node: Node | CommentRange, faultId: number, autofixable = false, autofix?: Autofix[]): void {
@@ -653,6 +645,9 @@ export class TypeScriptLinter {
     if (this.isPrototypePropertyAccess(propertyAccessNode, exprSym, baseExprSym, baseExprType)) {
       this.incrementCounters(propertyAccessNode.name, FaultID.Prototype);
     }
+    if (!!exprSym && Utils.isSymbolAPI(exprSym) && !Utils.ALLOWED_STD_SYMBOL_API.includes(exprSym.getName())) {
+      this.incrementCounters(propertyAccessNode, FaultID.SymbolType);
+    }
     if (!!baseExprSym  && Utils.symbolHasEsObjectType(baseExprSym)) {
       this.incrementCounters(propertyAccessNode, FaultID.EsObjectType);
     }
@@ -669,7 +664,7 @@ export class TypeScriptLinter {
       if (isPropertyAssignment(node)) {
         let objectLiteralType = TypeScriptLinter.tsTypeChecker.getContextualType(node.parent);
         if (objectLiteralType) {
-          isRecordObjectInitializer = Utils.checkTypeSet(objectLiteralType, Utils.isStdRecordType);
+          isRecordObjectInitializer = Utils.isStdRecordType(objectLiteralType);
           isLibraryType = Utils.isLibraryType(objectLiteralType);
         }
         isDynamic = isLibraryType || Utils.isDynamicLiteralInitializer(node.parent);
@@ -1289,22 +1284,6 @@ export class TypeScriptLinter {
     if (!tsMethodSign.type) {
       this.handleMissingReturnType(tsMethodSign);
     }
-  } 
-
-  private handleClassStaticBlockDeclaration(node: ts.Node): void {
-    const classStaticBlockDecl = node as ts.ClassStaticBlockDeclaration;
-    const parent = classStaticBlockDecl.parent;
-    if (!ts.isClassDeclaration(parent)) {
-      return;
-    }
-    this.reportThisKeywordsInScope(classStaticBlockDecl.body);
-    // May be undefined in `export default class { ... }`.
-    const className = parent.name?.text ?? '';
-    if (this.staticBlocks.has(className)) {
-      this.incrementCounters(classStaticBlockDecl, FaultID.MultipleStaticBlocks);
-    } else {
-      this.staticBlocks.add(className);
-    }
   }
 
   private handleIdentifier(node: Node): void {
@@ -1322,7 +1301,6 @@ export class TypeScriptLinter {
     ) {
       this.incrementCounters(node, FaultID.GlobalThis);
     } else {
-      this.checkLimitedStdLib(tsIdentifier, tsIdentSym);
       this.handleRestrictedValues(tsIdentifier, tsIdentSym);
     }
   }
@@ -1441,6 +1419,9 @@ export class TypeScriptLinter {
       Utils.isOrDerivedFrom(type, Utils.isArray) ||
       Utils.isOrDerivedFrom(type, Utils.isTuple) ||
       Utils.isOrDerivedFrom(type, Utils.isStdRecordType) ||
+      Utils.isOrDerivedFrom(type, Utils.isStringType) ||
+      Utils.isOrDerivedFrom(type, Utils.isStdMapType) ||
+      Utils.isIntrinsicObjectType(type) ||
       Utils.isEnumType(type) ||
       // we allow EsObject here beacuse it is reported later using FaultId.EsObjectType
       Utils.isEsObjectType(typeNode)
@@ -1516,12 +1497,10 @@ export class TypeScriptLinter {
     this.handleRequireCall(tsCallExpr);
     // NOTE: Keep handleFunctionApplyBindPropCall above handleGenericCallWithNoTypeArgs here!!!
     if (calleeSym !== undefined) {
+      this.handleStdlibAPICall(tsCallExpr, calleeSym);
+      this.handleFunctionApplyBindPropCall(tsCallExpr, calleeSym);
       if (Utils.symbolHasEsObjectType(calleeSym)) {
         this.incrementCounters(tsCallExpr, FaultID.EsObjectType);
-      }
-      // need to process Symbol call separatey in order to not report two times when using Symbol API
-      if (Utils.isStdSymbol(calleeSym)) {
-        this.incrementCounters(tsCallExpr, FaultID.SymbolType);
       }
     }
     if (callSignature !== undefined) {
@@ -1600,6 +1579,28 @@ export class TypeScriptLinter {
     }
   }
 
+  private static readonly listFunctionApplyCallApis = [
+    'Function.apply',
+    'Function.call',
+    'CallableFunction.apply',
+    'CallableFunction.call'
+  ];
+
+  private static readonly listFunctionBindApis = [
+    'Function.bind',
+    'CallableFunction.bind'
+  ];
+
+  private handleFunctionApplyBindPropCall(tsCallExpr: ts.CallExpression, calleeSym: ts.Symbol): void {
+    const exprName = TypeScriptLinter.tsTypeChecker.getFullyQualifiedName(calleeSym);
+    if (TypeScriptLinter.listFunctionApplyCallApis.includes(exprName)) {
+      this.incrementCounters(tsCallExpr, FaultID.FunctionApplyCall);
+    }
+    if (TypeScriptLinter.listFunctionBindApis.includes(exprName)) {
+      this.incrementCounters(tsCallExpr, FaultID.FunctionBind);
+    }
+  }
+
   private handleStructIdentAndUndefinedInArgs(tsCallOrNewExpr: ts.CallExpression | ts.NewExpression, callSignature: ts.Signature) {
     if (!tsCallOrNewExpr.arguments) {
       return;
@@ -1629,18 +1630,35 @@ export class TypeScriptLinter {
     }
   }
 
-  private checkLimitedStdLib(node: ts.Node, symbol: ts.Symbol): void {
-    const parName = Utils.getParentSymbolName(symbol);
-    const entries = LIMITED_STD_API.get(parName);
-    if (!entries) {
-      return;
-    }
-    for (const entry of entries) {
-      if (entry.api.includes(symbol.name)) {
-        this.incrementCounters(node, entry.faultId);
+  // let re = new RegExp("^(" + arr.reduce((acc, v) => ((acc ? (acc + "|") : "") + v)) +")$")
+  private static LimitedApis = new Map<string, {arr: Array<string> | null, fault: FaultID}> ([
+    ["global", {arr: Utils.LIMITED_STD_GLOBAL_FUNC, fault: FaultID.LimitedStdLibApi}],
+    ["Object", {arr: Utils.LIMITED_STD_OBJECT_API, fault: FaultID.LimitedStdLibApi}],
+    ["ObjectConstructor", {arr: Utils.LIMITED_STD_OBJECT_API, fault: FaultID.LimitedStdLibApi}],
+    ["Reflect", {arr: Utils.LIMITED_STD_REFLECT_API, fault: FaultID.LimitedStdLibApi}],
+    ["ProxyHandler", {arr: Utils.LIMITED_STD_PROXYHANDLER_API, fault: FaultID.LimitedStdLibApi}],
+    ["Symbol", {arr: null, fault: FaultID.SymbolType}],
+    ["SymbolConstructor", {arr: null, fault: FaultID.SymbolType}],
+  ])
+
+  private handleStdlibAPICall(callExpr: ts.CallExpression, calleeSym: ts.Symbol) {
+    const name = calleeSym.getName();
+    const parName = Utils.getParentSymbolName(calleeSym);
+    if (parName === undefined) {
+      if (Utils.LIMITED_STD_GLOBAL_FUNC.includes(name)) {
+        this.incrementCounters(callExpr, FaultID.LimitedStdLibApi);
         return;
       }
+      let escapedName = calleeSym.escapedName;
+      if (escapedName === 'Symbol' || escapedName === 'SymbolConstructor') {
+        this.incrementCounters(callExpr, FaultID.SymbolType);
+      }
+      return;
     }
+    let lookup = TypeScriptLinter.LimitedApis.get(parName);
+    if (lookup !== undefined && (lookup.arr === null || lookup.arr.includes(name))) {
+      this.incrementCounters(callExpr, lookup.fault);
+    };
   }
 
   private findNonFilteringRangesFunctionCalls(callExpr: ts.CallExpression): { begin: number, end: number }[] {
