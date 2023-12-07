@@ -221,7 +221,6 @@ typescript_sources = [
   "src/linter/ArkTSLinter_1_1/CookBookMsg.ts",
   "src/linter/ArkTSLinter_1_1/DiagnosticChecker.ts",
   "src/linter/ArkTSLinter_1_1/LibraryTypeCallDiagnosticChecker.ts",
-  "src/linter/ArkTSLinter_1_1/LimitedStdApi.ts",
   "src/linter/ArkTSLinter_1_1/LinterRunner.ts",
   "src/linter/ArkTSLinter_1_1/Problems.ts",
   "src/linter/ArkTSLinter_1_1/TSDiagnostics.ts",
