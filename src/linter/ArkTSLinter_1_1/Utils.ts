@@ -34,8 +34,6 @@ export const LIMITED_STANDARD_UTILITY_TYPES = [
   "ThisType", "Uppercase", "Lowercase", "Capitalize", "Uncapitalize",
 ];
 
-export const ALLOWED_STD_SYMBOL_API = ["iterator"]
-
 export enum ProblemSeverity { WARNING = 1, ERROR = 2 }
 
 export const ARKTS_IGNORE_DIRS = ['node_modules', 'oh_modules', 'build', '.preview'];
@@ -839,6 +837,17 @@ function findProperty(type: Type, name: string): Symbol | undefined {
   return undefined;
 }
 
+export function checkTypeSet(typeSet: ts.Type, predicate: CheckType): boolean {
+  if (!typeSet.isUnionOrIntersection()) {
+    return predicate(typeSet);
+  }
+  for (let elemType of typeSet.types) {
+    if (checkTypeSet(elemType, predicate)) {
+      return true;
+    }
+  }
+  return false;
+}
 
 export function getNonNullableType(t: ts.Type): ts.Type {
   if (t.isUnion()) {
@@ -1021,24 +1030,6 @@ export type CheckType = ((t: ts.Type) => boolean);
 
 export const ES_OBJECT = "ESObject";
 
-export const LIMITED_STD_GLOBAL_FUNC = [
-  "eval"
-];
-export const LIMITED_STD_OBJECT_API = [
-  "__proto__", "__defineGetter__", "__defineSetter__", "__lookupGetter__", "__lookupSetter__", "assign", "create",
-  "defineProperties", "defineProperty", "freeze", "fromEntries", "getOwnPropertyDescriptor",
-  "getOwnPropertyDescriptors", "getOwnPropertySymbols", "getPrototypeOf", "hasOwnProperty", "is",
-  "isExtensible", "isFrozen", "isPrototypeOf", "isSealed", "preventExtensions", "propertyIsEnumerable",
-  "seal", "setPrototypeOf"
-];
-export const LIMITED_STD_REFLECT_API = [
- "apply", "construct", "defineProperty", "deleteProperty", "getOwnPropertyDescriptor", "getPrototypeOf",
-    "isExtensible", "preventExtensions", "setPrototypeOf"
-];
-export const LIMITED_STD_PROXYHANDLER_API = [
-  "apply", "construct", "defineProperty", "deleteProperty", "get", "getOwnPropertyDescriptor", "getPrototypeOf",
-  "has", "isExtensible", "ownKeys", "preventExtensions", "set", "setPrototypeOf"
-];
 export const ARKUI_DECORATORS = [
     "AnimatableExtend",
     "Builder",
