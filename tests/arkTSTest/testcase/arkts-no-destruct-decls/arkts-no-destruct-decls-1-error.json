@@ -1,0 +1,9 @@
+[
+  {
+    "messageText": "arkts-no-destruct-decls",
+    "expectLineAndCharacter": {
+      "line": 18,
+      "character": 5
+    }
+  }
+]

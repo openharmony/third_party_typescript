@@ -1,0 +1,16 @@
+[
+    {
+        "messageText": "arkts-no-extend-same-prop",
+        "expectLineAndCharacter": {
+            "line": 27,
+            "character": 1
+        }
+    },
+    {
+        "messageText": "arkts-no-untyped-obj-literals",
+        "expectLineAndCharacter": {
+            "line": 31,
+            "character": 25
+        }
+    }
+]

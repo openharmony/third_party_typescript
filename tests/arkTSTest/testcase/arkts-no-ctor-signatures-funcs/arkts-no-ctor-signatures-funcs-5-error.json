@@ -1,0 +1,16 @@
+[
+    {
+        "messageText": "arkts-no-ctor-signatures-funcs",
+        "expectLineAndCharacter": {
+            "line": 27,
+            "character": 20
+        }
+    },   
+    {
+        "messageText": "arkts-no-classes-as-obj",
+        "expectLineAndCharacter": {
+            "line": 33,
+            "character": 31
+        }
+    }
+]

@@ -1,0 +1,9 @@
+[
+  {
+    "messageText": "arkts-no-umd",
+    "expectLineAndCharacter": {
+      "line": 22,
+      "character": 1
+    }
+  }
+]

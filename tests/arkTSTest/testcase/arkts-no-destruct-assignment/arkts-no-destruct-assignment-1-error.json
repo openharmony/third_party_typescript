@@ -1,0 +1,16 @@
+[
+  {
+    "messageText": "arkts-no-destruct-decls",
+    "expectLineAndCharacter": {
+      "line": 17,
+      "character": 5
+    }
+  },
+  {
+    "messageText": "arkts-no-destruct-assignment",
+    "expectLineAndCharacter": {
+      "line": 18,
+      "character": 1
+    }
+  }
+]

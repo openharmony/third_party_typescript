@@ -1,0 +1,30 @@
+[
+  {
+    "messageText": "arkts-no-new-target",
+    "expectLineAndCharacter": {
+      "line": 19,
+      "character": 9
+    }
+  },
+  {
+    "messageText": "arkts-no-classes-as-obj",
+    "expectLineAndCharacter": {
+      "line": 19,
+      "character": 24
+    }
+  },
+  {
+    "messageText": "arkts-no-any-unknown",
+    "expectLineAndCharacter": {
+      "line": 30,
+      "character": 7
+    }
+  },
+  {
+    "messageText": "arkts-no-func-apply-bind-call",
+    "expectLineAndCharacter": {
+      "line": 30,
+      "character": 19
+    }
+  }
+]

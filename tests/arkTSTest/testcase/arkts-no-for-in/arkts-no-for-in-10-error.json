@@ -1,0 +1,18 @@
+[
+  {
+    "realStart": 760,
+    "messageText": "arkts-no-for-in",
+    "expectLineAndCharacter": {
+      "line": 24,
+      "character": 3
+    }
+  },
+  {
+    "realStart": 815,
+    "messageText": "arkts-no-props-by-index",
+    "expectLineAndCharacter": {
+      "line": 25,
+      "character": 23
+    }
+  }
+]

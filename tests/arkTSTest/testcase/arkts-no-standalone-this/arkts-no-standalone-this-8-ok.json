@@ -1,0 +1,16 @@
+[
+  {
+    "messageText": "arkts-no-func-apply-bind-call",
+    "expectLineAndCharacter": {
+      "line": 22,
+      "character": 16
+    }
+  },
+  {
+    "messageText": "arkts-no-func-apply-bind-call",
+    "expectLineAndCharacter": {
+      "line": 33,
+      "character": 17
+    }
+  }
+]

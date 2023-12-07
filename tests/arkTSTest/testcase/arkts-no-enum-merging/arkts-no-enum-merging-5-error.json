@@ -1,0 +1,16 @@
+[
+    {
+        "messageText": "arkts-no-enum-merging",
+        "expectLineAndCharacter": {
+            "line": 18,
+            "character": 1
+        }
+    },
+    {
+        "messageText": "arkts-no-enum-merging",
+        "expectLineAndCharacter": {
+            "line": 22,
+            "character": 1
+        }
+    }
+]

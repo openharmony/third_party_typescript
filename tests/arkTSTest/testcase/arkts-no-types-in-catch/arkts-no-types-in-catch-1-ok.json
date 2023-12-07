@@ -1,0 +1,9 @@
+[
+  {
+    "messageText": "arkts-no-any-unknown",
+    "expectLineAndCharacter": {
+      "line": 22,
+      "character": 7
+    }
+  }
+]

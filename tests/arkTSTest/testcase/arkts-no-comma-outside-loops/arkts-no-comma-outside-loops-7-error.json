@@ -1,0 +1,10 @@
+[
+    {
+      "messageText": "arkts-no-comma-outside-loops",
+      "expectLineAndCharacter": {
+        "line": 19,
+        "character": 9
+      }
+    }
+  ]
+  

@@ -1,0 +1,23 @@
+[
+    {
+        "messageText": "arkts-no-decl-merging",
+        "expectLineAndCharacter": {
+            "line": 19,
+            "character": 1
+        }
+    },
+    {
+        "messageText": "arkts-no-decl-merging",
+        "expectLineAndCharacter": {
+            "line": 23,
+            "character": 1
+        }
+    },
+    {
+        "messageText": "arkts-no-decl-merging",
+        "expectLineAndCharacter": {
+            "line": 27,
+            "character": 1
+        }
+    }
+]

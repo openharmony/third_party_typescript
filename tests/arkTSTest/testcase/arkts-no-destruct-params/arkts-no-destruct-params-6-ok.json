@@ -1,0 +1,9 @@
+[
+  {
+    "messageText": "arkts-no-props-by-index",
+    "expectLineAndCharacter": {
+      "line": 29,
+      "character": 10
+    }
+  }
+]
