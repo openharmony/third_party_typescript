@@ -1,9 +1,9 @@
 [
-    {
-        "messageText": "arkts-no-untyped-obj-literals",
-        "expectLineAndCharacter": {
-            "line": 18,
-            "character": 13
-        }
+  {
+    "messageText": "arkts-no-untyped-obj-literals",
+    "expectLineAndCharacter": {
+      "line": 18,
+      "character": 13
     }
+  }
 ]

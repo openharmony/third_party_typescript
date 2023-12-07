@@ -16,26 +16,32 @@
 
 // There are no iterations of the generators function in class
 class Classroom implements Iterable<string> {
-  private students: string[];
+  private students: string[]
   constructor(students: string[]) {
-    this.students = students;
+    this.students = students
   }
-  // 实现迭代器
+  // Implement iterators
   [Symbol.iterator](): Iterator<string> {
-    let index: number = 0;
+    let index: number = 0
     return {
       next: (): IteratorResult<string> => {
         if (index < this.students.length) {
-          return { done: false, value: this.students[index++] };
+          return { done: false, value: this.students[index++] }
         } else {
-          return { done: true, value: undefined };
+          return { done: true, value: undefined }
         }
       },
-    };
+    }
   }
 }
-const classroom = new Classroom(["学生1", "学生2", "学生3", "学生4", "学生5"]);
+const classroom = new Classroom([
+  'student1',
+  'student2',
+  'student3',
+  'student4',
+  'student5',
+])
 
 for (const student of classroom) {
-  console.log(student);
+  console.log(student)
 }

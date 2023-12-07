@@ -1,0 +1,9 @@
+[
+    {
+        "messageText": "arkts-no-enum-mixed-types",
+        "expectLineAndCharacter": {
+            "line": 22,
+            "character": 3
+        }
+    }
+]

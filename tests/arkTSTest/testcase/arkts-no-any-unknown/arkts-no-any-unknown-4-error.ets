@@ -14,7 +14,7 @@
 */
 
 
-// Counterexample： Use any or unknown when defining the properties of an object.
+// Counterexample: Use any or unknown when defining the properties of an object.
 const person:{name: any; age: unknown}={
     name:'xiaoming',
     age:30

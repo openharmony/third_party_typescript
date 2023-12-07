@@ -14,7 +14,7 @@
 */
 
 
-// Counterexample：Handle data aggregation or data conversion, using string keys to represent collections of different data types.
+// Counterexample: Handle data aggregation or data conversion, using string keys to represent collections of different data types.
 interface DataAggregator {
   [dataType: string]: number[]
 }

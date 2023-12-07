@@ -16,4 +16,4 @@
 
 abstract class B {}
 class C extends B {}
-let oo6: C = {};
+let oo6: C = {}

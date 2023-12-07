@@ -1,0 +1,9 @@
+[
+    {
+        "messageText": "arkts-extends-only-class",
+        "expectLineAndCharacter": {
+            "line": 25,
+            "character": 1
+        }
+    }
+]

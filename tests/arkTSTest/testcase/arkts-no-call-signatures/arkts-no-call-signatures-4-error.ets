@@ -14,7 +14,7 @@
 */
 
 
-// Counterexample：Declare a class type that accepts object parameters and returns the value of the specified property.
+// Counterexample: Declare a class type that accepts object parameters and returns the value of the specified property.
 interface GetPropertyValueFunction {
   (obj: object, key: string): string
 }

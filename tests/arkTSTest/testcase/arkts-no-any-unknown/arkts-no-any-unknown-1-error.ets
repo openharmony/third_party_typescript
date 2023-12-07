@@ -14,7 +14,7 @@
 */
 
 
-// Counterexample： Use any or unknown when defining variables.
+// Counterexample: Use any or unknown when defining variables.
 let age: unknown = 30
 let aabc: any = 'xiaoming'
  

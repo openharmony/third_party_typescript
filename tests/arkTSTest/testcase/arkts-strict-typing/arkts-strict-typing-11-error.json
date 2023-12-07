@@ -1,0 +1,17 @@
+[
+    {
+        "messageText": "arkts-strict-typing",
+        "expectLineAndCharacter": {
+            "line": 17,
+            "character": 1
+        }
+    },
+    {
+        "messageText": "arkts-strict-typing",
+        "expectLineAndCharacter": {
+            "line": 26,
+            "character": 1
+        }
+    }
+    
+]

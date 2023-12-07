@@ -14,7 +14,7 @@
 */
 
 
-// Counterexample：Interface object literal constructor signature.
+// Counterexample: Interface object literal constructor signature.
 class Person {
   n: string = ''
   a: number = 0

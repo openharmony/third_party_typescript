@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-
 // 7. Introducing regular literals from ts files
 import { regex } from './case7.1'
 let a: RegExp = regex

@@ -1,0 +1,9 @@
+[
+  {
+    "messageText": "arkts-no-misplaced-imports",
+    "expectLineAndCharacter": {
+      "line": 26,
+      "character": 1
+    }
+  }
+]

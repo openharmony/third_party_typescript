@@ -1,0 +1,9 @@
+[
+  {
+    "messageText": "arkts-no-destruct-assignment",
+    "expectLineAndCharacter": {
+      "line": 19,
+      "character": 1
+    }
+  }
+]

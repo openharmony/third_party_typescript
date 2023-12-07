@@ -14,7 +14,7 @@
 */
 
 
-// Counterexample：Multiple static blocks in class.
+// Counterexample: Multiple static blocks in class.
 class C {
   static s: string
 

@@ -14,7 +14,7 @@
 */
 
 
-// Counterexample：Handle key value pair data structures with dynamic keys and values.
+// Counterexample: Handle key value pair data structures with dynamic keys and values.
 interface KeyValueMap {
   [key: string]: any
 }

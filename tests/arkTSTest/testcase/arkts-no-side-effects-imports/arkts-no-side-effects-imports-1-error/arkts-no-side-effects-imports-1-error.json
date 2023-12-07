@@ -1,0 +1,9 @@
+[
+    {
+        "messageText": "arkts-no-side-effects-imports",
+        "expectLineAndCharacter": {
+            "line": 19,
+            "character": 1
+        }
+    }
+]

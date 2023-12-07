@@ -27,4 +27,4 @@ const peopleList = [
   new PersonTwo("Alice", 25),
   new PersonTwo("Bob", 30),
   new PersonTwo("Charlie", 35),
-]; // The type is inferred as: PersonTwo[]
+]; // 类型推断为 PersonTwo[]

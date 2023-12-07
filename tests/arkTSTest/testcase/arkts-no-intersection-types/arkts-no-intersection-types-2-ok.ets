@@ -14,7 +14,7 @@
 */
 
 
-// Example：Crossing of object types
+// Example: Crossing of object types
 interface Person {
 name: string = '';
 age: number = 0;

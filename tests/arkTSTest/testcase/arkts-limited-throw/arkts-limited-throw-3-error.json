@@ -1,0 +1,9 @@
+[
+  {
+    "messageText": "arkts-limited-throw",
+    "expectLineAndCharacter": {
+      "line": 19,
+      "character": 1
+    }
+  }
+]

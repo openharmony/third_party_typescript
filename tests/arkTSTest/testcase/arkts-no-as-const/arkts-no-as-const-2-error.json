@@ -1,0 +1,10 @@
+[
+    {
+      "messageText": "arkts-no-as-const",
+      "expectLineAndCharacter": {
+        "line": 17,
+        "character": 15
+      }
+    }
+  ]
+  

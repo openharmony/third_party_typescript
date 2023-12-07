@@ -14,7 +14,7 @@
 */
 
 
-// Counterexample：Handle dynamic object properties by using string keys to represent property names and types.
+// Counterexample: Handle dynamic object properties by using string keys to represent property names and types.
 interface DynamicObject {
   [propertyName: string]: any
 }

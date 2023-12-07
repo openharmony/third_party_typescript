@@ -14,7 +14,7 @@
 */
 
 
-// Counterexample：Register and access plugins in the application, using the string key as the plugin name.
+// Counterexample: Register and access plugins in the application, using the string key as the plugin name.
 interface PluginRegistry {
   [pluginName: string]: () => void
 }

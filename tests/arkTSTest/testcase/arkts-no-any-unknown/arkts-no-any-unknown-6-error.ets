@@ -14,7 +14,7 @@
 */
 
 
-// Counterexample：Use any or unknown when defining properties and methods in an interface.
+// Counterexample: Use any or unknown when defining properties and methods in an interface.
 interface Shape {
   area(): any
 }

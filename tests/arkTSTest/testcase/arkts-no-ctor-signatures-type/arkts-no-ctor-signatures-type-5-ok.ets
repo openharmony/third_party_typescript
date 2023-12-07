@@ -14,7 +14,7 @@
 */
 
 
-// Positive example:Using Class Substitution to Construct a Signature.
+// Positive example: Using Class Substitution to Construct a Signature.
 class Controller {
   value: number = 0
 

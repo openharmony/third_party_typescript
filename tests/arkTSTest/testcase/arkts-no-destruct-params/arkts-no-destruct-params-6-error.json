@@ -1,0 +1,16 @@
+[
+  {
+    "messageText": "arkts-no-destruct-params",
+    "expectLineAndCharacter": {
+      "line": 28,
+      "character": 22
+    }
+  },
+  {
+    "messageText": "arkts-no-props-by-index",
+    "expectLineAndCharacter": {
+      "line": 29,
+      "character": 10
+    }
+  }
+]

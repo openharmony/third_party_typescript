@@ -1,0 +1,44 @@
+[
+  {
+    "messageText": "arkts-unique-names",
+    "expectLineAndCharacter": {
+      "line": 17,
+      "character": 1
+    }
+  },
+  {
+    "messageText": "arkts-unique-names",
+    "expectLineAndCharacter": {
+      "line": 21,
+      "character": 1
+    }
+  },
+  {
+    "messageText": "arkts-no-method-reassignment",
+    "expectLineAndCharacter": {
+      "line": 51,
+      "character": 1
+    }
+  },
+  {
+    "messageText": "arkts-no-prototype-assignment",
+    "expectLineAndCharacter": {
+      "line": 51,
+      "character": 13
+    }
+  },
+  {
+    "messageText": "arkts-no-func-expressions",
+    "expectLineAndCharacter": {
+      "line": 51,
+      "character": 33
+    }
+  },
+  {
+    "messageText": "arkts-no-standalone-this",
+    "expectLineAndCharacter": {
+      "line": 51,
+      "character": 33
+    }
+  }
+]

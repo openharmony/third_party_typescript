@@ -14,7 +14,7 @@
 */
 
 
-// Counterexample：In multilingual applications, use different language keys to access translations.
+// Counterexample: In multilingual applications, use different language keys to access translations.
 interface TranslationMap {
   [language: string]: { [key: string]: string }
 }

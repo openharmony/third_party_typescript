@@ -1,0 +1,9 @@
+[
+  {
+    "messageText": "arkts-no-export-assignment",
+    "expectLineAndCharacter": {
+      "line": 21,
+      "character": 1
+    }
+  }
+]

@@ -1,0 +1,9 @@
+[
+    {
+        "messageText": "arkts-no-ts-deps",
+        "expectLineAndCharacter": {
+            "line": 19,
+            "character": 19
+        }
+    }
+]

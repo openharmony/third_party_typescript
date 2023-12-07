@@ -1,0 +1,9 @@
+[
+    {
+        "messageText": "arkts-no-extend-same-prop",
+        "expectLineAndCharacter": {
+            "line": 28,
+            "character": 1
+        }
+    }
+]

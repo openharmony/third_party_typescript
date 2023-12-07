@@ -1,0 +1,16 @@
+[
+    {
+        "messageText": "arkts-limited-stdlib",
+        "expectLineAndCharacter": {
+            "line": 27,
+            "character": 24
+        }
+    },
+    {
+        "messageText": "arkts-no-classes-as-obj",
+        "expectLineAndCharacter": {
+            "line": 27,
+            "character": 42
+        }
+    }
+]

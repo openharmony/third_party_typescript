@@ -14,7 +14,7 @@
 */
 
 
-// Counterexample：Use the type of interface
+// Counterexample: Use the type of interface
 type Persons = {
   name: string;
   age: number;

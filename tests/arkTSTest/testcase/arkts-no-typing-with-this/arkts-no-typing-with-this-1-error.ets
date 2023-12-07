@@ -12,9 +12,9 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+
+
 // Counterexample: Implementing a reference to this type in an interface
-
-
 interface Self {
   setName(name: string): this;
 }

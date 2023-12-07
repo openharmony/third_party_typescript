@@ -7,7 +7,6 @@
         }
     },
     {
-        "start": "76",
         "messageText": "arkts-no-inferred-generic-params",
         "expectLineAndCharacter": {
             "line": 20,

@@ -14,7 +14,7 @@
  */
 
  
-// Counterexample：Implicit Any Error.
+// Counterexample: Implicit Any Error.
 function processInput(input) {
   // Process input
 }

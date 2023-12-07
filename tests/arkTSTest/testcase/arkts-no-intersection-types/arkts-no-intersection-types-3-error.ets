@@ -14,7 +14,7 @@
 */
 
 
-// Counterexample：Intersection of interfaces: Two or more interfaces can be intersected to generate a new interface that contains all the properties and methods of the original interface
+// Counterexample: Intersection of interfaces: Two or more interfaces can be intersected to generate a new interface that contains all the properties and methods of the original interface
 interface Logger {
   log: (msg: string = '') => msg;
 }

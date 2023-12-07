@@ -14,7 +14,7 @@
  */
 
  
-// Counterexample：Multiple static blocks in class.
+// Counterexample: Multiple static blocks in class.
 let condition1 = true
 let condition2 = false
 

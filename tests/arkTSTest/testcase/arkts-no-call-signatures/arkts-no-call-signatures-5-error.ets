@@ -14,7 +14,7 @@
 */
 
 
-// Counterexample：Declare a type that accepts callback functions as parameters.
+// Counterexample: Declare a type that accepts callback functions as parameters.
 interface CallbackFunction {
   (callback: () => void): void
 }

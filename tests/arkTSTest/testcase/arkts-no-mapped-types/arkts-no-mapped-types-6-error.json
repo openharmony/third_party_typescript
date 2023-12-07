@@ -1,0 +1,18 @@
+[
+  {
+    "realStart": 643,
+    "messageText": "arkts-no-mapped-types",
+    "expectLineAndCharacter": {
+      "line": 17,
+      "character": 22
+    }
+  },
+  {
+    "realStart": 666,
+    "messageText": "arkts-no-aliases-by-index",
+    "expectLineAndCharacter": {
+      "line": 18,
+      "character": 21
+    }
+  }
+]

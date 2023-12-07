@@ -1,0 +1,44 @@
+[
+  {
+    "messageText": "arkts-no-func-expressions",
+    "expectLineAndCharacter": {
+      "line": 38,
+      "character": 22
+    }
+  },
+  {
+    "messageText": "arkts-no-standalone-this",
+    "expectLineAndCharacter": {
+      "line": 38,
+      "character": 22
+    }
+  },
+  {
+    "messageText": "arkts-no-func-apply-bind-call",
+    "expectLineAndCharacter": {
+      "line": 40,
+      "character": 5
+    }
+  },
+  {
+    "messageText": "arkts-limited-stdlib",
+    "expectLineAndCharacter": {
+      "line": 51,
+      "character": 26
+    }
+  },
+  {
+    "messageText": "arkts-no-prototype-assignment",
+    "expectLineAndCharacter": {
+      "line": 52,
+      "character": 11
+    }
+  },
+  {
+    "messageText": "arkts-no-prototype-assignment",
+    "expectLineAndCharacter": {
+      "line": 57,
+      "character": 27
+    }
+  }
+]
