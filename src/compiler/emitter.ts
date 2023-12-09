@@ -899,6 +899,7 @@ namespace ts {
         const newLine = getNewLineCharacter(printerOptions);
         const moduleKind = getEmitModuleKind(printerOptions);
         const bundledHelpers = new Map<string, boolean>();
+        let removeCommentsCollection: string[] | undefined = [];
 
         let currentSourceFile: SourceFile | undefined;
         let nodeIdToGeneratedName: string[]; // Map of generated names for specific nodes.
@@ -1145,6 +1146,7 @@ namespace ts {
         }
 
         function writeFile(sourceFile: SourceFile, output: EmitTextWriter, sourceMapGenerator: SourceMapGenerator | undefined) {
+            removeCommentsCollection = sourceFile?.reservedComments;
             isOwnFileEmit = true;
             const previousWriter = writer;
             setWriter(output, sourceMapGenerator);
@@ -5467,7 +5469,10 @@ namespace ts {
             const savedContainerPos = containerPos;
             const savedContainerEnd = containerEnd;
             const savedDeclarationListContainerEnd = declarationListContainerEnd;
-            emitCommentsBeforeNode(node);
+            //@ts-ignore
+            if(removeCommentsCollection == undefined || (removeCommentsCollection && node.name && removeCommentsCollection.includes(node.name.escapedText))) {
+                emitCommentsBeforeNode(node);
+            }
             pipelinePhase(hint, node);
             emitCommentsAfterNode(node, savedContainerPos, savedContainerEnd, savedDeclarationListContainerEnd);
         }

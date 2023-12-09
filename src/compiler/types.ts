@@ -4001,7 +4001,7 @@ namespace ts {
         readonly kind: SyntaxKind.SourceFile;
         readonly statements: NodeArray<Statement>;
         readonly endOfFileToken: Token<SyntaxKind.EndOfFileToken>;
-
+        reservedComments?: string[];
         fileName: string;
         /* @internal */ path: Path;
         text: string;
