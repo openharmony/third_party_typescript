@@ -1,0 +1,9 @@
+[
+  {
+    "messageText": "arkts-no-implicit-return-types",
+    "expectLineAndCharacter": {
+      "line": 23,
+      "character": 1
+    }
+  }
+]

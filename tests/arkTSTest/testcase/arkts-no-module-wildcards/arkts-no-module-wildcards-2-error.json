@@ -1,0 +1,23 @@
+[
+    {
+      "messageText": "arkts-no-ambient-decls",
+      "expectLineAndCharacter": {
+        "line": 17,
+        "character": 1
+      }
+    },
+    {
+      "messageText": "arkts-no-module-wildcard",
+      "expectLineAndCharacter": {
+        "line": 17,
+        "character": 1
+      }
+    },
+    {
+      "messageText": "arkts-no-misplaced-imports",
+      "expectLineAndCharacter": {
+        "line": 31,
+        "character": 1
+      }
+    }
+  ]

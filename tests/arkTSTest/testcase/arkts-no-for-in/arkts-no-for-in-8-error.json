@@ -1,0 +1,26 @@
+[
+  {
+    "realStart": 679,
+    "messageText": "arkts-limited-esobj",
+    "expectLineAndCharacter": {
+      "line": 20,
+      "character": 7
+    }
+  },
+  {
+    "realStart": 944,
+    "messageText": "arkts-limited-esobj",
+    "expectLineAndCharacter": {
+      "line": 33,
+      "character": 3
+    }
+  },
+  {
+    "realStart": 1027,
+    "messageText": "arkts-no-for-in",
+    "expectLineAndCharacter": {
+      "line": 36,
+      "character": 1
+    }
+  }
+]

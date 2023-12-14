@@ -14,7 +14,7 @@
 */
 
 
-// Counterexample： Use any or unknown when defining the formal parameters of a function.
+// Counterexample: Use any or unknown when defining the formal parameters of a function.
 function greet(name: any ): void {
   console.log(`${name},test`)
 }

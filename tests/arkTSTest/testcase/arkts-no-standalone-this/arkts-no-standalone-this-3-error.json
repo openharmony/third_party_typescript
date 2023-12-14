@@ -1,0 +1,51 @@
+[
+  {
+    "messageText": "arkts-no-method-reassignment",
+    "expectLineAndCharacter": {
+      "line": 22,
+      "character": 1
+    }
+  },
+  {
+    "messageText": "arkts-no-func-props",
+    "expectLineAndCharacter": {
+      "line": 22,
+      "character": 1
+    }
+  },
+  {
+    "messageText": "arkts-no-func-expressions",
+    "expectLineAndCharacter": {
+      "line": 22,
+      "character": 26
+    }
+  },
+  {
+    "messageText": "arkts-no-standalone-this",
+    "expectLineAndCharacter": {
+      "line": 22,
+      "character": 26
+    }
+  },
+  {
+    "messageText": "arkts-no-method-reassignment",
+    "expectLineAndCharacter": {
+      "line": 26,
+      "character": 1
+    }
+  },
+  {
+    "messageText": "arkts-no-func-props",
+    "expectLineAndCharacter": {
+      "line": 26,
+      "character": 1
+    }
+  },
+  {
+    "messageText": "arkts-no-func-expressions",
+    "expectLineAndCharacter": {
+      "line": 26,
+      "character": 36
+    }
+  }
+]

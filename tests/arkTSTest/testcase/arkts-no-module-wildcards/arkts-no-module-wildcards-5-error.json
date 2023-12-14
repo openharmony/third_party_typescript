@@ -1,0 +1,59 @@
+[
+    {
+      "messageText": "arkts-no-ns-statements",
+      "expectLineAndCharacter": {
+        "line": 18,
+        "character": 30
+      }
+    },
+
+    {
+      "messageText": "arkts-no-ns-statements",
+      "expectLineAndCharacter": {
+        "line": 18,
+        "character": 41
+      }
+    },
+    {
+      "messageText": "arkts-no-ns-statements",
+      "expectLineAndCharacter": {
+        "line": 18,
+        "character": 50
+      }
+    },
+    {
+      "messageText": "arkts-no-ambient-decls",
+      "expectLineAndCharacter": {
+        "line": 17,
+        "character": 1
+      }
+    },
+    {
+      "messageText": "arkts-no-module-wildcard",
+      "expectLineAndCharacter": {
+        "line": 17,
+        "character": 1
+      }
+    },
+    {
+      "messageText": "arkts-no-implicit-return-types",
+      "expectLineAndCharacter": {
+        "line": 18,
+        "character": 3
+      }
+    },
+    {
+      "messageText": "arkts-no-untyped-obj-literals",
+      "expectLineAndCharacter": {
+        "line": 18,
+        "character": 55
+      }
+    },
+    {
+      "messageText": "arkts-no-misplaced-imports",
+      "expectLineAndCharacter": {
+        "line": 23,
+        "character": 1
+      }
+    }
+  ]

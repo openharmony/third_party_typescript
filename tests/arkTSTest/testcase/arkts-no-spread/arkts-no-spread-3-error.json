@@ -1,0 +1,9 @@
+[
+    {
+        "messageText": "arkts-no-spread",
+        "expectLineAndCharacter": {
+            "line": 26,
+            "character": 24
+        }
+    }
+]

@@ -1,0 +1,16 @@
+[
+  {
+    "messageText": "arkts-limited-throw",
+    "expectLineAndCharacter": {
+      "line": 19,
+      "character": 1
+    }
+  },
+  {
+    "messageText": "arkts-no-func-expressions",
+    "expectLineAndCharacter": {
+      "line": 19,
+      "character": 7
+    }
+  }
+]

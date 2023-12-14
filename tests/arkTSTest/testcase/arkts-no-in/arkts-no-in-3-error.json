@@ -1,0 +1,17 @@
+[
+    {
+      "messageText": "arkts-no-in",
+      "expectLineAndCharacter": {
+        "line": 22,
+        "character": 23
+      }
+    },
+    {
+      "messageText": "arkts-no-in",
+      "expectLineAndCharacter": {
+        "line": 23,
+        "character": 20
+      }
+    }
+  ]
+  

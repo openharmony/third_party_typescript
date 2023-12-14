@@ -1,0 +1,23 @@
+[
+  {
+    "messageText": "arkts-no-any-unknown",
+    "expectLineAndCharacter": {
+      "line": 22,
+      "character": 7
+    }
+  },
+  {
+    "messageText": "arkts-no-types-in-catch",
+    "expectLineAndCharacter": {
+      "line": 23,
+      "character": 3
+    }
+  },
+  {
+    "messageText": "arkts-no-any-unknown",
+    "expectLineAndCharacter": {
+      "line": 23,
+      "character": 17
+    }
+  }
+]

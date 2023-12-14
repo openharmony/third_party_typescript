@@ -1,0 +1,26 @@
+[
+  {
+    "realStart": 630,
+    "messageText": "arkts-no-for-in",
+    "expectLineAndCharacter": {
+      "line": 19,
+      "character": 1
+    }
+  },
+  {
+    "realStart": 657,
+    "messageText": "arkts-no-any-unknown",
+    "expectLineAndCharacter": {
+      "line": 19,
+      "character": 28
+    }
+  },
+  {
+    "realStart": 701,
+    "messageText": "arkts-no-any-unknown",
+    "expectLineAndCharacter": {
+      "line": 20,
+      "character": 38
+    }
+  }
+]

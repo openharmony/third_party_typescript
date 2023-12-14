@@ -1,0 +1,9 @@
+[
+    {
+        "messageText": "arkts-no-ns-as-obj",
+        "expectLineAndCharacter": {
+            "line": 22,
+            "character": 11
+        }
+    }
+  ]

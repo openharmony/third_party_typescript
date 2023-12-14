@@ -1,0 +1,10 @@
+[
+  {
+    "realStart": 715,
+    "messageText": "arkts-no-utility-types",
+    "expectLineAndCharacter": {
+      "line": 23,
+      "character": 14
+    }
+  }
+]

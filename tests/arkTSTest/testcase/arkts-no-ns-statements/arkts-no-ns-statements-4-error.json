@@ -1,0 +1,16 @@
+[
+    {
+        "messageText": "arkts-no-ns-statements",
+        "expectLineAndCharacter": {
+            "line": 36,
+            "character": 3
+        }
+    },
+    {
+        "messageText": "arkts-no-ns-statements",
+        "expectLineAndCharacter": {
+            "line": 39,
+            "character": 3
+        }
+    }
+]

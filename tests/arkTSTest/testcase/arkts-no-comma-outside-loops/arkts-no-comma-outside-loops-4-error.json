@@ -1,0 +1,17 @@
+[
+    {
+      "messageText": "arkts-no-comma-outside-loops",
+      "expectLineAndCharacter": {
+        "line": 19,
+        "character": 12
+      }
+    },
+    {
+      "messageText": "arkts-no-comma-outside-loops",
+      "expectLineAndCharacter": {
+        "line": 19,
+        "character": 12
+      }
+    }
+  ]
+  

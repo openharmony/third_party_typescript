@@ -1,0 +1,10 @@
+[
+    {
+      "messageText": "arkts-instanceof-ref-types",
+      "expectLineAndCharacter": {
+        "line": 17,
+        "character": 13
+      }
+    }
+  ]
+  
