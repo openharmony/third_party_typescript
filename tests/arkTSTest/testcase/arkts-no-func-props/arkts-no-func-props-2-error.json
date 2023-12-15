@@ -1,0 +1,30 @@
+[
+    {
+        "messageText": "arkts-no-method-reassignment",
+        "expectLineAndCharacter": {
+            "line": 21,
+            "character": 1
+        }
+    },
+    {
+        "messageText": "arkts-no-func-props",
+        "expectLineAndCharacter": {
+            "line": 21,
+            "character": 1
+        }
+    },
+    {
+        "messageText": "arkts-no-method-reassignment",
+        "expectLineAndCharacter": {
+            "line": 25,
+            "character": 1
+        }
+    },
+    {
+        "messageText": "arkts-no-func-props",
+        "expectLineAndCharacter": {
+            "line": 25,
+            "character": 1
+        }
+    }
+]

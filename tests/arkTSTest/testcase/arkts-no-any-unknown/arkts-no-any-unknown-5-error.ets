@@ -14,7 +14,7 @@
 */
 
 
-// Counterexample：Use any or unknown when defining attributes in a class.
+// Counterexample: Use any or unknown when defining attributes in a class.
 class Person {
   name: any = 'xxx'
 }

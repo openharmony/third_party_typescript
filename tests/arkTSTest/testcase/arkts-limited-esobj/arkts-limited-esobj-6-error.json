@@ -1,0 +1,16 @@
+[
+  {
+    "messageText": "arkts-limited-esobj",
+    "expectLineAndCharacter": {
+      "line": 19,
+      "character": 7
+    }
+  },
+  {
+    "messageText": "arkts-limited-esobj",
+    "expectLineAndCharacter": {
+      "line": 20,
+      "character": 3
+    }
+  }
+]

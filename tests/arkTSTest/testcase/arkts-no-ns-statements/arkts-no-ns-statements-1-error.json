@@ -1,9 +1,9 @@
 [
-    {
-        "messageText": "arkts-no-ns-statements",
-        "expectLineAndCharacter": {
-            "line": 19,
-            "character": 3
-        }
+  {
+    "messageText": "arkts-no-ns-statements",
+    "expectLineAndCharacter": {
+      "line": 19,
+      "character": 3
     }
+  }
 ]

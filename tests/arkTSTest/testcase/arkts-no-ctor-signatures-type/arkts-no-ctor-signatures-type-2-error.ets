@@ -14,7 +14,7 @@
 */
 
 
-// Counterexample：Interface Literal Mode Constructor Signature.
+// Counterexample: Interface Literal Mode Constructor Signature.
 class Person {
   n: string = ''
   a: number = 0

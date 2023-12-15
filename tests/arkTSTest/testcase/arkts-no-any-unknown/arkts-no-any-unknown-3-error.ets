@@ -14,7 +14,7 @@
 */
 
 
-// Counterexample：Use any or unknown when defining the return value of a function.
+// Counterexample: Use any or unknown when defining the return value of a function.
 function add(x: number, y: number): any {
   return x + y
 }

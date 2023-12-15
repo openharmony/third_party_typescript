@@ -1,0 +1,30 @@
+[    
+    {
+        "messageText": "arkts-no-standalone-this",
+        "expectLineAndCharacter": {
+            "line": 17,
+            "character": 1
+        }
+    },
+    {
+        "messageText": "arkts-no-utility-types",
+        "expectLineAndCharacter": {
+            "line": 21,
+            "character": 18
+        }
+    },
+    {
+        "messageText": "arkts-no-type-query",
+        "expectLineAndCharacter": {
+            "line": 21,
+            "character": 36
+        }
+    },
+    {
+        "messageText": "arkts-no-func-apply-bind-call",
+        "expectLineAndCharacter": {
+            "line": 21,
+            "character": 52
+        }
+    }
+]

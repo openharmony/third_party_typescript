@@ -1,0 +1,23 @@
+[
+    {
+        "messageText": "arkts-strict-typing-required",
+        "expectLineAndCharacter": {
+            "line": 19,
+            "character": 1
+        }
+    },
+    {
+        "messageText": "arkts-strict-typing-required",
+        "expectLineAndCharacter": {
+            "line": 22,
+            "character": 1
+        }
+    },
+    {
+        "messageText": "arkts-strict-typing-required",
+        "expectLineAndCharacter": {
+            "line": 25,
+            "character": 1
+        }
+    }
+]

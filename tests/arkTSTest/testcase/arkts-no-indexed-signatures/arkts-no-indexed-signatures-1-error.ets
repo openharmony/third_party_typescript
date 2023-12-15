@@ -14,7 +14,7 @@
 */
 
 
-// Counterexample：Simulate dictionary objects and use string keys to access values.
+// Counterexample: Simulate dictionary objects and use string keys to access values.
 interface Dictionary {
   [key: string]: string
 }

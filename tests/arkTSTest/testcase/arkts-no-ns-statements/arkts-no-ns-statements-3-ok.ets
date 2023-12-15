@@ -13,11 +13,11 @@
  * limitations under the License.
  */
 
- 
-namespace MyNamespace {
-    let bar = 10
 
-    function foo() {
-        console.log('Hello, world!')
-    }
+namespace MyNamespace {
+  let bar = 10
+
+  function foo() {
+    console.log('Hello, world!')
+  }
 }

@@ -14,7 +14,7 @@
 */
 
 
-// Counterexample：Call to use any or unknown when defining generics.
+// Counterexample: Call to use any or unknown when defining generics.
 function identity<T>(arg: T): T {
   return arg
 }

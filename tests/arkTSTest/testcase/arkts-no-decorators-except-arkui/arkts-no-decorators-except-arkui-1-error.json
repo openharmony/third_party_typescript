@@ -1,0 +1,9 @@
+[
+  {
+    "messageText": "arkts-no-decorators-except-arkui",
+    "expectLineAndCharacter": {
+      "line": 25,
+      "character": 1
+    }
+  }
+]

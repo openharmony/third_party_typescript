@@ -14,7 +14,7 @@
 */
 
 
-// Counterexample：Using construction signatures in objects.
+// Counterexample: Using construction signatures in objects.
 interface Person {
   name: string
   age: number

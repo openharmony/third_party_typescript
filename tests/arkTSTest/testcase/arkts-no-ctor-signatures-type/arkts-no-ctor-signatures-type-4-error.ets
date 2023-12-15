@@ -14,7 +14,7 @@
 */
 
 
-// Counterexample：Using construction signatures in objects.
+// Counterexample: Using construction signatures in objects.
 class SomeObject {}
 
 type SomeConstructor = {

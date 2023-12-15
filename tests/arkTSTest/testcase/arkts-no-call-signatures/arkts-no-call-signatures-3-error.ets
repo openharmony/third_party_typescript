@@ -14,7 +14,7 @@
 */
 
 
-// Counterexample：Declare a type that accepts a variable number of parameters and returns their sum.
+// Counterexample: Declare a type that accepts a variable number of parameters and returns their sum.
 interface SumFunction {
   (...numbers: number[]): number
 }

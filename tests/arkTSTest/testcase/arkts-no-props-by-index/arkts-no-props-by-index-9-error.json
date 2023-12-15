@@ -1,6 +1,5 @@
 [
     {
-        "start": "38",
         "messageText": "arkts-no-untyped-obj-literals",
         "expectLineAndCharacter": {
             "line": 18,
@@ -8,7 +7,6 @@
         }
     },
     {
-        "start": "110",
         "messageText": "arkts-no-props-by-index",
         "expectLineAndCharacter": {
             "line": 23,

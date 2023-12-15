@@ -15,10 +15,10 @@
 
 
 namespace MyNamespace {
-    let sVar = 10
-    console.log(sVar)
+  let sVar = 10
+  console.log(sVar)
 
-    function foo() {
-        console.log('Hello, world!')
-    }
+  function foo() {
+    console.log('Hello, world!')
+  }
 }

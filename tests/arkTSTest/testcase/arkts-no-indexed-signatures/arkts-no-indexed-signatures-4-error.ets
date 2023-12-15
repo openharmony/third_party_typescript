@@ -14,7 +14,7 @@
 */
 
 
-// Counterexample：Process dynamically generated form fields, using string keys to represent field names and value types.
+// Counterexample: Process dynamically generated form fields, using string keys to represent field names and value types.
 interface FormFields {
   [fieldName: string]: string | number | boolean
 }

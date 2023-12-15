@@ -1,0 +1,16 @@
+[
+  {
+    "messageText": "arkts-no-any-unknown",
+    "expectLineAndCharacter": {
+      "line": 21,
+      "character": 11
+    }
+  },
+  {
+    "messageText": "arkts-no-decorators-except-arkui",
+    "expectLineAndCharacter": {
+      "line": 32,
+      "character": 3
+    }
+  }
+]

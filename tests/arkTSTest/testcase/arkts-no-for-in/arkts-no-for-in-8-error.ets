@@ -16,7 +16,7 @@
 
 import { JSDOM } from "jsdom";
 
-// 创建一个虚拟的浏览器环境
+// Create a virtual browser environment
 const dom: ESObject = new JSDOM(`<!DOCTYPE html><div>1</div>
 <div>2</div>
 <div>3</div>
@@ -28,11 +28,11 @@ const dom: ESObject = new JSDOM(`<!DOCTYPE html><div>1</div>
 <div>9</div>
 <div>10</div>`);
 
-// 在虚拟浏览器环境中获取 div 元素
+// Get div elements in a virtual browser environment
 const nodeList: HTMLCollectionOf<HTMLDivElement> =
   dom.window.document.getElementsByTagName("div");
 
-// 遍历 nodeList 并打印其 innerText
+// Traverse the nodeList and print its innerText
 for (let key in nodeList) {
   console.log(nodeList[key].textContent);
 }

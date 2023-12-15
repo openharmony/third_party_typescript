@@ -14,7 +14,7 @@
 */
 
 
-// Counterexample：Declare a class type that accepts string parameters and returns their length.
+// Counterexample: Declare a class type that accepts string parameters and returns their length.
 interface LengthFunction {
   (str: string): number
 }

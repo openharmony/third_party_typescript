@@ -14,7 +14,7 @@
  */
 
  
-// Counterexample：Multiple static blocks in class.
+// Counterexample: Multiple static blocks in class.
 class MyClass {
   static {
     console.log('Static block 1')

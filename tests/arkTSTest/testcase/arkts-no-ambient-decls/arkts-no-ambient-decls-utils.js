@@ -13,39 +13,41 @@
  * limitations under the License.
  */
 
+
 function multiply(a, b) {
-  return a * b
+  return a * b;
 }
 
-const version = '@3.3.1'
+const version = "@3.3.1";
 
 class MyClass {
   constructor(name) {
-    this.name = name
+    this.name = name;
   }
 
   sayHello() {
-    console.log(`Hello, ${this.name}!`)
+    console.log(`Hello, ${this.name}!`);
   }
 }
 
-let MyNamespace
-;(function (MyNamespace) {
+let MyNamespace;
+(function (MyNamespace) {
   function sayHello(name) {
-    console.log(`Hello, ${name}!`)
+    console.log(`Hello, ${name}!`);
   }
-  MyNamespace.sayHello = sayHello
-})(MyNamespace || (MyNamespace = {}))
-;('use strict')
-var MyEnum
-;(function (MyEnum) {
-  MyEnum[(MyEnum['Option1'] = 1)] = 'Option1'
-  MyEnum[(MyEnum['Option2'] = 2)] = 'Option2'
-  MyEnum[(MyEnum['Option3'] = 3)] = 'Option3'
-})(MyEnum || (MyEnum = {}))
+  MyNamespace.sayHello = sayHello;
+})(MyNamespace || (MyNamespace = {}));
+
+("use strict");
+var MyEnum;
+(function (MyEnum) {
+  MyEnum[(MyEnum["Option1"] = 1)] = "Option1";
+  MyEnum[(MyEnum["Option2"] = 2)] = "Option2";
+  MyEnum[(MyEnum["Option3"] = 3)] = "Option3";
+})(MyEnum || (MyEnum = {}));
 
 module.exports = {
   version,
   multiply: multiply,
   MyClass,
-}
+};

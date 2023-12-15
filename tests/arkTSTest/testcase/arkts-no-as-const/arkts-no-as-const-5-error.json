@@ -1,0 +1,24 @@
+[
+    {
+      "messageText": "arkts-no-as-const",
+      "expectLineAndCharacter": {
+        "line": 17,
+        "character": 16
+      }
+    },
+    {
+      "messageText": "arkts-no-untyped-obj-literals",
+      "expectLineAndCharacter": {
+        "line": 17,
+        "character": 16
+      }
+    },
+    {
+      "messageText": "arkts-no-untyped-obj-literals",
+      "expectLineAndCharacter": {
+        "line": 18,
+        "character": 10
+      }
+    }
+  ]
+  

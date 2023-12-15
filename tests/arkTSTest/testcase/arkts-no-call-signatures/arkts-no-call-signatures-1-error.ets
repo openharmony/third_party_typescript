@@ -14,7 +14,7 @@
 */
 
 
-// Counterexample：Declare a type that accepts two parameters and returns their sum.
+// Counterexample: Declare a type that accepts two parameters and returns their sum.
 interface MathOperation {
   (x: number, y: number): number
 }

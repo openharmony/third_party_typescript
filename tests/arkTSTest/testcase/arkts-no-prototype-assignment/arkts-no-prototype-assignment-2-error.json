@@ -1,0 +1,9 @@
+[
+  {
+    "messageText": "arkts-no-prototype-assignment",
+    "expectLineAndCharacter": {
+      "line": 38,
+      "character": 8
+    }
+  }
+]

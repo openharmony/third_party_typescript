@@ -1,0 +1,44 @@
+[
+  {
+    "messageText": "arkts-no-any-unknown",
+    "expectLineAndCharacter": {
+      "line": 26,
+      "character": 37
+    }
+  },
+  {
+    "messageText": "arkts-no-any-unknown",
+    "expectLineAndCharacter": {
+      "line": 32,
+      "character": 9
+    }
+  },
+  {
+    "messageText": "arkts-no-func-expressions",
+    "expectLineAndCharacter": {
+      "line": 34,
+      "character": 17
+    }
+  },
+  {
+    "messageText": "arkts-no-standalone-this",
+    "expectLineAndCharacter": {
+      "line": 34,
+      "character": 17
+    }
+  },
+  {
+    "messageText": "arkts-no-implicit-return-types",
+    "expectLineAndCharacter": {
+      "line": 34,
+      "character": 17
+    }
+  },
+  {
+    "messageText": "arkts-no-any-unknown",
+    "expectLineAndCharacter": {
+      "line": 34,
+      "character": 36
+    }
+  }
+]

@@ -14,7 +14,7 @@
 */
 
 
-// Counterexample：Using construction signatures in classes.
+// Counterexample: Using construction signatures in classes.
 class Controller {
   value: number = 0
 

@@ -14,7 +14,7 @@
 */
 
 
-// Counterexample：Crossing of object types: Two or more object types can be crossed to generate a new object type that contains all the properties and methods of the original type
+// Counterexample: Crossing of object types: Two or more object types can be crossed to generate a new object type that contains all the properties and methods of the original type
 interface Person { name: string; age: number};
 interface Employee { id: number; department: string};
 

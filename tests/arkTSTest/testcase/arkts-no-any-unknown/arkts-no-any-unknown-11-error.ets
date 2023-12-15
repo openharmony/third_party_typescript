@@ -14,6 +14,6 @@
  */
 
  
-// Counterexample：Implicit Any Error.
+// Counterexample: Implicit Any Error.
 let anyValue
 let stringValue = anyValue

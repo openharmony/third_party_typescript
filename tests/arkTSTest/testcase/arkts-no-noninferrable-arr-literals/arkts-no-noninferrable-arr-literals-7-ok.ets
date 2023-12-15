@@ -21,7 +21,7 @@ class student {
 }
 
 const studentList = [
-  { name: "Tom", age: 18, score: [90, 85, 92] } as student,
-  { name: "Peter", age: 20, score: [78, 80, 88] } as student,
-  { name: "Jerry", age: 19, score: [95, 91, 89] } as student,
+  { name: "张三", age: 18, score: [90, 85, 92] } as student,
+  { name: "李四", age: 20, score: [78, 80, 88] } as student,
+  { name: "王五", age: 19, score: [95, 91, 89] } as student,
 ];

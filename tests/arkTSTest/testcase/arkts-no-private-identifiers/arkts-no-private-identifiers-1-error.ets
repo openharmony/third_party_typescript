@@ -23,6 +23,3 @@ class Person {
     console.log(`Hello, my name is ${this.#name}`);
   }
 }
-// let p = new Person("hu");
-// console.log(p.greet());
-// Counterexample: Basic private field

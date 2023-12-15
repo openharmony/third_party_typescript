@@ -1,0 +1,10 @@
+[
+    
+    {
+        "messageText": "arkts-limited-stdlib",
+        "expectLineAndCharacter": {
+            "line": 27,
+            "character": 13
+        }
+    }
+]

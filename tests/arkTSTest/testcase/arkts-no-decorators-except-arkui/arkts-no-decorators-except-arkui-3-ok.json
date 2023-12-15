@@ -1,0 +1,16 @@
+[
+  {
+    "messageText": "arkts-no-prototype-assignment",
+    "expectLineAndCharacter": {
+      "line": 25,
+      "character": 31
+    }
+  },
+  {
+    "messageText": "arkts-no-any-unknown",
+    "expectLineAndCharacter": {
+      "line": 29,
+      "character": 36
+    }
+  }
+]
