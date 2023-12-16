@@ -1063,6 +1063,8 @@ export const ARKUI_DECORATORS = [
     "StorageProp",
     "Styles",
     "Watch",
+    "Require",
+    "Track",
 ];
 
 export const FUNCTION_HAS_NO_RETURN_ERROR_CODE = 2366;
