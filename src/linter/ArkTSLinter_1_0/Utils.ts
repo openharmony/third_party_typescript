@@ -46,6 +46,10 @@ export function setTypeChecker(tsTypeChecker: TypeChecker): void {
   typeChecker = tsTypeChecker;
 }
 
+export function clearTypeChecker(): void {
+  typeChecker = {} as TypeChecker;
+}
+
 let testMode = false;
 export function setTestMode(tsTestMode: boolean): void {
   testMode = tsTestMode;
@@ -247,6 +251,10 @@ export function trueSymbolAtLocation(node: Node): Symbol | undefined {
   sym = followIfAliased(sym);
   cache.set(node, sym);
   return sym;
+}
+
+export function clearTrueSymbolAtLocationCache(): void {
+  trueSymbolAtLocationCache.clear();
 }
 
 export function isTypeDeclSyntaxKind(kind: SyntaxKind) {
