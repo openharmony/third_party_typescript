@@ -627,6 +627,9 @@ namespace Harness.LanguageService {
         getProgram(): ts.Program {
             throw new Error("Program can not be marshaled across the shim layer.");
         }
+        getBuilderProgram(): ts.BuilderProgram | undefined {
+            throw new Error("Program can not be marshaled across the shim layer.");
+        }
         getCurrentProgram(): ts.Program | undefined {
             throw new Error("Program can not be marshaled across the shim layer.");
         }

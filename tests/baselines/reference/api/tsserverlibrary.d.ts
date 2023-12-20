@@ -6386,6 +6386,7 @@ declare namespace ts {
         getEditsForFileRename(oldFilePath: string, newFilePath: string, formatOptions: FormatCodeSettings, preferences: UserPreferences | undefined): readonly FileTextChanges[];
         getEmitOutput(fileName: string, emitOnlyDtsFiles?: boolean, forceDtsEmit?: boolean): EmitOutput;
         getProgram(): Program | undefined;
+        getBuilderProgram(): BuilderProgram | undefined;
         toggleLineComment(fileName: string, textRange: TextRange): TextChange[];
         toggleMultilineComment(fileName: string, textRange: TextRange): TextChange[];
         commentSelection(fileName: string, textRange: TextRange): TextChange[];
@@ -12938,9 +12939,11 @@ declare namespace ts {
         class TSCCompiledProgram {
             private diagnosticsExtractor;
             private wasStrict;
-            constructor(program: Program, host: CompilerHost);
+            constructor(program: BuilderProgram, host: CompilerHost);
             getOriginalProgram(): Program;
             getStrictProgram(): Program;
+            getStrictBuilderProgram(): BuilderProgram;
+            getNonStrictBuilderProgram(): BuilderProgram;
             getStrictDiagnostics(fileName: string): Diagnostic[];
         }
     }
@@ -12948,7 +12951,7 @@ declare namespace ts {
 declare namespace ts {
     namespace ArkTSLinter_1_0 {
         function translateDiag(srcFile: SourceFile, problemInfo: ProblemInfo): Diagnostic;
-        function runArkTSLinter(tsProgram: Program, host: CompilerHost, srcFile?: SourceFile): Diagnostic[];
+        function runArkTSLinter(tsBuilderProgram: BuilderProgram, host: CompilerHost, srcFile?: SourceFile, buildInfoWriteFile?: WriteFileCallback): Diagnostic[];
     }
 }
 declare namespace ts {
@@ -13099,7 +13102,7 @@ declare namespace ts {
             function isStructDeclaration(node: Node): boolean;
             function isStructObjectInitializer(objectLiteral: ObjectLiteralExpression): boolean;
             function hasMethods(type: Type): boolean;
-            function getNonNullableType(t: ts.Type): Type;
+            function getNonNullableType(t: ts.Type): ts.Type;
             function isObjectLiteralAssignable(lhsType: ts.Type | undefined, rhsExpr: ts.ObjectLiteralExpression): boolean;
             function isLiteralType(type: Type): boolean;
             function validateFields(objectType: Type, objectLiteral: ObjectLiteralExpression): boolean;
@@ -13436,9 +13439,11 @@ declare namespace ts {
         class TSCCompiledProgram {
             private diagnosticsExtractor;
             private wasStrict;
-            constructor(program: Program, host: CompilerHost);
+            constructor(program: BuilderProgram, host: CompilerHost);
             getOriginalProgram(): Program;
             getStrictProgram(): Program;
+            getStrictBuilderProgram(): BuilderProgram;
+            getNonStrictBuilderProgram(): BuilderProgram;
             getStrictDiagnostics(fileName: string): Diagnostic[];
         }
     }
@@ -13446,7 +13451,7 @@ declare namespace ts {
 declare namespace ts {
     namespace ArkTSLinter_1_1 {
         function translateDiag(srcFile: SourceFile, problemInfo: ProblemInfo): Diagnostic;
-        function runArkTSLinter(tsProgram: Program, host: CompilerHost, srcFile?: SourceFile): Diagnostic[];
+        function runArkTSLinter(tsBuilderProgram: BuilderProgram, host: CompilerHost, srcFile?: SourceFile, buildInfoWriteFile?: WriteFileCallback): Diagnostic[];
     }
 }
 

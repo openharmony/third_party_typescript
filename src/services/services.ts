@@ -1241,6 +1241,7 @@ namespace ts {
 
         const syntaxTreeCache: SyntaxTreeCache = new SyntaxTreeCache(host);
         let program: Program;
+        let builderProgram: BuilderProgram;
         let lastProjectVersion: string;
         let lastTypesRootVersion = 0;
 
@@ -1287,7 +1288,7 @@ namespace ts {
             return sourceFile;
         }
 
-        function synchronizeHostData(): void {
+        function synchronizeHostData(isCreateIncrementalProgramMode: boolean = false): void {
             Debug.assert(languageServiceMode !== LanguageServiceMode.Syntactic);
             // perform fast check if host supports it
             if (host.getProjectVersion) {
@@ -1404,7 +1405,13 @@ namespace ts {
                 oldProgram: program,
                 projectReferences
             };
-            program = createProgram(options);
+
+            if (isCreateIncrementalProgramMode) {
+                builderProgram = createIncrementalProgram(options);
+                program = builderProgram.getProgram();
+            } else {
+                program = createProgram(options);
+            }
 
             // 'getOrCreateSourceFile' depends on caching but should be used past this point.
             // After this point, the cache needs to be cleared to allow all collected snapshots to be released
@@ -1540,6 +1547,17 @@ namespace ts {
             synchronizeHostData();
 
             return program;
+        }
+
+        function getBuilderProgram(): BuilderProgram | undefined {
+            if (languageServiceMode === LanguageServiceMode.Syntactic) {
+                Debug.assert(builderProgram === undefined);
+                return undefined;
+            }
+
+            synchronizeHostData(isIncrementalCompilation(host.getCompilationSettings()));
+
+            return builderProgram;
         }
 
         function getAutoImportProvider(): Program | undefined {
@@ -2721,6 +2739,7 @@ namespace ts {
             getEmitOutput,
             getNonBoundSourceFile,
             getProgram,
+            getBuilderProgram,
             getCurrentProgram: () => program,
             getAutoImportProvider,
             updateIsDefinitionOfReferencedSymbols,

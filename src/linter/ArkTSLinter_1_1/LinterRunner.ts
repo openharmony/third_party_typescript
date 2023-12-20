@@ -26,14 +26,14 @@ export function translateDiag(srcFile: SourceFile, problemInfo: ProblemInfo): Di
   return makeDiag(severity, LINTER_MSG_CODE_START /*+ problemInfo.ruleTag */, srcFile , problemInfo.start, (problemInfo.end - problemInfo.start + 1), problemInfo.rule);
 }
 
-export function runArkTSLinter(tsProgram: Program, host: CompilerHost, srcFile?: SourceFile): Diagnostic[] {
+export function runArkTSLinter(tsBuilderProgram: BuilderProgram, host: CompilerHost, srcFile?: SourceFile, buildInfoWriteFile?: WriteFileCallback): Diagnostic[] {
   TypeScriptLinter.errorLineNumbersString = "";
   TypeScriptLinter.warningLineNumbersString = "";
   let diagnostics: Diagnostic[] = [];
 
   LinterConfig.initStatic();
 
-  const tscDiagnosticsLinter = new TSCCompiledProgram(tsProgram, host);
+  const tscDiagnosticsLinter = new TSCCompiledProgram(tsBuilderProgram, host);
   const strictProgram = tscDiagnosticsLinter.getStrictProgram();
 
   let srcFiles: SourceFile[] = [];
@@ -45,6 +45,11 @@ export function runArkTSLinter(tsProgram: Program, host: CompilerHost, srcFile?:
   }
 
   const tscStrictDiagnostics = getTscDiagnostics(tscDiagnosticsLinter, srcFiles);
+
+  if (!!buildInfoWriteFile) {
+    tscDiagnosticsLinter.getStrictBuilderProgram().emitBuildInfo(buildInfoWriteFile);
+    tscDiagnosticsLinter.getNonStrictBuilderProgram().emitBuildInfo(buildInfoWriteFile);
+  }
 
   TypeScriptLinter.initGlobals();
 

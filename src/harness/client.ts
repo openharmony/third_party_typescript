@@ -876,6 +876,10 @@ namespace ts.server {
             throw new Error("Program objects are not serializable through the server protocol.");
         }
 
+        getBuilderProgram(): BuilderProgram | undefined {
+            throw new Error("Program objects are not serializable through the server protocol.");
+        }
+
         getCurrentProgram(): Program | undefined {
             throw new Error("Program objects are not serializable through the server protocol.");
         }
