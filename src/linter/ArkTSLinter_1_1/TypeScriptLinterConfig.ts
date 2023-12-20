@@ -54,7 +54,6 @@ export class LinterConfig {
     LinterConfig.nodeDesc[FaultID.UnknownType] = "\"unknown\" type";
     LinterConfig.nodeDesc[FaultID.ForInStatement] = "\"for-In\" statements";
     LinterConfig.nodeDesc[FaultID.InOperator] = "\"in\" operations";
-    LinterConfig.nodeDesc[FaultID.ImportFromPath] = "imports from path";
     LinterConfig.nodeDesc[FaultID.FunctionExpression] = "function expressions";
     LinterConfig.nodeDesc[FaultID.IntersectionType] = "intersection types and type literals";
     LinterConfig.nodeDesc[FaultID.ObjectTypeLiteral] = "Object type literals";
@@ -115,7 +114,6 @@ export class LinterConfig {
     LinterConfig.nodeDesc[FaultID.LimitedStdLibApi] = "Limited standard library API";
     LinterConfig.nodeDesc[FaultID.ErrorSuppression] = "Error suppression annotation";
     LinterConfig.nodeDesc[FaultID.StrictDiagnostic] = "Strict diagnostic";
-    LinterConfig.nodeDesc[FaultID.UnsupportedDecorators] = "Unsupported decorators";
     LinterConfig.nodeDesc[FaultID.ImportAfterStatement] = "Import declaration after other declaration or statement";
     LinterConfig.nodeDesc[FaultID.EsObjectType] = 'Restricted "ESObject" type';
   }
@@ -177,6 +175,7 @@ export class LinterConfig {
     [SyntaxKind.JsxElement, FaultID.JsxElement], [SyntaxKind.JsxSelfClosingElement, FaultID.JsxElement],
     [SyntaxKind.ImportEqualsDeclaration, FaultID.ImportAssignment],
     [SyntaxKind.NamespaceExportDeclaration, FaultID.UMDModuleDefinition],
+    [SyntaxKind.ClassExpression, FaultID.ClassExpression],
   ]);
 }
 

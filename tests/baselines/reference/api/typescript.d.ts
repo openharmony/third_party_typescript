@@ -9087,7 +9087,7 @@ declare namespace ts {
             import AutofixInfo = Common.AutofixInfo;
             const PROPERTY_HAS_NO_INITIALIZER_ERROR_CODE = 2564;
             const NON_INITIALIZABLE_PROPERTY_DECORATORS: string[];
-            const NON_INITIALIZABLE_PROPERTY_ClASS_DECORATORS: string[];
+            const NON_INITIALIZABLE_PROPERTY_CLASS_DECORATORS: string[];
             const LIMITED_STANDARD_UTILITY_TYPES: string[];
             const ALLOWED_STD_SYMBOL_API: string[];
             enum ProblemSeverity {
@@ -9103,8 +9103,8 @@ declare namespace ts {
             function isAssignmentOperator(tsBinOp: BinaryOperatorToken): boolean;
             function isType(tsType: TypeNode | undefined, checkType: string): boolean;
             function entityNameToString(name: EntityName): string;
-            function isNumberType(tsType: Type): boolean;
-            function isBooleanType(tsType: Type): boolean;
+            function isNumberLikeType(tsType: Type): boolean;
+            function isBooleanLikeType(tsType: Type): boolean;
             function isStringLikeType(tsType: Type): boolean;
             function isStringType(tsType: ts.Type): boolean;
             function isPrimitiveEnumMemberType(type: Type, primitiveType: TypeFlags): boolean;
@@ -9115,7 +9115,6 @@ declare namespace ts {
             function isEnum(tsSymbol: ts.Symbol): boolean;
             function isEnumMemberType(tsType: Type): boolean;
             function isObjectLiteralType(tsType: Type): boolean;
-            function isNumberLikeType(tsType: Type): boolean;
             function hasModifier(tsModifiers: readonly Modifier[] | undefined, tsModifierKind: number): boolean;
             function unwrapParenthesized(tsExpr: Expression): Expression;
             function followIfAliased(sym: Symbol): Symbol;
@@ -9150,7 +9149,8 @@ declare namespace ts {
             function isIntegerConstantValue(tsExpr: EnumMember | PropertyAccessExpression | ElementAccessExpression | NumericLiteral): boolean;
             function isStringConstantValue(tsExpr: EnumMember | PropertyAccessExpression | ElementAccessExpression): boolean;
             function relatedByInheritanceOrIdentical(typeA: Type, typeB: Type): boolean;
-            function needToDeduceStructuralIdentity(lhsType: ts.Type, rhsType: ts.Type, rhsExpr: ts.Expression, allowPromotion?: boolean): boolean;
+            function reduceReference(t: ts.Type): ts.Type;
+            function needToDeduceStructuralIdentity(lhsType: Type, rhsType: Type, rhsExpr: Expression): boolean;
             function hasPredecessor(node: Node, predicate: (node: Node) => boolean): boolean;
             function processParentTypes(parentTypes: NodeArray<ExpressionWithTypeArguments>, typeB: Type, processInterfaces: boolean): boolean;
             function isObject(tsType: Type): boolean;
@@ -9163,6 +9163,7 @@ declare namespace ts {
             function isStructDeclaration(node: Node): boolean;
             function isStructObjectInitializer(objectLiteral: ObjectLiteralExpression): boolean;
             function hasMethods(type: Type): boolean;
+            function checkTypeSet(typeSet: ts.Type, predicate: CheckType): boolean;
             function getNonNullableType(t: ts.Type): ts.Type;
             function isObjectLiteralAssignable(lhsType: ts.Type | undefined, rhsExpr: ts.ObjectLiteralExpression): boolean;
             function isLiteralType(type: Type): boolean;
@@ -9175,7 +9176,6 @@ declare namespace ts {
             const LIMITED_STD_OBJECT_API: string[];
             const LIMITED_STD_REFLECT_API: string[];
             const LIMITED_STD_PROXYHANDLER_API: string[];
-            const ARKUI_DECORATORS: string[];
             const FUNCTION_HAS_NO_RETURN_ERROR_CODE = 2366;
             const NON_RETURN_FUNCTION_DECORATORS: string[];
             const STANDARD_LIBRARIES: string[];
@@ -9220,6 +9220,10 @@ declare namespace ts {
             function getSymbolOfCallExpression(callExpr: CallExpression): Symbol | undefined;
             function typeIsRecursive(topType: Type, type?: Type | undefined): boolean;
             function getTypeOrTypeConstraintAtLocation(expr: ts.Expression): ts.Type;
+            function isStdBigIntType(type: ts.Type): boolean;
+            function isStdNumberType(type: ts.Type): boolean;
+            function isStdBooleanType(type: ts.Type): boolean;
+            function isEnumStringLiteral(expr: ts.Expression): boolean;
         }
     }
 }
@@ -9247,71 +9251,69 @@ declare namespace ts {
                 UnknownType = 17,
                 ForInStatement = 18,
                 InOperator = 19,
-                ImportFromPath = 20,
-                FunctionExpression = 21,
-                IntersectionType = 22,
-                ObjectTypeLiteral = 23,
-                CommaOperator = 24,
-                LimitedReturnTypeInference = 25,
-                LambdaWithTypeParameters = 26,
-                ClassExpression = 27,
-                DestructuringAssignment = 28,
-                DestructuringDeclaration = 29,
-                VarDeclaration = 30,
-                CatchWithUnsupportedType = 31,
-                DeleteOperator = 32,
-                DeclWithDuplicateName = 33,
-                UnaryArithmNotNumber = 34,
-                ConstructorType = 35,
-                ConstructorIface = 36,
-                ConstructorFuncs = 37,
-                CallSignature = 38,
-                TypeAssertion = 39,
-                PrivateIdentifier = 40,
-                LocalFunction = 41,
-                ConditionalType = 42,
-                MappedType = 43,
-                NamespaceAsObject = 44,
-                ClassAsObject = 45,
-                NonDeclarationInNamespace = 46,
-                GeneratorFunction = 47,
-                FunctionContainsThis = 48,
-                PropertyAccessByIndex = 49,
-                JsxElement = 50,
-                EnumMemberNonConstInit = 51,
-                ImplementsClass = 52,
-                MethodReassignment = 53,
-                MultipleStaticBlocks = 54,
-                ThisType = 55,
-                IntefaceExtendDifProps = 56,
-                StructuralIdentity = 57,
-                DefaultImport = 58,
-                ExportAssignment = 59,
-                ImportAssignment = 60,
-                GenericCallNoTypeArgs = 61,
-                ParameterProperties = 62,
-                InstanceofUnsupported = 63,
-                ShorthandAmbientModuleDecl = 64,
-                WildcardsInModuleName = 65,
-                UMDModuleDefinition = 66,
-                NewTarget = 67,
-                DefiniteAssignment = 68,
-                Prototype = 69,
-                GlobalThis = 70,
-                UtilityType = 71,
-                PropertyDeclOnFunction = 72,
-                FunctionApplyCall = 73,
-                FunctionBind = 74,
-                ConstAssertion = 75,
-                ImportAssertion = 76,
-                SpreadOperator = 77,
-                LimitedStdLibApi = 78,
-                ErrorSuppression = 79,
-                StrictDiagnostic = 80,
-                UnsupportedDecorators = 81,
-                ImportAfterStatement = 82,
-                EsObjectType = 83,
-                LAST_ID = 84
+                FunctionExpression = 20,
+                IntersectionType = 21,
+                ObjectTypeLiteral = 22,
+                CommaOperator = 23,
+                LimitedReturnTypeInference = 24,
+                LambdaWithTypeParameters = 25,
+                ClassExpression = 26,
+                DestructuringAssignment = 27,
+                DestructuringDeclaration = 28,
+                VarDeclaration = 29,
+                CatchWithUnsupportedType = 30,
+                DeleteOperator = 31,
+                DeclWithDuplicateName = 32,
+                UnaryArithmNotNumber = 33,
+                ConstructorType = 34,
+                ConstructorIface = 35,
+                ConstructorFuncs = 36,
+                CallSignature = 37,
+                TypeAssertion = 38,
+                PrivateIdentifier = 39,
+                LocalFunction = 40,
+                ConditionalType = 41,
+                MappedType = 42,
+                NamespaceAsObject = 43,
+                ClassAsObject = 44,
+                NonDeclarationInNamespace = 45,
+                GeneratorFunction = 46,
+                FunctionContainsThis = 47,
+                PropertyAccessByIndex = 48,
+                JsxElement = 49,
+                EnumMemberNonConstInit = 50,
+                ImplementsClass = 51,
+                MethodReassignment = 52,
+                MultipleStaticBlocks = 53,
+                ThisType = 54,
+                IntefaceExtendDifProps = 55,
+                StructuralIdentity = 56,
+                DefaultImport = 57,
+                ExportAssignment = 58,
+                ImportAssignment = 59,
+                GenericCallNoTypeArgs = 60,
+                ParameterProperties = 61,
+                InstanceofUnsupported = 62,
+                ShorthandAmbientModuleDecl = 63,
+                WildcardsInModuleName = 64,
+                UMDModuleDefinition = 65,
+                NewTarget = 66,
+                DefiniteAssignment = 67,
+                Prototype = 68,
+                GlobalThis = 69,
+                UtilityType = 70,
+                PropertyDeclOnFunction = 71,
+                FunctionApplyCall = 72,
+                FunctionBind = 73,
+                ConstAssertion = 74,
+                ImportAssertion = 75,
+                SpreadOperator = 76,
+                LimitedStdLibApi = 77,
+                ErrorSuppression = 78,
+                StrictDiagnostic = 79,
+                ImportAfterStatement = 80,
+                EsObjectType = 81,
+                LAST_ID = 82
             }
             class FaultAttributes {
                 cookBookRef: number;
@@ -9422,17 +9424,19 @@ declare namespace ts {
             private handleForOfStatement;
             private handleImportDeclaration;
             private handlePropertyAccessExpression;
-            private handlePropertyAssignmentOrDeclaration;
+            private handlePropertyDeclaration;
+            private handlePropertyAssignment;
+            private handlePropertySignature;
             private filterOutDecoratorsDiagnostics;
             private checkInRange;
             private filterStrictDiagnostics;
             private static isClassLikeOrIface;
             private handleFunctionExpression;
             private handleArrowFunction;
-            private handleClassExpression;
             private handleFunctionDeclaration;
             private handleMissingReturnType;
             private hasLimitedTypeInferenceFromReturnExpr;
+            private isValidTypeForUnaryArithmeticOperator;
             private handlePrefixUnaryExpression;
             private handleBinaryExpression;
             private handleVariableDeclarationList;
@@ -9479,7 +9483,6 @@ declare namespace ts {
             private handleConstructSignature;
             private handleExpressionWithTypeArguments;
             private handleComputedPropertyName;
-            private handleDecorators;
             private handleGetAccessor;
             private handleSetAccessor;
             private handleDeclarationInferredType;

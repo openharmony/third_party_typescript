@@ -160,11 +160,12 @@ export class TypeScriptLinter {
     [SyntaxKind.ForOfStatement, this.handleForOfStatement],
     [SyntaxKind.ImportDeclaration, this.handleImportDeclaration],
     [SyntaxKind.PropertyAccessExpression, this.handlePropertyAccessExpression],
-    [SyntaxKind.PropertyDeclaration, this.handlePropertyAssignmentOrDeclaration],
-    [SyntaxKind.PropertyAssignment, this.handlePropertyAssignmentOrDeclaration],
+    [SyntaxKind.PropertyDeclaration, this.handlePropertyDeclaration],
+    [SyntaxKind.PropertyAssignment, this.handlePropertyAssignment],
+    [SyntaxKind.PropertySignature, this.handlePropertySignature],
     [SyntaxKind.FunctionExpression, this.handleFunctionExpression],
     [SyntaxKind.ArrowFunction, this.handleArrowFunction],
-    [SyntaxKind.ClassExpression, this.handleClassExpression], [SyntaxKind.CatchClause, this.handleCatchClause],
+    [SyntaxKind.CatchClause, this.handleCatchClause],
     [SyntaxKind.FunctionDeclaration, this.handleFunctionDeclaration],
     [SyntaxKind.PrefixUnaryExpression, this.handlePrefixUnaryExpression],
     [SyntaxKind.BinaryExpression, this.handleBinaryExpression],
@@ -177,7 +178,7 @@ export class TypeScriptLinter {
     [SyntaxKind.NamespaceImport, this.handleNamespaceImport],
     [SyntaxKind.TypeAssertionExpression, this.handleTypeAssertionExpression],
     [SyntaxKind.MethodDeclaration, this.handleMethodDeclaration],
-    [ts.SyntaxKind.MethodSignature, this.handleMethodSignature],
+    [SyntaxKind.MethodSignature, this.handleMethodSignature],
     [SyntaxKind.Identifier, this.handleIdentifier],
     [SyntaxKind.ElementAccessExpression, this.handleElementAccessExpression],
     [SyntaxKind.EnumMember, this.handleEnumMember], [SyntaxKind.TypeReference, this.handleTypeReference],
@@ -188,8 +189,8 @@ export class TypeScriptLinter {
     [SyntaxKind.GetAccessor, this.handleGetAccessor], [SyntaxKind.SetAccessor, this.handleSetAccessor],
     [SyntaxKind.ConstructSignature, this.handleConstructSignature],
     [SyntaxKind.ExpressionWithTypeArguments, this.handleExpressionWithTypeArguments],
-    [ts.SyntaxKind.ComputedPropertyName, this.handleComputedPropertyName],
-    [ts.SyntaxKind.EtsComponentExpression, this.handleEtsComponentExpression],
+    [SyntaxKind.ComputedPropertyName, this.handleComputedPropertyName],
+    [SyntaxKind.EtsComponentExpression, this.handleEtsComponentExpression],
   ]);
 
   public incrementCounters(node: Node | CommentRange, faultId: number, autofixable = false, autofix?: Autofix[]): void {
@@ -534,7 +535,6 @@ export class TypeScriptLinter {
     ) {
       this.incrementCounters(node, FaultID.ParameterProperties);
     }
-    this.handleDecorators(ts.getDecorators(tsParam));
 
     this.handleDeclarationInferredType(tsParam);
   }
@@ -627,10 +627,6 @@ export class TypeScriptLinter {
         break;
       }
     }
-    const expr1 = importDeclNode.moduleSpecifier;
-    if (expr1.kind === SyntaxKind.StringLiteral) {
-      if (!importDeclNode.importClause) this.incrementCounters(node, FaultID.ImportFromPath);
-    }
   }
 
   private handlePropertyAccessExpression(node: Node): void {
@@ -653,49 +649,67 @@ export class TypeScriptLinter {
     }
   }
 
-  private handlePropertyAssignmentOrDeclaration(node: Node) {
-    const propName = (node as PropertyAssignment | PropertyDeclaration).name;
-
-    if (propName && (propName.kind === SyntaxKind.NumericLiteral || propName.kind === SyntaxKind.StringLiteral)) {
-      // We can use literals as property names only when creating Record or any interop instances.
-      let isRecordObjectInitializer = false;
-      let isLibraryType = false;
-      let isDynamic = false;
-      if (isPropertyAssignment(node)) {
-        let objectLiteralType = TypeScriptLinter.tsTypeChecker.getContextualType(node.parent);
-        if (objectLiteralType) {
-          isRecordObjectInitializer = Utils.isStdRecordType(objectLiteralType);
-          isLibraryType = Utils.isLibraryType(objectLiteralType);
-        }
-        isDynamic = isLibraryType || Utils.isDynamicLiteralInitializer(node.parent);
+  private handlePropertyDeclaration(node: ts.PropertyDeclaration) {
+    const propName = node.name;
+    if (!!propName && ts.isNumericLiteral(propName)) {
+      let autofix: Autofix[] | undefined = Autofixer.fixLiteralAsPropertyName(node);
+      const autofixable = autofix !== undefined;
+      if (!Autofixer.shouldAutofix(node, FaultID.LiteralAsPropertyName)) {
+        autofix = undefined;
       }
+      this.incrementCounters(node, FaultID.LiteralAsPropertyName, autofixable, autofix);
+    }
+    const decorators = ts.getDecorators(node);
+    this.filterOutDecoratorsDiagnostics(decorators, Utils.NON_INITIALIZABLE_PROPERTY_DECORATORS,
+      {begin: propName.getStart(), end: propName.getStart()},
+      Utils.PROPERTY_HAS_NO_INITIALIZER_ERROR_CODE);
 
-      if (!isRecordObjectInitializer && !isDynamic) {
-        let autofix: Autofix[] | undefined = Autofixer.fixLiteralAsPropertyName(node);
-        const autofixable = autofix !== undefined;
-        if (!Autofixer.shouldAutofix(node, FaultID.LiteralAsPropertyName)) {
-          autofix = undefined;
-        }
-        this.incrementCounters(node, FaultID.LiteralAsPropertyName, autofixable, autofix);
-      }
+    const classDecorators = ts.getDecorators(node.parent);
+    const propType = (node as ts.PropertyDeclaration).type?.getText();
+    this.filterOutDecoratorsDiagnostics(classDecorators, Utils.NON_INITIALIZABLE_PROPERTY_CLASS_DECORATORS,
+      {begin: propName.getStart(), end: propName.getStart()}, Utils.PROPERTY_HAS_NO_INITIALIZER_ERROR_CODE, propType);
+
+    this.handleDeclarationInferredType(node);
+    this.handleDefiniteAssignmentAssertion(node);
+  }
+
+  private handlePropertyAssignment(node: ts.PropertyAssignment) {
+    const propName = node.name;
+    if (!(!!propName && ts.isNumericLiteral(propName))) {
+      return;
     }
 
-    if (isPropertyDeclaration(node)) {
-      const decorators = ts.getDecorators(node);
-      this.handleDecorators(decorators);
-      this.filterOutDecoratorsDiagnostics(
-          decorators,
-          Utils.NON_INITIALIZABLE_PROPERTY_DECORATORS,
-          { begin: propName.getStart(), end: propName.getStart() },
-          Utils.PROPERTY_HAS_NO_INITIALIZER_ERROR_CODE
-        );
-      const classDecorators = ts.getDecorators(node.parent);
-      const propType = (node as ts.PropertyDeclaration).type?.getText();
-      this.filterOutDecoratorsDiagnostics(classDecorators, Utils.NON_INITIALIZABLE_PROPERTY_ClASS_DECORATORS,
-        {begin: propName.getStart(), end: propName.getStart()}, Utils.PROPERTY_HAS_NO_INITIALIZER_ERROR_CODE, propType);
-      this.handleDeclarationInferredType(node);
-      this.handleDefiniteAssignmentAssertion(node);
+    /*
+     * We can use literals as property names only when creating Record or any interop instances.
+     * We can also initialize with constant string literals.
+     * Assignment with string enum values is handled in handleComputedPropertyName
+     */
+    let isRecordObjectInitializer = false;
+    let isLibraryType = false;
+    let isDynamic = false;
+    const objectLiteralType = TypeScriptLinter.tsTypeChecker.getContextualType(node.parent);
+    if (objectLiteralType) {
+      isRecordObjectInitializer = Utils.checkTypeSet(objectLiteralType, Utils.isStdRecordType);
+      isLibraryType = Utils.isLibraryType(objectLiteralType);
     }
+
+    isDynamic = isLibraryType || Utils.isDynamicLiteralInitializer(node.parent);
+    if (!isRecordObjectInitializer && !isDynamic) {
+      let autofix: Autofix[] | undefined = Autofixer.fixLiteralAsPropertyName(node);
+      let autofixable = autofix != undefined;
+      if (!Autofixer.shouldAutofix(node, FaultID.LiteralAsPropertyName)) {
+        autofix = undefined;
+      }
+      this.incrementCounters(node, FaultID.LiteralAsPropertyName, autofixable, autofix);
+    }
+  }
+
+  private handlePropertySignature(node: ts.PropertySignature): void {
+    /**
+     * Reserved if needed
+     */
+    void this;
+    void node;
   }
 
   private filterOutDecoratorsDiagnostics(decorators: readonly Decorator[] | undefined,
@@ -714,7 +728,7 @@ export class TypeScriptLinter {
           decoratorName = x.expression.expression.text;
         }
         // special case for property of type CustomDialogController of the @CustomDialog-decorated class
-        if (expectedDecorators.includes(Utils.NON_INITIALIZABLE_PROPERTY_ClASS_DECORATORS[0])) {
+        if (expectedDecorators.includes(Utils.NON_INITIALIZABLE_PROPERTY_CLASS_DECORATORS[0])) {
           return expectedDecorators.includes(decoratorName) && prop_type === "CustomDialogController"
         }
         //return Utils.NON_INITIALIZABLE_PROPERTY_DECORATORS.includes(decoratorName);
@@ -826,12 +840,6 @@ export class TypeScriptLinter {
     }
   }
 
-  private handleClassExpression(node: Node): void {
-    //let tsClassExpr = node as ClassExpression;
-    this.incrementCounters(node, FaultID.ClassExpression);
-    //this.handleDecorators(tsClassExpr.decorators);
-  }
-
   private handleFunctionDeclaration(node: Node) {
     const tsFunctionDeclaration = node as ts.FunctionDeclaration;
     if (!tsFunctionDeclaration.type) {
@@ -935,19 +943,31 @@ export class TypeScriptLinter {
     return hasLimitedTypeInference;
   }
 
+  private isValidTypeForUnaryArithmeticOperator(type: ts.Type): boolean {
+    const typeFlags = type.getFlags();
+    const numberLiteralFlags = ts.TypeFlags.BigIntLiteral | ts.TypeFlags.NumberLiteral;
+    const numberLikeFlags = ts.TypeFlags.BigIntLike | ts.TypeFlags.NumberLike;
+    const isNumberLike = !!(typeFlags & (numberLiteralFlags | numberLikeFlags));
+
+    const isAllowedNumericType = Utils.isStdBigIntType(type) || Utils.isStdNumberType(type);
+
+    return isNumberLike || isAllowedNumericType;
+  }
+
   private handlePrefixUnaryExpression(node: Node) {
     const tsUnaryArithm = node as PrefixUnaryExpression;
     const tsUnaryOp = tsUnaryArithm.operator;
+    const tsUnaryOperand = tsUnaryArithm.operand;
     if (
       tsUnaryOp === SyntaxKind.PlusToken ||
       tsUnaryOp === SyntaxKind.MinusToken ||
       tsUnaryOp === SyntaxKind.TildeToken
     ) {
-      const tsOperatndType = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(tsUnaryArithm.operand);
-      if (!(tsOperatndType.getFlags() & (TypeFlags.NumberLike | TypeFlags.BigIntLiteral)) ||
-            (tsUnaryOp === SyntaxKind.TildeToken && tsUnaryArithm.operand.kind === SyntaxKind.NumericLiteral &&
-              !Utils.isIntegerConstantValue(tsUnaryArithm.operand as NumericLiteral))
-          ) {
+      const tsOperatndType = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(tsUnaryOperand);
+      const isTilde = tsUnaryOp === ts.SyntaxKind.TildeToken;
+      const isInvalidTilde =
+        isTilde && ts.isNumericLiteral(tsUnaryOperand) && !Utils.isIntegerConstantValue(tsUnaryOperand);
+      if (!this.isValidTypeForUnaryArithmeticOperator(tsOperatndType) || isInvalidTilde) {
         this.incrementCounters(node, FaultID.UnaryArithmNotNumber);
       }
     }
@@ -989,7 +1009,7 @@ export class TypeScriptLinter {
           return;
         }
       }
-      else if (Utils.isNumberType(leftOperandType) && Utils.isNumberType(rightOperandType)) {
+      else if (Utils.isNumberLikeType(leftOperandType) && Utils.isNumberLikeType(rightOperandType)) {
         return;
       }
       else if (Utils.isStringLikeType(leftOperandType) || Utils.isStringLikeType(rightOperandType)) {
@@ -1004,7 +1024,7 @@ export class TypeScriptLinter {
       tsBinaryExpr.operatorToken.kind === SyntaxKind.GreaterThanGreaterThanToken ||
       tsBinaryExpr.operatorToken.kind === SyntaxKind.GreaterThanGreaterThanGreaterThanToken
     ) {
-      if (!(Utils.isNumberType(leftOperandType) && Utils.isNumberType(rightOperandType))||
+      if (!(Utils.isNumberLikeType(leftOperandType) && Utils.isNumberLikeType(rightOperandType))||
             (tsLhsExpr.kind === SyntaxKind.NumericLiteral && !Utils.isIntegerConstantValue(tsLhsExpr as NumericLiteral)) ||
             (tsRhsExpr.kind === SyntaxKind.NumericLiteral && !Utils.isIntegerConstantValue(tsRhsExpr as NumericLiteral))
           ) {
@@ -1162,8 +1182,6 @@ export class TypeScriptLinter {
         visitHClause(hClause);
       }
     }
-
-    this.handleDecorators(ts.getDecorators(tsClassDecl));
   }
 
   private handleModuleDeclaration(node: Node): void {
@@ -1273,7 +1291,6 @@ export class TypeScriptLinter {
     if (tsMethodDecl.asteriskToken) {
       this.incrementCounters(node, FaultID.GeneratorFunction);
     }
-    this.handleDecorators(ts.getDecorators(tsMethodDecl));
     this.filterOutDecoratorsDiagnostics(ts.getDecorators(tsMethodDecl), Utils.NON_RETURN_FUNCTION_DECORATORS,
       { begin: tsMethodDecl.parameters.end, end: tsMethodDecl.body?.getStart() ?? tsMethodDecl.parameters.end },
       Utils.FUNCTION_HAS_NO_RETURN_ERROR_CODE);
@@ -1729,13 +1746,10 @@ export class TypeScriptLinter {
 
     const targetType = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(tsAsExpr.type).getNonNullableType();
     const exprType = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(tsAsExpr.expression).getNonNullableType();
-    if (Utils.needToDeduceStructuralIdentity(targetType, exprType, tsAsExpr.expression, true)) {
-      this.incrementCounters(tsAsExpr, FaultID.StructuralIdentity);
-    }
     // check for rule#65:   "number as Number" and "boolean as Boolean" are disabled
     if(
-        (Utils.isNumberType(exprType) && targetType.getSymbol()?.getName() === "Number") ||
-        (Utils.isBooleanType(exprType) && targetType.getSymbol()?.getName() === "Boolean")
+      (Utils.isNumberLikeType(exprType) && Utils.isStdNumberType(targetType)) ||
+      (Utils.isBooleanLikeType(exprType) && Utils.isStdBooleanType(targetType))
     ) {
       this.incrementCounters(node, FaultID.TypeAssertion);
     }
@@ -1819,38 +1833,26 @@ export class TypeScriptLinter {
     if (!!symbol && Utils.isSymbolIterator(symbol)) {
       return
     }
-    const isEnumMember = !!symbol && !!(symbol.flags & ts.SymbolFlags.EnumMember);
-    const type = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(computedProperty.expression);
-    const isStringEnumLiteral = Utils.isEnumType(type) && !!(type.flags & ts.TypeFlags.StringLiteral);
-    if (isEnumMember && isStringEnumLiteral) {
-      return;
-    }
-    this.incrementCounters(node, FaultID.ComputedPropertyName);
-  }
-
-  private handleDecorators(decorators: readonly Decorator[] | undefined): void {
-    if (!decorators) return;
-
-    for (const decorator of decorators) {
-      let decoratorName = "";
-      if (isIdentifier(decorator.expression)) {
-        decoratorName = decorator.expression.text;
-      }
-      else if (isCallExpression(decorator.expression) && isIdentifier(decorator.expression.expression)) {
-        decoratorName = decorator.expression.expression.text;
-      }
-      if (!Utils.ARKUI_DECORATORS.includes(decoratorName)) {
-        this.incrementCounters(decorator, FaultID.UnsupportedDecorators);
-      }
+    // we allow computed property names if expression is string Enum member
+    if (!Utils.isEnumStringLiteral(computedProperty.expression)) {
+      this.incrementCounters(node, FaultID.ComputedPropertyName);
     }
   }
 
   private handleGetAccessor(node: Node) {
-    this.handleDecorators(ts.getDecorators(node as GetAccessorDeclaration));
+    /**
+     * Reserved if needed
+     */
+    void node;
+    void this;
   }
 
   private handleSetAccessor(node: Node) {
-    this.handleDecorators(ts.getDecorators(node as SetAccessorDeclaration));
+    /**
+     * Reserved if needed
+     */
+    void node;
+    void this;
   }
 
   private handleDeclarationInferredType(

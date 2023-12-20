@@ -26,7 +26,7 @@ export const PROPERTY_HAS_NO_INITIALIZER_ERROR_CODE = 2564;
 
 export const NON_INITIALIZABLE_PROPERTY_DECORATORS = ["Link", "Consume", "ObjectLink", "Prop", "BuilderParam"];
 
-export const NON_INITIALIZABLE_PROPERTY_ClASS_DECORATORS = ['CustomDialog']
+export const NON_INITIALIZABLE_PROPERTY_CLASS_DECORATORS = ['CustomDialog']
 
 export const LIMITED_STANDARD_UTILITY_TYPES = [
   "Awaited", "Pick", "Omit", "Exclude", "Extract", "NonNullable", "Parameters",
@@ -83,17 +83,11 @@ export function entityNameToString(name: EntityName): string {
   }
 }
 
-export function isNumberType(tsType: Type): boolean {
-  if (tsType.isUnion()) {
-    for (const tsCompType of tsType.types) {
-      if ((tsCompType.flags & TypeFlags.NumberLike) === 0) return false;
-    }
-    return true;
-  }
+export function isNumberLikeType(tsType: Type): boolean {
   return (tsType.getFlags() & TypeFlags.NumberLike) !== 0;
 }
 
-export function isBooleanType(tsType: Type): boolean {
+export function isBooleanLikeType(tsType: Type): boolean {
   return (tsType.getFlags() & TypeFlags.BooleanLike) !== 0;
 }
 
@@ -188,17 +182,13 @@ export function isEnum(tsSymbol: ts.Symbol): boolean {
 }
 
 export function isEnumMemberType(tsType: Type): boolean {
-    // Note: For some reason, test (tsType.flags & TypeFlags.Enum) != 0 doesn't work here.
-    // Must use SymbolFlags to figure out if this is an enum type.
-    return tsType.symbol && (tsType.symbol.flags & SymbolFlags.EnumMember) !== 0;
-  }
+  // Note: For some reason, test (tsType.flags & TypeFlags.Enum) != 0 doesn't work here.
+  // Must use SymbolFlags to figure out if this is an enum type.
+  return tsType.symbol && (tsType.symbol.flags & SymbolFlags.EnumMember) !== 0;
+}
 
 export function isObjectLiteralType(tsType: Type): boolean {
   return tsType.symbol && (tsType.symbol.flags & SymbolFlags.ObjectLiteral) !== 0;
-}
-
-export function isNumberLikeType(tsType: Type): boolean {
-  return (tsType.getFlags() & TypeFlags.NumberLike) !== 0;
 }
 
 export function hasModifier(tsModifiers: readonly Modifier[] | undefined, tsModifierKind: number): boolean {
@@ -585,7 +575,7 @@ export function isStringConstantValue(
   );
 }
 
-// Returns true iff typeA is a subtype of typeB
+// Returns true if typeA is a subtype of typeB
 export function relatedByInheritanceOrIdentical(typeA: Type, typeB: Type): boolean {
   if (isTypeReference(typeA) && typeA.target !== typeA) { typeA = typeA.target; }
   if (isTypeReference(typeB) && typeB.target !== typeB) { typeB = typeB.target; }
@@ -607,53 +597,61 @@ export function relatedByInheritanceOrIdentical(typeA: Type, typeB: Type): boole
   return false;
 }
 
-// return true if two class types are not related by inheritance and structural identity check is needed
-export function needToDeduceStructuralIdentity(lhsType: ts.Type, rhsType: ts.Type, rhsExpr: ts.Expression,
-  allowPromotion: boolean = false): boolean {
-  // Compare non-nullable version of types.
-  lhsType = getNonNullableType(lhsType);
-  rhsType = getNonNullableType(rhsType);
+export function reduceReference(t: ts.Type): ts.Type {
+  return isTypeReference(t) && t.target !== t ? t.target : t;
+}
 
-  if (isLibraryType(lhsType)) {
-    return false;
-  }
-
-  if (isDynamicObjectAssignedToStdType(lhsType, rhsExpr)) {
-    return false;
-  }
-
-  // #14569: Check for Function type.
-  if (areCompatibleFunctionals(lhsType, rhsType)) {
-    return false;
-  }
-
+function needToDeduceStructuralIdentityHandleUnions(
+  lhsType: Type,
+  rhsType: Type,
+  rhsExpr: Expression
+): boolean {
   if (rhsType.isUnion()) {
     // Each Class/Interface of the RHS union type must be compatible with LHS type.
     for (const compType of rhsType.types) {
-      if (needToDeduceStructuralIdentity(lhsType, compType, rhsExpr, allowPromotion)) {
+      if (needToDeduceStructuralIdentity(lhsType, compType, rhsExpr)) {
         return true;
       }
     }
     return false;
   }
-
+ 
   if (lhsType.isUnion()) {
     // RHS type needs to be compatible with at least one type of the LHS union.
     for (const compType of lhsType.types) {
-      if (!needToDeduceStructuralIdentity(compType, rhsType, rhsExpr, allowPromotion)) {
+      if (!needToDeduceStructuralIdentity(compType, rhsType, rhsExpr)) {
         return false;
       }
     }
     return true;
   }
+  // should be unreachable
+  return false;
+}
 
-  let res = lhsType.isClassOrInterface() && rhsType.isClassOrInterface() && !relatedByInheritanceOrIdentical(rhsType, lhsType);
-
-  if (allowPromotion) {
-    res &&= !relatedByInheritanceOrIdentical(lhsType, rhsType);
+// return true if two class types are not related by inheritance and structural identity check is needed
+export function needToDeduceStructuralIdentity(
+  lhsType: Type,
+  rhsType: Type,
+  rhsExpr: Expression
+): boolean {
+  lhsType = getNonNullableType(lhsType);
+  rhsType = getNonNullableType(rhsType);
+  if (isLibraryType(lhsType)) {
+    return false;
   }
-
-  return res;
+  if (isDynamicObjectAssignedToStdType(lhsType, rhsExpr)) {
+    return false;
+  }
+  // #14569: Check for Function type.
+  if (areCompatibleFunctionals(lhsType, rhsType)) {
+    return false;
+  }
+  if (rhsType.isUnion() || lhsType.isUnion()) {
+    return needToDeduceStructuralIdentityHandleUnions(lhsType, rhsType, rhsExpr);
+  }
+  return lhsType.isClassOrInterface() && rhsType.isClassOrInterface() &&
+    !relatedByInheritanceOrIdentical(rhsType, lhsType);
 }
 
 export function hasPredecessor(node: Node, predicate: (node: Node) => boolean): boolean {
@@ -839,6 +837,17 @@ function findProperty(type: Type, name: string): Symbol | undefined {
   return undefined;
 }
 
+export function checkTypeSet(typeSet: ts.Type, predicate: CheckType): boolean {
+  if (!typeSet.isUnionOrIntersection()) {
+    return predicate(typeSet);
+  }
+  for (let elemType of typeSet.types) {
+    if (checkTypeSet(elemType, predicate)) {
+      return true;
+    }
+  }
+  return false;
+}
 
 export function getNonNullableType(t: ts.Type): ts.Type {
   if (t.isUnion()) {
@@ -1004,7 +1013,13 @@ export function isStruct(symbol: Symbol) {
 
 function validateRecordObjectKeys(objectLiteral: ObjectLiteralExpression): boolean {
   for (const prop of objectLiteral.properties) {
-    if (!prop.name || (!isStringLiteral(prop.name) && !isNumericLiteral(prop.name))) { return false; }
+    if (!prop.name) {
+      return false;
+    }
+    const isValidComputedProperty = isComputedPropertyName(prop.name) && isEnumStringLiteral(prop.name.expression);
+    if (!isStringLiteral(prop.name) && !isNumericLiteral(prop.name) && !isValidComputedProperty) {
+      return false;
+    }
   }
   return true;
 }
@@ -1038,33 +1053,6 @@ export const LIMITED_STD_REFLECT_API = [
 export const LIMITED_STD_PROXYHANDLER_API = [
   "apply", "construct", "defineProperty", "deleteProperty", "get", "getOwnPropertyDescriptor", "getPrototypeOf",
   "has", "isExtensible", "ownKeys", "preventExtensions", "set", "setPrototypeOf"
-];
-export const ARKUI_DECORATORS = [
-    "AnimatableExtend",
-    "Builder",
-    "BuilderParam",
-    "Component",
-    "Concurrent",
-    "Consume",
-    "CustomDialog",
-    "Entry",
-    "Extend",
-    "Link",
-    "LocalStorageLink",
-    "LocalStorageProp",
-    "ObjectLink",
-    "Observed",
-    "Preview",
-    "Prop",
-    "Provide",
-    "Reusable",
-    "State",
-    "StorageLink",
-    "StorageProp",
-    "Styles",
-    "Watch",
-    "Require",
-    "Track",
 ];
 
 export const FUNCTION_HAS_NO_RETURN_ERROR_CODE = 2366;
@@ -1539,6 +1527,29 @@ function isFunctionalType(type: ts.Type): boolean {
 function isStdFunctionType(type: ts.Type): boolean {
   const sym = type.getSymbol();
   return !!sym && sym.getName() === 'Function' && isGlobalSymbol(sym);
+}
+
+export function isStdBigIntType(type: ts.Type): boolean {
+  const sym = type.symbol;
+  return !!sym && sym.getName() === 'BigInt' && isGlobalSymbol(sym);
+}
+
+export function isStdNumberType(type: ts.Type): boolean {
+  const sym = type.symbol;
+  return !!sym && sym.getName() === 'Number' && isGlobalSymbol(sym);
+}
+
+export function isStdBooleanType(type: ts.Type): boolean {
+  const sym = type.symbol;
+  return !!sym && sym.getName() === 'Boolean' && isGlobalSymbol(sym);
+}
+
+export function isEnumStringLiteral(expr: ts.Expression): boolean {
+  const symbol = trueSymbolAtLocation(expr);
+  const isEnumMember = !!symbol && !!(symbol.flags & ts.SymbolFlags.EnumMember);
+  const type = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(expr);
+  const isStringEnumLiteral = isEnumType(type) && !!(type.flags & ts.TypeFlags.StringLiteral);
+  return isEnumMember && isStringEnumLiteral;
 }
 
 }
