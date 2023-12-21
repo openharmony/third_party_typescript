@@ -5,6 +5,7 @@ namespace ts {
         readFile(fileName: string): string | undefined;
         /*@internal*/
         getBuildInfo?(fileName: string, configFilePath: string | undefined): BuildInfo | undefined;
+        getLastCompiledProgram?(): Program;
     }
     export function readBuilderProgram(compilerOptions: CompilerOptions, host: ReadBuildProgramHost) {
         const buildInfoPath = getTsBuildInfoEmitOutputFilePath(compilerOptions);

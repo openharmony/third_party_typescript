@@ -3482,6 +3482,7 @@ declare namespace ts {
          */
         getJsDocNodeConditionCheckedResult?(jsDocFileCheckedInfo: FileCheckModuleInfo, jsDocs: JsDocTagInfo[]): ConditionCheckResult;
         getFileCheckedModuleInfo?(containFilePath: string): FileCheckModuleInfo;
+        getLastCompiledProgram?(): Program;
     }
     export interface SourceMapRange extends TextRange {
         source?: SourceMapSource;
@@ -5741,6 +5742,7 @@ declare namespace ts {
         useCaseSensitiveFileNames(): boolean;
         getCurrentDirectory(): string;
         readFile(fileName: string): string | undefined;
+        getLastCompiledProgram?(): Program;
     }
     function readBuilderProgram(compilerOptions: CompilerOptions, host: ReadBuildProgramHost): EmitAndSemanticDiagnosticsBuilderProgram | undefined;
     function createIncrementalCompilerHost(options: CompilerOptions, system?: System): CompilerHost;
@@ -6221,6 +6223,7 @@ declare namespace ts {
         getJsDocNodeConditionCheckedResult?(jsDocFileCheckedInfo: FileCheckModuleInfo, jsDocs: JsDocTagInfo[]): ConditionCheckResult;
         getFileCheckedModuleInfo?(containFilePath: string): FileCheckModuleInfo;
         shouldCompletionSortCustom?: boolean;
+        clearProps?(): void;
     }
     type WithMetadata<T> = T & {
         metadata?: unknown;
@@ -6391,6 +6394,7 @@ declare namespace ts {
         commentSelection(fileName: string, textRange: TextRange): TextChange[];
         uncommentSelection(fileName: string, textRange: TextRange): TextChange[];
         dispose(): void;
+        updateRootFiles?(rootFiles: string[]): void;
     }
     interface JsxClosingTagInfo {
         readonly newText: string;
@@ -9002,7 +9006,7 @@ declare namespace ts {
         class TSCCompiledProgram {
             private diagnosticsExtractor;
             private wasStrict;
-            constructor(program: BuilderProgram, host: CompilerHost);
+            constructor(program: ArkTSProgram, reverseStrictBuilderProgram: ArkTSProgram);
             getOriginalProgram(): Program;
             getStrictProgram(): Program;
             getStrictBuilderProgram(): BuilderProgram;
@@ -9013,8 +9017,12 @@ declare namespace ts {
 }
 declare namespace ts {
     namespace ArkTSLinter_1_0 {
+        interface ArkTSProgram {
+            builderProgram: BuilderProgram;
+            wasStrict: boolean;
+        }
         function translateDiag(srcFile: SourceFile, problemInfo: ProblemInfo): Diagnostic;
-        function runArkTSLinter(tsBuilderProgram: BuilderProgram, host: CompilerHost, srcFile?: SourceFile, buildInfoWriteFile?: WriteFileCallback): Diagnostic[];
+        function runArkTSLinter(tsBuilderProgram: ArkTSProgram, reverseStrictBuilderProgram: ArkTSProgram, srcFile?: SourceFile, buildInfoWriteFile?: WriteFileCallback): Diagnostic[];
     }
 }
 declare namespace ts {
@@ -9511,7 +9519,7 @@ declare namespace ts {
         class TSCCompiledProgram {
             private diagnosticsExtractor;
             private wasStrict;
-            constructor(program: BuilderProgram, host: CompilerHost);
+            constructor(program: ArkTSProgram, reverseStrictBuilderProgram: ArkTSProgram);
             getOriginalProgram(): Program;
             getStrictProgram(): Program;
             getStrictBuilderProgram(): BuilderProgram;
@@ -9522,8 +9530,12 @@ declare namespace ts {
 }
 declare namespace ts {
     namespace ArkTSLinter_1_1 {
+        interface ArkTSProgram {
+            builderProgram: BuilderProgram;
+            wasStrict: boolean;
+        }
         function translateDiag(srcFile: SourceFile, problemInfo: ProblemInfo): Diagnostic;
-        function runArkTSLinter(tsBuilderProgram: BuilderProgram, host: CompilerHost, srcFile?: SourceFile, buildInfoWriteFile?: WriteFileCallback): Diagnostic[];
+        function runArkTSLinter(tsBuilderProgram: ArkTSProgram, reverseStrictBuilderProgram: ArkTSProgram, srcFile?: SourceFile, buildInfoWriteFile?: WriteFileCallback): Diagnostic[];
     }
 }
 

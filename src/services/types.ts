@@ -327,6 +327,7 @@ namespace ts {
         getJsDocNodeConditionCheckedResult?(jsDocFileCheckedInfo: FileCheckModuleInfo, jsDocs: JsDocTagInfo[]): ConditionCheckResult;
         getFileCheckedModuleInfo?(containFilePath: string): FileCheckModuleInfo;
         shouldCompletionSortCustom?: boolean;
+        clearProps?(): void;
     }
 
     /* @internal */
@@ -572,6 +573,7 @@ namespace ts {
         uncommentSelection(fileName: string, textRange: TextRange): TextChange[];
 
         dispose(): void;
+        updateRootFiles?(rootFiles: string[]): void;
     }
 
     export interface JsxClosingTagInfo {

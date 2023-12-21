@@ -16,6 +16,11 @@
 namespace ts {
 export namespace ArkTSLinter_1_1 {
 
+export interface ArkTSProgram {
+  builderProgram: BuilderProgram,
+  wasStrict: boolean
+}
+
 function makeDiag(category: DiagnosticCategory, code: number, file: SourceFile, start: number, length: number, messageText: string): Diagnostic {
   return { category, code, file, start, length, messageText };
 }
@@ -26,14 +31,15 @@ export function translateDiag(srcFile: SourceFile, problemInfo: ProblemInfo): Di
   return makeDiag(severity, LINTER_MSG_CODE_START /*+ problemInfo.ruleTag */, srcFile , problemInfo.start, (problemInfo.end - problemInfo.start + 1), problemInfo.rule);
 }
 
-export function runArkTSLinter(tsBuilderProgram: BuilderProgram, host: CompilerHost, srcFile?: SourceFile, buildInfoWriteFile?: WriteFileCallback): Diagnostic[] {
+export function runArkTSLinter(tsBuilderProgram: ArkTSProgram, reverseStrictBuilderProgram: ArkTSProgram,
+  srcFile?: SourceFile, buildInfoWriteFile?: WriteFileCallback): Diagnostic[] {
   TypeScriptLinter.errorLineNumbersString = "";
   TypeScriptLinter.warningLineNumbersString = "";
   let diagnostics: Diagnostic[] = [];
 
   LinterConfig.initStatic();
 
-  const tscDiagnosticsLinter = new TSCCompiledProgram(tsBuilderProgram, host);
+  const tscDiagnosticsLinter = new TSCCompiledProgram(tsBuilderProgram, reverseStrictBuilderProgram);
   const strictProgram = tscDiagnosticsLinter.getStrictProgram();
 
   let srcFiles: SourceFile[] = [];

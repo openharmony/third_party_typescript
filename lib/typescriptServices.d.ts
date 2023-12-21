@@ -3482,6 +3482,7 @@ declare namespace ts {
          */
         getJsDocNodeConditionCheckedResult?(jsDocFileCheckedInfo: FileCheckModuleInfo, jsDocs: JsDocTagInfo[]): ConditionCheckResult;
         getFileCheckedModuleInfo?(containFilePath: string): FileCheckModuleInfo;
+        getLastCompiledProgram?(): Program;
     }
     export interface SourceMapRange extends TextRange {
         source?: SourceMapSource;
@@ -5741,6 +5742,7 @@ declare namespace ts {
         useCaseSensitiveFileNames(): boolean;
         getCurrentDirectory(): string;
         readFile(fileName: string): string | undefined;
+        getLastCompiledProgram?(): Program;
     }
     function readBuilderProgram(compilerOptions: CompilerOptions, host: ReadBuildProgramHost): EmitAndSemanticDiagnosticsBuilderProgram | undefined;
     function createIncrementalCompilerHost(options: CompilerOptions, system?: System): CompilerHost;
@@ -6221,6 +6223,7 @@ declare namespace ts {
         getJsDocNodeConditionCheckedResult?(jsDocFileCheckedInfo: FileCheckModuleInfo, jsDocs: JsDocTagInfo[]): ConditionCheckResult;
         getFileCheckedModuleInfo?(containFilePath: string): FileCheckModuleInfo;
         shouldCompletionSortCustom?: boolean;
+        clearProps?(): void;
     }
     type WithMetadata<T> = T & {
         metadata?: unknown;
@@ -6391,6 +6394,7 @@ declare namespace ts {
         commentSelection(fileName: string, textRange: TextRange): TextChange[];
         uncommentSelection(fileName: string, textRange: TextRange): TextChange[];
         dispose(): void;
+        updateRootFiles?(rootFiles: string[]): void;
     }
     interface JsxClosingTagInfo {
         readonly newText: string;
@@ -9002,7 +9006,7 @@ declare namespace ts {
         class TSCCompiledProgram {
             private diagnosticsExtractor;
             private wasStrict;
-            constructor(program: BuilderProgram, host: CompilerHost);
+            constructor(program: ArkTSProgram, reverseStrictBuilderProgram: ArkTSProgram);
             getOriginalProgram(): Program;
             getStrictProgram(): Program;
             getStrictBuilderProgram(): BuilderProgram;
@@ -9013,12 +9017,12 @@ declare namespace ts {
 }
 declare namespace ts {
     namespace ArkTSLinter_1_0 {
+        interface ArkTSProgram {
+            builderProgram: BuilderProgram;
+            wasStrict: boolean;
+        }
         function translateDiag(srcFile: SourceFile, problemInfo: ProblemInfo): Diagnostic;
-        function runArkTSLinter(tsBuilderProgram: BuilderProgram, host: CompilerHost, srcFile?: SourceFile, buildInfoWriteFile?: WriteFileCallback): Diagnostic[];
-        function getDiagnosticsFromStrictProgram(strictBuilderProgram: BuilderProgram, buildInfoWriteFile?: ts.WriteFileCallback): ESMap<string, {
-            strictDiagnostics: Diagnostic[];
-            arkTSDiagnostics: Diagnostic[];
-        }>;
+        function runArkTSLinter(tsBuilderProgram: ArkTSProgram, reverseStrictBuilderProgram: ArkTSProgram, srcFile?: SourceFile, buildInfoWriteFile?: WriteFileCallback): Diagnostic[];
     }
 }
 declare namespace ts {
@@ -9042,6 +9046,10 @@ declare namespace ts {
                 cmdOptions: CommandLineOptions;
                 tsProgram?: Program;
                 [key: string]: any;
+            }
+            enum ProblemSeverity {
+                WARNING = 1,
+                ERROR = 2
             }
         }
     }
@@ -9089,17 +9097,112 @@ declare namespace ts {
 }
 declare namespace ts {
     namespace ArkTSLinter_1_1 {
+        namespace Problems {
+            import ProblemSeverity = Common.ProblemSeverity;
+            enum FaultID {
+                AnyType = 0,
+                SymbolType = 1,
+                ObjectLiteralNoContextType = 2,
+                ArrayLiteralNoContextType = 3,
+                ComputedPropertyName = 4,
+                LiteralAsPropertyName = 5,
+                TypeQuery = 6,
+                IsOperator = 7,
+                DestructuringParameter = 8,
+                YieldExpression = 9,
+                InterfaceMerging = 10,
+                EnumMerging = 11,
+                InterfaceExtendsClass = 12,
+                IndexMember = 13,
+                WithStatement = 14,
+                ThrowStatement = 15,
+                IndexedAccessType = 16,
+                UnknownType = 17,
+                ForInStatement = 18,
+                InOperator = 19,
+                FunctionExpression = 20,
+                IntersectionType = 21,
+                ObjectTypeLiteral = 22,
+                CommaOperator = 23,
+                LimitedReturnTypeInference = 24,
+                LambdaWithTypeParameters = 25,
+                ClassExpression = 26,
+                DestructuringAssignment = 27,
+                DestructuringDeclaration = 28,
+                VarDeclaration = 29,
+                CatchWithUnsupportedType = 30,
+                DeleteOperator = 31,
+                DeclWithDuplicateName = 32,
+                UnaryArithmNotNumber = 33,
+                ConstructorType = 34,
+                ConstructorIface = 35,
+                ConstructorFuncs = 36,
+                CallSignature = 37,
+                TypeAssertion = 38,
+                PrivateIdentifier = 39,
+                LocalFunction = 40,
+                ConditionalType = 41,
+                MappedType = 42,
+                NamespaceAsObject = 43,
+                ClassAsObject = 44,
+                NonDeclarationInNamespace = 45,
+                GeneratorFunction = 46,
+                FunctionContainsThis = 47,
+                PropertyAccessByIndex = 48,
+                JsxElement = 49,
+                EnumMemberNonConstInit = 50,
+                ImplementsClass = 51,
+                MethodReassignment = 52,
+                MultipleStaticBlocks = 53,
+                ThisType = 54,
+                IntefaceExtendDifProps = 55,
+                StructuralIdentity = 56,
+                DefaultImport = 57,
+                ExportAssignment = 58,
+                ImportAssignment = 59,
+                GenericCallNoTypeArgs = 60,
+                ParameterProperties = 61,
+                InstanceofUnsupported = 62,
+                ShorthandAmbientModuleDecl = 63,
+                WildcardsInModuleName = 64,
+                UMDModuleDefinition = 65,
+                NewTarget = 66,
+                DefiniteAssignment = 67,
+                Prototype = 68,
+                GlobalThis = 69,
+                UtilityType = 70,
+                PropertyDeclOnFunction = 71,
+                FunctionApplyCall = 72,
+                FunctionBind = 73,
+                ConstAssertion = 74,
+                ImportAssertion = 75,
+                SpreadOperator = 76,
+                LimitedStdLibApi = 77,
+                ErrorSuppression = 78,
+                StrictDiagnostic = 79,
+                ImportAfterStatement = 80,
+                EsObjectType = 81,
+                LAST_ID = 82
+            }
+            class FaultAttributes {
+                cookBookRef: number;
+                migratable: boolean;
+                severity: ProblemSeverity;
+                constructor(cookBookRef: number, migratable?: boolean, severity?: ProblemSeverity);
+            }
+            const faultsAttrs: FaultAttributes[];
+        }
+    }
+}
+declare namespace ts {
+    namespace ArkTSLinter_1_1 {
+        import AutofixInfo = Common.AutofixInfo;
         namespace Utils {
-            import AutofixInfo = Common.AutofixInfo;
             const PROPERTY_HAS_NO_INITIALIZER_ERROR_CODE = 2564;
             const NON_INITIALIZABLE_PROPERTY_DECORATORS: string[];
             const NON_INITIALIZABLE_PROPERTY_CLASS_DECORATORS: string[];
             const LIMITED_STANDARD_UTILITY_TYPES: string[];
             const ALLOWED_STD_SYMBOL_API: string[];
-            enum ProblemSeverity {
-                WARNING = 1,
-                ERROR = 2
-            }
             const ARKTS_IGNORE_DIRS: string[];
             const ARKTS_IGNORE_FILES: string[];
             function setTypeChecker(tsTypeChecker: TypeChecker): void;
@@ -9107,6 +9210,7 @@ declare namespace ts {
             function setTestMode(tsTestMode: boolean): void;
             function getStartPos(nodeOrComment: Node | CommentRange): number;
             function getEndPos(nodeOrComment: Node | CommentRange): number;
+            function getHighlightRange(nodeOrComment: Node | CommentRange, faultId: number): number[];
             function isAssignmentOperator(tsBinOp: BinaryOperatorToken): boolean;
             function isType(tsType: TypeNode | undefined, checkType: string): boolean;
             function entityNameToString(name: EntityName): string;
@@ -9233,104 +9337,6 @@ declare namespace ts {
             function isStdBooleanType(type: ts.Type): boolean;
             function isEnumStringLiteral(expr: ts.Expression): boolean;
             function isValidComputedPropertyName(computedProperty: ComputedPropertyName, isRecordObjectInitializer?: boolean): boolean;
-        }
-    }
-}
-declare namespace ts {
-    namespace ArkTSLinter_1_1 {
-        namespace Problems {
-            enum FaultID {
-                AnyType = 0,
-                SymbolType = 1,
-                ObjectLiteralNoContextType = 2,
-                ArrayLiteralNoContextType = 3,
-                ComputedPropertyName = 4,
-                LiteralAsPropertyName = 5,
-                TypeQuery = 6,
-                IsOperator = 7,
-                DestructuringParameter = 8,
-                YieldExpression = 9,
-                InterfaceMerging = 10,
-                EnumMerging = 11,
-                InterfaceExtendsClass = 12,
-                IndexMember = 13,
-                WithStatement = 14,
-                ThrowStatement = 15,
-                IndexedAccessType = 16,
-                UnknownType = 17,
-                ForInStatement = 18,
-                InOperator = 19,
-                FunctionExpression = 20,
-                IntersectionType = 21,
-                ObjectTypeLiteral = 22,
-                CommaOperator = 23,
-                LimitedReturnTypeInference = 24,
-                LambdaWithTypeParameters = 25,
-                ClassExpression = 26,
-                DestructuringAssignment = 27,
-                DestructuringDeclaration = 28,
-                VarDeclaration = 29,
-                CatchWithUnsupportedType = 30,
-                DeleteOperator = 31,
-                DeclWithDuplicateName = 32,
-                UnaryArithmNotNumber = 33,
-                ConstructorType = 34,
-                ConstructorIface = 35,
-                ConstructorFuncs = 36,
-                CallSignature = 37,
-                TypeAssertion = 38,
-                PrivateIdentifier = 39,
-                LocalFunction = 40,
-                ConditionalType = 41,
-                MappedType = 42,
-                NamespaceAsObject = 43,
-                ClassAsObject = 44,
-                NonDeclarationInNamespace = 45,
-                GeneratorFunction = 46,
-                FunctionContainsThis = 47,
-                PropertyAccessByIndex = 48,
-                JsxElement = 49,
-                EnumMemberNonConstInit = 50,
-                ImplementsClass = 51,
-                MethodReassignment = 52,
-                MultipleStaticBlocks = 53,
-                ThisType = 54,
-                IntefaceExtendDifProps = 55,
-                StructuralIdentity = 56,
-                DefaultImport = 57,
-                ExportAssignment = 58,
-                ImportAssignment = 59,
-                GenericCallNoTypeArgs = 60,
-                ParameterProperties = 61,
-                InstanceofUnsupported = 62,
-                ShorthandAmbientModuleDecl = 63,
-                WildcardsInModuleName = 64,
-                UMDModuleDefinition = 65,
-                NewTarget = 66,
-                DefiniteAssignment = 67,
-                Prototype = 68,
-                GlobalThis = 69,
-                UtilityType = 70,
-                PropertyDeclOnFunction = 71,
-                FunctionApplyCall = 72,
-                FunctionBind = 73,
-                ConstAssertion = 74,
-                ImportAssertion = 75,
-                SpreadOperator = 76,
-                LimitedStdLibApi = 77,
-                ErrorSuppression = 78,
-                StrictDiagnostic = 79,
-                ImportAfterStatement = 80,
-                EsObjectType = 81,
-                LAST_ID = 82
-            }
-            class FaultAttributes {
-                cookBookRef: number;
-                migratable: boolean;
-                severity: Utils.ProblemSeverity;
-                constructor(cookBookRef: number, migratable?: boolean, severity?: Utils.ProblemSeverity);
-            }
-            const faultsAttrs: FaultAttributes[];
         }
     }
 }
@@ -9513,7 +9519,7 @@ declare namespace ts {
         class TSCCompiledProgram {
             private diagnosticsExtractor;
             private wasStrict;
-            constructor(program: BuilderProgram, host: CompilerHost);
+            constructor(program: ArkTSProgram, reverseStrictBuilderProgram: ArkTSProgram);
             getOriginalProgram(): Program;
             getStrictProgram(): Program;
             getStrictBuilderProgram(): BuilderProgram;
@@ -9524,11 +9530,11 @@ declare namespace ts {
 }
 declare namespace ts {
     namespace ArkTSLinter_1_1 {
+        interface ArkTSProgram {
+            builderProgram: BuilderProgram;
+            wasStrict: boolean;
+        }
         function translateDiag(srcFile: SourceFile, problemInfo: ProblemInfo): Diagnostic;
-        function runArkTSLinter(tsBuilderProgram: BuilderProgram, host: CompilerHost, srcFile?: SourceFile, buildInfoWriteFile?: WriteFileCallback): Diagnostic[];
-        function getDiagnosticsFromStrictProgram(strictBuilderProgram: BuilderProgram, buildInfoWriteFile?: ts.WriteFileCallback): ESMap<string, {
-            strictDiagnostics: Diagnostic[];
-            arkTSDiagnostics: Diagnostic[];
-        }>;
+        function runArkTSLinter(tsBuilderProgram: ArkTSProgram, reverseStrictBuilderProgram: ArkTSProgram, srcFile?: SourceFile, buildInfoWriteFile?: WriteFileCallback): Diagnostic[];
     }
 }
