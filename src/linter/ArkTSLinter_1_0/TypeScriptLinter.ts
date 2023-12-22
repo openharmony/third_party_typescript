@@ -148,6 +148,10 @@ export class TypeScriptLinter {
     this.libraryTypeCallDiagnosticChecker = new LibraryTypeCallDiagnosticChecker(TypeScriptLinter.filteredDiagnosticMessages);
   }
 
+  public static clearTsTypeChecker(): void {
+    TypeScriptLinter.tsTypeChecker = {} as TypeChecker;
+  }
+
   readonly handlersMap = new Map([
     [SyntaxKind.ObjectLiteralExpression, this.handleObjectLiteralExpression],
     [SyntaxKind.ArrayLiteralExpression, this.handleArrayLiteralExpression],

@@ -8605,6 +8605,7 @@ declare namespace ts {
             const ARKTS_IGNORE_DIRS: string[];
             const ARKTS_IGNORE_FILES: string[];
             function setTypeChecker(tsTypeChecker: TypeChecker): void;
+            function clearTypeChecker(): void;
             function setTestMode(tsTestMode: boolean): void;
             function getStartPos(nodeOrComment: Node | CommentRange): number;
             function getEndPos(nodeOrComment: Node | CommentRange): number;
@@ -8629,6 +8630,7 @@ declare namespace ts {
             function unwrapParenthesized(tsExpr: Expression): Expression;
             function followIfAliased(sym: Symbol): Symbol;
             function trueSymbolAtLocation(node: Node): Symbol | undefined;
+            function clearTrueSymbolAtLocationCache(): void;
             function isTypeDeclSyntaxKind(kind: SyntaxKind): boolean;
             function symbolHasDuplicateName(symbol: Symbol, tsDeclKind: SyntaxKind): boolean;
             function isReferenceType(tsType: Type): boolean;
@@ -8906,6 +8908,7 @@ declare namespace ts {
             staticBlocks: Set<string>;
             libraryTypeCallDiagnosticChecker: LibraryTypeCallDiagnosticChecker;
             constructor(sourceFile: SourceFile, tsProgram: Program, tscStrictDiagnostics?: Map<Diagnostic[]> | undefined);
+            static clearTsTypeChecker(): void;
             readonly handlersMap: ESMap<SyntaxKind, (node: Node) => void>;
             incrementCounters(node: Node | CommentRange, faultId: number, autofixable?: boolean, autofix?: Autofix[]): void;
             visitTSNode(node: Node): void;
@@ -9097,6 +9100,7 @@ declare namespace ts {
             const ARKTS_IGNORE_DIRS: string[];
             const ARKTS_IGNORE_FILES: string[];
             function setTypeChecker(tsTypeChecker: TypeChecker): void;
+            function clearTypeChecker(): void;
             function setTestMode(tsTestMode: boolean): void;
             function getStartPos(nodeOrComment: Node | CommentRange): number;
             function getEndPos(nodeOrComment: Node | CommentRange): number;
@@ -9120,6 +9124,7 @@ declare namespace ts {
             function unwrapParenthesized(tsExpr: Expression): Expression;
             function followIfAliased(sym: Symbol): Symbol;
             function trueSymbolAtLocation(node: Node): Symbol | undefined;
+            function clearTrueSymbolAtLocationCache(): void;
             function isTypeDeclSyntaxKind(kind: SyntaxKind): boolean;
             function symbolHasDuplicateName(symbol: Symbol, tsDeclKind: SyntaxKind): boolean;
             function isReferenceType(tsType: Type): boolean;
@@ -9400,6 +9405,7 @@ declare namespace ts {
             staticBlocks: Set<string>;
             libraryTypeCallDiagnosticChecker: LibraryTypeCallDiagnosticChecker;
             constructor(sourceFile: SourceFile, tsProgram: Program, tscStrictDiagnostics?: Map<Diagnostic[]> | undefined);
+            static clearTsTypeChecker(): void;
             readonly handlersMap: ESMap<SyntaxKind, (node: Node) => void>;
             incrementCounters(node: Node | CommentRange, faultId: number, autofixable?: boolean, autofix?: Autofix[]): void;
             private forEachNodeInSubtree;

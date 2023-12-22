@@ -71,7 +71,15 @@ export function runArkTSLinter(tsBuilderProgram: BuilderProgram, host: CompilerH
     diagnostics.push(...currentDiagnostics);
   }
 
+  releaseReferences();
   return diagnostics;
+}
+
+// reclaiming memory for Hvigor with "no-parallel" and "daemon", .
+function releaseReferences(): void {
+  TypeScriptLinter.clearTsTypeChecker();
+  Utils.clearTypeChecker();
+  Utils.clearTrueSymbolAtLocationCache();
 }
 
 /**
