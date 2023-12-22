@@ -21,7 +21,7 @@ export enum FaultID {
   ComputedPropertyName, LiteralAsPropertyName, TypeQuery, IsOperator,
   DestructuringParameter, YieldExpression, InterfaceMerging, EnumMerging, InterfaceExtendsClass, IndexMember, WithStatement,
   ThrowStatement, IndexedAccessType, UnknownType, ForInStatement, InOperator,
-  ImportFromPath, FunctionExpression, IntersectionType,
+  FunctionExpression, IntersectionType,
   ObjectTypeLiteral, CommaOperator, LimitedReturnTypeInference,
   LambdaWithTypeParameters, ClassExpression, DestructuringAssignment,
   DestructuringDeclaration, VarDeclaration, CatchWithUnsupportedType, DeleteOperator,
@@ -36,7 +36,7 @@ export enum FaultID {
   InstanceofUnsupported, ShorthandAmbientModuleDecl, WildcardsInModuleName, UMDModuleDefinition,
   NewTarget, DefiniteAssignment, Prototype, GlobalThis,
   UtilityType, PropertyDeclOnFunction, FunctionApplyCall, FunctionBind, ConstAssertion, ImportAssertion,
-  SpreadOperator, LimitedStdLibApi, ErrorSuppression, StrictDiagnostic, UnsupportedDecorators, ImportAfterStatement,
+  SpreadOperator, LimitedStdLibApi, ErrorSuppression, StrictDiagnostic, ImportAfterStatement,
   EsObjectType,
   LAST_ID, // this should always be last enum`
 }
@@ -111,7 +111,6 @@ faultsAttrs[FaultID.EnumMemberNonConstInit] = new FaultAttributes(111);
 faultsAttrs[FaultID.EnumMerging] = new FaultAttributes(113);
 faultsAttrs[FaultID.NamespaceAsObject] = new FaultAttributes(114);
 faultsAttrs[FaultID.NonDeclarationInNamespace] = new FaultAttributes(116);
-faultsAttrs[FaultID.ImportFromPath] = new FaultAttributes(119);
 faultsAttrs[FaultID.DefaultImport] = new FaultAttributes(120, true);
 faultsAttrs[FaultID.ImportAssignment] = new FaultAttributes(121);
 faultsAttrs[FaultID.ExportAssignment] = new FaultAttributes(126);
@@ -131,7 +130,6 @@ faultsAttrs[FaultID.ImportAssertion] = new FaultAttributes(143);
 faultsAttrs[FaultID.LimitedStdLibApi] = new FaultAttributes(144);
 faultsAttrs[FaultID.StrictDiagnostic] = new FaultAttributes(145);
 faultsAttrs[FaultID.ErrorSuppression] = new FaultAttributes(146);
-faultsAttrs[FaultID.UnsupportedDecorators] = new FaultAttributes(148, false, Utils.ProblemSeverity.WARNING);
 faultsAttrs[FaultID.ClassAsObject] = new FaultAttributes(149, false, Utils.ProblemSeverity.WARNING);
 faultsAttrs[FaultID.ImportAfterStatement] = new FaultAttributes(150);
 faultsAttrs[FaultID.EsObjectType] = new FaultAttributes(151, false, Utils.ProblemSeverity.WARNING);
