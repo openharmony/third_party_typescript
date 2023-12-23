@@ -2255,8 +2255,9 @@ namespace ts {
                      *            skip all the diagnostics other than forbidden imports.
                      *        done.
                      */
-                    if (item.file !== undefined && normalizePath(item.file.fileName).indexOf("/oh_modules/") !== -1) {
-                        // oh_modules' file
+                    const isOhModule = (item.file !== undefined) && (normalizePath(item.file.fileName).indexOf("/oh_modules/") !== -1);
+                    if (isOhModule) {
+                        // oh_modules file
                         return false;
                     }
 
@@ -2269,7 +2270,7 @@ namespace ts {
                             Diagnostics.Importing_ArkTS_files_in_JS_and_TS_files_is_about_to_be_forbidden.message :
                             Diagnostics.Importing_ArkTS_files_in_JS_and_TS_files_is_forbidden.message);
 
-                        return isNotForbiddenImportDiag ? false : true;
+                        return !isNotForbiddenImportDiag;
                     }
                     return true;
                 });
