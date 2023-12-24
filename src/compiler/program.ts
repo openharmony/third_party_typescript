@@ -2245,8 +2245,8 @@ namespace ts {
             if (allDiagnostics) {
                 const diagnosticsAfterFilter = allDiagnostics.filter((item) => {
                     /* Diagnostics suppression scheme:
-                     *   1.if `file` comes from `oh_modules`:   # todo node_modules?
-                     *        skip all the diagnostics.
+                     *   1.if `file` comes from `oh_modules`:
+                     *        skip all the diagnostics in declaration files and importing ArkTS errors from TS files
                      *        done.
                      *   2.if `file` is a d.ts:
                      *        if d.ts is a kit declaration which being named with `@kit.` prefix:
@@ -2256,9 +2256,15 @@ namespace ts {
                      *        done.
                      */
                     const isOhModule = (item.file !== undefined) && (normalizePath(item.file.fileName).indexOf("/oh_modules/") !== -1);
+                    const isNotForbiddenImportDiag = item.messageText !== (options.isCompatibleVersion ?
+                        Diagnostics.Importing_ArkTS_files_in_JS_and_TS_files_is_about_to_be_forbidden.message :
+                        Diagnostics.Importing_ArkTS_files_in_JS_and_TS_files_is_forbidden.message);
+
                     if (isOhModule) {
-                        // oh_modules file
-                        return false;
+                        if (item.file?.isDeclarationFile) {
+                            return false;
+                        }
+                        return isNotForbiddenImportDiag;
                     }
 
                     if (item.file?.scriptKind === ScriptKind.TS && item.file?.isDeclarationFile) {
@@ -2266,10 +2272,6 @@ namespace ts {
                             // kit declaration
                             return false;
                         }
-                        const isNotForbiddenImportDiag = item.messageText !== (options.isCompatibleVersion ?
-                            Diagnostics.Importing_ArkTS_files_in_JS_and_TS_files_is_about_to_be_forbidden.message :
-                            Diagnostics.Importing_ArkTS_files_in_JS_and_TS_files_is_forbidden.message);
-
                         return !isNotForbiddenImportDiag;
                     }
                     return true;
