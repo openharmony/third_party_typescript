@@ -2113,6 +2113,7 @@ declare namespace ts {
         readonly kind: SyntaxKind.SourceFile;
         readonly statements: NodeArray<Statement>;
         readonly endOfFileToken: Token<SyntaxKind.EndOfFileToken>;
+        reservedComments?: string[];
         fileName: string;
         text: string;
         amdDependencies: readonly AmdDependency[];
@@ -12955,6 +12956,10 @@ declare namespace ts {
     namespace ArkTSLinter_1_0 {
         function translateDiag(srcFile: SourceFile, problemInfo: ProblemInfo): Diagnostic;
         function runArkTSLinter(tsBuilderProgram: BuilderProgram, host: CompilerHost, srcFile?: SourceFile, buildInfoWriteFile?: WriteFileCallback): Diagnostic[];
+        function getDiagnosticsFromStrictProgram(strictBuilderProgram: BuilderProgram, buildInfoWriteFile?: ts.WriteFileCallback): ESMap<string, {
+            strictDiagnostics: Diagnostic[];
+            arkTSDiagnostics: Diagnostic[];
+        }>;
     }
 }
 declare namespace ts {
@@ -13461,6 +13466,10 @@ declare namespace ts {
     namespace ArkTSLinter_1_1 {
         function translateDiag(srcFile: SourceFile, problemInfo: ProblemInfo): Diagnostic;
         function runArkTSLinter(tsBuilderProgram: BuilderProgram, host: CompilerHost, srcFile?: SourceFile, buildInfoWriteFile?: WriteFileCallback): Diagnostic[];
+        function getDiagnosticsFromStrictProgram(strictBuilderProgram: BuilderProgram, buildInfoWriteFile?: ts.WriteFileCallback): ESMap<string, {
+            strictDiagnostics: Diagnostic[];
+            arkTSDiagnostics: Diagnostic[];
+        }>;
     }
 }
 
