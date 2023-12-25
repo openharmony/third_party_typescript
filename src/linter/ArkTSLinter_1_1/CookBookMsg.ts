@@ -160,7 +160,7 @@ cookBookTag[136] = "Prototype assignment is not supported (arkts-no-prototype-as
 cookBookTag[137] = "\"globalThis\" is not supported (arkts-no-globalthis)";
 cookBookTag[138] = "Some of utility types are not supported (arkts-no-utility-types)";
 cookBookTag[139] = "Declaring properties on functions is not supported (arkts-no-func-props)";
-cookBookTag[140] = "\"Function.apply\", \"Function.bind\", \"Function.call\" are not supported (arkts-no-func-apply-bind-call)";
+cookBookTag[140] = "'Function.bind' is not supported (arkts-no-func-bind)";
 cookBookTag[141] = "";
 cookBookTag[142] = "\"as const\" assertions are not supported (arkts-no-as-const)";
 cookBookTag[143] = "Import assertions are not supported (arkts-no-import-assertions)";
@@ -171,6 +171,7 @@ cookBookTag[147] = "No dependencies on TypeScript code are currently allowed (ar
 cookBookTag[148] = "";
 cookBookTag[149] = "Classes cannot be used as objects (arkts-no-classes-as-obj)";
 cookBookTag[150] = "\"import\" statements after other statements are not allowed (arkts-no-misplaced-imports)";
-cookBookTag[151] = 'Usage of "ESObject" type is restricted (arkts-limited-esobj)';
+cookBookTag[151] = "Usage of 'ESObject' type is restricted (arkts-limited-esobj)";
+cookBookTag[152] = "'Function.apply', 'Function.call' are not supported (arkts-no-func-apply-call)";
 }
 }

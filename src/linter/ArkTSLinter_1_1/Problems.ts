@@ -123,7 +123,6 @@ faultsAttrs[FaultID.Prototype] = new FaultAttributes(136);
 faultsAttrs[FaultID.GlobalThis] = new FaultAttributes(137, false, Utils.ProblemSeverity.WARNING);
 faultsAttrs[FaultID.UtilityType] = new FaultAttributes(138);
 faultsAttrs[FaultID.PropertyDeclOnFunction] = new FaultAttributes(139);
-faultsAttrs[FaultID.FunctionApplyCall] = new FaultAttributes(140);
 faultsAttrs[FaultID.FunctionBind] = new FaultAttributes(140, false, Utils.ProblemSeverity.WARNING);
 faultsAttrs[FaultID.ConstAssertion] = new FaultAttributes(142);
 faultsAttrs[FaultID.ImportAssertion] = new FaultAttributes(143);
@@ -133,6 +132,7 @@ faultsAttrs[FaultID.ErrorSuppression] = new FaultAttributes(146);
 faultsAttrs[FaultID.ClassAsObject] = new FaultAttributes(149, false, Utils.ProblemSeverity.WARNING);
 faultsAttrs[FaultID.ImportAfterStatement] = new FaultAttributes(150);
 faultsAttrs[FaultID.EsObjectType] = new FaultAttributes(151, false, Utils.ProblemSeverity.WARNING);
+faultsAttrs[FaultID.FunctionApplyCall] = new FaultAttributes(152);
 }
 }
 }

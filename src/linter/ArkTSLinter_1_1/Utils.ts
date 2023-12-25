@@ -1024,7 +1024,7 @@ function validateRecordObjectKeys(objectLiteral: ObjectLiteralExpression): boole
     if (!prop.name) {
       return false;
     }
-    const isValidComputedProperty = isComputedPropertyName(prop.name) && isEnumStringLiteral(prop.name.expression);
+    const isValidComputedProperty = isComputedPropertyName(prop.name) && isValidComputedPropertyName(prop.name, true);
     if (!isStringLiteral(prop.name) && !isNumericLiteral(prop.name) && !isValidComputedProperty) {
       return false;
     }
@@ -1040,7 +1040,7 @@ export function getDecorators(node: Node): readonly Decorator[] | undefined {
 }
 */
 
-export type CheckType = ((t: ts.Type) => boolean);
+export type CheckType = ((t: Type) => boolean);
 
 export const ES_OBJECT = "ESObject";
 
@@ -1558,6 +1558,17 @@ export function isEnumStringLiteral(expr: ts.Expression): boolean {
   const type = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(expr);
   const isStringEnumLiteral = isEnumType(type) && !!(type.flags & ts.TypeFlags.StringLiteral);
   return isEnumMember && isStringEnumLiteral;
+}
+
+export function isValidComputedPropertyName(computedProperty: ComputedPropertyName, isRecordObjectInitializer = false): boolean {
+  const expr = computedProperty.expression;
+  if (!isRecordObjectInitializer) {
+    const symbol = trueSymbolAtLocation(expr);
+    if (!!symbol && isSymbolIterator(symbol)) {
+      return true;
+    }
+  }
+  return isStringLiteralLike(expr) || isEnumStringLiteral(computedProperty.expression);
 }
 
 }

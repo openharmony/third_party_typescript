@@ -2113,7 +2113,6 @@ declare namespace ts {
         readonly kind: SyntaxKind.SourceFile;
         readonly statements: NodeArray<Statement>;
         readonly endOfFileToken: Token<SyntaxKind.EndOfFileToken>;
-        reservedComments?: string[];
         fileName: string;
         text: string;
         amdDependencies: readonly AmdDependency[];
@@ -13119,7 +13118,7 @@ declare namespace ts {
             function validateFields(objectType: Type, objectLiteral: ObjectLiteralExpression): boolean;
             function isSupportedType(typeNode: TypeNode): boolean;
             function isStruct(symbol: Symbol): boolean;
-            type CheckType = ((t: ts.Type) => boolean);
+            type CheckType = ((t: Type) => boolean);
             const ES_OBJECT = "ESObject";
             const LIMITED_STD_GLOBAL_FUNC: string[];
             const LIMITED_STD_OBJECT_API: string[];
@@ -13173,6 +13172,7 @@ declare namespace ts {
             function isStdNumberType(type: ts.Type): boolean;
             function isStdBooleanType(type: ts.Type): boolean;
             function isEnumStringLiteral(expr: ts.Expression): boolean;
+            function isValidComputedPropertyName(computedProperty: ComputedPropertyName, isRecordObjectInitializer?: boolean): boolean;
         }
     }
 }
