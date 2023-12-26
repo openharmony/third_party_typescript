@@ -1833,12 +1833,7 @@ export class TypeScriptLinter {
 
   private handleComputedPropertyName(node: ts.Node) {
     const computedProperty = node as ts.ComputedPropertyName;
-    const symbol = Utils.trueSymbolAtLocation(computedProperty.expression);
-    if (!!symbol && Utils.isSymbolIterator(symbol)) {
-      return
-    }
-    // we allow computed property names if expression is string Enum member
-    if (!Utils.isEnumStringLiteral(computedProperty.expression)) {
+    if (!Utils.isValidComputedPropertyName(computedProperty, false)) {
       this.incrementCounters(node, FaultID.ComputedPropertyName);
     }
   }
