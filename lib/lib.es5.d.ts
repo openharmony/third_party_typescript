@@ -4524,3 +4524,5 @@ interface Date {
      */
     toLocaleTimeString(locales?: string | string[], options?: Intl.DateTimeFormatOptions): string;
 }
+
+type ESObject = any;

@@ -1237,7 +1237,7 @@ declare namespace ts.server.protocol {
          */
         projectRootPath?: string;
     }
-    type ScriptKindName = "TS" | "JS" | "TSX" | "JSX";
+    type ScriptKindName = "TS" | "JS" | "TSX" | "JSX" | "ETS";
     /**
      * Open request; value of command field is "open". Notify the
      * server that the client has file open.  The server will not
@@ -1637,6 +1637,43 @@ declare namespace ts.server.protocol {
          */
         includeInsertTextCompletions?: boolean;
     }
+    interface EtsOptions {
+        render: {
+            method: string[];
+            decorator: string;
+        };
+        components: string[];
+        libs: string[];
+        extend: {
+            decorator: string[];
+            components: {
+                name: string;
+                type: string;
+                instance: string;
+            }[];
+        };
+        styles: {
+            decorator: string;
+            component: {
+                name: string;
+                type: string;
+                instance: string;
+            };
+            property: string;
+        };
+        concurrent: {
+            decorator: string;
+        };
+        customComponent?: string;
+        propertyDecorators: {
+            name: string;
+            needInitialization: boolean;
+        }[];
+        emitDecorators: {
+            name: string;
+            emitParameters: boolean;
+        }[];
+    }
     /**
      * Completions request; value of command field is "completions".
      * Given a file location (file, line, col) and a prefix (which may
@@ -1770,6 +1807,14 @@ declare namespace ts.server.protocol {
          * items with the same name.
          */
         data?: unknown;
+        /**
+         * Js Doc info with symbol.
+         */
+        jsDoc?: JsDocTagInfo[];
+        /**
+         * Displayparts info with symbol.
+         */
+        displayParts?: SymbolDisplayPart[];
     }
     interface CompletionEntryLabelDetails {
         /**
@@ -2788,6 +2833,9 @@ declare namespace ts.server.protocol {
         types?: string[];
         /** Paths used to used to compute primary types search locations */
         typeRoots?: string[];
+        ets?: EtsOptions;
+        packageManagerType?: string;
+        emitNodeModulesFiles?: boolean;
         [option: string]: CompilerOptionsValue | undefined;
     }
     const enum JsxEmit {
@@ -2906,6 +2954,8 @@ declare namespace ts.server.protocol {
         classElement = "class",
         /** var x = class X {} */
         localClassElement = "local class",
+        /** struct X {} */
+        structElement = "struct",
         /** interface Y {} */
         interfaceElement = "interface",
         /** type T = ... */
@@ -2988,12 +3038,27 @@ declare namespace ts.server.protocol {
         [option: string]: CompilerOptionsValue | undefined;
     }
 
-    export type CompilerOptionsValue = string | number | boolean | (string | number)[] | string[] | MapLike<string[]> | PluginImport[] | ProjectReference[] | null | undefined;
+    export type CompilerOptionsValue = string | number | boolean | (string | number)[] | string[] | MapLike<string[]> | PluginImport[] | ProjectReference[] | null | undefined | EtsOptions;
 
     export interface FileExtensionInfo {
         extension: string;
         isMixedContent: boolean;
         scriptKind?: ScriptKind;
+    }
+
+    export interface JsDocTagInfo {
+        name: string;
+        text?: string | SymbolDisplayPart[];
+    }
+
+    export interface SymbolDisplayPart {
+        text: string;
+        kind: string;
+    }
+
+    interface SymbolDisplayPart {
+        text: string;
+        kind: string;
     }
 
     /**
