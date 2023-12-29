@@ -16,8 +16,6 @@
 namespace ts {
 export namespace ArkTSLinter_1_1 {
 
-//import Utils = Utils;
-
 import FaultID = Problems.FaultID;
 import faultsAttrs = Problems.faultsAttrs;
 
@@ -200,8 +198,11 @@ export class TypeScriptLinter {
   public incrementCounters(node: Node | CommentRange, faultId: number, autofixable = false, autofix?: Autofix[]): void {
     if (!TypeScriptLinter.strictMode && faultsAttrs[faultId].migratable) { return; } // In relax mode skip migratable
 
-    const startPos = Utils.getStartPos(node);
-    const endPos = Utils.getEndPos(node);
+    //const startPos = Utils.getStartPos(node);
+    //const endPos = Utils.getEndPos(node);
+    const hlightRange: number[] = Utils.getHighlightRange(node, faultId);
+    const startPos = hlightRange[0];
+    const endPos = hlightRange[1];
 
     TypeScriptLinter.nodeCounters[faultId]++;
     // TSC counts lines and columns from zero
@@ -214,7 +215,7 @@ export class TypeScriptLinter {
 
     const cookBookMsgNum = faultsAttrs[faultId] ? faultsAttrs[faultId].cookBookRef : 0;
     const cookBookTg = cookBookTag[cookBookMsgNum];
-    const severity = faultsAttrs[faultId]?.severity ?? Utils.ProblemSeverity.ERROR;
+    const severity = faultsAttrs[faultId]?.severity ?? Common.ProblemSeverity.ERROR;
     const badNodeInfo: ProblemInfo = {
       line: line,
       column: character,
@@ -242,13 +243,13 @@ export class TypeScriptLinter {
     TypeScriptLinter.lineCounters[faultId]++;
 
     switch (faultsAttrs[faultId].severity) {
-      case Utils.ProblemSeverity.ERROR: {
+      case Common.ProblemSeverity.ERROR: {
         this.currentErrorLine = line;
         ++TypeScriptLinter.totalErrorLines;
         TypeScriptLinter.errorLineNumbersString += line + ', ';
         break;
       }
-      case Utils.ProblemSeverity.WARNING: {
+      case Common.ProblemSeverity.WARNING: {
         if (line === this.currentWarningLine) {
           break;
         }
@@ -439,7 +440,7 @@ export class TypeScriptLinter {
       for (const tsTypeExpr of hClause.types) {
         const tsExprType = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(tsTypeExpr.expression);
         if (tsExprType.isClass()) {
-          this.incrementCounters(node, FaultID.InterfaceExtendsClass);
+          this.incrementCounters(tsTypeExpr, FaultID.InterfaceExtendsClass);
         }
         else if (tsExprType.isClassOrInterface()) {
           this.lintForInterfaceExtendsDifferentPorpertyTypes(node, tsExprType, prop2type);
