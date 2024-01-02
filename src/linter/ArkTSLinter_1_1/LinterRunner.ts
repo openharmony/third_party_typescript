@@ -103,58 +103,5 @@ function getTscDiagnostics(
   return strictDiagnostics;
 }
 
-export function getDiagnosticsFromStrictProgram(strictBuilderProgram: BuilderProgram, buildInfoWriteFile?: ts.WriteFileCallback) {
-  const strictProgram = strictBuilderProgram.getProgram();
-  let diagnostics = new Map<string, {strictDiagnostics:Diagnostic[], arkTSDiagnostics:Diagnostic[]}>()
-  LinterConfig.initStatic();
-  const srcFiles = strictProgram.getSourceFiles().filter(sourcefile => sourcefile.scriptKind === ScriptKind.ETS);
-  const tscStrictDiagnostics = getTscStrictDiagnostics(strictProgram, srcFiles);
-  TypeScriptLinter.initGlobals();
-
-  for(const fileToLint of srcFiles) {
-    TypeScriptLinter.initStatic();
-
-    const linter = new TypeScriptLinter(fileToLint, strictProgram, tscStrictDiagnostics);
-    Utils.setTypeChecker(TypeScriptLinter.tsTypeChecker);
-    linter.lint();
-
-    // Get list of bad nodes from the current run.
-    const currentStaticDiagnostics: Diagnostic[] = tscStrictDiagnostics.get(fileToLint.fileName) ?? [];
-    const currentArkTSDiagnostics: Diagnostic[] = [];
-    TypeScriptLinter.problemsInfos.forEach(
-      (x) => currentArkTSDiagnostics.push(translateDiag(fileToLint, x))
-    );
-    diagnostics.set(normalizePath(fileToLint.fileName), {
-      strictDiagnostics : currentStaticDiagnostics,
-      arkTSDiagnostics: currentArkTSDiagnostics,
-    });
-  }
-
-  if (!!buildInfoWriteFile) {
-    strictBuilderProgram.emitBuildInfo(buildInfoWriteFile);
-  }
-
-  releaseReferences();
-  return diagnostics;
-}
-
-function getTscStrictDiagnostics(
-  strictProgram: Program,
-  sourceFiles: SourceFile[],
-): Map<Diagnostic[]> {
-  const strictDiagnostics = new Map<string, Diagnostic[]>();
-  const diagnostics = strictProgram.getSemanticDiagnostics().concat(strictProgram.getSyntacticDiagnostics());
-  diagnostics.forEach(diag => {
-    if (diag.file && sourceFiles.some(file=>{ return file === diag.file; })) {
-      const fileName = normalizePath(diag.file.fileName);
-      if (!strictDiagnostics.has(fileName)) {
-        strictDiagnostics.set(fileName, []);
-      }
-      strictDiagnostics.get(fileName)?.push(diag);
-    }
-  });
-  return strictDiagnostics;
-}
-
 }
 }
