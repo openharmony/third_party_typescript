@@ -1932,11 +1932,22 @@ namespace ts {
         function filterDiagnostics(allDiagnostics: (readonly Diagnostic[] | undefined)): readonly Diagnostic[] | undefined {
             if (allDiagnostics) {
                 const diagnosticsAfterFilter = allDiagnostics.filter((item) => {
-                    const messageFlag = item.messageText !== (options.isCompatibleVersion ?
+                    const isOhModule = (item.file !== undefined) && (normalizePath(item.file.fileName).indexOf("/oh_modules/") !== -1);
+                    const isNotForbiddenImportDiag = item.messageText !== (options.isCompatibleVersion ?
                         Diagnostics.Importing_ArkTS_files_in_JS_and_TS_files_is_about_to_be_forbidden.message :
                         Diagnostics.Importing_ArkTS_files_in_JS_and_TS_files_is_forbidden.message);
-                    const isOhModule = (item.file !== undefined) && (normalizePath(item.file.fileName).indexOf("/oh_modules/") !== -1);
-                    return !((item.file?.scriptKind === ScriptKind.TS && item.file?.isDeclarationFile && messageFlag) || isOhModule);
+
+                    if (isOhModule) {
+                        if (item.file?.isDeclarationFile) {
+                            return false;
+                        }
+                        return isNotForbiddenImportDiag;
+                    }
+
+                    if (item.file?.scriptKind === ScriptKind.TS && item.file?.isDeclarationFile) {
+                        return !isNotForbiddenImportDiag;
+                    }
+                    return true;
                 });
                 return diagnosticsAfterFilter;
             }
