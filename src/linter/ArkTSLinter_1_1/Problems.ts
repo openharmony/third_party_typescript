@@ -16,6 +16,8 @@ namespace ts {
 export namespace ArkTSLinter_1_1 {
 export namespace Problems {
 
+import ProblemSeverity = Common.ProblemSeverity;
+
 export enum FaultID {
   AnyType, SymbolType, ObjectLiteralNoContextType, ArrayLiteralNoContextType,
   ComputedPropertyName, LiteralAsPropertyName, TypeQuery, IsOperator,
@@ -45,7 +47,7 @@ export class FaultAttributes {
   constructor(
     public cookBookRef: number,
     public migratable: boolean = false,
-    public severity: Utils.ProblemSeverity = Utils.ProblemSeverity.ERROR
+    public severity: ProblemSeverity = ProblemSeverity.ERROR
   ) {}
 }
 
@@ -118,20 +120,20 @@ faultsAttrs[FaultID.ShorthandAmbientModuleDecl] = new FaultAttributes(128);
 faultsAttrs[FaultID.WildcardsInModuleName] = new FaultAttributes(129);
 faultsAttrs[FaultID.UMDModuleDefinition] = new FaultAttributes(130);
 faultsAttrs[FaultID.NewTarget] = new FaultAttributes(132);
-faultsAttrs[FaultID.DefiniteAssignment] = new FaultAttributes(134, false, Utils.ProblemSeverity.WARNING);
+faultsAttrs[FaultID.DefiniteAssignment] = new FaultAttributes(134, false, ProblemSeverity.WARNING);
 faultsAttrs[FaultID.Prototype] = new FaultAttributes(136);
-faultsAttrs[FaultID.GlobalThis] = new FaultAttributes(137, false, Utils.ProblemSeverity.WARNING);
+faultsAttrs[FaultID.GlobalThis] = new FaultAttributes(137, false, ProblemSeverity.WARNING);
 faultsAttrs[FaultID.UtilityType] = new FaultAttributes(138);
 faultsAttrs[FaultID.PropertyDeclOnFunction] = new FaultAttributes(139);
-faultsAttrs[FaultID.FunctionBind] = new FaultAttributes(140, false, Utils.ProblemSeverity.WARNING);
+faultsAttrs[FaultID.FunctionBind] = new FaultAttributes(140, false, ProblemSeverity.WARNING);
 faultsAttrs[FaultID.ConstAssertion] = new FaultAttributes(142);
 faultsAttrs[FaultID.ImportAssertion] = new FaultAttributes(143);
 faultsAttrs[FaultID.LimitedStdLibApi] = new FaultAttributes(144);
 faultsAttrs[FaultID.StrictDiagnostic] = new FaultAttributes(145);
 faultsAttrs[FaultID.ErrorSuppression] = new FaultAttributes(146);
-faultsAttrs[FaultID.ClassAsObject] = new FaultAttributes(149, false, Utils.ProblemSeverity.WARNING);
+faultsAttrs[FaultID.ClassAsObject] = new FaultAttributes(149, false, ProblemSeverity.WARNING);
 faultsAttrs[FaultID.ImportAfterStatement] = new FaultAttributes(150);
-faultsAttrs[FaultID.EsObjectType] = new FaultAttributes(151, false, Utils.ProblemSeverity.WARNING);
+faultsAttrs[FaultID.EsObjectType] = new FaultAttributes(151, false, ProblemSeverity.WARNING);
 faultsAttrs[FaultID.FunctionApplyCall] = new FaultAttributes(152);
 }
 }

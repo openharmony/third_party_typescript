@@ -15,12 +15,15 @@
 
 namespace ts {
 export namespace ArkTSLinter_1_1 {
+
+import FaultID = Problems.FaultID;
+import AutofixInfo = Common.AutofixInfo;
+
 export namespace Utils {
 //import * as path from 'node:path';
 //import * as ts from 'typescript';
 //import ProblemInfo = ts.ProblemInfo;
 //import TypeScriptLinter = TypeScriptLinter;
-import AutofixInfo = Common.AutofixInfo;
 
 export const PROPERTY_HAS_NO_INITIALIZER_ERROR_CODE = 2564;
 
@@ -35,8 +38,6 @@ export const LIMITED_STANDARD_UTILITY_TYPES = [
 ];
 
 export const ALLOWED_STD_SYMBOL_API = ["iterator"]
-
-export enum ProblemSeverity { WARNING = 1, ERROR = 2 }
 
 export const ARKTS_IGNORE_DIRS = ['node_modules', 'oh_modules', 'build', '.preview'];
 export const ARKTS_IGNORE_FILES = ['hvigorfile.ts'];
@@ -66,6 +67,121 @@ export function getEndPos(nodeOrComment: Node | CommentRange): number {
     ? (nodeOrComment as CommentRange).end
     : (nodeOrComment as Node).getEnd();
 }
+
+export function getHighlightRange(nodeOrComment: Node | CommentRange, faultId: number): number[] {
+  let hlightRange: number[] = [getStartPos(nodeOrComment), getEndPos(nodeOrComment)];
+
+  switch (faultId) {
+    case FaultID.VarDeclaration:
+      hlightRange[0] = (nodeOrComment as VariableStatement).getStart();
+      hlightRange[1] = hlightRange[0] + 'var'.length;
+      break;
+    case FaultID.CatchWithUnsupportedType:
+      const catchClauseNode = (nodeOrComment as CatchClause).variableDeclaration;
+      if (!!catchClauseNode) {
+        hlightRange[0] = catchClauseNode.getStart();
+        hlightRange[1] = catchClauseNode.getEnd();
+      }
+      break;
+    case FaultID.ForInStatement:
+      hlightRange[0] = getEndPos((nodeOrComment as ForInStatement).initializer) + 1;
+      hlightRange[1] = getStartPos((nodeOrComment as ForInStatement).expression) - 1;
+      break;
+    case FaultID.WithStatement:
+      hlightRange[0] = getStartPos(nodeOrComment);
+      hlightRange[1] = (nodeOrComment as WithStatement).statement.getStart() - 1;
+      break;
+    case FaultID.DeleteOperator:
+      hlightRange[0] = getStartPos(nodeOrComment);
+      hlightRange[1] = hlightRange[0] + 'delete'.length; //(nodeOrComment as DeleteExpression).expression.getStart() - 1;
+      break;
+    case FaultID.TypeQuery:
+      hlightRange[0] = getStartPos(nodeOrComment);
+      hlightRange[1] = hlightRange[0] + 'typeof'.length;
+      break;
+    case FaultID.InstanceofUnsupported:
+      const insNode = (nodeOrComment as BinaryExpression).operatorToken;
+      hlightRange[0] = getStartPos(insNode);
+      hlightRange[1] = hlightRange[0] + 'instanceof'.length;
+      break;
+    case FaultID.ConstAssertion:
+      if (nodeOrComment.kind === SyntaxKind.AsExpression) {
+        hlightRange[0] = (nodeOrComment as AsExpression).expression.getEnd() + 1;
+        hlightRange[1] = (nodeOrComment as AsExpression).type.getStart() - 1;
+      } else {
+        hlightRange[0] = (nodeOrComment as TypeAssertion).expression.getEnd() + 1;
+        hlightRange[1] = (nodeOrComment as TypeAssertion).type.getEnd() + 1;
+      }
+      break;
+    case FaultID.LimitedReturnTypeInference: {
+      let node: ts.Node | undefined;
+      if (nodeOrComment.kind === SyntaxKind.FunctionExpression) {
+        // we got error about return type so it should be present
+        node = (nodeOrComment as FunctionExpression).type;
+      } else if (nodeOrComment.kind === SyntaxKind.FunctionDeclaration) {
+        node = (nodeOrComment as FunctionDeclaration).name;
+      }
+
+      if (node !== undefined) {
+        hlightRange[0] = node.getStart();
+        hlightRange[1] = node.getEnd();
+      }
+
+      break;
+    }
+    case FaultID.LocalFunction:
+      hlightRange[0] = getStartPos(nodeOrComment);
+      hlightRange[1] = hlightRange[0] + 'function'.length;
+      break;
+
+    case FaultID.FunctionBind:
+    case FaultID.FunctionApplyCall:
+      const pointPos = (nodeOrComment as Node).getText().lastIndexOf('.');
+      hlightRange[0] = getStartPos(nodeOrComment) + pointPos + 1;
+      hlightRange[1] = getEndPos(nodeOrComment);
+      break;
+    case FaultID.DeclWithDuplicateName:
+      // in case of private identifier no range update is needed
+      let nameNode: Node | undefined;
+      if (nodeOrComment.kind === SyntaxKind.EnumDeclaration)
+        nameNode = (nodeOrComment as EnumDeclaration).name;
+      else if (nodeOrComment.kind === SyntaxKind.InterfaceDeclaration)
+        nameNode = (nodeOrComment as InterfaceDeclaration).name;
+      else if (nodeOrComment.kind === SyntaxKind.FunctionDeclaration)
+        nameNode = (nodeOrComment as FunctionDeclaration).name;
+      else if (nodeOrComment.kind === SyntaxKind.ClassDeclaration)
+        nameNode = (nodeOrComment as ClassDeclaration).name;
+      else if (nodeOrComment.kind === SyntaxKind.ModuleDeclaration)
+        nameNode = (nodeOrComment as ModuleDeclaration).name;
+      else if (nodeOrComment.kind === SyntaxKind.TypeAliasDeclaration)
+        nameNode = (nodeOrComment as TypeAliasDeclaration).name;
+      else if (nodeOrComment.kind === SyntaxKind.ImportClause)
+        nameNode = (nodeOrComment as ImportClause).name;
+      else if (nodeOrComment.kind === SyntaxKind.ImportSpecifier)
+        nameNode = (nodeOrComment as ImportSpecifier).name;
+      else if (nodeOrComment.kind === SyntaxKind.NamespaceImport)
+        nameNode = (nodeOrComment as NamespaceImport).name;
+      else
+        nameNode = undefined;
+
+      if (nameNode !== undefined) {
+        hlightRange[0] = nameNode.getStart();
+        hlightRange[1] = nameNode.getEnd();
+      }
+      break;
+
+    case FaultID.ObjectLiteralNoContextType:
+      hlightRange[0] = getStartPos(nodeOrComment);
+      hlightRange[1] = hlightRange[0] + '{'.length;
+      break;
+    case FaultID.ClassExpression:
+      hlightRange[0] = getStartPos(nodeOrComment);
+      hlightRange[1] = hlightRange[0] + 'class'.length;
+      break;
+  }
+  return hlightRange;
+}
+
 
 export function isAssignmentOperator(tsBinOp: BinaryOperatorToken): boolean {
   return tsBinOp.kind >= SyntaxKind.FirstAssignment && tsBinOp.kind <= SyntaxKind.LastAssignment;
@@ -623,7 +739,7 @@ function needToDeduceStructuralIdentityHandleUnions(
     }
     return false;
   }
- 
+
   if (lhsType.isUnion()) {
     // RHS type needs to be compatible with at least one type of the LHS union.
     for (const compType of lhsType.types) {
@@ -957,7 +1073,7 @@ function validateField(type: ts.Type, prop: ts.PropertyAssignment): boolean {
   if (ts.isObjectLiteralExpression(initExpr)) {
     if (!isObjectLiteralAssignable(propType, initExpr)) {
       return false;
-    } 
+    }
   } else {
     // Only check for structural sub-typing.
     if (needToDeduceStructuralIdentity(propType, TypeScriptLinter.tsTypeChecker.getTypeAtLocation(initExpr), initExpr)) {

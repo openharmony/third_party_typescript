@@ -41,6 +41,8 @@ export interface LintOptions {
   [key: string]: any;
 }
 
+export enum ProblemSeverity { WARNING = 1, ERROR = 2 }
+
 }
 }
 }
