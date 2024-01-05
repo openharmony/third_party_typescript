@@ -29225,9 +29225,34 @@ namespace ts {
             if (!checkParam.needCheck) {
                 return;
             }
-            if (isIdentifier(node.name)) {
-                expressionCheckByJsDoc((sourceSymbol as any).getJsDocTags(), node.name, sourceFile, checkParam.checkConfig);
+            let jsDocTags: JSDocTagInfo[] = (sourceSymbol as any).getJsDocTags();
+            if (sourceSymbol.declarations.length > 1) {
+              const signatureDeclaration: SignatureDeclaration | undefined = ts.tryGetSignatureDeclaration(checker, node);
+              jsDocTags = getJsdocFromDeclaration(signatureDeclaration);
             }
+            if (isIdentifier(node.name)) {
+                expressionCheckByJsDoc(jsDocTags, node.name, sourceFile, checkParam.checkConfig);
+            }
+        }
+
+        function getJsdocFromDeclaration(declaration: SignatureDeclaration | undefined): JSDocTagInfo[]{
+          const jsdocTags: JSDocTagInfo[] = [];
+          if (!declaration || !declaration.jsDoc || !declaration.jsDoc[declaration.jsDoc.length - 1].tags) {
+            return jsdocTags;
+          }
+          const tags: NodeArray<JSDocTag> | undefined = declaration.jsDoc[declaration.jsDoc.length - 1].tags;
+          tags?.forEach((tagNode: JSDocTag)=> {
+            const tagObject: JSDocTagInfo = {
+              name: '',
+              text: '',
+            }
+            tagObject.name = tagNode.tagName.escapedText.toString();           
+            if (tagNode.comment) {
+              tagObject.text = tagNode.comment;
+            }
+            jsdocTags.push(tagObject);
+          })
+          return jsdocTags;
         }
 
         function checkIdentifierJsDoc(node: Identifier, sourceSymbol: Symbol | undefined) {
