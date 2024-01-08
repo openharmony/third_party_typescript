@@ -5312,7 +5312,6 @@ declare namespace ts {
     };
     export {};
 }
-declare const JSON5: any;
 declare namespace ts {
     export function getEffectiveTypeRoots(options: CompilerOptions, host: GetEffectiveTypeRootsHost): string[] | undefined;
     /**

@@ -816,7 +816,7 @@ namespace ts.moduleSpecifiers {
             const cachedPackageJson = host.getPackageJsonInfoCache?.()?.getPackageJsonInfo(packageJsonPath);
             if (typeof cachedPackageJson === "object" || cachedPackageJson === undefined && host.fileExists(packageJsonPath)) {
                 const packageJsonContent = cachedPackageJson?.contents.packageJsonContent || 
-                    isOhpm(options.packageManagerType) ? JSON5.parse(host.readFile!(packageJsonPath)!) : JSON.parse(host.readFile!(packageJsonPath)!);
+                    isOhpm(options.packageManagerType) ? require("json5").parse(host.readFile!(packageJsonPath)!) : JSON.parse(host.readFile!(packageJsonPath)!);
                 const importMode = overrideMode || importingSourceFile.impliedNodeFormat;
                 if (getEmitModuleResolutionKind(options) === ModuleResolutionKind.Node16 || getEmitModuleResolutionKind(options) === ModuleResolutionKind.NodeNext) {
                     const conditions = ["node", importMode === ModuleKind.ESNext ? "import" : "require", "types"];

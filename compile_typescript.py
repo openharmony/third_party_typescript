@@ -18,13 +18,6 @@ import shutil
 import sys
 import subprocess
 
-def copy_dir(source_path, dest_path):
-    try:
-        shutil.rmtree(dest_path)
-        shutil.copytree(source_path, dest_path, dirs_exist_ok=True, symlinks=True)
-    except Exception as err:
-        raise Exception(err.decode())
-
 
 def run_cmd(cmd, execution_path=None):
     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE,
@@ -37,22 +30,13 @@ def run_cmd(cmd, execution_path=None):
         raise Exception(stderr.decode())
 
 
-def run_gulp(execution_path):
-    run_cmd(["npm", "run", "clean"], execution_path)
-    run_cmd(["npm", "run", "build"], execution_path)
-    run_cmd(["npm", "run", "release"], execution_path)
-
-
 def run_pack(execution_path):
     run_cmd(["npm", "pack"], execution_path)
 
 
 def main(args):
     source_path = args[0]
-    dest_and_exec_path = args[1]
-    copy_dir(source_path, dest_and_exec_path)
-    run_gulp(dest_and_exec_path)
-    run_pack(dest_and_exec_path)
+    run_pack(source_path)
 
 
 if __name__ == '__main__':

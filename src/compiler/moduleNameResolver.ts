@@ -1,4 +1,3 @@
-const JSON5 = require("json5");
 namespace ts {
     /* @internal */
     export function trace(host: ModuleResolutionHost, message: DiagnosticMessage, ...args: any[]): void;
@@ -536,7 +535,7 @@ namespace ts {
                             // eslint-disable-next-line no-null/no-null
                             let isNotNeededPackage: boolean;
                             if (isOhpm(options.packageManagerType)) {
-                                isNotNeededPackage = host.fileExists(packageJsonPath) && JSON5.parse(host.readFile!(packageJsonPath)!).typings === null;
+                                isNotNeededPackage = host.fileExists(packageJsonPath) && require("json5").parse(host.readFile!(packageJsonPath)!).typings === null;
                             }
                             else {
                                 isNotNeededPackage = host.fileExists(packageJsonPath) && (readJson(packageJsonPath, host) as PackageJson).typings === null;
@@ -1889,7 +1888,7 @@ namespace ts {
         const directoryExists = directoryProbablyExists(packageDirectory, host);
         if (directoryExists && host.fileExists(packageJsonPath)) {
             const isOHModules: boolean = isOhpm(state.compilerOptions.packageManagerType);
-            const packageJsonContent = isOHModules ? JSON5.parse(host.readFile!(packageJsonPath)!) : readJson(packageJsonPath, host) as PackageJson;
+            const packageJsonContent = isOHModules ? require("json5").parse(host.readFile!(packageJsonPath)!) : readJson(packageJsonPath, host) as PackageJson;
             if (traceEnabled) {
                 const message = isOHModules ? Diagnostics.Found_oh_package_json5_at_0 : Diagnostics.Found_package_json_at_0;
                 trace(host, message, packageJsonPath);
