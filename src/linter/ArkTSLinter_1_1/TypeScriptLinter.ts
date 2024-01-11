@@ -1878,6 +1878,11 @@ export class TypeScriptLinter {
     // to omit both type annotation and initializer. 
     if (((ts.isVariableDeclaration(decl) && ts.isVariableStatement(decl.parent.parent)) || ts.isPropertyDeclaration(decl)) &&
       !decl.initializer) {
+      if (ts.isPropertyDeclaration(decl) &&
+        this.sourceFile.scriptKind === ScriptKind.ETS && this.sourceFile.isDeclarationFile &&
+        decl.modifiers?.some(m => m.kind === SyntaxKind.PrivateKeyword)) {
+        return;
+      }
       this.incrementCounters(decl, FaultID.AnyType);
       return;
     }
