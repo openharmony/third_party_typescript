@@ -2261,6 +2261,9 @@ namespace ts {
                         Diagnostics.Importing_ArkTS_files_in_JS_and_TS_files_is_forbidden.message);
 
                     if (isOhModule) {
+                        if (options.skipTscOhModuleCheck) {
+                            return false;
+                        }
                         if (item.file?.isDeclarationFile) {
                             return false;
                         }
