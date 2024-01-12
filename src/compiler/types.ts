@@ -7377,6 +7377,9 @@ namespace ts {
          */
         getJsDocNodeConditionCheckedResult?(jsDocFileCheckedInfo: FileCheckModuleInfo, jsDocs: JsDocTagInfo[]): ConditionCheckResult;
         getFileCheckedModuleInfo?(containFilePath: string): FileCheckModuleInfo;
+
+        // For ark incremental build
+        getLastCompiledProgram?(): Program;
     }
 
     /** true if --out otherwise source file name */

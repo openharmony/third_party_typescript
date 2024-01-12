@@ -20,10 +20,11 @@ export class TSCCompiledProgram {
   private diagnosticsExtractor: TypeScriptDiagnosticsExtractor;
   private wasStrict: boolean;
 
-  constructor(program: BuilderProgram, host: CompilerHost) {
-    const { strict, nonStrict, wasStrict } = getTwoCompiledVersions(program, host);
+  constructor(program: ArkTSProgram, reverseStrictBuilderProgram: ArkTSProgram) {
+    const strict = program.wasStrict ? program.builderProgram : reverseStrictBuilderProgram.builderProgram;
+    const nonStrict = program.wasStrict ? reverseStrictBuilderProgram.builderProgram : program.builderProgram;
     this.diagnosticsExtractor = new TypeScriptDiagnosticsExtractor(strict, nonStrict);
-    this.wasStrict = wasStrict;
+    this.wasStrict = program.wasStrict;
   }
 
   public getOriginalProgram(): Program {
@@ -47,70 +48,6 @@ export class TSCCompiledProgram {
   public getStrictDiagnostics(fileName: string): Diagnostic[] {
     return this.diagnosticsExtractor.getStrictDiagnostics(fileName);
   }
-}
-
-function getStrictOptions(strict = true) {
-  return {
-    strictNullChecks: strict,
-    strictFunctionTypes: strict,
-    strictPropertyInitialization: strict,
-    noImplicitReturns: strict,
-  };
-}
-
-function compile(rootNames: readonly string[], compilerOptions: CompilerOptions, host: CompilerHost, extraOptions?: any): BuilderProgram {
-  const createProgramOptions = formTscOptions(rootNames, compilerOptions, host, extraOptions);
-  createProgramOptions.options.tsBuildInfoFile = compilerOptions.tsBuildInfoFile &&
-    resolvePath(getDirectoryPath(compilerOptions.tsBuildInfoFile), "inversedArkTsLinter.tsbuildinfo");
-  const program = createIncrementalProgram(createProgramOptions);
-  return program;
-}
-
-function formTscOptions(rootNames: readonly string[], compilerOptions: CompilerOptions, host: CompilerHost, extraOptions?: any): CreateProgramOptions {
-  const options: CreateProgramOptions = {
-    rootNames,
-    host,
-    options: compilerOptions,
-  };
-
-  if (extraOptions) {
-    options.options = Object.assign(options.options, extraOptions);
-  }
-
-  options.options.allowJs = true;
-  options.options.checkJs = true;
-
-  return options;
-}
-
-function getTwoCompiledVersions(
-  program: BuilderProgram,
-  host: CompilerHost,
-): { strict: BuilderProgram; nonStrict: BuilderProgram; wasStrict: boolean } {
-  const compilerOptions = { ...program.getCompilerOptions() };
-
-  const wasStrict = inverseStrictOptions(compilerOptions);
-  const inversedOptions = getStrictOptions(!wasStrict);
-  const withInversedOptions = compile(program.getProgram().getRootFileNames(), compilerOptions, host, inversedOptions);
-
-  return {
-    strict: wasStrict ? program : withInversedOptions,
-    nonStrict: wasStrict ? withInversedOptions : program,
-    wasStrict,
-  };
-}
-
-/**
- * Returns true if options were initially strict
- */
-function inverseStrictOptions(compilerOptions: CompilerOptions): boolean {
-  const strictOptions = getStrictOptions();
-  let wasStrict = false;
-  Object.keys(strictOptions).forEach(x => {
-    wasStrict = wasStrict || !!compilerOptions[x];
-  });
-  // wasStrict evaluates true if any of the strict options was set
-  return wasStrict;
 }
 
 class TypeScriptDiagnosticsExtractor {

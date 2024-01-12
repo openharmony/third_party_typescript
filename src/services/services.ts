@@ -1392,6 +1392,11 @@ namespace ts {
                 return;
             }
 
+            // clear ArkUI collected properties
+            host.clearProps && host.clearProps();
+
+            compilerHost.getLastCompiledProgram = () => { return program; }
+
             // IMPORTANT - It is critical from this moment onward that we do not check
             // cancellation tokens.  We are about to mutate source files from a previous program
             // instance.  If we cancel midway through, we may end up in an inconsistent state where
@@ -2687,6 +2692,10 @@ namespace ts {
             return InlayHints.provideInlayHints(getInlayHintsContext(sourceFile, span, preferences));
         }
 
+        function updateRootFiles(rootFiles: string[]) {
+            host.getScriptFileNames = () => rootFiles
+        }
+
         const ls: LanguageService = {
             dispose,
             cleanupSemanticCache,
@@ -2756,6 +2765,7 @@ namespace ts {
             commentSelection,
             uncommentSelection,
             provideInlayHints,
+            updateRootFiles
         };
 
         switch (languageServiceMode) {

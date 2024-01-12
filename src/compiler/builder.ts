@@ -1527,7 +1527,7 @@ namespace ts {
             saveEmitState: noop as BuilderProgram["saveEmitState"],
             restoreEmitState: noop,
             getProgram: notImplemented,
-            getProgramOrUndefined: returnUndefined,
+            getProgramOrUndefined: host.getLastCompiledProgram ? host.getLastCompiledProgram : returnUndefined,
             releaseProgram: noop,
             getCompilerOptions: () => state.compilerOptions,
             getSourceFile: notImplemented,
