@@ -95,6 +95,7 @@ Note:If the text contains special characters, please escape them according to th
                 <filteritem type="filepath" name="bin/tsc" desc="Describe the reason for filtering scan results"/>
                 <filteritem type="filepath" name="bin/tsserver" desc="Describe the reason for filtering scan results"/>
                 <filteritem type="filepath" name="scripts/hooks/post-checkout" desc="Describe the reason for filtering scan results"/>
+                <filteritem type="filepath" name="VersionSet.xml" desc="Describe the reason for filtering scan results"/>
             </filefilter>
             <filefilter name="licenseFileNamePolicyFilter" desc="Filters for LICENSE file policies">
             </filefilter>
