@@ -12849,6 +12849,7 @@ declare namespace ts {
             currentWarningLine: number;
             staticBlocks: Set<string>;
             libraryTypeCallDiagnosticChecker: LibraryTypeCallDiagnosticChecker;
+            skipArkTSStaticBlocksCheck: boolean;
             constructor(sourceFile: SourceFile, tsProgram: Program, tscStrictDiagnostics?: Map<Diagnostic[]> | undefined);
             static clearTsTypeChecker(): void;
             readonly handlersMap: ESMap<SyntaxKind, (node: Node) => void>;
@@ -12936,6 +12937,7 @@ declare namespace ts {
             private checkAnyOrUnknownChildNode;
             private handleInferredObjectreference;
             private validateDeclInferredType;
+            private handleClassStaticBlockDeclaration;
             lint(): void;
         }
     }
@@ -13355,6 +13357,7 @@ declare namespace ts {
             currentWarningLine: number;
             staticBlocks: Set<string>;
             libraryTypeCallDiagnosticChecker: LibraryTypeCallDiagnosticChecker;
+            skipArkTSStaticBlocksCheck: boolean;
             constructor(sourceFile: SourceFile, tsProgram: Program, tscStrictDiagnostics?: Map<Diagnostic[]> | undefined);
             static clearTsTypeChecker(): void;
             readonly handlersMap: ESMap<SyntaxKind, (node: Node) => void>;
@@ -13449,6 +13452,7 @@ declare namespace ts {
             private processNoCheckEntry;
             private reportThisKeywordsInScope;
             private handleCommentDirectives;
+            private handleClassStaticBlockDeclaration;
             lint(): void;
         }
     }

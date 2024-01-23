@@ -137,6 +137,7 @@ export class TypeScriptLinter {
   currentWarningLine: number;
   staticBlocks: Set<string>;
   libraryTypeCallDiagnosticChecker: LibraryTypeCallDiagnosticChecker;
+  skipArkTSStaticBlocksCheck: boolean;
 
   constructor(private sourceFile: SourceFile,
               /* private */ tsProgram: Program,
@@ -146,6 +147,12 @@ export class TypeScriptLinter {
     this.currentWarningLine = 0;
     this.staticBlocks = new Set<string>();
     this.libraryTypeCallDiagnosticChecker = new LibraryTypeCallDiagnosticChecker(TypeScriptLinter.filteredDiagnosticMessages);
+
+    const options = tsProgram.getCompilerOptions()
+    this.skipArkTSStaticBlocksCheck = false;
+    if (options.skipArkTSStaticBlocksCheck) {
+      this.skipArkTSStaticBlocksCheck = options.skipArkTSStaticBlocksCheck as boolean;
+    }
   }
 
   public static clearTsTypeChecker(): void {
@@ -192,6 +199,7 @@ export class TypeScriptLinter {
     [SyntaxKind.ConstructSignature, this.handleConstructSignature],
     [SyntaxKind.ExpressionWithTypeArguments, this.handleExpressionWithTypeArguments],
     [ts.SyntaxKind.ComputedPropertyName, this.handleComputedPropertyName],
+    [SyntaxKind.ClassStaticBlockDeclaration, this.handleClassStaticBlockDeclaration],
   ]);
 
   public incrementCounters(node: Node | CommentRange, faultId: number, autofixable = false, autofix?: Autofix[]): void {
@@ -1155,6 +1163,19 @@ export class TypeScriptLinter {
     }
 
     this.handleDecorators(ts.getDecorators(tsClassDecl));
+
+    if (!this.skipArkTSStaticBlocksCheck) {
+      let hasStaticBlock = false;
+      for (const element of tsClassDecl.members) {
+        if (ts.isClassStaticBlockDeclaration(element)) {
+          if (hasStaticBlock) {
+            this.incrementCounters(element, FaultID.MultipleStaticBlocks)
+          } else {
+            hasStaticBlock = true;
+          }
+        }
+      }
+    }
   }
 
   private handleModuleDeclaration(node: Node): void {
@@ -1943,6 +1964,19 @@ export class TypeScriptLinter {
     }
     else if (Utils.isUnknownType(type)) {
       this.incrementCounters(decl, FaultID.UnknownType);
+    }
+  }
+
+  private handleClassStaticBlockDeclaration(node: ts.Node): void {
+    if (this.skipArkTSStaticBlocksCheck) {
+      return;
+    }
+    const ClassStaticBlockDecl = node as ts.ClassStaticBlockDeclaration;
+    if (!ts.isClassDeclaration(ClassStaticBlockDecl.parent)) {
+      return;
+    }
+    if (this.functionContainsThis(node)) {
+      this.incrementCounters(node, FaultID.FunctionContainsThis);
     }
   }
 
