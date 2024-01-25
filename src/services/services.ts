@@ -2696,6 +2696,10 @@ namespace ts {
             host.getScriptFileNames = () => rootFiles
         }
 
+        function getProps(): string[] {
+            return host.uiProps ? host.uiProps : [];
+        }
+
         const ls: LanguageService = {
             dispose,
             cleanupSemanticCache,
@@ -2765,7 +2769,8 @@ namespace ts {
             commentSelection,
             uncommentSelection,
             provideInlayHints,
-            updateRootFiles
+            updateRootFiles,
+            getProps
         };
 
         switch (languageServiceMode) {
