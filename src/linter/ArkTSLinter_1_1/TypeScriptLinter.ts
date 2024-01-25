@@ -146,7 +146,7 @@ export class TypeScriptLinter {
     this.staticBlocks = new Set<string>();
     this.libraryTypeCallDiagnosticChecker = new LibraryTypeCallDiagnosticChecker(TypeScriptLinter.filteredDiagnosticMessages);
 
-    const options = tsProgram.getCompilerOptions()
+    const options = tsProgram.getCompilerOptions();
     this.skipArkTSStaticBlocksCheck = false;
     if (options.skipArkTSStaticBlocksCheck) {
       this.skipArkTSStaticBlocksCheck = options.skipArkTSStaticBlocksCheck as boolean;
@@ -1201,7 +1201,7 @@ export class TypeScriptLinter {
       for (const element of tsClassDecl.members) {
         if (ts.isClassStaticBlockDeclaration(element)) {
           if (hasStaticBlock) {
-            this.incrementCounters(element, FaultID.MultipleStaticBlocks)
+            this.incrementCounters(element, FaultID.MultipleStaticBlocks);
           } else {
             hasStaticBlock = true;
           }
@@ -2051,11 +2051,11 @@ export class TypeScriptLinter {
     if (this.skipArkTSStaticBlocksCheck) {
       return;
     }
-    const ClassStaticBlockDecl = node as ts.ClassStaticBlockDeclaration;
-    if (!ts.isClassDeclaration(ClassStaticBlockDecl.parent)) {
+    const classStaticBlockDecl = node as ts.ClassStaticBlockDeclaration;
+    if (!ts.isClassDeclaration(classStaticBlockDecl.parent)) {
       return;
     }
-    this.reportThisKeywordsInScope(ClassStaticBlockDecl.body);
+    this.reportThisKeywordsInScope(classStaticBlockDecl.body);
   }
 
   public lint(): void {
