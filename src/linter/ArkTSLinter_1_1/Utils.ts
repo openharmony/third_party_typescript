@@ -68,120 +68,140 @@ export function getEndPos(nodeOrComment: Node | CommentRange): number {
     : (nodeOrComment as Node).getEnd();
 }
 
-export function getHighlightRange(nodeOrComment: Node | CommentRange, faultId: number): number[] {
-  let hlightRange: number[] = [getStartPos(nodeOrComment), getEndPos(nodeOrComment)];
-
-  switch (faultId) {
-    case FaultID.VarDeclaration:
-      hlightRange[0] = (nodeOrComment as VariableStatement).getStart();
-      hlightRange[1] = hlightRange[0] + 'var'.length;
-      break;
-    case FaultID.CatchWithUnsupportedType:
-      const catchClauseNode = (nodeOrComment as CatchClause).variableDeclaration;
-      if (!!catchClauseNode) {
-        hlightRange[0] = catchClauseNode.getStart();
-        hlightRange[1] = catchClauseNode.getEnd();
-      }
-      break;
-    case FaultID.ForInStatement:
-      hlightRange[0] = getEndPos((nodeOrComment as ForInStatement).initializer) + 1;
-      hlightRange[1] = getStartPos((nodeOrComment as ForInStatement).expression) - 1;
-      break;
-    case FaultID.WithStatement:
-      hlightRange[0] = getStartPos(nodeOrComment);
-      hlightRange[1] = (nodeOrComment as WithStatement).statement.getStart() - 1;
-      break;
-    case FaultID.DeleteOperator:
-      hlightRange[0] = getStartPos(nodeOrComment);
-      hlightRange[1] = hlightRange[0] + 'delete'.length; //(nodeOrComment as DeleteExpression).expression.getStart() - 1;
-      break;
-    case FaultID.TypeQuery:
-      hlightRange[0] = getStartPos(nodeOrComment);
-      hlightRange[1] = hlightRange[0] + 'typeof'.length;
-      break;
-    case FaultID.InstanceofUnsupported:
-      const insNode = (nodeOrComment as BinaryExpression).operatorToken;
-      hlightRange[0] = getStartPos(insNode);
-      hlightRange[1] = hlightRange[0] + 'instanceof'.length;
-      break;
-    case FaultID.ConstAssertion:
-      if (nodeOrComment.kind === SyntaxKind.AsExpression) {
-        hlightRange[0] = (nodeOrComment as AsExpression).expression.getEnd() + 1;
-        hlightRange[1] = (nodeOrComment as AsExpression).type.getStart() - 1;
-      } else {
-        hlightRange[0] = (nodeOrComment as TypeAssertion).expression.getEnd() + 1;
-        hlightRange[1] = (nodeOrComment as TypeAssertion).type.getEnd() + 1;
-      }
-      break;
-    case FaultID.LimitedReturnTypeInference: {
-      let node: ts.Node | undefined;
-      if (nodeOrComment.kind === SyntaxKind.FunctionExpression) {
-        // we got error about return type so it should be present
-        node = (nodeOrComment as FunctionExpression).type;
-      } else if (nodeOrComment.kind === SyntaxKind.FunctionDeclaration) {
-        node = (nodeOrComment as FunctionDeclaration).name;
-      }
-
-      if (node !== undefined) {
-        hlightRange[0] = node.getStart();
-        hlightRange[1] = node.getEnd();
-      }
-
-      break;
-    }
-    case FaultID.LocalFunction:
-      hlightRange[0] = getStartPos(nodeOrComment);
-      hlightRange[1] = hlightRange[0] + 'function'.length;
-      break;
-
-    case FaultID.FunctionBind:
-    case FaultID.FunctionApplyCall:
-      const pointPos = (nodeOrComment as Node).getText().lastIndexOf('.');
-      hlightRange[0] = getStartPos(nodeOrComment) + pointPos + 1;
-      hlightRange[1] = getEndPos(nodeOrComment);
-      break;
-    case FaultID.DeclWithDuplicateName:
-      // in case of private identifier no range update is needed
-      let nameNode: Node | undefined;
-      if (nodeOrComment.kind === SyntaxKind.EnumDeclaration)
-        nameNode = (nodeOrComment as EnumDeclaration).name;
-      else if (nodeOrComment.kind === SyntaxKind.InterfaceDeclaration)
-        nameNode = (nodeOrComment as InterfaceDeclaration).name;
-      else if (nodeOrComment.kind === SyntaxKind.FunctionDeclaration)
-        nameNode = (nodeOrComment as FunctionDeclaration).name;
-      else if (nodeOrComment.kind === SyntaxKind.ClassDeclaration)
-        nameNode = (nodeOrComment as ClassDeclaration).name;
-      else if (nodeOrComment.kind === SyntaxKind.ModuleDeclaration)
-        nameNode = (nodeOrComment as ModuleDeclaration).name;
-      else if (nodeOrComment.kind === SyntaxKind.TypeAliasDeclaration)
-        nameNode = (nodeOrComment as TypeAliasDeclaration).name;
-      else if (nodeOrComment.kind === SyntaxKind.ImportClause)
-        nameNode = (nodeOrComment as ImportClause).name;
-      else if (nodeOrComment.kind === SyntaxKind.ImportSpecifier)
-        nameNode = (nodeOrComment as ImportSpecifier).name;
-      else if (nodeOrComment.kind === SyntaxKind.NamespaceImport)
-        nameNode = (nodeOrComment as NamespaceImport).name;
-      else
-        nameNode = undefined;
-
-      if (nameNode !== undefined) {
-        hlightRange[0] = nameNode.getStart();
-        hlightRange[1] = nameNode.getEnd();
-      }
-      break;
-
-    case FaultID.ObjectLiteralNoContextType:
-      hlightRange[0] = getStartPos(nodeOrComment);
-      hlightRange[1] = hlightRange[0] + '{'.length;
-      break;
-    case FaultID.ClassExpression:
-      hlightRange[0] = getStartPos(nodeOrComment);
-      hlightRange[1] = hlightRange[0] + 'class'.length;
-      break;
-  }
-  return hlightRange;
+export function getHighlightRange(nodeOrComment: Node | CommentRange, faultId: number): [number, number] {
+  return (
+    highlightRangeHandlers.get(faultId)?.call(undefined, nodeOrComment) ?? [
+      getStartPos(nodeOrComment),
+      getEndPos(nodeOrComment)
+    ]
+  );
 }
 
+const highlightRangeHandlers = new Map([
+  [FaultID.VarDeclaration, getVarDeclarationHighlightRange],
+  [FaultID.CatchWithUnsupportedType, getCatchWithUnsupportedTypeHighlightRange],
+  [FaultID.ForInStatement, getForInStatementHighlightRange],
+  [FaultID.WithStatement, getWithStatementHighlightRange],
+  [FaultID.DeleteOperator, getDeleteOperatorHighlightRange],
+  [FaultID.TypeQuery, getTypeQueryHighlightRange],
+  [FaultID.InstanceofUnsupported, getInstanceofUnsupportedHighlightRange],
+  [FaultID.ConstAssertion, getConstAssertionHighlightRange],
+  [FaultID.LimitedReturnTypeInference, getLimitedReturnTypeInferenceHighlightRange],
+  [FaultID.LocalFunction, getLocalFunctionHighlightRange],
+  [FaultID.FunctionBind, getFunctionApplyCallHighlightRange],
+  [FaultID.FunctionApplyCall, getFunctionApplyCallHighlightRange],
+  [FaultID.DeclWithDuplicateName, getDeclWithDuplicateNameHighlightRange],
+  [FaultID.ObjectLiteralNoContextType, getObjectLiteralNoContextTypeHighlightRange],
+  [FaultID.ClassExpression, getClassExpressionHighlightRange]
+]);
+
+export function getVarDeclarationHighlightRange(nodeOrComment: Node | CommentRange): [number, number] | undefined {
+  return getKeywordHighlightRange(nodeOrComment, 'var');
+}
+
+export function getCatchWithUnsupportedTypeHighlightRange(
+  nodeOrComment: Node | CommentRange
+): [number, number] | undefined {
+  const catchClauseNode = (nodeOrComment as CatchClause).variableDeclaration;
+  if (catchClauseNode !== undefined) {
+    return [catchClauseNode.getStart(), catchClauseNode.getEnd()];
+  }
+
+  return undefined;
+}
+
+export function getForInStatementHighlightRange(nodeOrComment: Node | CommentRange): [number, number] | undefined {
+  return [
+    getEndPos((nodeOrComment as ForInStatement).initializer) + 1,
+    getStartPos((nodeOrComment as ForInStatement).expression) - 1
+  ];
+}
+
+export function getWithStatementHighlightRange(nodeOrComment: Node | CommentRange): [number, number] | undefined {
+  return [getStartPos(nodeOrComment), (nodeOrComment as WithStatement).statement.getStart() - 1];
+}
+
+export function getDeleteOperatorHighlightRange(nodeOrComment: Node | CommentRange): [number, number] | undefined {
+  return getKeywordHighlightRange(nodeOrComment, 'delete');
+}
+
+export function getTypeQueryHighlightRange(nodeOrComment: Node | CommentRange): [number, number] | undefined {
+  return getKeywordHighlightRange(nodeOrComment, 'typeof');
+}
+
+export function getInstanceofUnsupportedHighlightRange(
+  nodeOrComment: Node | CommentRange
+): [number, number] | undefined {
+  return getKeywordHighlightRange((nodeOrComment as BinaryExpression).operatorToken, 'instanceof');
+}
+
+export function getConstAssertionHighlightRange(nodeOrComment: Node | CommentRange): [number, number] | undefined {
+  if (nodeOrComment.kind === SyntaxKind.AsExpression) {
+    return [
+      (nodeOrComment as AsExpression).expression.getEnd() + 1,
+      (nodeOrComment as AsExpression).type.getStart() - 1
+    ];
+  }
+  return [
+    (nodeOrComment as TypeAssertion).expression.getEnd() + 1,
+    (nodeOrComment as TypeAssertion).type.getEnd() + 1
+  ];
+}
+
+export function getLimitedReturnTypeInferenceHighlightRange(
+  nodeOrComment: Node | CommentRange
+): [number, number] | undefined {
+  let node: Node | undefined;
+  if (nodeOrComment.kind === SyntaxKind.FunctionExpression) {
+    // we got error about return type so it should be present
+    node = (nodeOrComment as FunctionExpression).type;
+  } else if (nodeOrComment.kind === SyntaxKind.FunctionDeclaration) {
+    node = (nodeOrComment as FunctionDeclaration).name;
+  } else if (nodeOrComment.kind === SyntaxKind.MethodDeclaration) {
+    node = (nodeOrComment as MethodDeclaration).name;
+  }
+  if (node !== undefined) {
+    return [node.getStart(), node.getEnd()];
+  }
+
+  return undefined;
+}
+
+export function getLocalFunctionHighlightRange(nodeOrComment: Node | CommentRange): [number, number] | undefined {
+  return getKeywordHighlightRange(nodeOrComment, 'function');
+}
+
+export function getFunctionApplyCallHighlightRange(nodeOrComment: Node | CommentRange): [number, number] | undefined {
+  const pointPos = (nodeOrComment as Node).getText().lastIndexOf('.');
+  return [getStartPos(nodeOrComment) + pointPos + 1, getEndPos(nodeOrComment)];
+}
+
+export function getDeclWithDuplicateNameHighlightRange(
+  nodeOrComment: Node | CommentRange
+): [number, number] | undefined {
+  // in case of private identifier no range update is needed
+  const nameNode: Node | undefined = (nodeOrComment as NamedDeclaration).name;
+  if (nameNode !== undefined) {
+    return [nameNode.getStart(), nameNode.getEnd()];
+  }
+
+  return undefined;
+}
+
+export function getObjectLiteralNoContextTypeHighlightRange(
+  nodeOrComment: Node | CommentRange
+): [number, number] | undefined {
+  return getKeywordHighlightRange(nodeOrComment, '{');
+}
+
+export function getClassExpressionHighlightRange(nodeOrComment: Node | CommentRange): [number, number] | undefined {
+  return getKeywordHighlightRange(nodeOrComment, 'class');
+}
+
+export function getKeywordHighlightRange(nodeOrComment: Node | CommentRange, keyword: string): [number, number] {
+  const start = getStartPos(nodeOrComment);
+  return [start, start + keyword.length];
+}
 
 export function isAssignmentOperator(tsBinOp: BinaryOperatorToken): boolean {
   return tsBinOp.kind >= SyntaxKind.FirstAssignment && tsBinOp.kind <= SyntaxKind.LastAssignment;
@@ -1061,8 +1081,13 @@ export function validateFields(objectType: Type, objectLiteral: ObjectLiteralExp
 }
 
 function validateField(type: ts.Type, prop: ts.PropertyAssignment): boolean {
-  const propNameSymbol = TypeScriptLinter.tsTypeChecker.getSymbolAtLocation(prop.name);
-  const propName = propNameSymbol?.escapedName.toString() ?? prop.name.getText();
+  // Issue 15497: Use unescaped property name to find correpsponding property.
+  const propNameSymbol = typeChecker.getSymbolAtLocation(prop.name);
+  const propName = propNameSymbol ?
+    ts.symbolName(propNameSymbol) :
+    ts.isMemberName(prop.name) ?
+      ts.idText(prop.name) :
+      prop.name.getText();
   const propSym = findProperty(type, propName);
   if (!propSym || !propSym.declarations?.length) {
     return false;
