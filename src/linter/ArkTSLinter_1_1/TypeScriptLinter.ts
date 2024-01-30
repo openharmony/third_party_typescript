@@ -206,17 +206,13 @@ export class TypeScriptLinter {
   public incrementCounters(node: Node | CommentRange, faultId: number, autofixable = false, autofix?: Autofix[]): void {
     if (!TypeScriptLinter.strictMode && faultsAttrs[faultId].migratable) { return; } // In relax mode skip migratable
 
-    //const startPos = Utils.getStartPos(node);
-    //const endPos = Utils.getEndPos(node);
-    const hlightRange: number[] = Utils.getHighlightRange(node, faultId);
-    const startPos = hlightRange[0];
-    const endPos = hlightRange[1];
+    const [startOffset, endOffset] = Utils.getHighlightRange(node, faultId);
+    const startPos = this.sourceFile!.getLineAndCharacterOfPosition(startOffset);
+    //const endPos = this.sourceFile!.getLineAndCharacterOfPosition(endOffset);
+    const line = startPos.line + 1;
+    const character = startPos.character + 1;
 
     TypeScriptLinter.nodeCounters[faultId]++;
-    // TSC counts lines and columns from zero
-    let { line, character } = this.sourceFile.getLineAndCharacterOfPosition(startPos);
-    ++line;
-    ++character;
 
     const faultDescr = LinterConfig.nodeDesc[faultId];
     const faultType = "unknown"; //TypeScriptLinter.tsSyntaxKindNames[node.kind];
@@ -227,8 +223,8 @@ export class TypeScriptLinter {
     const badNodeInfo: ProblemInfo = {
       line: line,
       column: character,
-      start: startPos,
-      end: endPos,
+      start: startOffset,
+      end: endOffset,
       type: faultType,
       severity: severity,
       problem: FaultID[faultId],
