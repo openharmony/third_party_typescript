@@ -636,6 +636,13 @@ export class TypeScriptLinter {
         break;
       }
     }
+
+    const expr1 = importDeclNode.moduleSpecifier;
+    if (expr1.kind === ts.SyntaxKind.StringLiteral) {
+      if (importDeclNode.assertClause) {
+        this.incrementCounters(importDeclNode.assertClause, FaultID.ImportAssertion);
+      }
+    }
   }
 
   private handlePropertyAccessExpression(node: Node): void {
