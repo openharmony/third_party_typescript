@@ -140,7 +140,7 @@ export class TypeScriptLinter {
   constructor(private sourceFile: SourceFile,
               /* private */ tsProgram: Program,
               private tscStrictDiagnostics?: Map<Diagnostic[]>) {
-    TypeScriptLinter.tsTypeChecker = tsProgram.getTypeChecker();
+    TypeScriptLinter.tsTypeChecker = tsProgram.getLinterTypeChecker();
     this.currentErrorLine = 0;
     this.currentWarningLine = 0;
     this.staticBlocks = new Set<string>();

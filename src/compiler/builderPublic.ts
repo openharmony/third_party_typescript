@@ -126,6 +126,7 @@ namespace ts {
         close(): void;
 
         isFileUpdateInConstEnumCache?(sourceFile: SourceFile): boolean;
+        builderProgramForLinter?: EmitAndSemanticDiagnosticsBuilderProgram;
     }
 
     /**
@@ -169,6 +170,31 @@ namespace ts {
     export function createEmitAndSemanticDiagnosticsBuilderProgram(rootNames: readonly string[] | undefined, options: CompilerOptions | undefined, host?: CompilerHost, oldProgram?: EmitAndSemanticDiagnosticsBuilderProgram, configFileParsingDiagnostics?: readonly Diagnostic[], projectReferences?: readonly ProjectReference[]): EmitAndSemanticDiagnosticsBuilderProgram;
     export function createEmitAndSemanticDiagnosticsBuilderProgram(newProgramOrRootNames: Program | readonly string[] | undefined, hostOrOptions: BuilderProgramHost | CompilerOptions | undefined, oldProgramOrHost?: CompilerHost | EmitAndSemanticDiagnosticsBuilderProgram, configFileParsingDiagnosticsOrOldProgram?: readonly Diagnostic[] | EmitAndSemanticDiagnosticsBuilderProgram, configFileParsingDiagnostics?: readonly Diagnostic[], projectReferences?: readonly ProjectReference[]) {
         return createBuilderProgram(BuilderProgramKind.EmitAndSemanticDiagnosticsBuilderProgram, getBuilderCreationParameters(newProgramOrRootNames, hostOrOptions, oldProgramOrHost, configFileParsingDiagnosticsOrOldProgram, configFileParsingDiagnostics, projectReferences));
+    }
+
+    export function createEmitAndSemanticDiagnosticsBuilderProgramForArkTs(
+        newProgramOrRootNames: Program | readonly string[] | undefined,
+        hostOrOptions: BuilderProgramHost | CompilerOptions | undefined,
+        oldProgramOrHost?: CompilerHost | EmitAndSemanticDiagnosticsBuilderProgram,
+        configFileParsingDiagnosticsOrOldProgram?: readonly Diagnostic[] | EmitAndSemanticDiagnosticsBuilderProgram,
+        configFileParsingDiagnostics?: readonly Diagnostic[],
+        projectReferences?: readonly ProjectReference[]) : EmitAndSemanticDiagnosticsBuilderProgram {
+        let builderCreatetionParameters: BuilderCreationParameters =
+            getBuilderCreationParameters(newProgramOrRootNames, hostOrOptions, oldProgramOrHost,
+                configFileParsingDiagnosticsOrOldProgram, configFileParsingDiagnostics, projectReferences);
+        let newProgram = builderCreatetionParameters.newProgram;
+        let builderProgram: EmitAndSemanticDiagnosticsBuilderProgram = createBuilderProgram(
+            BuilderProgramKind.EmitAndSemanticDiagnosticsBuilderProgram, builderCreatetionParameters);
+
+        let oldProgramForLinter =
+            readBuilderProgram(hostOrOptions as CompilerOptions, oldProgramOrHost as CompilerHost, true);
+        builderCreatetionParameters.oldProgram = oldProgramForLinter;
+        builderCreatetionParameters.newProgram = newProgram;
+        let builderProgramForLinter: EmitAndSemanticDiagnosticsBuilderProgram = createBuilderProgram(
+            BuilderProgramKind.EmitAndSemanticDiagnosticsBuilderProgram, builderCreatetionParameters, true);
+
+        builderProgram.builderProgramForLinter = builderProgramForLinter;
+        return builderProgram;
     }
 
     /**

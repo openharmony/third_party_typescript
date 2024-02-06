@@ -16,11 +16,6 @@
 namespace ts {
 export namespace ArkTSLinter_1_1 {
 
-export interface ArkTSProgram {
-  builderProgram: BuilderProgram,
-  wasStrict: boolean
-}
-
 function makeDiag(category: DiagnosticCategory, code: number, file: SourceFile, start: number, length: number, messageText: string): Diagnostic {
   return { category, code, file, start, length, messageText };
 }
@@ -31,8 +26,8 @@ export function translateDiag(srcFile: SourceFile, problemInfo: ProblemInfo): Di
   return makeDiag(severity, LINTER_MSG_CODE_START /*+ problemInfo.ruleTag */, srcFile , problemInfo.start, (problemInfo.end - problemInfo.start + 1), problemInfo.rule);
 }
 
-export function runArkTSLinter(tsBuilderProgram: ArkTSProgram, reverseStrictBuilderProgram: ArkTSProgram,
-  srcFile?: SourceFile, buildInfoWriteFile?: WriteFileCallback, arkTSVersion?: string): Diagnostic[] {
+export function runArkTSLinter(tsBuilderProgram: BuilderProgram, srcFile?: SourceFile,
+  buildInfoWriteFile?: WriteFileCallback, arkTSVersion?: string): Diagnostic[] {
   TypeScriptLinter.errorLineNumbersString = "";
   TypeScriptLinter.warningLineNumbersString = "";
   let diagnostics: Diagnostic[] = [];
@@ -43,16 +38,17 @@ export function runArkTSLinter(tsBuilderProgram: ArkTSProgram, reverseStrictBuil
   // to be done before re-evaluating program diagnostics through the call
   // 'tscDiagnosticsLinter.doAllGetDiagnostics()' below, as it will update
   // program state, clearing the changedFiles list.
-  let programState = tsBuilderProgram.builderProgram.getState();
+  let programState = tsBuilderProgram.getState();
   const oldDiagnostics = programState.arktsLinterDiagnosticsPerFile;
   programState.arktsLinterDiagnosticsPerFile = new Map();
   const changedFiles = collectChangedFilesFromProgramState(programState, arkTSVersion);
-  // .tsbuildinfo and inversedArkTsLinter.tsbuildinfo set arkTSVersion info.
+  // Set arkTSVersion info for file .tsbuildinfo.
+  // File .tsbuildinfo.linter dosen't need to set arkTSVersion because it dosen't contain linter diagnostics.
   programState.arkTSVersion = arkTSVersion;
 
-  const tscDiagnosticsLinter = new TSCCompiledProgram(tsBuilderProgram, reverseStrictBuilderProgram);
-  const strictProgram = tscDiagnosticsLinter.getStrictProgram();
-  
+  const tscDiagnosticsLinter = new TSCCompiledProgram(tsBuilderProgram);
+  const program = tscDiagnosticsLinter.getProgram();
+
   const timePrinterInstance = ts.ArkTSLinterTimePrinter.getInstance();
   timePrinterInstance.appendTime(ts.TimePhase.INIT);
 
@@ -62,7 +58,7 @@ export function runArkTSLinter(tsBuilderProgram: ArkTSProgram, reverseStrictBuil
   if(!!srcFile) {
     srcFiles.push(srcFile);
   } else {
-    srcFiles = strictProgram.getSourceFiles() as SourceFile[];
+    srcFiles = program.getSourceFiles() as SourceFile[];
   }
 
   const tscStrictDiagnostics = getTscDiagnostics(tscDiagnosticsLinter, srcFiles.filter(file => changedFiles.has(file.resolvedPath)));
@@ -78,12 +74,12 @@ export function runArkTSLinter(tsBuilderProgram: ArkTSProgram, reverseStrictBuil
 
     let currentDiagnostics: Diagnostic[];
     if (changedFiles.has(fileToLint.resolvedPath)) {
-      const linter = new TypeScriptLinter(fileToLint, strictProgram, tscStrictDiagnostics);
+      const linter = new TypeScriptLinter(fileToLint, program, tscStrictDiagnostics);
       Utils.setTypeChecker(TypeScriptLinter.tsTypeChecker);
       linter.lint();
 
       // Get list of bad nodes from the current run.
-      currentDiagnostics = tscStrictDiagnostics.get(fileToLint.fileName) ?? [];
+      currentDiagnostics = tscStrictDiagnostics.get(normalizePath(fileToLint.fileName)) ?? [];
       TypeScriptLinter.problemsInfos.forEach((x) => currentDiagnostics.push(translateDiag(fileToLint, x)));
     } else {
       // Get diagnostics from old run.
@@ -94,13 +90,11 @@ export function runArkTSLinter(tsBuilderProgram: ArkTSProgram, reverseStrictBuil
     // Add linter diagnostics to new cache.
     programState.arktsLinterDiagnosticsPerFile.set(fileToLint.resolvedPath, currentDiagnostics);
   }
-
   timePrinterInstance.appendTime(ts.TimePhase.LINT);
 
   // Write tsbuildinfo file only after we cached the linter diagnostics.
   if (!!buildInfoWriteFile) {
-    tscDiagnosticsLinter.getStrictBuilderProgram().emitBuildInfo(buildInfoWriteFile);
-    tscDiagnosticsLinter.getNonStrictBuilderProgram().emitBuildInfo(buildInfoWriteFile);
+    tscDiagnosticsLinter.getBuilderProgram().emitBuildInfo(buildInfoWriteFile);
     timePrinterInstance.appendTime(ts.TimePhase.EMIT_BUILD_INFO);
   }
 
@@ -118,7 +112,7 @@ function releaseReferences(): void {
 
 function collectChangedFilesFromProgramState(state: ReusableBuilderProgramState, arkTSVersion?: string): Set<Path> {
   const changedFiles = new Set<Path>(state.changedFilesSet);
-  
+
   // If old arkTSVersion from last run is not same current arkTSVersion from ets_loader.
   if (state.arkTSVersion !== arkTSVersion) {
     return new Set<Path>(arrayFrom(state.fileInfos.keys()));

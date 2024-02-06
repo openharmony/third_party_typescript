@@ -142,7 +142,7 @@ export class TypeScriptLinter {
   constructor(private sourceFile: SourceFile,
               /* private */ tsProgram: Program,
               private tscStrictDiagnostics?: Map<Diagnostic[]>) {
-    TypeScriptLinter.tsTypeChecker = tsProgram.getTypeChecker();
+    TypeScriptLinter.tsTypeChecker = tsProgram.getLinterTypeChecker();
     this.currentErrorLine = 0;
     this.currentWarningLine = 0;
     this.staticBlocks = new Set<string>();
@@ -1194,7 +1194,7 @@ export class TypeScriptLinter {
             case SyntaxKind.InterfaceDeclaration:
             case SyntaxKind.TypeAliasDeclaration:
             case SyntaxKind.EnumDeclaration:
-            case SyntaxKind.ExportDeclaration: 
+            case SyntaxKind.ExportDeclaration:
               break;
             // Nested namespace declarations are prohibited
             // but there is no cookbook recipe for it!

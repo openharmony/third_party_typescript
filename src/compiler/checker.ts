@@ -180,7 +180,7 @@ namespace ts {
         RestBindingElement = 1 << 6,                    // Checking a type that is going to be used to determine the type of a rest binding element
                                                         //   e.g. in `const { a, ...rest } = foo`, when checking the type of `foo` to determine the type of `rest`,
                                                         //   we need to preserve generic types instead of substituting them for constraints
-        SkipEtsComponentBody = 1 << 7,                  // Not check body for Completion                                              
+        SkipEtsComponentBody = 1 << 7,                  // Not check body for Completion
     }
 
     export const enum SignatureCheckMode {
@@ -300,7 +300,7 @@ namespace ts {
             (preserveConstEnums && moduleState === ModuleInstanceState.ConstEnumOnly);
     }
 
-    export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
+    export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter: boolean = false): TypeChecker {
         const getPackagesMap = memoize(() => {
             // A package name maps to true when we detect it has .d.ts files.
             // This is useful as an approximation of whether a package bundles its own types.
@@ -353,7 +353,23 @@ namespace ts {
         const emptySymbols = createSymbolTable();
         const arrayVariances = [VarianceFlags.Covariant];
 
-        const compilerOptions = host.getCompilerOptions();
+        let getJsDocNodeCheckedConfig = host.getJsDocNodeCheckedConfig;
+        let compilerOptions: CompilerOptions = {...host.getCompilerOptions()};
+
+        if (!!compilerOptions.needDoArkTsLinter) {
+            compilerOptions.skipLibCheck = false;
+        }
+
+        if (isTypeCheckerForLinter) {
+            // make the configuration as arkts linter required
+            compilerOptions.strictNullChecks = true;
+            compilerOptions.strictFunctionTypes = true;
+            compilerOptions.strictPropertyInitialization = true;
+            compilerOptions.noImplicitReturns = true;
+
+            getJsDocNodeCheckedConfig = undefined;
+        }
+
         const languageVersion = getEmitScriptTarget(compilerOptions);
         const moduleKind = getEmitModuleKind(compilerOptions);
         const useDefineForClassFields = getUseDefineForClassFields(compilerOptions);
@@ -3742,6 +3758,8 @@ namespace ts {
             const resolutionDiagnostic = resolvedModule && getResolutionDiagnostic(compilerOptions, resolvedModule);
             const sourceFile = resolvedModule
                 && (!resolutionDiagnostic || resolutionDiagnostic === Diagnostics.Module_0_was_resolved_to_1_but_jsx_is_not_set)
+                // For ets/ts files, in non linter check, skip resolving symbols from js files
+                && (!compilerOptions.needDoArkTsLinter || isTypeCheckerForLinter || !hasJSFileExtension(resolvedModule.resolvedFileName))
                 && host.getSourceFile(resolvedModule.resolvedFileName);
             if (sourceFile) {
                 // If there's a resolutionDiagnostic we need to report it even if a sourceFile is found.
@@ -6529,7 +6547,7 @@ namespace ts {
                     if (!specifier) {
                         specifier = getSpecifierForModuleSymbol(chain[0], context);
                     }
-                    if (!(context.flags & NodeBuilderFlags.AllowNodeModulesRelativePaths) && getEmitModuleResolutionKind(compilerOptions) !== ModuleResolutionKind.Classic && 
+                    if (!(context.flags & NodeBuilderFlags.AllowNodeModulesRelativePaths) && getEmitModuleResolutionKind(compilerOptions) !== ModuleResolutionKind.Classic &&
                         (specifier.indexOf("/node_modules/") >= 0 || isOhpmAndOhModules(compilerOptions.packageManagerType, specifier))) {
                         const oldSpecifier = specifier;
                         if (getEmitModuleResolutionKind(compilerOptions) === ModuleResolutionKind.Node16 || getEmitModuleResolutionKind(compilerOptions) === ModuleResolutionKind.NodeNext) {
@@ -32618,7 +32636,7 @@ namespace ts {
         }
 
         function propertyAccessExpressionConditionCheck(node: PropertyAccessExpression) {
-            if (!jsDocFileCheckInfo.fileNeedCheck || !host.getJsDocNodeCheckedConfig) {
+            if (!jsDocFileCheckInfo.fileNeedCheck || !getJsDocNodeCheckedConfig) {
                 return;
             }
             const sourceFile = getSourceFileOfNode(node);
@@ -32630,7 +32648,7 @@ namespace ts {
             if (!sourceSymbolSourceFile) {
                 return;
             }
-            const checkParam = host.getJsDocNodeCheckedConfig(jsDocFileCheckInfo, sourceSymbolSourceFile.fileName);
+            const checkParam = getJsDocNodeCheckedConfig(jsDocFileCheckInfo, sourceSymbolSourceFile.fileName);
             if (!checkParam.nodeNeedCheck) {
                 return;
             }
@@ -32773,7 +32791,7 @@ namespace ts {
                 }
             }
         }
-        
+
         function collectDiagnostics(config: JsDocNodeCheckConfigItem | ConditionCheckResult, node: Identifier, diagnostic: DiagnosticWithLocation): void {
             if (config.message) {
                 // @ts-ignore
@@ -33907,7 +33925,7 @@ namespace ts {
                             return;
                         }
                     }
-    
+
                     const stylesNames = getEtsStylesDecoratorComponentNames(func.illegalDecorators, compilerOptions);
                     if (stylesNames.length > 0) {
                         return judgeReturnTypeOfStyles();
@@ -38113,7 +38131,7 @@ namespace ts {
         }
 
         function checkIdentifierJsDoc(node: Identifier, sourceSymbol: Symbol): void {
-            if (node.virtual || !jsDocFileCheckInfo.fileNeedCheck || !host.getJsDocNodeCheckedConfig) {
+            if (node.virtual || !jsDocFileCheckInfo.fileNeedCheck || !getJsDocNodeCheckedConfig) {
                 return;
             }
             if (!sourceSymbol || !sourceSymbol.valueDeclaration) {
@@ -38124,7 +38142,7 @@ namespace ts {
                 return;
             }
             const sourceFile = getSourceFileOfNode(node);
-            const checkParam = host.getJsDocNodeCheckedConfig(jsDocFileCheckInfo, sourceSymbolSourceFile.fileName);
+            const checkParam = getJsDocNodeCheckedConfig(jsDocFileCheckInfo, sourceSymbolSourceFile.fileName);
             if (!checkParam.nodeNeedCheck) {
                 return;
             }

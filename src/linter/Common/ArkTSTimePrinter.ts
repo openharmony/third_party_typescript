@@ -3,11 +3,9 @@ namespace ts {
 export enum TimePhase {
     START= "start",
     GET_PROGRAM= "getProgram(not ArkTSLinter)",
-    GET_REVERSE_STRICT_BUILDER_PROGRAM= "getReverseStrictBuilderProgram",
     UPDATE_ERROR_FILE= "updateErrorFile",
     INIT= "init",
     STRICT_PROGRAM_GET_SEMANTIC_DIAGNOSTICS= "strictProgramGetSemanticDiagnostics",
-    STRICT_PROGRAM_GET_SYNTACTIC_DIAGNOSTICS= "strictProgramGetSyntacticDiagnostics",
     NON_STRICT_PROGRAM_GET_SEMANTIC_DIAGNOSTICS= "nonStrictProgramGetSemanticDiagnostics",
     NON_STRICT_PROGRAM_GET_SYNTACTIC_DIAGNOSTICS= "nonStrictProgramGetSyntacticDiagnostics",
     GET_TSC_DIAGNOSTICS= "getTscDiagnostics",

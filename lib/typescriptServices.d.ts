@@ -2292,6 +2292,7 @@ declare namespace ts {
         getSyntacticDiagnostics(sourceFile?: SourceFile, cancellationToken?: CancellationToken): readonly DiagnosticWithLocation[];
         /** The first time this is called, it will return global diagnostics (no location). */
         getSemanticDiagnostics(sourceFile?: SourceFile, cancellationToken?: CancellationToken): readonly Diagnostic[];
+        getSemanticDiagnosticsForLinter(sourceFile?: SourceFile, cancellationToken?: CancellationToken): readonly Diagnostic[];
         getDeclarationDiagnostics(sourceFile?: SourceFile, cancellationToken?: CancellationToken): readonly DiagnosticWithLocation[];
         getConfigFileParsingDiagnostics(): readonly Diagnostic[];
         getEtsLibSFromProgram(): string[];
@@ -2299,6 +2300,10 @@ declare namespace ts {
          * Gets a type checker that can be used to semantically analyze source files in the program.
          */
         getTypeChecker(): TypeChecker;
+        /**
+         * Gets a type checker that can be used to semantically analyze source files in the program for arkts linter.
+         */
+        getLinterTypeChecker(): TypeChecker;
         getNodeCount(): number;
         getIdentifierCount(): number;
         getSymbolCount(): number;
@@ -5511,6 +5516,7 @@ declare namespace ts {
 }
 declare namespace ts {
     function getTsBuildInfoEmitOutputFilePath(options: CompilerOptions): string | undefined;
+    function getTsBuildInfoEmitOutputFilePathForLinter(tsBuildInfoPath: string): string;
     function getOutputFileNames(commandLine: ParsedCommandLine, inputFileName: string, ignoreCase: boolean): readonly string[];
     function createPrinter(printerOptions?: PrinterOptions, handlers?: PrintHandlers): Printer;
 }
@@ -5703,6 +5709,7 @@ declare namespace ts {
          */
         getCurrentDirectory(): string;
         isFileUpdateInConstEnumCache?(sourceFile: SourceFile): boolean;
+        builderProgramForLinter?: EmitAndSemanticDiagnosticsBuilderProgram;
     }
     /**
      * The builder that caches the semantic diagnostics for the program and handles the changed files and affected files
@@ -5737,6 +5744,7 @@ declare namespace ts {
      */
     function createEmitAndSemanticDiagnosticsBuilderProgram(newProgram: Program, host: BuilderProgramHost, oldProgram?: EmitAndSemanticDiagnosticsBuilderProgram, configFileParsingDiagnostics?: readonly Diagnostic[]): EmitAndSemanticDiagnosticsBuilderProgram;
     function createEmitAndSemanticDiagnosticsBuilderProgram(rootNames: readonly string[] | undefined, options: CompilerOptions | undefined, host?: CompilerHost, oldProgram?: EmitAndSemanticDiagnosticsBuilderProgram, configFileParsingDiagnostics?: readonly Diagnostic[], projectReferences?: readonly ProjectReference[]): EmitAndSemanticDiagnosticsBuilderProgram;
+    function createEmitAndSemanticDiagnosticsBuilderProgramForArkTs(newProgramOrRootNames: Program | readonly string[] | undefined, hostOrOptions: BuilderProgramHost | CompilerOptions | undefined, oldProgramOrHost?: CompilerHost | EmitAndSemanticDiagnosticsBuilderProgram, configFileParsingDiagnosticsOrOldProgram?: readonly Diagnostic[] | EmitAndSemanticDiagnosticsBuilderProgram, configFileParsingDiagnostics?: readonly Diagnostic[], projectReferences?: readonly ProjectReference[]): EmitAndSemanticDiagnosticsBuilderProgram;
     /**
      * Creates a builder thats just abstraction over program and can be used with watch
      */
@@ -5750,7 +5758,7 @@ declare namespace ts {
         readFile(fileName: string): string | undefined;
         getLastCompiledProgram?(): Program;
     }
-    function readBuilderProgram(compilerOptions: CompilerOptions, host: ReadBuildProgramHost): EmitAndSemanticDiagnosticsBuilderProgram | undefined;
+    function readBuilderProgram(compilerOptions: CompilerOptions, host: ReadBuildProgramHost, isForLinter?: boolean): EmitAndSemanticDiagnosticsBuilderProgram | undefined;
     function createIncrementalCompilerHost(options: CompilerOptions, system?: System): CompilerHost;
     interface IncrementalProgramOptions<T extends BuilderProgram> {
         rootNames: readonly string[];
@@ -5761,6 +5769,7 @@ declare namespace ts {
         createProgram?: CreateProgram<T>;
     }
     function createIncrementalProgram<T extends BuilderProgram = EmitAndSemanticDiagnosticsBuilderProgram>({ rootNames, options, configFileParsingDiagnostics, projectReferences, host, createProgram }: IncrementalProgramOptions<T>): T;
+    function createIncrementalProgramForArkTs({ rootNames, options, configFileParsingDiagnostics, projectReferences, host }: IncrementalProgramOptions<EmitAndSemanticDiagnosticsBuilderProgram>): EmitAndSemanticDiagnosticsBuilderProgram;
     type WatchStatusReporter = (diagnostic: Diagnostic, newLine: string, options: CompilerOptions, errorCount?: number) => void;
     /** Create the program with rootNames and options, if they are undefined, oldProgram and new configFile diagnostics create new program */
     type CreateProgram<T extends BuilderProgram> = (rootNames: readonly string[] | undefined, options: CompilerOptions | undefined, host?: CompilerHost, oldProgram?: T, configFileParsingDiagnostics?: readonly Diagnostic[], projectReferences?: readonly ProjectReference[] | undefined) => T;
@@ -9015,12 +9024,9 @@ declare namespace ts {
     namespace ArkTSLinter_1_0 {
         class TSCCompiledProgram {
             private diagnosticsExtractor;
-            private wasStrict;
-            constructor(program: ArkTSProgram, reverseStrictBuilderProgram: ArkTSProgram);
-            getOriginalProgram(): Program;
-            getStrictProgram(): Program;
-            getStrictBuilderProgram(): BuilderProgram;
-            getNonStrictBuilderProgram(): BuilderProgram;
+            constructor(program: BuilderProgram);
+            getProgram(): Program;
+            getBuilderProgram(): BuilderProgram;
             getStrictDiagnostics(fileName: string): Diagnostic[];
             doAllGetDiagnostics(): void;
         }
@@ -9028,12 +9034,8 @@ declare namespace ts {
 }
 declare namespace ts {
     namespace ArkTSLinter_1_0 {
-        interface ArkTSProgram {
-            builderProgram: BuilderProgram;
-            wasStrict: boolean;
-        }
         function translateDiag(srcFile: SourceFile, problemInfo: ProblemInfo): Diagnostic;
-        function runArkTSLinter(tsBuilderProgram: ArkTSProgram, reverseStrictBuilderProgram: ArkTSProgram, srcFile?: SourceFile, buildInfoWriteFile?: WriteFileCallback, arkTSVersion?: string): Diagnostic[];
+        function runArkTSLinter(tsBuilderProgram: BuilderProgram, srcFile?: SourceFile, buildInfoWriteFile?: WriteFileCallback, arkTSVersion?: string): Diagnostic[];
     }
 }
 declare namespace ts {
@@ -9588,12 +9590,9 @@ declare namespace ts {
     namespace ArkTSLinter_1_1 {
         class TSCCompiledProgram {
             private diagnosticsExtractor;
-            private wasStrict;
-            constructor(program: ArkTSProgram, reverseStrictBuilderProgram: ArkTSProgram);
-            getOriginalProgram(): Program;
-            getStrictProgram(): Program;
-            getStrictBuilderProgram(): BuilderProgram;
-            getNonStrictBuilderProgram(): BuilderProgram;
+            constructor(program: BuilderProgram);
+            getProgram(): Program;
+            getBuilderProgram(): BuilderProgram;
             getStrictDiagnostics(fileName: string): Diagnostic[];
             doAllGetDiagnostics(): void;
         }
@@ -9601,23 +9600,17 @@ declare namespace ts {
 }
 declare namespace ts {
     namespace ArkTSLinter_1_1 {
-        interface ArkTSProgram {
-            builderProgram: BuilderProgram;
-            wasStrict: boolean;
-        }
         function translateDiag(srcFile: SourceFile, problemInfo: ProblemInfo): Diagnostic;
-        function runArkTSLinter(tsBuilderProgram: ArkTSProgram, reverseStrictBuilderProgram: ArkTSProgram, srcFile?: SourceFile, buildInfoWriteFile?: WriteFileCallback, arkTSVersion?: string): Diagnostic[];
+        function runArkTSLinter(tsBuilderProgram: BuilderProgram, srcFile?: SourceFile, buildInfoWriteFile?: WriteFileCallback, arkTSVersion?: string): Diagnostic[];
     }
 }
 declare namespace ts {
     enum TimePhase {
         START = "start",
         GET_PROGRAM = "getProgram(not ArkTSLinter)",
-        GET_REVERSE_STRICT_BUILDER_PROGRAM = "getReverseStrictBuilderProgram",
         UPDATE_ERROR_FILE = "updateErrorFile",
         INIT = "init",
         STRICT_PROGRAM_GET_SEMANTIC_DIAGNOSTICS = "strictProgramGetSemanticDiagnostics",
-        STRICT_PROGRAM_GET_SYNTACTIC_DIAGNOSTICS = "strictProgramGetSyntacticDiagnostics",
         NON_STRICT_PROGRAM_GET_SEMANTIC_DIAGNOSTICS = "nonStrictProgramGetSemanticDiagnostics",
         NON_STRICT_PROGRAM_GET_SYNTACTIC_DIAGNOSTICS = "nonStrictProgramGetSyntacticDiagnostics",
         GET_TSC_DIAGNOSTICS = "getTscDiagnostics",

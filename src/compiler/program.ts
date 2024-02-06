@@ -1033,10 +1033,12 @@ namespace ts {
         let symlinks: SymlinkCache | undefined;
         let commonSourceDirectory: string;
         let typeChecker: TypeChecker;
+        let linterTypeChecker: TypeChecker;
         let classifiableNames: Set<__String>;
         const ambientModuleNameToUnmodifiedFileName = new Map<string, string>();
         let fileReasons = createMultiMap<Path, FileIncludeReason>();
         const cachedBindAndCheckDiagnosticsForFile: DiagnosticCache<Diagnostic> = {};
+        const cachedBindAndCheckDiagnosticsForFileForLinter: DiagnosticCache<Diagnostic> = {};
         const cachedDeclarationDiagnosticsForFile: DiagnosticCache<DiagnosticWithLocation> = {};
 
         let resolvedTypeReferenceDirectives = createModeAwareCache<ResolvedTypeReferenceDirective | undefined>();
@@ -1311,12 +1313,14 @@ namespace ts {
             getOptionsDiagnostics,
             getGlobalDiagnostics,
             getSemanticDiagnostics,
+            getSemanticDiagnosticsForLinter,
             getCachedSemanticDiagnostics,
             getSuggestionDiagnostics,
             getDeclarationDiagnostics,
             getBindAndCheckDiagnostics,
             getProgramDiagnostics,
             getTypeChecker,
+            getLinterTypeChecker,
             getEtsLibSFromProgram,
             getClassifiableNames,
             getCommonSourceDirectory,
@@ -1965,6 +1969,7 @@ namespace ts {
                 redirectTargetsMap,
                 getFileIncludeReasons: program.getFileIncludeReasons,
                 createHash: maybeBind(host, host.createHash),
+                getProgramBuildInfoForLinter: () => program.getProgramBuildInfoForLinter && program.getProgramBuildInfoForLinter(),
             };
         }
 
@@ -2054,6 +2059,10 @@ namespace ts {
             return typeChecker || (typeChecker = createTypeChecker(program));
         }
 
+        function getLinterTypeChecker() {
+            return linterTypeChecker || (linterTypeChecker = createTypeChecker(program, true));
+        }
+
         function emit(sourceFile?: SourceFile, writeFileCallback?: WriteFileCallback, cancellationToken?: CancellationToken, emitOnlyDtsFiles?: boolean, transformers?: CustomTransformers, forceDtsEmit?: boolean): EmitResult {
             tracing?.push(tracing.Phase.Emit, "emit", { path: sourceFile?.path }, /*separateBeginAndEnd*/ true);
             const result = runWithCancellationToken(() => emitWorker(program, sourceFile, writeFileCallback, cancellationToken, emitOnlyDtsFiles, transformers, forceDtsEmit));
@@ -2129,14 +2138,25 @@ namespace ts {
             return getDiagnosticsHelper(sourceFile, getSemanticDiagnosticsForFile, cancellationToken);
         }
 
+        function getSemanticDiagnosticsForLinter(sourceFile?: SourceFile, cancellationToken?: CancellationToken): readonly Diagnostic[] {
+            return getDiagnosticsHelper(sourceFile, getSemanticDiagnosticsForFileForLinter, cancellationToken);
+        }
+
+        function getSemanticDiagnosticsForFileForLinter(sourceFile: SourceFile, cancellationToken: CancellationToken | undefined): readonly Diagnostic[] {
+            return concatenate(
+                filterSemanticDiagnostics(getBindAndCheckDiagnosticsForFile(sourceFile, cancellationToken, true), options),
+                getProgramDiagnostics(sourceFile)
+            );
+        }
+
         function getCachedSemanticDiagnostics(sourceFile?: SourceFile): readonly Diagnostic[] | undefined {
            return sourceFile
                 ? cachedBindAndCheckDiagnosticsForFile.perFile?.get(sourceFile.path)
                 : cachedBindAndCheckDiagnosticsForFile.allDiagnostics;
         }
 
-        function getBindAndCheckDiagnostics(sourceFile: SourceFile, cancellationToken?: CancellationToken): readonly Diagnostic[] {
-            return getBindAndCheckDiagnosticsForFile(sourceFile, cancellationToken);
+        function getBindAndCheckDiagnostics(sourceFile: SourceFile, cancellationToken?: CancellationToken, isForLinter?: boolean): readonly Diagnostic[] {
+            return getBindAndCheckDiagnosticsForFile(sourceFile, cancellationToken, isForLinter);
         }
 
         function getProgramDiagnostics(sourceFile: SourceFile): readonly Diagnostic[] {
@@ -2197,11 +2217,14 @@ namespace ts {
             );
         }
 
-        function getBindAndCheckDiagnosticsForFile(sourceFile: SourceFile, cancellationToken: CancellationToken | undefined): readonly Diagnostic[] {
-            return getAndCacheDiagnostics(sourceFile, cancellationToken, cachedBindAndCheckDiagnosticsForFile, getBindAndCheckDiagnosticsForFileNoCache);
+        function getBindAndCheckDiagnosticsForFile(sourceFile: SourceFile, cancellationToken: CancellationToken | undefined, isForLinter: boolean = false): readonly Diagnostic[] {
+            if (!isForLinter) {
+                return getAndCacheDiagnostics(sourceFile, cancellationToken, cachedBindAndCheckDiagnosticsForFile, getBindAndCheckDiagnosticsForFileNoCache);
+            }
+            return getAndCacheDiagnostics(sourceFile, cancellationToken, cachedBindAndCheckDiagnosticsForFileForLinter, getBindAndCheckDiagnosticsForFileNoCache, true);
         }
 
-        function getBindAndCheckDiagnosticsForFileNoCache(sourceFile: SourceFile, cancellationToken: CancellationToken | undefined): readonly Diagnostic[] {
+        function getBindAndCheckDiagnosticsForFileNoCache(sourceFile: SourceFile, cancellationToken: CancellationToken | undefined, isForLinter: boolean = false): readonly Diagnostic[] {
             return runWithCancellationToken(() => {
                 // Only check and block .d.ts import .ets behavior when it is called by "ets-loader" and scanned.
                 const filterFlag = !!options.needDoArkTsLinter;
@@ -2214,7 +2237,7 @@ namespace ts {
                     return emptyArray;
                 }
 
-                const typeChecker = getTypeChecker();
+                const typeChecker = isForLinter ? getLinterTypeChecker() : getTypeChecker();
 
                 Debug.assert(!!sourceFile.bindDiagnostics);
 
@@ -2236,11 +2259,11 @@ namespace ts {
                     checkDiagnostics = filter(checkDiagnostics, d => plainJSErrors.has(d.code));
                 }
                 // skip ts-expect-error errors in plain JS files, and skip JSDoc errors except in checked JS
-                return getMergedBindAndCheckDiagnostics(sourceFile, includeBindAndCheckDiagnostics && !isPlainJs, bindDiagnostics, 
+                return getMergedBindAndCheckDiagnostics(sourceFile, includeBindAndCheckDiagnostics && !isPlainJs, bindDiagnostics,
                     filterFlag ? filterDiagnostics(checkDiagnostics) : checkDiagnostics, isCheckJs ? sourceFile.jsDocDiagnostics : undefined);
             });
         }
- 
+
         function filterDiagnostics(allDiagnostics: (readonly Diagnostic[] | undefined)): readonly Diagnostic[] | undefined {
             if (allDiagnostics) {
                 const diagnosticsAfterFilter = allDiagnostics.filter((item) => {
@@ -2575,7 +2598,8 @@ namespace ts {
             sourceFile: T,
             cancellationToken: CancellationToken | undefined,
             cache: DiagnosticCache<U>,
-            getDiagnostics: (sourceFile: T, cancellationToken: CancellationToken | undefined) => readonly U[],
+            getDiagnostics: (sourceFile: T, cancellationToken: CancellationToken | undefined, isForLinter?: boolean) => readonly U[],
+            isForLinter?: boolean
         ): readonly U[] {
 
             const cachedResult = sourceFile
@@ -2585,7 +2609,14 @@ namespace ts {
             if (cachedResult) {
                 return cachedResult;
             }
-            const result = getDiagnostics(sourceFile, cancellationToken);
+
+            let result;
+            if (isForLinter !== undefined) {
+                result = getDiagnostics(sourceFile, cancellationToken, isForLinter);
+            } else {
+                result = getDiagnostics(sourceFile, cancellationToken);
+            }
+
             if (sourceFile) {
                 (cache.perFile || (cache.perFile = new Map())).set(sourceFile.path, result);
             }
