@@ -1549,10 +1549,8 @@ export class TypeScriptLinter {
         this.incrementCounters(tsCallExpr, FaultID.EsObjectType);
       }
     }
-    if (callSignature !== undefined) {
-      if (!Utils.isLibrarySymbol(calleeSym)) {
-        this.handleGenericCallWithNoTypeArgs(tsCallExpr, callSignature);
-      }
+    if (callSignature !== undefined && !Utils.isLibrarySymbol(calleeSym)) {
+      this.handleGenericCallWithNoTypeArgs(tsCallExpr, callSignature);
       this.handleStructIdentAndUndefinedInArgs(tsCallExpr, callSignature);
     }
     this.handleLibraryTypeCall(tsCallExpr);
