@@ -9016,6 +9016,7 @@ declare namespace ts {
             getStrictBuilderProgram(): BuilderProgram;
             getNonStrictBuilderProgram(): BuilderProgram;
             getStrictDiagnostics(fileName: string): Diagnostic[];
+            doAllGetDiagnostics(): void;
         }
     }
 }
@@ -9546,6 +9547,7 @@ declare namespace ts {
             getStrictBuilderProgram(): BuilderProgram;
             getNonStrictBuilderProgram(): BuilderProgram;
             getStrictDiagnostics(fileName: string): Diagnostic[];
+            doAllGetDiagnostics(): void;
         }
     }
 }

@@ -48,6 +48,10 @@ export class TSCCompiledProgram {
   public getStrictDiagnostics(fileName: string): Diagnostic[] {
     return this.diagnosticsExtractor.getStrictDiagnostics(fileName);
   }
+
+  public doAllGetDiagnostics() {
+    this.diagnosticsExtractor.doAllGetDiagnostics();
+  }
 }
 
 class TypeScriptDiagnosticsExtractor {
@@ -75,6 +79,13 @@ class TypeScriptDiagnosticsExtractor {
       const hash = hashDiagnostic(value);
       return (hash && !nonStrictHashes.has(hash));
     });
+  }
+
+  public doAllGetDiagnostics() {
+    this.strictProgram.getSemanticDiagnostics();
+    this.strictProgram.getSyntacticDiagnostics();
+    this.nonStrictProgram.getSemanticDiagnostics();
+    this.nonStrictProgram.getSyntacticDiagnostics();
   }
 }
 
