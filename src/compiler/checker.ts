@@ -388,6 +388,8 @@ namespace ts {
         /** This will be set during calls to `getResolvedSignature` where services determines an apparent number of arguments greater than what is actually provided. */
         let apparentArgumentCount: number | undefined;
 
+        let constEnumRelate: ESMap<string, ESMap<string, string>> = new Map();
+
         // for public members that accept a Node or one of its subtypes, we must guard against
         // synthetic nodes created during transformations by calling `getParseTreeNode`.
         // for most of these, we perform the guard only on `checker` to avoid any possible
@@ -739,6 +741,9 @@ namespace ts {
             getTypeOnlyAliasDeclaration,
             getMemberOverrideModifierStatus,
             isTypeParameterPossiblyReferenced,
+            getConstEnumRelate: () => constEnumRelate,
+            clearConstEnumRelate: () => {constEnumRelate && constEnumRelate.clear()},
+            deleteConstEnumRelate: (path: string) => {constEnumRelate && constEnumRelate.delete(path)},
         };
 
         function runWithInferenceBlockedFromSourceNode<T>(node: Node | undefined, fn: () => T): T {
@@ -29666,6 +29671,11 @@ namespace ts {
             const apparentType = getApparentType(assignmentKind !== AssignmentKind.None || isMethodAccessForCall(node) ? getWidenedType(leftType) : leftType);
             const isAnyLike = isTypeAny(apparentType) || apparentType === silentNeverType;
             let prop: Symbol | undefined;
+
+            if (isPropertyAccessExpression(node) && isConstEnumObjectType(leftType)) {
+                checkConstEnumRelate(node, leftType.symbol);
+            }
+
             if (isPrivateIdentifier(right)) {
                 if (languageVersion < ScriptTarget.ESNext) {
                     if (assignmentKind !== AssignmentKind.None) {
@@ -29803,6 +29813,22 @@ namespace ts {
             }
 
             return getFlowTypeOfAccessExpression(node, prop, propType, right, checkMode);
+        }
+
+        function checkConstEnumRelate(node: Node, originalSymbol: Symbol): void {
+            const symbol = resolveSymbol(originalSymbol);
+            let filePath = getSourceFileOfNode(node)?.resolvedPath;
+            if (!symbol || !filePath) { return; }
+            if (!constEnumRelate.has(filePath)) {
+                constEnumRelate.set(filePath, new Map());
+            }
+            symbol.declarations?.forEach(decl => {
+                let file = getSourceFileOfNode(decl);
+                if (!file || file.resolvedPath === filePath) {
+                    return;
+                }
+                constEnumRelate.get(filePath)?.set(file.resolvedPath, file.version);
+            });
         }
 
         /**
@@ -30392,6 +30418,10 @@ namespace ts {
             if (isConstEnumObjectType(objectType) && !isStringLiteralLike(indexExpression)) {
                 error(indexExpression, Diagnostics.A_const_enum_member_can_only_be_accessed_using_a_string_literal);
                 return errorType;
+            }
+
+            if (isConstEnumObjectType(objectType)) {
+                checkConstEnumRelate(node, objectType.symbol)
             }
 
             const effectiveIndexType = isForInVariableForNumericPropertyNames(indexExpression) ? numberType : indexType;
@@ -42181,6 +42211,12 @@ namespace ts {
                         addDeprecatedSuggestion(node, targetSymbol.declarations, targetSymbol.escapedName as string);
                     }
                 }
+
+                if (!isVariableDeclaration(node) && !isBindingElement(node)) {
+                    if (targetFlags & SymbolFlags.ConstEnum) {
+                        checkConstEnumRelate(node, target);
+                    }
+                }
             }
         }
 
@@ -43006,6 +43042,9 @@ namespace ts {
                 if (skipTypeChecking(node, compilerOptions, host)) {
                     return;
                 }
+
+                // clear constEnumRelate
+                constEnumRelate.set(node.resolvedPath, new Map());
 
                 // Grammar checking
                 checkGrammarSourceFile(node);

@@ -124,6 +124,8 @@ namespace ts {
         getCurrentDirectory(): string;
         /*@internal*/
         close(): void;
+
+        isFileUpdateInConstEnumCache?(sourceFile: SourceFile): boolean;
     }
 
     /**

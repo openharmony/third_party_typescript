@@ -4916,6 +4916,10 @@ namespace ts {
         /* @internal */ getTypeOnlyAliasDeclaration(symbol: Symbol): TypeOnlyAliasDeclaration | undefined;
         /* @internal */ getMemberOverrideModifierStatus(node: ClassLikeDeclaration, member: ClassElement): MemberOverrideStatus;
         /* @internal */ isTypeParameterPossiblyReferenced(tp: TypeParameter, node: Node): boolean;
+
+        getConstEnumRelate?(): ESMap<string, ESMap<string, string>>;
+        clearConstEnumRelate?(): void;
+        deleteConstEnumRelate?(path: string): void;
     }
 
     /* @internal */
