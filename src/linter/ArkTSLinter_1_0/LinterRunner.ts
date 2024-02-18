@@ -41,6 +41,7 @@ export function runArkTSLinter(tsBuilderProgram: ArkTSProgram, reverseStrictBuil
 
   const tscDiagnosticsLinter = new TSCCompiledProgram(tsBuilderProgram, reverseStrictBuilderProgram);
   const strictProgram = tscDiagnosticsLinter.getStrictProgram();
+  tscDiagnosticsLinter.doAllGetDiagnostics();
 
   let srcFiles: SourceFile[] = [];
   if(!!srcFile) {
