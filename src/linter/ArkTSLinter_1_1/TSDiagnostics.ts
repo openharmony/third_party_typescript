@@ -83,9 +83,14 @@ class TypeScriptDiagnosticsExtractor {
 
   public doAllGetDiagnostics() {
     this.strictProgram.getSemanticDiagnostics();
+    const timePrinterInstance = ts.ArkTSLinterTimePrinter.getInstance();
+    timePrinterInstance.appendTime(ts.TimePhase.STRICT_PROGRAM_GET_SEMANTIC_DIAGNOSTICS);
     this.strictProgram.getSyntacticDiagnostics();
+    timePrinterInstance.appendTime(ts.TimePhase.STRICT_PROGRAM_GET_SYNTACTIC_DIAGNOSTICS);
     this.nonStrictProgram.getSemanticDiagnostics();
+    timePrinterInstance.appendTime(ts.TimePhase.NON_STRICT_PROGRAM_GET_SEMANTIC_DIAGNOSTICS);
     this.nonStrictProgram.getSyntacticDiagnostics();
+    timePrinterInstance.appendTime(ts.TimePhase.NON_STRICT_PROGRAM_GET_SYNTACTIC_DIAGNOSTICS);
   }
 }
 

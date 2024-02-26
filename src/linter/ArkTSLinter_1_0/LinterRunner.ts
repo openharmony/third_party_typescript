@@ -41,6 +41,10 @@ export function runArkTSLinter(tsBuilderProgram: ArkTSProgram, reverseStrictBuil
 
   const tscDiagnosticsLinter = new TSCCompiledProgram(tsBuilderProgram, reverseStrictBuilderProgram);
   const strictProgram = tscDiagnosticsLinter.getStrictProgram();
+
+  const timePrinterInstance = ts.ArkTSLinterTimePrinter.getInstance();
+  timePrinterInstance.appendTime(ts.TimePhase.INIT);
+
   tscDiagnosticsLinter.doAllGetDiagnostics();
 
   let srcFiles: SourceFile[] = [];
@@ -52,10 +56,12 @@ export function runArkTSLinter(tsBuilderProgram: ArkTSProgram, reverseStrictBuil
   }
 
   const tscStrictDiagnostics = getTscDiagnostics(tscDiagnosticsLinter, srcFiles);
+  timePrinterInstance.appendTime(ts.TimePhase.GET_TSC_DIAGNOSTICS);
 
   if (!!buildInfoWriteFile) {
     tscDiagnosticsLinter.getStrictBuilderProgram().emitBuildInfo(buildInfoWriteFile);
     tscDiagnosticsLinter.getNonStrictBuilderProgram().emitBuildInfo(buildInfoWriteFile);
+    timePrinterInstance.appendTime(ts.TimePhase.EMIT_BUILD_INFO)
   }
 
   TypeScriptLinter.initGlobals();
@@ -79,6 +85,7 @@ export function runArkTSLinter(tsBuilderProgram: ArkTSProgram, reverseStrictBuil
   }
 
   releaseReferences();
+  timePrinterInstance.appendTime(ts.TimePhase.LINT);
   return diagnostics;
 }
 
