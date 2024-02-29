@@ -8010,6 +8010,15 @@ namespace ts {
                     )
                 );
             }
+            // Add parameter ##storage?: LocalStorage to struct constructor.
+            parameters.push(
+                finishVirtualNode(
+                    factory.createParameterDeclaration(/*modifiers*/ undefined, /*dotDotDotToken*/ undefined,
+                        finishVirtualNode(factory.createIdentifier("##storage")), factory.createToken(SyntaxKind.QuestionToken),
+                        finishVirtualNode(factory.createTypeReferenceNode(finishVirtualNode(factory.createIdentifier("LocalStorage"))))
+                    )
+                )
+            );
             const emptyBody = finishVirtualNode(factory.createBlock(createNodeArray([], 0, 0)));
             const virtualConstructor = factory.createConstructorDeclaration(/*modifier*/ undefined, createNodeArray(parameters, 0, 0), emptyBody);
 
