@@ -2469,6 +2469,9 @@ declare namespace ts {
          * and the operation is cancelled, then it should be discarded, otherwise it is safe to keep.
          */
         runWithCancellationToken<T>(token: CancellationToken, cb: (checker: TypeChecker) => T): T;
+        getConstEnumRelate?(): ESMap<string, ESMap<string, string>>;
+        clearConstEnumRelate?(): void;
+        deleteConstEnumRelate?(path: string): void;
     }
     export enum NodeBuilderFlags {
         None = 0,
@@ -5697,6 +5700,7 @@ declare namespace ts {
          * Get the current directory of the program
          */
         getCurrentDirectory(): string;
+        isFileUpdateInConstEnumCache?(sourceFile: SourceFile): boolean;
     }
     /**
      * The builder that caches the semantic diagnostics for the program and handles the changed files and affected files

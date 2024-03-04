@@ -20,6 +20,11 @@ namespace ts {
 
     export type ReusableDiagnosticMessageChain = DiagnosticMessageChain;
 
+    export interface ConstEnumRelateCacheInfo {
+        isUpdate: boolean;
+        cache: ESMap<string, string>;
+    }
+
     export interface ReusableBuilderProgramState extends BuilderState {
         /**
          * Cache of bind and check diagnostics for files with their Path being the key
@@ -65,6 +70,10 @@ namespace ts {
          * Name of the file whose dts was the latest to change
          */
         latestChangedDtsFile: string | undefined;
+        /**
+         * Cache the const enum relate info
+         */
+        constEnumRelatePerFile?: ESMap<string, ConstEnumRelateCacheInfo>;
     }
 
     export const enum BuilderFileEmit {
@@ -131,6 +140,10 @@ namespace ts {
         programEmitComplete?: true;
         /** Stores list of files that change signature during emit - test only */
         filesChangingSignature?: Set<Path>;
+        /**
+         * Cache the const enum relate info
+         */
+        constEnumRelatePerFile?: ESMap<string, ConstEnumRelateCacheInfo>;
     }
 
     export type SavedBuildProgramEmitState = Pick<BuilderProgramState,
@@ -168,11 +181,13 @@ namespace ts {
         }
         state.changedFilesSet = new Set();
         state.latestChangedDtsFile = compilerOptions.composite ? oldState?.latestChangedDtsFile : undefined;
+        state.constEnumRelatePerFile = new Map();
 
         const useOldState = BuilderState.canReuseOldState(state.referencedMap, oldState);
         const oldCompilerOptions = useOldState ? oldState!.compilerOptions : undefined;
         const canCopySemanticDiagnostics = useOldState && oldState!.semanticDiagnosticsPerFile && !!state.semanticDiagnosticsPerFile &&
             !compilerOptionsAffectSemanticDiagnostics(compilerOptions, oldCompilerOptions!);
+        const canCopyConstEnumRelateCache = useOldState && oldState!.constEnumRelatePerFile && !!state.constEnumRelatePerFile;
         // We can only reuse emit signatures (i.e. .d.ts signatures) if the .d.ts file is unchanged,
         // which will eg be depedent on change in options like declarationDir and outDir options are unchanged.
         // We need to look in oldState.compilerOptions, rather than oldCompilerOptions (i.e.we need to disregard useOldState) because
@@ -237,6 +252,16 @@ namespace ts {
             if (canCopyEmitSignatures) {
                 const oldEmitSignature = oldState.emitSignatures.get(sourceFilePath);
                 if (oldEmitSignature) (state.emitSignatures ||= new Map()).set(sourceFilePath, oldEmitSignature);
+            }
+            if (canCopyConstEnumRelateCache) {
+                const info = oldState!.constEnumRelatePerFile?.get(sourceFilePath);
+                if (info) {
+                    let cache = new Map<string, string>();
+                    info.cache.forEach((version, targetFile) => {
+                        cache.set(targetFile, version);
+                    });
+                    state.constEnumRelatePerFile!.set(sourceFilePath, {isUpdate: info.isUpdate, cache});
+                }
             }
         });
 
@@ -764,6 +789,34 @@ namespace ts {
         if (state.semanticDiagnosticsPerFile) {
             state.semanticDiagnosticsPerFile.set(path, diagnostics);
         }
+        // Update const enum relate cache in the builder state, and set isUpdate as true if the cache is different than before.
+        if (state.constEnumRelatePerFile) {
+            let checker = Debug.checkDefined(state.program).getTypeChecker();
+            let newCache = checker.getConstEnumRelate ? checker.getConstEnumRelate().get(path) : undefined;
+            if (newCache) {
+                let oldCache = state.constEnumRelatePerFile.get(path);
+                if (!oldCache) {
+                    state.constEnumRelatePerFile.set(path, {isUpdate: true, cache: newCache});
+                } else {
+                    let isEqual = true;
+                    if (oldCache.cache.size !== newCache.size) { isEqual = false; }
+                    if (isEqual) {
+                        oldCache.cache.forEach((version, targetFile) => {
+                            if (!isEqual) { return; }
+                            let newVersion = newCache!.get(targetFile);
+                            if (!newVersion || newVersion !== version) {
+                                isEqual = false;
+                                return;
+                            }
+                        });
+                    }
+                    if (!isEqual) {
+                        state.constEnumRelatePerFile.set(path, {isUpdate: true, cache: newCache});
+                    }
+                }
+                checker.deleteConstEnumRelate && checker.deleteConstEnumRelate(path);
+            }
+        }
         return filterSemanticDiagnostics(diagnostics, state.compilerOptions);
     }
 
@@ -803,6 +856,7 @@ namespace ts {
         emitSignatures?: readonly ProgramBuildInfoEmitSignature[];
         // Because this is only output file in the program, we dont need fileId to deduplicate name
         latestChangedDtsFile?: string;
+        constEnumRelateCache?: Record<string, Record<string, string>>;
     }
 
     export interface ProgramBundleEmitBuildInfo {
@@ -935,6 +989,20 @@ namespace ts {
             }
         }
 
+        let constEnumRelateCache: Record<string, Record<string, string>> = {};
+        let hasConstEnumRelateInfo = false;
+        if (state.constEnumRelatePerFile) {
+            state.constEnumRelatePerFile.forEach((info, filePath) => {
+                info.cache.forEach((version, targetFilePath)=>{
+                    if (!constEnumRelateCache[filePath]) {
+                        constEnumRelateCache[filePath] = {};
+                    }
+                    constEnumRelateCache[filePath][targetFilePath] = version;
+                    hasConstEnumRelateInfo = true;
+                });
+            });
+        }
+
         const result: ProgramMultiFileEmitBuildInfo = {
             fileNames,
             fileInfos,
@@ -948,6 +1016,9 @@ namespace ts {
             emitSignatures,
             latestChangedDtsFile,
         };
+        if (hasConstEnumRelateInfo) {
+            result.constEnumRelateCache = constEnumRelateCache;
+        }
         return result;
 
         function relativeToBuildInfoEnsuringAbsolutePath(path: string) {
@@ -1173,6 +1244,8 @@ namespace ts {
         else {
             notImplemented();
         }
+
+        builderProgram.isFileUpdateInConstEnumCache = isFileUpdateInConstEnumCache;
 
         return builderProgram;
 
@@ -1448,6 +1521,18 @@ namespace ts {
             }
             return diagnostics || emptyArray;
         }
+
+        function isFileUpdateInConstEnumCache(sourceFile: SourceFile): boolean {
+            const state = getState();
+            if (!state.constEnumRelatePerFile) {
+                return false;
+            }
+            const info = state.constEnumRelatePerFile.get(sourceFile.resolvedPath);
+            if (!info) {
+                return false;
+            }
+            return info.isUpdate;
+        }
     }
 
     function addToAffectedFilesPendingEmit(state: BuilderProgramState, affectedFilePendingEmit: Path, kind: BuilderFileEmit) {
@@ -1506,6 +1591,17 @@ namespace ts {
                 if (isNumber(value)) emitSignatures!.delete(toFilePath(value));
                 else emitSignatures!.set(toFilePath(value[0]), value[1]);
             });
+            let constEnumRelatePerFile: ESMap<string, ConstEnumRelateCacheInfo> = new Map();
+            if (program.constEnumRelateCache) {
+                for (let file in program.constEnumRelateCache) {
+                    let values = program.constEnumRelateCache[file];
+                    let cache: ESMap<string, string> = new Map();
+                    for (let value in values) {
+                        cache.set(value, values[value]);
+                    }
+                    constEnumRelatePerFile.set(file, {isUpdate: false, cache: cache});
+                }
+            }
             state = {
                 fileInfos,
                 compilerOptions: program.options ? convertToOptionsWithAbsolutePaths(program.options, toAbsolutePath) : {},
@@ -1519,6 +1615,7 @@ namespace ts {
                 changedFilesSet: new Set(map(program.changeFileSet, toFilePath)),
                 latestChangedDtsFile,
                 emitSignatures: emitSignatures?.size ? emitSignatures : undefined,
+                constEnumRelatePerFile: constEnumRelatePerFile,
             };
         }
 
