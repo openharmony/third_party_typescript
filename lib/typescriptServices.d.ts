@@ -9261,6 +9261,7 @@ declare namespace ts {
             function isPrimitiveType(type: Type): boolean;
             function isTypeSymbol(symbol: Symbol | undefined): boolean;
             function isGenericArrayType(tsType: Type): tsType is TypeReference;
+            function isReadonlyArrayType(tsType: Type): boolean;
             function isTypedArray(tsType: ts.Type): boolean;
             function isArray(tsType: ts.Type): boolean;
             function isTuple(tsType: ts.Type): boolean;
