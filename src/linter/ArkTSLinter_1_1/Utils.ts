@@ -444,6 +444,13 @@ export function isGenericArrayType(tsType: Type): tsType is TypeReference {
   );
 }
 
+export function isReadonlyArrayType(tsType: Type): boolean {
+  return (
+    isTypeReference(tsType) && tsType.typeArguments?.length === 1 && tsType.target.typeParameters?.length === 1 &&
+    (tsType.getSymbol()?.getName() === "ReadonlyArray")
+  );
+}
+
 export function isTypedArray(tsType: ts.Type): boolean {
   const symbol = tsType.symbol;
   if (!symbol) {
@@ -454,7 +461,7 @@ export function isTypedArray(tsType: ts.Type): boolean {
 }
 
 export function isArray(tsType: ts.Type): boolean {
-  return isGenericArrayType(tsType) || isTypedArray(tsType);
+  return isGenericArrayType(tsType) || isReadonlyArrayType(tsType) || isTypedArray(tsType);
 }
 
 export function isTuple(tsType: ts.Type): boolean {
