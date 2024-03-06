@@ -119,6 +119,9 @@ typescript_sources = [
 action("build_typescript") {
   sources = typescript_sources
   script = "compile_typescript.py"
-  args = [ rebase_path(get_path_info("./", "abspath")) ]
-  outputs = [ "${target_out_dir}/${target_name}.stamp" ]
+  args = [
+    rebase_path(get_path_info("./", "abspath")),
+    rebase_path("${target_out_dir}"),
+  ]
+  outputs = [ "${target_out_dir}/ohos-typescript-4.9.5-r4.tgz" ]
 }

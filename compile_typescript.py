@@ -29,14 +29,27 @@ def run_cmd(cmd, execution_path=None):
         print(stdout.decode(), stderr.decode())
         raise Exception(stderr.decode())
 
+target_files = [
+    "lib",
+    "bin",
+    "package.json",
+    "LICENSE",
+    "README.md",
+    "README.OpenSource",
+    "SECURITY.md",
+    "ThirdPartyNoticeText.txt"
+]
 
-def run_pack(execution_path):
-    run_cmd(["npm", "pack"], execution_path)
+def run_pack(execution_path, dest_out_path):
+    copy_cmd = ["cp", "-r"] + target_files + [dest_out_path]
+    run_cmd(copy_cmd, execution_path)
+    run_cmd(["npm", "pack"], dest_out_path)
 
 
 def main(args):
     source_path = args[0]
-    run_pack(source_path)
+    dest_out_path = args[1]
+    run_pack(source_path, dest_out_path)
 
 
 if __name__ == '__main__':
