@@ -1,9 +1,20 @@
-[
+{
+  "arktsVersion_1_0": [
     {
-        "messageText": "arkts-strict-typing-required",
-        "expectLineAndCharacter": {
-            "line": 19,
-            "character": 1
-        }
+      "messageText": "Switching off type checks with in-place comments is not allowed (arkts-strict-typing-required)",
+      "expectLineAndCharacter": {
+        "line": 19,
+        "character": 1
+      }
     }
-]
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Switching off type checks with in-place comments is not allowed (arkts-strict-typing-required)",
+      "expectLineAndCharacter": {
+        "line": 19,
+        "character": 1
+      }
+    }
+  ]
+}

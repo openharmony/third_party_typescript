@@ -1,0 +1,28 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cookbook/5.62.2.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.62.2.ets:2:1\n \"export = ...\" assignment is not supported (arkts-no-export-assignment)\n\n",
+                "severity": 2,
+                "reportLine": 2,
+                "reportColumn": 1,
+                "description": "\"export = ...\" assignment is not supported (arkts-no-export-assignment)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.62.2.ets:2:1\n An export assignment cannot be used in a module with other exported elements.\n\n",
+                "severity": 2,
+                "reportLine": 2,
+                "reportColumn": 1,
+                "description": "An export assignment cannot be used in a module with other exported elements."
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.62.2.ets:2:1\n Export assignment cannot be used when targeting ECMAScript modules. Consider using 'export default' or another module format instead.\n\n",
+                "severity": 2,
+                "reportLine": 2,
+                "reportColumn": 1,
+                "description": "Export assignment cannot be used when targeting ECMAScript modules. Consider using 'export default' or another module format instead."
+            }
+        ]
+    }
+}

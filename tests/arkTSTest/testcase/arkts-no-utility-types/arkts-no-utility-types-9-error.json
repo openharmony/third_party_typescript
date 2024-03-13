@@ -1,16 +1,34 @@
-[
+{
+  "arktsVersion_1_0": [
     {
-        "messageText": "arkts-no-utility-types",
-        "expectLineAndCharacter": {
-            "line": 22,
-            "character": 11
-        }
+      "messageText": "Some of utility types are not supported (arkts-no-utility-types)",
+      "expectLineAndCharacter": {
+        "line": 22,
+        "character": 11
+      }
     },
     {
-        "messageText": "arkts-no-type-query",
-        "expectLineAndCharacter": {
-            "line": 22,
-            "character": 24
-        }
+      "messageText": "\"typeof\" operator is allowed only in expression contexts (arkts-no-type-query)",
+      "expectLineAndCharacter": {
+        "line": 22,
+        "character": 24
+      }
     }
-]
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Some of utility types are not supported (arkts-no-utility-types)",
+      "expectLineAndCharacter": {
+        "line": 22,
+        "character": 11
+      }
+    },
+    {
+      "messageText": "\"typeof\" operator is allowed only in expression contexts (arkts-no-type-query)",
+      "expectLineAndCharacter": {
+        "line": 22,
+        "character": 24
+      }
+    }
+  ]
+}

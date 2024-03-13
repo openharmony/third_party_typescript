@@ -1,9 +1,20 @@
-[
+{
+  "arktsVersion_1_0": [
     {
-        "messageText": "arkts-no-func-expressions",
-        "expectLineAndCharacter": {
-            "line": 24,
-            "character": 21
-        }
+      "messageText": "Use arrow functions instead of function expressions (arkts-no-func-expressions)",
+      "expectLineAndCharacter": {
+        "line": 24,
+        "character": 21
+      }
     }
-]
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Use arrow functions instead of function expressions (arkts-no-func-expressions)",
+      "expectLineAndCharacter": {
+        "line": 24,
+        "character": 21
+      }
+    }
+  ]
+}

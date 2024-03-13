@@ -1,16 +1,34 @@
-[
-  {
-    "messageText": "arkts-unique-names",
-    "expectLineAndCharacter": {
-      "line": 21,
-      "character": 1
+{
+  "arktsVersion_1_0": [
+    {
+      "messageText": "Use unique names for types and namespaces. (arkts-unique-names)",
+      "expectLineAndCharacter": {
+        "line": 21,
+        "character": 1
+      }
+    },
+    {
+      "messageText": "Use unique names for types and namespaces. (arkts-unique-names)",
+      "expectLineAndCharacter": {
+        "line": 25,
+        "character": 1
+      }
     }
-  },
-  {
-    "messageText": "arkts-unique-names",
-    "expectLineAndCharacter": {
-      "line": 25,
-      "character": 1
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Use unique names for types and namespaces. (arkts-unique-names)",
+      "expectLineAndCharacter": {
+        "line": 21,
+        "character": 11
+      }
+    },
+    {
+      "messageText": "Use unique names for types and namespaces. (arkts-unique-names)",
+      "expectLineAndCharacter": {
+        "line": 25,
+        "character": 10
+      }
     }
-  }
-]
+  ]
+}

@@ -1,0 +1,21 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cookbook/5.10.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.10.ets:3:3\n Indexed signatures are not supported (arkts-no-indexed-signatures)\n\n",
+                "severity": 2,
+                "reportLine": 3,
+                "reportColumn": 3,
+                "description": "Indexed signatures are not supported (arkts-no-indexed-signatures)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.10.ets:9:20\n Indexed access is not supported for fields (arkts-no-props-by-index)\n\n",
+                "severity": 2,
+                "reportLine": 9,
+                "reportColumn": 20,
+                "description": "Indexed access is not supported for fields (arkts-no-props-by-index)"
+            }
+        ]
+    }
+}

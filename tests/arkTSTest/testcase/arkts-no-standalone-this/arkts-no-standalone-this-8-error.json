@@ -1,23 +1,48 @@
-[
-  {
-    "messageText": "arkts-no-standalone-this",
-    "expectLineAndCharacter": {
-      "line": 21,
-      "character": 3
+{
+  "arktsVersion_1_0": [
+    {
+      "messageText": "Using \"this\" inside stand-alone functions is not supported (arkts-no-standalone-this)",
+      "expectLineAndCharacter": {
+        "line": 21,
+        "character": 3
+      }
+    },
+    {
+      "messageText": "\"Function.apply\", \"Function.bind\", \"Function.call\" are not supported (arkts-no-func-apply-bind-call)",
+      "expectLineAndCharacter": {
+        "line": 22,
+        "character": 16
+      }
+    },
+    {
+      "messageText": "Using \"this\" inside stand-alone functions is not supported (arkts-no-standalone-this)",
+      "expectLineAndCharacter": {
+        "line": 31,
+        "character": 3
+      }
     }
-  },
-  {
-    "messageText": "arkts-no-func-apply-bind-call",
-    "expectLineAndCharacter": {
-      "line": 22,
-      "character": 16
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Using \"this\" inside stand-alone functions is not supported (arkts-no-standalone-this)",
+      "expectLineAndCharacter": {
+        "line": 22,
+        "character": 30
+      }
+    },
+    {
+      "messageText": "'Function.bind' is not supported (arkts-no-func-bind)",
+      "expectLineAndCharacter": {
+        "line": 22,
+        "character": 25
+      }
+    },
+    {
+      "messageText": "Using \"this\" inside stand-alone functions is not supported (arkts-no-standalone-this)",
+      "expectLineAndCharacter": {
+        "line": 32,
+        "character": 17
+      }
     }
-  },
-  {
-    "messageText": "arkts-no-standalone-this",
-    "expectLineAndCharacter": {
-      "line": 31,
-      "character": 3
-    }
-  }
-]
+  ]
+}

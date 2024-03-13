@@ -1,51 +1,104 @@
-[
-  {
-    "messageText": "arkts-no-obj-literals-as-types",
-    "expectLineAndCharacter": {
-      "line": 17,
-      "character": 18
+{
+  "arktsVersion_1_0": [
+    {
+      "messageText": "Object literals cannot be used as type declarations (arkts-no-obj-literals-as-types)",
+      "expectLineAndCharacter": {
+        "line": 17,
+        "character": 18
+      }
+    },
+    {
+      "messageText": "Using \"this\" inside stand-alone functions is not supported (arkts-no-standalone-this)",
+      "expectLineAndCharacter": {
+        "line": 23,
+        "character": 1
+      }
+    },
+    {
+      "messageText": "Prototype assignment is not supported (arkts-no-prototype-assignment)",
+      "expectLineAndCharacter": {
+        "line": 27,
+        "character": 3
+      }
+    },
+    {
+      "messageText": "Usage of standard library is restricted (arkts-limited-stdlib)",
+      "expectLineAndCharacter": {
+        "line": 27,
+        "character": 15
+      }
+    },
+    {
+      "messageText": "Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)",
+      "expectLineAndCharacter": {
+        "line": 27,
+        "character": 29
+      }
+    },
+    {
+      "messageText": "Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)",
+      "expectLineAndCharacter": {
+        "line": 33,
+        "character": 7
+      }
+    },
+    {
+      "messageText": "Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)",
+      "expectLineAndCharacter": {
+        "line": 33,
+        "character": 21
+      }
     }
-  },
-  {
-    "messageText": "arkts-no-standalone-this",
-    "expectLineAndCharacter": {
-      "line": 23,
-      "character": 1
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Object literals cannot be used as type declarations (arkts-no-obj-literals-as-types)",
+      "expectLineAndCharacter": {
+        "line": 17,
+        "character": 18
+      }
+    },
+    {
+      "messageText": "Using \"this\" inside stand-alone functions is not supported (arkts-no-standalone-this)",
+      "expectLineAndCharacter": {
+        "line": 24,
+        "character": 3
+      }
+    },
+    {
+      "messageText": "Prototype assignment is not supported (arkts-no-prototype-assignment)",
+      "expectLineAndCharacter": {
+        "line": 27,
+        "character": 3
+      }
+    },
+    {
+      "messageText": "Usage of standard library is restricted (arkts-limited-stdlib)",
+      "expectLineAndCharacter": {
+        "line": 27,
+        "character": 15
+      }
+    },
+    {
+      "messageText": "Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)",
+      "expectLineAndCharacter": {
+        "line": 27,
+        "character": 29
+      }
+    },
+    {
+      "messageText": "Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)",
+      "expectLineAndCharacter": {
+        "line": 33,
+        "character": 7
+      }
+    },
+    {
+      "messageText": "Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)",
+      "expectLineAndCharacter": {
+        "line": 33,
+        "character": 21
+      }
     }
-  },
-  {
-    "messageText": "arkts-no-prototype-assignment",
-    "expectLineAndCharacter": {
-      "line": 27,
-      "character": 3
-    }
-  },
-  {
-    "messageText": "arkts-limited-stdlib",
-    "expectLineAndCharacter": {
-      "line": 27,
-      "character": 15
-    }
-  },
-  {
-    "messageText": "arkts-no-untyped-obj-literals",
-    "expectLineAndCharacter": {
-      "line": 27,
-      "character": 29
-    }
-  },
-  {
-    "messageText": "arkts-no-any-unknown",
-    "expectLineAndCharacter": {
-      "line": 33,
-      "character": 7
-    }
-  },
-  {
-    "messageText": "arkts-no-any-unknown",
-    "expectLineAndCharacter": {
-      "line": 33,
-      "character": 21
-    }
-  }
-]
+  ]
+}

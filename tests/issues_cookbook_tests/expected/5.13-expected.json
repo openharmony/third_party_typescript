@@ -1,0 +1,21 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cookbook/5.13.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.13.ets:2:13\n Conditional types are not supported (arkts-no-conditional-types)\n\n",
+                "severity": 2,
+                "reportLine": 2,
+                "reportColumn": 13,
+                "description": "Conditional types are not supported (arkts-no-conditional-types)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.13.ets:3:13\n Conditional types are not supported (arkts-no-conditional-types)\n\n",
+                "severity": 2,
+                "reportLine": 3,
+                "reportColumn": 13,
+                "description": "Conditional types are not supported (arkts-no-conditional-types)"
+            }
+        ]
+    }
+}

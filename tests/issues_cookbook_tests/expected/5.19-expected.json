@@ -1,0 +1,35 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cookbook/5.19.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.19.ets:6:22\n Argument of type '20' is not assignable to parameter of type '\"10\"'.\n\n",
+                "severity": 2,
+                "reportLine": 6,
+                "reportColumn": 22,
+                "description": "Argument of type '20' is not assignable to parameter of type '\"10\"'."
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.19.ets:11:5\n Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)\n\n",
+                "severity": 2,
+                "reportLine": 11,
+                "reportColumn": 5,
+                "description": "Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.19.ets:11:9\n Type inference in case of generic function calls is limited (arkts-no-inferred-generic-params)\n\n",
+                "severity": 2,
+                "reportLine": 11,
+                "reportColumn": 9,
+                "description": "Type inference in case of generic function calls is limited (arkts-no-inferred-generic-params)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.19.ets:20:34\n Argument of type '20' is not assignable to parameter of type '\"10\"'.\n\n",
+                "severity": 2,
+                "reportLine": 20,
+                "reportColumn": 34,
+                "description": "Argument of type '20' is not assignable to parameter of type '\"10\"'."
+            }
+        ]
+    }
+}

@@ -1,9 +1,55 @@
-[
+{
+  "arktsVersion_1_0": [
     {
-        "messageText": "arkts-no-jsx",
-        "expectLineAndCharacter": {
-            "line": 22,
-            "character": 17
-        }
+      "messageText": "Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)",
+      "expectLineAndCharacter": {
+        "line": 19,
+        "character": 20
+      }
+    },
+    {
+      "messageText": "Only \"as T\" syntax is supported for type casts (arkts-as-casts)",
+      "expectLineAndCharacter": {
+        "line": 22,
+        "character": 17
+      }
+    },
+    {
+      "messageText": "Destructuring variable declarations are not supported (arkts-no-destruct-decls)",
+      "expectLineAndCharacter": {
+        "line": 22,
+        "character": 33
+      }
+    },
+    {
+      "messageText": "RegExp literals are not supported (arkts-no-regexp-literals)",
+      "expectLineAndCharacter": {
+        "line": 22,
+        "character": 56
+      }
     }
-]
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)",
+      "expectLineAndCharacter": {
+        "line": 19,
+        "character": 20
+      }
+    },
+    {
+      "messageText": "Only \"as T\" syntax is supported for type casts (arkts-as-casts)",
+      "expectLineAndCharacter": {
+        "line": 22,
+        "character": 17
+      }
+    },
+    {
+      "messageText": "Destructuring variable declarations are not supported (arkts-no-destruct-decls)",
+      "expectLineAndCharacter": {
+        "line": 22,
+        "character": 33
+      }
+    }
+  ]
+}

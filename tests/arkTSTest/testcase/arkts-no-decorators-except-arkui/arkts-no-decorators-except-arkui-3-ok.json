@@ -1,16 +1,34 @@
-[
-  {
-    "messageText": "arkts-no-prototype-assignment",
-    "expectLineAndCharacter": {
-      "line": 25,
-      "character": 31
+{
+  "arktsVersion_1_0": [
+    {
+      "messageText": "Prototype assignment is not supported (arkts-no-prototype-assignment)",
+      "expectLineAndCharacter": {
+        "line": 25,
+        "character": 31
+      }
+    },
+    {
+      "messageText": "Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)",
+      "expectLineAndCharacter": {
+        "line": 29,
+        "character": 36
+      }
     }
-  },
-  {
-    "messageText": "arkts-no-any-unknown",
-    "expectLineAndCharacter": {
-      "line": 29,
-      "character": 36
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Prototype assignment is not supported (arkts-no-prototype-assignment)",
+      "expectLineAndCharacter": {
+        "line": 25,
+        "character": 31
+      }
+    },
+    {
+      "messageText": "Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)",
+      "expectLineAndCharacter": {
+        "line": 29,
+        "character": 36
+      }
     }
-  }
-]
+  ]
+}

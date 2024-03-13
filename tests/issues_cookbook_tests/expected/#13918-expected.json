@@ -1,0 +1,14 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cases/#13918.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#13918.ets:1:17\n Cannot find module 'js-md5' or its corresponding type declarations.\n\n",
+                "severity": 2,
+                "reportLine": 1,
+                "reportColumn": 17,
+                "description": "Cannot find module 'js-md5' or its corresponding type declarations."
+            }
+        ]
+    }
+}

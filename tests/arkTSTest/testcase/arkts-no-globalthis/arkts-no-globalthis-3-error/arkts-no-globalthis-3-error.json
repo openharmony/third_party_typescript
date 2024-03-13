@@ -1,9 +1,20 @@
-[
-  {
-    "messageText": "arkts-no-globalthis",
-    "expectLineAndCharacter": {
-      "line": 17,
-      "character": 19
+{
+  "arktsVersion_1_0": [
+    {
+      "messageText": "\"globalThis\" is not supported (arkts-no-globalthis)",
+      "expectLineAndCharacter": {
+        "line": 17,
+        "character": 19
+      }
     }
-  }
-]
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "\"globalThis\" is not supported (arkts-no-globalthis)",
+      "expectLineAndCharacter": {
+        "line": 17,
+        "character": 19
+      }
+    }
+  ]
+}

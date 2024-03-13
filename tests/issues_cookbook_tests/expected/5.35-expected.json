@@ -1,0 +1,14 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cookbook/5.35.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.35.ets:6:16\n \"in\" operator is not supported (arkts-no-in)\n\n",
+                "severity": 2,
+                "reportLine": 6,
+                "reportColumn": 16,
+                "description": "\"in\" operator is not supported (arkts-no-in)"
+            }
+        ]
+    }
+}

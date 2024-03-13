@@ -1,9 +1,20 @@
-[
+{
+  "arktsVersion_1_0": [
     {
-        "messageText": "arkts-implements-only-iface",
-        "expectLineAndCharacter": {
-            "line": 23,
-            "character": 21
-        }
+      "messageText": "Classes cannot be specified in \"implements\" clause (arkts-implements-only-iface)",
+      "expectLineAndCharacter": {
+        "line": 23,
+        "character": 21
+      }
     }
-]
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Classes cannot be specified in \"implements\" clause (arkts-implements-only-iface)",
+      "expectLineAndCharacter": {
+        "line": 23,
+        "character": 21
+      }
+    }
+  ]
+}

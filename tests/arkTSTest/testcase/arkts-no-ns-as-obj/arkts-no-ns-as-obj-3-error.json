@@ -1,9 +1,20 @@
-[
+{
+  "arktsVersion_1_0": [
     {
-        "messageText": "arkts-no-ns-as-obj",
-        "expectLineAndCharacter": {
-            "line": 24,
-            "character": 11
-        }
+      "messageText": "Namespaces cannot be used as objects (arkts-no-ns-as-obj)",
+      "expectLineAndCharacter": {
+        "line": 24,
+        "character": 11
+      }
+    }
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Namespaces cannot be used as objects (arkts-no-ns-as-obj)",
+      "expectLineAndCharacter": {
+        "line": 24,
+        "character": 11
+      }
     }
   ]
+}

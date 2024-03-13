@@ -1,9 +1,20 @@
-[
-  {
-    "messageText": "arkts-no-func-apply-bind-call",
-    "expectLineAndCharacter": {
-      "line": 36,
-      "character": 21
+{
+  "arktsVersion_1_0": [
+    {
+      "messageText": "\"Function.apply\", \"Function.bind\", \"Function.call\" are not supported (arkts-no-func-apply-bind-call)",
+      "expectLineAndCharacter": {
+        "line": 36,
+        "character": 21
+      }
     }
-  }
-]
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "'Function.bind' is not supported (arkts-no-func-bind)",
+      "expectLineAndCharacter": {
+        "line": 36,
+        "character": 41
+      }
+    }
+  ]
+}

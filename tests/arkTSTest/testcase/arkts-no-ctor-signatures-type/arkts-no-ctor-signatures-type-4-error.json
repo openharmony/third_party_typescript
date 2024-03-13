@@ -1,16 +1,34 @@
-[
-  {
-    "messageText": "arkts-no-obj-literals-as-types",
-    "expectLineAndCharacter": {
-      "line": 20,
-      "character": 24
+{
+  "arktsVersion_1_0": [
+    {
+      "messageText": "Object literals cannot be used as type declarations (arkts-no-obj-literals-as-types)",
+      "expectLineAndCharacter": {
+        "line": 20,
+        "character": 24
+      }
+    },
+    {
+      "messageText": "Use \"class\" instead of a type with constructor signature (arkts-no-ctor-signatures-type)",
+      "expectLineAndCharacter": {
+        "line": 21,
+        "character": 3
+      }
     }
-  },
-  {
-    "messageText": "arkts-no-ctor-signatures-type",
-    "expectLineAndCharacter": {
-      "line": 21,
-      "character": 3
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Object literals cannot be used as type declarations (arkts-no-obj-literals-as-types)",
+      "expectLineAndCharacter": {
+        "line": 20,
+        "character": 24
+      }
+    },
+    {
+      "messageText": "Use \"class\" instead of a type with constructor signature (arkts-no-ctor-signatures-type)",
+      "expectLineAndCharacter": {
+        "line": 21,
+        "character": 3
+      }
     }
-  }
-]
+  ]
+}

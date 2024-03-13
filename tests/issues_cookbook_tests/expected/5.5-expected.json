@@ -1,0 +1,42 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cookbook/5.5.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.5.ets:4:5\n Use \"let\" instead of \"var\" (arkts-no-var)\n\n",
+                "severity": 2,
+                "reportLine": 4,
+                "reportColumn": 5,
+                "description": "Use \"let\" instead of \"var\" (arkts-no-var)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.5.ets:6:10\n Variable 'x' is used before being assigned.\n\n",
+                "severity": 2,
+                "reportLine": 6,
+                "reportColumn": 10,
+                "description": "Variable 'x' is used before being assigned."
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.5.ets:12:3\n Use \"let\" instead of \"var\" (arkts-no-var)\n\n",
+                "severity": 2,
+                "reportLine": 12,
+                "reportColumn": 3,
+                "description": "Use \"let\" instead of \"var\" (arkts-no-var)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.5.ets:17:1\n Cannot find name 'scoped_let'.\n\n",
+                "severity": 2,
+                "reportLine": 17,
+                "reportColumn": 1,
+                "description": "Cannot find name 'scoped_let'."
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.5.ets:37:1\n Cannot find name 'scoped_let_right'. Did you mean 'scoped_var_right'?\n\n",
+                "severity": 2,
+                "reportLine": 37,
+                "reportColumn": 1,
+                "description": "Cannot find name 'scoped_let_right'. Did you mean 'scoped_var_right'?"
+            }
+        ]
+    }
+}

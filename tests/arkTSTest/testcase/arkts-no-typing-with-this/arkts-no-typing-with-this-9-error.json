@@ -1,16 +1,34 @@
-[
+{
+  "arktsVersion_1_0": [
     {
-        "messageText": "arkts-no-typing-with-this",
-        "expectLineAndCharacter": {
-            "line": 29,
-            "character": 26
-        }
+      "messageText": "Type notation using \"this\" is not supported (arkts-no-typing-with-this)",
+      "expectLineAndCharacter": {
+        "line": 29,
+        "character": 26
+      }
     },
     {
-        "messageText": "arkts-no-typing-with-this",
-        "expectLineAndCharacter": {
-            "line": 30,
-            "character": 35
-        }
+      "messageText": "Type notation using \"this\" is not supported (arkts-no-typing-with-this)",
+      "expectLineAndCharacter": {
+        "line": 30,
+        "character": 35
+      }
     }
-]
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Type notation using \"this\" is not supported (arkts-no-typing-with-this)",
+      "expectLineAndCharacter": {
+        "line": 29,
+        "character": 26
+      }
+    },
+    {
+      "messageText": "Type notation using \"this\" is not supported (arkts-no-typing-with-this)",
+      "expectLineAndCharacter": {
+        "line": 30,
+        "character": 35
+      }
+    }
+  ]
+}

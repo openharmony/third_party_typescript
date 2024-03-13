@@ -1,44 +1,90 @@
-[
-  {
-    "messageText": "arkts-no-func-expressions",
-    "expectLineAndCharacter": {
-      "line": 38,
-      "character": 22
+{
+  "arktsVersion_1_0": [
+    {
+      "messageText": "Use arrow functions instead of function expressions (arkts-no-func-expressions)",
+      "expectLineAndCharacter": {
+        "line": 38,
+        "character": 22
+      }
+    },
+    {
+      "messageText": "Using \"this\" inside stand-alone functions is not supported (arkts-no-standalone-this)",
+      "expectLineAndCharacter": {
+        "line": 38,
+        "character": 22
+      }
+    },
+    {
+      "messageText": "\"Function.apply\", \"Function.bind\", \"Function.call\" are not supported (arkts-no-func-apply-bind-call)",
+      "expectLineAndCharacter": {
+        "line": 40,
+        "character": 5
+      }
+    },
+    {
+      "messageText": "Usage of standard library is restricted (arkts-limited-stdlib)",
+      "expectLineAndCharacter": {
+        "line": 51,
+        "character": 26
+      }
+    },
+    {
+      "messageText": "Prototype assignment is not supported (arkts-no-prototype-assignment)",
+      "expectLineAndCharacter": {
+        "line": 52,
+        "character": 11
+      }
+    },
+    {
+      "messageText": "Prototype assignment is not supported (arkts-no-prototype-assignment)",
+      "expectLineAndCharacter": {
+        "line": 57,
+        "character": 27
+      }
     }
-  },
-  {
-    "messageText": "arkts-no-standalone-this",
-    "expectLineAndCharacter": {
-      "line": 38,
-      "character": 22
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Use arrow functions instead of function expressions (arkts-no-func-expressions)",
+      "expectLineAndCharacter": {
+        "line": 38,
+        "character": 22
+      }
+    },
+    {
+      "messageText": "Using \"this\" inside stand-alone functions is not supported (arkts-no-standalone-this)",
+      "expectLineAndCharacter": {
+        "line": 40,
+        "character": 26
+      }
+    },
+    {
+      "messageText": "'Function.apply', 'Function.call' are not supported (arkts-no-func-apply-call)",
+      "expectLineAndCharacter": {
+        "line": 40,
+        "character": 21
+      }
+    },
+    {
+      "messageText": "Usage of standard library is restricted (arkts-limited-stdlib)",
+      "expectLineAndCharacter": {
+        "line": 51,
+        "character": 26
+      }
+    },
+    {
+      "messageText": "Prototype assignment is not supported (arkts-no-prototype-assignment)",
+      "expectLineAndCharacter": {
+        "line": 52,
+        "character": 11
+      }
+    },
+    {
+      "messageText": "Prototype assignment is not supported (arkts-no-prototype-assignment)",
+      "expectLineAndCharacter": {
+        "line": 57,
+        "character": 27
+      }
     }
-  },
-  {
-    "messageText": "arkts-no-func-apply-bind-call",
-    "expectLineAndCharacter": {
-      "line": 40,
-      "character": 5
-    }
-  },
-  {
-    "messageText": "arkts-limited-stdlib",
-    "expectLineAndCharacter": {
-      "line": 51,
-      "character": 26
-    }
-  },
-  {
-    "messageText": "arkts-no-prototype-assignment",
-    "expectLineAndCharacter": {
-      "line": 52,
-      "character": 11
-    }
-  },
-  {
-    "messageText": "arkts-no-prototype-assignment",
-    "expectLineAndCharacter": {
-      "line": 57,
-      "character": 27
-    }
-  }
-]
+  ]
+}

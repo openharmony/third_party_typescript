@@ -1,9 +1,20 @@
-[
+{
+  "arktsVersion_1_0": [
     {
-        "messageText": "arkts-no-typing-with-this",
-        "expectLineAndCharacter": {
-            "line": 19,
-            "character": 26
-        }
+      "messageText": "Type notation using \"this\" is not supported (arkts-no-typing-with-this)",
+      "expectLineAndCharacter": {
+        "line": 19,
+        "character": 26
+      }
     }
-]
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Type notation using \"this\" is not supported (arkts-no-typing-with-this)",
+      "expectLineAndCharacter": {
+        "line": 19,
+        "character": 26
+      }
+    }
+  ]
+}

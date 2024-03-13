@@ -1,9 +1,20 @@
-[
+{
+  "arktsVersion_1_0": [
     {
-        "messageText": "arkts-limited-stdlib",
-        "expectLineAndCharacter": {
-            "line": 32,
-            "character": 24
-        }
+      "messageText": "Usage of standard library is restricted (arkts-limited-stdlib)",
+      "expectLineAndCharacter": {
+        "line": 32,
+        "character": 24
+      }
     }
-]
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Usage of standard library is restricted (arkts-limited-stdlib)",
+      "expectLineAndCharacter": {
+        "line": 32,
+        "character": 24
+      }
+    }
+  ]
+}

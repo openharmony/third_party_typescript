@@ -1,37 +1,76 @@
-[    
+{
+  "arktsVersion_1_0": [
     {
-        "messageText": "arkts-no-standalone-this",
-        "expectLineAndCharacter": {
-            "line": 17,
-            "character": 1
-        }
+      "messageText": "Using \"this\" inside stand-alone functions is not supported (arkts-no-standalone-this)",
+      "expectLineAndCharacter": {
+        "line": 17,
+        "character": 1
+      }
     },
     {
-        "messageText": "arkts-no-implicit-return-types",
-        "expectLineAndCharacter": {
-            "line": 21,
-            "character": 1
-        }
+      "messageText": "Function return type inference is limited (arkts-no-implicit-return-types)",
+      "expectLineAndCharacter": {
+        "line": 21,
+        "character": 1
+      }
     },
     {
-        "messageText": "arkts-no-utility-types",
-        "expectLineAndCharacter": {
-            "line": 21,
-            "character": 28
-        }
+      "messageText": "Some of utility types are not supported (arkts-no-utility-types)",
+      "expectLineAndCharacter": {
+        "line": 21,
+        "character": 28
+      }
     },
     {
-        "messageText": "arkts-no-type-query",
-        "expectLineAndCharacter": {
-            "line": 21,
-            "character": 46
-        }
+      "messageText": "\"typeof\" operator is allowed only in expression contexts (arkts-no-type-query)",
+      "expectLineAndCharacter": {
+        "line": 21,
+        "character": 46
+      }
     },
     {
-        "messageText": "arkts-no-func-apply-bind-call",
-        "expectLineAndCharacter": {
-            "line": 22,
-            "character": 10
-        }
+      "messageText": "\"Function.apply\", \"Function.bind\", \"Function.call\" are not supported (arkts-no-func-apply-bind-call)",
+      "expectLineAndCharacter": {
+        "line": 22,
+        "character": 10
+      }
     }
-]
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Using \"this\" inside stand-alone functions is not supported (arkts-no-standalone-this)",
+      "expectLineAndCharacter": {
+        "line": 18,
+        "character": 10
+      }
+    },
+    {
+      "messageText": "Function return type inference is limited (arkts-no-implicit-return-types)",
+      "expectLineAndCharacter": {
+        "line": 21,
+        "character": 10
+      }
+    },
+    {
+      "messageText": "Some of utility types are not supported (arkts-no-utility-types)",
+      "expectLineAndCharacter": {
+        "line": 21,
+        "character": 28
+      }
+    },
+    {
+      "messageText": "\"typeof\" operator is allowed only in expression contexts (arkts-no-type-query)",
+      "expectLineAndCharacter": {
+        "line": 21,
+        "character": 46
+      }
+    },
+    {
+      "messageText": "'Function.apply', 'Function.call' are not supported (arkts-no-func-apply-call)",
+      "expectLineAndCharacter": {
+        "line": 22,
+        "character": 16
+      }
+    }
+  ]
+}

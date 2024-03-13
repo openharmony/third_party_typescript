@@ -1,30 +1,62 @@
-[
+{
+  "arktsVersion_1_0": [
     {
-        "messageText": "arkts-no-utility-types",
-        "expectLineAndCharacter": {
-            "line": 24,
-            "character": 20
-        }
+      "messageText": "Some of utility types are not supported (arkts-no-utility-types)",
+      "expectLineAndCharacter": {
+        "line": 24,
+        "character": 20
+      }
     },
     {
-        "messageText": "arkts-no-untyped-obj-literals",
-        "expectLineAndCharacter": {
-            "line": 26,
-            "character": 27
-        }
+      "messageText": "Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)",
+      "expectLineAndCharacter": {
+        "line": 26,
+        "character": 27
+      }
     },
     {
-        "messageText": "arkts-no-utility-types",
-        "expectLineAndCharacter": {
-            "line": 35,
-            "character": 17
-        }
+      "messageText": "Some of utility types are not supported (arkts-no-utility-types)",
+      "expectLineAndCharacter": {
+        "line": 35,
+        "character": 17
+      }
     },
     {
-        "messageText": "arkts-no-untyped-obj-literals",
-        "expectLineAndCharacter": {
-            "line": 37,
-            "character": 28
-        }
+      "messageText": "Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)",
+      "expectLineAndCharacter": {
+        "line": 37,
+        "character": 28
+      }
     }
-]
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Some of utility types are not supported (arkts-no-utility-types)",
+      "expectLineAndCharacter": {
+        "line": 24,
+        "character": 20
+      }
+    },
+    {
+      "messageText": "Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)",
+      "expectLineAndCharacter": {
+        "line": 26,
+        "character": 27
+      }
+    },
+    {
+      "messageText": "Some of utility types are not supported (arkts-no-utility-types)",
+      "expectLineAndCharacter": {
+        "line": 35,
+        "character": 17
+      }
+    },
+    {
+      "messageText": "Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)",
+      "expectLineAndCharacter": {
+        "line": 37,
+        "character": 28
+      }
+    }
+  ]
+}

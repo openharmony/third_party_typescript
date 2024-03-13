@@ -1,16 +1,34 @@
-[
-  {
-    "messageText": "arkts-no-func-apply-bind-call",
-    "expectLineAndCharacter": {
-      "line": 22,
-      "character": 16
+{
+  "arktsVersion_1_0": [
+    {
+      "messageText": "\"Function.apply\", \"Function.bind\", \"Function.call\" are not supported (arkts-no-func-apply-bind-call)",
+      "expectLineAndCharacter": {
+        "line": 22,
+        "character": 16
+      }
+    },
+    {
+      "messageText": "\"Function.apply\", \"Function.bind\", \"Function.call\" are not supported (arkts-no-func-apply-bind-call)",
+      "expectLineAndCharacter": {
+        "line": 33,
+        "character": 17
+      }
     }
-  },
-  {
-    "messageText": "arkts-no-func-apply-bind-call",
-    "expectLineAndCharacter": {
-      "line": 33,
-      "character": 17
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "'Function.bind' is not supported (arkts-no-func-bind)",
+      "expectLineAndCharacter": {
+        "line": 22,
+        "character": 25
+      }
+    },
+    {
+      "messageText": "'Function.bind' is not supported (arkts-no-func-bind)",
+      "expectLineAndCharacter": {
+        "line": 33,
+        "character": 33
+      }
     }
-  }
-]
+  ]
+}

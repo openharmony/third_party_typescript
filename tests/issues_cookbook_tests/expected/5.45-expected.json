@@ -1,0 +1,21 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cookbook/5.45.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.45.ets:1:19\n Destructuring parameter declarations are not supported (arkts-no-destruct-params)\n\n",
+                "severity": 2,
+                "reportLine": 1,
+                "reportColumn": 19,
+                "description": "Destructuring parameter declarations are not supported (arkts-no-destruct-params)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.45.ets:8:10\n Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)\n\n",
+                "severity": 2,
+                "reportLine": 8,
+                "reportColumn": 10,
+                "description": "Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)"
+            }
+        ]
+    }
+}

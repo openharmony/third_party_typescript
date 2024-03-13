@@ -1,26 +1,48 @@
-[
-  {
-    "realStart": 679,
-    "messageText": "arkts-limited-esobj",
-    "expectLineAndCharacter": {
-      "line": 20,
-      "character": 7
+{
+  "arktsVersion_1_0": [
+    {
+      "messageText": "Usage of \"ESObject\" type is restricted (arkts-limited-esobj)",
+      "expectLineAndCharacter": {
+        "line": 20,
+        "character": 7
+      }
+    },
+    {
+      "messageText": "Usage of \"ESObject\" type is restricted (arkts-limited-esobj)",
+      "expectLineAndCharacter": {
+        "line": 33,
+        "character": 3
+      }
+    },
+    {
+      "messageText": "\"for .. in\" is not supported (arkts-no-for-in)",
+      "expectLineAndCharacter": {
+        "line": 36,
+        "character": 1
+      }
     }
-  },
-  {
-    "realStart": 944,
-    "messageText": "arkts-limited-esobj",
-    "expectLineAndCharacter": {
-      "line": 33,
-      "character": 3
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Usage of 'ESObject' type is restricted (arkts-limited-esobj)",
+      "expectLineAndCharacter": {
+        "line": 20,
+        "character": 7
+      }
+    },
+    {
+      "messageText": "Usage of 'ESObject' type is restricted (arkts-limited-esobj)",
+      "expectLineAndCharacter": {
+        "line": 33,
+        "character": 3
+      }
+    },
+    {
+      "messageText": "\"for .. in\" is not supported (arkts-no-for-in)",
+      "expectLineAndCharacter": {
+        "line": 36,
+        "character": 14
+      }
     }
-  },
-  {
-    "realStart": 1027,
-    "messageText": "arkts-no-for-in",
-    "expectLineAndCharacter": {
-      "line": 36,
-      "character": 1
-    }
-  }
-]
+  ]
+}

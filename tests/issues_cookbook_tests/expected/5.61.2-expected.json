@@ -1,0 +1,35 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cookbook/5.61.2.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.61.2.ets:2:1\n \"require\" and \"import\" assignment are not supported (arkts-no-require)\n\n",
+                "severity": 2,
+                "reportLine": 2,
+                "reportColumn": 1,
+                "description": "\"require\" and \"import\" assignment are not supported (arkts-no-require)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.61.2.ets:2:1\n Import assignment cannot be used when targeting ECMAScript modules. Consider using 'import * as ns from \"mod\"', 'import {a} from \"mod\"', 'import d from \"mod\"', or another module format instead.\n\n",
+                "severity": 2,
+                "reportLine": 2,
+                "reportColumn": 1,
+                "description": "Import assignment cannot be used when targeting ECMAScript modules. Consider using 'import * as ns from \"mod\"', 'import {a} from \"mod\"', 'import d from \"mod\"', or another module format instead."
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.61.2.ets:4:5\n Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)\n\n",
+                "severity": 2,
+                "reportLine": 4,
+                "reportColumn": 5,
+                "description": "Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.61.2.ets:4:12\n Property 'Point' does not exist on type 'typeof Point'.\n\n",
+                "severity": 2,
+                "reportLine": 4,
+                "reportColumn": 12,
+                "description": "Property 'Point' does not exist on type 'typeof Point'."
+            }
+        ]
+    }
+}

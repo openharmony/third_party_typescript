@@ -1,0 +1,14 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cookbook/5.63.2.d.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.63.2.d.ets:2:1\n Ambient module declaration is not supported (arkts-no-ambient-decls)\n\n",
+                "severity": 2,
+                "reportLine": 2,
+                "reportColumn": 1,
+                "description": "Ambient module declaration is not supported (arkts-no-ambient-decls)"
+            }
+        ]
+    }
+}

@@ -1,9 +1,20 @@
-[
+{
+  "arktsVersion_1_0": [
     {
-        "messageText": "arkts-no-enum-mixed-types",
-        "expectLineAndCharacter": {
-            "line": 25,
-            "character": 3
-        }
+      "messageText": "Enumeration members can be initialized only with compile time expressions of the same type (arkts-no-enum-mixed-types)",
+      "expectLineAndCharacter": {
+        "line": 25,
+        "character": 3
+      }
     }
-]
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Enumeration members can be initialized only with compile time expressions of the same type (arkts-no-enum-mixed-types)",
+      "expectLineAndCharacter": {
+        "line": 25,
+        "character": 3
+      }
+    }
+  ]
+}

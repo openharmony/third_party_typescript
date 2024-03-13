@@ -1,0 +1,42 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cases/#14435.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#14435.ets:1:1\n Usage of standard library is restricted (arkts-limited-stdlib)\n\n",
+                "severity": 2,
+                "reportLine": 1,
+                "reportColumn": 1,
+                "description": "Usage of standard library is restricted (arkts-limited-stdlib)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#14435.ets:9:1\n Expected 1 arguments, but got 0.\n\n",
+                "severity": 2,
+                "reportLine": 9,
+                "reportColumn": 1,
+                "description": "Expected 1 arguments, but got 0."
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#14435.ets:15:1\n Cannot find name 'global'.\n\n",
+                "severity": 2,
+                "reportLine": 15,
+                "reportColumn": 1,
+                "description": "Cannot find name 'global'."
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#14435.ets:16:1\n Usage of standard library is restricted (arkts-limited-stdlib)\n\n",
+                "severity": 2,
+                "reportLine": 16,
+                "reportColumn": 1,
+                "description": "Usage of standard library is restricted (arkts-limited-stdlib)"
+            },
+            {
+                "origin": "WARN: ArkTS:WARN File: /entry/src/main/ets/pages/cases/#14435.ets:16:1\n \"globalThis\" is not supported (arkts-no-globalthis)\n\n",
+                "severity": 1,
+                "reportLine": 16,
+                "reportColumn": 1,
+                "description": "\"globalThis\" is not supported (arkts-no-globalthis)"
+            }
+        ]
+    }
+}

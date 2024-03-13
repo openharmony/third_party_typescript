@@ -1,23 +1,48 @@
-[    
+{
+  "arktsVersion_1_0": [
     {
-        "messageText": "arkts-no-untyped-obj-literals",
-        "expectLineAndCharacter": {
-            "line": 24,
-            "character": 10
-        }
+      "messageText": "Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)",
+      "expectLineAndCharacter": {
+        "line": 24,
+        "character": 10
+      }
     },
     {
-        "messageText": "arkts-no-spread",
-        "expectLineAndCharacter": {
-            "line": 24,
-            "character": 12
-        }
+      "messageText": "It is possible to spread only arrays or classes derived from arrays into the rest parameter or array literals (arkts-no-spread)",
+      "expectLineAndCharacter": {
+        "line": 24,
+        "character": 12
+      }
     },
     {
-        "messageText": "arkts-no-spread",
-        "expectLineAndCharacter": {
-            "line": 24,
-            "character": 21
-        }
+      "messageText": "It is possible to spread only arrays or classes derived from arrays into the rest parameter or array literals (arkts-no-spread)",
+      "expectLineAndCharacter": {
+        "line": 24,
+        "character": 21
+      }
     }
-]
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)",
+      "expectLineAndCharacter": {
+        "line": 24,
+        "character": 10
+      }
+    },
+    {
+      "messageText": "It is possible to spread only arrays or classes derived from arrays into the rest parameter or array literals (arkts-no-spread)",
+      "expectLineAndCharacter": {
+        "line": 24,
+        "character": 12
+      }
+    },
+    {
+      "messageText": "It is possible to spread only arrays or classes derived from arrays into the rest parameter or array literals (arkts-no-spread)",
+      "expectLineAndCharacter": {
+        "line": 24,
+        "character": 21
+      }
+    }
+  ]
+}

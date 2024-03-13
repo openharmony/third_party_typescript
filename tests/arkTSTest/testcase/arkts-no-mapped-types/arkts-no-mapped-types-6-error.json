@@ -1,18 +1,34 @@
-[
-  {
-    "realStart": 643,
-    "messageText": "arkts-no-mapped-types",
-    "expectLineAndCharacter": {
-      "line": 17,
-      "character": 22
+{
+  "arktsVersion_1_0": [
+    {
+      "messageText": "Mapped type expression is not supported (arkts-no-mapped-types)",
+      "expectLineAndCharacter": {
+        "line": 17,
+        "character": 22
+      }
+    },
+    {
+      "messageText": "Indexed access types are not supported (arkts-no-aliases-by-index)",
+      "expectLineAndCharacter": {
+        "line": 18,
+        "character": 21
+      }
     }
-  },
-  {
-    "realStart": 666,
-    "messageText": "arkts-no-aliases-by-index",
-    "expectLineAndCharacter": {
-      "line": 18,
-      "character": 21
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Mapped type expression is not supported (arkts-no-mapped-types)",
+      "expectLineAndCharacter": {
+        "line": 17,
+        "character": 22
+      }
+    },
+    {
+      "messageText": "Indexed access types are not supported (arkts-no-aliases-by-index)",
+      "expectLineAndCharacter": {
+        "line": 18,
+        "character": 21
+      }
     }
-  }
-]
+  ]
+}

@@ -1,9 +1,20 @@
-[
+{
+  "arktsVersion_1_0": [
     {
-        "messageText": "arkts-no-import-default-as",
-        "expectLineAndCharacter": {
-            "line": 19,
-            "character": 10
-        }
+      "messageText": "\"import default as ...\" is not supported (arkts-no-import-default-as)",
+      "expectLineAndCharacter": {
+        "line": 19,
+        "character": 10
+      }
     }
-]
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "\"import default as ...\" is not supported (arkts-no-import-default-as)",
+      "expectLineAndCharacter": {
+        "line": 19,
+        "character": 10
+      }
+    }
+  ]
+}

@@ -1,10 +1,20 @@
-[
+{
+  "arktsVersion_1_0": [
     {
-        "messageText": "arkts-strict-typing",
-        "expectLineAndCharacter": {
-            "line": 19,
-            "character": 1
-        }
+      "messageText": "Function lacks ending return statement and return type does not include 'undefined'.",
+      "expectLineAndCharacter": {
+        "line": 19,
+        "character": 29
+      }
     }
-    
-]
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Function lacks ending return statement and return type does not include 'undefined'.",
+      "expectLineAndCharacter": {
+        "line": 19,
+        "character": 29
+      }
+    }
+  ]
+}

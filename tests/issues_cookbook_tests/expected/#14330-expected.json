@@ -1,0 +1,21 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cases/#14330.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#14330.ets:4:16\n Using \"this\" inside stand-alone functions is not supported (arkts-no-standalone-this)\n\n",
+                "severity": 2,
+                "reportLine": 4,
+                "reportColumn": 16,
+                "description": "Using \"this\" inside stand-alone functions is not supported (arkts-no-standalone-this)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#14330.ets:11:9\n Using \"this\" inside stand-alone functions is not supported (arkts-no-standalone-this)\n\n",
+                "severity": 2,
+                "reportLine": 11,
+                "reportColumn": 9,
+                "description": "Using \"this\" inside stand-alone functions is not supported (arkts-no-standalone-this)"
+            }
+        ]
+    }
+}

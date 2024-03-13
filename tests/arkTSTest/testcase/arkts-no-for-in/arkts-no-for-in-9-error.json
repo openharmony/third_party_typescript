@@ -1,26 +1,48 @@
-[
-  {
-    "realStart": 630,
-    "messageText": "arkts-no-for-in",
-    "expectLineAndCharacter": {
-      "line": 19,
-      "character": 1
+{
+  "arktsVersion_1_0": [
+    {
+      "messageText": "\"for .. in\" is not supported (arkts-no-for-in)",
+      "expectLineAndCharacter": {
+        "line": 19,
+        "character": 1
+      }
+    },
+    {
+      "messageText": "Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)",
+      "expectLineAndCharacter": {
+        "line": 19,
+        "character": 28
+      }
+    },
+    {
+      "messageText": "Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)",
+      "expectLineAndCharacter": {
+        "line": 20,
+        "character": 38
+      }
     }
-  },
-  {
-    "realStart": 657,
-    "messageText": "arkts-no-any-unknown",
-    "expectLineAndCharacter": {
-      "line": 19,
-      "character": 28
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "\"for .. in\" is not supported (arkts-no-for-in)",
+      "expectLineAndCharacter": {
+        "line": 19,
+        "character": 18
+      }
+    },
+    {
+      "messageText": "Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)",
+      "expectLineAndCharacter": {
+        "line": 19,
+        "character": 28
+      }
+    },
+    {
+      "messageText": "Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)",
+      "expectLineAndCharacter": {
+        "line": 20,
+        "character": 38
+      }
     }
-  },
-  {
-    "realStart": 701,
-    "messageText": "arkts-no-any-unknown",
-    "expectLineAndCharacter": {
-      "line": 20,
-      "character": 38
-    }
-  }
-]
+  ]
+}

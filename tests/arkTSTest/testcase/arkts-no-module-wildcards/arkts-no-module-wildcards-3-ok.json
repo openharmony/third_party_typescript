@@ -1,9 +1,20 @@
-[
+{
+  "arktsVersion_1_0": [
     {
-      "messageText": "arkts-no-misplaced-imports",
+      "messageText": "\"import\" statements after other statements are not allowed (arkts-no-misplaced-imports)",
+      "expectLineAndCharacter": {
+        "line": 20,
+        "character": 1
+      }
+    }
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "\"import\" statements after other statements are not allowed (arkts-no-misplaced-imports)",
       "expectLineAndCharacter": {
         "line": 20,
         "character": 1
       }
     }
   ]
+}

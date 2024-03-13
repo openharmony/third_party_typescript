@@ -1,37 +1,76 @@
-[
-  {
-    "messageText": "arkts-no-symbol",
-    "expectLineAndCharacter": {
-      "line": 21,
-      "character": 19
+{
+  "arktsVersion_1_0": [
+    {
+      "messageText": "\"Symbol()\" API is not supported (arkts-no-symbol)",
+      "expectLineAndCharacter": {
+        "line": 21,
+        "character": 19
+      }
+    },
+    {
+      "messageText": "\"Symbol()\" API is not supported (arkts-no-symbol)",
+      "expectLineAndCharacter": {
+        "line": 22,
+        "character": 18
+      }
+    },
+    {
+      "messageText": "Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)",
+      "expectLineAndCharacter": {
+        "line": 23,
+        "character": 15
+      }
+    },
+    {
+      "messageText": "Objects with property names that are not identifiers are not supported (arkts-identifiers-as-prop-names)",
+      "expectLineAndCharacter": {
+        "line": 24,
+        "character": 3
+      }
+    },
+    {
+      "messageText": "Objects with property names that are not identifiers are not supported (arkts-identifiers-as-prop-names)",
+      "expectLineAndCharacter": {
+        "line": 25,
+        "character": 3
+      }
     }
-  },
-  {
-    "messageText": "arkts-no-symbol",
-    "expectLineAndCharacter": {
-      "line": 22,
-      "character": 18
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "\"Symbol()\" API is not supported (arkts-no-symbol)",
+      "expectLineAndCharacter": {
+        "line": 21,
+        "character": 19
+      }
+    },
+    {
+      "messageText": "\"Symbol()\" API is not supported (arkts-no-symbol)",
+      "expectLineAndCharacter": {
+        "line": 22,
+        "character": 18
+      }
+    },
+    {
+      "messageText": "Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)",
+      "expectLineAndCharacter": {
+        "line": 23,
+        "character": 15
+      }
+    },
+    {
+      "messageText": "Objects with property names that are not identifiers are not supported (arkts-identifiers-as-prop-names)",
+      "expectLineAndCharacter": {
+        "line": 24,
+        "character": 3
+      }
+    },
+    {
+      "messageText": "Objects with property names that are not identifiers are not supported (arkts-identifiers-as-prop-names)",
+      "expectLineAndCharacter": {
+        "line": 25,
+        "character": 3
+      }
     }
-  },
-  {
-    "messageText": "arkts-no-any-unknown",
-    "expectLineAndCharacter": {
-      "line": 23,
-      "character": 15
-    }
-  },
-  {
-    "messageText": "arkts-identifiers-as-prop-names",
-    "expectLineAndCharacter": {
-      "line": 24,
-      "character": 3
-    }
-  },
-  {
-    "messageText": "arkts-identifiers-as-prop-names",
-    "expectLineAndCharacter": {
-      "line": 25,
-      "character": 3
-    }
-  }
-]
+  ]
+}

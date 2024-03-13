@@ -1,0 +1,28 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cookbook/5.69.2.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.69.2.ets:2:1\n Use \"let\" instead of \"var\" (arkts-no-var)\n\n",
+                "severity": 2,
+                "reportLine": 2,
+                "reportColumn": 1,
+                "description": "Use \"let\" instead of \"var\" (arkts-no-var)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.69.2.ets:3:5\n Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)\n\n",
+                "severity": 2,
+                "reportLine": 3,
+                "reportColumn": 5,
+                "description": "Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)"
+            },
+            {
+                "origin": "WARN: ArkTS:WARN File: /entry/src/main/ets/pages/cookbook/5.69.2.ets:3:9\n \"globalThis\" is not supported (arkts-no-globalthis)\n\n",
+                "severity": 1,
+                "reportLine": 3,
+                "reportColumn": 9,
+                "description": "\"globalThis\" is not supported (arkts-no-globalthis)"
+            }
+        ]
+    }
+}

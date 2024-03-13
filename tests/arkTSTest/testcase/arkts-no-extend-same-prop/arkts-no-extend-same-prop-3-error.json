@@ -1,16 +1,34 @@
-[
+{
+  "arktsVersion_1_0": [
     {
-        "messageText": "arkts-no-extend-same-prop",
-        "expectLineAndCharacter": {
-            "line": 27,
-            "character": 1
-        }
+      "messageText": "Interface can not extend interfaces with the same method (arkts-no-extend-same-prop)",
+      "expectLineAndCharacter": {
+        "line": 27,
+        "character": 1
+      }
     },
     {
-        "messageText": "arkts-no-untyped-obj-literals",
-        "expectLineAndCharacter": {
-            "line": 31,
-            "character": 25
-        }
+      "messageText": "Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)",
+      "expectLineAndCharacter": {
+        "line": 31,
+        "character": 25
+      }
     }
-]
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Interface can not extend interfaces with the same method (arkts-no-extend-same-prop)",
+      "expectLineAndCharacter": {
+        "line": 27,
+        "character": 1
+      }
+    },
+    {
+      "messageText": "Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)",
+      "expectLineAndCharacter": {
+        "line": 31,
+        "character": 25
+      }
+    }
+  ]
+}

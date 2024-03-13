@@ -1,9 +1,20 @@
-[
+{
+  "arktsVersion_1_0": [
     {
-        "messageText": "arkts-no-spread",
-        "expectLineAndCharacter": {
-            "line": 24,
-            "character": 5
-        }
+      "messageText": "It is possible to spread only arrays or classes derived from arrays into the rest parameter or array literals (arkts-no-spread)",
+      "expectLineAndCharacter": {
+        "line": 24,
+        "character": 5
+      }
     }
-]
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "It is possible to spread only arrays or classes derived from arrays into the rest parameter or array literals (arkts-no-spread)",
+      "expectLineAndCharacter": {
+        "line": 24,
+        "character": 5
+      }
+    }
+  ]
+}

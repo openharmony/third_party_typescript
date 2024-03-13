@@ -1,0 +1,14 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cookbook/5.78.2.ts",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.78.2.ts:2:19\n Importing ArkTS files in JS and TS files is forbidden.\n\n",
+                "severity": 2,
+                "reportLine": 2,
+                "reportColumn": 19,
+                "description": "Importing ArkTS files in JS and TS files is forbidden."
+            }
+        ]
+    }
+}

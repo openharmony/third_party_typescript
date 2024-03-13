@@ -1,1 +1,12 @@
-[]
+{
+  "arktsVersion_1_0": [],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Indexed access is not supported for fields (arkts-no-props-by-index)",
+      "expectLineAndCharacter": {
+        "line": 20,
+        "character": 15
+      }
+    }
+  ]
+}

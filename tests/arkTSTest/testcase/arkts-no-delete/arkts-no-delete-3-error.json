@@ -1,9 +1,20 @@
-[
-  {
-    "messageText": "arkts-no-delete",
-    "expectLineAndCharacter": {
-      "line": 19,
-      "character": 1
+{
+  "arktsVersion_1_0": [
+    {
+      "messageText": "\"delete\" operator is not supported (arkts-no-delete)",
+      "expectLineAndCharacter": {
+        "line": 19,
+        "character": 1
+      }
     }
-  }
-]
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "\"delete\" operator is not supported (arkts-no-delete)",
+      "expectLineAndCharacter": {
+        "line": 19,
+        "character": 1
+      }
+    }
+  ]
+}

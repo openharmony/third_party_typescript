@@ -1,0 +1,14 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cookbook/5.15.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.15.ets:3:3\n Construct signatures are not supported in interfaces (arkts-no-ctor-signatures-iface)\n\n",
+                "severity": 2,
+                "reportLine": 3,
+                "reportColumn": 3,
+                "description": "Construct signatures are not supported in interfaces (arkts-no-ctor-signatures-iface)"
+            }
+        ]
+    }
+}

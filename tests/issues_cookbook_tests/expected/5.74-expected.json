@@ -1,0 +1,14 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cookbook/5.74.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.74.ets:2:54\n Import assertions are only supported when the '--module' option is set to 'esnext' or 'nodenext'.\n\n",
+                "severity": 2,
+                "reportLine": 2,
+                "reportColumn": 54,
+                "description": "Import assertions are only supported when the '--module' option is set to 'esnext' or 'nodenext'."
+            }
+        ]
+    }
+}

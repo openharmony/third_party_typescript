@@ -1,0 +1,21 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cookbook/5.16.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.16.ets:2:14\n Object literals cannot be used as type declarations (arkts-no-obj-literals-as-types)\n\n",
+                "severity": 2,
+                "reportLine": 2,
+                "reportColumn": 14,
+                "description": "Object literals cannot be used as type declarations (arkts-no-obj-literals-as-types)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.16.ets:6:10\n Indexed access types are not supported (arkts-no-aliases-by-index)\n\n",
+                "severity": 2,
+                "reportLine": 6,
+                "reportColumn": 10,
+                "description": "Indexed access types are not supported (arkts-no-aliases-by-index)"
+            }
+        ]
+    }
+}

@@ -1,100 +1,202 @@
-[    
+{
+  "arktsVersion_1_0": [
     {
-        "messageText": "arkts-no-obj-literals-as-types",
-        "expectLineAndCharacter": {
-            "line": 17,
-            "character": 31
-        }
+      "messageText": "Object literals cannot be used as type declarations (arkts-no-obj-literals-as-types)",
+      "expectLineAndCharacter": {
+        "line": 17,
+        "character": 31
+      }
     },
     {
-        "messageText": "arkts-no-intersection-types",
-        "expectLineAndCharacter": {
-            "line": 19,
-            "character": 13
-        }
+      "messageText": "Use inheritance instead of intersection types (arkts-no-intersection-types)",
+      "expectLineAndCharacter": {
+        "line": 19,
+        "character": 13
+      }
     },
     {
-        "messageText": "arkts-no-utility-types",
-        "expectLineAndCharacter": {
-            "line": 19,
-            "character": 17
-        }
+      "messageText": "Some of utility types are not supported (arkts-no-utility-types)",
+      "expectLineAndCharacter": {
+        "line": 19,
+        "character": 17
+      }
     },
     {
-        "messageText": "arkts-no-intersection-types",
-        "expectLineAndCharacter": {
-            "line": 19,
-            "character": 26
-        }
+      "messageText": "Use inheritance instead of intersection types (arkts-no-intersection-types)",
+      "expectLineAndCharacter": {
+        "line": 19,
+        "character": 26
+      }
     },
     {
-        "messageText": "arkts-no-intersection-types",
-        "expectLineAndCharacter": {
-            "line": 22,
-            "character": 58
-        }
+      "messageText": "Use inheritance instead of intersection types (arkts-no-intersection-types)",
+      "expectLineAndCharacter": {
+        "line": 22,
+        "character": 58
+      }
     },
     {
-        "messageText": "arkts-no-untyped-obj-literals",
-        "expectLineAndCharacter": {
-            "line": 23,
-            "character": 35
-        }
+      "messageText": "Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)",
+      "expectLineAndCharacter": {
+        "line": 23,
+        "character": 35
+      }
     },
     {
-        "messageText": "arkts-no-untyped-obj-literals",
-        "expectLineAndCharacter": {
-            "line": 24,
-            "character": 41
-        }
+      "messageText": "Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)",
+      "expectLineAndCharacter": {
+        "line": 24,
+        "character": 41
+      }
     },
     {
-        "messageText": "arkts-no-untyped-obj-literals",
-        "expectLineAndCharacter": {
-            "line": 25,
-            "character": 10
-        }
+      "messageText": "Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)",
+      "expectLineAndCharacter": {
+        "line": 25,
+        "character": 10
+      }
     },
     {
-        "messageText": "arkts-no-spread",
-        "expectLineAndCharacter": {
-            "line": 25,
-            "character": 12
-        }
+      "messageText": "It is possible to spread only arrays or classes derived from arrays into the rest parameter or array literals (arkts-no-spread)",
+      "expectLineAndCharacter": {
+        "line": 25,
+        "character": 12
+      }
     },
     {
-        "messageText": "arkts-no-spread",
-        "expectLineAndCharacter": {
-            "line": 25,
-            "character": 21
-        }
+      "messageText": "It is possible to spread only arrays or classes derived from arrays into the rest parameter or array literals (arkts-no-spread)",
+      "expectLineAndCharacter": {
+        "line": 25,
+        "character": 21
+      }
     },
     {
-        "messageText": "arkts-no-intersection-types",
-        "expectLineAndCharacter": {
-            "line": 25,
-            "character": 37
-        }
+      "messageText": "Use inheritance instead of intersection types (arkts-no-intersection-types)",
+      "expectLineAndCharacter": {
+        "line": 25,
+        "character": 37
+      }
     },
     {
-        "messageText": "arkts-no-untyped-obj-literals",
-        "expectLineAndCharacter": {
-            "line": 28,
-            "character": 22
-        }
+      "messageText": "Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)",
+      "expectLineAndCharacter": {
+        "line": 28,
+        "character": 22
+      }
     },
     {
-        "messageText": "arkts-no-untyped-obj-literals",
-        "expectLineAndCharacter": {
-            "line": 29,
-            "character": 9
-        }
+      "messageText": "Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)",
+      "expectLineAndCharacter": {
+        "line": 29,
+        "character": 9
+      }
     },
     {
-        "messageText": "arkts-no-untyped-obj-literals",
-        "expectLineAndCharacter": {
-            "line": 30,
-            "character": 12
-        }
+      "messageText": "Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)",
+      "expectLineAndCharacter": {
+        "line": 30,
+        "character": 12
+      }
     }
-]
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Object literals cannot be used as type declarations (arkts-no-obj-literals-as-types)",
+      "expectLineAndCharacter": {
+        "line": 17,
+        "character": 31
+      }
+    },
+    {
+      "messageText": "Use inheritance instead of intersection types (arkts-no-intersection-types)",
+      "expectLineAndCharacter": {
+        "line": 19,
+        "character": 13
+      }
+    },
+    {
+      "messageText": "Some of utility types are not supported (arkts-no-utility-types)",
+      "expectLineAndCharacter": {
+        "line": 19,
+        "character": 17
+      }
+    },
+    {
+      "messageText": "Use inheritance instead of intersection types (arkts-no-intersection-types)",
+      "expectLineAndCharacter": {
+        "line": 19,
+        "character": 26
+      }
+    },
+    {
+      "messageText": "Use inheritance instead of intersection types (arkts-no-intersection-types)",
+      "expectLineAndCharacter": {
+        "line": 22,
+        "character": 58
+      }
+    },
+    {
+      "messageText": "Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)",
+      "expectLineAndCharacter": {
+        "line": 23,
+        "character": 35
+      }
+    },
+    {
+      "messageText": "Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)",
+      "expectLineAndCharacter": {
+        "line": 24,
+        "character": 41
+      }
+    },
+    {
+      "messageText": "Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)",
+      "expectLineAndCharacter": {
+        "line": 25,
+        "character": 10
+      }
+    },
+    {
+      "messageText": "It is possible to spread only arrays or classes derived from arrays into the rest parameter or array literals (arkts-no-spread)",
+      "expectLineAndCharacter": {
+        "line": 25,
+        "character": 12
+      }
+    },
+    {
+      "messageText": "It is possible to spread only arrays or classes derived from arrays into the rest parameter or array literals (arkts-no-spread)",
+      "expectLineAndCharacter": {
+        "line": 25,
+        "character": 21
+      }
+    },
+    {
+      "messageText": "Use inheritance instead of intersection types (arkts-no-intersection-types)",
+      "expectLineAndCharacter": {
+        "line": 25,
+        "character": 37
+      }
+    },
+    {
+      "messageText": "Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)",
+      "expectLineAndCharacter": {
+        "line": 28,
+        "character": 22
+      }
+    },
+    {
+      "messageText": "Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)",
+      "expectLineAndCharacter": {
+        "line": 29,
+        "character": 9
+      }
+    },
+    {
+      "messageText": "Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)",
+      "expectLineAndCharacter": {
+        "line": 30,
+        "character": 12
+      }
+    }
+  ]
+}

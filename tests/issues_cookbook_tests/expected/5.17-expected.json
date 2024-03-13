@@ -1,0 +1,42 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cookbook/5.17.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.17.ets:6:13\n Indexed access is not supported for fields (arkts-no-props-by-index)\n\n",
+                "severity": 2,
+                "reportLine": 6,
+                "reportColumn": 13,
+                "description": "Indexed access is not supported for fields (arkts-no-props-by-index)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.17.ets:11:3\n Indexed signatures are not supported (arkts-no-indexed-signatures)\n\n",
+                "severity": 2,
+                "reportLine": 11,
+                "reportColumn": 3,
+                "description": "Indexed signatures are not supported (arkts-no-indexed-signatures)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.17.ets:14:22\n Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)\n\n",
+                "severity": 2,
+                "reportLine": 14,
+                "reportColumn": 22,
+                "description": "Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.17.ets:45:13\n Indexed access is not supported for fields (arkts-no-props-by-index)\n\n",
+                "severity": 2,
+                "reportLine": 45,
+                "reportColumn": 13,
+                "description": "Indexed access is not supported for fields (arkts-no-props-by-index)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.17.ets:46:26\n Property 'unknownProperty' does not exist on type 'Person_right'.\n\n",
+                "severity": 2,
+                "reportLine": 46,
+                "reportColumn": 26,
+                "description": "Property 'unknownProperty' does not exist on type 'Person_right'."
+            }
+        ]
+    }
+}

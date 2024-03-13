@@ -1,9 +1,20 @@
-[
+{
+  "arktsVersion_1_0": [
     {
-        "messageText": "arkts-no-jsx",
-        "expectLineAndCharacter": {
-            "line": 19,
-            "character": 15
-        }
+      "messageText": "Only \"as T\" syntax is supported for type casts (arkts-as-casts)",
+      "expectLineAndCharacter": {
+        "line": 19,
+        "character": 15
+      }
     }
-]
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Only \"as T\" syntax is supported for type casts (arkts-as-casts)",
+      "expectLineAndCharacter": {
+        "line": 19,
+        "character": 15
+      }
+    }
+  ]
+}

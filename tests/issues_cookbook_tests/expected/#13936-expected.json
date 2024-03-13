@@ -1,0 +1,28 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cases/#13936.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#13936.ets:6:5\n Structural typing is not supported (arkts-no-structural-typing)\n\n",
+                "severity": 2,
+                "reportLine": 6,
+                "reportColumn": 5,
+                "description": "Structural typing is not supported (arkts-no-structural-typing)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#13936.ets:7:5\n Structural typing is not supported (arkts-no-structural-typing)\n\n",
+                "severity": 2,
+                "reportLine": 7,
+                "reportColumn": 5,
+                "description": "Structural typing is not supported (arkts-no-structural-typing)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#13936.ets:11:5\n Structural typing is not supported (arkts-no-structural-typing)\n\n",
+                "severity": 2,
+                "reportLine": 11,
+                "reportColumn": 5,
+                "description": "Structural typing is not supported (arkts-no-structural-typing)"
+            }
+        ]
+    }
+}

@@ -1,0 +1,21 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cookbook/5.12.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.12.ets:3:14\n Type notation using \"this\" is not supported (arkts-no-typing-with-this)\n\n",
+                "severity": 2,
+                "reportLine": 3,
+                "reportColumn": 14,
+                "description": "Type notation using \"this\" is not supported (arkts-no-typing-with-this)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.12.ets:8:8\n Type notation using \"this\" is not supported (arkts-no-typing-with-this)\n\n",
+                "severity": 2,
+                "reportLine": 8,
+                "reportColumn": 8,
+                "description": "Type notation using \"this\" is not supported (arkts-no-typing-with-this)"
+            }
+        ]
+    }
+}

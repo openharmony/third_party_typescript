@@ -1,0 +1,14 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cookbook/5.27.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.27.ets:5:21\n Classes cannot be specified in \"implements\" clause (arkts-implements-only-iface)\n\n",
+                "severity": 2,
+                "reportLine": 5,
+                "reportColumn": 21,
+                "description": "Classes cannot be specified in \"implements\" clause (arkts-implements-only-iface)"
+            }
+        ]
+    }
+}

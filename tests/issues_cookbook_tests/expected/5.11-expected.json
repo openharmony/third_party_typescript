@@ -1,0 +1,14 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cookbook/5.11.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.11.ets:10:17\n Use inheritance instead of intersection types (arkts-no-intersection-types)\n\n",
+                "severity": 2,
+                "reportLine": 10,
+                "reportColumn": 17,
+                "description": "Use inheritance instead of intersection types (arkts-no-intersection-types)"
+            }
+        ]
+    }
+}

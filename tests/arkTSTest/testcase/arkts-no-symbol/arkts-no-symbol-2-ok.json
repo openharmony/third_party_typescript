@@ -1,16 +1,34 @@
-[
-  {
-    "messageText": "arkts-no-generators",
-    "expectLineAndCharacter": {
-      "line": 29,
-      "character": 3
+{
+  "arktsVersion_1_0": [
+    {
+      "messageText": "Generator functions are not supported (arkts-no-generators)",
+      "expectLineAndCharacter": {
+        "line": 29,
+        "character": 3
+      }
+    },
+    {
+      "messageText": "Generator functions are not supported (arkts-no-generators)",
+      "expectLineAndCharacter": {
+        "line": 31,
+        "character": 7
+      }
     }
-  },
-  {
-    "messageText": "arkts-no-generators",
-    "expectLineAndCharacter": {
-      "line": 31,
-      "character": 7
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Generator functions are not supported (arkts-no-generators)",
+      "expectLineAndCharacter": {
+        "line": 29,
+        "character": 3
+      }
+    },
+    {
+      "messageText": "Generator functions are not supported (arkts-no-generators)",
+      "expectLineAndCharacter": {
+        "line": 31,
+        "character": 7
+      }
     }
-  }
-]
+  ]
+}

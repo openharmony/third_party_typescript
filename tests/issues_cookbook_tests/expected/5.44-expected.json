@@ -1,0 +1,21 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cookbook/5.44.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.44.ets:1:10\n Function return type inference is limited (arkts-no-implicit-return-types)\n\n",
+                "severity": 2,
+                "reportLine": 1,
+                "reportColumn": 10,
+                "description": "Function return type inference is limited (arkts-no-implicit-return-types)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.44.ets:7:10\n Function return type inference is limited (arkts-no-implicit-return-types)\n\n",
+                "severity": 2,
+                "reportLine": 7,
+                "reportColumn": 10,
+                "description": "Function return type inference is limited (arkts-no-implicit-return-types)"
+            }
+        ]
+    }
+}

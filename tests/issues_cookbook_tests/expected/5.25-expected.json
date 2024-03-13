@@ -1,0 +1,14 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cookbook/5.25.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.25.ets:1:26\n Use generic functions instead of generic arrow functions (arkts-no-generic-lambdas)\n\n",
+                "severity": 2,
+                "reportLine": 1,
+                "reportColumn": 26,
+                "description": "Use generic functions instead of generic arrow functions (arkts-no-generic-lambdas)"
+            }
+        ]
+    }
+}

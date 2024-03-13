@@ -1,16 +1,34 @@
-[
-  {
-    "messageText": "arkts-limited-throw",
-    "expectLineAndCharacter": {
-      "line": 19,
-      "character": 1
+{
+  "arktsVersion_1_0": [
+    {
+      "messageText": "\"throw\" statements cannot accept values of arbitrary types (arkts-limited-throw)",
+      "expectLineAndCharacter": {
+        "line": 19,
+        "character": 1
+      }
+    },
+    {
+      "messageText": "Use arrow functions instead of function expressions (arkts-no-func-expressions)",
+      "expectLineAndCharacter": {
+        "line": 19,
+        "character": 7
+      }
     }
-  },
-  {
-    "messageText": "arkts-no-func-expressions",
-    "expectLineAndCharacter": {
-      "line": 19,
-      "character": 7
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "\"throw\" statements cannot accept values of arbitrary types (arkts-limited-throw)",
+      "expectLineAndCharacter": {
+        "line": 19,
+        "character": 1
+      }
+    },
+    {
+      "messageText": "Use arrow functions instead of function expressions (arkts-no-func-expressions)",
+      "expectLineAndCharacter": {
+        "line": 19,
+        "character": 7
+      }
     }
-  }
-]
+  ]
+}

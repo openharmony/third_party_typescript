@@ -1,17 +1,34 @@
-[
-    
+{
+  "arktsVersion_1_0": [
     {
-        "messageText": "arkts-limited-stdlib",
-        "expectLineAndCharacter": {
-            "line": 26,
-            "character": 13
-        }
+      "messageText": "Usage of standard library is restricted (arkts-limited-stdlib)",
+      "expectLineAndCharacter": {
+        "line": 26,
+        "character": 13
+      }
     },
     {
-        "messageText": "arkts-no-classes-as-obj",
-        "expectLineAndCharacter": {
-            "line": 26,
-            "character": 31
-        }
+      "messageText": "Classes cannot be used as objects (arkts-no-classes-as-obj)",
+      "expectLineAndCharacter": {
+        "line": 26,
+        "character": 31
+      }
     }
-]
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Usage of standard library is restricted (arkts-limited-stdlib)",
+      "expectLineAndCharacter": {
+        "line": 26,
+        "character": 13
+      }
+    },
+    {
+      "messageText": "Classes cannot be used as objects (arkts-no-classes-as-obj)",
+      "expectLineAndCharacter": {
+        "line": 26,
+        "character": 31
+      }
+    }
+  ]
+}

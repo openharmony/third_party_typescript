@@ -1,0 +1,21 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cookbook/5.43.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.43.ets:1:1\n \"throw\" statements cannot accept values of arbitrary types (arkts-limited-throw)\n\n",
+                "severity": 2,
+                "reportLine": 1,
+                "reportColumn": 1,
+                "description": "\"throw\" statements cannot accept values of arbitrary types (arkts-limited-throw)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.43.ets:2:1\n \"throw\" statements cannot accept values of arbitrary types (arkts-limited-throw)\n\n",
+                "severity": 2,
+                "reportLine": 2,
+                "reportColumn": 1,
+                "description": "\"throw\" statements cannot accept values of arbitrary types (arkts-limited-throw)"
+            }
+        ]
+    }
+}

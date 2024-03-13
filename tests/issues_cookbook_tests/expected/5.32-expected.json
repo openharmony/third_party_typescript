@@ -1,0 +1,14 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cookbook/5.32.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.32.ets:7:1\n \"delete\" operator is not supported (arkts-no-delete)\n\n",
+                "severity": 2,
+                "reportLine": 7,
+                "reportColumn": 1,
+                "description": "\"delete\" operator is not supported (arkts-no-delete)"
+            }
+        ]
+    }
+}

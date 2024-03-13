@@ -1,0 +1,14 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cases/#14463.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#14463.ets:1:1\n Switching off type checks with in-place comments is not allowed (arkts-strict-typing-required)\n\n",
+                "severity": 2,
+                "reportLine": 1,
+                "reportColumn": 1,
+                "description": "Switching off type checks with in-place comments is not allowed (arkts-strict-typing-required)"
+            }
+        ]
+    }
+}

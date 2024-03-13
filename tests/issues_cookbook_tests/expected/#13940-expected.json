@@ -1,0 +1,14 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cases/#13940.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#13940.ets:2:15\n Type 'undefined' is not assignable to type 'string'.\n\n",
+                "severity": 2,
+                "reportLine": 2,
+                "reportColumn": 15,
+                "description": "Type 'undefined' is not assignable to type 'string'."
+            }
+        ]
+    }
+}

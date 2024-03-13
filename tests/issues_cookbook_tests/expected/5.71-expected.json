@@ -1,0 +1,35 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cookbook/5.71.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.71.ets:6:33\n Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)\n\n",
+                "severity": 2,
+                "reportLine": 6,
+                "reportColumn": 33,
+                "description": "Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.71.ets:17:1\n Declaring properties on functions is not supported (arkts-no-func-props)\n\n",
+                "severity": 2,
+                "reportLine": 17,
+                "reportColumn": 1,
+                "description": "Declaring properties on functions is not supported (arkts-no-func-props)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.71.ets:17:1\n Reassigning object methods is not supported (arkts-no-method-reassignment)\n\n",
+                "severity": 2,
+                "reportLine": 17,
+                "reportColumn": 1,
+                "description": "Reassigning object methods is not supported (arkts-no-method-reassignment)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.71.ets:17:18\n Function return type inference is limited (arkts-no-implicit-return-types)\n\n",
+                "severity": 2,
+                "reportLine": 17,
+                "reportColumn": 18,
+                "description": "Function return type inference is limited (arkts-no-implicit-return-types)"
+            }
+        ]
+    }
+}

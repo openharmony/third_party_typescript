@@ -1,16 +1,34 @@
-[
+{
+  "arktsVersion_1_0": [
     {
-        "messageText": "arkts-no-method-reassignment",
-        "expectLineAndCharacter": {
-            "line": 22,
-            "character": 1
-        }
+      "messageText": "Reassigning object methods is not supported (arkts-no-method-reassignment)",
+      "expectLineAndCharacter": {
+        "line": 22,
+        "character": 1
+      }
     },
     {
-        "messageText": "arkts-no-func-props",
-        "expectLineAndCharacter": {
-            "line": 22,
-            "character": 1
-        }
+      "messageText": "Declaring properties on functions is not supported (arkts-no-func-props)",
+      "expectLineAndCharacter": {
+        "line": 22,
+        "character": 1
+      }
     }
-]
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Reassigning object methods is not supported (arkts-no-method-reassignment)",
+      "expectLineAndCharacter": {
+        "line": 22,
+        "character": 1
+      }
+    },
+    {
+      "messageText": "Declaring properties on functions is not supported (arkts-no-func-props)",
+      "expectLineAndCharacter": {
+        "line": 22,
+        "character": 1
+      }
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cookbook/5.64.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.64.ets:2:25\n Cannot find module 'some.txt!text' or its corresponding type declarations.\n\n",
+                "severity": 2,
+                "reportLine": 2,
+                "reportColumn": 25,
+                "description": "Cannot find module 'some.txt!text' or its corresponding type declarations."
+            }
+        ]
+    }
+}

@@ -1,0 +1,14 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cookbook/5.53.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.53.ets:5:37\n Interfaces cannot extend classes (arkts-extends-only-class)\n\n",
+                "severity": 2,
+                "reportLine": 5,
+                "reportColumn": 37,
+                "description": "Interfaces cannot extend classes (arkts-extends-only-class)"
+            }
+        ]
+    }
+}

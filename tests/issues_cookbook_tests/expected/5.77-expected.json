@@ -1,0 +1,21 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cookbook/5.77.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.77.ets:3:1\n Switching off type checks with in-place comments is not allowed (arkts-strict-typing-required)\n\n",
+                "severity": 2,
+                "reportLine": 3,
+                "reportColumn": 1,
+                "description": "Switching off type checks with in-place comments is not allowed (arkts-strict-typing-required)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.77.ets:10:1\n Switching off type checks with in-place comments is not allowed (arkts-strict-typing-required)\n\n",
+                "severity": 2,
+                "reportLine": 10,
+                "reportColumn": 1,
+                "description": "Switching off type checks with in-place comments is not allowed (arkts-strict-typing-required)"
+            }
+        ]
+    }
+}

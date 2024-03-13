@@ -1,23 +1,48 @@
-[
+{
+  "arktsVersion_1_0": [
     {
-        "messageText": "arkts-no-enum-merging",
-        "expectLineAndCharacter": {
-            "line": 18,
-            "character": 1
-        }
+      "messageText": "\"enum\" declaration merging is not supported (arkts-no-enum-merging)",
+      "expectLineAndCharacter": {
+        "line": 18,
+        "character": 1
+      }
     },
     {
-        "messageText": "arkts-no-enum-merging",
-        "expectLineAndCharacter": {
-            "line": 21,
-            "character": 1
-        }
+      "messageText": "\"enum\" declaration merging is not supported (arkts-no-enum-merging)",
+      "expectLineAndCharacter": {
+        "line": 21,
+        "character": 1
+      }
     },
     {
-        "messageText": "arkts-no-enum-merging",
-        "expectLineAndCharacter": {
-            "line": 24,
-            "character": 1
-        }
+      "messageText": "\"enum\" declaration merging is not supported (arkts-no-enum-merging)",
+      "expectLineAndCharacter": {
+        "line": 24,
+        "character": 1
+      }
     }
-]
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "\"enum\" declaration merging is not supported (arkts-no-enum-merging)",
+      "expectLineAndCharacter": {
+        "line": 18,
+        "character": 1
+      }
+    },
+    {
+      "messageText": "\"enum\" declaration merging is not supported (arkts-no-enum-merging)",
+      "expectLineAndCharacter": {
+        "line": 21,
+        "character": 1
+      }
+    },
+    {
+      "messageText": "\"enum\" declaration merging is not supported (arkts-no-enum-merging)",
+      "expectLineAndCharacter": {
+        "line": 24,
+        "character": 1
+      }
+    }
+  ]
+}

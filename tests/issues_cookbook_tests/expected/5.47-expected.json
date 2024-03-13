@@ -1,0 +1,14 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cookbook/5.47.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.47.ets:2:3\n Using \"this\" inside stand-alone functions is not supported (arkts-no-standalone-this)\n\n",
+                "severity": 2,
+                "reportLine": 2,
+                "reportColumn": 3,
+                "description": "Using \"this\" inside stand-alone functions is not supported (arkts-no-standalone-this)"
+            }
+        ]
+    }
+}

@@ -1,23 +1,48 @@
-[
+{
+  "arktsVersion_1_0": [
     {
-        "messageText": "arkts-unique-names",
-        "expectLineAndCharacter": {
-            "line": 18,
-            "character": 1
-        }
+      "messageText": "Use unique names for types and namespaces. (arkts-unique-names)",
+      "expectLineAndCharacter": {
+        "line": 18,
+        "character": 1
+      }
     },
     {
-        "messageText": "arkts-no-ctor-signatures-iface",
-        "expectLineAndCharacter": {
-            "line": 23,
-            "character": 3
-        }
+      "messageText": "Construct signatures are not supported in interfaces (arkts-no-ctor-signatures-iface)",
+      "expectLineAndCharacter": {
+        "line": 23,
+        "character": 3
+      }
     },
     {
-        "messageText": "arkts-unique-names",
-        "expectLineAndCharacter": {
-            "line": 26,
-            "character": 1
-        }
+      "messageText": "Use unique names for types and namespaces. (arkts-unique-names)",
+      "expectLineAndCharacter": {
+        "line": 26,
+        "character": 1
+      }
     }
-]
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Use unique names for types and namespaces. (arkts-unique-names)",
+      "expectLineAndCharacter": {
+        "line": 18,
+        "character": 11
+      }
+    },
+    {
+      "messageText": "Construct signatures are not supported in interfaces (arkts-no-ctor-signatures-iface)",
+      "expectLineAndCharacter": {
+        "line": 23,
+        "character": 3
+      }
+    },
+    {
+      "messageText": "Use unique names for types and namespaces. (arkts-unique-names)",
+      "expectLineAndCharacter": {
+        "line": 26,
+        "character": 7
+      }
+    }
+  ]
+}

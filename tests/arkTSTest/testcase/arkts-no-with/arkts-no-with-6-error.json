@@ -1,10 +1,20 @@
-[
-  {
-    "realStart": 704,
-    "messageText": "arkts-no-with",
-    "expectLineAndCharacter": {
-      "line": 23,
-      "character": 1
+{
+  "arktsVersion_1_0": [
+    {
+      "messageText": "\"with\" statement is not supported (arkts-no-with)",
+      "expectLineAndCharacter": {
+        "line": 23,
+        "character": 1
+      }
     }
-  }
-]
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "\"with\" statement is not supported (arkts-no-with)",
+      "expectLineAndCharacter": {
+        "line": 23,
+        "character": 1
+      }
+    }
+  ]
+}

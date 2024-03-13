@@ -1,16 +1,34 @@
-[
+{
+  "arktsVersion_1_0": [
     {
-        "messageText": "arkts-no-decl-merging",
-        "expectLineAndCharacter": {
-            "line": 19,
-            "character": 1
-        }
+      "messageText": "Declaration merging is not supported (arkts-no-decl-merging)",
+      "expectLineAndCharacter": {
+        "line": 19,
+        "character": 1
+      }
     },
     {
-        "messageText": "arkts-no-decl-merging",
-        "expectLineAndCharacter": {
-            "line": 23,
-            "character": 1
-        }
+      "messageText": "Declaration merging is not supported (arkts-no-decl-merging)",
+      "expectLineAndCharacter": {
+        "line": 23,
+        "character": 1
+      }
     }
-]
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Declaration merging is not supported (arkts-no-decl-merging)",
+      "expectLineAndCharacter": {
+        "line": 19,
+        "character": 1
+      }
+    },
+    {
+      "messageText": "Declaration merging is not supported (arkts-no-decl-merging)",
+      "expectLineAndCharacter": {
+        "line": 23,
+        "character": 1
+      }
+    }
+  ]
+}

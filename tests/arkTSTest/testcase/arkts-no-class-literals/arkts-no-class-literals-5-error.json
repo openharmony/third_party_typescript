@@ -1,9 +1,20 @@
-[
+{
+  "arktsVersion_1_0": [
     {
-        "messageText": "arkts-no-class-literals",
-        "expectLineAndCharacter": {
-            "line": 25,
-            "character": 19
-        }
+      "messageText": "Class literals are not supported (arkts-no-class-literals)",
+      "expectLineAndCharacter": {
+        "line": 25,
+        "character": 19
+      }
     }
-]
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Class literals are not supported (arkts-no-class-literals)",
+      "expectLineAndCharacter": {
+        "line": 25,
+        "character": 19
+      }
+    }
+  ]
+}

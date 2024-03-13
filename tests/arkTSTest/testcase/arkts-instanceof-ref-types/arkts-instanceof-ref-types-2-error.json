@@ -1,10 +1,20 @@
-[
+{
+  "arktsVersion_1_0": [
     {
-      "messageText": "arkts-instanceof-ref-types",
+      "messageText": "\"instanceof\" operator is partially supported (arkts-instanceof-ref-types)",
       "expectLineAndCharacter": {
         "line": 20,
         "character": 13
       }
     }
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "\"instanceof\" operator is partially supported (arkts-instanceof-ref-types)",
+      "expectLineAndCharacter": {
+        "line": 20,
+        "character": 21
+      }
+    }
   ]
-  
+}

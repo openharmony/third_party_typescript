@@ -1,0 +1,35 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cookbook/5.50.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.50.ets:6:5\n It is possible to spread only arrays or classes derived from arrays into the rest parameter or array literals (arkts-no-spread)\n\n",
+                "severity": 2,
+                "reportLine": 6,
+                "reportColumn": 5,
+                "description": "It is possible to spread only arrays or classes derived from arrays into the rest parameter or array literals (arkts-no-spread)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.50.ets:8:15\n Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)\n\n",
+                "severity": 2,
+                "reportLine": 8,
+                "reportColumn": 15,
+                "description": "Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.50.ets:9:15\n Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)\n\n",
+                "severity": 2,
+                "reportLine": 9,
+                "reportColumn": 15,
+                "description": "Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.50.ets:9:17\n It is possible to spread only arrays or classes derived from arrays into the rest parameter or array literals (arkts-no-spread)\n\n",
+                "severity": 2,
+                "reportLine": 9,
+                "reportColumn": 17,
+                "description": "It is possible to spread only arrays or classes derived from arrays into the rest parameter or array literals (arkts-no-spread)"
+            }
+        ]
+    }
+}

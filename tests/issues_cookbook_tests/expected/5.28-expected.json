@@ -1,0 +1,14 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cookbook/5.28.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.28.ets:13:1\n Reassigning object methods is not supported (arkts-no-method-reassignment)\n\n",
+                "severity": 2,
+                "reportLine": 13,
+                "reportColumn": 1,
+                "description": "Reassigning object methods is not supported (arkts-no-method-reassignment)"
+            }
+        ]
+    }
+}

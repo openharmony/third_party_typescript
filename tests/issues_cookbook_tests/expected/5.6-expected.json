@@ -1,0 +1,21 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cookbook/5.6.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.6.ets:2:13\n Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)\n\n",
+                "severity": 2,
+                "reportLine": 2,
+                "reportColumn": 13,
+                "description": "Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.6.ets:5:13\n Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)\n\n",
+                "severity": 2,
+                "reportLine": 5,
+                "reportColumn": 13,
+                "description": "Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)"
+            }
+        ]
+    }
+}

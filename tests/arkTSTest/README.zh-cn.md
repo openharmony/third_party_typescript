@@ -14,12 +14,20 @@
 
 ## 快速开始
 
-1. 安装项目依赖，执行
+1. 编译构建typescript包(工作目录：third_party_typescript)
+    ```shell
+    npm install
+    npm run build
+    npm run release
+    npm pack
+    ```
+
+2. 安装项目依赖，执行(工作目录：third_party_typescript/tests/arkTSTest)
     ```shell
     npm install
     ``` 
-2. 将测试用例放至 testcase 文件夹，建议使用约束名称作为测试用例目录，如`arkts-no-any-unknown`
-3. 运行`run.js`，进行代码测试
+3. 将测试用例放至 testcase 文件夹，建议使用约束名称作为测试用例目录，如`arkts-no-any-unknown`
+4. 运行`run.js`，进行代码测试
 
     ```nodejs
     node run.js
@@ -57,7 +65,7 @@
     node run.js -e
     ```
     
-4. 生成的测试结果存放至 `test_results` 目录，命令行打印基本的测试信息，如:
+5. 生成的测试结果存放至 `test_results` 目录，命令行打印基本的测试信息，如:
 
     ```plain
     Total number of test cases:2 Number of use cases passed:1 The number of use cases that failed:1 Total running time:371ms

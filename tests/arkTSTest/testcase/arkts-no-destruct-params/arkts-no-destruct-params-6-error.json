@@ -1,16 +1,34 @@
-[
-  {
-    "messageText": "arkts-no-destruct-params",
-    "expectLineAndCharacter": {
-      "line": 28,
-      "character": 22
+{
+  "arktsVersion_1_0": [
+    {
+      "messageText": "Destructuring parameter declarations are not supported (arkts-no-destruct-params)",
+      "expectLineAndCharacter": {
+        "line": 28,
+        "character": 22
+      }
+    },
+    {
+      "messageText": "Indexed access is not supported for fields (arkts-no-props-by-index)",
+      "expectLineAndCharacter": {
+        "line": 29,
+        "character": 10
+      }
     }
-  },
-  {
-    "messageText": "arkts-no-props-by-index",
-    "expectLineAndCharacter": {
-      "line": 29,
-      "character": 10
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Destructuring parameter declarations are not supported (arkts-no-destruct-params)",
+      "expectLineAndCharacter": {
+        "line": 28,
+        "character": 22
+      }
+    },
+    {
+      "messageText": "Indexed access is not supported for fields (arkts-no-props-by-index)",
+      "expectLineAndCharacter": {
+        "line": 29,
+        "character": 10
+      }
     }
-  }
-]
+  ]
+}

@@ -1,9 +1,20 @@
-[
-  {
-    "messageText": "arkts-no-type-query",
-    "expectLineAndCharacter": {
-      "line": 23,
-      "character": 13
+{
+  "arktsVersion_1_0": [
+    {
+      "messageText": "\"typeof\" operator is allowed only in expression contexts (arkts-no-type-query)",
+      "expectLineAndCharacter": {
+        "line": 23,
+        "character": 13
+      }
     }
-  }
-]
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "\"typeof\" operator is allowed only in expression contexts (arkts-no-type-query)",
+      "expectLineAndCharacter": {
+        "line": 23,
+        "character": 13
+      }
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cookbook/5.54.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.54.ets:7:19\n Constructor function type is not supported (arkts-no-ctor-signatures-funcs)\n\n",
+                "severity": 2,
+                "reportLine": 7,
+                "reportColumn": 19,
+                "description": "Constructor function type is not supported (arkts-no-ctor-signatures-funcs)"
+            },
+            {
+                "origin": "WARN: ArkTS:WARN File: /entry/src/main/ets/pages/cookbook/5.54.ets:14:29\n Classes cannot be used as objects (arkts-no-classes-as-obj)\n\n",
+                "severity": 1,
+                "reportLine": 14,
+                "reportColumn": 29,
+                "description": "Classes cannot be used as objects (arkts-no-classes-as-obj)"
+            }
+        ]
+    }
+}
