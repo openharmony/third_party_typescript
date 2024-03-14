@@ -1,0 +1,14 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cases/#14240.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#14240.ets:8:5\n Type 'ResourceColor | undefined' is not assignable to type 'ResourceColor'.\n  Type 'undefined' is not assignable to type 'ResourceColor'.\n\n",
+                "severity": 2,
+                "reportLine": 8,
+                "reportColumn": 5,
+                "description": "Type 'ResourceColor | undefined' is not assignable to type 'ResourceColor'.\n  Type 'undefined' is not assignable to type 'ResourceColor'."
+            }
+        ]
+    }
+}

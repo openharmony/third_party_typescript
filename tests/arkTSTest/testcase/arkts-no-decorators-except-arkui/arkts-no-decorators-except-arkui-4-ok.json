@@ -1,44 +1,90 @@
-[
-  {
-    "messageText": "arkts-no-any-unknown",
-    "expectLineAndCharacter": {
-      "line": 26,
-      "character": 37
+{
+  "arktsVersion_1_0": [
+    {
+      "messageText": "Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)",
+      "expectLineAndCharacter": {
+        "line": 26,
+        "character": 37
+      }
+    },
+    {
+      "messageText": "Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)",
+      "expectLineAndCharacter": {
+        "line": 32,
+        "character": 9
+      }
+    },
+    {
+      "messageText": "Use arrow functions instead of function expressions (arkts-no-func-expressions)",
+      "expectLineAndCharacter": {
+        "line": 34,
+        "character": 17
+      }
+    },
+    {
+      "messageText": "Using \"this\" inside stand-alone functions is not supported (arkts-no-standalone-this)",
+      "expectLineAndCharacter": {
+        "line": 34,
+        "character": 17
+      }
+    },
+    {
+      "messageText": "Function return type inference is limited (arkts-no-implicit-return-types)",
+      "expectLineAndCharacter": {
+        "line": 34,
+        "character": 17
+      }
+    },
+    {
+      "messageText": "Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)",
+      "expectLineAndCharacter": {
+        "line": 34,
+        "character": 36
+      }
     }
-  },
-  {
-    "messageText": "arkts-no-any-unknown",
-    "expectLineAndCharacter": {
-      "line": 32,
-      "character": 9
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)",
+      "expectLineAndCharacter": {
+        "line": 26,
+        "character": 37
+      }
+    },
+    {
+      "messageText": "Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)",
+      "expectLineAndCharacter": {
+        "line": 32,
+        "character": 9
+      }
+    },
+    {
+      "messageText": "Use arrow functions instead of function expressions (arkts-no-func-expressions)",
+      "expectLineAndCharacter": {
+        "line": 34,
+        "character": 17
+      }
+    },
+    {
+      "messageText": "Using \"this\" inside stand-alone functions is not supported (arkts-no-standalone-this)",
+      "expectLineAndCharacter": {
+        "line": 37,
+        "character": 33
+      }
+    },
+    {
+      "messageText": "Function return type inference is limited (arkts-no-implicit-return-types)",
+      "expectLineAndCharacter": {
+        "line": 34,
+        "character": 17
+      }
+    },
+    {
+      "messageText": "Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)",
+      "expectLineAndCharacter": {
+        "line": 34,
+        "character": 36
+      }
     }
-  },
-  {
-    "messageText": "arkts-no-func-expressions",
-    "expectLineAndCharacter": {
-      "line": 34,
-      "character": 17
-    }
-  },
-  {
-    "messageText": "arkts-no-standalone-this",
-    "expectLineAndCharacter": {
-      "line": 34,
-      "character": 17
-    }
-  },
-  {
-    "messageText": "arkts-no-implicit-return-types",
-    "expectLineAndCharacter": {
-      "line": 34,
-      "character": 17
-    }
-  },
-  {
-    "messageText": "arkts-no-any-unknown",
-    "expectLineAndCharacter": {
-      "line": 34,
-      "character": 36
-    }
-  }
-]
+  ]
+}

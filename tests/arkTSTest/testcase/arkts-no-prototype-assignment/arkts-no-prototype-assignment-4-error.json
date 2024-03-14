@@ -1,23 +1,48 @@
-[
-  {
-    "messageText": "arkts-limited-stdlib",
-    "expectLineAndCharacter": {
-      "line": 25,
-      "character": 1
+{
+  "arktsVersion_1_0": [
+    {
+      "messageText": "Usage of standard library is restricted (arkts-limited-stdlib)",
+      "expectLineAndCharacter": {
+        "line": 25,
+        "character": 1
+      }
+    },
+    {
+      "messageText": "Prototype assignment is not supported (arkts-no-prototype-assignment)",
+      "expectLineAndCharacter": {
+        "line": 25,
+        "character": 30
+      }
+    },
+    {
+      "messageText": "Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)",
+      "expectLineAndCharacter": {
+        "line": 25,
+        "character": 53
+      }
     }
-  },
-  {
-    "messageText": "arkts-no-prototype-assignment",
-    "expectLineAndCharacter": {
-      "line": 25,
-      "character": 30
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Usage of standard library is restricted (arkts-limited-stdlib)",
+      "expectLineAndCharacter": {
+        "line": 25,
+        "character": 1
+      }
+    },
+    {
+      "messageText": "Prototype assignment is not supported (arkts-no-prototype-assignment)",
+      "expectLineAndCharacter": {
+        "line": 25,
+        "character": 30
+      }
+    },
+    {
+      "messageText": "Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)",
+      "expectLineAndCharacter": {
+        "line": 25,
+        "character": 53
+      }
     }
-  },
-  {
-    "messageText": "arkts-no-untyped-obj-literals",
-    "expectLineAndCharacter": {
-      "line": 25,
-      "character": 53
-    }
-  }
-]
+  ]
+}

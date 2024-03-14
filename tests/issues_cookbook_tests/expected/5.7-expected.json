@@ -1,0 +1,21 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cookbook/5.7.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.7.ets:2:28\n Object literals cannot be used as type declarations (arkts-no-obj-literals-as-types)\n\n",
+                "severity": 2,
+                "reportLine": 2,
+                "reportColumn": 28,
+                "description": "Object literals cannot be used as type declarations (arkts-no-obj-literals-as-types)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.7.ets:4:3\n Use \"class\" instead of a type with call signature (arkts-no-call-signatures)\n\n",
+                "severity": 2,
+                "reportLine": 4,
+                "reportColumn": 3,
+                "description": "Use \"class\" instead of a type with call signature (arkts-no-call-signatures)"
+            }
+        ]
+    }
+}

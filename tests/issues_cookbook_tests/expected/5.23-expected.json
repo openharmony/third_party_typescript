@@ -1,0 +1,28 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cookbook/5.23.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.23.ets:1:9\n Array literals must contain elements of only inferrable types (arkts-no-noninferrable-arr-literals)\n\n",
+                "severity": 2,
+                "reportLine": 1,
+                "reportColumn": 9,
+                "description": "Array literals must contain elements of only inferrable types (arkts-no-noninferrable-arr-literals)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.23.ets:1:10\n Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)\n\n",
+                "severity": 2,
+                "reportLine": 1,
+                "reportColumn": 10,
+                "description": "Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.23.ets:1:26\n Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)\n\n",
+                "severity": 2,
+                "reportLine": 1,
+                "reportColumn": 26,
+                "description": "Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)"
+            }
+        ]
+    }
+}

@@ -1,0 +1,35 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cookbook/5.70.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.70.ets:2:15\n Object literals cannot be used as type declarations (arkts-no-obj-literals-as-types)\n\n",
+                "severity": 2,
+                "reportLine": 2,
+                "reportColumn": 15,
+                "description": "Object literals cannot be used as type declarations (arkts-no-obj-literals-as-types)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.70.ets:7:22\n Some of utility types are not supported (arkts-no-utility-types)\n\n",
+                "severity": 2,
+                "reportLine": 7,
+                "reportColumn": 22,
+                "description": "Some of utility types are not supported (arkts-no-utility-types)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.70.ets:9:12\n Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)\n\n",
+                "severity": 2,
+                "reportLine": 9,
+                "reportColumn": 12,
+                "description": "Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.70.ets:14:10\n Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)\n\n",
+                "severity": 2,
+                "reportLine": 14,
+                "reportColumn": 10,
+                "description": "Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)"
+            }
+        ]
+    }
+}

@@ -1,16 +1,34 @@
-[
+{
+  "arktsVersion_1_0": [
     {
-        "messageText": "arkts-no-ctor-signatures-funcs",
-        "expectLineAndCharacter": {
-            "line": 28,
-            "character": 19
-        }
-    },   
+      "messageText": "Constructor function type is not supported (arkts-no-ctor-signatures-funcs)",
+      "expectLineAndCharacter": {
+        "line": 28,
+        "character": 19
+      }
+    },
     {
-        "messageText": "arkts-no-classes-as-obj",
-        "expectLineAndCharacter": {
-            "line": 36,
-            "character": 29
-        }
+      "messageText": "Classes cannot be used as objects (arkts-no-classes-as-obj)",
+      "expectLineAndCharacter": {
+        "line": 36,
+        "character": 29
+      }
     }
-]
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Constructor function type is not supported (arkts-no-ctor-signatures-funcs)",
+      "expectLineAndCharacter": {
+        "line": 28,
+        "character": 19
+      }
+    },
+    {
+      "messageText": "Classes cannot be used as objects (arkts-no-classes-as-obj)",
+      "expectLineAndCharacter": {
+        "line": 36,
+        "character": 29
+      }
+    }
+  ]
+}

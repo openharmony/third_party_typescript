@@ -1,30 +1,62 @@
-[
+{
+  "arktsVersion_1_0": [
     {
-      "messageText": "arkts-no-ns-statements",
+      "messageText": "Non-declaration statements in namespaces are not supported (single semicolons are considered as empty non-delcaration statements) (arkts-no-ns-statements)",
       "expectLineAndCharacter": {
         "line": 19,
         "character": 3
       }
     },
     {
-      "messageText": "arkts-no-ambient-decls",
+      "messageText": "Ambient module declaration is not supported (arkts-no-ambient-decls)",
       "expectLineAndCharacter": {
         "line": 17,
         "character": 1
       }
     },
     {
-      "messageText": "arkts-no-module-wildcards",
+      "messageText": "Wildcards in module names are not supported (arkts-no-module-wildcards)",
       "expectLineAndCharacter": {
         "line": 17,
         "character": 1
       }
     },
     {
-      "messageText": "arkts-no-misplaced-imports",
+      "messageText": "\"import\" statements after other statements are not allowed (arkts-no-misplaced-imports)",
+      "expectLineAndCharacter": {
+        "line": 22,
+        "character": 1
+      }
+    }
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Non-declaration statements in namespaces are not supported (single semicolons are considered as empty non-delcaration statements) (arkts-no-ns-statements)",
+      "expectLineAndCharacter": {
+        "line": 19,
+        "character": 3
+      }
+    },
+    {
+      "messageText": "Ambient module declaration is not supported (arkts-no-ambient-decls)",
+      "expectLineAndCharacter": {
+        "line": 17,
+        "character": 1
+      }
+    },
+    {
+      "messageText": "Wildcards in module names are not supported (arkts-no-module-wildcards)",
+      "expectLineAndCharacter": {
+        "line": 17,
+        "character": 1
+      }
+    },
+    {
+      "messageText": "\"import\" statements after other statements are not allowed (arkts-no-misplaced-imports)",
       "expectLineAndCharacter": {
         "line": 22,
         "character": 1
       }
     }
   ]
+}

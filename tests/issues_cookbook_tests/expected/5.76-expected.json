@@ -1,0 +1,35 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cookbook/5.76.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.76.ets:3:3\n Property 'n' has no initializer and is not definitely assigned in the constructor.\n\n",
+                "severity": 2,
+                "reportLine": 3,
+                "reportColumn": 3,
+                "description": "Property 'n' has no initializer and is not definitely assigned in the constructor."
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.76.ets:4:3\n Property 's' has no initializer and is not definitely assigned in the constructor.\n\n",
+                "severity": 2,
+                "reportLine": 4,
+                "reportColumn": 3,
+                "description": "Property 's' has no initializer and is not definitely assigned in the constructor."
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.76.ets:6:26\n Function lacks ending return statement and return type does not include 'undefined'.\n\n",
+                "severity": 2,
+                "reportLine": 6,
+                "reportColumn": 26,
+                "description": "Function lacks ending return statement and return type does not include 'undefined'."
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.76.ets:15:5\n Type 'null' is not assignable to type 'number'.\n\n",
+                "severity": 2,
+                "reportLine": 15,
+                "reportColumn": 5,
+                "description": "Type 'null' is not assignable to type 'number'."
+            }
+        ]
+    }
+}

@@ -1,30 +1,62 @@
-[
-  {
-    "messageText": "arkts-identifiers-as-prop-names",
-    "expectLineAndCharacter": {
-      "line": 22,
-      "character": 3
+{
+  "arktsVersion_1_0": [
+    {
+      "messageText": "Objects with property names that are not identifiers are not supported (arkts-identifiers-as-prop-names)",
+      "expectLineAndCharacter": {
+        "line": 22,
+        "character": 3
+      }
+    },
+    {
+      "messageText": "Objects with property names that are not identifiers are not supported (arkts-identifiers-as-prop-names)",
+      "expectLineAndCharacter": {
+        "line": 23,
+        "character": 3
+      }
+    },
+    {
+      "messageText": "Objects with property names that are not identifiers are not supported (arkts-identifiers-as-prop-names)",
+      "expectLineAndCharacter": {
+        "line": 26,
+        "character": 3
+      }
+    },
+    {
+      "messageText": "Objects with property names that are not identifiers are not supported (arkts-identifiers-as-prop-names)",
+      "expectLineAndCharacter": {
+        "line": 27,
+        "character": 3
+      }
     }
-  },
-  {
-    "messageText": "arkts-identifiers-as-prop-names",
-    "expectLineAndCharacter": {
-      "line": 23,
-      "character": 3
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Objects with property names that are not identifiers are not supported (arkts-identifiers-as-prop-names)",
+      "expectLineAndCharacter": {
+        "line": 22,
+        "character": 3
+      }
+    },
+    {
+      "messageText": "Objects with property names that are not identifiers are not supported (arkts-identifiers-as-prop-names)",
+      "expectLineAndCharacter": {
+        "line": 23,
+        "character": 3
+      }
+    },
+    {
+      "messageText": "Objects with property names that are not identifiers are not supported (arkts-identifiers-as-prop-names)",
+      "expectLineAndCharacter": {
+        "line": 26,
+        "character": 3
+      }
+    },
+    {
+      "messageText": "Objects with property names that are not identifiers are not supported (arkts-identifiers-as-prop-names)",
+      "expectLineAndCharacter": {
+        "line": 27,
+        "character": 3
+      }
     }
-  },
-  {
-    "messageText": "arkts-identifiers-as-prop-names",
-    "expectLineAndCharacter": {
-      "line": 26,
-      "character": 3
-    }
-  },
-  {
-    "messageText": "arkts-identifiers-as-prop-names",
-    "expectLineAndCharacter": {
-      "line": 27,
-      "character": 3
-    }
-  }
-]
+  ]
+}

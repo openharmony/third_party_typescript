@@ -1,9 +1,20 @@
-[
-  {
-    "messageText": "arkts-no-umd",
-    "expectLineAndCharacter": {
-      "line": 21,
-      "character": 1
+{
+  "arktsVersion_1_0": [
+    {
+      "messageText": "Universal module definitions (UMD) are not supported (arkts-no-umd)",
+      "expectLineAndCharacter": {
+        "line": 21,
+        "character": 1
+      }
     }
-  }
-]
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Universal module definitions (UMD) are not supported (arkts-no-umd)",
+      "expectLineAndCharacter": {
+        "line": 21,
+        "character": 1
+      }
+    }
+  ]
+}

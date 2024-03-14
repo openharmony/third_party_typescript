@@ -21,7 +21,7 @@ const fs = require('fs')
 
 const ignoreCaseFilePath= path.join(__dirname, "ignorecase.json")
 const compResults = {"detail":{}, 'failNum':0, "passedNum":0}
-let consoleDetail = false; ignoreList = []; failTestCaseList = []; genResultFile = false
+let consoleDetail = false, ignoreList = [], failTestCaseList = [], genResultFile = false, arktsVersion = "1.1";
 // Traverse the directory to find all test cases
 function getAllETSFiles(filePath) {
   let allFilePaths = [];
@@ -64,6 +64,28 @@ function runComp(currentFilePath, file){
     }
 }
 
+function forceUpdateExpected(expect, reality, jsonFile) {
+  let updateArray = [];
+  for (let i = 0; i < reality.length; i++) {
+    const realErrorItem = reality[i];
+    const { line, character } = realErrorItem.file.getLineAndCharacterOfPosition(realErrorItem.start);
+    const realLine = { "line": line + 1, "character": character + 1 };
+    const realMessageText = typeof (realErrorItem.messageText) == "string" ? realErrorItem.messageText : realErrorItem.messageText.messageText;
+    let data = {
+      messageText: realMessageText,
+      expectLineAndCharacter: realLine
+    }
+    updateArray.push(data);
+  }
+  if (arktsVersion === "1.0") {
+    expect.arktsVersion_1_0 = updateArray;
+  } else {
+    expect.arktsVersion_1_1 = updateArray;
+  }
+  let s = JSON.stringify(expect, null, 2);
+  fs.writeFileSync(jsonFile, s);
+}
+
 // Compare the results with expectations and count the success and failure situations
 function loadPares(jsonFile, result, currentFilePath, file){
   const dirName = path.dirname(currentFilePath)
@@ -76,7 +98,13 @@ function loadPares(jsonFile, result, currentFilePath, file){
   const testCaseFileName = file
   dataStr = fs.readFileSync(jsonFile, "utf-8")
   const expect = JSON.parse(dataStr)
-  const compResult = compareResult(expect, result)
+  // if need update expected files, insert forceUpdateExpected(expect, result, jsonFile) here.
+  let expect_by_version = arktsVersion === "1.0" ? expect.arktsVersion_1_0 : expect.arktsVersion_1_1;
+  if (expect_by_version === undefined) {
+    expect_by_version = []
+  }
+  
+  const compResult = compareResult(expect_by_version, result)
   compResult["testCaseName"] = testCaseFileName
   if (compResults["detail"].hasOwnProperty(rules)){
     compResults["detail"][rules]["detail"].push(compResult)
@@ -109,7 +137,7 @@ const allPath = ['*'];
 Object.assign(options, {
   'emitNodeModulesFiles': true,
   'importsNotUsedAsValues': ts.ImportsNotUsedAsValues.Preserve,
-  'module': ts.ModuleKind.CommonJS,
+  'module': ts.ModuleKind.ES2020,
   'moduleResolution': ts.ModuleResolutionKind.NodeJs,
   'noEmit': true,
   'target': ts.ScriptTarget.ES2021,
@@ -125,17 +153,71 @@ Object.assign(options, {
 });
 
 // Calling the runlinter interface
-function runLinter(rootName){
-    newprogram =  ts.createProgram({
-      rootNames: [path.join(process.cwd(), rootName)],
-      options: options,
+function runLinter(rootName) {
+  let WAS_STRICT = true;
+  Object.assign(options, {
+    strictNullChecks: !WAS_STRICT,
+    strictFunctionTypes: !WAS_STRICT,
+    strictPropertyInitialization: !WAS_STRICT,
+    noImplicitReturns: !WAS_STRICT,
+    allowJS : false
   })
-  const compilerHost = ts.createCompilerHost(newprogram.getCompilerOptions());
-  compilerHost.getCurrentDirectory = () => process.cwd();
-  compilerHost.getDefaultLibFileName = options => ts.getDefaultLibFilePath(options);
-  // compilerHost.resolveTypeReferenceDirectives = resolveTypeReferenceDirectives;
-  let result= ts.runArkTSLinter(newprogram, compilerHost)
-  return result
+  noStrictOptions = Object.assign({}, options);
+  Object.assign(noStrictOptions, {
+    strictNullChecks: WAS_STRICT,
+    strictFunctionTypes: WAS_STRICT,
+    strictPropertyInitialization: WAS_STRICT,
+    noImplicitReturns: WAS_STRICT,
+    allowJS: true,
+    checkJs: true
+  })
+
+  newNoProgram = ts.createProgram({
+    rootNames: [path.join(process.cwd(), rootName)],
+    options: options,
+  })
+  newStrictProgram = ts.createProgram({
+    rootNames: [path.join(process.cwd(), rootName)],
+    options: noStrictOptions,
+  })
+  // this type of builderProgram is not ts.BuilderProgram
+  builderProgram = {
+    program: newNoProgram,
+    getProgram() { return this.program; },
+    getSourceFile(fileName) {
+      return this.program.getSourceFile(fileName);
+    },
+    getSemanticDiagnostics(sourceFile) {
+      return this.program.getSemanticDiagnostics(sourceFile);
+    },
+    getSyntacticDiagnostics(sourceFile) {
+      return this.program.getSyntacticDiagnostics(sourceFile);
+    }
+  }
+  reverseStrictBuilderProgram = {
+    program: newStrictProgram,
+    getProgram() { return this.program; },
+    getSourceFile(fileName) {
+      return this.program.getSourceFile(fileName);
+    },
+    getSemanticDiagnostics(sourceFile) {
+      return this.program.getSemanticDiagnostics(sourceFile);
+    },
+    getSyntacticDiagnostics(sourceFile) {
+      return this.program.getSyntacticDiagnostics(sourceFile);
+    }
+  }
+  originProgram = {
+    builderProgram: builderProgram,
+    wasStrict: !WAS_STRICT
+  }
+  reverseStrictProgram = {
+    builderProgram: reverseStrictBuilderProgram,
+    wasStrict: WAS_STRICT
+  }
+
+  let result = arktsVersion == "1.0" ? ts.ArkTSLinter_1_0.runArkTSLinter(originProgram, reverseStrictProgram) : ts.ArkTSLinter_1_1.runArkTSLinter(originProgram, reverseStrictProgram);
+  return result;
 }
 
 // Compare the difference between the expected value and the actual return value of the runlinter to determine if the test has passed
@@ -180,7 +262,7 @@ function compareResult(expect, reality){
             const realErrorItem = reality[i]
             const { line, character } = realErrorItem.file.getLineAndCharacterOfPosition(realErrorItem.start)
             const realLine = {"line": line + 1,"character": character + 1}
-            const realMessageText = realErrorItem.messageText
+            const realMessageText = typeof (realErrorItem.messageText) == "string" ? realErrorItem.messageText : realErrorItem.messageText.messageText
             let expectMessageText = null
             let compResult = false
             let expectLineAndCharacter = {"line": null,"character": null}
@@ -191,7 +273,7 @@ function compareResult(expect, reality){
               expectLineAndCharacter = {"line": expectErrorItem.expectLineAndCharacter.line,"character": expectErrorItem.expectLineAndCharacter.character}
               expectMessageText = expectErrorItem.messageText
               if ((expectErrorItem.expectLineAndCharacter.line === realLine.line && expectErrorItem.expectLineAndCharacter.character === realLine.character)
-              && realMessageText.includes(expectMessageText)){
+                && realMessageText === expectMessageText) {
                 compResult = true
               }
             }
@@ -219,9 +301,9 @@ function compareResult(expect, reality){
               const realErrorItem = reality[i]
               const { line, character } = realErrorItem.file.getLineAndCharacterOfPosition(realErrorItem.start)
               realLine = {"line": line + 1,"character": character + 1}
-              realMessageText = realErrorItem.messageText
+              realMessageText = typeof (realErrorItem.messageText) == "string" ? realErrorItem.messageText : realErrorItem.messageText.messageText
               if ((expectErrorItem.expectLineAndCharacter.line === realLine.line && expectErrorItem.expectLineAndCharacter.character === realLine.character)
-              && realMessageText.includes(expectMessageText)){
+                && realMessageText === expectMessageText) {
                 compResult = true
               }
             }
@@ -242,10 +324,10 @@ function compareResult(expect, reality){
               let expectLineAndCharacter = {"line": expectErrorItem.expectLineAndCharacter.line,"character": expectErrorItem.expectLineAndCharacter.character}
               const { line, character } = realErrorItem.file.getLineAndCharacterOfPosition(realErrorItem.start)
               const realLine = {"line": line + 1,"character": character + 1}
-              const realMessageText = realErrorItem.messageText
+              const realMessageText = typeof (realErrorItem.messageText) == "string" ? realErrorItem.messageText : realErrorItem.messageText.messageText
               let compInfo = null; compResult = false
               if ((expectErrorItem.expectLineAndCharacter.line === realLine.line && expectErrorItem.expectLineAndCharacter.character === realLine.character)
-                && realMessageText.includes(expectMessageText)){
+                && realMessageText === expectMessageText) {
                 compResult = true
               }else{
                 isPass = false
@@ -336,6 +418,12 @@ function getParam(){
     if(key.includes("--ignore-list:")){
       let ignoreStr = key.replace("--ignore-list:", "")
       ignoreList = ignoreStr.split(",")
+    }
+    if (key === "-v1.0") {
+      arktsVersion = "1.0"
+    }
+    if (key === "-v1.1") {
+      arktsVersion = "1.1"
     }
   }
   return pathArg

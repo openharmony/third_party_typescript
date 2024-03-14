@@ -1,0 +1,21 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cookbook/5.4.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.4.ets:1:5\n Use unique names for types and namespaces. (arkts-unique-names)\n\n",
+                "severity": 2,
+                "reportLine": 1,
+                "reportColumn": 5,
+                "description": "Use unique names for types and namespaces. (arkts-unique-names)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.4.ets:2:6\n Use unique names for types and namespaces. (arkts-unique-names)\n\n",
+                "severity": 2,
+                "reportLine": 2,
+                "reportColumn": 6,
+                "description": "Use unique names for types and namespaces. (arkts-unique-names)"
+            }
+        ]
+    }
+}

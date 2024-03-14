@@ -1,23 +1,48 @@
-[
-  {
-    "messageText": "arkts-no-private-identifiers",
-    "expectLineAndCharacter": {
-      "line": 18,
-      "character": 3
+{
+  "arktsVersion_1_0": [
+    {
+      "messageText": "Private \"#\" identifiers are not supported (arkts-no-private-identifiers)",
+      "expectLineAndCharacter": {
+        "line": 18,
+        "character": 3
+      }
+    },
+    {
+      "messageText": "Private \"#\" identifiers are not supported (arkts-no-private-identifiers)",
+      "expectLineAndCharacter": {
+        "line": 20,
+        "character": 10
+      }
+    },
+    {
+      "messageText": "Private \"#\" identifiers are not supported (arkts-no-private-identifiers)",
+      "expectLineAndCharacter": {
+        "line": 23,
+        "character": 43
+      }
     }
-  },
-  {
-    "messageText": "arkts-no-private-identifiers",
-    "expectLineAndCharacter": {
-      "line": 20,
-      "character": 10
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Private \"#\" identifiers are not supported (arkts-no-private-identifiers)",
+      "expectLineAndCharacter": {
+        "line": 18,
+        "character": 3
+      }
+    },
+    {
+      "messageText": "Private \"#\" identifiers are not supported (arkts-no-private-identifiers)",
+      "expectLineAndCharacter": {
+        "line": 20,
+        "character": 10
+      }
+    },
+    {
+      "messageText": "Private \"#\" identifiers are not supported (arkts-no-private-identifiers)",
+      "expectLineAndCharacter": {
+        "line": 23,
+        "character": 43
+      }
     }
-  },
-  {
-    "messageText": "arkts-no-private-identifiers",
-    "expectLineAndCharacter": {
-      "line": 23,
-      "character": 43
-    }
-  }
-]
+  ]
+}

@@ -1,23 +1,48 @@
-[
-  {
-    "messageText": "arkts-no-call-signatures",
-    "expectLineAndCharacter": {
-      "line": 19,
-      "character": 3
+{
+  "arktsVersion_1_0": [
+    {
+      "messageText": "Use \"class\" instead of a type with call signature (arkts-no-call-signatures)",
+      "expectLineAndCharacter": {
+        "line": 19,
+        "character": 3
+      }
+    },
+    {
+      "messageText": "Function return type inference is limited (arkts-no-implicit-return-types)",
+      "expectLineAndCharacter": {
+        "line": 22,
+        "character": 47
+      }
+    },
+    {
+      "messageText": "Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)",
+      "expectLineAndCharacter": {
+        "line": 23,
+        "character": 25
+      }
     }
-  },
-  {
-    "messageText": "arkts-no-implicit-return-types",
-    "expectLineAndCharacter": {
-      "line": 22,
-      "character": 47
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Use \"class\" instead of a type with call signature (arkts-no-call-signatures)",
+      "expectLineAndCharacter": {
+        "line": 19,
+        "character": 3
+      }
+    },
+    {
+      "messageText": "Function return type inference is limited (arkts-no-implicit-return-types)",
+      "expectLineAndCharacter": {
+        "line": 22,
+        "character": 47
+      }
+    },
+    {
+      "messageText": "Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)",
+      "expectLineAndCharacter": {
+        "line": 23,
+        "character": 25
+      }
     }
-  },
-  {
-    "messageText": "arkts-no-untyped-obj-literals",
-    "expectLineAndCharacter": {
-      "line": 23,
-      "character": 25
-    }
-  }
-]
+  ]
+}

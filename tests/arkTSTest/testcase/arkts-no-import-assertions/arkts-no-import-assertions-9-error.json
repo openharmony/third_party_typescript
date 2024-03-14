@@ -1,9 +1,12 @@
-[
+{
+  "arktsVersion_1_0": [],
+  "arktsVersion_1_1": [
     {
-        "messageText": "arkts-no-import-assertions",
-        "expectLineAndCharacter": {
-            "line": 17,
-            "character": 59
-        }
-    } 
-]
+      "messageText": "Import assertions are not supported (arkts-no-import-assertions)",
+      "expectLineAndCharacter": {
+        "line": 17,
+        "character": 59
+      }
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cookbook/5.39.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.39.ets:3:10\n Type annotation in catch clause is not supported (arkts-no-types-in-catch)\n\n",
+                "severity": 2,
+                "reportLine": 3,
+                "reportColumn": 10,
+                "description": "Type annotation in catch clause is not supported (arkts-no-types-in-catch)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.39.ets:3:13\n Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)\n\n",
+                "severity": 2,
+                "reportLine": 3,
+                "reportColumn": 13,
+                "description": "Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)"
+            }
+        ]
+    }
+}

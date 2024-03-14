@@ -1,23 +1,48 @@
-[
-  {
-    "messageText": "arkts-no-obj-literals-as-types",
-    "expectLineAndCharacter": {
-      "line": 26,
-      "character": 30
+{
+  "arktsVersion_1_0": [
+    {
+      "messageText": "Object literals cannot be used as type declarations (arkts-no-obj-literals-as-types)",
+      "expectLineAndCharacter": {
+        "line": 26,
+        "character": 30
+      }
+    },
+    {
+      "messageText": "Use \"class\" instead of a type with constructor signature (arkts-no-ctor-signatures-type)",
+      "expectLineAndCharacter": {
+        "line": 27,
+        "character": 3
+      }
+    },
+    {
+      "messageText": "Classes cannot be used as objects (arkts-no-classes-as-obj)",
+      "expectLineAndCharacter": {
+        "line": 31,
+        "character": 39
+      }
     }
-  },
-  {
-    "messageText": "arkts-no-ctor-signatures-type",
-    "expectLineAndCharacter": {
-      "line": 27,
-      "character": 3
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Object literals cannot be used as type declarations (arkts-no-obj-literals-as-types)",
+      "expectLineAndCharacter": {
+        "line": 26,
+        "character": 30
+      }
+    },
+    {
+      "messageText": "Use \"class\" instead of a type with constructor signature (arkts-no-ctor-signatures-type)",
+      "expectLineAndCharacter": {
+        "line": 27,
+        "character": 3
+      }
+    },
+    {
+      "messageText": "Classes cannot be used as objects (arkts-no-classes-as-obj)",
+      "expectLineAndCharacter": {
+        "line": 31,
+        "character": 39
+      }
     }
-  },
-  {
-    "messageText": "arkts-no-classes-as-obj",
-    "expectLineAndCharacter": {
-      "line": 31,
-      "character": 39
-    }
-  }
-]
+  ]
+}

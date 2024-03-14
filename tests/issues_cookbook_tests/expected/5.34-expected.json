@@ -1,0 +1,35 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cookbook/5.34.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.34.ets:7:10\n \"instanceof\" operator is partially supported (arkts-instanceof-ref-types)\n\n",
+                "severity": 2,
+                "reportLine": 7,
+                "reportColumn": 10,
+                "description": "\"instanceof\" operator is partially supported (arkts-instanceof-ref-types)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.34.ets:8:11\n \"instanceof\" operator is partially supported (arkts-instanceof-ref-types)\n\n",
+                "severity": 2,
+                "reportLine": 8,
+                "reportColumn": 11,
+                "description": "\"instanceof\" operator is partially supported (arkts-instanceof-ref-types)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.34.ets:15:16\n \"instanceof\" operator is partially supported (arkts-instanceof-ref-types)\n\n",
+                "severity": 2,
+                "reportLine": 15,
+                "reportColumn": 16,
+                "description": "\"instanceof\" operator is partially supported (arkts-instanceof-ref-types)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.34.ets:16:23\n \"instanceof\" operator is partially supported (arkts-instanceof-ref-types)\n\n",
+                "severity": 2,
+                "reportLine": 16,
+                "reportColumn": 23,
+                "description": "\"instanceof\" operator is partially supported (arkts-instanceof-ref-types)"
+            }
+        ]
+    }
+}

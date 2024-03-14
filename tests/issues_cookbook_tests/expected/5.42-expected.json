@@ -1,0 +1,28 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cookbook/5.42.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.42.ets:1:1\n \"with\" statement is not supported (arkts-no-with)\n\n",
+                "severity": 2,
+                "reportLine": 1,
+                "reportColumn": 1,
+                "description": "\"with\" statement is not supported (arkts-no-with)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.42.ets:1:1\n 'with' statements are not allowed in strict mode.\n\n",
+                "severity": 2,
+                "reportLine": 1,
+                "reportColumn": 1,
+                "description": "'with' statements are not allowed in strict mode."
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.42.ets:1:1\n The 'with' statement is not supported. All symbols in a 'with' block will have type 'any'.\n\n",
+                "severity": 2,
+                "reportLine": 1,
+                "reportColumn": 1,
+                "description": "The 'with' statement is not supported. All symbols in a 'with' block will have type 'any'."
+            }
+        ]
+    }
+}

@@ -1,9 +1,12 @@
-[
+{
+  "arktsVersion_1_0": [
     {
-        "messageText": "arkts-no-regexp-literals",
-        "expectLineAndCharacter": {
-            "line": 19,
-            "character": 23
-        }
+      "messageText": "RegExp literals are not supported (arkts-no-regexp-literals)",
+      "expectLineAndCharacter": {
+        "line": 19,
+        "character": 23
+      }
     }
-]
+  ],
+  "arktsVersion_1_1": []
+}

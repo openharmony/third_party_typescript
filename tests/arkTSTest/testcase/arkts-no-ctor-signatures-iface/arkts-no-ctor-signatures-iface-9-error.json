@@ -1,9 +1,20 @@
-[
+{
+  "arktsVersion_1_0": [
     {
-        "messageText": "arkts-no-ctor-signatures-iface",
-        "expectLineAndCharacter": {
-            "line": 27,
-            "character": 3
-        }
+      "messageText": "Construct signatures are not supported in interfaces (arkts-no-ctor-signatures-iface)",
+      "expectLineAndCharacter": {
+        "line": 27,
+        "character": 3
+      }
     }
-]
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Construct signatures are not supported in interfaces (arkts-no-ctor-signatures-iface)",
+      "expectLineAndCharacter": {
+        "line": 27,
+        "character": 3
+      }
+    }
+  ]
+}

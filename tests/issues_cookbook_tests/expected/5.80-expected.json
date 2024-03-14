@@ -1,0 +1,14 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cookbook/5.80.ets",
+        "defects": [
+            {
+                "origin": "WARN: ArkTS:WARN File: /entry/src/main/ets/pages/cookbook/5.80.ets:6:9\n Classes cannot be used as objects (arkts-no-classes-as-obj)\n\n",
+                "severity": 1,
+                "reportLine": 6,
+                "reportColumn": 9,
+                "description": "Classes cannot be used as objects (arkts-no-classes-as-obj)"
+            }
+        ]
+    }
+}

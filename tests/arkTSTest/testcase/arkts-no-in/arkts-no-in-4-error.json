@@ -1,17 +1,34 @@
-[
+{
+  "arktsVersion_1_0": [
     {
-      "messageText": "arkts-no-in",
+      "messageText": "\"in\" operator is not supported (arkts-no-in)",
       "expectLineAndCharacter": {
         "line": 31,
         "character": 21
       }
     },
     {
-      "messageText": "arkts-no-in",
+      "messageText": "\"in\" operator is not supported (arkts-no-in)",
+      "expectLineAndCharacter": {
+        "line": 32,
+        "character": 24
+      }
+    }
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "\"in\" operator is not supported (arkts-no-in)",
+      "expectLineAndCharacter": {
+        "line": 31,
+        "character": 21
+      }
+    },
+    {
+      "messageText": "\"in\" operator is not supported (arkts-no-in)",
       "expectLineAndCharacter": {
         "line": 32,
         "character": 24
       }
     }
   ]
-  
+}

@@ -1,10 +1,20 @@
-[
-  {
-    "realStart": 820,
-    "messageText": "arkts-no-props-by-index",
-    "expectLineAndCharacter": {
-      "line": 24,
-      "character": 17
+{
+  "arktsVersion_1_0": [
+    {
+      "messageText": "Indexed access is not supported for fields (arkts-no-props-by-index)",
+      "expectLineAndCharacter": {
+        "line": 24,
+        "character": 17
+      }
     }
-  }
-]
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Indexed access is not supported for fields (arkts-no-props-by-index)",
+      "expectLineAndCharacter": {
+        "line": 24,
+        "character": 17
+      }
+    }
+  ]
+}

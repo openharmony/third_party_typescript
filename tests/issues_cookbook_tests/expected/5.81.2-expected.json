@@ -1,0 +1,14 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cookbook/5.81.2.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.81.2.ets:6:1\n \"import\" statements after other statements are not allowed (arkts-no-misplaced-imports)\n\n",
+                "severity": 2,
+                "reportLine": 6,
+                "reportColumn": 1,
+                "description": "\"import\" statements after other statements are not allowed (arkts-no-misplaced-imports)"
+            }
+        ]
+    }
+}

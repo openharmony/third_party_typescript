@@ -1,10 +1,20 @@
-[
+{
+  "arktsVersion_1_0": [
     {
-      "messageText": "arkts-no-as-const",
+      "messageText": "\"as const\" assertions are not supported (arkts-no-as-const)",
       "expectLineAndCharacter": {
         "line": 17,
         "character": 17
       }
     }
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "\"as const\" assertions are not supported (arkts-no-as-const)",
+      "expectLineAndCharacter": {
+        "line": 17,
+        "character": 27
+      }
+    }
   ]
-  
+}

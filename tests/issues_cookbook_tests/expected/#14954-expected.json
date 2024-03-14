@@ -1,0 +1,35 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cases/#14954.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#14954.ets:11:7\n 'Function.apply', 'Function.call' are not supported (arkts-no-func-apply-call)\n\n",
+                "severity": 2,
+                "reportLine": 11,
+                "reportColumn": 7,
+                "description": "'Function.apply', 'Function.call' are not supported (arkts-no-func-apply-call)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#14954.ets:20:7\n Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)\n\n",
+                "severity": 2,
+                "reportLine": 20,
+                "reportColumn": 7,
+                "description": "Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)"
+            },
+            {
+                "origin": "WARN: ArkTS:WARN File: /entry/src/main/ets/pages/cases/#14954.ets:20:34\n 'Function.bind' is not supported (arkts-no-func-bind)\n\n",
+                "severity": 1,
+                "reportLine": 20,
+                "reportColumn": 34,
+                "description": "'Function.bind' is not supported (arkts-no-func-bind)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#14954.ets:29:13\n 'Function.apply', 'Function.call' are not supported (arkts-no-func-apply-call)\n\n",
+                "severity": 2,
+                "reportLine": 29,
+                "reportColumn": 13,
+                "description": "'Function.apply', 'Function.call' are not supported (arkts-no-func-apply-call)"
+            }
+        ]
+    }
+}

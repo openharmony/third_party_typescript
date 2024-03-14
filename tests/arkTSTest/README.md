@@ -11,12 +11,20 @@ The test cases are stored in the default directory called "testcase", and the re
 
 ## Getting Started
 
-1. Install project dependencies by running:
+1. compile build typescript lib(pwd：third_party_typescript)
+    ```shell
+    npm install
+    npm run build
+    npm run release
+    npm pack
+    ```
+
+2. Install project dependencies by running(pwd：third_party_typescript/tests/arkTSTest):
     ```shell
     npm install
     ``` 
-2. Place the test cases in the "testcase" folder. It is recommended to use the constraint name as the test case directory, such as "arkts-no-any-unknown".
-3. Run the "run.js" script to perform the code testing.
+3. Place the test cases in the "testcase" folder. It is recommended to use the constraint name as the test case directory, such as "arkts-no-any-unknown".
+4. Run the "run.js" script to perform the code testing.
 
     ```nodejs
     node run.js
@@ -46,7 +54,7 @@ Generate test result files:
 ```shell
 node run.js -e
 ```
-4. The generated test results are stored in the "test_results" directory, and basic test information is printed on the command line, such as:
+5. The generated test results are stored in the "test_results" directory, and basic test information is printed on the command line, such as:
 
 ```plain
 Total number of test cases:2 Number of use cases passed:1 The number of use cases that failed:1 Total running time:371ms

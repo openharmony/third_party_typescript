@@ -1,0 +1,56 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cookbook/5.68.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.68.ets:2:9\n Use arrow functions instead of function expressions (arkts-no-func-expressions)\n\n",
+                "severity": 2,
+                "reportLine": 2,
+                "reportColumn": 9,
+                "description": "Use arrow functions instead of function expressions (arkts-no-func-expressions)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.68.ets:2:18\n Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)\n\n",
+                "severity": 2,
+                "reportLine": 2,
+                "reportColumn": 18,
+                "description": "Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.68.ets:3:3\n Using \"this\" inside stand-alone functions is not supported (arkts-no-standalone-this)\n\n",
+                "severity": 2,
+                "reportLine": 3,
+                "reportColumn": 3,
+                "description": "Using \"this\" inside stand-alone functions is not supported (arkts-no-standalone-this)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.68.ets:5:3\n Prototype assignment is not supported (arkts-no-prototype-assignment)\n\n",
+                "severity": 2,
+                "reportLine": 5,
+                "reportColumn": 3,
+                "description": "Prototype assignment is not supported (arkts-no-prototype-assignment)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.68.ets:10:3\n Prototype assignment is not supported (arkts-no-prototype-assignment)\n\n",
+                "severity": 2,
+                "reportLine": 10,
+                "reportColumn": 3,
+                "description": "Prototype assignment is not supported (arkts-no-prototype-assignment)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.68.ets:10:17\n Use arrow functions instead of function expressions (arkts-no-func-expressions)\n\n",
+                "severity": 2,
+                "reportLine": 10,
+                "reportColumn": 17,
+                "description": "Use arrow functions instead of function expressions (arkts-no-func-expressions)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.68.ets:11:10\n Using \"this\" inside stand-alone functions is not supported (arkts-no-standalone-this)\n\n",
+                "severity": 2,
+                "reportLine": 11,
+                "reportColumn": 10,
+                "description": "Using \"this\" inside stand-alone functions is not supported (arkts-no-standalone-this)"
+            }
+        ]
+    }
+}

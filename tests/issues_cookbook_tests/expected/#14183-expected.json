@@ -1,0 +1,14 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cases/#14183.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#14183.ets:6:5\n Indexed access is not supported for fields (arkts-no-props-by-index)\n\n",
+                "severity": 2,
+                "reportLine": 6,
+                "reportColumn": 5,
+                "description": "Indexed access is not supported for fields (arkts-no-props-by-index)"
+            }
+        ]
+    }
+}

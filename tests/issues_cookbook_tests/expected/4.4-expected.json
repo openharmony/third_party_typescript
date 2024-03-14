@@ -1,0 +1,21 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cookbook/4.4.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/4.4.ets:15:5\n Structural typing is not supported (arkts-no-structural-typing)\n\n",
+                "severity": 2,
+                "reportLine": 15,
+                "reportColumn": 5,
+                "description": "Structural typing is not supported (arkts-no-structural-typing)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/4.4.ets:21:9\n Structural typing is not supported (arkts-no-structural-typing)\n\n",
+                "severity": 2,
+                "reportLine": 21,
+                "reportColumn": 9,
+                "description": "Structural typing is not supported (arkts-no-structural-typing)"
+            }
+        ]
+    }
+}

@@ -1,0 +1,21 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cookbook/5.48.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.48.ets:1:1\n Generator functions are not supported (arkts-no-generators)\n\n",
+                "severity": 2,
+                "reportLine": 1,
+                "reportColumn": 1,
+                "description": "Generator functions are not supported (arkts-no-generators)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.48.ets:3:5\n Generator functions are not supported (arkts-no-generators)\n\n",
+                "severity": 2,
+                "reportLine": 3,
+                "reportColumn": 5,
+                "description": "Generator functions are not supported (arkts-no-generators)"
+            }
+        ]
+    }
+}

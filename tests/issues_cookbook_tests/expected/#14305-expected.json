@@ -1,0 +1,14 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cases/#14305.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#14305.ets:5:5\n Type 'string' is not assignable to type 'number'.\n\n",
+                "severity": 2,
+                "reportLine": 5,
+                "reportColumn": 5,
+                "description": "Type 'string' is not assignable to type 'number'."
+            }
+        ]
+    }
+}

@@ -1,0 +1,49 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cookbook/5.31.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.31.ets:2:9\n Unary operators \"+\", \"-\" and \"~\" work only on numbers (arkts-no-polymorphic-unops)\n\n",
+                "severity": 2,
+                "reportLine": 2,
+                "reportColumn": 9,
+                "description": "Unary operators \"+\", \"-\" and \"~\" work only on numbers (arkts-no-polymorphic-unops)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.31.ets:4:9\n Unary operators \"+\", \"-\" and \"~\" work only on numbers (arkts-no-polymorphic-unops)\n\n",
+                "severity": 2,
+                "reportLine": 4,
+                "reportColumn": 9,
+                "description": "Unary operators \"+\", \"-\" and \"~\" work only on numbers (arkts-no-polymorphic-unops)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.31.ets:6:9\n Unary operators \"+\", \"-\" and \"~\" work only on numbers (arkts-no-polymorphic-unops)\n\n",
+                "severity": 2,
+                "reportLine": 6,
+                "reportColumn": 9,
+                "description": "Unary operators \"+\", \"-\" and \"~\" work only on numbers (arkts-no-polymorphic-unops)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.31.ets:7:9\n Unary operators \"+\", \"-\" and \"~\" work only on numbers (arkts-no-polymorphic-unops)\n\n",
+                "severity": 2,
+                "reportLine": 7,
+                "reportColumn": 9,
+                "description": "Unary operators \"+\", \"-\" and \"~\" work only on numbers (arkts-no-polymorphic-unops)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.31.ets:14:9\n Unary operators \"+\", \"-\" and \"~\" work only on numbers (arkts-no-polymorphic-unops)\n\n",
+                "severity": 2,
+                "reportLine": 14,
+                "reportColumn": 9,
+                "description": "Unary operators \"+\", \"-\" and \"~\" work only on numbers (arkts-no-polymorphic-unops)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.31.ets:15:9\n Unary operators \"+\", \"-\" and \"~\" work only on numbers (arkts-no-polymorphic-unops)\n\n",
+                "severity": 2,
+                "reportLine": 15,
+                "reportColumn": 9,
+                "description": "Unary operators \"+\", \"-\" and \"~\" work only on numbers (arkts-no-polymorphic-unops)"
+            }
+        ]
+    }
+}

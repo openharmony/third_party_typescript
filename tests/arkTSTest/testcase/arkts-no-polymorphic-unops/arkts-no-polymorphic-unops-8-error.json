@@ -1,9 +1,20 @@
-[
-  {
-    "messageText": "arkts-no-polymorphic-unops",
-    "expectLineAndCharacter": {
-      "line": 23,
-      "character": 21
+{
+  "arktsVersion_1_0": [
+    {
+      "messageText": "Unary operators \"+\", \"-\" and \"~\" work only on numbers (arkts-no-polymorphic-unops)",
+      "expectLineAndCharacter": {
+        "line": 23,
+        "character": 21
+      }
     }
-  }
-]
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Unary operators \"+\", \"-\" and \"~\" work only on numbers (arkts-no-polymorphic-unops)",
+      "expectLineAndCharacter": {
+        "line": 23,
+        "character": 21
+      }
+    }
+  ]
+}

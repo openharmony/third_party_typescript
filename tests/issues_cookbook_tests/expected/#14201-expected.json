@@ -1,0 +1,49 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cases/#14201.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#14201.ets:5:15\n Argument of type 'null' is not assignable to parameter of type 'string'.\n\n",
+                "severity": 2,
+                "reportLine": 5,
+                "reportColumn": 15,
+                "description": "Argument of type 'null' is not assignable to parameter of type 'string'."
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#14201.ets:6:15\n Argument of type 'undefined' is not assignable to parameter of type 'string'.\n\n",
+                "severity": 2,
+                "reportLine": 6,
+                "reportColumn": 15,
+                "description": "Argument of type 'undefined' is not assignable to parameter of type 'string'."
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#14201.ets:9:15\n Argument of type 'null' is not assignable to parameter of type 'string'.\n\n",
+                "severity": 2,
+                "reportLine": 9,
+                "reportColumn": 15,
+                "description": "Argument of type 'null' is not assignable to parameter of type 'string'."
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#14201.ets:10:15\n Argument of type 'undefined' is not assignable to parameter of type 'string'.\n\n",
+                "severity": 2,
+                "reportLine": 10,
+                "reportColumn": 15,
+                "description": "Argument of type 'undefined' is not assignable to parameter of type 'string'."
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#14201.ets:17:27\n Argument of type 'null' is not assignable to parameter of type 'string'.\n\n",
+                "severity": 2,
+                "reportLine": 17,
+                "reportColumn": 27,
+                "description": "Argument of type 'null' is not assignable to parameter of type 'string'."
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#14201.ets:18:27\n Argument of type 'undefined' is not assignable to parameter of type 'string'.\n\n",
+                "severity": 2,
+                "reportLine": 18,
+                "reportColumn": 27,
+                "description": "Argument of type 'undefined' is not assignable to parameter of type 'string'."
+            }
+        ]
+    }
+}

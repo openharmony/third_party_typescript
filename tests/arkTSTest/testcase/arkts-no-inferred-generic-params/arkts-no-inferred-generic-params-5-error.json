@@ -1,16 +1,20 @@
-[
+{
+  "arktsVersion_1_0": [
     {
-        "messageText": "arkts-no-any-unknown",
-        "expectLineAndCharacter": {
-            "line": 19,
-            "character": 5
-        }
-    },
-    {
-        "messageText": "arkts-no-inferred-generic-params",
-        "expectLineAndCharacter": {
-            "line": 20,
-            "character": 1
-        }
+      "messageText": "Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)",
+      "expectLineAndCharacter": {
+        "line": 19,
+        "character": 5
+      }
     }
-]
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)",
+      "expectLineAndCharacter": {
+        "line": 19,
+        "character": 5
+      }
+    }
+  ]
+}

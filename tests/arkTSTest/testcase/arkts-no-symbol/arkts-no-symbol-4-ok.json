@@ -1,23 +1,48 @@
-[
-  {
-    "messageText": "arkts-no-obj-literals-as-types",
-    "expectLineAndCharacter": {
-      "line": 17,
-      "character": 26
+{
+  "arktsVersion_1_0": [
+    {
+      "messageText": "Object literals cannot be used as type declarations (arkts-no-obj-literals-as-types)",
+      "expectLineAndCharacter": {
+        "line": 17,
+        "character": 26
+      }
+    },
+    {
+      "messageText": "Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)",
+      "expectLineAndCharacter": {
+        "line": 29,
+        "character": 47
+      }
+    },
+    {
+      "messageText": "Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)",
+      "expectLineAndCharacter": {
+        "line": 34,
+        "character": 12
+      }
     }
-  },
-  {
-    "messageText": "arkts-no-untyped-obj-literals",
-    "expectLineAndCharacter": {
-      "line": 29,
-      "character": 47
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Object literals cannot be used as type declarations (arkts-no-obj-literals-as-types)",
+      "expectLineAndCharacter": {
+        "line": 17,
+        "character": 26
+      }
+    },
+    {
+      "messageText": "Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)",
+      "expectLineAndCharacter": {
+        "line": 29,
+        "character": 47
+      }
+    },
+    {
+      "messageText": "Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)",
+      "expectLineAndCharacter": {
+        "line": 34,
+        "character": 12
+      }
     }
-  },
-  {
-    "messageText": "arkts-no-untyped-obj-literals",
-    "expectLineAndCharacter": {
-      "line": 34,
-      "character": 12
-    }
-  }
-]
+  ]
+}

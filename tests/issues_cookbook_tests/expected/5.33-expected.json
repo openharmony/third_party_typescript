@@ -1,0 +1,21 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cookbook/5.33.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.33.ets:5:9\n \"typeof\" operator is allowed only in expression contexts (arkts-no-type-query)\n\n",
+                "severity": 2,
+                "reportLine": 5,
+                "reportColumn": 9,
+                "description": "\"typeof\" operator is allowed only in expression contexts (arkts-no-type-query)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.33.ets:6:9\n \"typeof\" operator is allowed only in expression contexts (arkts-no-type-query)\n\n",
+                "severity": 2,
+                "reportLine": 6,
+                "reportColumn": 9,
+                "description": "\"typeof\" operator is allowed only in expression contexts (arkts-no-type-query)"
+            }
+        ]
+    }
+}

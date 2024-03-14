@@ -1,9 +1,20 @@
-[
+{
+  "arktsVersion_1_0": [
     {
-        "messageText": "arkts-no-method-reassignment",
-        "expectLineAndCharacter": {
-            "line": 30,
-            "character": 1
-        }
+      "messageText": "Reassigning object methods is not supported (arkts-no-method-reassignment)",
+      "expectLineAndCharacter": {
+        "line": 30,
+        "character": 1
+      }
     }
-]
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Reassigning object methods is not supported (arkts-no-method-reassignment)",
+      "expectLineAndCharacter": {
+        "line": 30,
+        "character": 1
+      }
+    }
+  ]
+}

@@ -1,9 +1,20 @@
-[
-  {
-    "messageText": "arkts-no-implicit-return-types",
-    "expectLineAndCharacter": {
-      "line": 26,
-      "character": 1
+{
+  "arktsVersion_1_0": [
+    {
+      "messageText": "Function return type inference is limited (arkts-no-implicit-return-types)",
+      "expectLineAndCharacter": {
+        "line": 26,
+        "character": 1
+      }
     }
-  }
-]
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Function return type inference is limited (arkts-no-implicit-return-types)",
+      "expectLineAndCharacter": {
+        "line": 26,
+        "character": 10
+      }
+    }
+  ]
+}

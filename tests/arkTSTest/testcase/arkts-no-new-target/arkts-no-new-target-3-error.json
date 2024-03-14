@@ -1,23 +1,48 @@
-[
-  {
-    "messageText": "arkts-no-standalone-this",
-    "expectLineAndCharacter": {
-      "line": 17,
-      "character": 1
+{
+  "arktsVersion_1_0": [
+    {
+      "messageText": "Using \"this\" inside stand-alone functions is not supported (arkts-no-standalone-this)",
+      "expectLineAndCharacter": {
+        "line": 17,
+        "character": 1
+      }
+    },
+    {
+      "messageText": "Object literals cannot be used as type declarations (arkts-no-obj-literals-as-types)",
+      "expectLineAndCharacter": {
+        "line": 17,
+        "character": 27
+      }
+    },
+    {
+      "messageText": "\"new.target\" is not supported (arkts-no-new-target)",
+      "expectLineAndCharacter": {
+        "line": 18,
+        "character": 7
+      }
     }
-  },
-  {
-    "messageText": "arkts-no-obj-literals-as-types",
-    "expectLineAndCharacter": {
-      "line": 17,
-      "character": 27
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Using \"this\" inside stand-alone functions is not supported (arkts-no-standalone-this)",
+      "expectLineAndCharacter": {
+        "line": 19,
+        "character": 5
+      }
+    },
+    {
+      "messageText": "Object literals cannot be used as type declarations (arkts-no-obj-literals-as-types)",
+      "expectLineAndCharacter": {
+        "line": 17,
+        "character": 27
+      }
+    },
+    {
+      "messageText": "\"new.target\" is not supported (arkts-no-new-target)",
+      "expectLineAndCharacter": {
+        "line": 18,
+        "character": 7
+      }
     }
-  },
-  {
-    "messageText": "arkts-no-new-target",
-    "expectLineAndCharacter": {
-      "line": 18,
-      "character": 7
-    }
-  }
-]
+  ]
+}

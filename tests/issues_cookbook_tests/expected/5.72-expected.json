@@ -1,0 +1,42 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cookbook/5.72.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.72.ets:2:16\n Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)\n\n",
+                "severity": 2,
+                "reportLine": 2,
+                "reportColumn": 16,
+                "description": "Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.72.ets:4:13\n Use arrow functions instead of function expressions (arkts-no-func-expressions)\n\n",
+                "severity": 2,
+                "reportLine": 4,
+                "reportColumn": 13,
+                "description": "Use arrow functions instead of function expressions (arkts-no-func-expressions)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.72.ets:5:12\n Using \"this\" inside stand-alone functions is not supported (arkts-no-standalone-this)\n\n",
+                "severity": 2,
+                "reportLine": 5,
+                "reportColumn": 12,
+                "description": "Using \"this\" inside stand-alone functions is not supported (arkts-no-standalone-this)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.72.ets:8:17\n Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)\n\n",
+                "severity": 2,
+                "reportLine": 8,
+                "reportColumn": 17,
+                "description": "Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.72.ets:11:29\n 'Function.apply', 'Function.call' are not supported (arkts-no-func-apply-call)\n\n",
+                "severity": 2,
+                "reportLine": 11,
+                "reportColumn": 29,
+                "description": "'Function.apply', 'Function.call' are not supported (arkts-no-func-apply-call)"
+            }
+        ]
+    }
+}

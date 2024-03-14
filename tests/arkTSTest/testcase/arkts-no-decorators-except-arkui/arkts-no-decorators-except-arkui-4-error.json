@@ -1,16 +1,27 @@
-[
-  {
-    "messageText": "arkts-no-any-unknown",
-    "expectLineAndCharacter": {
-      "line": 20,
-      "character": 37
+{
+  "arktsVersion_1_0": [
+    {
+      "messageText": "Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)",
+      "expectLineAndCharacter": {
+        "line": 20,
+        "character": 37
+      }
+    },
+    {
+      "messageText": "No decorators except ArkUI decorators are currently allowed (arkts-no-decorators-except-arkui)",
+      "expectLineAndCharacter": {
+        "line": 28,
+        "character": 12
+      }
     }
-  },
-  {
-    "messageText": "arkts-no-decorators-except-arkui",
-    "expectLineAndCharacter": {
-      "line": 28,
-      "character": 12
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)",
+      "expectLineAndCharacter": {
+        "line": 20,
+        "character": 37
+      }
     }
-  }
-]
+  ]
+}

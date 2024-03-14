@@ -1,16 +1,34 @@
-[
+{
+  "arktsVersion_1_0": [
     {
-        "messageText": "arkts-no-any-unknown",
-        "expectLineAndCharacter": {
-            "line": 19,
-            "character": 20
-        }
+      "messageText": "Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)",
+      "expectLineAndCharacter": {
+        "line": 19,
+        "character": 20
+      }
     },
     {
-        "messageText": "arkts-as-casts",
-        "expectLineAndCharacter": {
-            "line": 20,
-            "character": 29
-        }
+      "messageText": "Only \"as T\" syntax is supported for type casts (arkts-as-casts)",
+      "expectLineAndCharacter": {
+        "line": 20,
+        "character": 29
+      }
     }
-]
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)",
+      "expectLineAndCharacter": {
+        "line": 19,
+        "character": 20
+      }
+    },
+    {
+      "messageText": "Only \"as T\" syntax is supported for type casts (arkts-as-casts)",
+      "expectLineAndCharacter": {
+        "line": 20,
+        "character": 29
+      }
+    }
+  ]
+}

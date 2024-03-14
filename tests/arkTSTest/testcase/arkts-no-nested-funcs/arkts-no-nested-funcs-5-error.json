@@ -1,9 +1,20 @@
-[
-  {
-    "messageText": "arkts-no-nested-funcs",
-    "expectLineAndCharacter": {
-      "line": 22,
-      "character": 3
+{
+  "arktsVersion_1_0": [
+    {
+      "messageText": "Nested functions are not supported (arkts-no-nested-funcs)",
+      "expectLineAndCharacter": {
+        "line": 22,
+        "character": 3
+      }
     }
-  }
-]
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Nested functions are not supported (arkts-no-nested-funcs)",
+      "expectLineAndCharacter": {
+        "line": 22,
+        "character": 3
+      }
+    }
+  ]
+}

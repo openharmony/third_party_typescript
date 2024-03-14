@@ -1,0 +1,14 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cases/#15391.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#15391.ets:5:15\n Structural typing is not supported (arkts-no-structural-typing)\n\n",
+                "severity": 2,
+                "reportLine": 5,
+                "reportColumn": 15,
+                "description": "Structural typing is not supported (arkts-no-structural-typing)"
+            }
+        ]
+    }
+}

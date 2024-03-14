@@ -1,0 +1,84 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cookbook/5.1.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.1.ets:2:1\n Use \"let\" instead of \"var\" (arkts-no-var)\n\n",
+                "severity": 2,
+                "reportLine": 2,
+                "reportColumn": 1,
+                "description": "Use \"let\" instead of \"var\" (arkts-no-var)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.1.ets:2:15\n Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)\n\n",
+                "severity": 2,
+                "reportLine": 2,
+                "reportColumn": 15,
+                "description": "Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.1.ets:2:28\n Objects with property names that are not identifiers are not supported (arkts-identifiers-as-prop-names)\n\n",
+                "severity": 2,
+                "reportLine": 2,
+                "reportColumn": 28,
+                "description": "Objects with property names that are not identifiers are not supported (arkts-identifiers-as-prop-names)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.1.ets:3:13\n Argument of type 'number' is not assignable to parameter of type 'string'.\n\n",
+                "severity": 2,
+                "reportLine": 3,
+                "reportColumn": 13,
+                "description": "Argument of type 'number' is not assignable to parameter of type 'string'."
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.1.ets:3:13\n Indexed access is not supported for fields (arkts-no-props-by-index)\n\n",
+                "severity": 2,
+                "reportLine": 3,
+                "reportColumn": 13,
+                "description": "Indexed access is not supported for fields (arkts-no-props-by-index)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.1.ets:4:13\n Argument of type 'number' is not assignable to parameter of type 'string'.\n\n",
+                "severity": 2,
+                "reportLine": 4,
+                "reportColumn": 13,
+                "description": "Argument of type 'number' is not assignable to parameter of type 'string'."
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.1.ets:4:13\n Indexed access is not supported for fields (arkts-no-props-by-index)\n\n",
+                "severity": 2,
+                "reportLine": 4,
+                "reportColumn": 13,
+                "description": "Indexed access is not supported for fields (arkts-no-props-by-index)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.1.ets:12:13\n Argument of type 'number' is not assignable to parameter of type 'string'.\n\n",
+                "severity": 2,
+                "reportLine": 12,
+                "reportColumn": 13,
+                "description": "Argument of type 'number' is not assignable to parameter of type 'string'."
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.1.ets:14:13\n Argument of type 'number' is not assignable to parameter of type 'string'.\n\n",
+                "severity": 2,
+                "reportLine": 14,
+                "reportColumn": 13,
+                "description": "Argument of type 'number' is not assignable to parameter of type 'string'."
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.1.ets:18:13\n Argument of type 'number' is not assignable to parameter of type 'string'.\n\n",
+                "severity": 2,
+                "reportLine": 18,
+                "reportColumn": 13,
+                "description": "Argument of type 'number' is not assignable to parameter of type 'string'."
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.1.ets:19:13\n Argument of type 'number' is not assignable to parameter of type 'string'.\n\n",
+                "severity": 2,
+                "reportLine": 19,
+                "reportColumn": 13,
+                "description": "Argument of type 'number' is not assignable to parameter of type 'string'."
+            }
+        ]
+    }
+}

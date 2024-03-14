@@ -1,0 +1,35 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cookbook/5.73.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.73.ets:2:17\n \"as const\" assertions are not supported (arkts-no-as-const)\n\n",
+                "severity": 2,
+                "reportLine": 2,
+                "reportColumn": 17,
+                "description": "\"as const\" assertions are not supported (arkts-no-as-const)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.73.ets:3:18\n \"as const\" assertions are not supported (arkts-no-as-const)\n\n",
+                "severity": 2,
+                "reportLine": 3,
+                "reportColumn": 18,
+                "description": "\"as const\" assertions are not supported (arkts-no-as-const)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.73.ets:4:9\n Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)\n\n",
+                "severity": 2,
+                "reportLine": 4,
+                "reportColumn": 9,
+                "description": "Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.73.ets:4:27\n \"as const\" assertions are not supported (arkts-no-as-const)\n\n",
+                "severity": 2,
+                "reportLine": 4,
+                "reportColumn": 27,
+                "description": "\"as const\" assertions are not supported (arkts-no-as-const)"
+            }
+        ]
+    }
+}

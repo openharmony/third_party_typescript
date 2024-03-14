@@ -1,9 +1,27 @@
-[
+{
+  "arktsVersion_1_0": [
     {
-        "messageText": "arkts-no-jsx",
-        "expectLineAndCharacter": {
-            "line": 20,
-            "character": 12
-        }
+      "messageText": "Only \"as T\" syntax is supported for type casts (arkts-as-casts)",
+      "expectLineAndCharacter": {
+        "line": 20,
+        "character": 12
+      }
+    },
+    {
+      "messageText": "RegExp literals are not supported (arkts-no-regexp-literals)",
+      "expectLineAndCharacter": {
+        "line": 20,
+        "character": 25
+      }
     }
-]
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Only \"as T\" syntax is supported for type casts (arkts-as-casts)",
+      "expectLineAndCharacter": {
+        "line": 20,
+        "character": 12
+      }
+    }
+  ]
+}

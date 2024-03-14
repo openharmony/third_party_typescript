@@ -1,9 +1,20 @@
-[
-  {
-    "messageText": "arkts-no-classes-as-obj",
-    "expectLineAndCharacter": {
-      "line": 28,
-      "character": 16
+{
+  "arktsVersion_1_0": [
+    {
+      "messageText": "Classes cannot be used as objects (arkts-no-classes-as-obj)",
+      "expectLineAndCharacter": {
+        "line": 28,
+        "character": 16
+      }
     }
-  }
-]
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Classes cannot be used as objects (arkts-no-classes-as-obj)",
+      "expectLineAndCharacter": {
+        "line": 28,
+        "character": 16
+      }
+    }
+  ]
+}

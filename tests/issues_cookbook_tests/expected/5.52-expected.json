@@ -1,0 +1,35 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cookbook/5.52.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.52.ets:1:1\n Declaration merging is not supported (arkts-no-decl-merging)\n\n",
+                "severity": 2,
+                "reportLine": 1,
+                "reportColumn": 1,
+                "description": "Declaration merging is not supported (arkts-no-decl-merging)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.52.ets:2:26\n Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)\n\n",
+                "severity": 2,
+                "reportLine": 2,
+                "reportColumn": 26,
+                "description": "Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.52.ets:5:1\n Declaration merging is not supported (arkts-no-decl-merging)\n\n",
+                "severity": 2,
+                "reportLine": 5,
+                "reportColumn": 1,
+                "description": "Declaration merging is not supported (arkts-no-decl-merging)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.52.ets:9:1\n Declaration merging is not supported (arkts-no-decl-merging)\n\n",
+                "severity": 2,
+                "reportLine": 9,
+                "reportColumn": 1,
+                "description": "Declaration merging is not supported (arkts-no-decl-merging)"
+            }
+        ]
+    }
+}

@@ -1,0 +1,42 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cookbook/5.51.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.51.ets:2:16\n Object literals cannot be used as type declarations (arkts-no-obj-literals-as-types)\n\n",
+                "severity": 2,
+                "reportLine": 2,
+                "reportColumn": 16,
+                "description": "Object literals cannot be used as type declarations (arkts-no-obj-literals-as-types)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.51.ets:5:16\n Object literals cannot be used as type declarations (arkts-no-obj-literals-as-types)\n\n",
+                "severity": 2,
+                "reportLine": 5,
+                "reportColumn": 16,
+                "description": "Object literals cannot be used as type declarations (arkts-no-obj-literals-as-types)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.51.ets:8:1\n Interface can not extend interfaces with the same method (arkts-no-extend-same-prop)\n\n",
+                "severity": 2,
+                "reportLine": 8,
+                "reportColumn": 1,
+                "description": "Interface can not extend interfaces with the same method (arkts-no-extend-same-prop)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.51.ets:9:16\n Object literals cannot be used as type declarations (arkts-no-obj-literals-as-types)\n\n",
+                "severity": 2,
+                "reportLine": 9,
+                "reportColumn": 16,
+                "description": "Object literals cannot be used as type declarations (arkts-no-obj-literals-as-types)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.51.ets:20:12\n Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)\n\n",
+                "severity": 2,
+                "reportLine": 20,
+                "reportColumn": 12,
+                "description": "Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)"
+            }
+        ]
+    }
+}

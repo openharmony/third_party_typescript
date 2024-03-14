@@ -1,0 +1,14 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cookbook/5.38.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.38.ets:10:5\n Destructuring variable declarations are not supported (arkts-no-destruct-decls)\n\n",
+                "severity": 2,
+                "reportLine": 10,
+                "reportColumn": 5,
+                "description": "Destructuring variable declarations are not supported (arkts-no-destruct-decls)"
+            }
+        ]
+    }
+}

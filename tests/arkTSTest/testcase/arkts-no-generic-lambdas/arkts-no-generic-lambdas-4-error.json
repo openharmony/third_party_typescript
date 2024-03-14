@@ -1,9 +1,20 @@
-[
+{
+  "arktsVersion_1_0": [
     {
-        "messageText": "arkts-no-generic-lambdas",
-        "expectLineAndCharacter": {
-            "line": 17,
-            "character": 21
-        }
+      "messageText": "Use generic functions instead of generic arrow functions (arkts-no-generic-lambdas)",
+      "expectLineAndCharacter": {
+        "line": 17,
+        "character": 21
+      }
     }
-]
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Use generic functions instead of generic arrow functions (arkts-no-generic-lambdas)",
+      "expectLineAndCharacter": {
+        "line": 17,
+        "character": 21
+      }
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cookbook/5.67.ets",
+        "defects": [
+            {
+                "origin": "WARN: ArkTS:WARN File: /entry/src/main/ets/pages/cookbook/5.67.ets:2:5\n Definite assignment assertions are not supported (arkts-no-definite-assignment)\n\n",
+                "severity": 1,
+                "reportLine": 2,
+                "reportColumn": 5,
+                "description": "Definite assignment assertions are not supported (arkts-no-definite-assignment)"
+            }
+        ]
+    }
+}

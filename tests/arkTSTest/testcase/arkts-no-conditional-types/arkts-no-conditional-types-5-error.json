@@ -1,9 +1,20 @@
-[
+{
+  "arktsVersion_1_0": [
     {
-        "messageText": "arkts-no-conditional-types",
-        "expectLineAndCharacter": {
-            "line": 18,
-            "character": 22
-        }
+      "messageText": "Conditional types are not supported (arkts-no-conditional-types)",
+      "expectLineAndCharacter": {
+        "line": 18,
+        "character": 22
+      }
     }
-]
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Conditional types are not supported (arkts-no-conditional-types)",
+      "expectLineAndCharacter": {
+        "line": 18,
+        "character": 22
+      }
+    }
+  ]
+}

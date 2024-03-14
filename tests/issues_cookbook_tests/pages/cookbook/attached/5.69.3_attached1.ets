@@ -1,0 +1,1 @@
+export let abc: number = 100

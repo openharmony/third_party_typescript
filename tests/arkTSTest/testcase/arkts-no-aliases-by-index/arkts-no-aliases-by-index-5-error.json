@@ -1,9 +1,20 @@
-[
+{
+  "arktsVersion_1_0": [
     {
-        "messageText": "arkts-no-aliases-by-index",
-        "expectLineAndCharacter": {
-            "line": 20,
-            "character": 10
-        }
+      "messageText": "Indexed access types are not supported (arkts-no-aliases-by-index)",
+      "expectLineAndCharacter": {
+        "line": 20,
+        "character": 10
+      }
     }
-]
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Indexed access types are not supported (arkts-no-aliases-by-index)",
+      "expectLineAndCharacter": {
+        "line": 20,
+        "character": 10
+      }
+    }
+  ]
+}

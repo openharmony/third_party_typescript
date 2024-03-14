@@ -1,0 +1,14 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cookbook/5.41.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.41.ets:1:27\n Mapped type expression is not supported (arkts-no-mapped-types)\n\n",
+                "severity": 2,
+                "reportLine": 1,
+                "reportColumn": 27,
+                "description": "Mapped type expression is not supported (arkts-no-mapped-types)"
+            }
+        ]
+    }
+}

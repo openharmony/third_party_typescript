@@ -1,0 +1,84 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cookbook/4.2.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/4.2.ets:12:1\n \"delete\" operator is not supported (arkts-no-delete)\n\n",
+                "severity": 2,
+                "reportLine": 12,
+                "reportColumn": 1,
+                "description": "\"delete\" operator is not supported (arkts-no-delete)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/4.2.ets:12:8\n The operand of a 'delete' operator must be optional.\n\n",
+                "severity": 2,
+                "reportLine": 12,
+                "reportColumn": 8,
+                "description": "The operand of a 'delete' operator must be optional."
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/4.2.ets:13:1\n \"delete\" operator is not supported (arkts-no-delete)\n\n",
+                "severity": 2,
+                "reportLine": 13,
+                "reportColumn": 1,
+                "description": "\"delete\" operator is not supported (arkts-no-delete)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/4.2.ets:13:15\n Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)\n\n",
+                "severity": 2,
+                "reportLine": 13,
+                "reportColumn": 15,
+                "description": "Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/4.2.ets:16:4\n Property 'z' does not exist on type 'Point'.\n\n",
+                "severity": 2,
+                "reportLine": 16,
+                "reportColumn": 4,
+                "description": "Property 'z' does not exist on type 'Point'."
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/4.2.ets:17:8\n Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)\n\n",
+                "severity": 2,
+                "reportLine": 17,
+                "reportColumn": 8,
+                "description": "Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/4.2.ets:20:12\n \"Symbol()\" API is not supported (arkts-no-symbol)\n\n",
+                "severity": 2,
+                "reportLine": 20,
+                "reportColumn": 12,
+                "description": "\"Symbol()\" API is not supported (arkts-no-symbol)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/4.2.ets:21:8\n Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)\n\n",
+                "severity": 2,
+                "reportLine": 21,
+                "reportColumn": 8,
+                "description": "Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/4.2.ets:22:1\n Indexed access is not supported for fields (arkts-no-props-by-index)\n\n",
+                "severity": 2,
+                "reportLine": 22,
+                "reportColumn": 1,
+                "description": "Indexed access is not supported for fields (arkts-no-props-by-index)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/4.2.ets:25:1\n Type 'string' is not assignable to type 'number'.\n\n",
+                "severity": 2,
+                "reportLine": 25,
+                "reportColumn": 1,
+                "description": "Type 'string' is not assignable to type 'number'."
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/4.2.ets:26:8\n Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)\n\n",
+                "severity": 2,
+                "reportLine": 26,
+                "reportColumn": 8,
+                "description": "Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)"
+            }
+        ]
+    }
+}

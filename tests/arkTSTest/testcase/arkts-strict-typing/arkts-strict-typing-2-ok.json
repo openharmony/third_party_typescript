@@ -1,10 +1,20 @@
-[
+{
+  "arktsVersion_1_0": [
     {
-        "messageText": "arkts-no-definite-assignment",
-        "expectLineAndCharacter": {
-            "line": 21,
-            "character": 3
-        }
+      "messageText": "Definite assignment assertions are not supported (arkts-no-definite-assignment)",
+      "expectLineAndCharacter": {
+        "line": 21,
+        "character": 3
+      }
     }
-    
-]
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Definite assignment assertions are not supported (arkts-no-definite-assignment)",
+      "expectLineAndCharacter": {
+        "line": 21,
+        "character": 3
+      }
+    }
+  ]
+}

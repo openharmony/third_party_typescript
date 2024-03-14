@@ -1,9 +1,20 @@
-[
+{
+  "arktsVersion_1_0": [
     {
-        "messageText": "arkts-no-destruct-assignment",
-        "expectLineAndCharacter": {
-          "line": 19,
-          "character": 1
-        }
+      "messageText": "Destructuring assignment is not supported (arkts-no-destruct-assignment)",
+      "expectLineAndCharacter": {
+        "line": 19,
+        "character": 1
       }
-]
+    }
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Destructuring assignment is not supported (arkts-no-destruct-assignment)",
+      "expectLineAndCharacter": {
+        "line": 19,
+        "character": 1
+      }
+    }
+  ]
+}

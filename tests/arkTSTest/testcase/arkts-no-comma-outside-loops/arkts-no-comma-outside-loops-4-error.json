@@ -1,17 +1,34 @@
-[
+{
+  "arktsVersion_1_0": [
     {
-      "messageText": "arkts-no-comma-outside-loops",
+      "messageText": "The comma operator \",\" is supported only in \"for\" loops (arkts-no-comma-outside-loops)",
       "expectLineAndCharacter": {
         "line": 19,
         "character": 12
       }
     },
     {
-      "messageText": "arkts-no-comma-outside-loops",
+      "messageText": "The comma operator \",\" is supported only in \"for\" loops (arkts-no-comma-outside-loops)",
+      "expectLineAndCharacter": {
+        "line": 19,
+        "character": 12
+      }
+    }
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "The comma operator \",\" is supported only in \"for\" loops (arkts-no-comma-outside-loops)",
+      "expectLineAndCharacter": {
+        "line": 19,
+        "character": 12
+      }
+    },
+    {
+      "messageText": "The comma operator \",\" is supported only in \"for\" loops (arkts-no-comma-outside-loops)",
       "expectLineAndCharacter": {
         "line": 19,
         "character": 12
       }
     }
   ]
-  
+}

@@ -1,0 +1,28 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cookbook/5.66.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.66.ets:5:5\n Usage of standard library is restricted (arkts-limited-stdlib)\n\n",
+                "severity": 2,
+                "reportLine": 5,
+                "reportColumn": 5,
+                "description": "Usage of standard library is restricted (arkts-limited-stdlib)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.66.ets:5:33\n \"new.target\" is not supported (arkts-no-new-target)\n\n",
+                "severity": 2,
+                "reportLine": 5,
+                "reportColumn": 33,
+                "description": "\"new.target\" is not supported (arkts-no-new-target)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.66.ets:5:44\n Prototype assignment is not supported (arkts-no-prototype-assignment)\n\n",
+                "severity": 2,
+                "reportLine": 5,
+                "reportColumn": 44,
+                "description": "Prototype assignment is not supported (arkts-no-prototype-assignment)"
+            }
+        ]
+    }
+}

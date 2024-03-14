@@ -1,9 +1,20 @@
-[
+{
+  "arktsVersion_1_0": [
     {
-        "messageText": "arkts-no-is",
-        "expectLineAndCharacter": {
-            "line": 24,
-            "character": 33
-        }
+      "messageText": "Type guarding is supported with \"instanceof\" and \"as\" (arkts-no-is)",
+      "expectLineAndCharacter": {
+        "line": 24,
+        "character": 33
+      }
     }
-]
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Type guarding is supported with \"instanceof\" and \"as\" (arkts-no-is)",
+      "expectLineAndCharacter": {
+        "line": 24,
+        "character": 33
+      }
+    }
+  ]
+}

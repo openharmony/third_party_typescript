@@ -1,44 +1,90 @@
-[
-  {
-    "messageText": "arkts-unique-names",
-    "expectLineAndCharacter": {
-      "line": 17,
-      "character": 1
+{
+  "arktsVersion_1_0": [
+    {
+      "messageText": "Use unique names for types and namespaces. (arkts-unique-names)",
+      "expectLineAndCharacter": {
+        "line": 17,
+        "character": 1
+      }
+    },
+    {
+      "messageText": "Use unique names for types and namespaces. (arkts-unique-names)",
+      "expectLineAndCharacter": {
+        "line": 21,
+        "character": 1
+      }
+    },
+    {
+      "messageText": "Reassigning object methods is not supported (arkts-no-method-reassignment)",
+      "expectLineAndCharacter": {
+        "line": 33,
+        "character": 1
+      }
+    },
+    {
+      "messageText": "Prototype assignment is not supported (arkts-no-prototype-assignment)",
+      "expectLineAndCharacter": {
+        "line": 33,
+        "character": 5
+      }
+    },
+    {
+      "messageText": "Use arrow functions instead of function expressions (arkts-no-func-expressions)",
+      "expectLineAndCharacter": {
+        "line": 33,
+        "character": 29
+      }
+    },
+    {
+      "messageText": "Using \"this\" inside stand-alone functions is not supported (arkts-no-standalone-this)",
+      "expectLineAndCharacter": {
+        "line": 33,
+        "character": 29
+      }
     }
-  },
-  {
-    "messageText": "arkts-unique-names",
-    "expectLineAndCharacter": {
-      "line": 21,
-      "character": 1
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Use unique names for types and namespaces. (arkts-unique-names)",
+      "expectLineAndCharacter": {
+        "line": 17,
+        "character": 11
+      }
+    },
+    {
+      "messageText": "Use unique names for types and namespaces. (arkts-unique-names)",
+      "expectLineAndCharacter": {
+        "line": 21,
+        "character": 7
+      }
+    },
+    {
+      "messageText": "Reassigning object methods is not supported (arkts-no-method-reassignment)",
+      "expectLineAndCharacter": {
+        "line": 33,
+        "character": 1
+      }
+    },
+    {
+      "messageText": "Prototype assignment is not supported (arkts-no-prototype-assignment)",
+      "expectLineAndCharacter": {
+        "line": 33,
+        "character": 5
+      }
+    },
+    {
+      "messageText": "Use arrow functions instead of function expressions (arkts-no-func-expressions)",
+      "expectLineAndCharacter": {
+        "line": 33,
+        "character": 29
+      }
+    },
+    {
+      "messageText": "Using \"this\" inside stand-alone functions is not supported (arkts-no-standalone-this)",
+      "expectLineAndCharacter": {
+        "line": 34,
+        "character": 31
+      }
     }
-  },
-  {
-    "messageText": "arkts-no-method-reassignment",
-    "expectLineAndCharacter": {
-      "line": 33,
-      "character": 1
-    }
-  },
-  {
-    "messageText": "arkts-no-prototype-assignment",
-    "expectLineAndCharacter": {
-      "line": 33,
-      "character": 5
-    }
-  },
-  {
-    "messageText": "arkts-no-func-expressions",
-    "expectLineAndCharacter": {
-      "line": 33,
-      "character": 29
-    }
-  },
-  {
-    "messageText": "arkts-no-standalone-this",
-    "expectLineAndCharacter": {
-      "line": 33,
-      "character": 29
-    }
-  }
-]
+  ]
+}

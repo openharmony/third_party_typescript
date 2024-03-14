@@ -1,0 +1,14 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cookbook/5.3.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.3.ets:3:3\n Private \"#\" identifiers are not supported (arkts-no-private-identifiers)\n\n",
+                "severity": 2,
+                "reportLine": 3,
+                "reportColumn": 3,
+                "description": "Private \"#\" identifiers are not supported (arkts-no-private-identifiers)"
+            }
+        ]
+    }
+}

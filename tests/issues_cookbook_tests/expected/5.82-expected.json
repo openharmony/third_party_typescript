@@ -1,0 +1,77 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cookbook/5.82.ets",
+        "defects": [
+            {
+                "origin": "WARN: ArkTS:WARN File: /entry/src/main/ets/pages/cookbook/5.82.ets:3:5\n Usage of 'ESObject' type is restricted (arkts-limited-esobj)\n\n",
+                "severity": 1,
+                "reportLine": 3,
+                "reportColumn": 5,
+                "description": "Usage of 'ESObject' type is restricted (arkts-limited-esobj)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.82.ets:6:7\n Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)\n\n",
+                "severity": 2,
+                "reportLine": 6,
+                "reportColumn": 7,
+                "description": "Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)"
+            },
+            {
+                "origin": "WARN: ArkTS:WARN File: /entry/src/main/ets/pages/cookbook/5.82.ets:7:7\n Usage of 'ESObject' type is restricted (arkts-limited-esobj)\n\n",
+                "severity": 1,
+                "reportLine": 7,
+                "reportColumn": 7,
+                "description": "Usage of 'ESObject' type is restricted (arkts-limited-esobj)"
+            },
+            {
+                "origin": "WARN: ArkTS:WARN File: /entry/src/main/ets/pages/cookbook/5.82.ets:8:7\n Usage of 'ESObject' type is restricted (arkts-limited-esobj)\n\n",
+                "severity": 1,
+                "reportLine": 8,
+                "reportColumn": 7,
+                "description": "Usage of 'ESObject' type is restricted (arkts-limited-esobj)"
+            },
+            {
+                "origin": "WARN: ArkTS:WARN File: /entry/src/main/ets/pages/cookbook/5.82.ets:9:7\n Usage of 'ESObject' type is restricted (arkts-limited-esobj)\n\n",
+                "severity": 1,
+                "reportLine": 9,
+                "reportColumn": 7,
+                "description": "Usage of 'ESObject' type is restricted (arkts-limited-esobj)"
+            },
+            {
+                "origin": "WARN: ArkTS:WARN File: /entry/src/main/ets/pages/cookbook/5.82.ets:10:7\n Usage of 'ESObject' type is restricted (arkts-limited-esobj)\n\n",
+                "severity": 1,
+                "reportLine": 10,
+                "reportColumn": 7,
+                "description": "Usage of 'ESObject' type is restricted (arkts-limited-esobj)"
+            },
+            {
+                "origin": "WARN: ArkTS:WARN File: /entry/src/main/ets/pages/cookbook/5.82.ets:11:3\n Usage of 'ESObject' type is restricted (arkts-limited-esobj)\n\n",
+                "severity": 1,
+                "reportLine": 11,
+                "reportColumn": 3,
+                "description": "Usage of 'ESObject' type is restricted (arkts-limited-esobj)"
+            },
+            {
+                "origin": "WARN: ArkTS:WARN File: /entry/src/main/ets/pages/cookbook/5.82.ets:12:3\n Usage of 'ESObject' type is restricted (arkts-limited-esobj)\n\n",
+                "severity": 1,
+                "reportLine": 12,
+                "reportColumn": 3,
+                "description": "Usage of 'ESObject' type is restricted (arkts-limited-esobj)"
+            },
+            {
+                "origin": "WARN: ArkTS:WARN File: /entry/src/main/ets/pages/cookbook/5.82.ets:13:3\n Usage of 'ESObject' type is restricted (arkts-limited-esobj)\n\nWARN: ArkTS:WARN: For details about ArkTS syntax errors, see FAQs\n",
+                "severity": 1,
+                "reportLine": 13,
+                "reportColumn": 3,
+                "description": "Usage of 'ESObject' type is restricted (arkts-limited-esobj)\n\nWARN: ArkTS:WARN: For details about ArkTS syntax errors, see FAQs"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.82.ets:15:7\n Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)\n\n",
+                "severity": 2,
+                "reportLine": 15,
+                "reportColumn": 7,
+                "description": "Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)"
+            }
+        ]
+    }
+}

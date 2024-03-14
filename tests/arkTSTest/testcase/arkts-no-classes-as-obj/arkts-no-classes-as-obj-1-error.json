@@ -1,16 +1,34 @@
-[
-  {
-    "messageText": "arkts-no-type-query",
-    "expectLineAndCharacter": {
-      "line": 30,
-      "character": 20
+{
+  "arktsVersion_1_0": [
+    {
+      "messageText": "\"typeof\" operator is allowed only in expression contexts (arkts-no-type-query)",
+      "expectLineAndCharacter": {
+        "line": 30,
+        "character": 20
+      }
+    },
+    {
+      "messageText": "Classes cannot be used as objects (arkts-no-classes-as-obj)",
+      "expectLineAndCharacter": {
+        "line": 30,
+        "character": 36
+      }
     }
-  },
-  {
-    "messageText": "arkts-no-classes-as-obj",
-    "expectLineAndCharacter": {
-      "line": 30,
-      "character": 36
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "\"typeof\" operator is allowed only in expression contexts (arkts-no-type-query)",
+      "expectLineAndCharacter": {
+        "line": 30,
+        "character": 20
+      }
+    },
+    {
+      "messageText": "Classes cannot be used as objects (arkts-no-classes-as-obj)",
+      "expectLineAndCharacter": {
+        "line": 30,
+        "character": 36
+      }
     }
-  }
-]
+  ]
+}

@@ -9,6 +9,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "typescript": "npm:ohos-typescript@4.9.5-r1"
+    "typescript": "file:../../ohos-typescript-4.9.5-r4.tgz"
   }
 }

@@ -1,9 +1,20 @@
-[
-  {
-    "messageText": "arkts-no-destruct-params",
-    "expectLineAndCharacter": {
-      "line": 23,
-      "character": 12
+{
+  "arktsVersion_1_0": [
+    {
+      "messageText": "Destructuring parameter declarations are not supported (arkts-no-destruct-params)",
+      "expectLineAndCharacter": {
+        "line": 23,
+        "character": 12
+      }
     }
-  }
-]
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Destructuring parameter declarations are not supported (arkts-no-destruct-params)",
+      "expectLineAndCharacter": {
+        "line": 23,
+        "character": 12
+      }
+    }
+  ]
+}

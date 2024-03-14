@@ -1,0 +1,14 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cookbook/5.40.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.40.ets:2:12\n \"for .. in\" is not supported (arkts-no-for-in)\n\n",
+                "severity": 2,
+                "reportLine": 2,
+                "reportColumn": 12,
+                "description": "\"for .. in\" is not supported (arkts-no-for-in)"
+            }
+        ]
+    }
+}

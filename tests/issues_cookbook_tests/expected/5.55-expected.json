@@ -1,0 +1,28 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cookbook/5.55.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.55.ets:4:3\n Enumeration members can be initialized only with compile time expressions of the same type (arkts-no-enum-mixed-types)\n\n",
+                "severity": 2,
+                "reportLine": 4,
+                "reportColumn": 3,
+                "description": "Enumeration members can be initialized only with compile time expressions of the same type (arkts-no-enum-mixed-types)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.55.ets:10:3\n Enumeration members can be initialized only with compile time expressions of the same type (arkts-no-enum-mixed-types)\n\n",
+                "severity": 2,
+                "reportLine": 10,
+                "reportColumn": 3,
+                "description": "Enumeration members can be initialized only with compile time expressions of the same type (arkts-no-enum-mixed-types)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.55.ets:12:3\n Enumeration members can be initialized only with compile time expressions of the same type (arkts-no-enum-mixed-types)\n\n",
+                "severity": 2,
+                "reportLine": 12,
+                "reportColumn": 3,
+                "description": "Enumeration members can be initialized only with compile time expressions of the same type (arkts-no-enum-mixed-types)"
+            }
+        ]
+    }
+}

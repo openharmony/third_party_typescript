@@ -1,16 +1,34 @@
-[
-  {
-    "messageText": "arkts-no-indexed-signatures",
-    "expectLineAndCharacter": {
-      "line": 19,
-      "character": 3
+{
+  "arktsVersion_1_0": [
+    {
+      "messageText": "Indexed signatures are not supported (arkts-no-indexed-signatures)",
+      "expectLineAndCharacter": {
+        "line": 19,
+        "character": 3
+      }
+    },
+    {
+      "messageText": "Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)",
+      "expectLineAndCharacter": {
+        "line": 21,
+        "character": 30
+      }
     }
-  },
-  {
-    "messageText": "arkts-no-untyped-obj-literals",
-    "expectLineAndCharacter": {
-      "line": 21,
-      "character": 30
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Indexed signatures are not supported (arkts-no-indexed-signatures)",
+      "expectLineAndCharacter": {
+        "line": 19,
+        "character": 3
+      }
+    },
+    {
+      "messageText": "Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)",
+      "expectLineAndCharacter": {
+        "line": 21,
+        "character": 30
+      }
     }
-  }
-]
+  ]
+}

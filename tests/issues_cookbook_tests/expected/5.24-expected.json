@@ -1,0 +1,14 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cookbook/5.24.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.24.ets:1:9\n Use arrow functions instead of function expressions (arkts-no-func-expressions)\n\n",
+                "severity": 2,
+                "reportLine": 1,
+                "reportColumn": 9,
+                "description": "Use arrow functions instead of function expressions (arkts-no-func-expressions)"
+            }
+        ]
+    }
+}

@@ -1,0 +1,28 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cookbook/5.2.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.2.ets:2:13\n \"Symbol()\" API is not supported (arkts-no-symbol)\n\n",
+                "severity": 2,
+                "reportLine": 2,
+                "reportColumn": 13,
+                "description": "\"Symbol()\" API is not supported (arkts-no-symbol)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.2.ets:3:10\n Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)\n\n",
+                "severity": 2,
+                "reportLine": 3,
+                "reportColumn": 10,
+                "description": "Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.2.ets:4:3\n Objects with property names that are not identifiers are not supported (arkts-identifiers-as-prop-names)\n\n",
+                "severity": 2,
+                "reportLine": 4,
+                "reportColumn": 3,
+                "description": "Objects with property names that are not identifiers are not supported (arkts-identifiers-as-prop-names)"
+            }
+        ]
+    }
+}

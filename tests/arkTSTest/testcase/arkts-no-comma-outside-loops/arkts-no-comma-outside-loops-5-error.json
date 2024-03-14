@@ -1,10 +1,20 @@
-[
+{
+  "arktsVersion_1_0": [
     {
-      "messageText": "arkts-no-comma-outside-loops",
+      "messageText": "The comma operator \",\" is supported only in \"for\" loops (arkts-no-comma-outside-loops)",
+      "expectLineAndCharacter": {
+        "line": 17,
+        "character": 19
+      }
+    }
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "The comma operator \",\" is supported only in \"for\" loops (arkts-no-comma-outside-loops)",
       "expectLineAndCharacter": {
         "line": 17,
         "character": 19
       }
     }
   ]
-  
+}

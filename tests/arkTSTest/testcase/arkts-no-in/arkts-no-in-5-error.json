@@ -1,10 +1,20 @@
-[
+{
+  "arktsVersion_1_0": [
     {
-      "messageText": "arkts-no-in",
+      "messageText": "\"in\" operator is not supported (arkts-no-in)",
+      "expectLineAndCharacter": {
+        "line": 22,
+        "character": 19
+      }
+    }
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "\"in\" operator is not supported (arkts-no-in)",
       "expectLineAndCharacter": {
         "line": 22,
         "character": 19
       }
     }
   ]
-  
+}

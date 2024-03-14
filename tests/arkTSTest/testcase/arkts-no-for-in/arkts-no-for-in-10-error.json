@@ -1,18 +1,34 @@
-[
-  {
-    "realStart": 760,
-    "messageText": "arkts-no-for-in",
-    "expectLineAndCharacter": {
-      "line": 24,
-      "character": 3
+{
+  "arktsVersion_1_0": [
+    {
+      "messageText": "\"for .. in\" is not supported (arkts-no-for-in)",
+      "expectLineAndCharacter": {
+        "line": 24,
+        "character": 3
+      }
+    },
+    {
+      "messageText": "Indexed access is not supported for fields (arkts-no-props-by-index)",
+      "expectLineAndCharacter": {
+        "line": 25,
+        "character": 23
+      }
     }
-  },
-  {
-    "realStart": 815,
-    "messageText": "arkts-no-props-by-index",
-    "expectLineAndCharacter": {
-      "line": 25,
-      "character": 23
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "\"for .. in\" is not supported (arkts-no-for-in)",
+      "expectLineAndCharacter": {
+        "line": 24,
+        "character": 19
+      }
+    },
+    {
+      "messageText": "Indexed access is not supported for fields (arkts-no-props-by-index)",
+      "expectLineAndCharacter": {
+        "line": 25,
+        "character": 23
+      }
     }
-  }
-]
+  ]
+}

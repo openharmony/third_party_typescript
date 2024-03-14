@@ -1,23 +1,48 @@
-[
-  {
-    "messageText": "arkts-no-polymorphic-unops",
-    "expectLineAndCharacter": {
-      "line": 19,
-      "character": 33
+{
+  "arktsVersion_1_0": [
+    {
+      "messageText": "Unary operators \"+\", \"-\" and \"~\" work only on numbers (arkts-no-polymorphic-unops)",
+      "expectLineAndCharacter": {
+        "line": 19,
+        "character": 33
+      }
+    },
+    {
+      "messageText": "Unary operators \"+\", \"-\" and \"~\" work only on numbers (arkts-no-polymorphic-unops)",
+      "expectLineAndCharacter": {
+        "line": 20,
+        "character": 33
+      }
+    },
+    {
+      "messageText": "Unary operators \"+\", \"-\" and \"~\" work only on numbers (arkts-no-polymorphic-unops)",
+      "expectLineAndCharacter": {
+        "line": 21,
+        "character": 33
+      }
     }
-  },
-  {
-    "messageText": "arkts-no-polymorphic-unops",
-    "expectLineAndCharacter": {
-      "line": 20,
-      "character": 33
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Unary operators \"+\", \"-\" and \"~\" work only on numbers (arkts-no-polymorphic-unops)",
+      "expectLineAndCharacter": {
+        "line": 19,
+        "character": 33
+      }
+    },
+    {
+      "messageText": "Unary operators \"+\", \"-\" and \"~\" work only on numbers (arkts-no-polymorphic-unops)",
+      "expectLineAndCharacter": {
+        "line": 20,
+        "character": 33
+      }
+    },
+    {
+      "messageText": "Unary operators \"+\", \"-\" and \"~\" work only on numbers (arkts-no-polymorphic-unops)",
+      "expectLineAndCharacter": {
+        "line": 21,
+        "character": 33
+      }
     }
-  },
-  {
-    "messageText": "arkts-no-polymorphic-unops",
-    "expectLineAndCharacter": {
-      "line": 21,
-      "character": 33
-    }
-  }
-]
+  ]
+}

@@ -1,0 +1,49 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cookbook/5.36.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.36.ets:1:5\n Destructuring variable declarations are not supported (arkts-no-destruct-decls)\n\n",
+                "severity": 2,
+                "reportLine": 1,
+                "reportColumn": 5,
+                "description": "Destructuring variable declarations are not supported (arkts-no-destruct-decls)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.36.ets:2:1\n Destructuring assignment is not supported (arkts-no-destruct-assignment)\n\n",
+                "severity": 2,
+                "reportLine": 2,
+                "reportColumn": 1,
+                "description": "Destructuring assignment is not supported (arkts-no-destruct-assignment)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.36.ets:4:5\n Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)\n\n",
+                "severity": 2,
+                "reportLine": 4,
+                "reportColumn": 5,
+                "description": "Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.36.ets:4:11\n Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)\n\n",
+                "severity": 2,
+                "reportLine": 4,
+                "reportColumn": 11,
+                "description": "Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.36.ets:5:1\n Destructuring assignment is not supported (arkts-no-destruct-assignment)\n\n",
+                "severity": 2,
+                "reportLine": 5,
+                "reportColumn": 1,
+                "description": "Destructuring assignment is not supported (arkts-no-destruct-assignment)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.36.ets:5:8\n It is possible to spread only arrays or classes derived from arrays into the rest parameter or array literals (arkts-no-spread)\n\n",
+                "severity": 2,
+                "reportLine": 5,
+                "reportColumn": 8,
+                "description": "It is possible to spread only arrays or classes derived from arrays into the rest parameter or array literals (arkts-no-spread)"
+            }
+        ]
+    }
+}

@@ -1,0 +1,14 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cookbook/5.37.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.37.ets:6:7\n The comma operator \",\" is supported only in \"for\" loops (arkts-no-comma-outside-loops)\n\n",
+                "severity": 2,
+                "reportLine": 6,
+                "reportColumn": 7,
+                "description": "The comma operator \",\" is supported only in \"for\" loops (arkts-no-comma-outside-loops)"
+            }
+        ]
+    }
+}

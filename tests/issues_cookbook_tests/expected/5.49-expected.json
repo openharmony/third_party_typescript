@@ -1,0 +1,63 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cookbook/5.49.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.49.ets:11:21\n Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)\n\n",
+                "severity": 2,
+                "reportLine": 11,
+                "reportColumn": 21,
+                "description": "Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.49.ets:11:27\n Type guarding is supported with \"instanceof\" and \"as\" (arkts-no-is)\n\n",
+                "severity": 2,
+                "reportLine": 11,
+                "reportColumn": 27,
+                "description": "Type guarding is supported with \"instanceof\" and \"as\" (arkts-no-is)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.49.ets:18:21\n Property 'bar' does not exist on type 'Foo'.\n\n",
+                "severity": 2,
+                "reportLine": 18,
+                "reportColumn": 21,
+                "description": "Property 'bar' does not exist on type 'Foo'."
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.49.ets:20:21\n Property 'foo' does not exist on type 'Bar'.\n\n",
+                "severity": 2,
+                "reportLine": 20,
+                "reportColumn": 21,
+                "description": "Property 'foo' does not exist on type 'Bar'."
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.49.ets:25:11\n Type 'number' is not assignable to type 'string'.\n\n",
+                "severity": 2,
+                "reportLine": 25,
+                "reportColumn": 11,
+                "description": "Type 'number' is not assignable to type 'string'."
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.49.ets:26:11\n Type 'number' is not assignable to type 'string'.\n\n",
+                "severity": 2,
+                "reportLine": 26,
+                "reportColumn": 11,
+                "description": "Type 'number' is not assignable to type 'string'."
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.49.ets:48:21\n Property 'bar' does not exist on type 'Object'.\n\n",
+                "severity": 2,
+                "reportLine": 48,
+                "reportColumn": 21,
+                "description": "Property 'bar' does not exist on type 'Object'."
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.49.ets:51:21\n Property 'foo' does not exist on type 'Object'.\n\n",
+                "severity": 2,
+                "reportLine": 51,
+                "reportColumn": 21,
+                "description": "Property 'foo' does not exist on type 'Object'."
+            }
+        ]
+    }
+}

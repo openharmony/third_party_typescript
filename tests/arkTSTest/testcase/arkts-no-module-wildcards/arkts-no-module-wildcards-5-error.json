@@ -1,59 +1,118 @@
-[
+{
+  "arktsVersion_1_0": [
     {
-      "messageText": "arkts-no-ns-statements",
+      "messageText": "Non-declaration statements in namespaces are not supported (single semicolons are considered as empty non-delcaration statements) (arkts-no-ns-statements)",
       "expectLineAndCharacter": {
         "line": 18,
         "character": 30
       }
     },
-
     {
-      "messageText": "arkts-no-ns-statements",
+      "messageText": "Non-declaration statements in namespaces are not supported (single semicolons are considered as empty non-delcaration statements) (arkts-no-ns-statements)",
       "expectLineAndCharacter": {
         "line": 18,
         "character": 41
       }
     },
     {
-      "messageText": "arkts-no-ns-statements",
+      "messageText": "Non-declaration statements in namespaces are not supported (single semicolons are considered as empty non-delcaration statements) (arkts-no-ns-statements)",
       "expectLineAndCharacter": {
         "line": 18,
         "character": 50
       }
     },
     {
-      "messageText": "arkts-no-ambient-decls",
+      "messageText": "Ambient module declaration is not supported (arkts-no-ambient-decls)",
       "expectLineAndCharacter": {
         "line": 17,
         "character": 1
       }
     },
     {
-      "messageText": "arkts-no-module-wildcard",
+      "messageText": "Wildcards in module names are not supported (arkts-no-module-wildcards)",
       "expectLineAndCharacter": {
         "line": 17,
         "character": 1
       }
     },
     {
-      "messageText": "arkts-no-implicit-return-types",
+      "messageText": "Function return type inference is limited (arkts-no-implicit-return-types)",
       "expectLineAndCharacter": {
         "line": 18,
         "character": 3
       }
     },
     {
-      "messageText": "arkts-no-untyped-obj-literals",
+      "messageText": "Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)",
       "expectLineAndCharacter": {
         "line": 18,
         "character": 55
       }
     },
     {
-      "messageText": "arkts-no-misplaced-imports",
+      "messageText": "\"import\" statements after other statements are not allowed (arkts-no-misplaced-imports)",
+      "expectLineAndCharacter": {
+        "line": 23,
+        "character": 1
+      }
+    }
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Non-declaration statements in namespaces are not supported (single semicolons are considered as empty non-delcaration statements) (arkts-no-ns-statements)",
+      "expectLineAndCharacter": {
+        "line": 18,
+        "character": 30
+      }
+    },
+    {
+      "messageText": "Non-declaration statements in namespaces are not supported (single semicolons are considered as empty non-delcaration statements) (arkts-no-ns-statements)",
+      "expectLineAndCharacter": {
+        "line": 18,
+        "character": 41
+      }
+    },
+    {
+      "messageText": "Non-declaration statements in namespaces are not supported (single semicolons are considered as empty non-delcaration statements) (arkts-no-ns-statements)",
+      "expectLineAndCharacter": {
+        "line": 18,
+        "character": 50
+      }
+    },
+    {
+      "messageText": "Ambient module declaration is not supported (arkts-no-ambient-decls)",
+      "expectLineAndCharacter": {
+        "line": 17,
+        "character": 1
+      }
+    },
+    {
+      "messageText": "Wildcards in module names are not supported (arkts-no-module-wildcards)",
+      "expectLineAndCharacter": {
+        "line": 17,
+        "character": 1
+      }
+    },
+    {
+      "messageText": "Function return type inference is limited (arkts-no-implicit-return-types)",
+      "expectLineAndCharacter": {
+        "line": 18,
+        "character": 27
+      }
+    },
+    {
+      "messageText": "Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)",
+      "expectLineAndCharacter": {
+        "line": 18,
+        "character": 55
+      }
+    },
+    {
+      "messageText": "\"import\" statements after other statements are not allowed (arkts-no-misplaced-imports)",
       "expectLineAndCharacter": {
         "line": 23,
         "character": 1
       }
     }
   ]
+}

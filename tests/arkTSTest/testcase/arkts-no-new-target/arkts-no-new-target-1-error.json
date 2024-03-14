@@ -1,16 +1,34 @@
-[
-  {
-    "messageText": "arkts-no-new-target",
-    "expectLineAndCharacter": {
-      "line": 19,
-      "character": 10
+{
+  "arktsVersion_1_0": [
+    {
+      "messageText": "\"new.target\" is not supported (arkts-no-new-target)",
+      "expectLineAndCharacter": {
+        "line": 19,
+        "character": 10
+      }
+    },
+    {
+      "messageText": "\"throw\" statements cannot accept values of arbitrary types (arkts-limited-throw)",
+      "expectLineAndCharacter": {
+        "line": 19,
+        "character": 22
+      }
     }
-  },
-  {
-    "messageText": "arkts-limited-throw",
-    "expectLineAndCharacter": {
-      "line": 19,
-      "character": 22
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "\"new.target\" is not supported (arkts-no-new-target)",
+      "expectLineAndCharacter": {
+        "line": 19,
+        "character": 10
+      }
+    },
+    {
+      "messageText": "\"throw\" statements cannot accept values of arbitrary types (arkts-limited-throw)",
+      "expectLineAndCharacter": {
+        "line": 19,
+        "character": 22
+      }
     }
-  }
-]
+  ]
+}

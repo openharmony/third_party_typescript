@@ -1,0 +1,21 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cases/#14053.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#14053.ets:1:18\n Function return type inference is limited (arkts-no-implicit-return-types)\n\n",
+                "severity": 2,
+                "reportLine": 1,
+                "reportColumn": 18,
+                "description": "Function return type inference is limited (arkts-no-implicit-return-types)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#14053.ets:3:5\n Function return type inference is limited (arkts-no-implicit-return-types)\n\n",
+                "severity": 2,
+                "reportLine": 3,
+                "reportColumn": 5,
+                "description": "Function return type inference is limited (arkts-no-implicit-return-types)"
+            }
+        ]
+    }
+}

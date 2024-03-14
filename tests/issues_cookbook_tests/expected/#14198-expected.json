@@ -1,0 +1,21 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cases/#14198.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#14198.ets:6:12\n Type 'null' is not assignable to type 'number'.\n\n",
+                "severity": 2,
+                "reportLine": 6,
+                "reportColumn": 12,
+                "description": "Type 'null' is not assignable to type 'number'."
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#14198.ets:19:9\n Type 'null' is not assignable to type 'number'.\n\n",
+                "severity": 2,
+                "reportLine": 19,
+                "reportColumn": 9,
+                "description": "Type 'null' is not assignable to type 'number'."
+            }
+        ]
+    }
+}

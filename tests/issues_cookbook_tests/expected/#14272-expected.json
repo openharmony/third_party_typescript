@@ -1,0 +1,21 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cases/#14272.ets",
+        "defects": [
+            {
+                "origin": "WARN: ArkTS:WARN File: /entry/src/main/ets/pages/cases/#14272.ets:4:5\n Definite assignment assertions are not supported (arkts-no-definite-assignment)\n\n",
+                "severity": 1,
+                "reportLine": 4,
+                "reportColumn": 5,
+                "description": "Definite assignment assertions are not supported (arkts-no-definite-assignment)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#14272.ets:14:45\n Argument of type '(number | undefined)[]' is not assignable to parameter of type 'number[]'.\n  Type 'number | undefined' is not assignable to type 'number'.\n    Type 'undefined' is not assignable to type 'number'.\n\n",
+                "severity": 2,
+                "reportLine": 14,
+                "reportColumn": 45,
+                "description": "Argument of type '(number | undefined)[]' is not assignable to parameter of type 'number[]'.\n  Type 'number | undefined' is not assignable to type 'number'.\n    Type 'undefined' is not assignable to type 'number'."
+            }
+        ]
+    }
+}

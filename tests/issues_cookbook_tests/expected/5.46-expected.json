@@ -1,0 +1,14 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cookbook/5.46.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.46.ets:4:3\n Nested functions are not supported (arkts-no-nested-funcs)\n\n",
+                "severity": 2,
+                "reportLine": 4,
+                "reportColumn": 3,
+                "description": "Nested functions are not supported (arkts-no-nested-funcs)"
+            }
+        ]
+    }
+}
