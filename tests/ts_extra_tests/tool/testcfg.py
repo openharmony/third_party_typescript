@@ -119,9 +119,9 @@ class TestCase:
 
     def __get_tsc_cmd(self):
         if platform.system().lower() == 'windows':
-            cmd = ['cmd', '/c', 'tsc', '--target', 'es2020']
+            cmd = ['cmd', '/c', 'tsc', '--target', 'es2021']
         else:
-            cmd = [TestCase.tsc, '--target', 'es2020']
+            cmd = [TestCase.tsc, '--target', 'es2021']
         if self.__is_strict():
             cmd.extend(STRICT_ON)
         else:

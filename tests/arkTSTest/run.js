@@ -112,13 +112,13 @@ Object.assign(options, {
   'module': ts.ModuleKind.CommonJS,
   'moduleResolution': ts.ModuleResolutionKind.NodeJs,
   'noEmit': true,
-  'target': ts.ScriptTarget.ES2017,
+  'target': ts.ScriptTarget.ES2021,
   'baseUrl': "/",
   'paths': {
     '*': allPath
   },
   'lib': [
-    'lib.es2020.d.ts'
+    'lib.es2021.d.ts'
   ],
   'types': [],
   'etsLoaderPath': 'null_sdkPath',
