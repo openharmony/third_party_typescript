@@ -1,3 +1,19 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+#
+# Copyright (c) 2024 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import re
 import json
 import os
@@ -6,14 +22,14 @@ import subprocess
 
 class Utils:
     def run_command(self, cmd, path):
-        result = subprocess.run(cmd, cwd=os.path.abspath(
-            path), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        result = subprocess.run(cmd, cwd=os.path.abspath(path), shell=True,
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         return result
 
     def get_stderr(self, result):
         try:
             return result.stderr.decode()
-        except:
+        except Exception as e:
             return result.stderr.decode('gbk')
 
     def remove_ansi_colors(self, text):
@@ -58,31 +74,6 @@ class SDKLinterTest:
 
         print('=' * 60)
         self.build_info = self.utils.remove_ansi_colors(log).split('\r\n')
-
-    def _split_errors_list(self):
-        lines = self.build_info
-        idx_list = []
-        start_end = []
-        for idx, line in enumerate(lines):
-            if 'ArkTS:ERROR File' in line or 'ArkTS:WARN File' in line:
-                idx_list.append(idx)
-            elif 'COMPILE RESULT:FAIL' in line:
-                idx_list.append(idx)
-            lines[idx] = lines[idx]
-        errors = []
-        for i in range(len(idx_list) - 1):
-            start, end = idx_list[i], idx_list[i + 1]
-            errors.append('\n'.join(lines[start:end]) + '\n')
-        return errors
-
-    def _get_filepath(self, error):
-        file_path = re.findall(self.project_path + '/(.*?):', error)
-        file_path = file_path[0] if file_path else ''
-        if file_path == '':
-            error = error.replace('\\', '/')
-            file_path = re.findall(self.project_path + '/(.*?):', error)
-            file_path = file_path[0] if file_path else ''
-        return file_path
 
     def open_output(self):
         self.get_sdk_result()
@@ -137,11 +128,6 @@ class SDKLinterTest:
                             })
         return empty_data
 
-    def _data_sort(self):
-        for i in self.data:
-            i['defects'].sort(key=lambda x: (
-                x['reportLine'], x['reportColumn'], -x['severity'], x['origin']))
-
     def update(self):
         self._data_sort()
         for i in self.data:
@@ -151,19 +137,10 @@ class SDKLinterTest:
             if os.path.exists(file_path) and os.path.isfile(file_path):
                 with open(file_path) as f:
                     read_data = json.load(f)
-            with open(file_path, 'w') as f:
+            with open(file_path, 'w', encoding='utf-8') as f:
                 read_data['sdklinter'] = i
                 json.dump(read_data, f, indent=4)
         print('update done!')
-
-    def _load_expected_files(self):
-        expected_dicts = []
-        for root, dirs, files in os.walk(self.expected_path):
-            for file in files:
-                with open(os.path.join(root, file), 'r') as f:
-                    expected_dict = json.load(f)
-                    expected_dicts.append(expected_dict['sdklinter'])
-        return expected_dicts
 
     def verify(self):
         self._data_sort()
@@ -187,3 +164,42 @@ class SDKLinterTest:
                 print('=' * 60)
                 once = True
             print(*i)
+
+    def _split_errors_list(self):
+        lines = self.build_info
+        idx_list = []
+        start_end = []
+        for idx, line in enumerate(lines):
+            if 'ArkTS:ERROR File' in line or 'ArkTS:WARN File' in line:
+                idx_list.append(idx)
+            elif 'COMPILE RESULT:FAIL' in line:
+                idx_list.append(idx)
+            lines[idx] = lines[idx]
+        errors = []
+        for i in range(len(idx_list) - 1):
+            start, end = idx_list[i], idx_list[i + 1]
+            errors.append('\n'.join(lines[start:end]) + '\n')
+        return errors
+
+    def _get_filepath(self, error):
+        file_path = re.findall(self.project_path + '/(.*?):', error)
+        file_path = file_path[0] if file_path else ''
+        if file_path == '':
+            error = error.replace('\\', '/')
+            file_path = re.findall(self.project_path + '/(.*?):', error)
+            file_path = file_path[0] if file_path else ''
+        return file_path
+
+    def _load_expected_files(self):
+        expected_dicts = []
+        for root, dirs, files in os.walk(self.expected_path):
+            for file in files:
+                with open(os.path.join(root, file), 'r') as f:
+                    expected_dict = json.load(f)
+                    expected_dicts.append(expected_dict['sdklinter'])
+        return expected_dicts
+
+    def _data_sort(self):
+        for i in self.data:
+            i['defects'].sort(key=lambda x: (
+                x['reportLine'], x['reportColumn'], -x['severity'], x['origin']))
