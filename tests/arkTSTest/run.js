@@ -21,7 +21,11 @@ const fs = require('fs')
 
 const ignoreCaseFilePath= path.join(__dirname, "ignorecase.json")
 const compResults = {"detail":{}, 'failNum':0, "passedNum":0}
-let consoleDetail = false, ignoreList = [], failTestCaseList = [], genResultFile = false, arktsVersion = "1.1";
+let consoleDetail = false;
+let ignoreList = [];
+let failTestCaseList = [];
+let genResultFile = false;
+let arktsVersion = '1.1';
 // Traverse the directory to find all test cases
 function getAllETSFiles(filePath) {
   let allFilePaths = [];
@@ -69,15 +73,15 @@ function forceUpdateExpected(expect, reality, jsonFile) {
   for (let i = 0; i < reality.length; i++) {
     const realErrorItem = reality[i];
     const { line, character } = realErrorItem.file.getLineAndCharacterOfPosition(realErrorItem.start);
-    const realLine = { "line": line + 1, "character": character + 1 };
-    const realMessageText = typeof (realErrorItem.messageText) == "string" ? realErrorItem.messageText : realErrorItem.messageText.messageText;
+    const realLine = { 'line': line + 1, 'character': character + 1 };
+    const realMessageText = typeof (realErrorItem.messageText) === 'string' ? realErrorItem.messageText : realErrorItem.messageText.messageText;
     let data = {
       messageText: realMessageText,
       expectLineAndCharacter: realLine
-    }
+    };
     updateArray.push(data);
   }
-  if (arktsVersion === "1.0") {
+  if (arktsVersion === '1.0') {
     expect.arktsVersion_1_0 = updateArray;
   } else {
     expect.arktsVersion_1_1 = updateArray;
@@ -99,12 +103,12 @@ function loadPares(jsonFile, result, currentFilePath, file){
   dataStr = fs.readFileSync(jsonFile, "utf-8")
   const expect = JSON.parse(dataStr)
   // if need update expected files, insert forceUpdateExpected(expect, result, jsonFile) here.
-  let expect_by_version = arktsVersion === "1.0" ? expect.arktsVersion_1_0 : expect.arktsVersion_1_1;
-  if (expect_by_version === undefined) {
-    expect_by_version = []
+  let expectByVersion = arktsVersion === '1.0' ? expect.arktsVersion_1_0 : expect.arktsVersion_1_1;
+  if (expectByVersion === undefined) {
+    expectByVersion = [];
   }
   
-  const compResult = compareResult(expect_by_version, result)
+  const compResult = compareResult(expectByVersion, result);
   compResult["testCaseName"] = testCaseFileName
   if (compResults["detail"].hasOwnProperty(rules)){
     compResults["detail"][rules]["detail"].push(compResult)
@@ -193,7 +197,7 @@ function runLinter(rootName) {
     getSyntacticDiagnostics(sourceFile) {
       return this.program.getSyntacticDiagnostics(sourceFile);
     }
-  }
+  };
   reverseStrictBuilderProgram = {
     program: newStrictProgram,
     getProgram() { return this.program; },
@@ -206,17 +210,17 @@ function runLinter(rootName) {
     getSyntacticDiagnostics(sourceFile) {
       return this.program.getSyntacticDiagnostics(sourceFile);
     }
-  }
+  };
   originProgram = {
     builderProgram: builderProgram,
     wasStrict: !WAS_STRICT
-  }
+  };
   reverseStrictProgram = {
     builderProgram: reverseStrictBuilderProgram,
     wasStrict: WAS_STRICT
-  }
+  };
 
-  let result = arktsVersion == "1.0" ? ts.ArkTSLinter_1_0.runArkTSLinter(originProgram, reverseStrictProgram) : ts.ArkTSLinter_1_1.runArkTSLinter(originProgram, reverseStrictProgram);
+  let result = arktsVersion === '1.0' ? ts.ArkTSLinter_1_0.runArkTSLinter(originProgram, reverseStrictProgram) : ts.ArkTSLinter_1_1.runArkTSLinter(originProgram, reverseStrictProgram);
   return result;
 }
 
@@ -262,7 +266,7 @@ function compareResult(expect, reality){
             const realErrorItem = reality[i]
             const { line, character } = realErrorItem.file.getLineAndCharacterOfPosition(realErrorItem.start)
             const realLine = {"line": line + 1,"character": character + 1}
-            const realMessageText = typeof (realErrorItem.messageText) == "string" ? realErrorItem.messageText : realErrorItem.messageText.messageText
+            const realMessageText = typeof (realErrorItem.messageText) === 'string' ? realErrorItem.messageText : realErrorItem.messageText.messageText;
             let expectMessageText = null
             let compResult = false
             let expectLineAndCharacter = {"line": null,"character": null}
@@ -272,8 +276,8 @@ function compareResult(expect, reality){
               expectErrorItem = expect[i]
               expectLineAndCharacter = {"line": expectErrorItem.expectLineAndCharacter.line,"character": expectErrorItem.expectLineAndCharacter.character}
               expectMessageText = expectErrorItem.messageText
-              if ((expectErrorItem.expectLineAndCharacter.line === realLine.line && expectErrorItem.expectLineAndCharacter.character === realLine.character)
-                && realMessageText === expectMessageText) {
+              if ((expectErrorItem.expectLineAndCharacter.line === realLine.line && expectErrorItem.expectLineAndCharacter.character === realLine.character) &&
+                realMessageText === expectMessageText) {
                 compResult = true
               }
             }
@@ -301,9 +305,9 @@ function compareResult(expect, reality){
               const realErrorItem = reality[i]
               const { line, character } = realErrorItem.file.getLineAndCharacterOfPosition(realErrorItem.start)
               realLine = {"line": line + 1,"character": character + 1}
-              realMessageText = typeof (realErrorItem.messageText) == "string" ? realErrorItem.messageText : realErrorItem.messageText.messageText
-              if ((expectErrorItem.expectLineAndCharacter.line === realLine.line && expectErrorItem.expectLineAndCharacter.character === realLine.character)
-                && realMessageText === expectMessageText) {
+              realMessageText = typeof (realErrorItem.messageText) === 'string' ? realErrorItem.messageText : realErrorItem.messageText.messageText;
+              if ((expectErrorItem.expectLineAndCharacter.line === realLine.line && expectErrorItem.expectLineAndCharacter.character === realLine.character) &&
+                realMessageText === expectMessageText) {
                 compResult = true
               }
             }
@@ -324,10 +328,10 @@ function compareResult(expect, reality){
               let expectLineAndCharacter = {"line": expectErrorItem.expectLineAndCharacter.line,"character": expectErrorItem.expectLineAndCharacter.character}
               const { line, character } = realErrorItem.file.getLineAndCharacterOfPosition(realErrorItem.start)
               const realLine = {"line": line + 1,"character": character + 1}
-              const realMessageText = typeof (realErrorItem.messageText) == "string" ? realErrorItem.messageText : realErrorItem.messageText.messageText
+              const realMessageText = typeof (realErrorItem.messageText) === 'string' ? realErrorItem.messageText : realErrorItem.messageText.messageText;
               let compInfo = null; compResult = false
-              if ((expectErrorItem.expectLineAndCharacter.line === realLine.line && expectErrorItem.expectLineAndCharacter.character === realLine.character)
-                && realMessageText === expectMessageText) {
+              if ((expectErrorItem.expectLineAndCharacter.line === realLine.line && expectErrorItem.expectLineAndCharacter.character === realLine.character) &&
+                realMessageText === expectMessageText) {
                 compResult = true
               }else{
                 isPass = false
@@ -419,11 +423,11 @@ function getParam(){
       let ignoreStr = key.replace("--ignore-list:", "")
       ignoreList = ignoreStr.split(",")
     }
-    if (key === "-v1.0") {
-      arktsVersion = "1.0"
+    if (key === '-v1.0') {
+      arktsVersion = '1.0';
     }
-    if (key === "-v1.1") {
-      arktsVersion = "1.1"
+    if (key === '-v1.1') {
+      arktsVersion = '1.1';
     }
   }
   return pathArg
