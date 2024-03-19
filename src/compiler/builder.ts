@@ -796,7 +796,9 @@ namespace ts {
             if (newCache) {
                 let oldCache = state.constEnumRelatePerFile.get(path);
                 if (!oldCache) {
-                    state.constEnumRelatePerFile.set(path, {isUpdate: true, cache: newCache});
+                    if (newCache.size > 0) {
+                        state.constEnumRelatePerFile.set(path, {isUpdate: true, cache: newCache});
+                    }
                 } else {
                     let isEqual = true;
                     if (oldCache.cache.size !== newCache.size) { isEqual = false; }
