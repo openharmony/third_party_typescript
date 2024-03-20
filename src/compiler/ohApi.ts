@@ -756,7 +756,6 @@ namespace ts {
         function writeLine(force?: boolean) {
             if (!lineStart || force) {
                 output += space;
-                linePos = output.length;
             }
         }
 
@@ -776,7 +775,7 @@ namespace ts {
             getIndent: () => 0,
             getTextPos: () => output.length,
             getLine: () => 0,
-            getColumn: () => lineStart ? 0 : output.length - linePos,
+            getColumn: () => lineStart ? 0 : output.length,
             getText: () => output,
             isAtStartOfLine: () => lineStart,
             hasTrailingComment: () => false,
