@@ -39,6 +39,15 @@ export function runArkTSLinter(tsBuilderProgram: ArkTSProgram, reverseStrictBuil
 
   LinterConfig.initStatic();
 
+  // Retrieve list of changed files from the old program state. This needs
+  // to be done before re-evaluating program diagnostics through the call
+  // 'tscDiagnosticsLinter.doAllGetDiagnostics()' below, as it will update
+  // program state, clearing the changedFiles list.
+  let programState = tsBuilderProgram.builderProgram.getState();
+  const oldDiagnostics = programState.arktsLinterDiagnosticsPerFile;
+  programState.arktsLinterDiagnosticsPerFile = new Map();
+  const changedFiles = collectChangedFilesFromProgramState(programState);
+
   const tscDiagnosticsLinter = new TSCCompiledProgram(tsBuilderProgram, reverseStrictBuilderProgram);
   const strictProgram = tscDiagnosticsLinter.getStrictProgram();
   
@@ -55,14 +64,8 @@ export function runArkTSLinter(tsBuilderProgram: ArkTSProgram, reverseStrictBuil
     srcFiles = strictProgram.getSourceFiles() as SourceFile[];
   }
 
-  const tscStrictDiagnostics = getTscDiagnostics(tscDiagnosticsLinter, srcFiles);
+  const tscStrictDiagnostics = getTscDiagnostics(tscDiagnosticsLinter, srcFiles.filter(file => changedFiles.has(file.resolvedPath)));
   timePrinterInstance.appendTime(ts.TimePhase.GET_TSC_DIAGNOSTICS);
-
-  if (!!buildInfoWriteFile) {
-    tscDiagnosticsLinter.getStrictBuilderProgram().emitBuildInfo(buildInfoWriteFile);
-    tscDiagnosticsLinter.getNonStrictBuilderProgram().emitBuildInfo(buildInfoWriteFile);
-    timePrinterInstance.appendTime(ts.TimePhase.EMIT_BUILD_INFO)
-  }
 
   TypeScriptLinter.initGlobals();
 
@@ -72,20 +75,38 @@ export function runArkTSLinter(tsBuilderProgram: ArkTSProgram, reverseStrictBuil
       continue;
     }
 
-    const linter = new TypeScriptLinter(fileToLint, strictProgram, tscStrictDiagnostics);
-    Utils.setTypeChecker(TypeScriptLinter.tsTypeChecker);
-    linter.lint();
+    let currentDiagnostics: Diagnostic[];
+    if (changedFiles.has(fileToLint.resolvedPath)) {
+      const linter = new TypeScriptLinter(fileToLint, strictProgram, tscStrictDiagnostics);
+      Utils.setTypeChecker(TypeScriptLinter.tsTypeChecker);
+      linter.lint();
 
-    // Get list of bad nodes from the current run.
-    const currentDiagnostics = tscStrictDiagnostics.get(fileToLint.fileName) ?? [];
-    TypeScriptLinter.problemsInfos.forEach(
-      (x) => currentDiagnostics.push(translateDiag(fileToLint, x))
-    );
+      // Get list of bad nodes from the current run.
+      currentDiagnostics = tscStrictDiagnostics.get(fileToLint.fileName) ?? [];
+      TypeScriptLinter.problemsInfos.forEach(
+        (x) => currentDiagnostics.push(translateDiag(fileToLint, x))
+      );
+    } else {
+      // Get diagnostics from old run.
+      currentDiagnostics = (oldDiagnostics?.get(fileToLint.resolvedPath) as Diagnostic[]) ?? [];
+    }
     diagnostics.push(...currentDiagnostics);
+
+    // Add linter diagnostics to new cache.
+    programState.arktsLinterDiagnosticsPerFile.set(fileToLint.resolvedPath, currentDiagnostics)
+  }
+
+  timePrinterInstance.appendTime(ts.TimePhase.LINT);
+
+  // Write tsbuildinfo file only after we cached the linter diagnostics.
+  if (!!buildInfoWriteFile) {
+    tscDiagnosticsLinter.getStrictBuilderProgram().emitBuildInfo(buildInfoWriteFile);
+    tscDiagnosticsLinter.getNonStrictBuilderProgram().emitBuildInfo(buildInfoWriteFile);
+    timePrinterInstance.appendTime(ts.TimePhase.EMIT_BUILD_INFO)
   }
 
   releaseReferences();
-  timePrinterInstance.appendTime(ts.TimePhase.LINT);
+
   return diagnostics;
 }
 
@@ -94,6 +115,23 @@ function releaseReferences(): void {
   TypeScriptLinter.clearTsTypeChecker();
   Utils.clearTypeChecker();
   Utils.clearTrueSymbolAtLocationCache();
+}
+
+function collectChangedFilesFromProgramState(state: ReusableBuilderProgramState): Set<Path> {
+  if (!state.referencedMap) return new Set<Path>(state.changedFilesSet);
+
+  const seenPaths = new Set<Path>();
+  const queue = state.changedFilesSet ? arrayFrom(state.changedFilesSet.keys()) : [];
+  while (queue.length) {
+    const path = queue.pop()!;
+    if (!seenPaths.has(path)) {
+      seenPaths.add(path);
+
+      // Collect all files that import this file
+      queue.push(...BuilderState.getReferencedByPaths(state, path));
+    }
+  }
+  return seenPaths;
 }
 
 /**

@@ -31,6 +31,10 @@ namespace ts {
          */
         semanticDiagnosticsPerFile?: ESMap<Path, readonly ReusableDiagnostic[] | readonly Diagnostic[]> | undefined;
         /**
+         * Cache of ArkTS linter diagnostics for files with their Path being the key
+         */
+        arktsLinterDiagnosticsPerFile?: ESMap<Path, readonly ReusableDiagnostic[] | readonly Diagnostic[]> | undefined;
+        /**
          * The map has key by source file's path that has been changed
          */
         changedFilesSet?: Set<Path>;
@@ -90,6 +94,10 @@ namespace ts {
          * Cache of bind and check diagnostics for files with their Path being the key
          */
         semanticDiagnosticsPerFile: ESMap<Path, readonly Diagnostic[]> | undefined;
+        /**
+         * Cache of ArkTS linter diagnostics for files with their Path being the key
+         */
+        arktsLinterDiagnosticsPerFile?: ESMap<Path, readonly Diagnostic[]> | undefined;
         /**
          * The map has key by source file's path that has been changed
          */
@@ -182,6 +190,7 @@ namespace ts {
         state.changedFilesSet = new Set();
         state.latestChangedDtsFile = compilerOptions.composite ? oldState?.latestChangedDtsFile : undefined;
         state.constEnumRelatePerFile = new Map();
+        state.arktsLinterDiagnosticsPerFile = new Map();
 
         const useOldState = BuilderState.canReuseOldState(state.referencedMap, oldState);
         const oldCompilerOptions = useOldState ? oldState!.compilerOptions : undefined;
@@ -240,13 +249,19 @@ namespace ts {
                 if (sourceFile.hasNoDefaultLib && !copyLibFileDiagnostics) return;
 
                 // Unchanged file copy diagnostics
-                const diagnostics = oldState!.semanticDiagnosticsPerFile!.get(sourceFilePath);
+                let diagnostics = oldState!.semanticDiagnosticsPerFile!.get(sourceFilePath);
                 if (diagnostics) {
                     state.semanticDiagnosticsPerFile!.set(sourceFilePath, oldState!.hasReusableDiagnostic ? convertToDiagnostics(diagnostics as readonly ReusableDiagnostic[], newProgram, getCanonicalFileName) : diagnostics as readonly Diagnostic[]);
                     if (!state.semanticDiagnosticsFromOldState) {
                         state.semanticDiagnosticsFromOldState = new Set();
                     }
                     state.semanticDiagnosticsFromOldState.add(sourceFilePath);
+                }
+                
+                // Copy arkts linter diagnostics
+                diagnostics = oldState!.arktsLinterDiagnosticsPerFile?.get(sourceFilePath);
+                if (diagnostics) {
+                    state.arktsLinterDiagnosticsPerFile!.set(sourceFilePath, convertToDiagnostics(diagnostics as readonly ReusableDiagnostic[], newProgram, getCanonicalFileName));
                 }
             }
             if (canCopyEmitSignatures) {
@@ -853,6 +868,7 @@ namespace ts {
         referencedMap?: ProgramBuildInfoReferencedMap;
         exportedModulesMap?: ProgramBuildInfoReferencedMap;
         semanticDiagnosticsPerFile?: ProgramBuildInfoDiagnostic[];
+        arktsLinterDiagnosticsPerFile?: ProgramBuildInfoDiagnostic[];
         affectedFilesPendingEmit?: ProgramBuilderInfoFilePendingEmit[];
         changeFileSet?: readonly ProgramBuildInfoFileId[];
         emitSignatures?: readonly ProgramBuildInfoEmitSignature[];
@@ -974,6 +990,21 @@ namespace ts {
             }
         }
 
+        let arktsLinterDiagnosticsPerFile: ProgramBuildInfoDiagnostic[] | undefined;
+        if (state.arktsLinterDiagnosticsPerFile) {
+            for (const key of arrayFrom(state.arktsLinterDiagnosticsPerFile.keys()).sort(compareStringsCaseSensitive)) {
+                const value = state.arktsLinterDiagnosticsPerFile.get(key)!;
+                (arktsLinterDiagnosticsPerFile ||= []).push(
+                    value.length ?
+                        [
+                            toFileId(key),
+                            convertToReusableDiagnostics(value, relativeToBuildInfo)
+                        ] :
+                        toFileId(key)
+                );
+            }
+        }
+
         let affectedFilesPendingEmit: ProgramBuilderInfoFilePendingEmit[] | undefined;
         if (state.affectedFilesPendingEmit) {
             const seenFiles = new Set<Path>();
@@ -1013,6 +1044,7 @@ namespace ts {
             referencedMap,
             exportedModulesMap,
             semanticDiagnosticsPerFile,
+            arktsLinterDiagnosticsPerFile,
             affectedFilesPendingEmit,
             changeFileSet,
             emitSignatures,
@@ -1610,6 +1642,7 @@ namespace ts {
                 referencedMap: toManyToManyPathMap(program.referencedMap),
                 exportedModulesMap: toManyToManyPathMap(program.exportedModulesMap),
                 semanticDiagnosticsPerFile: program.semanticDiagnosticsPerFile && arrayToMap(program.semanticDiagnosticsPerFile, value => toFilePath(isNumber(value) ? value : value[0]), value => isNumber(value) ? emptyArray : value[1]),
+                arktsLinterDiagnosticsPerFile: program.arktsLinterDiagnosticsPerFile && arrayToMap(program.arktsLinterDiagnosticsPerFile, value => toFilePath(isNumber(value) ? value : value[0]), value => isNumber(value) ? emptyArray : value[1]),
                 hasReusableDiagnostic: true,
                 affectedFilesPendingEmit: map(program.affectedFilesPendingEmit, value => toFilePath(value[0])),
                 affectedFilesPendingEmitKind: program.affectedFilesPendingEmit && arrayToMap(program.affectedFilesPendingEmit, value => toFilePath(value[0]), value => value[1]),
