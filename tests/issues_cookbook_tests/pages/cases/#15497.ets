@@ -3,7 +3,7 @@ interface I1{
 }
 
 function f1():I1 {
-  return {
+  return { // should NOT report error
     __a: 1,
   }
 }
@@ -16,7 +16,6 @@ function f():I2 {
     _a: 1
   }
 }
-
 
 
 export let other = 1;

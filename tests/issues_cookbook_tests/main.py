@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
 import argparse
 import autotest_sdk
 
@@ -41,7 +42,7 @@ def run():
     parser.add_argument('--update', action='store_true', help='update')
 
     args = parser.parse_args()
-    print(args.project_path,args.expected_path)
+    print(args.project_path, args.expected_path)
     m = MainClass(args.project_path, expected_path=args.expected_path)
     if args.mode == 'sdk':
         obj = m.sdklinter

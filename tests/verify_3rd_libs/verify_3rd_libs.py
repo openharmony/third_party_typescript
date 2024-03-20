@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
 from datetime import datetime
 import json5
 import os
@@ -49,14 +50,14 @@ def read_build_profile_config(buildProfileJson):
 
 def need_update_sdk_version(buildProfileJson, buildProfileJsonContent, runtimeOS):
     need = False
-    targetVersion = 10 if runtimeOS == 'OpenHarmony' else '4.0.0(10)'
+    targetVersion = 11 if runtimeOS == 'OpenHarmony' else '4.1.0(11)'
     if 'compileSdkVersion' in buildProfileJsonContent['app']:
         currentCompileSdkVersion = buildProfileJsonContent['app']['compileSdkVersion']
         currentcompatibleSdkVersion = buildProfileJsonContent['app']['compatibleSdkVersion']
-        if currentCompileSdkVersion < 10:
+        if currentCompileSdkVersion < 11:
             need = True
-            buildProfileJsonContent['app']['products'][0]['compileSdkVersion'] = 10
-            buildProfileJsonContent['app']['products'][0]['compatibleSdkVersion'] = 10
+            buildProfileJsonContent['app']['products'][0]['compileSdkVersion'] = 11
+            buildProfileJsonContent['app']['products'][0]['compatibleSdkVersion'] = 11
             del buildProfileJsonContent['app']['compileSdkVersion']
             del buildProfileJsonContent['app']['compatibleSdkVersion']
     else:
@@ -70,7 +71,7 @@ def need_update_sdk_version(buildProfileJson, buildProfileJsonContent, runtimeOS
             buildProfileJsonContent['app']['products'][0]['compatibleSdkVersion'] = targetVersion
         if 'targetSdkVersion' in buildProfileJsonContent['app']['products'][0]:
             need = True
-            buildProfileJsonContent['app']['products'][0]['targetSdkVersion'] = 10
+            buildProfileJsonContent['app']['products'][0]['targetSdkVersion'] = 11
         # # change arkTSVersion to 1.0 or 1.1
         # if 'arkTSVersion' not in buildProfileJsonContent['app']['products'][0]:
         #     need = True
@@ -125,7 +126,7 @@ def prepare_project_config(project):
         raise FileNotFoundError("FileNotFoundError " + project)
 
     localProperties = os.path.join(project, "local.properties")
-    localPropertiesTemplate = "local.properties" # "local.properties" file in pwd
+    localPropertiesTemplate = "local.properties"  # "local.properties" file in pwd
     shutil.copy(localPropertiesTemplate, localProperties)
 
     buildProfileJson = os.path.join(project, "build-profile.json5")

@@ -34,4 +34,5 @@ let a3: A3 = {
     }
 }
 
+
 export let other = 1;

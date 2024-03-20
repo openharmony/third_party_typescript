@@ -7,5 +7,4 @@ class BugReport {
 }
 
 
-
 export let other = 1;

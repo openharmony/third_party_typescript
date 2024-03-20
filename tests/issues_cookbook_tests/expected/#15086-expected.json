@@ -1,14 +1,6 @@
 {
     "sdklinter": {
         "filePath": "entry/src/main/ets/pages/cases/#15086.ets",
-        "defects": [
-            {
-                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#15086.ets:3:12\n It is possible to spread only arrays or classes derived from arrays into the rest parameter or array literals (arkts-no-spread)\n\n",
-                "severity": 2,
-                "reportLine": 3,
-                "reportColumn": 12,
-                "description": "It is possible to spread only arrays or classes derived from arrays into the rest parameter or array literals (arkts-no-spread)"
-            }
-        ]
+        "defects": []
     }
 }

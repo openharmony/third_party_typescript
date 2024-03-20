@@ -58,7 +58,7 @@ C:\Users\xxx\ohos\openharmony\verify-3rd-lib\third_party\typescript\test\verify_
 C:\Users\xxx\ohos\openharmony\verify-3rd-lib\third_party\typescript\test\verify_3rd_libs\libs\openharmony_tpc_samples\Easyrelpace
 C:\Users\xxx\ohos\openharmony\verify-3rd-lib\third_party\typescript\test\verify_3rd_libs\libs\openharmony_tpc_samples\EventBus
 C:\Users\xxx\ohos\openharmony\verify-3rd-lib\third_party\typescript\test\verify_3rd_libs\libs\openharmony_tpc_samples\EventEmitter3Demo
-C:\Users\xxx\ohos\openharmony\verify-3rd-lib\third_party\typescript\test\verify_3rd_libs\libs\openharmony_tpc_samples\hex-encode-decode-Demo
+C:\Users\xxx\ohos\openharmony\verify-3rd-lib\third_party\typescript\test\verify_3rd_libs\libs\openharmony_tpc_samples\hex-encode-decodeDemo
 C:\Users\xxx\ohos\openharmony\verify-3rd-lib\third_party\typescript\test\verify_3rd_libs\libs\openharmony_tpc_samples\hi-base32Demo
 C:\Users\xxx\ohos\openharmony\verify-3rd-lib\third_party\typescript\test\verify_3rd_libs\libs\openharmony_tpc_samples\jsDiffDemo
 C:\Users\xxx\ohos\openharmony\verify-3rd-lib\third_party\typescript\test\verify_3rd_libs\libs\openharmony_tpc_samples\js-md2Demo

@@ -1,21 +1,6 @@
 {
     "sdklinter": {
         "filePath": "entry/src/main/ets/pages/cases/#15966.ets",
-        "defects": [
-            {
-                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#15966.ets:4:11\n Indexed access is not supported for fields (arkts-no-props-by-index)\n\n",
-                "severity": 2,
-                "reportLine": 4,
-                "reportColumn": 11,
-                "description": "Indexed access is not supported for fields (arkts-no-props-by-index)"
-            },
-            {
-                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#15966.ets:17:22\n It is possible to spread only arrays or classes derived from arrays into the rest parameter or array literals (arkts-no-spread)\n\n",
-                "severity": 2,
-                "reportLine": 17,
-                "reportColumn": 22,
-                "description": "It is possible to spread only arrays or classes derived from arrays into the rest parameter or array literals (arkts-no-spread)"
-            }
-        ]
+        "defects": []
     }
 }

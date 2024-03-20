@@ -28,5 +28,4 @@ let n1: number | null = null
 let n2: number = 0
 
 
-
 export let other = 1;

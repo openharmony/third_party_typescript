@@ -10,8 +10,8 @@ interface TabSegmentButtonConstructionOptions1 {
 }
 let a: TabSegmentButtonConstructionOptions1 = { //should NOT report 
     buttons: [
-        { text: 's1' ),
-        { text: 's2' )
+        { text: 's1' },
+        { text: 's2' }
     ],
 }
 

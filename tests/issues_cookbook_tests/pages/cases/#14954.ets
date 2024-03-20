@@ -28,4 +28,5 @@ const user: I2 = { name: 'Emma' }
 const infoContext = ['New York', 'USA'];
 displayInfo.apply(user, infoContext); // should report error; arkts-no-func-apply-call export let other - 1;
 
+
 export let other = 1;

@@ -1,3 +1,4 @@
-import { obj } from 'something.json' assert { type: 'json' } // should 3 report, arkts-no-import-assertions
+import { obj } from './attached/something.json' assert { type: 'json' } // should 2 report, arkts-no-import-assertions, RT inconsistent
+
 
 export let other = 1;

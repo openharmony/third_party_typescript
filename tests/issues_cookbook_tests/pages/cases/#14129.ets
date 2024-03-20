@@ -1,5 +1,3 @@
-export let other = 1;
-
 namespace A {
     export interface I { x: number }; //此处应该报错，实际上因为此处分号被视作独立语句,同下语句。
     ;;;
@@ -16,3 +14,6 @@ namespace A {
     }
 }
 let num = 123;;;
+
+
+export let other = 1;

@@ -13,5 +13,4 @@ CCCCCCCCC[CCCCCCCCC.BOB]
 CCCCCCCCC[CCCCCCCCC.ROB]
 
 
-
-export let other1;
+export let other = 1;

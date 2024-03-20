@@ -25,4 +25,5 @@ class A {
     [T.B] = 123123;
 }
 
+
 export let other = 1;

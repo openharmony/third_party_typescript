@@ -1,14 +1,6 @@
 {
     "sdklinter": {
         "filePath": "entry/src/main/ets/pages/cases/#14121.ets",
-        "defects": [
-            {
-                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#14121.ets:6:18\n 'tC1' only refers to a type, but is being used as a value here.\n\n",
-                "severity": 2,
-                "reportLine": 6,
-                "reportColumn": 18,
-                "description": "'tC1' only refers to a type, but is being used as a value here."
-            }
-        ]
+        "defects": []
     }
 }

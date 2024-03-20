@@ -1,14 +1,6 @@
 {
     "sdklinter": {
         "filePath": "entry/src/main/ets/pages/cases/#15497.ets",
-        "defects": [
-            {
-                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#15497.ets:6:10\n Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)\n\n",
-                "severity": 2,
-                "reportLine": 6,
-                "reportColumn": 10,
-                "description": "Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)"
-            }
-        ]
+        "defects": []
     }
 }

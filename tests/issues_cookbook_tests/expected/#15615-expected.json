@@ -3,17 +3,17 @@
         "filePath": "entry/src/main/ets/pages/cases/#15615.ets",
         "defects": [
             {
-                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#15615.ets:1:21\n Cannot find module 'something.json' or its corresponding type declarations.\n\n",
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#15615.ets:1:49\n Import assertions are not supported (arkts-no-import-assertions)\n\n",
                 "severity": 2,
                 "reportLine": 1,
-                "reportColumn": 21,
-                "description": "Cannot find module 'something.json' or its corresponding type declarations."
+                "reportColumn": 49,
+                "description": "Import assertions are not supported (arkts-no-import-assertions)"
             },
             {
-                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#15615.ets:1:38\n Import assertions are only supported when the '--module' option is set to 'esnext' or 'nodenext'.\n\n",
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#15615.ets:1:49\n Import assertions are only supported when the '--module' option is set to 'esnext' or 'nodenext'.\n\n",
                 "severity": 2,
                 "reportLine": 1,
-                "reportColumn": 38,
+                "reportColumn": 49,
                 "description": "Import assertions are only supported when the '--module' option is set to 'esnext' or 'nodenext'."
             }
         ]

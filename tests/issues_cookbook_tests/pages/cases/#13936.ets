@@ -12,5 +12,4 @@ function f2(a1: A | B | C, a2: A | C) {
 }
 
 
-
-export let other= 1
+export let other = 1;

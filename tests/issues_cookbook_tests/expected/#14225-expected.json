@@ -1,35 +1,6 @@
 {
     "sdklinter": {
         "filePath": "entry/src/main/ets/pages/cases/#14225.ets",
-        "defects": [
-            {
-                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#14225.ets:13:22\n ',' expected.\n\n",
-                "severity": 2,
-                "reportLine": 13,
-                "reportColumn": 22,
-                "description": "',' expected."
-            },
-            {
-                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#14225.ets:13:23\n Property assignment expected.\n\n",
-                "severity": 2,
-                "reportLine": 13,
-                "reportColumn": 23,
-                "description": "Property assignment expected."
-            },
-            {
-                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#14225.ets:14:22\n ',' expected.\n\n",
-                "severity": 2,
-                "reportLine": 14,
-                "reportColumn": 22,
-                "description": "',' expected."
-            },
-            {
-                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#14225.ets:15:5\n Property assignment expected.\n\n",
-                "severity": 2,
-                "reportLine": 15,
-                "reportColumn": 5,
-                "description": "Property assignment expected."
-            }
-        ]
+        "defects": []
     }
 }

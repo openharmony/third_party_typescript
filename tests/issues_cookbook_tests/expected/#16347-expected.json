@@ -1,0 +1,21 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cases/#16347.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#16347.ets:15:31\n The inheritance for \"Sendable\" classes is limited (arkts-sendable-class-inheritance)\n\n",
+                "severity": 2,
+                "reportLine": 15,
+                "reportColumn": 31,
+                "description": "The inheritance for \"Sendable\" classes is limited (arkts-sendable-class-inheritance)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#16347.ets:18:33\n The inheritance for \"Sendable\" classes is limited (arkts-sendable-class-inheritance)\n\n",
+                "severity": 2,
+                "reportLine": 18,
+                "reportColumn": 33,
+                "description": "The inheritance for \"Sendable\" classes is limited (arkts-sendable-class-inheritance)"
+            }
+        ]
+    }
+}
