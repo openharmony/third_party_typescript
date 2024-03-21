@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -12,16 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/**---
- description: >
-    The scope of a name declared in a module is the source file of that module.
- module: ESNext
- isCurrent: true
- ---*/
 
 
-import { Assert } from "../../../../suite/assert.js";
-
-import * as m from "./scopes_2_1_m.js";
-Assert.equal(m.m3, 1970);
-Assert.equal(m.m4, 'EXP');
+export let m3 = 1970;
+export let m4 = 'EXP';
