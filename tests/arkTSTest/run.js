@@ -196,6 +196,11 @@ function runLinter(rootName) {
     },
     getSyntacticDiagnostics(sourceFile) {
       return this.program.getSyntacticDiagnostics(sourceFile);
+    },
+    getState() {
+      return {
+        changedFilesSet: this.program.getSourceFiles().map(x => x.resolvedPath)
+      };
     }
   };
   reverseStrictBuilderProgram = {
