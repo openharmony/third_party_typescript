@@ -118,10 +118,21 @@ function releaseReferences(): void {
 }
 
 function collectChangedFilesFromProgramState(state: ReusableBuilderProgramState): Set<Path> {
-  if (!state.referencedMap) return new Set<Path>(state.changedFilesSet);
+  const changedFiles = new Set<Path>(state.changedFilesSet);
+
+  // If any source file that affects global scope has been changed,
+  // then process all files in project.
+  for (const changedFile of arrayFrom(changedFiles.keys())) {
+    const fileInfo = state.fileInfos.get(changedFile);
+    if (fileInfo?.affectsGlobalScope) {
+      return new Set<Path>(arrayFrom(state.fileInfos.keys()));
+    }
+  }
+
+  if (!state.referencedMap) return changedFiles;
 
   const seenPaths = new Set<Path>();
-  const queue = state.changedFilesSet ? arrayFrom(state.changedFilesSet.keys()) : [];
+  const queue = arrayFrom(changedFiles.keys());
   while (queue.length) {
     const path = queue.pop()!;
     if (!seenPaths.has(path)) {
