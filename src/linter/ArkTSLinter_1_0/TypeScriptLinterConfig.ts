@@ -118,6 +118,8 @@ export class LinterConfig {
     LinterConfig.nodeDesc[FaultID.UnsupportedDecorators] = "Unsupported decorators";
     LinterConfig.nodeDesc[FaultID.ImportAfterStatement] = "Import declaration after other declaration or statement";
     LinterConfig.nodeDesc[FaultID.EsObjectType] = 'Restricted "ESObject" type';
+    LinterConfig.nodeDesc[FaultID.SendableClassInheritance] = 'Sendable class inheritance';
+    LinterConfig.nodeDesc[FaultID.SendableDefiniteAssignment] = 'Use of definite assignment assertin in "Sendable" class';
   }
 
   /*

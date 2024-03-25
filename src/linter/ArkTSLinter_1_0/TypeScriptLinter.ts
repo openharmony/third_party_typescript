@@ -713,14 +713,8 @@ export class TypeScriptLinter {
     prop_type?: string) {
     // Filter out non-initializable property decorators from strict diagnostics.
     if (this.tscStrictDiagnostics && this.sourceFile) {
-      if (decorators?.some(x => {
-        let decoratorName = "";
-        if (isIdentifier(x.expression)) {
-          decoratorName = x.expression.text;
-        }
-        else if (isCallExpression(x.expression) && isIdentifier(x.expression.expression)) {
-          decoratorName = x.expression.expression.text;
-        }
+      if (decorators?.some((decorator) => {
+        const decoratorName = Utils.getDecoratorName(decorator);
         // special case for property of type CustomDialogController of the @CustomDialog-decorated class
         if (expectedDecorators.includes(Utils.NON_INITIALIZABLE_PROPERTY_ClASS_DECORATORS[0])) {
           return expectedDecorators.includes(decoratorName) && prop_type === "CustomDialogController"
@@ -1144,11 +1138,23 @@ export class TypeScriptLinter {
     }
     this.countClassMembersWithDuplicateName(tsClassDecl);
 
+    const isSendableClass = Utils.hasSendableDecorator(tsClassDecl);
     const visitHClause = (hClause: HeritageClause) => {
       for (const tsTypeExpr of hClause.types) {
-        const tsExprType = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(tsTypeExpr.expression);
-        if (tsExprType.isClass() && hClause.token === SyntaxKind.ImplementsKeyword) {
-          this.incrementCounters(tsTypeExpr, FaultID.ImplementsClass);
+        // Always resolve type from 'tsTypeExpr' node, not from 'tsTypeExpr.expression' node,
+        // as for the latter, type checker will return incorrect type result for classes in
+        // 'extends' clause. Additionally, reduce reference, as mostly type checker returns
+        // the TypeReference type objects for classes and interfaces.
+        const tsExprType = Utils.reduceReference(TypeScriptLinter.tsTypeChecker.getTypeAtLocation(tsTypeExpr));
+        if (tsExprType.isClass()) {
+          if (hClause.token === ts.SyntaxKind.ImplementsKeyword) {
+            this.incrementCounters(tsTypeExpr, FaultID.ImplementsClass);
+          }
+
+          const isSendableBaseType = Utils.isSendableType(tsExprType);
+          if (isSendableClass !== isSendableBaseType) {
+            this.incrementCounters(tsTypeExpr, FaultID.SendableClassInheritance);
+          }
         }
       }
     };
@@ -1901,9 +1907,18 @@ export class TypeScriptLinter {
   }
 
   private handleDefiniteAssignmentAssertion(decl: VariableDeclaration | PropertyDeclaration) {
-    if (decl.exclamationToken !== undefined) {
-      this.incrementCounters(decl, FaultID.DefiniteAssignment);
+    if (decl.exclamationToken === undefined) {
+      return;
     }
+
+    if (decl.kind === ts.SyntaxKind.PropertyDeclaration) {
+      const parentDecl = decl.parent;
+      if (parentDecl.kind === ts.SyntaxKind.ClassDeclaration && Utils.hasSendableDecorator(parentDecl)) {
+        this.incrementCounters(decl, FaultID.SendableDefiniteAssignment);
+        return;
+      }
+    }
+    this.incrementCounters(decl, FaultID.DefiniteAssignment);
   }
 
   private validatedTypesSet = new Set<Type>();
