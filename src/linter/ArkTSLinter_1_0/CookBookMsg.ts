@@ -173,5 +173,7 @@ cookBookTag[148] = "No decorators except ArkUI decorators are currently allowed 
 cookBookTag[149] = "Classes cannot be used as objects (arkts-no-classes-as-obj)";
 cookBookTag[150] = "\"import\" statements after other statements are not allowed (arkts-no-misplaced-imports)";
 cookBookTag[151] = 'Usage of "ESObject" type is restricted (arkts-limited-esobj)';
+cookBookTag[153] = 'The inheritance for "Sendable" classes is limited (arkts-sendable-class-inheritance)';
+cookBookTag[155] = 'Definite assignment assertion in not allowed in "Sendable" classes (arkts-sendable-definite-assignment)';
 }
 }

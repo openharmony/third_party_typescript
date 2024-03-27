@@ -12552,6 +12552,7 @@ declare namespace ts {
             }
             const ARKTS_IGNORE_DIRS: string[];
             const ARKTS_IGNORE_FILES: string[];
+            const SENDABLE_DECORATOR = "Sendable";
             function setTypeChecker(tsTypeChecker: TypeChecker): void;
             function clearTypeChecker(): void;
             function setTestMode(tsTestMode: boolean): void;
@@ -12585,7 +12586,7 @@ declare namespace ts {
             function isPrimitiveType(type: Type): boolean;
             function isTypeSymbol(symbol: Symbol | undefined): boolean;
             function isGenericArrayType(tsType: Type): tsType is TypeReference;
-            function isDerivedFrom(tsType: Type, checkType: CheckType): tsType is TypeReference;
+            function isDerivedFrom(tsType: ts.Type, checkType: CheckType, checkedBaseTypes?: Set<ts.Type>): boolean;
             function isTypeReference(tsType: Type): tsType is TypeReference;
             function isNullType(tsTypeNode: TypeNode): boolean;
             function isThisOrSuperExpr(tsExpr: Expression): boolean;
@@ -12606,10 +12607,10 @@ declare namespace ts {
             function isIntegerConstantValue(tsExpr: EnumMember | PropertyAccessExpression | ElementAccessExpression | NumericLiteral): boolean;
             function isStringConstantValue(tsExpr: EnumMember | PropertyAccessExpression | ElementAccessExpression): boolean;
             function relatedByInheritanceOrIdentical(typeA: Type, typeB: Type): boolean;
+            function reduceReference(t: ts.Type): ts.Type;
             function needToDeduceStructuralIdentity(typeFrom: Type, typeTo: Type, allowPromotion?: boolean): boolean;
             function hasPredecessor(node: Node, predicate: (node: Node) => boolean): boolean;
             function processParentTypes(parentTypes: NodeArray<ExpressionWithTypeArguments>, typeB: Type, processInterfaces: boolean): boolean;
-            function processParentTypesCheck(parentTypes: NodeArray<ExpressionWithTypeArguments>, checkType: CheckType): boolean;
             function isObjectType(tsType: Type): boolean;
             function logTscDiagnostic(diagnostics: readonly Diagnostic[], log: (message: any, ...args: any[]) => void): void;
             function encodeProblemInfo(problem: ProblemInfo): string;
@@ -12677,6 +12678,9 @@ declare namespace ts {
             function isAnonymousType(type: Type): boolean;
             function getSymbolOfCallExpression(callExpr: CallExpression): Symbol | undefined;
             function typeIsRecursive(topType: Type, type?: Type | undefined): boolean;
+            function getDecoratorName(decorator: ts.Decorator): string;
+            function isSendableType(type: ts.Type): boolean;
+            function hasSendableDecorator(decl: ts.ClassDeclaration): boolean;
         }
     }
 }
@@ -12768,7 +12772,9 @@ declare namespace ts {
                 UnsupportedDecorators = 81,
                 ImportAfterStatement = 82,
                 EsObjectType = 83,
-                LAST_ID = 84
+                SendableClassInheritance = 84,
+                SendableDefiniteAssignment = 85,
+                LAST_ID = 86
             }
             class FaultAttributs {
                 migratable?: boolean;
@@ -13130,7 +13136,9 @@ declare namespace ts {
                 StrictDiagnostic = 79,
                 ImportAfterStatement = 80,
                 EsObjectType = 81,
-                LAST_ID = 82
+                SendableClassInheritance = 82,
+                SendableDefiniteAssignment = 83,
+                LAST_ID = 84
             }
             class FaultAttributes {
                 cookBookRef: number;
@@ -13153,6 +13161,7 @@ declare namespace ts {
             const ALLOWED_STD_SYMBOL_API: string[];
             const ARKTS_IGNORE_DIRS: string[];
             const ARKTS_IGNORE_FILES: string[];
+            const SENDABLE_DECORATOR = "Sendable";
             function setTypeChecker(tsTypeChecker: TypeChecker): void;
             function clearTypeChecker(): void;
             function setTestMode(tsTestMode: boolean): void;
@@ -13204,7 +13213,7 @@ declare namespace ts {
             function isTypedArray(tsType: ts.Type): boolean;
             function isArray(tsType: ts.Type): boolean;
             function isTuple(tsType: ts.Type): boolean;
-            function isOrDerivedFrom(tsType: ts.Type, checkType: CheckType): boolean;
+            function isOrDerivedFrom(tsType: ts.Type, checkType: CheckType, checkedBaseTypes?: Set<ts.Type>): boolean;
             function isTypeReference(tsType: Type): tsType is TypeReference;
             function isNullType(tsTypeNode: TypeNode): boolean;
             function isThisOrSuperExpr(tsExpr: Expression): boolean;
@@ -13301,6 +13310,9 @@ declare namespace ts {
             function isStdBooleanType(type: ts.Type): boolean;
             function isEnumStringLiteral(expr: ts.Expression): boolean;
             function isValidComputedPropertyName(computedProperty: ComputedPropertyName, isRecordObjectInitializer?: boolean): boolean;
+            function getDecoratorName(decorator: ts.Decorator): string;
+            function isSendableType(type: ts.Type): boolean;
+            function hasSendableDecorator(decl: ts.ClassDeclaration): boolean;
         }
     }
 }

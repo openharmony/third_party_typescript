@@ -37,7 +37,7 @@ export enum FaultID {
   NewTarget, DefiniteAssignment, Prototype, GlobalThis,
   UtilityType, PropertyDeclOnFunction, FunctionApplyBindCall, ConstAssertion, ImportAssertion,
   SpreadOperator, LimitedStdLibApi, ErrorSuppression, StrictDiagnostic, UnsupportedDecorators, ImportAfterStatement,
-  EsObjectType,
+  EsObjectType, SendableClassInheritance, SendableDefiniteAssignment,
   LAST_ID, // this should always be last enum`
 }
 
@@ -133,6 +133,8 @@ faultsAttrs[FaultID.UnsupportedDecorators] = { warning: true, cookBookRef: "148"
 faultsAttrs[FaultID.ClassAsObject] = { cookBookRef: "149", };
 faultsAttrs[FaultID.ImportAfterStatement] = { cookBookRef: "150", };
 faultsAttrs[FaultID.EsObjectType] = { warning: true, cookBookRef: "151" };
+faultsAttrs[FaultID.SendableClassInheritance] = { cookBookRef: "153" };
+faultsAttrs[FaultID.SendableDefiniteAssignment] = { cookBookRef: "155" };
 }
 }
 }

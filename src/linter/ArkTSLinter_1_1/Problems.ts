@@ -39,7 +39,7 @@ export enum FaultID {
   NewTarget, DefiniteAssignment, Prototype, GlobalThis,
   UtilityType, PropertyDeclOnFunction, FunctionApplyCall, FunctionBind, ConstAssertion, ImportAssertion,
   SpreadOperator, LimitedStdLibApi, ErrorSuppression, StrictDiagnostic, ImportAfterStatement,
-  EsObjectType,
+  EsObjectType, SendableClassInheritance, SendableDefiniteAssignment,
   LAST_ID, // this should always be last enum`
 }
 
@@ -135,6 +135,8 @@ faultsAttrs[FaultID.ClassAsObject] = new FaultAttributes(149, false, ProblemSeve
 faultsAttrs[FaultID.ImportAfterStatement] = new FaultAttributes(150);
 faultsAttrs[FaultID.EsObjectType] = new FaultAttributes(151, false, ProblemSeverity.WARNING);
 faultsAttrs[FaultID.FunctionApplyCall] = new FaultAttributes(152);
+faultsAttrs[FaultID.SendableClassInheritance] = new FaultAttributes(153);
+faultsAttrs[FaultID.SendableDefiniteAssignment] = new FaultAttributes(155);
 }
 }
 }

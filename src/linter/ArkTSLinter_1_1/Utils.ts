@@ -42,6 +42,8 @@ export const ALLOWED_STD_SYMBOL_API = ["iterator"]
 export const ARKTS_IGNORE_DIRS = ['node_modules', 'oh_modules', 'build', '.preview'];
 export const ARKTS_IGNORE_FILES = ['hvigorfile.ts'];
 
+export const SENDABLE_DECORATOR = "Sendable";
+
 let typeChecker: TypeChecker;
 export function setTypeChecker(tsTypeChecker: TypeChecker): void {
   typeChecker = tsTypeChecker;
@@ -469,7 +471,7 @@ export function isTuple(tsType: ts.Type): boolean {
 }
 
 // does something similar to relatedByInheritanceOrIdentical function
-export function isOrDerivedFrom(tsType: ts.Type, checkType: CheckType): boolean {
+export function isOrDerivedFrom(tsType: ts.Type, checkType: CheckType, checkedBaseTypes?: Set<ts.Type>): boolean {
   if (isTypeReference(tsType) && tsType.target !== tsType) {
     tsType = tsType.target;
   }
@@ -480,6 +482,9 @@ export function isOrDerivedFrom(tsType: ts.Type, checkType: CheckType): boolean 
     return false;
   }
 
+  // Avoid type recursion in heritage by caching checked types.
+  (checkedBaseTypes ||= new Set<ts.Type>()).add(tsType);
+
   for (const tsTypeDecl of tsType.symbol.declarations) {
     const isClassOrInterfaceDecl = ts.isClassDeclaration(tsTypeDecl) || ts.isInterfaceDeclaration(tsTypeDecl);
     const isDerived = isClassOrInterfaceDecl && !!tsTypeDecl.heritageClauses;
@@ -487,7 +492,7 @@ export function isOrDerivedFrom(tsType: ts.Type, checkType: CheckType): boolean 
       continue;
     }
     for (const heritageClause of tsTypeDecl.heritageClauses) {
-      if (processParentTypesCheck(heritageClause.types, checkType)) {
+      if (processParentTypesCheck(heritageClause.types, checkType, checkedBaseTypes)) {
         return true;
       }
     }
@@ -825,13 +830,21 @@ export function processParentTypes(parentTypes: NodeArray<ExpressionWithTypeArgu
   return false;
 }
 
-function processParentTypesCheck(parentTypes: NodeArray<ExpressionWithTypeArguments>, checkType: CheckType): boolean {
+function processParentTypesCheck(
+  parentTypes: ts.NodeArray<ts.Expression>,
+  checkType: CheckType,
+  checkedBaseTypes: Set<ts.Type>
+): boolean {
   for (const baseTypeExpr of parentTypes) {
     let baseType = typeChecker.getTypeAtLocation(baseTypeExpr);
     if (isTypeReference(baseType) && baseType.target !== baseType) {
       baseType = baseType.target;
     }
-    if (baseType && isOrDerivedFrom(baseType, checkType)) {
+    if (
+      baseType &&
+      !checkedBaseTypes.has(baseType) &&
+      isOrDerivedFrom(baseType, checkType, checkedBaseTypes)
+    ) {
       return true;
     }
   }
@@ -1717,6 +1730,42 @@ export function isValidComputedPropertyName(computedProperty: ComputedPropertyNa
     }
   }
   return isStringLiteralLike(expr) || isEnumStringLiteral(computedProperty.expression);
+}
+
+export function getDecoratorName(decorator: ts.Decorator): string {
+  let decoratorName = "";
+  if (ts.isIdentifier(decorator.expression)) {
+    decoratorName = decorator.expression.text;
+  } else if (ts.isCallExpression(decorator.expression) && ts.isIdentifier(decorator.expression.expression)) {
+    decoratorName = decorator.expression.expression.text;
+  }
+  return decoratorName;
+}
+
+export function isSendableType(type: ts.Type): boolean {
+  const sym = type.getSymbol();
+  if (!sym) {
+    return false;
+  }
+
+  // class with @Sendable decorator
+  if (type.isClass()) {
+    if (sym.declarations?.length) {
+      const decl = sym.declarations[0];
+      if (ts.isClassDeclaration(decl) && hasSendableDecorator(decl)) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+export function hasSendableDecorator(decl: ts.ClassDeclaration): boolean {
+  const decorators = ts.getDecorators(decl);
+  return decorators !== undefined && decorators.some((x) => {
+    return getDecoratorName(x) === SENDABLE_DECORATOR;
+  });
 }
 
 }
