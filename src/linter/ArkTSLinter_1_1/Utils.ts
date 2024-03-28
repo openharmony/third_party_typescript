@@ -42,7 +42,7 @@ export const ALLOWED_STD_SYMBOL_API = ["iterator"]
 export const ARKTS_IGNORE_DIRS = ['node_modules', 'oh_modules', 'build', '.preview'];
 export const ARKTS_IGNORE_FILES = ['hvigorfile.ts'];
 
-export const SENDABLE_DECORATOR = "Sendable";
+export const SENDABLE_DECORATOR = 'Sendable';
 
 let typeChecker: TypeChecker;
 export function setTypeChecker(tsTypeChecker: TypeChecker): void {
@@ -1733,7 +1733,7 @@ export function isValidComputedPropertyName(computedProperty: ComputedPropertyNa
 }
 
 export function getDecoratorName(decorator: ts.Decorator): string {
-  let decoratorName = "";
+  let decoratorName = '';
   if (ts.isIdentifier(decorator.expression)) {
     decoratorName = decorator.expression.text;
   } else if (ts.isCallExpression(decorator.expression) && ts.isIdentifier(decorator.expression.expression)) {

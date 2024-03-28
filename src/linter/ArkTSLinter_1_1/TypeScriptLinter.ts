@@ -739,7 +739,7 @@ export class TypeScriptLinter {
         const decoratorName = Utils.getDecoratorName(decorator);
         // special case for property of type CustomDialogController of the @CustomDialog-decorated class
         if (expectedDecorators.includes(Utils.NON_INITIALIZABLE_PROPERTY_CLASS_DECORATORS[0])) {
-          return expectedDecorators.includes(decoratorName) && prop_type === "CustomDialogController"
+          return expectedDecorators.includes(decoratorName) && prop_type === 'CustomDialogController';
         }
         //return Utils.NON_INITIALIZABLE_PROPERTY_DECORATORS.includes(decoratorName);
         return expectedDecorators.includes(decoratorName);
