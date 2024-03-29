@@ -1,7 +1,5 @@
-///<reference path="declaration_merging_1_1.ts"/>
-///<reference path="declaration_merging_1_2.ts"/>
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -23,10 +21,8 @@
 
 
 import { Assert } from '../../../../suite/assert.js'
-
-/// <reference path="declaration_merging_1_1.ts" />
-/// <reference path="declaration_merging_1_2.ts" />
-
+import { outside } from './declaration_merging_1_1.js';
+  
 var o1: outside.OA = { OA: "OA" };
 var o2: outside.OB = { OB: 1024 };
 Assert.isString(o1.OA);

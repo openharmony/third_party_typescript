@@ -64,7 +64,8 @@ class TestCase:
             return
         if ark_runtime:
             with open(self.path, 'a') as file_added:
-                file_added.write('\rprint("TESTCASE SUCCESS");')
+                if '.d.ts' not in self.path:
+                    file_added.write('\rprint("TESTCASE SUCCESS");')
             self.__test_es2abc()
             if os.path.exists(self.abc_file_path):
                 os.remove(self.abc_file_path)
@@ -119,9 +120,9 @@ class TestCase:
 
     def __get_tsc_cmd(self):
         if platform.system().lower() == 'windows':
-            cmd = ['cmd', '/c', 'tsc', '--target', 'es2021']
+            cmd = ['cmd', '/c', 'tsc', '--target', 'es2021', '--moduleResolution', 'node']
         else:
-            cmd = [TestCase.tsc, '--target', 'es2021']
+            cmd = [TestCase.tsc, '--target', 'es2021', '--moduleResolution', 'node']
         if self.__is_strict():
             cmd.extend(STRICT_ON)
         else:
@@ -155,7 +156,10 @@ class TestCase:
         abc_file_path = ("%s.abc" % (os.path.splitext(file_path)[0]))
         self.abc_file_path_temp = abc_file_path
         cmd = [TestCase.es2abc + 'es2abc']
-        cmd.extend(['--module', '--output', abc_file_path, file_path])
+        if 'RequireCommandrecordsource' in self.path:
+            cmd.extend(['--module', '--record-source','--output', abc_file_path, file_path])
+        else:
+            cmd.extend(['--module', '--output', abc_file_path, file_path])
         return cmd
 
     # create abc files
@@ -270,7 +274,7 @@ class TestCase:
             self.fail = True
             return
         # check std out
-        if "TESTCASE SUCCESS" not in out.decode("utf-8", errors="ignore"):
+        if "TESTCASE SUCCESS" not in out.decode("utf-8", errors="ignore") and '.d.ts' not in self.path:
             self.detail_result = "check stdout failed!"
             self.fail = True
             return

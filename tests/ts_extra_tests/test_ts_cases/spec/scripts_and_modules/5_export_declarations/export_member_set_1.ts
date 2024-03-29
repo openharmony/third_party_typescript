@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -23,7 +23,8 @@
 
 
 import { Assert } from '../../../../suite/assert.js'
-import { A, B, C, D, E, F, G, H, I } from './export_member_set_0.js';
+import { A, B, C, D, E, H, I } from './export_member_set_0.js';
+import type { F, G } from './export_member_set_0.js';
 
 Assert.equal(A, 0);
 Assert.equal(B, 0x1000);

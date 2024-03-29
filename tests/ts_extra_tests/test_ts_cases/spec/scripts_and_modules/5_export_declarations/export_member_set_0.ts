@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -60,4 +60,5 @@ namespace N {
   export type ColorKey = keyof Color;
 };
 
-export { exp as A, econ as B, getGArr as C, arrList as D, newColor as E, Point as F, NumStrKey as G, Color as H, N as I };
+export { exp as A, econ as B, getGArr as C, arrList as D, newColor as E, Color as H, N as I };
+export type { Point as F, NumStrKey as G };
