@@ -25,8 +25,8 @@
 import { Assert } from '../../../../suite/assert.js'
 
 var sites = {
-  site1: "Runoob",
-  site2: "Google",
+  site1: "User1",
+  site2: "User2",
   sayHello: function () { },
 };
 sites.sayHello = function () {
