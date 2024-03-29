@@ -110,7 +110,7 @@ function loadPares(jsonFile, result, currentFilePath, file){
   
   const compResult = compareResult(expectByVersion, result);
   compResult["testCaseName"] = testCaseFileName
-  if (compResults["detail"].hasOwnProperty(rules)){
+  if (Object.prototype.hasOwnProperty.call(compResults.detail, rules)) {
     compResults["detail"][rules]["detail"].push(compResult)
     compResults["detail"][rules]["testCaseNum"] += 1
   }else{

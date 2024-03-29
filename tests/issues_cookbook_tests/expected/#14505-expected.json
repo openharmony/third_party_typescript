@@ -1,14 +1,6 @@
 {
     "sdklinter": {
         "filePath": "entry/src/main/ets/pages/cases/#14505.ets",
-        "defects": [
-            {
-                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#14505.ets:17:12\n Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)\n\n",
-                "severity": 2,
-                "reportLine": 17,
-                "reportColumn": 12,
-                "description": "Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)"
-            }
-        ]
+        "defects": []
     }
 }

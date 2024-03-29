@@ -25,5 +25,4 @@ class C_right {
 }
 
 
-
 export let other = 1;

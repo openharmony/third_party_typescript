@@ -5,4 +5,5 @@ function foo<T extends number[]>(fn: (...args: T) => void) {
 }
 foo((a: number = 1, b: number = 2) => { a + b })
 
+
 export let other = 1;

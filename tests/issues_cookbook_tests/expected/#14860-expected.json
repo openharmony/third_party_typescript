@@ -3,41 +3,6 @@
         "filePath": "entry/src/main/ets/pages/cases/#14860.ets",
         "defects": [
             {
-                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#14860.ets:2:20\n Cannot find module '@ohos.resourceManager;' or its corresponding type declarations.\n\n",
-                "severity": 2,
-                "reportLine": 2,
-                "reportColumn": 20,
-                "description": "Cannot find module '@ohos.resourceManager;' or its corresponding type declarations."
-            },
-            {
-                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#14860.ets:2:43\n Unterminated string literal.\n\n",
-                "severity": 2,
-                "reportLine": 2,
-                "reportColumn": 43,
-                "description": "Unterminated string literal."
-            },
-            {
-                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#14860.ets:4:11\n Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)\n\n",
-                "severity": 2,
-                "reportLine": 4,
-                "reportColumn": 11,
-                "description": "Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)"
-            },
-            {
-                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#14860.ets:5:11\n Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)\n\n",
-                "severity": 2,
-                "reportLine": 5,
-                "reportColumn": 11,
-                "description": "Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)"
-            },
-            {
-                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#14860.ets:5:31\n Property 'createlmageSource' does not exist on type 'typeof image'. Did you mean 'createImageSource'?\n\n",
-                "severity": 2,
-                "reportLine": 5,
-                "reportColumn": 31,
-                "description": "Property 'createlmageSource' does not exist on type 'typeof image'. Did you mean 'createImageSource'?"
-            },
-            {
                 "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#14860.ets:10:8\n Structural typing is not supported (arkts-no-structural-typing)\n\n",
                 "severity": 2,
                 "reportLine": 10,

@@ -1,14 +1,6 @@
 {
     "sdklinter": {
         "filePath": "entry/src/main/ets/pages/cases/#13912.ets",
-        "defects": [
-            {
-                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#13912.ets:1:30\n Cannot find module '@ohos.multimodalInput.inputEventClient' or its corresponding type declarations.\n\n",
-                "severity": 2,
-                "reportLine": 1,
-                "reportColumn": 30,
-                "description": "Cannot find module '@ohos.multimodalInput.inputEventClient' or its corresponding type declarations."
-            }
-        ]
+        "defects": []
     }
 }

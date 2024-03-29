@@ -1,0 +1,14 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cookbook/5.9.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.9.ets:7:3\n Only one static block is supported (arkts-no-multiple-static-blocks)\n\n",
+                "severity": 2,
+                "reportLine": 7,
+                "reportColumn": 3,
+                "description": "Only one static block is supported (arkts-no-multiple-static-blocks)"
+            }
+        ]
+    }
+}

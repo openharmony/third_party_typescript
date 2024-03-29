@@ -15,4 +15,6 @@ function test() {
     SetProperty(a, 'u', 'def')
     return GetProperty<A, string>(a, 'v') + GetProperty<A, string>(a, 'u')
 }
-export let other=1
+
+
+export let other = 1;

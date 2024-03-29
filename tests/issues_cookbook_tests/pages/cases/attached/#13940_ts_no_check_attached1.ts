@@ -3,4 +3,4 @@ interface Point {
   y: string;
 }
 
-export function myFoo(x:Point) {}
+export function myFoo(x: Point): void { }

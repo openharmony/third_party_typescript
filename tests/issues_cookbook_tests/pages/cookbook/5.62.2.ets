@@ -6,5 +6,4 @@ class Point {
 }
 
 
-
 export let other = 1;

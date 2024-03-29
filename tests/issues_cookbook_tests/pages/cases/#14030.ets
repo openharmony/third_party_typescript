@@ -1,4 +1,3 @@
-export let other = 1;
 let a1: ESObject = 1;
 let a2: ESObject;
 function foo() {
@@ -7,3 +6,4 @@ function foo() {
 }
 
 
+export let other = 1;

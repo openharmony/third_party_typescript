@@ -36,4 +36,5 @@ function readlmageSync(path: string): Mylmage_right {
   return new Mylmage_right()
 }
 
+
 export let other = 1;

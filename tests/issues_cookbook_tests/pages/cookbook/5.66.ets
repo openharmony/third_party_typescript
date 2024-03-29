@@ -17,6 +17,4 @@ class CustomError_right extends Error {
 let ce = new CustomError_right()
 
 
-
-
 export let other = 1;

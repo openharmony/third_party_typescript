@@ -1,5 +1,3 @@
-export let other = 1;
-
 @Entry
 @Component struct Index {
     @State message: string = 'Hello World';
@@ -19,3 +17,6 @@ export let other = 1;
         this.m = null; // should report
     }
 }
+
+
+export let other = 1;

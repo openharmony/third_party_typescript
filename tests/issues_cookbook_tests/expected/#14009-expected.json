@@ -3,9 +3,9 @@
         "filePath": "entry/src/main/ets/pages/cases/#14009.ets",
         "defects": [
             {
-                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#14009.ets:4:1\n Usage of standard library is restricted (arkts-limited-stdlib)\n\n",
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#14009.ets:2:1\n Usage of standard library is restricted (arkts-limited-stdlib)\n\n",
                 "severity": 2,
-                "reportLine": 4,
+                "reportLine": 2,
                 "reportColumn": 1,
                 "description": "Usage of standard library is restricted (arkts-limited-stdlib)"
             }

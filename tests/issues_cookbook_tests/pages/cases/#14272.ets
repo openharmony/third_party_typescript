@@ -10,11 +10,12 @@ struct MapPolylineDemo{
         Row(){
             Button("setColors")
                 .onClick(() => {
-                    // let a: Array<number>=[0....1);
+                    // let a: Array<number>=[0....1];
                     this.etsClass.setColors([, 0xff000000, , 0xffffff00]); // no report, but should report
                 })
         }
     }
 }
+
 
 export let other = 1;

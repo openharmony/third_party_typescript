@@ -3,37 +3,37 @@
         "filePath": "entry/src/main/ets/pages/cases/#14129.ets",
         "defects": [
             {
-                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#14129.ets:4:37\n Non-declaration statements in namespaces are not supported (single semicolons are considered as empty non-delcaration statements) (arkts-no-ns-statements)\n\n",
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#14129.ets:2:37\n Non-declaration statements in namespaces are not supported (single semicolons are considered as empty non-delcaration statements) (arkts-no-ns-statements)\n\n",
                 "severity": 2,
-                "reportLine": 4,
+                "reportLine": 2,
                 "reportColumn": 37,
                 "description": "Non-declaration statements in namespaces are not supported (single semicolons are considered as empty non-delcaration statements) (arkts-no-ns-statements)"
             },
             {
-                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#14129.ets:5:5\n Non-declaration statements in namespaces are not supported (single semicolons are considered as empty non-delcaration statements) (arkts-no-ns-statements)\n\n",
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#14129.ets:3:5\n Non-declaration statements in namespaces are not supported (single semicolons are considered as empty non-delcaration statements) (arkts-no-ns-statements)\n\n",
                 "severity": 2,
-                "reportLine": 5,
+                "reportLine": 3,
                 "reportColumn": 5,
                 "description": "Non-declaration statements in namespaces are not supported (single semicolons are considered as empty non-delcaration statements) (arkts-no-ns-statements)"
             },
             {
-                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#14129.ets:5:6\n Non-declaration statements in namespaces are not supported (single semicolons are considered as empty non-delcaration statements) (arkts-no-ns-statements)\n\n",
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#14129.ets:3:6\n Non-declaration statements in namespaces are not supported (single semicolons are considered as empty non-delcaration statements) (arkts-no-ns-statements)\n\n",
                 "severity": 2,
-                "reportLine": 5,
+                "reportLine": 3,
                 "reportColumn": 6,
                 "description": "Non-declaration statements in namespaces are not supported (single semicolons are considered as empty non-delcaration statements) (arkts-no-ns-statements)"
             },
             {
-                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#14129.ets:5:7\n Non-declaration statements in namespaces are not supported (single semicolons are considered as empty non-delcaration statements) (arkts-no-ns-statements)\n\n",
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#14129.ets:3:7\n Non-declaration statements in namespaces are not supported (single semicolons are considered as empty non-delcaration statements) (arkts-no-ns-statements)\n\n",
                 "severity": 2,
-                "reportLine": 5,
+                "reportLine": 3,
                 "reportColumn": 7,
                 "description": "Non-declaration statements in namespaces are not supported (single semicolons are considered as empty non-delcaration statements) (arkts-no-ns-statements)"
             },
             {
-                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#14129.ets:15:9\n Property 'aa' has no initializer and is not definitely assigned in the constructor.\n\n",
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#14129.ets:13:9\n Property 'aa' has no initializer and is not definitely assigned in the constructor.\n\n",
                 "severity": 2,
-                "reportLine": 15,
+                "reportLine": 13,
                 "reportColumn": 9,
                 "description": "Property 'aa' has no initializer and is not definitely assigned in the constructor."
             }

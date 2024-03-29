@@ -1,0 +1,28 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cases/#15431.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#15431.ets:5:3\n Only one static block is supported (arkts-no-multiple-static-blocks)\n\n",
+                "severity": 2,
+                "reportLine": 5,
+                "reportColumn": 3,
+                "description": "Only one static block is supported (arkts-no-multiple-static-blocks)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#15431.ets:12:5\n Using \"this\" inside stand-alone functions is not supported (arkts-no-standalone-this)\n\n",
+                "severity": 2,
+                "reportLine": 12,
+                "reportColumn": 5,
+                "description": "Using \"this\" inside stand-alone functions is not supported (arkts-no-standalone-this)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#15431.ets:22:3\n Only one static block is supported (arkts-no-multiple-static-blocks)\n\n",
+                "severity": 2,
+                "reportLine": 22,
+                "reportColumn": 3,
+                "description": "Only one static block is supported (arkts-no-multiple-static-blocks)"
+            }
+        ]
+    }
+}

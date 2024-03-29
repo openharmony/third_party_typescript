@@ -6,7 +6,7 @@ isNaN(2);
 parseFloat('3');
 parseInt('4',10);
 encodeURI('');
-encodeURIComponent()
+encodeURIComponent('')
 decodeURI('');
 decodeURIComponent('');
 escape('');
@@ -17,7 +17,6 @@ globalThis.eval('console.log("foo")'); // report 1 error and report 1 warn
 const evl = "eval('console.log(1)')";
 const res: void = Function(evl)();
 const arr1 = ['foo', 'foo', 'foo'];
-
 
 
 export let other= 1;

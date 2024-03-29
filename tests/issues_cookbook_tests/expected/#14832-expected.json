@@ -8,13 +8,6 @@
                 "reportLine": 3,
                 "reportColumn": 2,
                 "description": "Operator '+' cannot be applied to type 'bigint'."
-            },
-            {
-                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#14832.ets:3:3\n ';' expected.\n\n",
-                "severity": 2,
-                "reportLine": 3,
-                "reportColumn": 3,
-                "description": "';' expected."
             }
         ]
     }

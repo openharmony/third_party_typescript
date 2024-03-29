@@ -6,5 +6,4 @@ class C {
 import foo from "./attached/5.81_attached1" // should report
 
 
-
 export let other = 1;

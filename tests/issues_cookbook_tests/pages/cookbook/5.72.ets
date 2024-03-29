@@ -25,4 +25,5 @@ let person_right = new Person_right('')
 let person1_right = new Person_right('Mary')
 console.log(person1_right.fullName())
 
+
 export let other = 1;
