@@ -39,7 +39,8 @@ export enum FaultID {
   NewTarget, DefiniteAssignment, Prototype, GlobalThis,
   UtilityType, PropertyDeclOnFunction, FunctionApplyCall, FunctionBind, ConstAssertion, ImportAssertion,
   SpreadOperator, LimitedStdLibApi, ErrorSuppression, StrictDiagnostic, ImportAfterStatement,
-  EsObjectType, SendableClassInheritance, SendableDefiniteAssignment,
+  EsObjectType, SendableClassInheritance, SendablePropType, SendableDefiniteAssignment, SendableGenericTypes,
+  SendableClassDecorator, SendableObjectInitialization, SendableComputedPropName, SendableAsExpr,
   LAST_ID, // this should always be last enum`
 }
 
@@ -136,7 +137,13 @@ faultsAttrs[FaultID.ImportAfterStatement] = new FaultAttributes(150);
 faultsAttrs[FaultID.EsObjectType] = new FaultAttributes(151, false, ProblemSeverity.WARNING);
 faultsAttrs[FaultID.FunctionApplyCall] = new FaultAttributes(152);
 faultsAttrs[FaultID.SendableClassInheritance] = new FaultAttributes(153);
+faultsAttrs[FaultID.SendablePropType] = new FaultAttributes(154);
 faultsAttrs[FaultID.SendableDefiniteAssignment] = new FaultAttributes(155);
+faultsAttrs[FaultID.SendableGenericTypes] = new FaultAttributes(156);
+faultsAttrs[FaultID.SendableClassDecorator] = new FaultAttributes(158);
+faultsAttrs[FaultID.SendableObjectInitialization] = new FaultAttributes(159);
+faultsAttrs[FaultID.SendableComputedPropName] = new FaultAttributes(160);
+faultsAttrs[FaultID.SendableAsExpr] = new FaultAttributes(161);
 }
 }
 }

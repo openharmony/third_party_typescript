@@ -201,6 +201,7 @@ export class TypeScriptLinter {
     [SyntaxKind.ComputedPropertyName, this.handleComputedPropertyName],
     [SyntaxKind.EtsComponentExpression, this.handleEtsComponentExpression],
     [SyntaxKind.ClassStaticBlockDeclaration, this.handleClassStaticBlockDeclaration],
+    [ts.SyntaxKind.IndexSignature, this.handleIndexSignature],
   ]);
 
   public incrementCounters(node: Node | CommentRange, faultId: number, autofixable = false, autofix?: Autofix[]): void {
@@ -492,11 +493,13 @@ export class TypeScriptLinter {
       return;
     }
     const objectLiteralType = TypeScriptLinter.tsTypeChecker.getContextualType(objectLiteralExpr);
-    if (!Utils.isStructObjectInitializer(objectLiteralExpr) &&
-        !Utils.isDynamicLiteralInitializer(objectLiteralExpr) &&
-        !Utils.isObjectLiteralAssignable(objectLiteralType, objectLiteralExpr)
-      //  !Utils.validateObjectLiteralType(objectLiteralType) || Utils.hasMemberFunction(objectLiteralExpr) ||
-      //  !Utils.validateFields(objectLiteralType, objectLiteralExpr)
+    if (objectLiteralType && Utils.isSendableType(objectLiteralType)) {
+      this.incrementCounters(node, FaultID.SendableObjectInitialization);
+    } else if (
+      // issue 13082: Allow initializing struct instances with object literal.
+      !Utils.isStructObjectInitializer(objectLiteralExpr) &&
+      !Utils.isDynamicLiteralInitializer(objectLiteralExpr) &&
+      !Utils.isObjectLiteralAssignable(objectLiteralType, objectLiteralExpr)
     ) {
       this.incrementCounters(node, FaultID.ObjectLiteralNoContextType);
     }
@@ -509,6 +512,12 @@ export class TypeScriptLinter {
 
     const arrayLitNode = node as ArrayLiteralExpression;
     let noContextTypeForArrayLiteral = false;
+
+    const arrayLitType = TypeScriptLinter.tsTypeChecker.getContextualType(arrayLitNode);
+    if (arrayLitType && Utils.isSendableType(arrayLitType)) {
+      this.incrementCounters(node, FaultID.SendableObjectInitialization);
+      return;
+    }
 
     // check that array literal consists of inferrable types
     // e.g. there is no element which is untyped object literals
@@ -531,6 +540,11 @@ export class TypeScriptLinter {
 
   private handleParameter(node: Node): void {
     const tsParam = node as ParameterDeclaration;
+
+    if (Utils.isInSendableClassAndHasDecorators(tsParam)) {
+      this.incrementCounters(node, FaultID.SendableClassDecorator);
+    }
+
     if (isArrayBindingPattern(tsParam.name) || isObjectBindingPattern(tsParam.name)) {
       this.incrementCounters(node, FaultID.DestructuringParameter);
     }
@@ -687,6 +701,26 @@ export class TypeScriptLinter {
 
     this.handleDeclarationInferredType(node);
     this.handleDefiniteAssignmentAssertion(node);
+    this.handleSendableClassProperty(node);
+  }
+
+  private handleSendableClassProperty(node: ts.PropertyDeclaration): void {
+    const typeNode = node.type;
+    if (!typeNode) {
+      return;
+    }
+    const classNode = node.parent;
+    if (!ts.isClassDeclaration(classNode) || !Utils.hasSendableDecorator(classNode)) {
+      return;
+    }
+    if (Utils.isInSendableClassAndHasDecorators(node)) {
+      this.incrementCounters(node, FaultID.SendableClassDecorator);
+    }
+    const type = TypeScriptLinter.tsTypeChecker.getTypeFromTypeNode(typeNode);
+    const isSendablePropType = Utils.isSendableType(type);
+    if (!isSendablePropType) {
+      this.incrementCounters(node, FaultID.SendablePropType);
+    }
   }
 
   private handlePropertyAssignment(node: ts.PropertyAssignment) {
@@ -721,11 +755,24 @@ export class TypeScriptLinter {
   }
 
   private handlePropertySignature(node: ts.PropertySignature): void {
-    /**
-     * Reserved if needed
-     */
-    void this;
-    void node;
+    this.handleSendableInterfaceProperty(node);
+  }
+
+  private handleSendableInterfaceProperty(node: ts.PropertySignature): void {
+    const typeNode = node.type;
+    if (!typeNode) {
+      return;
+    }
+    const interfaceNode = node.parent;
+    const interfaceNodeType = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(interfaceNode);
+    if (!ts.isInterfaceDeclaration(interfaceNode) || !Utils.isSendableType(interfaceNodeType)) {
+      return;
+    }
+    const type = TypeScriptLinter.tsTypeChecker.getTypeFromTypeNode(typeNode);
+    const isSendablePropType = Utils.isSendableType(type);
+    if (!isSendablePropType) {
+      this.incrementCounters(node, FaultID.SendablePropType);
+    }
   }
 
   private filterOutDecoratorsDiagnostics(decorators: readonly Decorator[] | undefined,
@@ -1176,6 +1223,10 @@ export class TypeScriptLinter {
     this.countClassMembersWithDuplicateName(tsClassDecl);
 
     const isSendableClass = Utils.hasSendableDecorator(tsClassDecl);
+    if (isSendableClass && Utils.hasNonSendableDecorator(tsClassDecl)) {
+      this.incrementCounters(tsClassDecl, FaultID.SendableClassDecorator);
+    }
+
     const visitHClause = (hClause: HeritageClause) => {
       for (const tsTypeExpr of hClause.types) {
         // Always resolve type from 'tsTypeExpr' node, not from 'tsTypeExpr.expression' node,
@@ -1187,11 +1238,11 @@ export class TypeScriptLinter {
           if (hClause.token === ts.SyntaxKind.ImplementsKeyword) {
             this.incrementCounters(tsTypeExpr, FaultID.ImplementsClass);
           }
+        }
 
-          const isSendableBaseType = Utils.isSendableType(tsExprType);
-          if (isSendableClass !== isSendableBaseType) {
-            this.incrementCounters(tsTypeExpr, FaultID.SendableClassInheritance);
-          }
+        const isSendableBaseType = Utils.isSendableClassOrInterface(tsExprType);
+        if (isSendableClass !== isSendableBaseType) {
+          this.incrementCounters(tsTypeExpr, FaultID.SendableClassInheritance);
         }
       }
     };
@@ -1206,14 +1257,18 @@ export class TypeScriptLinter {
     }
 
     if (!this.skipArkTSStaticBlocksCheck) {
-      let hasStaticBlock = false;
-      for (const element of tsClassDecl.members) {
-        if (ts.isClassStaticBlockDeclaration(element)) {
-          if (hasStaticBlock) {
-            this.incrementCounters(element, FaultID.MultipleStaticBlocks);
-          } else {
-            hasStaticBlock = true;
-          }
+      this.processClassStaticBlocks(tsClassDecl);
+    }
+  }
+
+  private processClassStaticBlocks(classDecl: ts.ClassDeclaration): void {
+    let hasStaticBlock = false;
+    for (const element of classDecl.members) {
+      if (ts.isClassStaticBlockDeclaration(element)) {
+        if (hasStaticBlock) {
+          this.incrementCounters(element, FaultID.MultipleStaticBlocks);
+        } else {
+          hasStaticBlock = true;
         }
       }
     }
@@ -1308,6 +1363,9 @@ export class TypeScriptLinter {
 
   private handleMethodDeclaration(node: Node): void {
     const tsMethodDecl = node as MethodDeclaration;
+    if (Utils.isInSendableClassAndHasDecorators(tsMethodDecl)) {
+      this.incrementCounters(node, FaultID.SendableClassDecorator);
+    }
     let isStatic = false;
     if (tsMethodDecl.modifiers) {
       for (const mod of tsMethodDecl.modifiers) {
@@ -1453,10 +1511,10 @@ export class TypeScriptLinter {
         (ts.isPropertyAccessExpression(context.expression) && context.expression.name == ident));
   }
 
-  private isElementAcessAllowed(type: ts.Type): boolean {
+  private isElementAcessAllowed(type: ts.Type, argType: ts.Type): boolean {
     if (type.isUnion()) {
       for (const t of type.types) {
-        if (!this.isElementAcessAllowed(t)) {
+        if (!this.isElementAcessAllowed(t, argType)) {
           return false;
         }
       }
@@ -1464,6 +1522,10 @@ export class TypeScriptLinter {
     }
 
     const typeNode = TypeScriptLinter.tsTypeChecker.typeToTypeNode(type, undefined, ts.NodeBuilderFlags.None);
+
+    if (Utils.isArkTSCollectionsArrayType(type)) {
+      return Utils.isNumberLikeType(argType);
+    }
 
     return (
       Utils.isLibraryType(type) ||
@@ -1484,11 +1546,13 @@ export class TypeScriptLinter {
     const tsElementAccessExpr = node as ElementAccessExpression;
     const tsElementAccessExprSymbol = Utils.trueSymbolAtLocation(tsElementAccessExpr.expression);
     const tsElemAccessBaseExprType = Utils.getNonNullableType(Utils.getTypeOrTypeConstraintAtLocation(tsElementAccessExpr.expression));
+    const tsElemAccessArgType = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(tsElementAccessExpr.argumentExpression);
+
     if (
       // unnamed types do not have symbol, so need to check that explicitly
       !Utils.isLibrarySymbol(tsElementAccessExprSymbol) &&
       !ts.isArrayLiteralExpression(tsElementAccessExpr.expression) &&
-      !this.isElementAcessAllowed(tsElemAccessBaseExprType)
+      !this.isElementAcessAllowed(tsElemAccessBaseExprType, tsElemAccessArgType)
     ) {
       let autofix = Autofixer.fixPropertyAccessByIndex(node);
       const autofixable = autofix !== undefined;
@@ -1771,6 +1835,26 @@ export class TypeScriptLinter {
       this.handleStructIdentAndUndefinedInArgs(tsNewExpr, callSignature);
       this.handleGenericCallWithNoTypeArgs(tsNewExpr, callSignature);
     }
+    this.handleSendableGenericTypes(tsNewExpr);
+  }
+
+  private handleSendableGenericTypes(node: ts.NewExpression): void {
+    const type = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(node);
+    if (!Utils.isSendableType(type)) {
+      return;
+    }
+
+    const typeArgs = node.typeArguments;
+    if (!typeArgs || typeArgs.length === 0) {
+      return;
+    }
+
+    for (const arg of typeArgs) {
+      const argType = TypeScriptLinter.tsTypeChecker.getTypeFromTypeNode(arg);
+      if (!Utils.isSendableType(argType)) {
+        this.incrementCounters(arg, FaultID.SendableGenericTypes);
+      }
+    }
   }
 
   private handleAsExpression(node: Node): void {
@@ -1785,6 +1869,9 @@ export class TypeScriptLinter {
       (Utils.isBooleanLikeType(exprType) && Utils.isStdBooleanType(targetType))
     ) {
       this.incrementCounters(node, FaultID.TypeAssertion);
+    }
+    if (!Utils.isSendableClassOrInterface(exprType) && Utils.isSendableClassOrInterface(targetType)) {
+      this.incrementCounters(tsAsExpr, FaultID.SendableAsExpr);
     }
   }
 
@@ -1861,25 +1948,36 @@ export class TypeScriptLinter {
 
   private handleComputedPropertyName(node: ts.Node) {
     const computedProperty = node as ts.ComputedPropertyName;
-    if (!Utils.isValidComputedPropertyName(computedProperty, false)) {
+    if (this.isSendableInvalidCompPropName(computedProperty)) {
+      this.incrementCounters(node, FaultID.SendableComputedPropName);
+    } else if (!Utils.isValidComputedPropertyName(computedProperty, false)) {
       this.incrementCounters(node, FaultID.ComputedPropertyName);
     }
   }
 
-  private handleGetAccessor(node: Node) {
-    /**
-     * Reserved if needed
-     */
-    void node;
-    void this;
+  private isSendableInvalidCompPropName(compProp: ts.ComputedPropertyName): boolean {
+    const declNode = compProp.parent?.parent;
+    if (declNode && ts.isClassDeclaration(declNode) && Utils.hasSendableDecorator(declNode)) {
+      return true;
+    } else if (declNode && ts.isInterfaceDeclaration(declNode)) {
+      const declNodeType = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(declNode);
+      if (Utils.isSendableClassOrInterface(declNodeType)) {
+        return true;
+      }
+    }
+    return false;
   }
 
-  private handleSetAccessor(node: Node) {
-    /**
-     * Reserved if needed
-     */
-    void node;
-    void this;
+  private handleGetAccessor(node: ts.GetAccessorDeclaration): void {
+    if (Utils.isInSendableClassAndHasDecorators(node)) {
+      this.incrementCounters(node, FaultID.SendableClassDecorator);
+    }
+  }
+
+  private handleSetAccessor(node: ts.SetAccessorDeclaration): void {
+    if (Utils.isInSendableClassAndHasDecorators(node)) {
+      this.incrementCounters(node, FaultID.SendableClassDecorator);
+    }
   }
 
   private handleDeclarationInferredType(
@@ -2072,6 +2170,12 @@ export class TypeScriptLinter {
       return;
     }
     this.reportThisKeywordsInScope(classStaticBlockDecl.body);
+  }
+
+  private handleIndexSignature(node: ts.Node): void {
+    if (!Utils.isAllowedIndexSignature(node as ts.IndexSignatureDeclaration)) {
+      this.incrementCounters(node, FaultID.IndexMember);
+    }
   }
 
   public lint(): void {

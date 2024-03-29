@@ -44,6 +44,14 @@ export const ARKTS_IGNORE_FILES = ['hvigorfile.ts'];
 
 export const SENDABLE_DECORATOR = 'Sendable';
 
+export const SENDABLE_INTERFACE = 'ISendable';
+
+export const ARKTS_COLLECTIONS_D_ETS = '@arkts.collections.d.ets';
+
+export const COLLECTIONS_NAMESPACE = 'collections';
+
+export const COLLECTIONS_ARRAY_TYPE = 'Array';
+
 let typeChecker: TypeChecker;
 export function setTypeChecker(tsTypeChecker: TypeChecker): void {
   typeChecker = tsTypeChecker;
@@ -1732,6 +1740,46 @@ export function isValidComputedPropertyName(computedProperty: ComputedPropertyNa
   return isStringLiteralLike(expr) || isEnumStringLiteral(computedProperty.expression);
 }
 
+export function isAllowedIndexSignature(node: ts.IndexSignatureDeclaration): boolean {
+  // For now, relax index signature only for 'collections.Array<T>.[_: number]: T'.
+
+  if (node.parameters.length !== 1) {
+    return false;
+  }
+
+  const paramType = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(node.parameters[0]);
+  if ((paramType.flags & ts.TypeFlags.Number) === 0) {
+    return false;
+  }
+
+  return isArkTSCollectionsArrayDeclaration(node.parent);
+}
+
+export function isArkTSCollectionsArrayType(type: ts.Type): boolean {
+  const symbol = type.aliasSymbol ?? type.getSymbol();
+  if (symbol?.declarations === undefined || symbol.declarations.length < 1) {
+    return false;
+  }
+
+  return isArkTSCollectionsArrayDeclaration(symbol.declarations[0]);
+}
+
+function isArkTSCollectionsArrayDeclaration(decl: ts.Declaration): boolean {
+  if (!ts.isClassDeclaration(decl) || !decl.name || decl.name.text !== COLLECTIONS_ARRAY_TYPE) {
+    return false;
+  }
+
+  if (!ts.isModuleBlock(decl.parent) || decl.parent.parent.name.text !== COLLECTIONS_NAMESPACE) {
+    return false;
+  }
+
+  if (getBaseFileName(decl.getSourceFile().fileName).toLowerCase() !== ARKTS_COLLECTIONS_D_ETS) {
+    return false;
+  }
+
+  return true;
+}
+
 export function getDecoratorName(decorator: ts.Decorator): string {
   let decoratorName = '';
   if (ts.isIdentifier(decorator.expression)) {
@@ -1743,22 +1791,78 @@ export function getDecoratorName(decorator: ts.Decorator): string {
 }
 
 export function isSendableType(type: ts.Type): boolean {
+  if ((type.flags & (ts.TypeFlags.Boolean | ts.TypeFlags.Number | ts.TypeFlags.String |
+                     ts.TypeFlags.BigInt | ts.TypeFlags.Null | ts.TypeFlags.Undefined |
+                     ts.TypeFlags.TypeParameter)) !== 0) {
+    return true;
+  }
+
+  // Only the sendable union type is supported
+  if ((type.flags & ts.TypeFlags.Union) !== 0 && (type.flags & ts.TypeFlags.EnumLiteral) === 0 &&
+       isSendableUnionType(type as ts.UnionType)) {
+    return true;
+  }
+
+  // Const enum type is supported
+  if ((type.flags & (ts.TypeFlags.Enum | ts.TypeFlags.EnumLiteral)) !== 0 && isConstEnumType(type)) {
+    return true;
+  }
+
+  return isSendableClassOrInterface(type);
+}
+
+export function isSendableClassOrInterface(type: ts.Type): boolean {
   const sym = type.getSymbol();
   if (!sym) {
     return false;
   }
 
+  const targetType = reduceReference(type);
+
   // class with @Sendable decorator
-  if (type.isClass()) {
+  if (targetType.isClass()) {
     if (sym.declarations?.length) {
       const decl = sym.declarations[0];
-      if (ts.isClassDeclaration(decl) && hasSendableDecorator(decl)) {
-        return true;
+      if (ts.isClassDeclaration(decl)) {
+        return hasSendableDecorator(decl);
       }
     }
   }
+  // ISendable interface, or a class/interface that implements/extends ISendable interface
+  return isOrDerivedFrom(type, isISendableInterface);
+}
 
+export function isConstEnumType(type: ts.Type): boolean {
+  const targetType = reduceReference(type);
+  const sym = targetType.symbol;
+  if (!sym) {
+    return false;
+  }
+  return isConstEnum(sym);
+}
+
+export function isConstEnum(sym: ts.Symbol): boolean {
+
+  /*
+   * The check in the second part is used when there is only one member in the enum
+   * In this case we need to go through the Parent to get the enum symbol
+   */
+  if (sym.flags === ts.SymbolFlags.ConstEnum || sym.flags === ts.SymbolFlags.EnumMember && (sym as any).parent &&
+                                                (sym as any).parent.flags === ts.SymbolFlags.ConstEnum) {
+    return true;
+  }
   return false;
+}
+
+export function isSendableUnionType(type: ts.UnionType): boolean {
+  const types = type?.types;
+  if (!types) {
+    return false;
+  }
+
+  return types.every((type) => {
+    return isSendableType(type);
+  });
 }
 
 export function hasSendableDecorator(decl: ts.ClassDeclaration): boolean {
@@ -1766,6 +1870,31 @@ export function hasSendableDecorator(decl: ts.ClassDeclaration): boolean {
   return decorators !== undefined && decorators.some((x) => {
     return getDecoratorName(x) === SENDABLE_DECORATOR;
   });
+}
+
+export function hasNonSendableDecorator(decl: ts.ClassDeclaration): boolean {
+  const decorators = ts.getDecorators(decl);
+  return decorators !== undefined && decorators.some((x) => {
+    return getDecoratorName(x) !== SENDABLE_DECORATOR;
+  });
+}
+
+export function isInSendableClassAndHasDecorators(declaration: ts.HasDecorators): boolean {
+  const classNode = getClassNodeFromDeclaration(declaration);
+  return !!classNode && hasSendableDecorator(classNode) && ts.getDecorators(declaration) !== undefined;
+}
+
+function getClassNodeFromDeclaration(declaration: ts.HasDecorators): ts.ClassDeclaration | undefined {
+  if (declaration.kind === ts.SyntaxKind.Parameter) {
+    return ts.isClassDeclaration(declaration.parent.parent) ? declaration.parent.parent : undefined;
+  }
+  return ts.isClassDeclaration(declaration.parent) ? declaration.parent : undefined;
+}
+
+export function isISendableInterface(type: ts.Type): boolean {
+  const sym = type.getSymbol();
+  return sym !== undefined && isObjectType(type) && (type.objectFlags & ts.ObjectFlags.Interface) !== 0 &&
+    sym.name === SENDABLE_INTERFACE;
 }
 
 }

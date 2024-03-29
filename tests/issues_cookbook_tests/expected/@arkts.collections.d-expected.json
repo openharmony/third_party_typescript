@@ -1,0 +1,56 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cases/attached/@arkts.collections.d.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/attached/@arkts.collections.d.ets:4:5\n Indexed signatures are not supported (arkts-no-indexed-signatures)\n\n",
+                "severity": 2,
+                "reportLine": 4,
+                "reportColumn": 5,
+                "description": "Indexed signatures are not supported (arkts-no-indexed-signatures)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/attached/@arkts.collections.d.ets:8:5\n Indexed signatures are not supported (arkts-no-indexed-signatures)\n\n",
+                "severity": 2,
+                "reportLine": 8,
+                "reportColumn": 5,
+                "description": "Indexed signatures are not supported (arkts-no-indexed-signatures)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/attached/@arkts.collections.d.ets:9:5\n Indexed signatures are not supported (arkts-no-indexed-signatures)\n\n",
+                "severity": 2,
+                "reportLine": 9,
+                "reportColumn": 5,
+                "description": "Indexed signatures are not supported (arkts-no-indexed-signatures)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/attached/@arkts.collections.d.ets:15:5\n Indexed signatures are not supported (arkts-no-indexed-signatures)\n\n",
+                "severity": 2,
+                "reportLine": 15,
+                "reportColumn": 5,
+                "description": "Indexed signatures are not supported (arkts-no-indexed-signatures)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/attached/@arkts.collections.d.ets:16:5\n Indexed signatures are not supported (arkts-no-indexed-signatures)\n\n",
+                "severity": 2,
+                "reportLine": 16,
+                "reportColumn": 5,
+                "description": "Indexed signatures are not supported (arkts-no-indexed-signatures)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/attached/@arkts.collections.d.ets:20:5\n Indexed signatures are not supported (arkts-no-indexed-signatures)\n\n",
+                "severity": 2,
+                "reportLine": 20,
+                "reportColumn": 5,
+                "description": "Indexed signatures are not supported (arkts-no-indexed-signatures)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/attached/@arkts.collections.d.ets:21:5\n Indexed signatures are not supported (arkts-no-indexed-signatures)\n\n",
+                "severity": 2,
+                "reportLine": 21,
+                "reportColumn": 5,
+                "description": "Indexed signatures are not supported (arkts-no-indexed-signatures)"
+            }
+        ]
+    }
+}

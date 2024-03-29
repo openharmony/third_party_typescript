@@ -1,6 +1,21 @@
 {
     "sdklinter": {
         "filePath": "entry/src/main/ets/pages/cases/#13912.ets",
-        "defects": []
+        "defects": [
+            {
+                "origin": "WARN: ArkTS:WARN File: /entry/src/main/ets/pages/cases/#13912.ets:10:5\n 'inputEventClient' is system api\n\n",
+                "severity": 1,
+                "reportLine": 10,
+                "reportColumn": 5,
+                "description": "'inputEventClient' is system api"
+            },
+            {
+                "origin": "WARN: ArkTS:WARN File: /entry/src/main/ets/pages/cases/#13912.ets:10:22\n 'injectEvent' is system api\n\n",
+                "severity": 1,
+                "reportLine": 10,
+                "reportColumn": 22,
+                "description": "'injectEvent' is system api"
+            }
+        ]
     }
 }
