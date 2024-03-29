@@ -1,0 +1,28 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cases/#16334.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#16334.ets:10:1\n Indexed access is not supported for fields (arkts-no-props-by-index)\n\n",
+                "severity": 2,
+                "reportLine": 10,
+                "reportColumn": 1,
+                "description": "Indexed access is not supported for fields (arkts-no-props-by-index)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#16334.ets:12:1\n Indexed access is not supported for fields (arkts-no-props-by-index)\n\n",
+                "severity": 2,
+                "reportLine": 12,
+                "reportColumn": 1,
+                "description": "Indexed access is not supported for fields (arkts-no-props-by-index)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#16334.ets:14:1\n Indexed access is not supported for fields (arkts-no-props-by-index)\n\n",
+                "severity": 2,
+                "reportLine": 14,
+                "reportColumn": 1,
+                "description": "Indexed access is not supported for fields (arkts-no-props-by-index)"
+            }
+        ]
+    }
+}

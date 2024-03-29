@@ -174,6 +174,12 @@ cookBookTag[150] = "\"import\" statements after other statements are not allowed
 cookBookTag[151] = "Usage of 'ESObject' type is restricted (arkts-limited-esobj)";
 cookBookTag[152] = "'Function.apply', 'Function.call' are not supported (arkts-no-func-apply-call)";
 cookBookTag[153] = 'The inheritance for "Sendable" classes is limited (arkts-sendable-class-inheritance)';
+cookBookTag[154] = 'Properties in "Sendable" classes and interfaces must have a Sendable data type (arkts-sendable-prop-types)';
 cookBookTag[155] = 'Definite assignment assertion in not allowed in "Sendable" classes (arkts-sendable-definite-assignment)';
+cookBookTag[156] = 'Type arguments of generic "Sendable" type must be a "Sendable" data type (arkts-sendable-generic-types)';
+cookBookTag[158] = 'Only "@Sendable" decorator can be used on "Sendable" class (arkts-sendable-class-decorator)';
+cookBookTag[159] = 'Objects of "Sendable" type can not be initialized using object literal or array literal (arkts-sendable-obj-init)';
+cookBookTag[160] = 'Computed property names are not allowed in "Sendable" classes and interfaces (arkts-sendable-computed-prop-name)';
+cookBookTag[161] = 'Casting "Non-sendable" data to "Sendable" type is not allowed (arkts-sendable-as-expr)';
 }
 }

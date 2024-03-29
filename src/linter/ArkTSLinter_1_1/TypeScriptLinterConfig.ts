@@ -117,7 +117,14 @@ export class LinterConfig {
     LinterConfig.nodeDesc[FaultID.ImportAfterStatement] = "Import declaration after other declaration or statement";
     LinterConfig.nodeDesc[FaultID.EsObjectType] = 'Restricted "ESObject" type';
     LinterConfig.nodeDesc[FaultID.SendableClassInheritance] = 'Sendable class inheritance';
-    LinterConfig.nodeDesc[FaultID.SendableDefiniteAssignment] = 'Use of definite assignment assertin in "Sendable" class';
+    LinterConfig.nodeDesc[FaultID.SendablePropType] = 'Sendable class property';
+    LinterConfig.nodeDesc[FaultID.SendableDefiniteAssignment] = 'Use of definite assignment assertion in "Sendable" class';
+    LinterConfig.nodeDesc[FaultID.SendableGenericTypes] = 'Sendable generic types';
+    LinterConfig.nodeDesc[FaultID.SendableClassDecorator] = 'Sendable class decorator';
+    LinterConfig.nodeDesc[FaultID.SendableObjectInitialization] = 'Object literal or array literal is not allowed to \
+                                                                      initialize a "Sendable" object';
+    LinterConfig.nodeDesc[FaultID.SendableComputedPropName] = 'Sendable computed property name';
+    LinterConfig.nodeDesc[FaultID.SendableAsExpr] = 'Sendable as expr';
   }
 
   /*
@@ -167,7 +174,7 @@ export class LinterConfig {
     [SyntaxKind.TypeQuery, FaultID.TypeQuery],
     [SyntaxKind.DeleteExpression, FaultID.DeleteOperator],
     [SyntaxKind.TypePredicate, FaultID.IsOperator], [SyntaxKind.YieldExpression, FaultID.YieldExpression],
-    [SyntaxKind.IndexSignature, FaultID.IndexMember], [SyntaxKind.WithStatement, FaultID.WithStatement],
+    [SyntaxKind.WithStatement, FaultID.WithStatement],
     [SyntaxKind.IndexedAccessType, FaultID.IndexedAccessType],[SyntaxKind.UnknownKeyword, FaultID.UnknownType],
     [SyntaxKind.CallSignature, FaultID.CallSignature],
     [SyntaxKind.IntersectionType, FaultID.IntersectionType],

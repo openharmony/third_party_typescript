@@ -13131,8 +13131,14 @@ declare namespace ts {
                 ImportAfterStatement = 80,
                 EsObjectType = 81,
                 SendableClassInheritance = 82,
-                SendableDefiniteAssignment = 83,
-                LAST_ID = 84
+                SendablePropType = 83,
+                SendableDefiniteAssignment = 84,
+                SendableGenericTypes = 85,
+                SendableClassDecorator = 86,
+                SendableObjectInitialization = 87,
+                SendableComputedPropName = 88,
+                SendableAsExpr = 89,
+                LAST_ID = 90
             }
             class FaultAttributes {
                 cookBookRef: number;
@@ -13156,6 +13162,10 @@ declare namespace ts {
             const ARKTS_IGNORE_DIRS: string[];
             const ARKTS_IGNORE_FILES: string[];
             const SENDABLE_DECORATOR = "Sendable";
+            const SENDABLE_INTERFACE = "ISendable";
+            const ARKTS_COLLECTIONS_D_ETS = "@arkts.collections.d.ets";
+            const COLLECTIONS_NAMESPACE = "collections";
+            const COLLECTIONS_ARRAY_TYPE = "Array";
             function setTypeChecker(tsTypeChecker: TypeChecker): void;
             function clearTypeChecker(): void;
             function setTestMode(tsTestMode: boolean): void;
@@ -13304,9 +13314,18 @@ declare namespace ts {
             function isStdBooleanType(type: ts.Type): boolean;
             function isEnumStringLiteral(expr: ts.Expression): boolean;
             function isValidComputedPropertyName(computedProperty: ComputedPropertyName, isRecordObjectInitializer?: boolean): boolean;
+            function isAllowedIndexSignature(node: ts.IndexSignatureDeclaration): boolean;
+            function isArkTSCollectionsArrayType(type: ts.Type): boolean;
             function getDecoratorName(decorator: ts.Decorator): string;
             function isSendableType(type: ts.Type): boolean;
+            function isSendableClassOrInterface(type: ts.Type): boolean;
+            function isConstEnumType(type: ts.Type): boolean;
+            function isConstEnum(sym: ts.Symbol): boolean;
+            function isSendableUnionType(type: ts.UnionType): boolean;
             function hasSendableDecorator(decl: ts.ClassDeclaration): boolean;
+            function hasNonSendableDecorator(decl: ts.ClassDeclaration): boolean;
+            function isInSendableClassAndHasDecorators(declaration: ts.HasDecorators): boolean;
+            function isISendableInterface(type: ts.Type): boolean;
         }
     }
 }
@@ -13412,8 +13431,10 @@ declare namespace ts {
             private handleImportDeclaration;
             private handlePropertyAccessExpression;
             private handlePropertyDeclaration;
+            private handleSendableClassProperty;
             private handlePropertyAssignment;
             private handlePropertySignature;
+            private handleSendableInterfaceProperty;
             private filterOutDecoratorsDiagnostics;
             private checkInRange;
             private filterStrictDiagnostics;
@@ -13432,6 +13453,7 @@ declare namespace ts {
             private handleEsObjectAssignment;
             private handleCatchClause;
             private handleClassDeclaration;
+            private processClassStaticBlocks;
             private handleModuleDeclaration;
             private handleTypeAliasDeclaration;
             private handleImportClause;
@@ -13463,6 +13485,7 @@ declare namespace ts {
             private findNonFilteringRangesFunctionCalls;
             private handleLibraryTypeCall;
             private handleNewExpression;
+            private handleSendableGenericTypes;
             private handleAsExpression;
             private handleTypeReference;
             private handleMetaProperty;
@@ -13470,6 +13493,7 @@ declare namespace ts {
             private handleConstructSignature;
             private handleExpressionWithTypeArguments;
             private handleComputedPropertyName;
+            private isSendableInvalidCompPropName;
             private handleGetAccessor;
             private handleSetAccessor;
             private handleDeclarationInferredType;
@@ -13482,6 +13506,7 @@ declare namespace ts {
             private reportThisKeywordsInScope;
             private handleCommentDirectives;
             private handleClassStaticBlockDeclaration;
+            private handleIndexSignature;
             lint(): void;
         }
     }
