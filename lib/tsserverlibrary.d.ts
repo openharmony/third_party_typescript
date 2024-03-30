@@ -13166,6 +13166,9 @@ declare namespace ts {
             const ARKTS_COLLECTIONS_D_ETS = "@arkts.collections.d.ets";
             const COLLECTIONS_NAMESPACE = "collections";
             const COLLECTIONS_ARRAY_TYPE = "Array";
+            const ARKTS_LANG_D_ETS = "@arkts.lang.d.ets";
+            const LANG_NAMESPACE = "lang";
+            const ISENDABLE_TYPE = "ISendable";
             function setTypeChecker(tsTypeChecker: TypeChecker): void;
             function clearTypeChecker(): void;
             function setTestMode(tsTestMode: boolean): void;
@@ -13319,6 +13322,7 @@ declare namespace ts {
             function getDecoratorName(decorator: ts.Decorator): string;
             function isSendableType(type: ts.Type): boolean;
             function isSendableClassOrInterface(type: ts.Type): boolean;
+            function typeContainsSendableClassOrInterface(type: ts.Type): boolean;
             function isConstEnumType(type: ts.Type): boolean;
             function isConstEnum(sym: ts.Symbol): boolean;
             function isSendableUnionType(type: ts.UnionType): boolean;
@@ -13453,6 +13457,9 @@ declare namespace ts {
             private handleEsObjectAssignment;
             private handleCatchClause;
             private handleClassDeclaration;
+            private checkClassDeclarationHeritageClause;
+            private isValidSendableClassExtends;
+            private checkSendableTypeParameter;
             private processClassStaticBlocks;
             private handleModuleDeclaration;
             private handleTypeAliasDeclaration;
