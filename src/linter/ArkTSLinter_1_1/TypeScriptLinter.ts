@@ -493,7 +493,7 @@ export class TypeScriptLinter {
       return;
     }
     const objectLiteralType = TypeScriptLinter.tsTypeChecker.getContextualType(objectLiteralExpr);
-    if (objectLiteralType && Utils.isSendableType(objectLiteralType)) {
+    if (objectLiteralType && Utils.typeContainsSendableClassOrInterface(objectLiteralType)) {
       this.incrementCounters(node, FaultID.SendableObjectInitialization);
     } else if (
       // issue 13082: Allow initializing struct instances with object literal.
@@ -514,7 +514,7 @@ export class TypeScriptLinter {
     let noContextTypeForArrayLiteral = false;
 
     const arrayLitType = TypeScriptLinter.tsTypeChecker.getContextualType(arrayLitNode);
-    if (arrayLitType && Utils.isSendableType(arrayLitType)) {
+    if (arrayLitType && Utils.typeContainsSendableClassOrInterface(arrayLitType)) {
       this.incrementCounters(node, FaultID.SendableObjectInitialization);
       return;
     }
@@ -1223,41 +1223,97 @@ export class TypeScriptLinter {
     this.countClassMembersWithDuplicateName(tsClassDecl);
 
     const isSendableClass = Utils.hasSendableDecorator(tsClassDecl);
-    if (isSendableClass && Utils.hasNonSendableDecorator(tsClassDecl)) {
-      this.incrementCounters(tsClassDecl, FaultID.SendableClassDecorator);
-    }
-
-    const visitHClause = (hClause: HeritageClause) => {
-      for (const tsTypeExpr of hClause.types) {
-        // Always resolve type from 'tsTypeExpr' node, not from 'tsTypeExpr.expression' node,
-        // as for the latter, type checker will return incorrect type result for classes in
-        // 'extends' clause. Additionally, reduce reference, as mostly type checker returns
-        // the TypeReference type objects for classes and interfaces.
-        const tsExprType = Utils.reduceReference(TypeScriptLinter.tsTypeChecker.getTypeAtLocation(tsTypeExpr));
-        if (tsExprType.isClass()) {
-          if (hClause.token === ts.SyntaxKind.ImplementsKeyword) {
-            this.incrementCounters(tsTypeExpr, FaultID.ImplementsClass);
-          }
-        }
-
-        const isSendableBaseType = Utils.isSendableClassOrInterface(tsExprType);
-        if (isSendableClass !== isSendableBaseType) {
-          this.incrementCounters(tsTypeExpr, FaultID.SendableClassInheritance);
-        }
+    if (isSendableClass) {
+      if (Utils.hasNonSendableDecorator(tsClassDecl)) {
+        this.incrementCounters(tsClassDecl, FaultID.SendableClassDecorator);
       }
-    };
+      tsClassDecl.typeParameters?.forEach((typeParamDecl) => {
+        this.checkSendableTypeParameter(typeParamDecl);
+      });
+    }
 
     if (tsClassDecl.heritageClauses) {
       for (const hClause of tsClassDecl.heritageClauses) {
         if (!hClause) {
           continue;
         }
-        visitHClause(hClause);
+        this.checkClassDeclarationHeritageClause(hClause, isSendableClass);
       }
     }
 
     if (!this.skipArkTSStaticBlocksCheck) {
       this.processClassStaticBlocks(tsClassDecl);
+    }
+  }
+
+  private checkClassDeclarationHeritageClause(hClause: ts.HeritageClause, isSendableClass: boolean): void {
+    for (const tsTypeExpr of hClause.types) {
+
+      /*
+       * Always resolve type from 'tsTypeExpr' node, not from 'tsTypeExpr.expression' node,
+       * as for the latter, type checker will return incorrect type result for classes in
+       * 'extends' clause. Additionally, reduce reference, as mostly type checker returns
+       * the TypeReference type objects for classes and interfaces.
+       */
+      const tsExprType = Utils.reduceReference(TypeScriptLinter.tsTypeChecker.getTypeAtLocation(tsTypeExpr));
+      const isSendableBaseType = Utils.isSendableClassOrInterface(tsExprType);
+      if (tsExprType.isClass() && hClause.token === ts.SyntaxKind.ImplementsKeyword) {
+        this.incrementCounters(tsTypeExpr, FaultID.ImplementsClass);
+      }
+
+      if (!isSendableClass) {
+        // Non-Sendable class can not implements sendable interface / extends sendable class
+        if (isSendableBaseType) {
+          this.incrementCounters(tsTypeExpr, FaultID.SendableClassInheritance);
+        }
+        continue;
+      }
+
+      /*
+       * Sendable class can implements any interface / extends only sendable class
+       * Sendable class can not extends sendable class variable(local / import)
+       */
+      if (hClause.token === ts.SyntaxKind.ExtendsKeyword) {
+        if (!isSendableBaseType) {
+          this.incrementCounters(tsTypeExpr, FaultID.SendableClassInheritance);
+          continue;
+        }
+        if (!this.isValidSendableClassExtends(tsTypeExpr)) {
+          this.incrementCounters(tsTypeExpr, FaultID.SendableClassInheritance);
+        }
+      }
+    }
+  }
+
+  private isValidSendableClassExtends(tsTypeExpr: ts.ExpressionWithTypeArguments): boolean {
+    const expr = tsTypeExpr.expression;
+    const sym = TypeScriptLinter.tsTypeChecker.getSymbolAtLocation(expr);
+    if (sym && (sym.flags & ts.SymbolFlags.Class) === 0) {
+      // handle non-class situation(local / import)
+      if ((sym.flags & ts.SymbolFlags.Alias) !== 0) {
+
+        /*
+         * Sendable class can not extends imported sendable class variable
+         * Sendable class can extends imported sendable class
+         */
+        const realSym = TypeScriptLinter.tsTypeChecker.getAliasedSymbol(sym);
+        if (realSym && (realSym.flags & ts.SymbolFlags.Class) === 0) {
+          return false;
+        }
+        return true;
+      }
+      return false;
+    }
+    return true;
+  }
+
+  private checkSendableTypeParameter(typeParamDecl: ts.TypeParameterDeclaration): void {
+    const defaultTypeNode = typeParamDecl.default;
+    if (defaultTypeNode) {
+      const defType = TypeScriptLinter.tsTypeChecker.getTypeFromTypeNode(defaultTypeNode);
+      if (!Utils.isSendableType(defType)) {
+        this.incrementCounters(defaultTypeNode, FaultID.SendableGenericTypes);
+      }
     }
   }
 
@@ -1290,7 +1346,7 @@ export class TypeScriptLinter {
             case SyntaxKind.InterfaceDeclaration:
             case SyntaxKind.TypeAliasDeclaration:
             case SyntaxKind.EnumDeclaration:
-            case SyntaxKind.ExportDeclaration: 
+            case SyntaxKind.ExportDeclaration:
               break;
             // Nested namespace declarations are prohibited
             // but there is no cookbook recipe for it!
@@ -2000,7 +2056,7 @@ export class TypeScriptLinter {
     // option is enabled, compiler attempts to infer type from variable references:
     // see https://github.com/microsoft/TypeScript/pull/11263.
     // In this case, we still want to report the error, since ArkTS doesn't allow
-    // to omit both type annotation and initializer. 
+    // to omit both type annotation and initializer.
     if (((ts.isVariableDeclaration(decl) && ts.isVariableStatement(decl.parent.parent)) || ts.isPropertyDeclaration(decl)) &&
       !decl.initializer) {
       if (ts.isPropertyDeclaration(decl) &&

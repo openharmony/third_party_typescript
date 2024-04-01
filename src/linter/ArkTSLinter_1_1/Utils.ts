@@ -52,6 +52,12 @@ export const COLLECTIONS_NAMESPACE = 'collections';
 
 export const COLLECTIONS_ARRAY_TYPE = 'Array';
 
+export const ARKTS_LANG_D_ETS = '@arkts.lang.d.ets';
+
+export const LANG_NAMESPACE = 'lang';
+
+export const ISENDABLE_TYPE = 'ISendable';
+
 let typeChecker: TypeChecker;
 export function setTypeChecker(tsTypeChecker: TypeChecker): void {
   typeChecker = tsTypeChecker;
@@ -1832,6 +1838,17 @@ export function isSendableClassOrInterface(type: ts.Type): boolean {
   return isOrDerivedFrom(type, isISendableInterface);
 }
 
+export function typeContainsSendableClassOrInterface(type: ts.Type): boolean {
+  // Only check type contains sendable class / interface
+  if ((type.flags & ts.TypeFlags.Union) !== 0) {
+    return !!(type as ts.UnionType)?.types?.some((type) => {
+      return typeContainsSendableClassOrInterface(type);
+    });
+  }
+
+  return isSendableClassOrInterface(type);
+}
+
 export function isConstEnumType(type: ts.Type): boolean {
   const targetType = reduceReference(type);
   const sym = targetType.symbol;
@@ -1892,9 +1909,28 @@ function getClassNodeFromDeclaration(declaration: ts.HasDecorators): ts.ClassDec
 }
 
 export function isISendableInterface(type: ts.Type): boolean {
-  const sym = type.getSymbol();
-  return sym !== undefined && isObjectType(type) && (type.objectFlags & ts.ObjectFlags.Interface) !== 0 &&
-    sym.name === SENDABLE_INTERFACE;
+  const symbol = type.aliasSymbol ?? type.getSymbol();
+  if (symbol?.declarations === undefined || symbol.declarations.length < 1) {
+    return false;
+  }
+
+  return isArkTSISendableDeclaration(symbol.declarations[0]);
+}
+
+function isArkTSISendableDeclaration(decl: ts.Declaration): boolean {
+    if (!ts.isInterfaceDeclaration(decl) || !decl.name || decl.name.text !== ISENDABLE_TYPE) {
+      return false;
+    }
+
+    if (!ts.isModuleBlock(decl.parent) || decl.parent.parent.name.text !== LANG_NAMESPACE) {
+      return false;
+    }
+
+    if (getBaseFileName(decl.getSourceFile().fileName).toLowerCase() !== ARKTS_LANG_D_ETS) {
+      return false;
+    }
+
+    return true;
 }
 
 }
