@@ -13322,7 +13322,7 @@ declare namespace ts {
             function getDecoratorName(decorator: ts.Decorator): string;
             function isSendableType(type: ts.Type): boolean;
             function isSendableClassOrInterface(type: ts.Type): boolean;
-            function isTypeContainsSendableClassOrInterface(type: ts.Type): boolean;
+            function typeContainsSendableClassOrInterface(type: ts.Type): boolean;
             function isConstEnumType(type: ts.Type): boolean;
             function isConstEnum(sym: ts.Symbol): boolean;
             function isSendableUnionType(type: ts.UnionType): boolean;
@@ -13458,6 +13458,7 @@ declare namespace ts {
             private handleCatchClause;
             private handleClassDeclaration;
             private checkClassDeclarationHeritageClause;
+            private isValidSendableClassExtends;
             private checkSendableTypeParameter;
             private processClassStaticBlocks;
             private handleModuleDeclaration;
