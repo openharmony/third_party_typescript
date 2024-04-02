@@ -199,7 +199,8 @@ function runLinter(rootName) {
     },
     getState() {
       return {
-        changedFilesSet: this.program.getSourceFiles().map(x => x.resolvedPath)
+        changedFilesSet: this.program.getSourceFiles().map(x => x.resolvedPath),
+        fileInfos: new Map()
       };
     }
   };
