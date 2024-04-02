@@ -59,8 +59,7 @@ export function runArkTSLinter(tsBuilderProgram: ArkTSProgram, reverseStrictBuil
   let srcFiles: SourceFile[] = [];
   if(!!srcFile) {
     srcFiles.push(srcFile);
-  }
-  else {
+  } else {
     srcFiles = strictProgram.getSourceFiles() as SourceFile[];
   }
 
@@ -83,9 +82,7 @@ export function runArkTSLinter(tsBuilderProgram: ArkTSProgram, reverseStrictBuil
 
       // Get list of bad nodes from the current run.
       currentDiagnostics = tscStrictDiagnostics.get(fileToLint.fileName) ?? [];
-      TypeScriptLinter.problemsInfos.forEach(
-        (x) => currentDiagnostics.push(translateDiag(fileToLint, x))
-      );
+      TypeScriptLinter.problemsInfos.forEach((x) => currentDiagnostics.push(translateDiag(fileToLint, x)));
     } else {
       // Get diagnostics from old run.
       currentDiagnostics = (oldDiagnostics?.get(fileToLint.resolvedPath) as Diagnostic[]) ?? [];
@@ -93,7 +90,7 @@ export function runArkTSLinter(tsBuilderProgram: ArkTSProgram, reverseStrictBuil
     diagnostics.push(...currentDiagnostics);
 
     // Add linter diagnostics to new cache.
-    programState.arktsLinterDiagnosticsPerFile.set(fileToLint.resolvedPath, currentDiagnostics)
+    programState.arktsLinterDiagnosticsPerFile.set(fileToLint.resolvedPath, currentDiagnostics);
   }
 
   timePrinterInstance.appendTime(ts.TimePhase.LINT);
@@ -102,7 +99,7 @@ export function runArkTSLinter(tsBuilderProgram: ArkTSProgram, reverseStrictBuil
   if (!!buildInfoWriteFile) {
     tscDiagnosticsLinter.getStrictBuilderProgram().emitBuildInfo(buildInfoWriteFile);
     tscDiagnosticsLinter.getNonStrictBuilderProgram().emitBuildInfo(buildInfoWriteFile);
-    timePrinterInstance.appendTime(ts.TimePhase.EMIT_BUILD_INFO)
+    timePrinterInstance.appendTime(ts.TimePhase.EMIT_BUILD_INFO);
   }
 
   releaseReferences();
@@ -129,7 +126,9 @@ function collectChangedFilesFromProgramState(state: ReusableBuilderProgramState)
     }
   }
 
-  if (!state.referencedMap) return changedFiles;
+  if (!state.referencedMap) {
+    return changedFiles;
+  }
 
   const seenPaths = new Set<Path>();
   const queue = arrayFrom(changedFiles.keys());
