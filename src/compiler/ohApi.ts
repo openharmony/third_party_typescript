@@ -708,14 +708,10 @@ namespace ts {
         let output: string;
         let lineStart: boolean;
         let linePos: number;
-        let lineCount: number;
-        let chars = [" ", ",", "(", ")", "{", "}", ";"];
 
         function updateLineCountAndPosFor(s: string) {
             const lineStartsOfS = computeLineStarts(s);
             if (lineStartsOfS.length > 1) {
-                // 1: The last element of the lineStartsOfS
-                lineCount = lineCount + lineStartsOfS.length - 1;
                 linePos = output.length - s.length + last(lineStartsOfS);
                 lineStart = (linePos - output.length) === 0;
             }
@@ -742,17 +738,10 @@ namespace ts {
             output = "";
             lineStart = true;
             linePos = 0;
-            // 0: Set lineCount to 0
-            lineCount = 0;
         }
 
         function rawWrite(s: string) {
             if (s !== undefined) {
-                // 0: Check if the length of s.trim() is 0.
-                if (lineStart && s.trim().length === 0) {
-                    return;
-                }
-
                 output += s;
                 updateLineCountAndPosFor(s);
             }
@@ -764,30 +753,15 @@ namespace ts {
             }
         }
 
-        function writeLine() {
-            if (lineStart) {
-                return;
+        function writeLine(force?: boolean) {
+            if (!lineStart || force) {
+                output += space;
+                linePos = output.length;
             }
-
-            if(checkString(output)) {
-                return;
-            }
-
-            output += space;
-        }
-
-        function checkString(input: string) {
-            // 0: The first element of the "chars"
-            for (let i = 0; i < chars.length; i++) {
-                if (input.endsWith(chars[i])) {
-                    return true;
-                }
-            }
-            return false;
         }
 
         function getTextPosWithWriteLine() {
-            return output.length;
+            return lineStart ? output.length : (output.length + space.length);
         }
 
         reset();
@@ -801,7 +775,7 @@ namespace ts {
             decreaseIndent: noop,
             getIndent: () => 0,
             getTextPos: () => output.length,
-            getLine: () => lineCount,
+            getLine: () => 0,
             getColumn: () => lineStart ? 0 : output.length - linePos,
             getText: () => output,
             isAtStartOfLine: () => lineStart,
