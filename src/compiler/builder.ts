@@ -261,7 +261,8 @@ namespace ts {
                 // Copy arkts linter diagnostics
                 diagnostics = oldState!.arktsLinterDiagnosticsPerFile?.get(sourceFilePath);
                 if (diagnostics) {
-                    state.arktsLinterDiagnosticsPerFile!.set(sourceFilePath, convertToDiagnostics(diagnostics as readonly ReusableDiagnostic[], newProgram, getCanonicalFileName));
+                    state.arktsLinterDiagnosticsPerFile!.set(sourceFilePath,
+                        convertToDiagnostics(diagnostics as readonly ReusableDiagnostic[], newProgram, getCanonicalFileName));
                 }
             }
             if (canCopyEmitSignatures) {
@@ -1641,8 +1642,12 @@ namespace ts {
                 compilerOptions: program.options ? convertToOptionsWithAbsolutePaths(program.options, toAbsolutePath) : {},
                 referencedMap: toManyToManyPathMap(program.referencedMap),
                 exportedModulesMap: toManyToManyPathMap(program.exportedModulesMap),
-                semanticDiagnosticsPerFile: program.semanticDiagnosticsPerFile && arrayToMap(program.semanticDiagnosticsPerFile, value => toFilePath(isNumber(value) ? value : value[0]), value => isNumber(value) ? emptyArray : value[1]),
-                arktsLinterDiagnosticsPerFile: program.arktsLinterDiagnosticsPerFile && arrayToMap(program.arktsLinterDiagnosticsPerFile, value => toFilePath(isNumber(value) ? value : value[0]), value => isNumber(value) ? emptyArray : value[1]),
+                semanticDiagnosticsPerFile: program.semanticDiagnosticsPerFile &&
+                    arrayToMap(program.semanticDiagnosticsPerFile,
+                        value => toFilePath(isNumber(value) ? value : value[0]), value => isNumber(value) ? emptyArray : value[1]),
+                arktsLinterDiagnosticsPerFile: program.arktsLinterDiagnosticsPerFile &&
+                    arrayToMap(program.arktsLinterDiagnosticsPerFile,
+                        value => toFilePath(isNumber(value) ? value : value[0]), value => isNumber(value) ? emptyArray : value[1]),
                 hasReusableDiagnostic: true,
                 affectedFilesPendingEmit: map(program.affectedFilesPendingEmit, value => toFilePath(value[0])),
                 affectedFilesPendingEmitKind: program.affectedFilesPendingEmit && arrayToMap(program.affectedFilesPendingEmit, value => toFilePath(value[0]), value => value[1]),
