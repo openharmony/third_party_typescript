@@ -108,7 +108,9 @@ const highlightRangeHandlers = new Map([
   [FaultID.FunctionApplyCall, getFunctionApplyCallHighlightRange],
   [FaultID.DeclWithDuplicateName, getDeclWithDuplicateNameHighlightRange],
   [FaultID.ObjectLiteralNoContextType, getObjectLiteralNoContextTypeHighlightRange],
-  [FaultID.ClassExpression, getClassExpressionHighlightRange]
+  [FaultID.ClassExpression, getClassExpressionHighlightRange],
+  [FaultID.MultipleStaticBlocks, getMultipleStaticBlocksHighlightRange],
+  [FaultID.SendableDefiniteAssignment, getSendableDefiniteAssignmentHighlightRange]
 ]);
 
 export function getVarDeclarationHighlightRange(nodeOrComment: Node | CommentRange): [number, number] | undefined {
@@ -212,6 +214,19 @@ export function getObjectLiteralNoContextTypeHighlightRange(
 
 export function getClassExpressionHighlightRange(nodeOrComment: Node | CommentRange): [number, number] | undefined {
   return getKeywordHighlightRange(nodeOrComment, 'class');
+}
+
+export function getMultipleStaticBlocksHighlightRange(nodeOrComment: ts.Node | ts.CommentRange): [number, number] | undefined {
+  return getKeywordHighlightRange(nodeOrComment, 'static');
+}
+
+// highlight ranges for Sendable rules
+export function getSendableDefiniteAssignmentHighlightRange(
+  nodeOrComment: ts.Node | ts.CommentRange
+): [number, number] | undefined {
+  const name = (nodeOrComment as ts.PropertyDeclaration).name;
+  const exclamationToken = (nodeOrComment as ts.PropertyDeclaration).exclamationToken;
+  return [name.getStart(), exclamationToken ? exclamationToken.getEnd() : name.getEnd()];
 }
 
 export function getKeywordHighlightRange(nodeOrComment: Node | CommentRange, keyword: string): [number, number] {
@@ -1796,21 +1811,55 @@ export function getDecoratorName(decorator: ts.Decorator): string {
   return decoratorName;
 }
 
-export function isSendableType(type: ts.Type): boolean {
-  if ((type.flags & (ts.TypeFlags.Boolean | ts.TypeFlags.Number | ts.TypeFlags.String |
-                     ts.TypeFlags.BigInt | ts.TypeFlags.Null | ts.TypeFlags.Undefined |
-                     ts.TypeFlags.TypeParameter)) !== 0) {
-    return true;
+export function unwrapParenthesizedTypeNode(typeNode: ts.TypeNode): ts.TypeNode {
+  let unwrappedTypeNode = typeNode;
+  while (ts.isParenthesizedTypeNode(unwrappedTypeNode)) {
+    unwrappedTypeNode = unwrappedTypeNode.type;
+  }
+  return unwrappedTypeNode;
+}
+
+export function isSendableTypeNode(typeNode: ts.TypeNode): boolean {
+
+  /*
+   * In order to correctly identify the usage of the enum member or
+   * const enum in type annotation, we need to handle union type and
+   * type alias cases by processing the type node and checking the
+   * symbol in case of type reference node.
+   */
+
+  typeNode = unwrapParenthesizedTypeNode(typeNode);
+
+  // Only a sendable union type is supported
+  if (ts.isUnionTypeNode(typeNode)) {
+    return typeNode.types.every((elemType) => {
+      return isSendableTypeNode(elemType);
+    });
   }
 
-  // Only the sendable union type is supported
-  if ((type.flags & ts.TypeFlags.Union) !== 0 && (type.flags & ts.TypeFlags.EnumLiteral) === 0 &&
-       isSendableUnionType(type as ts.UnionType)) {
-    return true;
+  const sym = ts.isTypeReferenceNode(typeNode) ?
+    trueSymbolAtLocation(typeNode.typeName) :
+    undefined;
+
+  if (sym && sym.getFlags() & ts.SymbolFlags.TypeAlias) {
+    const typeDecl = getDeclaration(sym);
+    if (typeDecl && ts.isTypeAliasDeclaration(typeDecl)) {
+      return isSendableTypeNode(typeDecl.type);
+    }
   }
 
   // Const enum type is supported
-  if ((type.flags & (ts.TypeFlags.Enum | ts.TypeFlags.EnumLiteral)) !== 0 && isConstEnumType(type)) {
+  if (isConstEnum(sym)) {
+    return true;
+  }
+
+  return isSendableType(TypeScriptLinter.tsTypeChecker.getTypeFromTypeNode(typeNode));
+}
+
+export function isSendableType(type: ts.Type): boolean {
+  if ((type.flags & (ts.TypeFlags.Boolean | ts.TypeFlags.Number | ts.TypeFlags.String |
+    ts.TypeFlags.BigInt | ts.TypeFlags.Null | ts.TypeFlags.Undefined |
+    ts.TypeFlags.TypeParameter)) !== 0) {
     return true;
   }
 
@@ -1849,26 +1898,8 @@ export function typeContainsSendableClassOrInterface(type: ts.Type): boolean {
   return isSendableClassOrInterface(type);
 }
 
-export function isConstEnumType(type: ts.Type): boolean {
-  const targetType = reduceReference(type);
-  const sym = targetType.symbol;
-  if (!sym) {
-    return false;
-  }
-  return isConstEnum(sym);
-}
-
-export function isConstEnum(sym: ts.Symbol): boolean {
-
-  /*
-   * The check in the second part is used when there is only one member in the enum
-   * In this case we need to go through the Parent to get the enum symbol
-   */
-  if (sym.flags === ts.SymbolFlags.ConstEnum || sym.flags === ts.SymbolFlags.EnumMember && (sym as any).parent &&
-                                                (sym as any).parent.flags === ts.SymbolFlags.ConstEnum) {
-    return true;
-  }
-  return false;
+export function isConstEnum(sym: ts.Symbol | undefined): boolean {
+  return !!sym && sym.flags === ts.SymbolFlags.ConstEnum;
 }
 
 export function isSendableUnionType(type: ts.UnionType): boolean {
@@ -1889,16 +1920,19 @@ export function hasSendableDecorator(decl: ts.ClassDeclaration): boolean {
   });
 }
 
-export function hasNonSendableDecorator(decl: ts.ClassDeclaration): boolean {
+export function getNonSendableDecorators(decl: ts.ClassDeclaration): ts.Decorator[] | undefined {
   const decorators = ts.getDecorators(decl);
-  return decorators !== undefined && decorators.some((x) => {
+  return decorators?.filter((x) => {
     return getDecoratorName(x) !== SENDABLE_DECORATOR;
   });
 }
 
-export function isInSendableClassAndHasDecorators(declaration: ts.HasDecorators): boolean {
+export function getDecoratorsIfInSendableClass(declaration: ts.HasDecorators): readonly ts.Decorator[] | undefined {
   const classNode = getClassNodeFromDeclaration(declaration);
-  return !!classNode && hasSendableDecorator(classNode) && ts.getDecorators(declaration) !== undefined;
+  if (classNode === undefined || !hasSendableDecorator(classNode)) {
+    return undefined;
+  }
+  return ts.getDecorators(declaration);
 }
 
 function getClassNodeFromDeclaration(declaration: ts.HasDecorators): ts.ClassDeclaration | undefined {

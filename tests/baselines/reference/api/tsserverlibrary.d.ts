@@ -13189,6 +13189,8 @@ declare namespace ts {
             function getDeclWithDuplicateNameHighlightRange(nodeOrComment: Node | CommentRange): [number, number] | undefined;
             function getObjectLiteralNoContextTypeHighlightRange(nodeOrComment: Node | CommentRange): [number, number] | undefined;
             function getClassExpressionHighlightRange(nodeOrComment: Node | CommentRange): [number, number] | undefined;
+            function getMultipleStaticBlocksHighlightRange(nodeOrComment: ts.Node | ts.CommentRange): [number, number] | undefined;
+            function getSendableDefiniteAssignmentHighlightRange(nodeOrComment: ts.Node | ts.CommentRange): [number, number] | undefined;
             function getKeywordHighlightRange(nodeOrComment: Node | CommentRange, keyword: string): [number, number];
             function isAssignmentOperator(tsBinOp: BinaryOperatorToken): boolean;
             function isType(tsType: TypeNode | undefined, checkType: string): boolean;
@@ -13320,15 +13322,16 @@ declare namespace ts {
             function isAllowedIndexSignature(node: ts.IndexSignatureDeclaration): boolean;
             function isArkTSCollectionsArrayType(type: ts.Type): boolean;
             function getDecoratorName(decorator: ts.Decorator): string;
+            function unwrapParenthesizedTypeNode(typeNode: ts.TypeNode): ts.TypeNode;
+            function isSendableTypeNode(typeNode: ts.TypeNode): boolean;
             function isSendableType(type: ts.Type): boolean;
             function isSendableClassOrInterface(type: ts.Type): boolean;
             function typeContainsSendableClassOrInterface(type: ts.Type): boolean;
-            function isConstEnumType(type: ts.Type): boolean;
-            function isConstEnum(sym: ts.Symbol): boolean;
+            function isConstEnum(sym: ts.Symbol | undefined): boolean;
             function isSendableUnionType(type: ts.UnionType): boolean;
             function hasSendableDecorator(decl: ts.ClassDeclaration): boolean;
-            function hasNonSendableDecorator(decl: ts.ClassDeclaration): boolean;
-            function isInSendableClassAndHasDecorators(declaration: ts.HasDecorators): boolean;
+            function getNonSendableDecorators(decl: ts.ClassDeclaration): ts.Decorator[] | undefined;
+            function getDecoratorsIfInSendableClass(declaration: ts.HasDecorators): readonly ts.Decorator[] | undefined;
             function isISendableInterface(type: ts.Type): boolean;
         }
     }
