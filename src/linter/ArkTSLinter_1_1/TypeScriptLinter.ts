@@ -541,9 +541,9 @@ export class TypeScriptLinter {
   private handleParameter(node: Node): void {
     const tsParam = node as ParameterDeclaration;
 
-    if (Utils.isInSendableClassAndHasDecorators(tsParam)) {
-      this.incrementCounters(node, FaultID.SendableClassDecorator);
-    }
+    Utils.getDecoratorsIfInSendableClass(tsParam)?.forEach((decorator) => {
+      this.incrementCounters(decorator, FaultID.SendableClassDecorator);
+    });
 
     if (isArrayBindingPattern(tsParam.name) || isObjectBindingPattern(tsParam.name)) {
       this.incrementCounters(node, FaultID.DestructuringParameter);
@@ -713,12 +713,10 @@ export class TypeScriptLinter {
     if (!ts.isClassDeclaration(classNode) || !Utils.hasSendableDecorator(classNode)) {
       return;
     }
-    if (Utils.isInSendableClassAndHasDecorators(node)) {
-      this.incrementCounters(node, FaultID.SendableClassDecorator);
-    }
-    const type = TypeScriptLinter.tsTypeChecker.getTypeFromTypeNode(typeNode);
-    const isSendablePropType = Utils.isSendableType(type);
-    if (!isSendablePropType) {
+    Utils.getDecoratorsIfInSendableClass(node)?.forEach((decorator) => {
+      this.incrementCounters(decorator, FaultID.SendableClassDecorator);
+    });
+    if (!Utils.isSendableTypeNode(typeNode)) {
       this.incrementCounters(node, FaultID.SendablePropType);
     }
   }
@@ -765,12 +763,10 @@ export class TypeScriptLinter {
     }
     const interfaceNode = node.parent;
     const interfaceNodeType = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(interfaceNode);
-    if (!ts.isInterfaceDeclaration(interfaceNode) || !Utils.isSendableType(interfaceNodeType)) {
+    if (!ts.isInterfaceDeclaration(interfaceNode) || !Utils.isSendableClassOrInterface(interfaceNodeType)) {
       return;
     }
-    const type = TypeScriptLinter.tsTypeChecker.getTypeFromTypeNode(typeNode);
-    const isSendablePropType = Utils.isSendableType(type);
-    if (!isSendablePropType) {
+    if (!Utils.isSendableTypeNode(typeNode)) {
       this.incrementCounters(node, FaultID.SendablePropType);
     }
   }
@@ -1224,9 +1220,9 @@ export class TypeScriptLinter {
 
     const isSendableClass = Utils.hasSendableDecorator(tsClassDecl);
     if (isSendableClass) {
-      if (Utils.hasNonSendableDecorator(tsClassDecl)) {
-        this.incrementCounters(tsClassDecl, FaultID.SendableClassDecorator);
-      }
+      Utils.getNonSendableDecorators(tsClassDecl)?.forEach((decorator) => {
+        this.incrementCounters(decorator, FaultID.SendableClassDecorator);
+      });
       tsClassDecl.typeParameters?.forEach((typeParamDecl) => {
         this.checkSendableTypeParameter(typeParamDecl);
       });
@@ -1310,8 +1306,7 @@ export class TypeScriptLinter {
   private checkSendableTypeParameter(typeParamDecl: ts.TypeParameterDeclaration): void {
     const defaultTypeNode = typeParamDecl.default;
     if (defaultTypeNode) {
-      const defType = TypeScriptLinter.tsTypeChecker.getTypeFromTypeNode(defaultTypeNode);
-      if (!Utils.isSendableType(defType)) {
+      if (!Utils.isSendableTypeNode(defaultTypeNode)) {
         this.incrementCounters(defaultTypeNode, FaultID.SendableGenericTypes);
       }
     }
@@ -1419,9 +1414,9 @@ export class TypeScriptLinter {
 
   private handleMethodDeclaration(node: Node): void {
     const tsMethodDecl = node as MethodDeclaration;
-    if (Utils.isInSendableClassAndHasDecorators(tsMethodDecl)) {
-      this.incrementCounters(node, FaultID.SendableClassDecorator);
-    }
+    Utils.getDecoratorsIfInSendableClass(tsMethodDecl)?.forEach((decorator) => {
+      this.incrementCounters(decorator, FaultID.SendableClassDecorator);
+    });
     let isStatic = false;
     if (tsMethodDecl.modifiers) {
       for (const mod of tsMethodDecl.modifiers) {
@@ -1896,7 +1891,7 @@ export class TypeScriptLinter {
 
   private handleSendableGenericTypes(node: ts.NewExpression): void {
     const type = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(node);
-    if (!Utils.isSendableType(type)) {
+    if (!Utils.isSendableClassOrInterface(type)) {
       return;
     }
 
@@ -1906,8 +1901,7 @@ export class TypeScriptLinter {
     }
 
     for (const arg of typeArgs) {
-      const argType = TypeScriptLinter.tsTypeChecker.getTypeFromTypeNode(arg);
-      if (!Utils.isSendableType(argType)) {
+      if (!Utils.isSendableTypeNode(arg)) {
         this.incrementCounters(arg, FaultID.SendableGenericTypes);
       }
     }
@@ -2025,15 +2019,15 @@ export class TypeScriptLinter {
   }
 
   private handleGetAccessor(node: ts.GetAccessorDeclaration): void {
-    if (Utils.isInSendableClassAndHasDecorators(node)) {
-      this.incrementCounters(node, FaultID.SendableClassDecorator);
-    }
+    Utils.getDecoratorsIfInSendableClass(node)?.forEach((decorator) => {
+      this.incrementCounters(decorator, FaultID.SendableClassDecorator);
+    });
   }
 
   private handleSetAccessor(node: ts.SetAccessorDeclaration): void {
-    if (Utils.isInSendableClassAndHasDecorators(node)) {
-      this.incrementCounters(node, FaultID.SendableClassDecorator);
-    }
+    Utils.getDecoratorsIfInSendableClass(node)?.forEach((decorator) => {
+      this.incrementCounters(decorator, FaultID.SendableClassDecorator);
+    });
   }
 
   private handleDeclarationInferredType(
