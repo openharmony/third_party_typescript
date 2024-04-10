@@ -50,7 +50,7 @@ export const ARKTS_COLLECTIONS_D_ETS = '@arkts.collections.d.ets';
 
 export const COLLECTIONS_NAMESPACE = 'collections';
 
-export const COLLECTIONS_ARRAY_TYPE = 'Array';
+export const ARKTS_COLLECTIONS_TYPES = ['Array', 'Int8Array', 'Uint8Array', 'Int16Array', 'Uint16Array', 'Int32Array', 'Uint32Array'];
 
 export const ARKTS_LANG_D_ETS = '@arkts.lang.d.ets';
 
@@ -1762,7 +1762,11 @@ export function isValidComputedPropertyName(computedProperty: ComputedPropertyNa
 }
 
 export function isAllowedIndexSignature(node: ts.IndexSignatureDeclaration): boolean {
-  // For now, relax index signature only for 'collections.Array<T>.[_: number]: T'.
+
+  /*
+   * For now, relax index signature only for specific array-like types
+   * with the following signature: 'collections.Array<T>.[_: number]: T'.
+   */
 
   if (node.parameters.length !== 1) {
     return false;
@@ -1773,20 +1777,20 @@ export function isAllowedIndexSignature(node: ts.IndexSignatureDeclaration): boo
     return false;
   }
 
-  return isArkTSCollectionsArrayDeclaration(node.parent);
+  return isArkTSCollectionsArrayLikeDeclaration(node.parent);
 }
 
-export function isArkTSCollectionsArrayType(type: ts.Type): boolean {
+export function isArkTSCollectionsArrayLikeType(type: ts.Type): boolean {
   const symbol = type.aliasSymbol ?? type.getSymbol();
   if (symbol?.declarations === undefined || symbol.declarations.length < 1) {
     return false;
   }
 
-  return isArkTSCollectionsArrayDeclaration(symbol.declarations[0]);
+  return isArkTSCollectionsArrayLikeDeclaration(symbol.declarations[0]);
 }
 
-function isArkTSCollectionsArrayDeclaration(decl: ts.Declaration): boolean {
-  if (!ts.isClassDeclaration(decl) || !decl.name || decl.name.text !== COLLECTIONS_ARRAY_TYPE) {
+function isArkTSCollectionsArrayLikeDeclaration(decl: ts.Declaration): boolean {
+  if (!ts.isClassDeclaration(decl) || !decl.name || !ARKTS_COLLECTIONS_TYPES.includes(decl.name.text)) {
     return false;
   }
 

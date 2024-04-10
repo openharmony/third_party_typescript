@@ -9226,7 +9226,7 @@ declare namespace ts {
             const SENDABLE_INTERFACE = "ISendable";
             const ARKTS_COLLECTIONS_D_ETS = "@arkts.collections.d.ets";
             const COLLECTIONS_NAMESPACE = "collections";
-            const COLLECTIONS_ARRAY_TYPE = "Array";
+            const ARKTS_COLLECTIONS_TYPES: string[];
             const ARKTS_LANG_D_ETS = "@arkts.lang.d.ets";
             const LANG_NAMESPACE = "lang";
             const ISENDABLE_TYPE = "ISendable";
@@ -9381,7 +9381,7 @@ declare namespace ts {
             function isEnumStringLiteral(expr: ts.Expression): boolean;
             function isValidComputedPropertyName(computedProperty: ComputedPropertyName, isRecordObjectInitializer?: boolean): boolean;
             function isAllowedIndexSignature(node: ts.IndexSignatureDeclaration): boolean;
-            function isArkTSCollectionsArrayType(type: ts.Type): boolean;
+            function isArkTSCollectionsArrayLikeType(type: ts.Type): boolean;
             function getDecoratorName(decorator: ts.Decorator): string;
             function unwrapParenthesizedTypeNode(typeNode: ts.TypeNode): ts.TypeNode;
             function isSendableTypeNode(typeNode: ts.TypeNode): boolean;
