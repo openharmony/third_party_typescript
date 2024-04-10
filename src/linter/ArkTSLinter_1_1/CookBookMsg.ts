@@ -17,7 +17,7 @@ export namespace ArkTSLinter_1_1 {
 export const cookBookMsg: string[] = [];
 export const cookBookTag: string[] = [];
 
-for(let i = 0; i <= 161; i++) {
+for (let i = 0; i <= 161; i++) {
   cookBookMsg[ i ] = "";
 }
 
