@@ -7752,6 +7752,22 @@ namespace ts {
             return decoratorsAndModifiers;
         }
 
+        function hasParamAndNoOnceDecorator(decorators: NodeArray<Decorator> | undefined): boolean {
+            let hasParamDecorator = false;
+            let hasOnceDecorator = false;
+            decorators?.forEach((decorator) => {
+                if (!ts.isIdentifier(decorator.expression)) {
+                    return;
+                }
+                if (decorator.expression.escapedText === 'Param') {
+                    hasParamDecorator = true;
+                }
+                else if (decorator.expression.escapedText === 'Once') {
+                    hasOnceDecorator = true;
+                }
+            });
+            return (hasParamDecorator && !hasOnceDecorator);
+        }
         /*
          * There are situations in which a modifier like 'const' will appear unexpectedly, such as on a class member.
          * In those situations, if we are entirely sure that 'const' is not valid on its own (such as when ASI takes effect
@@ -7759,12 +7775,24 @@ namespace ts {
          *
          * In such situations, 'permitInvalidConstAsModifier' should be set to true.
          */
-        function parseModifiers(permitInvalidConstAsModifier?: boolean, stopOnStartOfClassStaticBlock?: boolean): NodeArray<Modifier> | undefined {
+        function parseModifiers(
+            permitInvalidConstAsModifier?: boolean,
+            stopOnStartOfClassStaticBlock?: boolean,
+            shouldAddReadonly?: boolean
+        ): NodeArray<Modifier> | undefined {
             const pos = getNodePos();
             let list, modifier, hasSeenStatic = false;
+            let hasReadonly = false;
             while (modifier = tryParseModifier(permitInvalidConstAsModifier, stopOnStartOfClassStaticBlock, hasSeenStatic)) {
                 if (modifier.kind === SyntaxKind.StaticKeyword) hasSeenStatic = true;
+                if (modifier.kind === SyntaxKind.ReadonlyKeyword) {
+                    hasReadonly = true;
+                }
                 list = append(list, modifier);
+            }
+            if (shouldAddReadonly && !hasReadonly) {
+                const readonlyModifier = finishVirtualNode(factory.createToken(SyntaxKind.ReadonlyKeyword));
+                list = append(list, readonlyModifier);
             }
             return list && createNodeArray(list, pos);
         }
@@ -7789,7 +7817,12 @@ namespace ts {
 
             const hasJSDoc = hasPrecedingJSDocComment();
             const decorators = parseDecorators();
-            const modifiers = parseModifiers(/*permitInvalidConstAsModifier*/ true, /*stopOnStartOfClassStaticBlock*/ true);
+            /*
+             *  shouldAddReadonly adds readonly modifier when the element in struct has the Param decorator
+             *  and doesn't have Once decorator.
+             */
+            const shouldAddReadonly = inStructContext() && hasParamAndNoOnceDecorator(decorators);
+            const modifiers = parseModifiers(/*permitInvalidConstAsModifier*/ true, /*stopOnStartOfClassStaticBlock*/ true, shouldAddReadonly);
             if (token() === SyntaxKind.StaticKeyword && lookAhead(nextTokenIsOpenBrace)) {
                 return parseClassStaticBlockDeclaration(pos, hasJSDoc, decorators, modifiers);
             }
