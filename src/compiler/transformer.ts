@@ -199,6 +199,7 @@ namespace ts {
             enableEmitNotification,
             isSubstitutionEnabled,
             isEmitNotificationEnabled,
+            isLexicalEnvironmentSuspended,
             get onSubstituteNode() { return onSubstituteNode; },
             set onSubstituteNode(value) {
                 Debug.assert(state < TransformationState.Initialized, "Cannot modify transformation hooks after initialization has completed.");
@@ -563,6 +564,11 @@ namespace ts {
                 // Prevent further use of the transformation result.
                 state = TransformationState.Disposed;
             }
+        }
+
+        /** Determines whether the lexical environment is suspended */
+        function isLexicalEnvironmentSuspended(): boolean {
+            return lexicalEnvironmentSuspended;
         }
     }
 

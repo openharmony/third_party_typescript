@@ -8647,6 +8647,9 @@ namespace ts {
         onEmitNode: (hint: EmitHint, node: Node, emitCallback: (hint: EmitHint, node: Node) => void) => void;
 
         /* @internal */ addDiagnostic(diag: DiagnosticWithLocation): void;
+
+        /** Determines whether the lexical environment is suspended */
+        isLexicalEnvironmentSuspended?(): boolean
     }
 
     export interface TransformationResult<T extends Node> {
