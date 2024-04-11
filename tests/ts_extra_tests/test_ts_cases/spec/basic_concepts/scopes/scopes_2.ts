@@ -22,6 +22,6 @@
 
 import { Assert } from "../../../../suite/assert.js";
 
-import * as m from "./scopes_2_1_m.js";
+import * as m from './scopes_2_1_m.js';
 Assert.equal(m.m3, 1970);
 Assert.equal(m.m4, 'EXP');

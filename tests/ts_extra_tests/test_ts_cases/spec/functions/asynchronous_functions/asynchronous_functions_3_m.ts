@@ -14,48 +14,12 @@
  */
 
 
-import { Assert } from '../../../../suite/assert.js'
-
-function createAsyncInterator(arr: any[]): AsyncIterator<any> {
-    let index = 0;
-    let len = arr.length;
-    return {
-        async next() {
-            return new Promise((resolve, reject) => {
-                if (index < len) {
-                    resolve({ value: arr[index++], done: false });
-                } else {
-                    resolve({ value: undefined, done: true });
-                }
-            });
-        },
-    };
-}
-export function newArray(len: number, step: number = 1) {
+export function newArray(len: number, step: number = 1): number[] {
     if (len <= 0) { return [] };
-    let arr: any[] = [];
+    let arr: number[] = [];
     let x: number = 0;
     for (let i: number = 0; i < len; i++) {
         arr[i] = x + step;
     }
     return arr;
 }
-let arr = newArray(15);
-async function exp(arr: any[]) {
-    let asy = createAsyncInterator(arr);
-    let i = 0;
-    let fg;
-    while (true) {
-        if (fg == true) {
-            break;
-        }
-        await asy.next().then((v) => {
-            if (v.done == true) {
-                fg = true;
-            }
-            Assert.equal(v.value, arr[i++]);
-            return;
-        });
-    }
-}
-exp(arr);
