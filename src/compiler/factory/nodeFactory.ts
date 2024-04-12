@@ -84,6 +84,8 @@ namespace ts {
             updatePropertySignature,
             createPropertyDeclaration,
             updatePropertyDeclaration,
+            createAnnotationPropertyDeclaration,
+            updateAnnotationPropertyDeclaration,
             createMethodSignature,
             updateMethodSignature,
             createMethodDeclaration,
@@ -281,6 +283,8 @@ namespace ts {
             updateClassDeclaration,
             createStructDeclaration,
             updateStructDeclaration,
+            createAnnotationDeclaration,
+            updateAnnotationDeclaration,
             createInterfaceDeclaration,
             updateInterfaceDeclaration,
             createTypeAliasDeclaration,
@@ -621,6 +625,7 @@ namespace ts {
                     case SyntaxKind.GetAccessor:
                     case SyntaxKind.SetAccessor:
                     case SyntaxKind.PropertyDeclaration:
+                    case SyntaxKind.AnnotationPropertyDeclaration:
                     case SyntaxKind.PropertyAssignment:
                         if (isIdentifier(name)) {
                             node.transformFlags |= propagateIdentifierNameFlags(name);
@@ -747,7 +752,7 @@ namespace ts {
             return node;
         }
 
-        function createBaseBindingLikeDeclaration<T extends PropertyDeclaration | VariableDeclaration | ParameterDeclaration | BindingElement>(
+        function createBaseBindingLikeDeclaration<T extends PropertyDeclaration | VariableDeclaration | ParameterDeclaration | BindingElement | AnnotationPropertyDeclaration>(
             kind: T["kind"],
             modifiers: readonly ModifierLike[] | undefined,
             name: string | T["name"] | undefined,
@@ -763,7 +768,7 @@ namespace ts {
             return node;
         }
 
-        function createBaseVariableLikeDeclaration<T extends PropertyDeclaration | VariableDeclaration | ParameterDeclaration>(
+        function createBaseVariableLikeDeclaration<T extends PropertyDeclaration | VariableDeclaration | ParameterDeclaration | AnnotationPropertyDeclaration>(
             kind: T["kind"],
             modifiers: readonly ModifierLike[] | undefined,
             name: string | T["name"] | undefined,
@@ -1241,9 +1246,10 @@ namespace ts {
         }
 
         // @api
-        function createDecorator(expression: Expression) {
+        function createDecorator(expression: Expression, annotationDeclaration?: AnnotationDeclaration) {
             const node = createBaseNode<Decorator>(SyntaxKind.Decorator);
             node.expression = parenthesizerRules().parenthesizeLeftSideOfAccess(expression, /*optionalChain*/ false);
+            node.annotationDeclaration = annotationDeclaration;
             node.transformFlags |=
                 propagateChildFlags(node.expression) |
                 TransformFlags.ContainsTypeScript |
@@ -1253,9 +1259,9 @@ namespace ts {
         }
 
         // @api
-        function updateDecorator(node: Decorator, expression: Expression) {
-            return node.expression !== expression
-                ? update(createDecorator(expression), node)
+        function updateDecorator(node: Decorator, expression: Expression, annotationDeclaration?: AnnotationDeclaration) {
+            return node.expression !== expression || node.annotationDeclaration !== annotationDeclaration
+                ? update(createDecorator(expression, annotationDeclaration), node)
                 : node;
         }
 
@@ -1354,6 +1360,37 @@ namespace ts {
                 || node.type !== type
                 || node.initializer !== initializer
                 ? update(createPropertyDeclaration(modifiers, name, questionOrExclamationToken, type, initializer), node)
+                : node;
+        }
+
+        // @api
+        function createAnnotationPropertyDeclaration(
+            name: string | PropertyName,
+            type: TypeNode | undefined,
+            initializer: Expression | undefined,
+        ) {
+            const node = createBaseVariableLikeDeclaration<AnnotationPropertyDeclaration>(
+                SyntaxKind.AnnotationPropertyDeclaration,
+                undefined,
+                name,
+                type,
+                initializer
+            );
+            node.transformFlags |= TransformFlags.ContainsTypeScript;
+            return node;
+        }
+
+        // @api
+        function updateAnnotationPropertyDeclaration(
+            node: AnnotationPropertyDeclaration,
+            name: string | PropertyName,
+            type: TypeNode | undefined,
+            initializer: Expression | undefined,
+        ) {
+            return node.name !== name
+                || node.type !== type
+                || node.initializer !== initializer
+                ? update(createAnnotationPropertyDeclaration(name, type, initializer), node)
                 : node;
         }
 
@@ -3886,6 +3923,43 @@ namespace ts {
         }
 
         // @api
+        function createAnnotationDeclaration(
+            modifiers: readonly Modifier[] | undefined,
+            name: string | Identifier | undefined,
+            members: readonly AnnotationElement[]
+        ) {
+            const node = createBaseNamedDeclaration<AnnotationDeclaration>(
+                SyntaxKind.AnnotationDeclaration,
+                modifiers,
+                name
+            );
+            node.members = createNodeArray(members);
+            node.transformFlags |= propagateChildrenFlags(node.members);
+            if (modifiersToFlags(node.modifiers) & ModifierFlags.Ambient) {
+                node.transformFlags = TransformFlags.ContainsTypeScript;
+            }
+            else {
+                node.transformFlags |= TransformFlags.ContainsES2015;
+                node.transformFlags |= TransformFlags.ContainsTypeScript;
+            }
+            return node;
+        }
+
+        // @api
+        function updateAnnotationDeclaration(
+            node: AnnotationDeclaration,
+            modifiers: readonly Modifier[] | undefined,
+            name: Identifier | undefined,
+            members: readonly AnnotationElement[]
+        ) {
+            return node.modifiers !== modifiers
+                || node.name !== name
+                || node.members !== members
+                ? update(createAnnotationDeclaration(modifiers, name, members), node)
+                : node;
+        }
+
+        // @api
         function createInterfaceDeclaration(
             modifiers: readonly Modifier[] | undefined,
             name: string | Identifier,
@@ -6399,6 +6473,7 @@ namespace ts {
                 isArrowFunction(node) ? updateArrowFunction(node, modifierArray, node.typeParameters, node.parameters, node.type, node.equalsGreaterThanToken, node.body) :
                 isClassExpression(node) ? updateClassExpression(node, modifierArray, node.name, node.typeParameters, node.heritageClauses, node.members) :
                 isStructDeclaration(node) ? updateStructDeclaration(node, modifierArray, node.name, node.typeParameters, node.heritageClauses, node.members) :
+                isAnnotationDeclaration(node) ? updateAnnotationDeclaration(node, modifierArray, node.name, node.members) :
                 isVariableStatement(node) ? updateVariableStatement(node, modifierArray, node.declarationList) :
                 isFunctionDeclaration(node) ? updateFunctionDeclaration(node, modifierArray, node.asteriskToken, node.name, node.typeParameters, node.parameters, node.type, node.body) :
                 isClassDeclaration(node) ? updateClassDeclaration(node, modifierArray, node.name, node.typeParameters, node.heritageClauses, node.members) :

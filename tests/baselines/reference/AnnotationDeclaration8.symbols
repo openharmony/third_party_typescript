@@ -1,0 +1,4 @@
+=== tests/cases/conformance/parser/ets/annotations/AnnotationDeclaration8.ets ===
+@interface C\u0032 {}
+>C\u0032 : Symbol(C\u0032, Decl(AnnotationDeclaration8.ets, 0, 0))
+

@@ -1,0 +1,4 @@
+=== tests/cases/conformance/parser/ets/annotations/AnnotationDeclarationNegative10.ets ===
+@interface class {}
+> : Symbol((Missing), Decl(AnnotationDeclarationNegative10.ets, 0, 0))
+

@@ -1,0 +1,15 @@
+=== tests/cases/conformance/annotations/annotationAsTypeError8.ets ===
+@interface Anno {}
+
+function foo(a: Anno) {
+>foo : (a: Anno) => void
+>a : Anno
+}
+
+class C {
+>C : C
+
+    public goo(a: Anno) {}
+>goo : (a: Anno) => void
+>a : Anno
+}

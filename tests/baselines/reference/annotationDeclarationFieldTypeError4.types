@@ -1,0 +1,17 @@
+=== tests/cases/conformance/annotations/annotationDeclarationFieldTypeError4.ets ===
+const enum E {
+>E : E
+
+    A,
+>A : E.A
+
+    B
+>B : E.B
+}
+type U = boolean | E
+>U : boolean | E
+
+@interface Anno {
+    a: U
+>a : U
+}

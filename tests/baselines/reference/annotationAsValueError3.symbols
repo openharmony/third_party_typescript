@@ -1,0 +1,7 @@
+=== tests/cases/conformance/annotations/annotationAsValueError3.ets ===
+@interface Anno {}
+>Anno : Symbol(Anno, Decl(annotationAsValueError3.ets, 0, 0))
+
+Anno;
+>Anno : Symbol(Anno, Decl(annotationAsValueError3.ets, 0, 0))
+

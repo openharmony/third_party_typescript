@@ -1,0 +1,12 @@
+=== tests/cases/conformance/parser/ets/annotations/AnnotationDeclaration6.ets ===
+@interface Anno {
+    a: number = 42
+>a : number
+
+    b: boolean = true
+>b : boolean
+>true : true
+
+    c: string = "abc"
+>c : string
+}

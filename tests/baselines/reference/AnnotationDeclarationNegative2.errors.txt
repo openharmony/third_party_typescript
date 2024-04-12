@@ -1,0 +1,7 @@
+tests/cases/conformance/parser/ets/annotations/AnnotationDeclarationNegative2.ets(1,1): error TS1044: 'public' modifier cannot appear on a module or namespace element.
+
+
+==== tests/cases/conformance/parser/ets/annotations/AnnotationDeclarationNegative2.ets (1 errors) ====
+    public @interface Anno {}
+    ~~~~~~
+!!! error TS1044: 'public' modifier cannot appear on a module or namespace element.

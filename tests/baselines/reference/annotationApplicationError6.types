@@ -1,0 +1,16 @@
+=== tests/cases/conformance/annotations/annotationApplicationError6.ets ===
+@interface Anno {
+    a: number
+>a : number
+
+    b: string[]
+>b : string[]
+}
+
+@Anno()
+>Anno() : void
+>Anno : typeof Anno
+
+class C {}
+>C : C
+

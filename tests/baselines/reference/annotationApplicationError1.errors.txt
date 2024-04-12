@@ -1,0 +1,12 @@
+tests/cases/conformance/annotations/annotationApplicationError1.ets(5,1): error TS28020: Only an object literal have to be provided as annotation parameters list, got: '[]'.
+
+
+==== tests/cases/conformance/annotations/annotationApplicationError1.ets (1 errors) ====
+    @interface Anno {
+        a: number = 10
+    }
+    
+    @Anno([])
+    ~~~~~~~~~
+!!! error TS28020: Only an object literal have to be provided as annotation parameters list, got: '[]'.
+    class C {}

@@ -1,0 +1,26 @@
+tests/cases/conformance/annotations/annotationDeclarationFieldInitializerError1.ets(10,5): error TS28034: Default value of annotation property can be a constant expression, got: 'A'.
+tests/cases/conformance/annotations/annotationDeclarationFieldInitializerError1.ets(11,5): error TS28034: Default value of annotation property can be a constant expression, got: 'B()'.
+tests/cases/conformance/annotations/annotationDeclarationFieldInitializerError1.ets(12,5): error TS28034: Default value of annotation property can be a constant expression, got: 'C'.
+
+
+==== tests/cases/conformance/annotations/annotationDeclarationFieldInitializerError1.ets (3 errors) ====
+    let A = 10;
+    
+    function B(): number {
+        return 10;
+    }
+    
+    const C = A + B();
+    
+    @interface Anno {
+        a = A
+        ~
+!!! error TS28034: Default value of annotation property can be a constant expression, got: 'A'.
+        b = B()
+        ~
+!!! error TS28034: Default value of annotation property can be a constant expression, got: 'B()'.
+        c = C
+        ~
+!!! error TS28034: Default value of annotation property can be a constant expression, got: 'C'.
+    
+    }

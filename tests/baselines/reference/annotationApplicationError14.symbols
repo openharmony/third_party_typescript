@@ -1,0 +1,10 @@
+=== tests/cases/conformance/annotations/annotationApplicationError14.ets ===
+@interface bigint {
+>bigint : Symbol(bigint, Decl(annotationApplicationError14.ets, 0, 0))
+
+    a: number = 10
+>a : Symbol(bigint.a, Decl(annotationApplicationError14.ets, 0, 19))
+
+    b: string[] = []
+>b : Symbol(bigint.b, Decl(annotationApplicationError14.ets, 1, 18))
+}

@@ -1,0 +1,5 @@
+=== tests/cases/conformance/annotations/annotationDeclarationFieldType6.ets ===
+@interface Anno {
+    a: string[]
+>a : string[]
+}

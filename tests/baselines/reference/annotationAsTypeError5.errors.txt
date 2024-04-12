@@ -1,0 +1,10 @@
+tests/cases/conformance/annotations/annotationAsTypeError5.ets(4,17): error TS28028: Annotation cannot be used as a type.
+
+
+==== tests/cases/conformance/annotations/annotationAsTypeError5.ets (1 errors) ====
+    @interface Anno {}
+    
+    let o: Object
+    const a = (o as Anno)
+                    ~~~~
+!!! error TS28028: Annotation cannot be used as a type.

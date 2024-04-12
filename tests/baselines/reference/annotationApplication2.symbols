@@ -1,0 +1,14 @@
+=== tests/cases/conformance/annotations/annotationApplication2.ets ===
+@interface Anno {
+>Anno : Symbol(Anno, Decl(annotationApplication2.ets, 0, 0))
+
+    a = 10
+>a : Symbol(Anno.a, Decl(annotationApplication2.ets, 0, 17))
+}
+
+@Anno({})
+>Anno : Symbol(Anno, Decl(annotationApplication2.ets, 0, 0))
+
+class C {}
+>C : Symbol(C, Decl(annotationApplication2.ets, 2, 1))
+

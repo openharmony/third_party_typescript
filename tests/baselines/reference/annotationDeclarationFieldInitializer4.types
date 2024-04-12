@@ -1,0 +1,69 @@
+=== tests/cases/conformance/annotations/annotationDeclarationFieldInitializer4.ets ===
+const a = "a"
+>a : "a"
+>"a" : "a"
+
+const b = "b"
+>b : "b"
+>"b" : "b"
+
+@interface Anno {
+    d  = !a
+>d : boolean
+>!a : boolean
+>a : "a"
+
+    r = a && b
+>r : string
+>a && b : "" | "b"
+>a : "a"
+>b : "b"
+
+    s = a || b
+>s : string
+>a || b : "a" | "b"
+>a : "a"
+>b : "b"
+
+    t = a < b
+>t : boolean
+>a < b : boolean
+>a : "a"
+>b : "b"
+
+    u = a <= b
+>u : boolean
+>a <= b : boolean
+>a : "a"
+>b : "b"
+
+    v = a > b
+>v : boolean
+>a > b : boolean
+>a : "a"
+>b : "b"
+
+    w = a >= b
+>w : boolean
+>a >= b : boolean
+>a : "a"
+>b : "b"
+
+    x = a === a
+>x : boolean
+>a === a : boolean
+>a : "a"
+>a : "a"
+
+    y = a !== a
+>y : boolean
+>a !== a : boolean
+>a : "a"
+>a : "a"
+
+    z = a == a
+>z : boolean
+>a == a : boolean
+>a : "a"
+>a : "a"
+}

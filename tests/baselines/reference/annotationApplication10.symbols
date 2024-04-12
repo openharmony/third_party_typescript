@@ -1,0 +1,51 @@
+=== tests/cases/conformance/annotations/annotationApplication10.ets ===
+const enum E{
+>E : Symbol(E, Decl(annotationApplication10.ets, 0, 0))
+
+    A,
+>A : Symbol(E.A, Decl(annotationApplication10.ets, 0, 13))
+
+    B,
+>B : Symbol(E.B, Decl(annotationApplication10.ets, 1, 6))
+
+    C
+>C : Symbol(E.C, Decl(annotationApplication10.ets, 2, 6))
+}
+
+@interface Anno {
+>Anno : Symbol(Anno, Decl(annotationApplication10.ets, 4, 1))
+
+    a: number
+>a : Symbol(Anno.a, Decl(annotationApplication10.ets, 6, 17))
+
+    b: boolean
+>b : Symbol(Anno.b, Decl(annotationApplication10.ets, 7, 13))
+
+    c: string
+>c : Symbol(Anno.c, Decl(annotationApplication10.ets, 8, 14))
+
+    d: E[]
+>d : Symbol(Anno.d, Decl(annotationApplication10.ets, 9, 13))
+>E : Symbol(E, Decl(annotationApplication10.ets, 0, 0))
+}
+
+
+@Anno({a: 10 + 20 / 2, b: (10 === 10), c: "a" + "b" + "c", d: [E.A, E.B, E.C]})
+>Anno : Symbol(Anno, Decl(annotationApplication10.ets, 4, 1))
+>a : Symbol(a, Decl(annotationApplication10.ets, 14, 7))
+>b : Symbol(b, Decl(annotationApplication10.ets, 14, 22))
+>c : Symbol(c, Decl(annotationApplication10.ets, 14, 38))
+>d : Symbol(d, Decl(annotationApplication10.ets, 14, 58))
+>E.A : Symbol(E.A, Decl(annotationApplication10.ets, 0, 13))
+>E : Symbol(E, Decl(annotationApplication10.ets, 0, 0))
+>A : Symbol(E.A, Decl(annotationApplication10.ets, 0, 13))
+>E.B : Symbol(E.B, Decl(annotationApplication10.ets, 1, 6))
+>E : Symbol(E, Decl(annotationApplication10.ets, 0, 0))
+>B : Symbol(E.B, Decl(annotationApplication10.ets, 1, 6))
+>E.C : Symbol(E.C, Decl(annotationApplication10.ets, 2, 6))
+>E : Symbol(E, Decl(annotationApplication10.ets, 0, 0))
+>C : Symbol(E.C, Decl(annotationApplication10.ets, 2, 6))
+
+class C {}
+>C : Symbol(C, Decl(annotationApplication10.ets, 11, 1))
+

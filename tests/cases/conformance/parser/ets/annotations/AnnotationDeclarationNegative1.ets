@@ -1,0 +1,2 @@
+//@etsAnnotationsEnable: true
+@interface Anno {

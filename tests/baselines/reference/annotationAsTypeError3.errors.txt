@@ -1,0 +1,12 @@
+tests/cases/conformance/annotations/annotationAsTypeError3.ets(3,20): error TS2422: A class can only implement an object type or intersection of object types with statically known members.
+tests/cases/conformance/annotations/annotationAsTypeError3.ets(3,20): error TS28028: Annotation cannot be used as a type.
+
+
+==== tests/cases/conformance/annotations/annotationAsTypeError3.ets (2 errors) ====
+    @interface Anno {}
+    
+    class C implements Anno{}
+                       ~~~~
+!!! error TS2422: A class can only implement an object type or intersection of object types with statically known members.
+                       ~~~~
+!!! error TS28028: Annotation cannot be used as a type.

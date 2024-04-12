@@ -1,0 +1,12 @@
+tests/cases/conformance/annotations/B.ets(1,9): error TS28030: Annotation cannot be renamed in import or export.
+
+
+==== tests/cases/conformance/annotations/A.ets (0 errors) ====
+    export @interface Anno {
+        a: number
+    }
+    
+==== tests/cases/conformance/annotations/B.ets (1 errors) ====
+    export {Anno as B} from "./A";
+            ~~~~~~~~~
+!!! error TS28030: Annotation cannot be renamed in import or export.

@@ -1,0 +1,40 @@
+=== tests/cases/conformance/annotations/annotationApplicationError8.ets ===
+@interface Anno {
+>Anno : Symbol(Anno, Decl(annotationApplicationError8.ets, 0, 0))
+
+    a: number = 10
+>a : Symbol(Anno.a, Decl(annotationApplicationError8.ets, 0, 17))
+
+    b: string[] = []
+>b : Symbol(Anno.b, Decl(annotationApplicationError8.ets, 1, 18))
+}
+
+
+class C {
+>C : Symbol(C, Decl(annotationApplicationError8.ets, 3, 1))
+
+    @Anno
+>Anno : Symbol(Anno, Decl(annotationApplicationError8.ets, 0, 0))
+
+    public a: number
+>a : Symbol(C.a, Decl(annotationApplicationError8.ets, 6, 9))
+
+    public foo(@Anno a: number) {}
+>foo : Symbol(C.foo, Decl(annotationApplicationError8.ets, 8, 20))
+>Anno : Symbol(Anno, Decl(annotationApplicationError8.ets, 0, 0))
+>a : Symbol(a, Decl(annotationApplicationError8.ets, 10, 15))
+
+    @Anno
+>Anno : Symbol(Anno, Decl(annotationApplicationError8.ets, 0, 0))
+
+    get prop(): number { return 0}
+>prop : Symbol(C.prop, Decl(annotationApplicationError8.ets, 10, 34), Decl(annotationApplicationError8.ets, 13, 34))
+
+    @Anno
+>Anno : Symbol(Anno, Decl(annotationApplicationError8.ets, 0, 0))
+
+    set prop(a: number) {}
+>prop : Symbol(C.prop, Decl(annotationApplicationError8.ets, 10, 34), Decl(annotationApplicationError8.ets, 13, 34))
+>a : Symbol(a, Decl(annotationApplicationError8.ets, 16, 13))
+}
+

@@ -1,0 +1,89 @@
+=== tests/cases/conformance/annotations/annotationDeclarationFieldInitializer8.ets ===
+const enum E {
+>E : Symbol(E, Decl(annotationDeclarationFieldInitializer8.ets, 0, 0))
+
+    A,
+>A : Symbol(E.A, Decl(annotationDeclarationFieldInitializer8.ets, 0, 14))
+
+    B
+>B : Symbol(E.B, Decl(annotationDeclarationFieldInitializer8.ets, 1, 6))
+}
+
+const a = 10
+>a : Symbol(a, Decl(annotationDeclarationFieldInitializer8.ets, 5, 5))
+
+const b = 20
+>b : Symbol(b, Decl(annotationDeclarationFieldInitializer8.ets, 6, 5))
+
+const c = "a"
+>c : Symbol(c, Decl(annotationDeclarationFieldInitializer8.ets, 7, 5))
+
+const d = "b"
+>d : Symbol(d, Decl(annotationDeclarationFieldInitializer8.ets, 8, 5))
+
+const e = true
+>e : Symbol(e, Decl(annotationDeclarationFieldInitializer8.ets, 9, 5))
+
+const f = false
+>f : Symbol(f, Decl(annotationDeclarationFieldInitializer8.ets, 10, 5))
+
+@interface Anno {
+>Anno : Symbol(Anno, Decl(annotationDeclarationFieldInitializer8.ets, 10, 15))
+
+    a: number[] = [1 + 2, a + b, (E.A + E.B) / 3]
+>a : Symbol(Anno.a, Decl(annotationDeclarationFieldInitializer8.ets, 12, 17))
+>a : Symbol(a, Decl(annotationDeclarationFieldInitializer8.ets, 5, 5))
+>b : Symbol(b, Decl(annotationDeclarationFieldInitializer8.ets, 6, 5))
+>E.A : Symbol(E.A, Decl(annotationDeclarationFieldInitializer8.ets, 0, 14))
+>E : Symbol(E, Decl(annotationDeclarationFieldInitializer8.ets, 0, 0))
+>A : Symbol(E.A, Decl(annotationDeclarationFieldInitializer8.ets, 0, 14))
+>E.B : Symbol(E.B, Decl(annotationDeclarationFieldInitializer8.ets, 1, 6))
+>E : Symbol(E, Decl(annotationDeclarationFieldInitializer8.ets, 0, 0))
+>B : Symbol(E.B, Decl(annotationDeclarationFieldInitializer8.ets, 1, 6))
+
+    b: Array<number> = [1 + 2, a + b, (E.A + E.B) / 3]
+>b : Symbol(Anno.b, Decl(annotationDeclarationFieldInitializer8.ets, 13, 49))
+>Array : Symbol(Array, Decl(lib.es5.d.ts, --, --), Decl(lib.es5.d.ts, --, --))
+>a : Symbol(a, Decl(annotationDeclarationFieldInitializer8.ets, 5, 5))
+>b : Symbol(b, Decl(annotationDeclarationFieldInitializer8.ets, 6, 5))
+>E.A : Symbol(E.A, Decl(annotationDeclarationFieldInitializer8.ets, 0, 14))
+>E : Symbol(E, Decl(annotationDeclarationFieldInitializer8.ets, 0, 0))
+>A : Symbol(E.A, Decl(annotationDeclarationFieldInitializer8.ets, 0, 14))
+>E.B : Symbol(E.B, Decl(annotationDeclarationFieldInitializer8.ets, 1, 6))
+>E : Symbol(E, Decl(annotationDeclarationFieldInitializer8.ets, 0, 0))
+>B : Symbol(E.B, Decl(annotationDeclarationFieldInitializer8.ets, 1, 6))
+
+    c: Array<Array<number>> = [[1 + a * b / 3], [E.A + b], [a + E.A], []]
+>c : Symbol(Anno.c, Decl(annotationDeclarationFieldInitializer8.ets, 14, 54))
+>Array : Symbol(Array, Decl(lib.es5.d.ts, --, --), Decl(lib.es5.d.ts, --, --))
+>Array : Symbol(Array, Decl(lib.es5.d.ts, --, --), Decl(lib.es5.d.ts, --, --))
+>a : Symbol(a, Decl(annotationDeclarationFieldInitializer8.ets, 5, 5))
+>b : Symbol(b, Decl(annotationDeclarationFieldInitializer8.ets, 6, 5))
+>E.A : Symbol(E.A, Decl(annotationDeclarationFieldInitializer8.ets, 0, 14))
+>E : Symbol(E, Decl(annotationDeclarationFieldInitializer8.ets, 0, 0))
+>A : Symbol(E.A, Decl(annotationDeclarationFieldInitializer8.ets, 0, 14))
+>b : Symbol(b, Decl(annotationDeclarationFieldInitializer8.ets, 6, 5))
+>a : Symbol(a, Decl(annotationDeclarationFieldInitializer8.ets, 5, 5))
+>E.A : Symbol(E.A, Decl(annotationDeclarationFieldInitializer8.ets, 0, 14))
+>E : Symbol(E, Decl(annotationDeclarationFieldInitializer8.ets, 0, 0))
+>A : Symbol(E.A, Decl(annotationDeclarationFieldInitializer8.ets, 0, 14))
+
+    d: string[] = ["a", (c + d)]
+>d : Symbol(Anno.d, Decl(annotationDeclarationFieldInitializer8.ets, 15, 73))
+>c : Symbol(c, Decl(annotationDeclarationFieldInitializer8.ets, 7, 5))
+>d : Symbol(d, Decl(annotationDeclarationFieldInitializer8.ets, 8, 5))
+
+    e: string[][] = [["a", (c + d)], ["b", "abc" + d], []]
+>e : Symbol(Anno.e, Decl(annotationDeclarationFieldInitializer8.ets, 16, 32))
+>c : Symbol(c, Decl(annotationDeclarationFieldInitializer8.ets, 7, 5))
+>d : Symbol(d, Decl(annotationDeclarationFieldInitializer8.ets, 8, 5))
+>d : Symbol(d, Decl(annotationDeclarationFieldInitializer8.ets, 8, 5))
+
+    f: Array<boolean> = [true, false, c === c, f || e]
+>f : Symbol(Anno.f, Decl(annotationDeclarationFieldInitializer8.ets, 17, 58))
+>Array : Symbol(Array, Decl(lib.es5.d.ts, --, --), Decl(lib.es5.d.ts, --, --))
+>c : Symbol(c, Decl(annotationDeclarationFieldInitializer8.ets, 7, 5))
+>c : Symbol(c, Decl(annotationDeclarationFieldInitializer8.ets, 7, 5))
+>f : Symbol(f, Decl(annotationDeclarationFieldInitializer8.ets, 10, 5))
+>e : Symbol(e, Decl(annotationDeclarationFieldInitializer8.ets, 9, 5))
+}

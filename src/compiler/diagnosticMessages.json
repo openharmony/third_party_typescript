@@ -7620,5 +7620,89 @@
     "Importing ArkTS files in JS and TS files is forbidden.": {
         "category": "Error",
         "code": 28017
+    },
+    "Unexpected token. An annotation property was expected.": {
+        "category": "Error",
+        "code": 28018
+    },
+    "When annotation '{0}' is applied, all fields without default values must be provided.": {
+        "category": "Error",
+        "code": 28019
+    },
+    "Only an object literal have to be provided as annotation parameters list, got: '{0}'.": {
+        "category": "Error",
+        "code": 28020
+    },
+    "Annotation have to be applied only for non-abstract class declarations and method declarations in non-abstract classes, got: '{0}'.": {
+        "category": "Error",
+        "code": 28021
+    },
+    "Annotation have to be applied for classes or methods only, got: '{0}'.": {
+        "category": "Error",
+        "code": 28022
+    },
+    "Repeatable annotation are not supported, got: '{0}'.": {
+        "category": "Error",
+        "code": 28023
+    },
+    "Annotation must be defined at top-level only.": {
+        "category": "Error",
+        "code": 28024
+    },
+    "Annotation name cannot be '{0}'.": {
+        "category": "Error",
+        "code": 28025
+    },
+    "Annotation cannot be applied for annotation declaration.": {
+        "category": "Error",
+        "code": 28026
+    },
+    "Annotation cannot be used as type or variable or function or method.": {
+        "category": "Error",
+        "code": 28027
+    },
+    "Annotation cannot be used as a type.": {
+        "category": "Error",
+        "code": 28028
+    },
+    "Annotation cannot be used as a value.": {
+        "category": "Error",
+        "code": 28029
+    },
+    "Annotation cannot be renamed in import or export.": {
+        "category": "Error",
+        "code": 28030
+    },
+    "Annotation cannot be exported as default.": {
+        "category": "Error",
+        "code": 28031
+    },
+    "An annotation property must have a type or/and an initializer.": {
+        "category": "Error",
+        "code": 28032
+    },
+    "A type of annotation property have to be number, boolean, string, const enumeration types or array of above types, got: '{0}'.": {
+        "category": "Error",
+        "code": 28033
+    },
+    "Default value of annotation property can be a constant expression, got: '{0}'.": {
+        "category": "Error",
+        "code": 28034
+    },
+    "All members of object literal which is provided as annotation parameters list, have to be constant expressions, got: '{0}'.": {
+        "category": "Error",
+        "code": 28035
+    },
+    "Annotation '{0}' used before its declaration.": {
+        "category": "Error",
+        "code": 28036
+    },
+    "In annotation declaration any symbols between '@' and 'interface' are forbidden.": {
+        "category": "Error",
+        "code": 28037
+    },
+    "Enable support of ETS annotations": {
+        "category": "Message",
+        "code": 28038
     }
 }

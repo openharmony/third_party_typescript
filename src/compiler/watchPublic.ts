@@ -571,7 +571,7 @@ namespace ts {
             return directoryStructureHost.fileExists(fileName);
         }
 
-        function getVersionedSourceFileByPath(fileName: string, path: Path, languageVersionOrOptions: ScriptTarget | CreateSourceFileOptions, onError?: (message: string) => void, shouldCreateNewSourceFile?: boolean): SourceFile | undefined {
+        function getVersionedSourceFileByPath(fileName: string, path: Path, languageVersionOrOptions: ScriptTarget | CreateSourceFileOptions, onError?: (message: string) => void, shouldCreateNewSourceFile?: boolean, _options?: CompilerOptions): SourceFile | undefined {
             const hostSourceFile = sourceFilesCache.get(path);
             // No source file on the host
             if (isFileMissingOnHost(hostSourceFile)) {

@@ -1,0 +1,12 @@
+=== tests/cases/conformance/annotations/annotationAsTypeError5.ets ===
+@interface Anno {}
+
+let o: Object
+>o : Object
+
+const a = (o as Anno)
+>a : Anno
+>(o as Anno) : Anno
+>o as Anno : Anno
+>o : Object
+

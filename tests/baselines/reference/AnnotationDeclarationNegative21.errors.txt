@@ -1,0 +1,9 @@
+tests/cases/conformance/parser/ets/annotations/AnnotationDeclarationNegative21.ets(2,5): error TS28024: Annotation must be defined at top-level only.
+
+
+==== tests/cases/conformance/parser/ets/annotations/AnnotationDeclarationNegative21.ets (1 errors) ====
+    namespace X {
+        @interface Anno {}
+        ~~~~~~~~~~~~~~~~~~
+!!! error TS28024: Annotation must be defined at top-level only.
+    }

@@ -11,6 +11,7 @@ namespace ts {
     export type DeclarationDiagnosticProducing =
         | VariableDeclaration
         | PropertyDeclaration
+        | AnnotationPropertyDeclaration
         | PropertySignature
         | BindingElement
         | SetAccessorDeclaration
@@ -35,6 +36,7 @@ namespace ts {
     export function canProduceDiagnostics(node: Node): node is DeclarationDiagnosticProducing {
         return isVariableDeclaration(node) ||
             isPropertyDeclaration(node) ||
+            isAnnotationPropertyDeclaration(node) ||
             isPropertySignature(node) ||
             isBindingElement(node) ||
             isSetAccessor(node) ||
@@ -129,7 +131,7 @@ namespace ts {
     }
 
     export function createGetSymbolAccessibilityDiagnosticForNode(node: DeclarationDiagnosticProducing): GetSymbolAccessibilityDiagnostic {
-        if (isVariableDeclaration(node) || isPropertyDeclaration(node) || isPropertySignature(node) || isPropertyAccessExpression(node) || isBindingElement(node) || isConstructorDeclaration(node)) {
+        if (isVariableDeclaration(node) || isPropertyDeclaration(node) || isPropertySignature(node) || isAnnotationPropertyDeclaration(node) || isPropertyAccessExpression(node) || isBindingElement(node) || isConstructorDeclaration(node)) {
             return getVariableDeclarationTypeVisibilityError;
         }
         else if (isSetAccessor(node) || isGetAccessor(node)) {

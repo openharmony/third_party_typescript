@@ -1,0 +1,26 @@
+tests/cases/conformance/parser/ets/annotations/AnnotationDeclarationNegative15.ets(2,5): error TS2349: This expression is not callable.
+  Type 'Number' has no call signatures.
+tests/cases/conformance/parser/ets/annotations/AnnotationDeclarationNegative15.ets(2,5): error TS28018: Unexpected token. An annotation property was expected.
+tests/cases/conformance/parser/ets/annotations/AnnotationDeclarationNegative15.ets(3,5): error TS2349: This expression is not callable.
+  Type 'Number' has no call signatures.
+tests/cases/conformance/parser/ets/annotations/AnnotationDeclarationNegative15.ets(3,9): error TS1005: ';' expected.
+tests/cases/conformance/parser/ets/annotations/AnnotationDeclarationNegative15.ets(4,1): error TS1128: Declaration or statement expected.
+
+
+==== tests/cases/conformance/parser/ets/annotations/AnnotationDeclarationNegative15.ets (5 errors) ====
+    @interface Anno {
+        0();
+        ~
+!!! error TS2349: This expression is not callable.
+!!! error TS2349:   Type 'Number' has no call signatures.
+        ~
+!!! error TS28018: Unexpected token. An annotation property was expected.
+        1() { }
+        ~
+!!! error TS2349: This expression is not callable.
+!!! error TS2349:   Type 'Number' has no call signatures.
+            ~
+!!! error TS1005: ';' expected.
+    }
+    ~
+!!! error TS1128: Declaration or statement expected.

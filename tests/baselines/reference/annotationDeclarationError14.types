@@ -1,0 +1,11 @@
+=== tests/cases/conformance/annotations/A.ets ===
+export @interface Anno {
+    a: number
+>a : number
+}
+
+=== tests/cases/conformance/annotations/B.ets ===
+export {Anno as default} from "./A";
+>Anno : typeof import("tests/cases/conformance/annotations/A").Anno
+>default : typeof import("tests/cases/conformance/annotations/A").Anno
+

@@ -1,0 +1,82 @@
+=== tests/cases/conformance/annotations/annotationApplication11.ets ===
+const enum E {
+>E : E
+
+	A, B, C
+>A : E.A
+>B : E.B
+>C : E.C
+}
+
+@interface D {
+	a: number
+>a : number
+
+	b = [(10 + 3), E.A]
+>b : number[]
+>[(10 + 3), E.A] : number[]
+>(10 + 3) : number
+>10 + 3 : number
+>10 : 10
+>3 : 3
+>E.A : E.A
+>E : typeof E
+>A : E.A
+
+	c: string
+>c : string
+
+	d: boolean
+>d : boolean
+
+	e: E[] = [E.A, E.B, E.C]
+>e : E[]
+>[E.A, E.B, E.C] : E[]
+>E.A : E.A
+>E : typeof E
+>A : E.A
+>E.B : E.B
+>E : typeof E
+>B : E.B
+>E.C : E.C
+>E : typeof E
+>C : E.C
+
+	f: number[]
+>f : number[]
+
+	g: E[][][]
+>g : E[][][]
+}
+
+
+@D({a: E.A + 10, c: "a" + "b", d: (1 === 1), f: [], g: [[[0]]]})
+>D({a: E.A + 10, c: "a" + "b", d: (1 === 1), f: [], g: [[[0]]]}) : void
+>D : typeof D
+>{a: E.A + 10, c: "a" + "b", d: (1 === 1), f: [], g: [[[0]]]} : { a: number; c: string; d: boolean; f: undefined[]; g: 0[][][]; }
+>a : number
+>E.A + 10 : number
+>E.A : E.A
+>E : typeof E
+>A : E.A
+>10 : 10
+>c : string
+>"a" + "b" : string
+>"a" : "a"
+>"b" : "b"
+>d : boolean
+>(1 === 1) : boolean
+>1 === 1 : boolean
+>1 : 1
+>1 : 1
+>f : undefined[]
+>[] : undefined[]
+>g : 0[][][]
+>[[[0]]] : 0[][][]
+>[[0]] : 0[][]
+>[0] : 0[]
+>0 : 0
+
+class C{}
+>C : C
+

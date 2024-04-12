@@ -1,0 +1,10 @@
+tests/cases/conformance/annotations/annotationApplicationError14.ets(1,12): error TS28025: Annotation name cannot be 'bigint'.
+
+
+==== tests/cases/conformance/annotations/annotationApplicationError14.ets (1 errors) ====
+    @interface bigint {
+               ~~~~~~
+!!! error TS28025: Annotation name cannot be 'bigint'.
+        a: number = 10
+        b: string[] = []
+    }

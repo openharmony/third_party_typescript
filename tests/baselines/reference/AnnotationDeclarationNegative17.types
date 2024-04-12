@@ -1,0 +1,8 @@
+=== tests/cases/conformance/parser/ets/annotations/AnnotationDeclarationNegative17.ets ===
+@interface Anno {
+    [index:number]:number
+>[index:number] : any[]
+>index : any
+>number : any
+>number : any
+}

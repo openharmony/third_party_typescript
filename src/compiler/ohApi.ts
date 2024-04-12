@@ -1,5 +1,9 @@
 namespace ts {
     /* @internal */
+    // Required for distinguishing annotations and decorators in other code analysis tools
+    export const annotationMagicNamePrefix = "#";
+
+    /* @internal */
     export function isInEtsFile(node: Node |undefined): boolean {
         return node !== undefined && getSourceFileOfNode(node)?.scriptKind === ScriptKind.ETS;
     }
@@ -392,6 +396,215 @@ namespace ts {
 
     export function getTypeExportImportAndConstEnumTransformer(context: TransformationContext): (node: SourceFile) => SourceFile {
         return transformTypeExportImportAndConstEnumInTypeScript(context);
+    }
+
+    export function getAnnotationTransformer(relativeFilePath: string): TransformerFactory<SourceFile> {
+        return (context: TransformationContext) => transformAnnotation(context, relativeFilePath);
+    }
+
+    export function transformAnnotation(context: TransformationContext, relativeFilePath: string): (node: SourceFile) => SourceFile {
+        const resolver = context.getEmitResolver();
+        const annotationUniqueNamePrefix = getAnnotationUniqueNamePrefixFromFilePath(relativeFilePath);
+
+        return transformSourceFile;
+
+        function transformSourceFile(node: SourceFile): SourceFile {
+            if (node.isDeclarationFile) {
+                return node;
+            }
+            // Firstly, visit declarations
+            const updatedSource = factory.updateSourceFile(node,
+                visitLexicalEnvironment(node.statements, visitAnnotationsDeclarations, context));
+            // Secondly, visit usage of annotations
+            return factory.updateSourceFile(
+                node,
+                visitLexicalEnvironment(updatedSource.statements, visitAnnotations, context));
+        }
+
+        function visitAnnotationsDeclarations(node: Node): VisitResult<Node> {
+            switch (node.kind) {
+                case SyntaxKind.AnnotationDeclaration:
+                    return visitAnnotationDeclaration(<AnnotationDeclaration>node);
+                default:
+                    return visitEachChild(node, visitAnnotationsDeclarations, context);
+            }
+        }
+
+        function visitAnnotations(node: Node): VisitResult<Node> {
+            switch (node.kind) {
+                case SyntaxKind.Decorator:
+                    return visitAnnotation(<Annotation>node);
+                default:
+                    return visitEachChild(node, visitAnnotations, context);
+            }
+        }
+
+        function visitAnnotationDeclaration(node: AnnotationDeclaration): VisitResult<AnnotationDeclaration> {
+            resolver.setAnnotationDeclarationUniquePrefix(node, annotationUniqueNamePrefix);
+
+            // Add unique prefix for AnnotationDeclaration. For example,
+            // @interface Anno {} --- >  @interface e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855Anno {}
+            const uniqueName = addUniquePrefixToAnnotationNameIdentifier(node.name, annotationUniqueNamePrefix);
+            Debug.assert(isIdentifier(uniqueName));
+
+            // Add explicit type annotation and initializer. For example,
+            // @interface e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855Anno {
+            //     a = 10 + 5
+            // }
+            //
+            // will be transformed to
+            //
+            // @interface e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855Anno {
+            //     a: number = 15
+            // }
+            const members = node.members.map((node: AnnotationPropertyDeclaration) => {
+                const type = resolver.getAnnotationPropertyInferredType(node);
+                const initializer = resolver.getAnnotationPropertyEvaluatedInitializer(node);
+                return factory.updateAnnotationPropertyDeclaration(node, node.name, type, initializer);
+            });
+
+            return factory.updateAnnotationDeclaration(node, node.modifiers, uniqueName, members);
+        }
+
+        function visitAnnotation(node: Annotation): VisitResult<Annotation> {
+            if (!node.annotationDeclaration) {
+                return node;
+            }
+            // Add default values into annotation object literal. For example,
+            // @interface Anno {
+            //     a: number = 10
+            //     b: string
+            // }
+            //
+            // @Anno({b: "abc"}) --- > @Anno({a: 10, b: "abc"})
+            // class C {}
+            //
+            // and
+            //
+            // Add unique prefix for annotation name. For example,
+            // @myModule.Anno({a: 10, b: "abc"}) --- > @myModule.e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855({a: 10, b: "abc"})
+            //
+            // and
+            //
+            // Add the magic prefix for annotation name. For example,
+            // @myModule.Anno({a: 10, b: "abc"}) --- > @#myModule.e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855({a: 10, b: "abc"})
+            return factory.updateDecorator(
+                node,
+                addMagicPrefixToAnnotationNameIdentifier(
+                    addUniquePrefixToAnnotationNameIdentifier(
+                        addDefaultValuesIntoAnnotationObjectLiteral(node),
+                        resolver.getAnnotationDeclarationUniquePrefix(node.annotationDeclaration)!
+                    )
+                )
+            );
+        }
+
+        function addUniquePrefixToAnnotationNameIdentifier(expr: Expression, prefix: string): Identifier | PropertyAccessExpression | CallExpression {
+            switch (expr.kind) {
+                case SyntaxKind.Identifier:
+                    return factory.createIdentifier(
+                        prefix + (expr as Identifier).escapedText
+                    );
+                case SyntaxKind.PropertyAccessExpression:
+                    const propAccessExpr = expr as PropertyAccessExpression;
+                    return factory.updatePropertyAccessExpression(
+                        propAccessExpr,
+                        propAccessExpr.expression,
+                        addUniquePrefixToAnnotationNameIdentifier(propAccessExpr.name, prefix) as MemberName
+                    );
+                case SyntaxKind.CallExpression:
+                    const callExpr = expr as CallExpression;
+                    return factory.updateCallExpression(
+                        callExpr,
+                        addUniquePrefixToAnnotationNameIdentifier(callExpr.expression, prefix),
+                        callExpr.typeArguments,
+                        callExpr.arguments
+                    );
+                default:
+                    return expr as (Identifier | PropertyAccessExpression | CallExpression);
+            }
+        }
+
+        function addMagicPrefixToAnnotationNameIdentifier(expr: Expression): Identifier | PropertyAccessExpression | CallExpression {
+            switch (expr.kind) {
+                case SyntaxKind.Identifier:
+                    return factory.createIdentifier(
+                        annotationMagicNamePrefix + (expr as Identifier).escapedText
+                    );
+                case SyntaxKind.PropertyAccessExpression:
+                    const propAccessExpr = expr as PropertyAccessExpression;
+                    return factory.updatePropertyAccessExpression(
+                        propAccessExpr,
+                        addMagicPrefixToAnnotationNameIdentifier(propAccessExpr.expression),
+                        propAccessExpr.name
+
+                    );
+                case SyntaxKind.CallExpression:
+                    const callExpr = expr as CallExpression;
+                    return factory.updateCallExpression(
+                        callExpr,
+                        addMagicPrefixToAnnotationNameIdentifier(callExpr.expression),
+                        callExpr.typeArguments,
+                        callExpr.arguments
+                    );
+                default:
+                    return expr as (Identifier | PropertyAccessExpression | CallExpression);
+            }
+        }
+
+        function addDefaultValuesIntoAnnotationObjectLiteral(annotation: Annotation): CallExpression {
+            Debug.assert(annotation.annotationDeclaration);
+            const members = annotation.annotationDeclaration.members;
+            if (isIdentifier(annotation.expression) || isPropertyAccessExpression(annotation.expression)) {
+                const defaultValues = new Array<PropertyAssignment>(members.length);
+                for (let i = 0; i < members.length; ++i) {
+                    const member = members[i] as AnnotationPropertyDeclaration;
+                    const initializer = resolver.getAnnotationPropertyEvaluatedInitializer(member);
+                    defaultValues[i] = factory.createPropertyAssignment(member.name, initializer!);
+                }
+                const newCallExpr = factory.createCallExpression(
+                    annotation.expression,
+                    /* typeArguments */ undefined,
+                    [factory.createObjectLiteralExpression(defaultValues, false)]);
+                return newCallExpr;
+            }
+            else if (isCallExpression(annotation.expression)) {
+                Debug.assert(annotation.expression.arguments.length === 1);
+                const obj = annotation.expression.arguments[0] as ObjectLiteralExpression;
+                const objPropNameToProp = new Map<__String, PropertyAssignment>();
+                obj.properties.forEach(p => {
+                    Debug.assert(isPropertyAssignment(p));
+                    objPropNameToProp.set(tryGetTextOfPropertyName(p.name)!, p);
+                });
+
+                const defaultValues = new Array<PropertyAssignment>(members.length);
+                for (let i = 0; i < members.length; ++i) {
+                    const member = members[i] as AnnotationPropertyDeclaration;
+                    const memberName = tryGetTextOfPropertyName(member.name)!;
+                    if (objPropNameToProp.has(memberName)) {
+                        const evaluatedProps = resolver.getAnnotationObjectLiteralEvaluatedProps(annotation);
+                        Debug.assert(evaluatedProps !== undefined);
+                        defaultValues[i] = factory.createPropertyAssignment(member.name, evaluatedProps.get(memberName)!);
+                    }
+                    else {
+                        const evaluatedInitializer = resolver.getAnnotationPropertyEvaluatedInitializer(member);
+                        Debug.assert(evaluatedInitializer !== undefined);
+                        defaultValues[i] = factory.createPropertyAssignment(member.name, evaluatedInitializer);
+                    }
+                }
+                const newCallExpr = factory.updateCallExpression(
+                    annotation.expression,
+                    annotation.expression.expression,
+                    /* typeArguments */ undefined,
+                    [factory.updateObjectLiteralExpression(obj, defaultValues)]);
+                return newCallExpr;
+            }
+            Debug.fail();
+        }
+
+        function getAnnotationUniqueNamePrefixFromFilePath(filePath: string): string {
+            return sys.createHash!(filePath);
+        }
     }
 
     /**

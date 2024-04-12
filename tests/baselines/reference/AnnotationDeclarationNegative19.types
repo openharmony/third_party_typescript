@@ -1,0 +1,5 @@
+=== tests/cases/conformance/parser/ets/annotations/AnnotationDeclarationNegative19.ets ===
+@Anno
+>Anno : typeof Anno
+
+@interface Anno {}

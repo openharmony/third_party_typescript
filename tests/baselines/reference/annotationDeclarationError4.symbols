@@ -1,0 +1,9 @@
+=== tests/cases/conformance/annotations/annotationDeclarationError4.ets ===
+(function() {
+    @interface Anno {
+>Anno : Symbol(Anno, Decl(annotationDeclarationError4.ets, 0, 13))
+
+        a: number
+>a : Symbol(Anno.a, Decl(annotationDeclarationError4.ets, 1, 21))
+    }
+})();

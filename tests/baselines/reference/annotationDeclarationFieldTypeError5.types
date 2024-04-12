@@ -1,0 +1,5 @@
+=== tests/cases/conformance/annotations/annotationDeclarationFieldTypeError5.ets ===
+@interface Anno {
+    a: any
+>a : any
+}

@@ -1,0 +1,8 @@
+=== tests/cases/conformance/annotations/annotationAsValueError2.ets ===
+@interface Anno {}
+>Anno : Symbol(Anno, Decl(annotationAsValueError2.ets, 0, 0))
+
+const a = Anno;
+>a : Symbol(a, Decl(annotationAsValueError2.ets, 2, 5))
+>Anno : Symbol(Anno, Decl(annotationAsValueError2.ets, 0, 0))
+

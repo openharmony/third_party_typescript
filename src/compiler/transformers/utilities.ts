@@ -201,6 +201,9 @@ namespace ts {
 
         function addExportedNamesForExportDeclaration(node: ExportDeclaration) {
             for (const specifier of cast(node.exportClause, isNamedExports).elements) {
+                if (resolver.isReferredToAnnotation(specifier) === true) {
+                    continue;
+                }
                 if (!uniqueExports.get(idText(specifier.name))) {
                     const name = specifier.propertyName || specifier.name;
                     if (!node.moduleSpecifier) {

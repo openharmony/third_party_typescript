@@ -1,0 +1,7 @@
+tests/cases/conformance/parser/ets/annotations/AnnotationDeclarationNegative10.ets(1,12): error TS1359: Identifier expected. 'class' is a reserved word that cannot be used here.
+
+
+==== tests/cases/conformance/parser/ets/annotations/AnnotationDeclarationNegative10.ets (1 errors) ====
+    @interface class {}
+               ~~~~~
+!!! error TS1359: Identifier expected. 'class' is a reserved word that cannot be used here.

@@ -1,0 +1,9 @@
+=== tests/cases/conformance/parser/ets/annotations/AnnotationDeclarationNegative18.ets ===
+function foo(d: Function){}
+>foo : (d: Function) => void
+>d : Function
+
+@foo
+>foo : (d: Function) => void
+
+@interface Anno {}

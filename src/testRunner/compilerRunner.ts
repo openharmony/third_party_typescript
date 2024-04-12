@@ -44,7 +44,7 @@ namespace Harness {
 
         public enumerateTestFiles() {
             // see also: `enumerateTestFiles` in tests/webTestServer.ts
-            return this.enumerateFiles(this.basePath, /\.tsx?$/, { recursive: true }).map(CompilerTest.getConfigurations);
+            return this.enumerateFiles(this.basePath, /\.(ets|tsx?)$/, { recursive: true }).map(CompilerTest.getConfigurations);
         }
 
         public initializeTests() {
@@ -272,7 +272,7 @@ namespace Harness {
 
         public verifyModuleResolution() {
             if (this.options.traceResolution) {
-                Baseline.runBaseline(this.configuredName.replace(/\.tsx?$/, ".trace.json"),
+                Baseline.runBaseline(this.configuredName.replace(/\.(ets|tsx?)$/, ".trace.json"),
                     JSON.stringify(this.result.traces.map(Utils.sanitizeTraceResolutionLogEntry), undefined, 4));
             }
         }
@@ -284,7 +284,7 @@ namespace Harness {
                     // Because of the noEmitOnError option no files are created. We need to return null because baselining isn't required.
                     ? null // eslint-disable-line no-null/no-null
                     : record;
-                Baseline.runBaseline(this.configuredName.replace(/\.tsx?$/, ".sourcemap.txt"), baseline);
+                Baseline.runBaseline(this.configuredName.replace(/\.(ets|tsx?)$/, ".sourcemap.txt"), baseline);
             }
         }
 

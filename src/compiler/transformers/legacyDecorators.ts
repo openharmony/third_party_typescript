@@ -32,7 +32,7 @@ namespace ts {
         }
 
         function modifierVisitor(node: Node): VisitResult<Node> {
-            return isDecorator(node) ? undefined : node;
+            return isDecorator(node) || isAnnotation(node) ? undefined : node;
         }
 
         function visitor(node: Node): VisitResult<Node> {

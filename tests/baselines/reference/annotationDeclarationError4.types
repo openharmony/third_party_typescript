@@ -1,0 +1,11 @@
+=== tests/cases/conformance/annotations/annotationDeclarationError4.ets ===
+(function() {
+>(function() {    @interface Anno {        a: number    }})() : void
+>(function() {    @interface Anno {        a: number    }}) : () => void
+>function() {    @interface Anno {        a: number    }} : () => void
+
+    @interface Anno {
+        a: number
+>a : number
+    }
+})();

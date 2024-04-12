@@ -1,0 +1,13 @@
+tests/cases/conformance/parser/ets/annotations/AnnotationDeclarationNegative16.ets(2,5): error TS28018: Unexpected token. An annotation property was expected.
+tests/cases/conformance/parser/ets/annotations/AnnotationDeclarationNegative16.ets(4,1): error TS1128: Declaration or statement expected.
+
+
+==== tests/cases/conformance/parser/ets/annotations/AnnotationDeclarationNegative16.ets (2 errors) ====
+    @interface Anno {
+        var
+        ~~~
+!!! error TS28018: Unexpected token. An annotation property was expected.
+        public
+    }
+    ~
+!!! error TS1128: Declaration or statement expected.

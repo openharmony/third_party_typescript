@@ -1,0 +1,9 @@
+tests/cases/conformance/annotations/annotationDeclarationError10.ets(1,16): error TS1109: Expression expected.
+
+
+==== tests/cases/conformance/annotations/annotationDeclarationError10.ets (1 errors) ====
+    export default @interface Anno {
+                   ~
+!!! error TS1109: Expression expected.
+        a: number
+    }

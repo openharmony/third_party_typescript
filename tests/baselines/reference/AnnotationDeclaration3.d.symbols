@@ -1,0 +1,4 @@
+=== tests/cases/conformance/parser/ets/annotations/AnnotationDeclaration3.d.ets ===
+export declare @interface Anno {}
+>Anno : Symbol(Anno, Decl(AnnotationDeclaration3.d.ets, 0, 0))
+

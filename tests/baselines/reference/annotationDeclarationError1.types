@@ -1,0 +1,12 @@
+=== tests/cases/conformance/annotations/annotationDeclarationError1.ets ===
+function goo(target: any) {}
+>goo : (target: any) => void
+>target : any
+
+@goo
+>goo : (target: any) => void
+
+@interface Anno {
+    a: number
+>a : number
+}

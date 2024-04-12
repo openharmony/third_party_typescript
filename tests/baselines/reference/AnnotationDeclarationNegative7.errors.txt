@@ -1,0 +1,18 @@
+tests/cases/conformance/parser/ets/annotations/AnnotationDeclarationNegative7.ets(2,5): error TS2304: Cannot find name 'constructor'.
+tests/cases/conformance/parser/ets/annotations/AnnotationDeclarationNegative7.ets(2,5): error TS28018: Unexpected token. An annotation property was expected.
+tests/cases/conformance/parser/ets/annotations/AnnotationDeclarationNegative7.ets(2,19): error TS1005: ';' expected.
+tests/cases/conformance/parser/ets/annotations/AnnotationDeclarationNegative7.ets(3,1): error TS1128: Declaration or statement expected.
+
+
+==== tests/cases/conformance/parser/ets/annotations/AnnotationDeclarationNegative7.ets (4 errors) ====
+    @interface Anno {
+        constructor() {}
+        ~~~~~~~~~~~
+!!! error TS2304: Cannot find name 'constructor'.
+        ~~~~~~~~~~~
+!!! error TS28018: Unexpected token. An annotation property was expected.
+                      ~
+!!! error TS1005: ';' expected.
+    }
+    ~
+!!! error TS1128: Declaration or statement expected.

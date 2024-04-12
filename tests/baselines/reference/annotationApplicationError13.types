@@ -1,0 +1,12 @@
+=== tests/cases/conformance/annotations/annotationApplicationError13.ets ===
+@Anno
+>Anno : typeof Anno
+
+@interface Anno {
+    a: number = 10
+>a : number
+
+    b: string[] = []
+>b : string[]
+>[] : undefined[]
+}

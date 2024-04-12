@@ -1826,6 +1826,7 @@ namespace ts {
                 case SyntaxKind.ClassExpression:
                 case SyntaxKind.ClassDeclaration:
                 case SyntaxKind.StructDeclaration:
+                case SyntaxKind.AnnotationDeclaration:
                 case SyntaxKind.EnumDeclaration:
                 case SyntaxKind.ObjectLiteralExpression:
                 case SyntaxKind.TypeLiteral:
@@ -1872,6 +1873,9 @@ namespace ts {
                     return ContainerFlags.IsControlFlowContainer;
                 case SyntaxKind.PropertyDeclaration:
                     return (node as PropertyDeclaration).initializer ? ContainerFlags.IsControlFlowContainer : 0;
+                case SyntaxKind.AnnotationPropertyDeclaration:
+                    return (node as AnnotationPropertyDeclaration).initializer ? ContainerFlags.IsControlFlowContainer : 0;
+
 
                 case SyntaxKind.CatchClause:
                 case SyntaxKind.ForStatement:
@@ -1926,6 +1930,7 @@ namespace ts {
                 case SyntaxKind.ClassExpression:
                 case SyntaxKind.ClassDeclaration:
                 case SyntaxKind.StructDeclaration:
+                case SyntaxKind.AnnotationDeclaration:
                     return declareClassMember(node, symbolFlags, symbolExcludes);
 
                 case SyntaxKind.EnumDeclaration:
@@ -2602,8 +2607,9 @@ namespace ts {
                     node.flowNode = currentFlow;
                     return bindVariableDeclarationOrBindingElement(node as BindingElement);
                 case SyntaxKind.PropertyDeclaration:
+                case SyntaxKind.AnnotationPropertyDeclaration:
                 case SyntaxKind.PropertySignature:
-                    return bindPropertyWorker(node as PropertyDeclaration | PropertySignature);
+                    return bindPropertyWorker(node as PropertyDeclaration | PropertySignature | AnnotationPropertyDeclaration);
                 case SyntaxKind.PropertyAssignment:
                 case SyntaxKind.ShorthandPropertyAssignment:
                     return bindPropertyOrMethodOrAccessor(node as Declaration, SymbolFlags.Property, SymbolFlags.PropertyExcludes);
@@ -2673,6 +2679,8 @@ namespace ts {
                     // All classes are automatically in strict mode in ES6.
                     inStrictMode = true;
                     return bindClassLikeDeclaration(node as ClassLikeDeclaration);
+                case SyntaxKind.AnnotationDeclaration:
+                    return bindAnnotationDeclaration(node as AnnotationDeclaration);
                 case SyntaxKind.InterfaceDeclaration:
                     return bindBlockScopedDeclaration(node as Declaration, SymbolFlags.Interface, SymbolFlags.InterfaceExcludes);
                 case SyntaxKind.TypeAliasDeclaration:
@@ -2733,11 +2741,13 @@ namespace ts {
             }
         }
 
-        function bindPropertyWorker(node: PropertyDeclaration | PropertySignature) {
+        function bindPropertyWorker(node: PropertyDeclaration | PropertySignature | AnnotationPropertyDeclaration) {
             const isAutoAccessor = isAutoAccessorPropertyDeclaration(node);
             const includes = isAutoAccessor ? SymbolFlags.Accessor : SymbolFlags.Property;
             const excludes = isAutoAccessor ? SymbolFlags.AccessorExcludes : SymbolFlags.PropertyExcludes;
-            return bindPropertyOrMethodOrAccessor(node, includes | (node.questionToken ? SymbolFlags.Optional : SymbolFlags.None), excludes);
+            const isOptional = (!isAnnotationPropertyDeclaration(node) && node.questionToken ? SymbolFlags.Optional : SymbolFlags.None);
+            const annotationPropHasDefaultValue = (isAnnotationPropertyDeclaration(node) && node.initializer !== undefined) ? SymbolFlags.Optional : SymbolFlags.None;
+            return bindPropertyOrMethodOrAccessor(node, includes | isOptional | annotationPropHasDefaultValue, excludes);
         }
 
         function bindAnonymousTypeWorker(node: TypeLiteralNode | MappedTypeNode | JSDocTypeLiteral) {
@@ -2940,6 +2950,7 @@ namespace ts {
 
                 case SyntaxKind.Constructor:
                 case SyntaxKind.PropertyDeclaration:
+                case SyntaxKind.AnnotationPropertyDeclaration:
                 case SyntaxKind.MethodDeclaration:
                 case SyntaxKind.GetAccessor:
                 case SyntaxKind.SetAccessor:
@@ -3260,6 +3271,23 @@ namespace ts {
             // Note: we check for this here because this class may be merging into a module.  The
             // module might have an exported variable called 'prototype'.  We can't allow that as
             // that would clash with the built-in 'prototype' for the class.
+            const prototypeSymbol = createSymbol(SymbolFlags.Property | SymbolFlags.Prototype, "prototype" as __String);
+            const symbolExport = symbol.exports!.get(prototypeSymbol.escapedName);
+            if (symbolExport) {
+                if (node.name) {
+                    setParent(node.name, node);
+                }
+                file.bindDiagnostics.push(createDiagnosticForNode(symbolExport.declarations![0], Diagnostics.Duplicate_identifier_0, symbolName(prototypeSymbol)));
+            }
+            symbol.exports!.set(prototypeSymbol.escapedName, prototypeSymbol);
+            prototypeSymbol.parent = symbol;
+        }
+
+        function bindAnnotationDeclaration(node: AnnotationDeclaration) {
+            Debug.assert(node.kind === SyntaxKind.AnnotationDeclaration);
+
+            bindBlockScopedDeclaration(node, SymbolFlags.Class | SymbolFlags.Annotation, SymbolFlags.ClassExcludes);
+            const { symbol } = node;
             const prototypeSymbol = createSymbol(SymbolFlags.Property | SymbolFlags.Prototype, "prototype" as __String);
             const symbolExport = symbol.exports!.get(prototypeSymbol.escapedName);
             if (symbolExport) {

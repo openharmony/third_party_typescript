@@ -1,0 +1,10 @@
+tests/cases/conformance/parser/ets/annotations/AnnotationDeclarationNegative18.ets(3,1): error TS1206: Decorators are not valid here.
+
+
+==== tests/cases/conformance/parser/ets/annotations/AnnotationDeclarationNegative18.ets (1 errors) ====
+    function foo(d: Function){}
+    
+    @foo
+    ~~~~
+!!! error TS1206: Decorators are not valid here.
+    @interface Anno {}

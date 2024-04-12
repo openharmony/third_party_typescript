@@ -277,199 +277,201 @@ declare namespace ts {
         Decorator = 169,
         PropertySignature = 170,
         PropertyDeclaration = 171,
-        MethodSignature = 172,
-        MethodDeclaration = 173,
-        ClassStaticBlockDeclaration = 174,
-        Constructor = 175,
-        GetAccessor = 176,
-        SetAccessor = 177,
-        CallSignature = 178,
-        ConstructSignature = 179,
-        IndexSignature = 180,
-        TypePredicate = 181,
-        TypeReference = 182,
-        FunctionType = 183,
-        ConstructorType = 184,
-        TypeQuery = 185,
-        TypeLiteral = 186,
-        ArrayType = 187,
-        TupleType = 188,
-        OptionalType = 189,
-        RestType = 190,
-        UnionType = 191,
-        IntersectionType = 192,
-        ConditionalType = 193,
-        InferType = 194,
-        ParenthesizedType = 195,
-        ThisType = 196,
-        TypeOperator = 197,
-        IndexedAccessType = 198,
-        MappedType = 199,
-        LiteralType = 200,
-        NamedTupleMember = 201,
-        TemplateLiteralType = 202,
-        TemplateLiteralTypeSpan = 203,
-        ImportType = 204,
-        ObjectBindingPattern = 205,
-        ArrayBindingPattern = 206,
-        BindingElement = 207,
-        ArrayLiteralExpression = 208,
-        ObjectLiteralExpression = 209,
-        PropertyAccessExpression = 210,
-        ElementAccessExpression = 211,
-        CallExpression = 212,
-        NewExpression = 213,
-        TaggedTemplateExpression = 214,
-        TypeAssertionExpression = 215,
-        ParenthesizedExpression = 216,
-        FunctionExpression = 217,
-        ArrowFunction = 218,
-        EtsComponentExpression = 219,
-        DeleteExpression = 220,
-        TypeOfExpression = 221,
-        VoidExpression = 222,
-        AwaitExpression = 223,
-        PrefixUnaryExpression = 224,
-        PostfixUnaryExpression = 225,
-        BinaryExpression = 226,
-        ConditionalExpression = 227,
-        TemplateExpression = 228,
-        YieldExpression = 229,
-        SpreadElement = 230,
-        ClassExpression = 231,
-        OmittedExpression = 232,
-        ExpressionWithTypeArguments = 233,
-        AsExpression = 234,
-        NonNullExpression = 235,
-        MetaProperty = 236,
-        SyntheticExpression = 237,
-        SatisfiesExpression = 238,
-        TemplateSpan = 239,
-        SemicolonClassElement = 240,
-        Block = 241,
-        EmptyStatement = 242,
-        VariableStatement = 243,
-        ExpressionStatement = 244,
-        IfStatement = 245,
-        DoStatement = 246,
-        WhileStatement = 247,
-        ForStatement = 248,
-        ForInStatement = 249,
-        ForOfStatement = 250,
-        ContinueStatement = 251,
-        BreakStatement = 252,
-        ReturnStatement = 253,
-        WithStatement = 254,
-        SwitchStatement = 255,
-        LabeledStatement = 256,
-        ThrowStatement = 257,
-        TryStatement = 258,
-        DebuggerStatement = 259,
-        VariableDeclaration = 260,
-        VariableDeclarationList = 261,
-        FunctionDeclaration = 262,
-        ClassDeclaration = 263,
-        StructDeclaration = 264,
-        InterfaceDeclaration = 265,
-        TypeAliasDeclaration = 266,
-        EnumDeclaration = 267,
-        ModuleDeclaration = 268,
-        ModuleBlock = 269,
-        CaseBlock = 270,
-        NamespaceExportDeclaration = 271,
-        ImportEqualsDeclaration = 272,
-        ImportDeclaration = 273,
-        ImportClause = 274,
-        NamespaceImport = 275,
-        NamedImports = 276,
-        ImportSpecifier = 277,
-        ExportAssignment = 278,
-        ExportDeclaration = 279,
-        NamedExports = 280,
-        NamespaceExport = 281,
-        ExportSpecifier = 282,
-        MissingDeclaration = 283,
-        ExternalModuleReference = 284,
-        JsxElement = 285,
-        JsxSelfClosingElement = 286,
-        JsxOpeningElement = 287,
-        JsxClosingElement = 288,
-        JsxFragment = 289,
-        JsxOpeningFragment = 290,
-        JsxClosingFragment = 291,
-        JsxAttribute = 292,
-        JsxAttributes = 293,
-        JsxSpreadAttribute = 294,
-        JsxExpression = 295,
-        CaseClause = 296,
-        DefaultClause = 297,
-        HeritageClause = 298,
-        CatchClause = 299,
-        AssertClause = 300,
-        AssertEntry = 301,
-        ImportTypeAssertionContainer = 302,
-        PropertyAssignment = 303,
-        ShorthandPropertyAssignment = 304,
-        SpreadAssignment = 305,
-        EnumMember = 306,
-        UnparsedPrologue = 307,
-        UnparsedPrepend = 308,
-        UnparsedText = 309,
-        UnparsedInternalText = 310,
-        UnparsedSyntheticReference = 311,
-        SourceFile = 312,
-        Bundle = 313,
-        UnparsedSource = 314,
-        InputFiles = 315,
-        JSDocTypeExpression = 316,
-        JSDocNameReference = 317,
-        JSDocMemberName = 318,
-        JSDocAllType = 319,
-        JSDocUnknownType = 320,
-        JSDocNullableType = 321,
-        JSDocNonNullableType = 322,
-        JSDocOptionalType = 323,
-        JSDocFunctionType = 324,
-        JSDocVariadicType = 325,
-        JSDocNamepathType = 326,
-        JSDoc = 327,
+        AnnotationPropertyDeclaration = 172,
+        MethodSignature = 173,
+        MethodDeclaration = 174,
+        ClassStaticBlockDeclaration = 175,
+        Constructor = 176,
+        GetAccessor = 177,
+        SetAccessor = 178,
+        CallSignature = 179,
+        ConstructSignature = 180,
+        IndexSignature = 181,
+        TypePredicate = 182,
+        TypeReference = 183,
+        FunctionType = 184,
+        ConstructorType = 185,
+        TypeQuery = 186,
+        TypeLiteral = 187,
+        ArrayType = 188,
+        TupleType = 189,
+        OptionalType = 190,
+        RestType = 191,
+        UnionType = 192,
+        IntersectionType = 193,
+        ConditionalType = 194,
+        InferType = 195,
+        ParenthesizedType = 196,
+        ThisType = 197,
+        TypeOperator = 198,
+        IndexedAccessType = 199,
+        MappedType = 200,
+        LiteralType = 201,
+        NamedTupleMember = 202,
+        TemplateLiteralType = 203,
+        TemplateLiteralTypeSpan = 204,
+        ImportType = 205,
+        ObjectBindingPattern = 206,
+        ArrayBindingPattern = 207,
+        BindingElement = 208,
+        ArrayLiteralExpression = 209,
+        ObjectLiteralExpression = 210,
+        PropertyAccessExpression = 211,
+        ElementAccessExpression = 212,
+        CallExpression = 213,
+        NewExpression = 214,
+        TaggedTemplateExpression = 215,
+        TypeAssertionExpression = 216,
+        ParenthesizedExpression = 217,
+        FunctionExpression = 218,
+        ArrowFunction = 219,
+        EtsComponentExpression = 220,
+        DeleteExpression = 221,
+        TypeOfExpression = 222,
+        VoidExpression = 223,
+        AwaitExpression = 224,
+        PrefixUnaryExpression = 225,
+        PostfixUnaryExpression = 226,
+        BinaryExpression = 227,
+        ConditionalExpression = 228,
+        TemplateExpression = 229,
+        YieldExpression = 230,
+        SpreadElement = 231,
+        ClassExpression = 232,
+        OmittedExpression = 233,
+        ExpressionWithTypeArguments = 234,
+        AsExpression = 235,
+        NonNullExpression = 236,
+        MetaProperty = 237,
+        SyntheticExpression = 238,
+        SatisfiesExpression = 239,
+        TemplateSpan = 240,
+        SemicolonClassElement = 241,
+        Block = 242,
+        EmptyStatement = 243,
+        VariableStatement = 244,
+        ExpressionStatement = 245,
+        IfStatement = 246,
+        DoStatement = 247,
+        WhileStatement = 248,
+        ForStatement = 249,
+        ForInStatement = 250,
+        ForOfStatement = 251,
+        ContinueStatement = 252,
+        BreakStatement = 253,
+        ReturnStatement = 254,
+        WithStatement = 255,
+        SwitchStatement = 256,
+        LabeledStatement = 257,
+        ThrowStatement = 258,
+        TryStatement = 259,
+        DebuggerStatement = 260,
+        VariableDeclaration = 261,
+        VariableDeclarationList = 262,
+        FunctionDeclaration = 263,
+        ClassDeclaration = 264,
+        StructDeclaration = 265,
+        AnnotationDeclaration = 266,
+        InterfaceDeclaration = 267,
+        TypeAliasDeclaration = 268,
+        EnumDeclaration = 269,
+        ModuleDeclaration = 270,
+        ModuleBlock = 271,
+        CaseBlock = 272,
+        NamespaceExportDeclaration = 273,
+        ImportEqualsDeclaration = 274,
+        ImportDeclaration = 275,
+        ImportClause = 276,
+        NamespaceImport = 277,
+        NamedImports = 278,
+        ImportSpecifier = 279,
+        ExportAssignment = 280,
+        ExportDeclaration = 281,
+        NamedExports = 282,
+        NamespaceExport = 283,
+        ExportSpecifier = 284,
+        MissingDeclaration = 285,
+        ExternalModuleReference = 286,
+        JsxElement = 287,
+        JsxSelfClosingElement = 288,
+        JsxOpeningElement = 289,
+        JsxClosingElement = 290,
+        JsxFragment = 291,
+        JsxOpeningFragment = 292,
+        JsxClosingFragment = 293,
+        JsxAttribute = 294,
+        JsxAttributes = 295,
+        JsxSpreadAttribute = 296,
+        JsxExpression = 297,
+        CaseClause = 298,
+        DefaultClause = 299,
+        HeritageClause = 300,
+        CatchClause = 301,
+        AssertClause = 302,
+        AssertEntry = 303,
+        ImportTypeAssertionContainer = 304,
+        PropertyAssignment = 305,
+        ShorthandPropertyAssignment = 306,
+        SpreadAssignment = 307,
+        EnumMember = 308,
+        UnparsedPrologue = 309,
+        UnparsedPrepend = 310,
+        UnparsedText = 311,
+        UnparsedInternalText = 312,
+        UnparsedSyntheticReference = 313,
+        SourceFile = 314,
+        Bundle = 315,
+        UnparsedSource = 316,
+        InputFiles = 317,
+        JSDocTypeExpression = 318,
+        JSDocNameReference = 319,
+        JSDocMemberName = 320,
+        JSDocAllType = 321,
+        JSDocUnknownType = 322,
+        JSDocNullableType = 323,
+        JSDocNonNullableType = 324,
+        JSDocOptionalType = 325,
+        JSDocFunctionType = 326,
+        JSDocVariadicType = 327,
+        JSDocNamepathType = 328,
+        JSDoc = 329,
         /** @deprecated Use SyntaxKind.JSDoc */
-        JSDocComment = 327,
-        JSDocText = 328,
-        JSDocTypeLiteral = 329,
-        JSDocSignature = 330,
-        JSDocLink = 331,
-        JSDocLinkCode = 332,
-        JSDocLinkPlain = 333,
-        JSDocTag = 334,
-        JSDocAugmentsTag = 335,
-        JSDocImplementsTag = 336,
-        JSDocAuthorTag = 337,
-        JSDocDeprecatedTag = 338,
-        JSDocClassTag = 339,
-        JSDocPublicTag = 340,
-        JSDocPrivateTag = 341,
-        JSDocProtectedTag = 342,
-        JSDocReadonlyTag = 343,
-        JSDocOverrideTag = 344,
-        JSDocCallbackTag = 345,
-        JSDocEnumTag = 346,
-        JSDocParameterTag = 347,
-        JSDocReturnTag = 348,
-        JSDocThisTag = 349,
-        JSDocTypeTag = 350,
-        JSDocTemplateTag = 351,
-        JSDocTypedefTag = 352,
-        JSDocSeeTag = 353,
-        JSDocPropertyTag = 354,
-        SyntaxList = 355,
-        NotEmittedStatement = 356,
-        PartiallyEmittedExpression = 357,
-        CommaListExpression = 358,
-        MergeDeclarationMarker = 359,
-        EndOfDeclarationMarker = 360,
-        SyntheticReferenceExpression = 361,
-        Count = 362,
+        JSDocComment = 329,
+        JSDocText = 330,
+        JSDocTypeLiteral = 331,
+        JSDocSignature = 332,
+        JSDocLink = 333,
+        JSDocLinkCode = 334,
+        JSDocLinkPlain = 335,
+        JSDocTag = 336,
+        JSDocAugmentsTag = 337,
+        JSDocImplementsTag = 338,
+        JSDocAuthorTag = 339,
+        JSDocDeprecatedTag = 340,
+        JSDocClassTag = 341,
+        JSDocPublicTag = 342,
+        JSDocPrivateTag = 343,
+        JSDocProtectedTag = 344,
+        JSDocReadonlyTag = 345,
+        JSDocOverrideTag = 346,
+        JSDocCallbackTag = 347,
+        JSDocEnumTag = 348,
+        JSDocParameterTag = 349,
+        JSDocReturnTag = 350,
+        JSDocThisTag = 351,
+        JSDocTypeTag = 352,
+        JSDocTemplateTag = 353,
+        JSDocTypedefTag = 354,
+        JSDocSeeTag = 355,
+        JSDocPropertyTag = 356,
+        SyntaxList = 357,
+        NotEmittedStatement = 358,
+        PartiallyEmittedExpression = 359,
+        CommaListExpression = 360,
+        MergeDeclarationMarker = 361,
+        EndOfDeclarationMarker = 362,
+        SyntheticReferenceExpression = 363,
+        Count = 364,
         FirstAssignment = 63,
         LastAssignment = 78,
         FirstCompoundAssignment = 64,
@@ -480,8 +482,8 @@ declare namespace ts {
         LastKeyword = 164,
         FirstFutureReservedWord = 118,
         LastFutureReservedWord = 126,
-        FirstTypeNode = 181,
-        LastTypeNode = 204,
+        FirstTypeNode = 182,
+        LastTypeNode = 205,
         FirstPunctuation = 18,
         LastPunctuation = 78,
         FirstToken = 0,
@@ -494,13 +496,13 @@ declare namespace ts {
         LastTemplateToken = 17,
         FirstBinaryOperator = 29,
         LastBinaryOperator = 78,
-        FirstStatement = 243,
-        LastStatement = 259,
+        FirstStatement = 244,
+        LastStatement = 260,
         FirstNode = 165,
-        FirstJSDocNode = 316,
-        LastJSDocNode = 354,
-        FirstJSDocTagNode = 334,
-        LastJSDocTagNode = 354,
+        FirstJSDocNode = 318,
+        LastJSDocNode = 356,
+        FirstJSDocTagNode = 336,
+        LastJSDocTagNode = 356,
     }
     export type TriviaSyntaxKind = SyntaxKind.SingleLineCommentTrivia | SyntaxKind.MultiLineCommentTrivia | SyntaxKind.NewLineTrivia | SyntaxKind.WhitespaceTrivia | SyntaxKind.ShebangTrivia | SyntaxKind.ConflictMarkerTrivia;
     export type LiteralSyntaxKind = SyntaxKind.NumericLiteral | SyntaxKind.BigIntLiteral | SyntaxKind.StringLiteral | SyntaxKind.JsxText | SyntaxKind.JsxTextAllWhiteSpaces | SyntaxKind.RegularExpressionLiteral | SyntaxKind.NoSubstitutionTemplateLiteral;
@@ -604,14 +606,14 @@ declare namespace ts {
     }
     export interface JSDocContainer {
     }
-    export type HasJSDoc = ParameterDeclaration | CallSignatureDeclaration | ClassStaticBlockDeclaration | ConstructSignatureDeclaration | MethodSignature | PropertySignature | ArrowFunction | ParenthesizedExpression | SpreadAssignment | ShorthandPropertyAssignment | PropertyAssignment | FunctionExpression | EmptyStatement | DebuggerStatement | Block | VariableStatement | ExpressionStatement | IfStatement | DoStatement | WhileStatement | ForStatement | ForInStatement | ForOfStatement | BreakStatement | ContinueStatement | ReturnStatement | WithStatement | SwitchStatement | LabeledStatement | ThrowStatement | TryStatement | FunctionDeclaration | ConstructorDeclaration | MethodDeclaration | VariableDeclaration | PropertyDeclaration | AccessorDeclaration | ClassLikeDeclaration | InterfaceDeclaration | TypeAliasDeclaration | EnumMember | EnumDeclaration | ModuleDeclaration | ImportEqualsDeclaration | ImportDeclaration | NamespaceExportDeclaration | ExportAssignment | IndexSignatureDeclaration | FunctionTypeNode | ConstructorTypeNode | JSDocFunctionType | ExportDeclaration | NamedTupleMember | ExportSpecifier | CaseClause | EndOfFileToken;
-    export type HasType = SignatureDeclaration | VariableDeclaration | ParameterDeclaration | PropertySignature | PropertyDeclaration | TypePredicateNode | ParenthesizedTypeNode | TypeOperatorNode | MappedTypeNode | AssertionExpression | TypeAliasDeclaration | JSDocTypeExpression | JSDocNonNullableType | JSDocNullableType | JSDocOptionalType | JSDocVariadicType;
+    export type HasJSDoc = ParameterDeclaration | CallSignatureDeclaration | ClassStaticBlockDeclaration | ConstructSignatureDeclaration | MethodSignature | PropertySignature | ArrowFunction | ParenthesizedExpression | SpreadAssignment | ShorthandPropertyAssignment | PropertyAssignment | FunctionExpression | EmptyStatement | DebuggerStatement | Block | VariableStatement | ExpressionStatement | IfStatement | DoStatement | WhileStatement | ForStatement | ForInStatement | ForOfStatement | BreakStatement | ContinueStatement | ReturnStatement | WithStatement | SwitchStatement | LabeledStatement | ThrowStatement | TryStatement | FunctionDeclaration | ConstructorDeclaration | MethodDeclaration | VariableDeclaration | PropertyDeclaration | AnnotationPropertyDeclaration | AnnotationDeclaration | AccessorDeclaration | ClassLikeDeclaration | InterfaceDeclaration | TypeAliasDeclaration | EnumMember | EnumDeclaration | ModuleDeclaration | ImportEqualsDeclaration | ImportDeclaration | NamespaceExportDeclaration | ExportAssignment | IndexSignatureDeclaration | FunctionTypeNode | ConstructorTypeNode | JSDocFunctionType | ExportDeclaration | NamedTupleMember | ExportSpecifier | CaseClause | EndOfFileToken;
+    export type HasType = SignatureDeclaration | VariableDeclaration | ParameterDeclaration | PropertySignature | PropertyDeclaration | AnnotationPropertyDeclaration | TypePredicateNode | ParenthesizedTypeNode | TypeOperatorNode | MappedTypeNode | AssertionExpression | TypeAliasDeclaration | JSDocTypeExpression | JSDocNonNullableType | JSDocNullableType | JSDocOptionalType | JSDocVariadicType;
     export type HasTypeArguments = CallExpression | NewExpression | TaggedTemplateExpression | JsxOpeningElement | JsxSelfClosingElement;
     export type HasInitializer = HasExpressionInitializer | ForStatement | ForInStatement | ForOfStatement | JsxAttribute;
-    export type HasExpressionInitializer = VariableDeclaration | ParameterDeclaration | BindingElement | PropertyDeclaration | PropertyAssignment | EnumMember;
+    export type HasExpressionInitializer = VariableDeclaration | ParameterDeclaration | BindingElement | PropertyDeclaration | AnnotationPropertyDeclaration | PropertyAssignment | EnumMember;
     export type HasDecorators = ParameterDeclaration | PropertyDeclaration | MethodDeclaration | GetAccessorDeclaration | SetAccessorDeclaration | ClassExpression | ClassDeclaration | StructDeclaration | FunctionDeclaration;
     export type HasIllegalDecorators = PropertyAssignment | ShorthandPropertyAssignment | FunctionDeclaration | ConstructorDeclaration | IndexSignatureDeclaration | ClassStaticBlockDeclaration | MissingDeclaration | VariableStatement | InterfaceDeclaration | TypeAliasDeclaration | EnumDeclaration | ModuleDeclaration | ImportEqualsDeclaration | ImportDeclaration | NamespaceExportDeclaration | ExportDeclaration | ExportAssignment;
-    export type HasModifiers = TypeParameterDeclaration | ParameterDeclaration | ConstructorTypeNode | PropertySignature | PropertyDeclaration | MethodSignature | MethodDeclaration | ConstructorDeclaration | GetAccessorDeclaration | SetAccessorDeclaration | IndexSignatureDeclaration | FunctionExpression | ArrowFunction | ClassExpression | VariableStatement | FunctionDeclaration | ClassDeclaration | StructDeclaration | InterfaceDeclaration | TypeAliasDeclaration | EnumDeclaration | ModuleDeclaration | ImportEqualsDeclaration | ImportDeclaration | ExportAssignment | ExportDeclaration;
+    export type HasModifiers = TypeParameterDeclaration | ParameterDeclaration | ConstructorTypeNode | PropertySignature | PropertyDeclaration | MethodSignature | MethodDeclaration | ConstructorDeclaration | GetAccessorDeclaration | SetAccessorDeclaration | IndexSignatureDeclaration | FunctionExpression | ArrowFunction | ClassExpression | VariableStatement | FunctionDeclaration | ClassDeclaration | StructDeclaration | AnnotationDeclaration | InterfaceDeclaration | TypeAliasDeclaration | EnumDeclaration | ModuleDeclaration | ImportEqualsDeclaration | ImportDeclaration | ExportAssignment | ExportDeclaration;
     export interface NodeArray<T extends Node> extends ReadonlyArray<T>, ReadonlyTextRange {
         readonly hasTrailingComma: boolean;
     }
@@ -717,7 +719,10 @@ declare namespace ts {
         readonly kind: SyntaxKind.Decorator;
         readonly parent: NamedDeclaration;
         readonly expression: LeftHandSideExpression;
+        /** Refers to a annotation declaration (or undefined when decorator isn't annotation) */
+        readonly annotationDeclaration?: AnnotationDeclaration;
     }
+    export type Annotation = Decorator;
     export interface TypeParameterDeclaration extends NamedDeclaration {
         readonly kind: SyntaxKind.TypeParameter;
         readonly parent: DeclarationWithTypeParameterChildren | InferTypeNode;
@@ -791,6 +796,13 @@ declare namespace ts {
         readonly type?: TypeNode;
         readonly initializer?: Expression;
     }
+    export interface AnnotationPropertyDeclaration extends AnnotationElement, JSDocContainer {
+        readonly kind: SyntaxKind.AnnotationPropertyDeclaration;
+        readonly parent: AnnotationDeclaration;
+        readonly name: PropertyName;
+        readonly type?: TypeNode;
+        readonly initializer?: Expression;
+    }
     export interface AutoAccessorPropertyDeclaration extends PropertyDeclaration {
         _autoAccessorBrand: any;
     }
@@ -818,7 +830,7 @@ declare namespace ts {
         readonly parent: ObjectLiteralExpression;
         readonly expression: Expression;
     }
-    export type VariableLikeDeclaration = VariableDeclaration | ParameterDeclaration | BindingElement | PropertyDeclaration | PropertyAssignment | PropertySignature | JsxAttribute | ShorthandPropertyAssignment | EnumMember | JSDocPropertyTag | JSDocParameterTag;
+    export type VariableLikeDeclaration = VariableDeclaration | ParameterDeclaration | BindingElement | PropertyDeclaration | AnnotationPropertyDeclaration | PropertyAssignment | PropertySignature | JsxAttribute | ShorthandPropertyAssignment | EnumMember | JSDocPropertyTag | JSDocParameterTag;
     export interface PropertyLikeDeclaration extends NamedDeclaration {
         readonly name: PropertyName;
     }
@@ -1606,7 +1618,7 @@ declare namespace ts {
     export type DeclarationWithTypeParameters = DeclarationWithTypeParameterChildren | JSDocTypedefTag | JSDocCallbackTag | JSDocSignature;
     export type DeclarationWithTypeParameterChildren = SignatureDeclaration | ClassLikeDeclaration | InterfaceDeclaration | TypeAliasDeclaration | JSDocTemplateTag;
     export interface ClassLikeDeclarationBase extends NamedDeclaration, JSDocContainer {
-        readonly kind: SyntaxKind.ClassDeclaration | SyntaxKind.ClassExpression | SyntaxKind.StructDeclaration;
+        readonly kind: SyntaxKind.ClassDeclaration | SyntaxKind.ClassExpression | SyntaxKind.StructDeclaration | SyntaxKind.AnnotationDeclaration;
         readonly name?: Identifier;
         readonly typeParameters?: NodeArray<TypeParameterDeclaration>;
         readonly heritageClauses?: NodeArray<HeritageClause>;
@@ -1624,6 +1636,12 @@ declare namespace ts {
         /** May be undefined in `export default class { ... }`. */
         readonly name?: Identifier;
     }
+    export interface AnnotationDeclaration extends DeclarationStatement {
+        readonly kind: SyntaxKind.AnnotationDeclaration;
+        readonly modifiers?: NodeArray<ModifierLike>;
+        readonly name: Identifier;
+        readonly members: NodeArray<AnnotationElement>;
+    }
     export interface ClassExpression extends ClassLikeDeclarationBase, PrimaryExpression {
         readonly kind: SyntaxKind.ClassExpression;
         readonly modifiers?: NodeArray<ModifierLike>;
@@ -1632,6 +1650,10 @@ declare namespace ts {
     export interface ClassElement extends NamedDeclaration {
         _classElementBrand: any;
         readonly name?: PropertyName;
+    }
+    export interface AnnotationElement extends NamedDeclaration {
+        _annnotationElementBrand: any;
+        readonly name: PropertyName;
     }
     export interface TypeElement extends NamedDeclaration {
         _typeElementBrand: any;
@@ -2633,6 +2655,7 @@ declare namespace ts {
         Transient = 33554432,
         Assignment = 67108864,
         ModuleExports = 134217728,
+        Annotation = 268435456,
         Enum = 384,
         Variable = 3,
         Value = 111551,
@@ -2809,6 +2832,7 @@ declare namespace ts {
         JSLiteral = 4096,
         FreshLiteral = 8192,
         ArrayLiteral = 16384,
+        Annotation = 134217728,
         ClassOrInterface = 3,
         ContainsSpread = 2097152,
         ObjectRestType = 4194304,
@@ -3177,6 +3201,7 @@ declare namespace ts {
         compatibleSdkVersion?: number;
         compatibleSdkVersionStage?: string;
         [option: string]: CompilerOptionsValue | TsConfigSourceFile | undefined;
+        etsAnnotationsEnable?: boolean;
     }
     export interface EtsOptions {
         render: {
@@ -3471,7 +3496,7 @@ declare namespace ts {
         message?: string;
     }
     export interface CompilerHost extends ModuleResolutionHost {
-        getSourceFile(fileName: string, languageVersionOrOptions: ScriptTarget | CreateSourceFileOptions, onError?: (message: string) => void, shouldCreateNewSourceFile?: boolean): SourceFile | undefined;
+        getSourceFile(fileName: string, languageVersionOrOptions: ScriptTarget | CreateSourceFileOptions, onError?: (message: string) => void, shouldCreateNewSourceFile?: boolean, options?: CompilerOptions): SourceFile | undefined;
         getSourceFileByPath?(fileName: string, path: Path, languageVersionOrOptions: ScriptTarget | CreateSourceFileOptions, onError?: (message: string) => void, shouldCreateNewSourceFile?: boolean): SourceFile | undefined;
         getCancellationToken?(): CancellationToken;
         getDefaultLibFileName(options: CompilerOptions): string;
@@ -3663,12 +3688,14 @@ declare namespace ts {
         updateTypeParameterDeclaration(node: TypeParameterDeclaration, modifiers: readonly Modifier[] | undefined, name: Identifier, constraint: TypeNode | undefined, defaultType: TypeNode | undefined): TypeParameterDeclaration;
         createParameterDeclaration(modifiers: readonly ModifierLike[] | undefined, dotDotDotToken: DotDotDotToken | undefined, name: string | BindingName, questionToken?: QuestionToken, type?: TypeNode, initializer?: Expression): ParameterDeclaration;
         updateParameterDeclaration(node: ParameterDeclaration, modifiers: readonly ModifierLike[] | undefined, dotDotDotToken: DotDotDotToken | undefined, name: string | BindingName, questionToken: QuestionToken | undefined, type: TypeNode | undefined, initializer: Expression | undefined): ParameterDeclaration;
-        createDecorator(expression: Expression): Decorator;
-        updateDecorator(node: Decorator, expression: Expression): Decorator;
+        createDecorator(expression: Expression, annotationDeclaration?: AnnotationDeclaration): Decorator;
+        updateDecorator(node: Decorator, expression: Expression, annotationDeclaration?: AnnotationDeclaration): Decorator;
         createPropertySignature(modifiers: readonly Modifier[] | undefined, name: PropertyName | string, questionToken: QuestionToken | undefined, type: TypeNode | undefined): PropertySignature;
         updatePropertySignature(node: PropertySignature, modifiers: readonly Modifier[] | undefined, name: PropertyName, questionToken: QuestionToken | undefined, type: TypeNode | undefined): PropertySignature;
         createPropertyDeclaration(modifiers: readonly ModifierLike[] | undefined, name: string | PropertyName, questionOrExclamationToken: QuestionToken | ExclamationToken | undefined, type: TypeNode | undefined, initializer: Expression | undefined): PropertyDeclaration;
         updatePropertyDeclaration(node: PropertyDeclaration, modifiers: readonly ModifierLike[] | undefined, name: string | PropertyName, questionOrExclamationToken: QuestionToken | ExclamationToken | undefined, type: TypeNode | undefined, initializer: Expression | undefined): PropertyDeclaration;
+        createAnnotationPropertyDeclaration(name: string | PropertyName, type: TypeNode | undefined, initializer: Expression | undefined): AnnotationPropertyDeclaration;
+        updateAnnotationPropertyDeclaration(node: AnnotationPropertyDeclaration, name: string | PropertyName, type: TypeNode | undefined, initializer: Expression | undefined): AnnotationPropertyDeclaration;
         createMethodSignature(modifiers: readonly Modifier[] | undefined, name: string | PropertyName, questionToken: QuestionToken | undefined, typeParameters: readonly TypeParameterDeclaration[] | undefined, parameters: readonly ParameterDeclaration[], type: TypeNode | undefined): MethodSignature;
         updateMethodSignature(node: MethodSignature, modifiers: readonly Modifier[] | undefined, name: PropertyName, questionToken: QuestionToken | undefined, typeParameters: NodeArray<TypeParameterDeclaration> | undefined, parameters: NodeArray<ParameterDeclaration>, type: TypeNode | undefined): MethodSignature;
         createMethodDeclaration(modifiers: readonly ModifierLike[] | undefined, asteriskToken: AsteriskToken | undefined, name: string | PropertyName, questionToken: QuestionToken | undefined, typeParameters: readonly TypeParameterDeclaration[] | undefined, parameters: readonly ParameterDeclaration[], type: TypeNode | undefined, body: Block | undefined): MethodDeclaration;
@@ -3866,6 +3893,8 @@ declare namespace ts {
         updateClassDeclaration(node: ClassDeclaration, modifiers: readonly ModifierLike[] | undefined, name: Identifier | undefined, typeParameters: readonly TypeParameterDeclaration[] | undefined, heritageClauses: readonly HeritageClause[] | undefined, members: readonly ClassElement[]): ClassDeclaration;
         createStructDeclaration(modifiers: readonly ModifierLike[] | undefined, name: string | Identifier | undefined, typeParameters: readonly TypeParameterDeclaration[] | undefined, heritageClauses: readonly HeritageClause[] | undefined, members: readonly ClassElement[]): StructDeclaration;
         updateStructDeclaration(node: StructDeclaration, modifiers: readonly ModifierLike[] | undefined, name: Identifier | undefined, typeParameters: readonly TypeParameterDeclaration[] | undefined, heritageClauses: readonly HeritageClause[] | undefined, members: readonly ClassElement[]): StructDeclaration;
+        createAnnotationDeclaration(modifiers: readonly ModifierLike[] | undefined, name: string | Identifier | undefined, members: readonly AnnotationElement[]): AnnotationDeclaration;
+        updateAnnotationDeclaration(node: AnnotationDeclaration, modifiers: readonly ModifierLike[] | undefined, name: Identifier | undefined, members: readonly AnnotationElement[]): AnnotationDeclaration;
         createInterfaceDeclaration(modifiers: readonly Modifier[] | undefined, name: string | Identifier, typeParameters: readonly TypeParameterDeclaration[] | undefined, heritageClauses: readonly HeritageClause[] | undefined, members: readonly TypeElement[]): InterfaceDeclaration;
         updateInterfaceDeclaration(node: InterfaceDeclaration, modifiers: readonly Modifier[] | undefined, name: Identifier, typeParameters: readonly TypeParameterDeclaration[] | undefined, heritageClauses: readonly HeritageClause[] | undefined, members: readonly TypeElement[]): InterfaceDeclaration;
         createTypeAliasDeclaration(modifiers: readonly Modifier[] | undefined, name: string | Identifier, typeParameters: readonly TypeParameterDeclaration[] | undefined, type: TypeNode): TypeAliasDeclaration;
@@ -4870,6 +4899,7 @@ declare namespace ts {
     function isPropertyName(node: Node): node is PropertyName;
     function isBindingName(node: Node): node is BindingName;
     function isFunctionLike(node: Node | undefined): node is SignatureDeclaration;
+    function isAnnotationElement(node: Node): node is AnnotationElement;
     function isClassElement(node: Node): node is ClassElement;
     function isClassLike(node: Node): node is ClassLikeDeclaration;
     function isStruct(node: Node): node is StructDeclaration;
@@ -5024,8 +5054,10 @@ declare namespace ts {
     function isTypeParameterDeclaration(node: Node): node is TypeParameterDeclaration;
     function isParameter(node: Node): node is ParameterDeclaration;
     function isDecorator(node: Node): node is Decorator;
+    function isAnnotation(node: Node): node is Annotation;
     function isPropertySignature(node: Node): node is PropertySignature;
     function isPropertyDeclaration(node: Node): node is PropertyDeclaration;
+    function isAnnotationPropertyDeclaration(node: Node): node is AnnotationPropertyDeclaration;
     function isMethodSignature(node: Node): node is MethodSignature;
     function isMethodDeclaration(node: Node): node is MethodDeclaration;
     function isClassStaticBlockDeclaration(node: Node): node is ClassStaticBlockDeclaration;
@@ -5121,6 +5153,7 @@ declare namespace ts {
     function isFunctionDeclaration(node: Node): node is FunctionDeclaration;
     function isClassDeclaration(node: Node): node is ClassDeclaration;
     function isStructDeclaration(node: Node): node is StructDeclaration;
+    function isAnnotationDeclaration(node: Node): node is AnnotationDeclaration;
     function isInterfaceDeclaration(node: Node): node is InterfaceDeclaration;
     function isTypeAliasDeclaration(node: Node): node is TypeAliasDeclaration;
     function isEnumDeclaration(node: Node): node is EnumDeclaration;
@@ -5433,6 +5466,8 @@ declare namespace ts {
     function pathContainsOHModules(path: string): boolean;
     function choosePathContainsModules(packageManagerType: string | undefined, fileName: string): boolean;
     function getTypeExportImportAndConstEnumTransformer(context: TransformationContext): (node: SourceFile) => SourceFile;
+    function getAnnotationTransformer(relativeFilePath: string): TransformerFactory<SourceFile>;
+    function transformAnnotation(context: TransformationContext, relativeFilePath: string): (node: SourceFile) => SourceFile;
     /**
      * Add 'type' flag to import/export when import/export an type member.
      * Replace const enum with number and string literal.
@@ -11464,9 +11499,9 @@ declare namespace ts {
         (node: ParameterDeclaration, decorators: readonly Decorator[] | undefined, modifiers: readonly Modifier[] | undefined, dotDotDotToken: DotDotDotToken | undefined, name: string | BindingName, questionToken: QuestionToken | undefined, type: TypeNode | undefined, initializer: Expression | undefined): ParameterDeclaration;
     };
     /** @deprecated Use `factory.createDecorator` or the factory supplied by your transformation context instead. */
-    const createDecorator: (expression: Expression) => Decorator;
+    const createDecorator: (expression: Expression, annotationDeclaration?: AnnotationDeclaration | undefined) => Decorator;
     /** @deprecated Use `factory.updateDecorator` or the factory supplied by your transformation context instead. */
-    const updateDecorator: (node: Decorator, expression: Expression) => Decorator;
+    const updateDecorator: (node: Decorator, expression: Expression, annotationDeclaration?: AnnotationDeclaration | undefined) => Decorator;
     /** @deprecated Use `factory.createPropertyDeclaration` or the factory supplied by your transformation context instead. */
     const createProperty: {
         (modifiers: readonly ModifierLike[] | undefined, name: string | PropertyName, questionOrExclamationToken: QuestionToken | ExclamationToken | undefined, type: TypeNode | undefined, initializer: Expression | undefined): PropertyDeclaration;

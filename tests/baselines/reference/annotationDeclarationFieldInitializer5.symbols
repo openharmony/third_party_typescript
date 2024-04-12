@@ -1,0 +1,34 @@
+=== tests/cases/conformance/annotations/annotationDeclarationFieldInitializer5.ets ===
+@interface Anno {
+>Anno : Symbol(Anno, Decl(annotationDeclarationFieldInitializer5.ets, 0, 0))
+
+    d  = !false
+>d : Symbol(Anno.d, Decl(annotationDeclarationFieldInitializer5.ets, 0, 17))
+
+    r: boolean = true && false
+>r : Symbol(Anno.r, Decl(annotationDeclarationFieldInitializer5.ets, 1, 15))
+
+    s: boolean = false || true
+>s : Symbol(Anno.s, Decl(annotationDeclarationFieldInitializer5.ets, 2, 30))
+
+    t = true < false
+>t : Symbol(Anno.t, Decl(annotationDeclarationFieldInitializer5.ets, 3, 30))
+
+    u = false <= true
+>u : Symbol(Anno.u, Decl(annotationDeclarationFieldInitializer5.ets, 4, 20))
+
+    v = false > true
+>v : Symbol(Anno.v, Decl(annotationDeclarationFieldInitializer5.ets, 5, 21))
+
+    w = false >= true
+>w : Symbol(Anno.w, Decl(annotationDeclarationFieldInitializer5.ets, 6, 20))
+
+    x = true === true
+>x : Symbol(Anno.x, Decl(annotationDeclarationFieldInitializer5.ets, 7, 21))
+
+    y = true !== true
+>y : Symbol(Anno.y, Decl(annotationDeclarationFieldInitializer5.ets, 8, 21))
+
+    z = false == false
+>z : Symbol(Anno.z, Decl(annotationDeclarationFieldInitializer5.ets, 9, 21))
+}

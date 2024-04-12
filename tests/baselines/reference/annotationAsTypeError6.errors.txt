@@ -1,0 +1,10 @@
+tests/cases/conformance/annotations/annotationAsTypeError6.ets(4,25): error TS28027: Annotation cannot be used as type or variable or function or method.
+
+
+==== tests/cases/conformance/annotations/annotationAsTypeError6.ets (1 errors) ====
+    @interface Anno {}
+    
+    let o: Object
+    const a = (o instanceof Anno)
+                            ~~~~
+!!! error TS28027: Annotation cannot be used as type or variable or function or method.

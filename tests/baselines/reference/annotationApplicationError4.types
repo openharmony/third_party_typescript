@@ -1,0 +1,21 @@
+=== tests/cases/conformance/annotations/annotationApplicationError4.ets ===
+@interface Anno {
+    a: number = 20
+>a : number
+
+    b: string[]
+>b : string[]
+}
+
+@Anno({a: true, b: 10})
+>Anno({a: true, b: 10}) : void
+>Anno : typeof Anno
+>{a: true, b: 10} : { a: boolean; b: number; }
+>a : boolean
+>true : true
+>b : number
+>10 : 10
+
+class C {}
+>C : C
+

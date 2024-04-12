@@ -1,0 +1,5 @@
+=== tests/cases/conformance/annotations/annotationDeclarationFieldType5.ets ===
+@interface Anno {
+    a: boolean[]
+>a : boolean[]
+}

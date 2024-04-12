@@ -78,7 +78,7 @@ namespace ts {
 
 
         function shouldEmitUnderscoreUnderscoreESModule() {
-            if (!currentModuleInfo.exportEquals && isExternalModule(currentSourceFile)) {
+            if (!currentModuleInfo.exportEquals && isExternalModule(currentSourceFile) && !isOnlyAnnotationsAreExportedOrImported(currentSourceFile, resolver)) {
                 return true;
             }
             return false;
@@ -1103,6 +1103,10 @@ namespace ts {
             const generatedName = factory.getGeneratedNameForNode(node);
 
             if (node.exportClause && isNamedExports(node.exportClause)) {
+                const allExportsAreAnnotations = every(node.exportClause.elements, s => resolver.isReferredToAnnotation(s) === true);
+                if (node.exportClause.elements.length > 0 && allExportsAreAnnotations) {
+                    return undefined;
+                }
                 const statements: Statement[] = [];
                 // export { x, y } from "mod";
                 if (moduleKind !== ModuleKind.AMD) {
@@ -1126,6 +1130,9 @@ namespace ts {
                     );
                 }
                 for (const specifier of node.exportClause.elements) {
+                    if (resolver.isReferredToAnnotation(specifier) === true) {
+                        continue;
+                    }
                     if (languageVersion === ScriptTarget.ES3) {
                         statements.push(
                             setOriginalNode(

@@ -1,0 +1,59 @@
+=== tests/cases/conformance/annotations/annotationDeclarationFieldInitializer4.ets ===
+const a = "a"
+>a : Symbol(a, Decl(annotationDeclarationFieldInitializer4.ets, 0, 5))
+
+const b = "b"
+>b : Symbol(b, Decl(annotationDeclarationFieldInitializer4.ets, 1, 5))
+
+@interface Anno {
+>Anno : Symbol(Anno, Decl(annotationDeclarationFieldInitializer4.ets, 1, 13))
+
+    d  = !a
+>d : Symbol(Anno.d, Decl(annotationDeclarationFieldInitializer4.ets, 3, 17))
+>a : Symbol(a, Decl(annotationDeclarationFieldInitializer4.ets, 0, 5))
+
+    r = a && b
+>r : Symbol(Anno.r, Decl(annotationDeclarationFieldInitializer4.ets, 4, 11))
+>a : Symbol(a, Decl(annotationDeclarationFieldInitializer4.ets, 0, 5))
+>b : Symbol(b, Decl(annotationDeclarationFieldInitializer4.ets, 1, 5))
+
+    s = a || b
+>s : Symbol(Anno.s, Decl(annotationDeclarationFieldInitializer4.ets, 5, 14))
+>a : Symbol(a, Decl(annotationDeclarationFieldInitializer4.ets, 0, 5))
+>b : Symbol(b, Decl(annotationDeclarationFieldInitializer4.ets, 1, 5))
+
+    t = a < b
+>t : Symbol(Anno.t, Decl(annotationDeclarationFieldInitializer4.ets, 6, 14))
+>a : Symbol(a, Decl(annotationDeclarationFieldInitializer4.ets, 0, 5))
+>b : Symbol(b, Decl(annotationDeclarationFieldInitializer4.ets, 1, 5))
+
+    u = a <= b
+>u : Symbol(Anno.u, Decl(annotationDeclarationFieldInitializer4.ets, 7, 13))
+>a : Symbol(a, Decl(annotationDeclarationFieldInitializer4.ets, 0, 5))
+>b : Symbol(b, Decl(annotationDeclarationFieldInitializer4.ets, 1, 5))
+
+    v = a > b
+>v : Symbol(Anno.v, Decl(annotationDeclarationFieldInitializer4.ets, 8, 14))
+>a : Symbol(a, Decl(annotationDeclarationFieldInitializer4.ets, 0, 5))
+>b : Symbol(b, Decl(annotationDeclarationFieldInitializer4.ets, 1, 5))
+
+    w = a >= b
+>w : Symbol(Anno.w, Decl(annotationDeclarationFieldInitializer4.ets, 9, 13))
+>a : Symbol(a, Decl(annotationDeclarationFieldInitializer4.ets, 0, 5))
+>b : Symbol(b, Decl(annotationDeclarationFieldInitializer4.ets, 1, 5))
+
+    x = a === a
+>x : Symbol(Anno.x, Decl(annotationDeclarationFieldInitializer4.ets, 10, 14))
+>a : Symbol(a, Decl(annotationDeclarationFieldInitializer4.ets, 0, 5))
+>a : Symbol(a, Decl(annotationDeclarationFieldInitializer4.ets, 0, 5))
+
+    y = a !== a
+>y : Symbol(Anno.y, Decl(annotationDeclarationFieldInitializer4.ets, 11, 15))
+>a : Symbol(a, Decl(annotationDeclarationFieldInitializer4.ets, 0, 5))
+>a : Symbol(a, Decl(annotationDeclarationFieldInitializer4.ets, 0, 5))
+
+    z = a == a
+>z : Symbol(Anno.z, Decl(annotationDeclarationFieldInitializer4.ets, 12, 15))
+>a : Symbol(a, Decl(annotationDeclarationFieldInitializer4.ets, 0, 5))
+>a : Symbol(a, Decl(annotationDeclarationFieldInitializer4.ets, 0, 5))
+}

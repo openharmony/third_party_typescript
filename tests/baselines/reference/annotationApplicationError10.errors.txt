@@ -1,0 +1,23 @@
+tests/cases/conformance/annotations/annotationApplicationError10.ets(8,5): error TS28021: Annotation have to be applied only for non-abstract class declarations and method declarations in non-abstract classes, got: 'abstract class C {
+    @Anno
+    public foo() {};
+}'.
+
+
+==== tests/cases/conformance/annotations/annotationApplicationError10.ets (1 errors) ====
+    @interface Anno {
+        a: number = 10
+        b: string[] = []
+    }
+    
+    
+    abstract class C {
+        @Anno
+        ~~~~~
+!!! error TS28021: Annotation have to be applied only for non-abstract class declarations and method declarations in non-abstract classes, got: 'abstract class C {
+!!! error TS28021:     @Anno
+!!! error TS28021:     public foo() {};
+!!! error TS28021: }'.
+        public foo() {};
+    }
+    

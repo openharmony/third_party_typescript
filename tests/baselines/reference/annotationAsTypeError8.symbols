@@ -1,0 +1,18 @@
+=== tests/cases/conformance/annotations/annotationAsTypeError8.ets ===
+@interface Anno {}
+>Anno : Symbol(Anno, Decl(annotationAsTypeError8.ets, 0, 0))
+
+function foo(a: Anno) {
+>foo : Symbol(foo, Decl(annotationAsTypeError8.ets, 0, 18))
+>a : Symbol(a, Decl(annotationAsTypeError8.ets, 2, 13))
+>Anno : Symbol(Anno, Decl(annotationAsTypeError8.ets, 0, 0))
+}
+
+class C {
+>C : Symbol(C, Decl(annotationAsTypeError8.ets, 3, 1))
+
+    public goo(a: Anno) {}
+>goo : Symbol(C.goo, Decl(annotationAsTypeError8.ets, 5, 9))
+>a : Symbol(a, Decl(annotationAsTypeError8.ets, 6, 15))
+>Anno : Symbol(Anno, Decl(annotationAsTypeError8.ets, 0, 0))
+}

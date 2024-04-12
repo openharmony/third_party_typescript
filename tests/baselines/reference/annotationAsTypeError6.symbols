@@ -1,0 +1,13 @@
+=== tests/cases/conformance/annotations/annotationAsTypeError6.ets ===
+@interface Anno {}
+>Anno : Symbol(Anno, Decl(annotationAsTypeError6.ets, 0, 0))
+
+let o: Object
+>o : Symbol(o, Decl(annotationAsTypeError6.ets, 2, 3))
+>Object : Symbol(Object, Decl(lib.es5.d.ts, --, --), Decl(lib.es5.d.ts, --, --))
+
+const a = (o instanceof Anno)
+>a : Symbol(a, Decl(annotationAsTypeError6.ets, 3, 5))
+>o : Symbol(o, Decl(annotationAsTypeError6.ets, 2, 3))
+>Anno : Symbol(Anno, Decl(annotationAsTypeError6.ets, 0, 0))
+

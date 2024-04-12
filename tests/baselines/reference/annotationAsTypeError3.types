@@ -1,0 +1,6 @@
+=== tests/cases/conformance/annotations/annotationAsTypeError3.ets ===
+@interface Anno {}
+
+class C implements Anno{}
+>C : C
+

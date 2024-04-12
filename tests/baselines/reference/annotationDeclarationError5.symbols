@@ -1,0 +1,11 @@
+=== tests/cases/conformance/annotations/annotationDeclarationError5.ets ===
+module M {
+>M : Symbol(M, Decl(annotationDeclarationError5.ets, 0, 0))
+
+    @interface Anno {
+>Anno : Symbol(Anno, Decl(annotationDeclarationError5.ets, 0, 10))
+
+        a: number
+>a : Symbol(Anno.a, Decl(annotationDeclarationError5.ets, 1, 21))
+    }
+}

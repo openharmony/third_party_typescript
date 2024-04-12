@@ -1,0 +1,37 @@
+=== tests/cases/conformance/annotations/annotationDeclarationFieldInitializer3.ets ===
+@interface Anno {
+>Anno : Symbol(Anno, Decl(annotationDeclarationFieldInitializer3.ets, 0, 0))
+
+    d  = !"abc"
+>d : Symbol(Anno.d, Decl(annotationDeclarationFieldInitializer3.ets, 0, 17))
+
+    q: string = "a" + "b"
+>q : Symbol(Anno.q, Decl(annotationDeclarationFieldInitializer3.ets, 1, 15))
+
+    r: string = "a" && "b"
+>r : Symbol(Anno.r, Decl(annotationDeclarationFieldInitializer3.ets, 2, 25))
+
+    s: string = "c" || "d"
+>s : Symbol(Anno.s, Decl(annotationDeclarationFieldInitializer3.ets, 3, 26))
+
+    t = "abc" < "abd"
+>t : Symbol(Anno.t, Decl(annotationDeclarationFieldInitializer3.ets, 4, 26))
+
+    u = "abc" <= "abc"
+>u : Symbol(Anno.u, Decl(annotationDeclarationFieldInitializer3.ets, 5, 21))
+
+    v = "b" > "a"
+>v : Symbol(Anno.v, Decl(annotationDeclarationFieldInitializer3.ets, 6, 22))
+
+    w = "b" >= "b"
+>w : Symbol(Anno.w, Decl(annotationDeclarationFieldInitializer3.ets, 7, 17))
+
+    x = "abc" === "abc"
+>x : Symbol(Anno.x, Decl(annotationDeclarationFieldInitializer3.ets, 8, 18))
+
+    y = "qwe" !== "qwe"
+>y : Symbol(Anno.y, Decl(annotationDeclarationFieldInitializer3.ets, 9, 23))
+
+    z = "" == ""
+>z : Symbol(Anno.z, Decl(annotationDeclarationFieldInitializer3.ets, 10, 23))
+}

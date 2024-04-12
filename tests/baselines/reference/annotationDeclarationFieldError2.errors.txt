@@ -1,0 +1,10 @@
+tests/cases/conformance/annotations/annotationDeclarationFieldError2.ets(3,5): error TS2300: Duplicate identifier 'a'.
+
+
+==== tests/cases/conformance/annotations/annotationDeclarationFieldError2.ets (1 errors) ====
+    @interface Anno {
+        a: number
+        a: number
+        ~
+!!! error TS2300: Duplicate identifier 'a'.
+    }

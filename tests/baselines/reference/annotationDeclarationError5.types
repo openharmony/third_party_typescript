@@ -1,0 +1,9 @@
+=== tests/cases/conformance/annotations/annotationDeclarationError5.ets ===
+module M {
+>M : typeof M
+
+    @interface Anno {
+        a: number
+>a : number
+    }
+}

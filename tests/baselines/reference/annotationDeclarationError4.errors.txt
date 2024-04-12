@@ -1,0 +1,13 @@
+tests/cases/conformance/annotations/annotationDeclarationError4.ets(2,5): error TS28024: Annotation must be defined at top-level only.
+
+
+==== tests/cases/conformance/annotations/annotationDeclarationError4.ets (1 errors) ====
+    (function() {
+        @interface Anno {
+        ~~~~~~~~~~~~~~~~~
+            a: number
+    ~~~~~~~~~~~~~~~~~
+        }
+    ~~~~~
+!!! error TS28024: Annotation must be defined at top-level only.
+    })();

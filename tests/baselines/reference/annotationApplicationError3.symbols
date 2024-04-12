@@ -1,0 +1,44 @@
+=== tests/cases/conformance/annotations/annotationApplicationError3.ets ===
+@interface Anno {
+>Anno : Symbol(Anno, Decl(annotationApplicationError3.ets, 0, 0))
+
+    a: number = 20
+>a : Symbol(Anno.a, Decl(annotationApplicationError3.ets, 0, 17))
+
+    b: string[]
+>b : Symbol(Anno.b, Decl(annotationApplicationError3.ets, 1, 18))
+}
+
+function foo(): number {
+>foo : Symbol(foo, Decl(annotationApplicationError3.ets, 3, 1))
+
+    return 10
+}
+
+@Anno({a: foo(), b: new C().s})
+>Anno : Symbol(Anno, Decl(annotationApplicationError3.ets, 0, 0))
+>a : Symbol(a, Decl(annotationApplicationError3.ets, 9, 7))
+>foo : Symbol(foo, Decl(annotationApplicationError3.ets, 3, 1))
+>b : Symbol(b, Decl(annotationApplicationError3.ets, 9, 16))
+>new C().s : Symbol(C.s, Decl(annotationApplicationError3.ets, 10, 9))
+>C : Symbol(C, Decl(annotationApplicationError3.ets, 7, 1))
+>s : Symbol(C.s, Decl(annotationApplicationError3.ets, 10, 9))
+
+class C {
+>C : Symbol(C, Decl(annotationApplicationError3.ets, 7, 1))
+
+    readonly s: string[] = ["a", "b", "c"]
+>s : Symbol(C.s, Decl(annotationApplicationError3.ets, 10, 9))
+}
+
+
+@Anno({b: new C().s})
+>Anno : Symbol(Anno, Decl(annotationApplicationError3.ets, 0, 0))
+>b : Symbol(b, Decl(annotationApplicationError3.ets, 15, 7))
+>new C().s : Symbol(C.s, Decl(annotationApplicationError3.ets, 10, 9))
+>C : Symbol(C, Decl(annotationApplicationError3.ets, 7, 1))
+>s : Symbol(C.s, Decl(annotationApplicationError3.ets, 10, 9))
+
+class D {}
+>D : Symbol(D, Decl(annotationApplicationError3.ets, 12, 1))
+

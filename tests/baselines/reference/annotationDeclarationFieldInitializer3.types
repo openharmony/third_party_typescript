@@ -1,0 +1,67 @@
+=== tests/cases/conformance/annotations/annotationDeclarationFieldInitializer3.ets ===
+@interface Anno {
+    d  = !"abc"
+>d : boolean
+>!"abc" : boolean
+>"abc" : "abc"
+
+    q: string = "a" + "b"
+>q : string
+>"a" + "b" : string
+>"a" : "a"
+>"b" : "b"
+
+    r: string = "a" && "b"
+>r : string
+>"a" && "b" : "" | "b"
+>"a" : "a"
+>"b" : "b"
+
+    s: string = "c" || "d"
+>s : string
+>"c" || "d" : "c" | "d"
+>"c" : "c"
+>"d" : "d"
+
+    t = "abc" < "abd"
+>t : boolean
+>"abc" < "abd" : boolean
+>"abc" : "abc"
+>"abd" : "abd"
+
+    u = "abc" <= "abc"
+>u : boolean
+>"abc" <= "abc" : boolean
+>"abc" : "abc"
+>"abc" : "abc"
+
+    v = "b" > "a"
+>v : boolean
+>"b" > "a" : boolean
+>"b" : "b"
+>"a" : "a"
+
+    w = "b" >= "b"
+>w : boolean
+>"b" >= "b" : boolean
+>"b" : "b"
+>"b" : "b"
+
+    x = "abc" === "abc"
+>x : boolean
+>"abc" === "abc" : boolean
+>"abc" : "abc"
+>"abc" : "abc"
+
+    y = "qwe" !== "qwe"
+>y : boolean
+>"qwe" !== "qwe" : boolean
+>"qwe" : "qwe"
+>"qwe" : "qwe"
+
+    z = "" == ""
+>z : boolean
+>"" == "" : boolean
+>"" : ""
+>"" : ""
+}

@@ -1,0 +1,10 @@
+=== tests/cases/conformance/parser/ets/annotations/AnnotationDeclarationNegative14.ets ===
+@interface Anno {
+    0();
+>0() : any
+>0 : 0
+
+    "0"() { }
+>"0"() : any
+>"0" : "0"
+}

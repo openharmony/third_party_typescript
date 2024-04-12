@@ -1,0 +1,61 @@
+=== tests/cases/conformance/annotations/annotationDeclarationFieldInitializer5.ets ===
+@interface Anno {
+    d  = !false
+>d : boolean
+>!false : true
+>false : false
+
+    r: boolean = true && false
+>r : boolean
+>true && false : false
+>true : true
+>false : false
+
+    s: boolean = false || true
+>s : boolean
+>false || true : true
+>false : false
+>true : true
+
+    t = true < false
+>t : boolean
+>true < false : boolean
+>true : true
+>false : false
+
+    u = false <= true
+>u : boolean
+>false <= true : boolean
+>false : false
+>true : true
+
+    v = false > true
+>v : boolean
+>false > true : boolean
+>false : false
+>true : true
+
+    w = false >= true
+>w : boolean
+>false >= true : boolean
+>false : false
+>true : true
+
+    x = true === true
+>x : boolean
+>true === true : boolean
+>true : true
+>true : true
+
+    y = true !== true
+>y : boolean
+>true !== true : boolean
+>true : true
+>true : true
+
+    z = false == false
+>z : boolean
+>false == false : boolean
+>false : false
+>false : false
+}

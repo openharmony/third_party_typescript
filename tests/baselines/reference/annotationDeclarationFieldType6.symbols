@@ -1,0 +1,7 @@
+=== tests/cases/conformance/annotations/annotationDeclarationFieldType6.ets ===
+@interface Anno {
+>Anno : Symbol(Anno, Decl(annotationDeclarationFieldType6.ets, 0, 0))
+
+    a: string[]
+>a : Symbol(Anno.a, Decl(annotationDeclarationFieldType6.ets, 0, 17))
+}

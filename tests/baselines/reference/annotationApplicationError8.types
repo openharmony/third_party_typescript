@@ -1,0 +1,40 @@
+=== tests/cases/conformance/annotations/annotationApplicationError8.ets ===
+@interface Anno {
+    a: number = 10
+>a : number
+
+    b: string[] = []
+>b : string[]
+>[] : undefined[]
+}
+
+
+class C {
+>C : C
+
+    @Anno
+>Anno : typeof Anno
+
+    public a: number
+>a : number
+
+    public foo(@Anno a: number) {}
+>foo : (a: number) => void
+>Anno : typeof Anno
+>a : number
+
+    @Anno
+>Anno : typeof Anno
+
+    get prop(): number { return 0}
+>prop : number
+>0 : 0
+
+    @Anno
+>Anno : typeof Anno
+
+    set prop(a: number) {}
+>prop : number
+>a : number
+}
+

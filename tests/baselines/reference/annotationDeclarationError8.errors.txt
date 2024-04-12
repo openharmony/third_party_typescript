@@ -1,0 +1,11 @@
+tests/cases/conformance/annotations/annotationDeclarationError8.ets(5,17): error TS28029: Annotation cannot be used as a value.
+
+
+==== tests/cases/conformance/annotations/annotationDeclarationError8.ets (1 errors) ====
+    @interface Anno {
+        a: number
+    }
+    
+    export default {Anno}
+                    ~~~~
+!!! error TS28029: Annotation cannot be used as a value.

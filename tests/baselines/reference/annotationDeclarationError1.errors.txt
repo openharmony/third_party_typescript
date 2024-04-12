@@ -1,0 +1,12 @@
+tests/cases/conformance/annotations/annotationDeclarationError1.ets(3,1): error TS1206: Decorators are not valid here.
+
+
+==== tests/cases/conformance/annotations/annotationDeclarationError1.ets (1 errors) ====
+    function goo(target: any) {}
+    
+    @goo
+    ~~~~
+!!! error TS1206: Decorators are not valid here.
+    @interface Anno {
+        a: number
+    }

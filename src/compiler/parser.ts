@@ -137,6 +137,11 @@ namespace ts {
                 visitNode(cbNode, node.type) ||
                 visitNode(cbNode, node.initializer);
         },
+        [SyntaxKind.AnnotationPropertyDeclaration]: function forEachChildInAnnotationPropertyDeclaration<T>(node: AnnotationPropertyDeclaration, cbNode: (node: Node) => T | undefined, _cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+            return visitNode(cbNode, node.name) ||
+                visitNode(cbNode, node.type) ||
+                visitNode(cbNode, node.initializer);
+        },
         [SyntaxKind.PropertySignature]: function forEachChildInPropertySignature<T>(node: PropertySignature, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
             return visitNodes(cbNode, cbNodes, node.modifiers) ||
                 visitNode(cbNode, node.name) ||
@@ -506,6 +511,7 @@ namespace ts {
         [SyntaxKind.ClassDeclaration]: forEachChildInClassDeclarationOrExpression,
         [SyntaxKind.ClassExpression]: forEachChildInClassDeclarationOrExpression,
         [SyntaxKind.StructDeclaration]: forEachChildInClassDeclarationOrExpression,
+        [SyntaxKind.AnnotationDeclaration]: forEachChildInAnnotationDeclaration,
         [SyntaxKind.InterfaceDeclaration]: function forEachChildInInterfaceDeclaration<T>(node: InterfaceDeclaration, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
             return visitNodes(cbNode, cbNodes, node.illegalDecorators) ||
                 visitNodes(cbNode, cbNodes, node.modifiers) ||
@@ -785,6 +791,12 @@ namespace ts {
             visitNode(cbNode, node.name) ||
             visitNodes(cbNode, cbNodes, node.typeParameters) ||
             visitNodes(cbNode, cbNodes, node.heritageClauses) ||
+            visitNodes(cbNode, cbNodes, node.members);
+    }
+
+    function forEachChildInAnnotationDeclaration<T>(node: AnnotationDeclaration, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+        return visitNodes(cbNode, cbNodes, node.modifiers) ||
+            visitNode(cbNode, node.name) ||
             visitNodes(cbNode, cbNodes, node.members);
     }
 
@@ -1828,6 +1840,10 @@ namespace ts {
             return inEtsContext() && (inBuildContext() || inBuilderContext()) && inEtsFlagsContext(EtsFlags.SyntaxComponentContext);
         }
 
+        function inEtsAnnotationContext() {
+            return inEtsContext() && sourceFileCompilerOptions?.etsAnnotationsEnable === true;
+        }
+
         function parseErrorAtPosition(start: number, length: number, message: DiagnosticMessage, arg0?: any): DiagnosticWithDetachedLocation | undefined {
             // Don't report another error if it would just be at the same position as the last error.
             const lastError = lastOrUndefined(parseDiagnostics);
@@ -2477,6 +2493,9 @@ namespace ts {
                     if (token() === SyntaxKind.TypeKeyword) {
                         return lookAhead(nextTokenCanFollowExportModifier);
                     }
+                    if (inEtsAnnotationContext() && token() === SyntaxKind.AtToken) {
+                        return lookAhead(() => nextToken() === SyntaxKind.InterfaceKeyword);
+                    }
                     return canFollowExportModifier();
                 case SyntaxKind.DefaultKeyword:
                     return nextTokenCanFollowDefaultKeyword();
@@ -2512,6 +2531,7 @@ namespace ts {
                 || token() === SyntaxKind.OpenBraceToken
                 || token() === SyntaxKind.AsteriskToken
                 || token() === SyntaxKind.DotDotDotToken
+                || token() === SyntaxKind.AtToken && inEtsAnnotationContext() && lookAhead(() => nextToken() === SyntaxKind.InterfaceKeyword)
                 || isLiteralPropertyName();
         }
 
@@ -2551,6 +2571,8 @@ namespace ts {
                     // semicolon to be treated as a class member (since they're almost always used
                     // for statements.
                     return lookAhead(isClassMemberStart) || (token() === SyntaxKind.SemicolonToken && !inErrorRecovery);
+                case ParsingContext.AnnotationMembers:
+                    return lookAhead(isAnnotationMemberStart);
                 case ParsingContext.EnumMembers:
                     // Include open bracket computed properties. This technically also lets in indexers,
                     // which would be a candidate for improved error reporting.
@@ -2687,6 +2709,7 @@ namespace ts {
                 case ParsingContext.SwitchClauses:
                 case ParsingContext.TypeMembers:
                 case ParsingContext.ClassMembers:
+                case ParsingContext.AnnotationMembers:
                 case ParsingContext.EnumMembers:
                 case ParsingContext.ObjectLiteralMembers:
                 case ParsingContext.ObjectBindingElements:
@@ -2776,7 +2799,6 @@ namespace ts {
             while (!isListTerminator(kind)) {
                 if (isListElement(kind, /*inErrorRecovery*/ false)) {
                     list.push(parseListElement(kind, parseElement));
-
                     continue;
                 }
 
@@ -3108,6 +3130,7 @@ namespace ts {
                 case ParsingContext.RestProperties: // fallthrough
                 case ParsingContext.TypeMembers: return parseErrorAtCurrentToken(Diagnostics.Property_or_signature_expected);
                 case ParsingContext.ClassMembers: return parseErrorAtCurrentToken(Diagnostics.Unexpected_token_A_constructor_method_accessor_or_property_was_expected);
+                case ParsingContext.AnnotationMembers: return parseErrorAtCurrentToken(Diagnostics.Unexpected_token_An_annotation_property_was_expected);
                 case ParsingContext.EnumMembers: return parseErrorAtCurrentToken(Diagnostics.Enum_member_expected);
                 case ParsingContext.HeritageClauseElement: return parseErrorAtCurrentToken(Diagnostics.Expression_expected);
                 case ParsingContext.VariableDeclarations:
@@ -6905,8 +6928,8 @@ namespace ts {
                         return true;
                     case SyntaxKind.StructKeyword:
                         return inEtsContext();
-
-
+                    case SyntaxKind.AtToken:
+                        return inEtsAnnotationContext() && nextToken() === SyntaxKind.InterfaceKeyword;
                     // 'declare', 'module', 'namespace', 'interface'* and 'type' are all legal JavaScript identifiers;
                     // however, an identifier cannot be followed by another identifier on the same line. This is what we
                     // count on to parse out the respective declarations. For instance, we exploit this to say that
@@ -7138,6 +7161,30 @@ namespace ts {
             return modifier.kind === SyntaxKind.DeclareKeyword;
         }
 
+        function parseAnnotationDeclaration(pos: number, hasJSDoc: boolean, decorators: NodeArray<Decorator> | undefined, modifiers: NodeArray<Modifier> | undefined): AnnotationDeclaration {
+            const atTokenPos = scanner.getTokenPos();
+            parseExpected(SyntaxKind.AtToken);
+            const interfaceTokenPos = scanner.getTokenPos();
+            parseExpected(SyntaxKind.InterfaceKeyword);
+
+            // Prevent any tokens between '@' and 'interface'
+            if (interfaceTokenPos - atTokenPos > 1) {
+                parseErrorAt(atTokenPos + 1, interfaceTokenPos, Diagnostics.In_annotation_declaration_any_symbols_between_and_interface_are_forbidden);
+            }
+
+            const name = createIdentifier(isBindingIdentifier());
+            let members;
+            if (parseExpected(SyntaxKind.OpenBraceToken)) {
+                members = parseAnnotationMembers();
+                parseExpected(SyntaxKind.CloseBraceToken);
+            }
+            else {
+                members = createMissingList<AnnotationElement>();
+            }
+            const node = factory.createAnnotationDeclaration(combineDecoratorsAndModifiers(decorators, modifiers), name, members);
+            return withJSDoc(finishNode(node, pos), hasJSDoc);
+        }
+
         function parseDeclaration(): Statement {
             // `parseListElement` attempted to get the reused node at this position,
             // but the ambient context flag was not yet set, so the node appeared
@@ -7210,6 +7257,12 @@ namespace ts {
                 case SyntaxKind.StructKeyword:
                     if (inEtsContext()) {
                         return parseStructDeclaration(pos, hasJSDoc, decorators, modifiers);
+                    }
+                    return parseDeclarationDefault(pos,decorators, modifiers);
+                case SyntaxKind.AtToken:
+                    if (inEtsAnnotationContext() &&
+                        lookAhead(() => nextToken() === SyntaxKind.InterfaceKeyword)) {
+                        return parseAnnotationDeclaration(pos, hasJSDoc, decorators, modifiers);
                     }
                     return parseDeclarationDefault(pos,decorators, modifiers);
                 case SyntaxKind.InterfaceKeyword:
@@ -7589,6 +7642,21 @@ namespace ts {
             }
         }
 
+        function parseAnnotationPropertyDeclaration(
+            pos: number,
+            hasJSDoc: boolean,
+            name: PropertyName
+        ): AnnotationPropertyDeclaration {
+            const type = parseTypeAnnotation();
+            const initializer = doOutsideOfContext(NodeFlags.YieldContext | NodeFlags.AwaitContext | NodeFlags.DisallowInContext, parseInitializer);
+            parseSemicolonAfterPropertyName(name, type, initializer);
+            const node = factory.createAnnotationPropertyDeclaration(
+                name,
+                type,
+                initializer);
+            return withJSDoc(finishNode(node, pos), hasJSDoc);
+        }
+
         function parsePropertyDeclaration(
             pos: number,
             hasJSDoc: boolean,
@@ -7642,10 +7710,65 @@ namespace ts {
             return withJSDoc(finishNode(node, pos), hasJSDoc);
         }
 
+        function isAnnotationMemberStart(): boolean {
+            let idToken: SyntaxKind | undefined;
+
+            if (token() === SyntaxKind.AtToken) {
+                return false;
+            }
+
+            if (isModifierKind(token())) {
+                return false;
+            }
+
+            if (token() === SyntaxKind.AsteriskToken) {
+                return false ;
+            }
+
+            // Try to get the first property-like token following all modifiers.
+            // This can either be an identifier or the 'get' or 'set' keywords.
+            if (isLiteralPropertyName()) {
+                idToken = token();
+                nextToken();
+            }
+
+            // Index signatures and computed properties are prohibited for annotations
+            if (token() === SyntaxKind.OpenBracketToken) {
+                return false;
+            }
+
+            // If we were able to get any potential identifier...
+            if (idToken !== undefined) {
+                // If we have a non-keyword identifier, or if we have an accessor, then we no need to parse.
+                if (isKeyword(idToken)) {
+                    return false;
+                }
+
+                // If it *is* a keyword, but not an accessor, check a little farther along
+                // to see if it should actually be parsed as a class member.
+                switch (token()) {
+                    case SyntaxKind.ColonToken:         // Type Annotation for declaration
+                    case SyntaxKind.EqualsToken:        // Initializer for declaration
+                        return true;
+                    default:
+                        // Covers
+                        //  - Semicolons     (declaration termination)
+                        //  - Closing braces (end-of-class, must be declaration)
+                        //  - End-of-files   (not valid, but permitted so that it gets caught later on)
+                        //  - Line-breaks    (enabling *automatic semicolon insertion*)
+                        return canParseSemicolon();
+                }
+            }
+            return false;
+        }
+
         function isClassMemberStart(): boolean {
             let idToken: SyntaxKind | undefined;
 
             if (token() === SyntaxKind.AtToken) {
+                if (inEtsAnnotationContext() && lookAhead(() => nextToken() === SyntaxKind.InterfaceKeyword)) {
+                    return false;
+                }
                 return true;
             }
 
@@ -7707,7 +7830,6 @@ namespace ts {
                         return canParseSemicolon();
                 }
             }
-
             return false;
         }
 
@@ -7750,6 +7872,10 @@ namespace ts {
 
         function tryParseDecorator(): Decorator | undefined {
             const pos = getNodePos();
+            if (inEtsAnnotationContext() && token() === SyntaxKind.AtToken
+                && lookAhead(() => nextToken() === SyntaxKind.InterfaceKeyword)) {
+                    return undefined;
+            }
             if (!parseOptional(SyntaxKind.AtToken)) {
                 return undefined;
             }
@@ -7923,6 +8049,42 @@ namespace ts {
             return Debug.fail("Should not have attempted to parse class member declaration.");
         }
 
+        function parseAnnotationElement(): AnnotationElement {
+            const pos = getNodePos();
+            if (token() === SyntaxKind.SemicolonToken) {
+                parseErrorAt(pos, pos, Diagnostics.Unexpected_keyword_or_identifier);
+            }
+
+            const hasJSDoc = hasPrecedingJSDocComment();
+            if (token() === SyntaxKind.StaticKeyword && lookAhead(nextTokenIsOpenBrace)) {
+                return createMissingNode<AnnotationElement>(SyntaxKind.AnnotationPropertyDeclaration, /*reportAtCurrentPosition*/ true, Diagnostics.Unexpected_keyword_or_identifier);
+            }
+
+            if (parseContextualModifier(SyntaxKind.GetKeyword)) {
+                return createMissingNode<AnnotationElement>(SyntaxKind.AnnotationPropertyDeclaration, /*reportAtCurrentPosition*/ true, Diagnostics.Unexpected_keyword_or_identifier);
+            }
+
+            if (parseContextualModifier(SyntaxKind.SetKeyword)) {
+                return createMissingNode<AnnotationElement>(SyntaxKind.AnnotationPropertyDeclaration, /*reportAtCurrentPosition*/ true, Diagnostics.Unexpected_keyword_or_identifier);
+            }
+
+            if (token() === SyntaxKind.ConstructorKeyword || token() === SyntaxKind.StringLiteral) {
+                return createMissingNode<AnnotationElement>(SyntaxKind.AnnotationPropertyDeclaration, /*reportAtCurrentPosition*/ true, Diagnostics.Unexpected_keyword_or_identifier);
+            }
+
+            if (isIndexSignature()) {
+                return createMissingNode<AnnotationElement>(SyntaxKind.AnnotationPropertyDeclaration, /*reportAtCurrentPosition*/ true, Diagnostics.Unexpected_keyword_or_identifier);
+            }
+
+            if (tokenIsIdentifierOrKeyword(token())) {
+                const name = parsePropertyName();
+                return parseAnnotationPropertyDeclaration(pos, hasJSDoc, name);
+            }
+
+            // 'isAnnotationMemberStart' should have hinted not to attempt parsing.
+            return Debug.fail("Should not have attempted to parse annotation member declaration.");
+        }
+
         function parseClassExpression(): ClassExpression {
             return parseClassDeclarationOrExpression(getNodePos(), hasPrecedingJSDocComment(), /*decorators*/ undefined, /*modifiers*/ undefined, SyntaxKind.ClassExpression) as ClassExpression;
         }
@@ -8061,6 +8223,10 @@ namespace ts {
 
         function parseClassMembers(): NodeArray<ClassElement> {
             return parseList(ParsingContext.ClassMembers, parseClassElement);
+        }
+
+        function parseAnnotationMembers(): NodeArray<AnnotationElement> {
+            return parseList(ParsingContext.AnnotationMembers, parseAnnotationElement);
         }
 
         function parseStructMembers(pos: number): NodeArray<ClassElement> {
@@ -8601,6 +8767,7 @@ namespace ts {
             SwitchClauseStatements,    // Statements in switch clause
             TypeMembers,               // Members in interface or type literal
             ClassMembers,              // Members in class declaration
+            AnnotationMembers,         // Members in annotation declaration
             EnumMembers,               // Members in enum declaration
             HeritageClauseElement,     // Elements in a heritage clause
             VariableDeclarations,      // Variable declarations in variable statement

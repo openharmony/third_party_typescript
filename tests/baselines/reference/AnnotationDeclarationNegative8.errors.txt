@@ -1,0 +1,21 @@
+tests/cases/conformance/parser/ets/annotations/AnnotationDeclarationNegative8.ets(2,5): error TS2304: Cannot find name 'get'.
+tests/cases/conformance/parser/ets/annotations/AnnotationDeclarationNegative8.ets(2,5): error TS28018: Unexpected token. An annotation property was expected.
+tests/cases/conformance/parser/ets/annotations/AnnotationDeclarationNegative8.ets(2,9): error TS2304: Cannot find name 'a'.
+tests/cases/conformance/parser/ets/annotations/AnnotationDeclarationNegative8.ets(2,13): error TS1005: ';' expected.
+tests/cases/conformance/parser/ets/annotations/AnnotationDeclarationNegative8.ets(3,1): error TS1128: Declaration or statement expected.
+
+
+==== tests/cases/conformance/parser/ets/annotations/AnnotationDeclarationNegative8.ets (5 errors) ====
+    @interface Anno {
+        get a() {}
+        ~~~
+!!! error TS2304: Cannot find name 'get'.
+        ~~~
+!!! error TS28018: Unexpected token. An annotation property was expected.
+            ~
+!!! error TS2304: Cannot find name 'a'.
+                ~
+!!! error TS1005: ';' expected.
+    }
+    ~
+!!! error TS1128: Declaration or statement expected.

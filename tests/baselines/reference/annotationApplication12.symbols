@@ -1,0 +1,137 @@
+=== tests/cases/conformance/annotations/annotationApplication12.ets ===
+const enum E {
+>E : Symbol(E, Decl(annotationApplication12.ets, 0, 0))
+
+	A = 10,
+>A : Symbol(E.A, Decl(annotationApplication12.ets, 0, 14))
+
+	B = 20,
+>B : Symbol(E.B, Decl(annotationApplication12.ets, 1, 8))
+
+	C = 30
+>C : Symbol(E.C, Decl(annotationApplication12.ets, 2, 8))
+}
+
+const enum E1 {
+>E1 : Symbol(E1, Decl(annotationApplication12.ets, 4, 1))
+
+	A = "A",
+>A : Symbol(E1.A, Decl(annotationApplication12.ets, 6, 15))
+
+	B = "B"
+>B : Symbol(E1.B, Decl(annotationApplication12.ets, 7, 9))
+}
+
+@interface Anno {
+>Anno : Symbol(Anno, Decl(annotationApplication12.ets, 9, 1))
+
+	a: number
+>a : Symbol(Anno.a, Decl(annotationApplication12.ets, 11, 17))
+
+	b = [(10 + 3), E.A]
+>b : Symbol(Anno.b, Decl(annotationApplication12.ets, 12, 10))
+>E.A : Symbol(E.A, Decl(annotationApplication12.ets, 0, 14))
+>E : Symbol(E, Decl(annotationApplication12.ets, 0, 0))
+>A : Symbol(E.A, Decl(annotationApplication12.ets, 0, 14))
+
+	c: string
+>c : Symbol(Anno.c, Decl(annotationApplication12.ets, 13, 20))
+
+	d: boolean
+>d : Symbol(Anno.d, Decl(annotationApplication12.ets, 14, 10))
+
+	e: E[] = [E.A, E.B, E.C]
+>e : Symbol(Anno.e, Decl(annotationApplication12.ets, 15, 11))
+>E : Symbol(E, Decl(annotationApplication12.ets, 0, 0))
+>E.A : Symbol(E.A, Decl(annotationApplication12.ets, 0, 14))
+>E : Symbol(E, Decl(annotationApplication12.ets, 0, 0))
+>A : Symbol(E.A, Decl(annotationApplication12.ets, 0, 14))
+>E.B : Symbol(E.B, Decl(annotationApplication12.ets, 1, 8))
+>E : Symbol(E, Decl(annotationApplication12.ets, 0, 0))
+>B : Symbol(E.B, Decl(annotationApplication12.ets, 1, 8))
+>E.C : Symbol(E.C, Decl(annotationApplication12.ets, 2, 8))
+>E : Symbol(E, Decl(annotationApplication12.ets, 0, 0))
+>C : Symbol(E.C, Decl(annotationApplication12.ets, 2, 8))
+
+	f: number[]
+>f : Symbol(Anno.f, Decl(annotationApplication12.ets, 16, 25))
+
+	g: number[][][]
+>g : Symbol(Anno.g, Decl(annotationApplication12.ets, 17, 12))
+
+	h: E
+>h : Symbol(Anno.h, Decl(annotationApplication12.ets, 18, 16))
+>E : Symbol(E, Decl(annotationApplication12.ets, 0, 0))
+
+	i: E[][][]
+>i : Symbol(Anno.i, Decl(annotationApplication12.ets, 19, 5))
+>E : Symbol(E, Decl(annotationApplication12.ets, 0, 0))
+
+	j: E1
+>j : Symbol(Anno.j, Decl(annotationApplication12.ets, 20, 11))
+>E1 : Symbol(E1, Decl(annotationApplication12.ets, 4, 1))
+
+	k: E1[][][]
+>k : Symbol(Anno.k, Decl(annotationApplication12.ets, 21, 6))
+>E1 : Symbol(E1, Decl(annotationApplication12.ets, 4, 1))
+}
+
+
+@Anno({a: E.A + 10, c: "a" + "b", d: (1 === 1), f: [], g: [[[0]]], h: E.A, i: [], j: E1.B, k: []})
+>Anno : Symbol(Anno, Decl(annotationApplication12.ets, 9, 1))
+>a : Symbol(a, Decl(annotationApplication12.ets, 26, 7))
+>E.A : Symbol(E.A, Decl(annotationApplication12.ets, 0, 14))
+>E : Symbol(E, Decl(annotationApplication12.ets, 0, 0))
+>A : Symbol(E.A, Decl(annotationApplication12.ets, 0, 14))
+>c : Symbol(c, Decl(annotationApplication12.ets, 26, 19))
+>d : Symbol(d, Decl(annotationApplication12.ets, 26, 33))
+>f : Symbol(f, Decl(annotationApplication12.ets, 26, 47))
+>g : Symbol(g, Decl(annotationApplication12.ets, 26, 54))
+>h : Symbol(h, Decl(annotationApplication12.ets, 26, 66))
+>E.A : Symbol(E.A, Decl(annotationApplication12.ets, 0, 14))
+>E : Symbol(E, Decl(annotationApplication12.ets, 0, 0))
+>A : Symbol(E.A, Decl(annotationApplication12.ets, 0, 14))
+>i : Symbol(i, Decl(annotationApplication12.ets, 26, 74))
+>j : Symbol(j, Decl(annotationApplication12.ets, 26, 81))
+>E1.B : Symbol(E1.B, Decl(annotationApplication12.ets, 7, 9))
+>E1 : Symbol(E1, Decl(annotationApplication12.ets, 4, 1))
+>B : Symbol(E1.B, Decl(annotationApplication12.ets, 7, 9))
+>k : Symbol(k, Decl(annotationApplication12.ets, 26, 90))
+
+class C{
+>C : Symbol(C, Decl(annotationApplication12.ets, 23, 1))
+
+	@Anno({a: 10, b: [1, 2, 3], c: "cde", d: true, f: [1], g:[[[0], [1]]], h: E.A, i: [[[E.A], [E.B]]], j: E1.B, k: [[[E1.A], [E1.B]]]})
+>Anno : Symbol(Anno, Decl(annotationApplication12.ets, 9, 1))
+>a : Symbol(a, Decl(annotationApplication12.ets, 29, 8))
+>b : Symbol(b, Decl(annotationApplication12.ets, 29, 14))
+>c : Symbol(c, Decl(annotationApplication12.ets, 29, 28))
+>d : Symbol(d, Decl(annotationApplication12.ets, 29, 38))
+>f : Symbol(f, Decl(annotationApplication12.ets, 29, 47))
+>g : Symbol(g, Decl(annotationApplication12.ets, 29, 55))
+>h : Symbol(h, Decl(annotationApplication12.ets, 29, 71))
+>E.A : Symbol(E.A, Decl(annotationApplication12.ets, 0, 14))
+>E : Symbol(E, Decl(annotationApplication12.ets, 0, 0))
+>A : Symbol(E.A, Decl(annotationApplication12.ets, 0, 14))
+>i : Symbol(i, Decl(annotationApplication12.ets, 29, 79))
+>E.A : Symbol(E.A, Decl(annotationApplication12.ets, 0, 14))
+>E : Symbol(E, Decl(annotationApplication12.ets, 0, 0))
+>A : Symbol(E.A, Decl(annotationApplication12.ets, 0, 14))
+>E.B : Symbol(E.B, Decl(annotationApplication12.ets, 1, 8))
+>E : Symbol(E, Decl(annotationApplication12.ets, 0, 0))
+>B : Symbol(E.B, Decl(annotationApplication12.ets, 1, 8))
+>j : Symbol(j, Decl(annotationApplication12.ets, 29, 100))
+>E1.B : Symbol(E1.B, Decl(annotationApplication12.ets, 7, 9))
+>E1 : Symbol(E1, Decl(annotationApplication12.ets, 4, 1))
+>B : Symbol(E1.B, Decl(annotationApplication12.ets, 7, 9))
+>k : Symbol(k, Decl(annotationApplication12.ets, 29, 109))
+>E1.A : Symbol(E1.A, Decl(annotationApplication12.ets, 6, 15))
+>E1 : Symbol(E1, Decl(annotationApplication12.ets, 4, 1))
+>A : Symbol(E1.A, Decl(annotationApplication12.ets, 6, 15))
+>E1.B : Symbol(E1.B, Decl(annotationApplication12.ets, 7, 9))
+>E1 : Symbol(E1, Decl(annotationApplication12.ets, 4, 1))
+>B : Symbol(E1.B, Decl(annotationApplication12.ets, 7, 9))
+
+	public foo() {}
+>foo : Symbol(C.foo, Decl(annotationApplication12.ets, 27, 8))
+}

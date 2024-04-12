@@ -1,0 +1,7 @@
+=== tests/cases/conformance/annotations/annotationDeclarationError10.ets ===
+export default @interface Anno {
+> : any
+
+    a: number
+>a : number
+}

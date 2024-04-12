@@ -1,0 +1,17 @@
+=== tests/cases/conformance/annotations/annotationApplicationError7.ets ===
+@interface Anno {
+>Anno : Symbol(Anno, Decl(annotationApplicationError7.ets, 0, 0))
+
+    a: number
+>a : Symbol(Anno.a, Decl(annotationApplicationError7.ets, 0, 17))
+
+    b: string[]
+>b : Symbol(Anno.b, Decl(annotationApplicationError7.ets, 1, 13))
+}
+
+@Anno
+>Anno : Symbol(Anno, Decl(annotationApplicationError7.ets, 0, 0))
+
+class C {}
+>C : Symbol(C, Decl(annotationApplicationError7.ets, 3, 1))
+

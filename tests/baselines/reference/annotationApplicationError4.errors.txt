@@ -1,0 +1,19 @@
+tests/cases/conformance/annotations/annotationApplicationError4.ets(6,8): error TS2322: Type 'boolean' is not assignable to type 'number'.
+tests/cases/conformance/annotations/annotationApplicationError4.ets(6,17): error TS2322: Type 'number' is not assignable to type 'string[]'.
+
+
+==== tests/cases/conformance/annotations/annotationApplicationError4.ets (2 errors) ====
+    @interface Anno {
+        a: number = 20
+        b: string[]
+    }
+    
+    @Anno({a: true, b: 10})
+           ~
+!!! error TS2322: Type 'boolean' is not assignable to type 'number'.
+!!! related TS6500 tests/cases/conformance/annotations/annotationApplicationError4.ets:2:5: The expected type comes from property 'a' which is declared here on type 'Anno'
+                    ~
+!!! error TS2322: Type 'number' is not assignable to type 'string[]'.
+!!! related TS6500 tests/cases/conformance/annotations/annotationApplicationError4.ets:3:5: The expected type comes from property 'b' which is declared here on type 'Anno'
+    class C {}
+    

@@ -1,0 +1,12 @@
+tests/cases/conformance/annotations/annotationDeclarationError13.ets(5,1): error TS28031: Annotation cannot be exported as default.
+
+
+==== tests/cases/conformance/annotations/annotationDeclarationError13.ets (1 errors) ====
+    export @interface Anno {
+        a: number
+    }
+    
+    export default Anno;
+    ~~~~~~~~~~~~~~~~~~~~
+!!! error TS28031: Annotation cannot be exported as default.
+    

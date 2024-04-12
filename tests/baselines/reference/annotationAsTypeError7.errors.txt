@@ -1,0 +1,11 @@
+tests/cases/conformance/annotations/annotationAsTypeError7.ets(3,31): error TS28028: Annotation cannot be used as a type.
+
+
+==== tests/cases/conformance/annotations/annotationAsTypeError7.ets (1 errors) ====
+    @interface Anno {}
+    
+    function foo(o: Object): o is Anno {
+                                  ~~~~
+!!! error TS28028: Annotation cannot be used as a type.
+        return true;
+    }

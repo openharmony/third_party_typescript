@@ -1,0 +1,20 @@
+=== tests/cases/conformance/annotations/A.ets ===
+export @interface Anno {
+    a: number = 10
+>a : number
+}
+
+=== tests/cases/conformance/annotations/B.ets ===
+import * as AA from "./A";
+>AA : typeof AA
+
+@AA.Anno({})
+>AA.Anno({}) : void
+>AA.Anno : typeof AA.Anno
+>AA : typeof AA
+>Anno : typeof AA.Anno
+>{} : {}
+
+class C {}
+>C : C
+

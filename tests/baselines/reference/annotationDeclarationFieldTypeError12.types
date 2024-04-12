@@ -1,0 +1,5 @@
+=== tests/cases/conformance/annotations/annotationDeclarationFieldTypeError12.ets ===
+@interface Anno {
+    a: undefined
+>a : undefined
+}

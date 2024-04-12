@@ -1,0 +1,4 @@
+=== tests/cases/conformance/parser/ets/annotations/AnnotationDeclaration7.ets ===
+@interface await {}
+>await : Symbol(await, Decl(AnnotationDeclaration7.ets, 0, 0))
+
