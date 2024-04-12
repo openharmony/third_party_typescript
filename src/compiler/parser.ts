@@ -1809,7 +1809,7 @@ namespace ts {
         }
 
         function inEtsStateStylesContext() {
-            return inEtsContext() && inStructContext() && inEtsFlagsContext(EtsFlags.EtsStateStylesContext);
+            return inEtsContext() && (inBuildContext() || inBuilderContext() || inEtsExtendComponentsContext() || inEtsStylesComponentsContext()) && inEtsFlagsContext(EtsFlags.EtsStateStylesContext);
         }
 
         function parseErrorAtPosition(start: number, length: number, message: DiagnosticMessage, arg0?: any): DiagnosticWithDetachedLocation | undefined {
@@ -4805,7 +4805,7 @@ namespace ts {
             }
 
             // It's a CallExpression with open brace followed, therefore, we think it's an EtsComponentExpression
-            if (inEtsContext() && isCallExpression(expr) && token() === SyntaxKind.OpenBraceToken) {
+            if ((inStructContext() || inBuildContext() || inBuilderContext()) && isCallExpression(expr) && token() === SyntaxKind.OpenBraceToken) {
                 return makeEtsComponentExpression(expr, pos);
             }
 
@@ -6179,7 +6179,7 @@ namespace ts {
                         expression = (expression as ExpressionWithTypeArguments).expression;
                     }
 
-                    if ((isValidVirtualTypeArgumentsContext() || inBuilderContext()) && isPropertyAccessExpression(expression)) {
+                    if (isValidVirtualTypeArgumentsContext() && isPropertyAccessExpression(expression)) {
                         const rootNode = getRootEtsComponent(expression);
                         if (rootNode) {
                             const rootNodeName = (<Identifier>(rootNode.expression)).escapedText.toString();
@@ -6196,6 +6196,18 @@ namespace ts {
                         }
                         else if (inEtsStateStylesContext() && stateStylesRootNode) {
                             typeArguments = parseEtsTypeArguments(pos, `${stateStylesRootNode}Attribute`);
+                        } else if (inEtsStylesComponentsContext() || inEtsExtendComponentsContext()) {
+                            const virtualNode = getVirtualEtsComponent(expression);
+                            if (virtualNode) {
+                                let rootNodeName = (<Identifier>(virtualNode.expression)).escapedText.toString();
+                                currentNodeName = getTextOfPropertyName(expression.name).toString();
+                                if (currentNodeName === sourceFileCompilerOptions?.ets?.styles?.property) {
+                                    setEtsStateStylesContext(true);
+                                    rootNodeName = rootNodeName.replace("Instance", "");
+                                    stateStylesRootNode = rootNodeName;
+                                    typeArguments = parseEtsTypeArguments(pos, `${rootNodeName}Attribute`);
+                                }
+                            }
                         }
                     }
                     const argumentList = parseArgumentList();
@@ -6220,7 +6232,7 @@ namespace ts {
         }
 
         function isValidVirtualTypeArgumentsContext(): boolean {
-            return (inBuildContext() || inBuilderContext()) && inStructContext();
+            return inBuildContext() || inBuilderContext() || inEtsStylesComponentsContext() || inEtsExtendComponentsContext();
         }
 
         function parseArgumentList() {

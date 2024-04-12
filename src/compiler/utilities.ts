@@ -3375,6 +3375,16 @@ namespace ts {
         return undefined;
     }
 
+    export function getVirtualEtsComponent(node: Node | undefined): PropertyAccessExpression | undefined {
+        while (node) {
+            if (isPropertyAccessExpression(node) && node.expression && node.expression.virtual) {
+                return node;
+            }
+            node = (node as PropertyAccessExpression | CallExpression).expression;
+        }
+        return undefined;
+    }
+
     export function isKeyword(token: SyntaxKind): token is KeywordSyntaxKind {
         return SyntaxKind.FirstKeyword <= token && token <= SyntaxKind.LastKeyword;
     }
