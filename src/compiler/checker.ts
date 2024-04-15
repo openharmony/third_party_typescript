@@ -32734,14 +32734,7 @@ namespace ts {
                     return;
                 } else {
                     const diagnostic = createDiagnosticForNodeInSourceFile(sourceFile, node, Diagnostics.The_statement_must_be_written_use_the_function_0_under_the_if_condition, checkConfig.specifyCheckConditionFuncName);
-                    diagnostic.category = conditionCheckResult.type ?? checkConfig.type;
-                    diagnostic.messageText = checkConfig.message ?? checkConfig.message;
-                    if (checkConfig.type === DiagnosticCategory.Warning) {
-                        suggestionDiagnostics.add(diagnostic);
-                    } else {
-                        diagnostics.add(diagnostic);
-                    }
-                    
+                    collectDiagnostics(conditionCheckResult, node, diagnostic);
                 }
             }
         }
@@ -32769,21 +32762,24 @@ namespace ts {
                             tagNameExisted = true;
                         }
                         if (tagNameExisted && !config.tagNameShouldExisted && !config.needConditionCheck) {
-                            collectDiagnostics(config, node, sourceFile);
+                            const diagnostic = createDiagnosticForNodeInSourceFile(sourceFile, node, Diagnostics.This_API_has_been_Special_Markings_exercise_caution_when_using_this_API);
+                            collectDiagnostics(config, node, diagnostic);
                         }
                     }
                 });
                 if (config.tagNameShouldExisted && !tagNameExisted) {
-                    collectDiagnostics(config, node, sourceFile);
+                    const diagnostic = createDiagnosticForNodeInSourceFile(sourceFile, node, Diagnostics.This_API_has_been_Special_Markings_exercise_caution_when_using_this_API);
+                    collectDiagnostics(config, node, diagnostic);
                 }
             }
         }
         
-        function collectDiagnostics(config: JsDocNodeCheckConfigItem, node: Identifier, sourceFile: SourceFile): void {
-            const diagnostic = createDiagnosticForNodeInSourceFile(sourceFile, node, Diagnostics.This_API_has_been_Special_Markings_exercise_caution_when_using_this_API);
-            // @ts-ignore
-            diagnostic.messageText = config.message.replace("{0}", node.getText() === "" ? node.text : node.getText());
-            diagnostic.category = config.type;
+        function collectDiagnostics(config: JsDocNodeCheckConfigItem | ConditionCheckResult, node: Identifier, diagnostic: DiagnosticWithLocation): void {
+            if (config.message) {
+                // @ts-ignore
+                diagnostic.messageText = config.message.replace("{0}", node.getText() === "" ? node.text : node.getText());
+            }
+            diagnostic.category = config.type ? config.type : ts.DiagnosticCategory.Warning;
             diagnostics.add(diagnostic);
             suggestionDiagnostics.add(diagnostic);
         }
