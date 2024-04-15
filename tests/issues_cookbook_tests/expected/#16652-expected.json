@@ -1,0 +1,21 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cases/#16652.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#16652.ets:8:10\n Property 'p1' has no initializer and is not definitely assigned in the constructor.\n\n",
+                "severity": 2,
+                "reportLine": 8,
+                "reportColumn": 10,
+                "description": "Property 'p1' has no initializer and is not definitely assigned in the constructor."
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#16652.ets:9:3\n Property 'p2' has no initializer and is not definitely assigned in the constructor.\n\n",
+                "severity": 2,
+                "reportLine": 9,
+                "reportColumn": 3,
+                "description": "Property 'p2' has no initializer and is not definitely assigned in the constructor."
+            }
+        ]
+    }
+}
