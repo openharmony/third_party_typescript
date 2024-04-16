@@ -24,6 +24,6 @@ export namespace outside {
         OB: number;
     }
     export class B implements OA {
-        OA: string = "a";
+        OA: string = 'a';
     }
 };

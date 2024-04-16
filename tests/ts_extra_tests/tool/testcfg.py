@@ -157,7 +157,7 @@ class TestCase:
         self.abc_file_path_temp = abc_file_path
         cmd = [TestCase.es2abc + 'es2abc']
         if 'RequireCommandrecordsource' in self.path:
-            cmd.extend(['--module', '--record-source','--output', abc_file_path, file_path])
+            cmd.extend(['--module', '--record-source', '--output', abc_file_path, file_path])
         else:
             cmd.extend(['--module', '--output', abc_file_path, file_path])
         return cmd

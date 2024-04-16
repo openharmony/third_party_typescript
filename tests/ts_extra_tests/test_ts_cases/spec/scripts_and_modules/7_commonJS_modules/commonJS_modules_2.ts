@@ -22,8 +22,8 @@
  ---*/
 
 
-import { Assert } from '../../../../suite/assert.js'
-import * as g from '../1_programs_and_source_files/source_10.js'
+import { Assert } from '../../../../suite/assert.js';
+import * as g from '../1_programs_and_source_files/source_10.js';
 
 let p: g.Point = { x: 10, y: 20 };
 Assert.equal(p.x, 10);
