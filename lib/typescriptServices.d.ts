@@ -4103,6 +4103,8 @@ declare namespace ts {
          * before returning the `NodeTransformer` callback.
          */
         onEmitNode: (hint: EmitHint, node: Node, emitCallback: (hint: EmitHint, node: Node) => void) => void;
+        /** Determines whether the lexical environment is suspended */
+        isLexicalEnvironmentSuspended?(): boolean;
     }
     export interface TransformationResult<T extends Node> {
         /** Gets the transformed source files. */

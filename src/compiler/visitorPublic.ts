@@ -510,20 +510,39 @@ namespace ts {
         },
 
         [SyntaxKind.GetAccessor]: function visitEachChildOfGetAccessorDeclaration(node, visitor, context, nodesVisitor, nodeVisitor, _tokenVisitor) {
-            return context.factory.updateGetAccessorDeclaration(node,
-                nodesVisitor(node.modifiers, visitor, isModifierLike),
-                nodeVisitor(node.name, visitor, isPropertyName),
-                visitParameterList(node.parameters, visitor, context, nodesVisitor),
-                nodeVisitor(node.type, visitor, isTypeNode),
-                visitFunctionBody(node.body!, visitor, context, nodeVisitor));
+            /** If the lexical environment is suspended, then we visit it as a type node*/
+            if (context.isLexicalEnvironmentSuspended && context.isLexicalEnvironmentSuspended()) {
+                return context.factory.updateGetAccessorDeclaration(node,
+                    nodesVisitor(node.modifiers, visitor, isModifierLike),
+                    nodeVisitor(node.name, visitor, isPropertyName),
+                    nodesVisitor(node.parameters, visitor, isParameterDeclaration),
+                    nodeVisitor(node.type, visitor, isTypeNode),
+                    nodeVisitor(node.body, visitor, isConciseBody));
+            } else {
+                return context.factory.updateGetAccessorDeclaration(node,
+                    nodesVisitor(node.modifiers, visitor, isModifierLike),
+                    nodeVisitor(node.name, visitor, isPropertyName),
+                    visitParameterList(node.parameters, visitor, context, nodesVisitor),
+                    nodeVisitor(node.type, visitor, isTypeNode),
+                    visitFunctionBody(node.body!, visitor, context, nodeVisitor));
+            }
         },
 
         [SyntaxKind.SetAccessor]: function visitEachChildOfSetAccessorDeclaration(node, visitor, context, nodesVisitor, nodeVisitor, _tokenVisitor) {
-            return context.factory.updateSetAccessorDeclaration(node,
-                nodesVisitor(node.modifiers, visitor, isModifierLike),
-                nodeVisitor(node.name, visitor, isPropertyName),
-                visitParameterList(node.parameters, visitor, context, nodesVisitor),
-                visitFunctionBody(node.body!, visitor, context, nodeVisitor));
+            /** If the lexical environment is suspended, then we visit it as a type node*/
+            if (context.isLexicalEnvironmentSuspended && context.isLexicalEnvironmentSuspended()) {
+                return context.factory.updateSetAccessorDeclaration(node,
+                    nodesVisitor(node.modifiers, visitor, isModifierLike),
+                    nodeVisitor(node.name, visitor, isPropertyName),
+                    nodesVisitor(node.parameters, visitor, isParameterDeclaration),
+                    nodeVisitor(node.body, visitor, isConciseBody));
+            } else {
+                return context.factory.updateSetAccessorDeclaration(node,
+                    nodesVisitor(node.modifiers, visitor, isModifierLike),
+                    nodeVisitor(node.name, visitor, isPropertyName),
+                    visitParameterList(node.parameters, visitor, context, nodesVisitor),
+                    visitFunctionBody(node.body!, visitor, context, nodeVisitor));
+            }
         },
 
         [SyntaxKind.ClassStaticBlockDeclaration]: function visitEachChildOfClassStaticBlockDeclaration(node, visitor, context, _nodesVisitor, nodeVisitor, _tokenVisitor) {
