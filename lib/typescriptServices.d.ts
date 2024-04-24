@@ -9201,7 +9201,8 @@ declare namespace ts {
                 SendableObjectInitialization = 87,
                 SendableComputedPropName = 88,
                 SendableAsExpr = 89,
-                LAST_ID = 90
+                SharedNoSideEffectImport = 90,
+                LAST_ID = 91
             }
             class FaultAttributes {
                 cookBookRef: number;
@@ -9232,6 +9233,7 @@ declare namespace ts {
             const ARKTS_LANG_D_ETS = "@arkts.lang.d.ets";
             const LANG_NAMESPACE = "lang";
             const ISENDABLE_TYPE = "ISendable";
+            const USE_SHARED = "use shared";
             function setTypeChecker(tsTypeChecker: TypeChecker): void;
             function clearTypeChecker(): void;
             function setTestMode(tsTestMode: boolean): void;
@@ -9396,6 +9398,7 @@ declare namespace ts {
             function getNonSendableDecorators(decl: ts.ClassDeclaration): ts.Decorator[] | undefined;
             function getDecoratorsIfInSendableClass(declaration: ts.HasDecorators): readonly ts.Decorator[] | undefined;
             function isISendableInterface(type: ts.Type): boolean;
+            function isSharedModule(sourceFile: ts.SourceFile): boolean;
         }
     }
 }
@@ -9468,6 +9471,7 @@ declare namespace ts {
             static reportDiagnostics: boolean;
             static problemsInfos: ProblemInfo[];
             static filteredDiagnosticMessages: DiagnosticMessageChain[];
+            static sharedModulesCache: ESMap<string, boolean>;
             static initGlobals(): void;
             static initStatic(): void;
             static tsTypeChecker: TypeChecker;
@@ -9499,6 +9503,8 @@ declare namespace ts {
             private handleForInStatement;
             private handleForOfStatement;
             private handleImportDeclaration;
+            private handleSharedModuleNoSideEffectImport;
+            private static inSharedModule;
             private handlePropertyAccessExpression;
             private handlePropertyDeclaration;
             private handleSendableClassProperty;

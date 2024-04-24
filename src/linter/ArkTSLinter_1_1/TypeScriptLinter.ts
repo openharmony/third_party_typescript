@@ -85,9 +85,11 @@ export class TypeScriptLinter {
   static problemsInfos: ProblemInfo[] = [];
 
   static filteredDiagnosticMessages: DiagnosticMessageChain[] = [];
+  static sharedModulesCache: ESMap<string, boolean>;
 
   public static initGlobals(): void {
     TypeScriptLinter.filteredDiagnosticMessages = []
+    TypeScriptLinter.sharedModulesCache = new Map<string, boolean>();
   }
 
   public static initStatic(): void {
@@ -657,6 +659,29 @@ export class TypeScriptLinter {
         this.incrementCounters(importDeclNode.assertClause, FaultID.ImportAssertion);
       }
     }
+
+      //handle no side effect import in sendable module
+      this.handleSharedModuleNoSideEffectImport(importDeclNode);
+  }
+
+  
+  private handleSharedModuleNoSideEffectImport(node : ts.ImportDeclaration): void {
+    //check 'use shared'
+    if(TypeScriptLinter.inSharedModule(node)) {
+      if(!node.importClause){
+        this.incrementCounters(node, FaultID.SharedNoSideEffectImport);
+      }
+    }
+  }
+
+  private static inSharedModule(node: ts.Node): boolean {
+    const sourceFile: ts.SourceFile = node.getSourceFile();
+    if (TypeScriptLinter.sharedModulesCache.has(normalizePath(sourceFile.fileName))) {
+      return TypeScriptLinter.sharedModulesCache.get(normalizePath(sourceFile.fileName))!;
+    }
+    const isSharedModule: boolean = Utils.isSharedModule(sourceFile);
+    TypeScriptLinter.sharedModulesCache.set(normalizePath(sourceFile.fileName), isSharedModule);
+    return isSharedModule;
   }
 
   private handlePropertyAccessExpression(node: Node): void {

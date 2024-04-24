@@ -125,6 +125,7 @@ export class LinterConfig {
                                                                       initialize a "Sendable" object';
     LinterConfig.nodeDesc[FaultID.SendableComputedPropName] = 'Sendable computed property name';
     LinterConfig.nodeDesc[FaultID.SendableAsExpr] = 'Sendable as expr';
+    LinterConfig.nodeDesc[FaultID.SharedNoSideEffectImport] = 'Shared no side effect import';
   }
 
   /*

@@ -40,7 +40,7 @@ export enum FaultID {
   UtilityType, PropertyDeclOnFunction, FunctionApplyCall, FunctionBind, ConstAssertion, ImportAssertion,
   SpreadOperator, LimitedStdLibApi, ErrorSuppression, StrictDiagnostic, ImportAfterStatement,
   EsObjectType, SendableClassInheritance, SendablePropType, SendableDefiniteAssignment, SendableGenericTypes,
-  SendableClassDecorator, SendableObjectInitialization, SendableComputedPropName, SendableAsExpr,
+  SendableClassDecorator, SendableObjectInitialization, SendableComputedPropName, SendableAsExpr, SharedNoSideEffectImport,
   LAST_ID, // this should always be last enum`
 }
 
@@ -144,6 +144,7 @@ faultsAttrs[FaultID.SendableClassDecorator] = new FaultAttributes(158);
 faultsAttrs[FaultID.SendableObjectInitialization] = new FaultAttributes(159);
 faultsAttrs[FaultID.SendableComputedPropName] = new FaultAttributes(160);
 faultsAttrs[FaultID.SendableAsExpr] = new FaultAttributes(161);
+faultsAttrs[FaultID.SharedNoSideEffectImport] = new FaultAttributes(162);
 }
 }
 }

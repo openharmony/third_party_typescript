@@ -17,7 +17,7 @@ export namespace ArkTSLinter_1_1 {
 export const cookBookMsg: string[] = [];
 export const cookBookTag: string[] = [];
 
-for (let i = 0; i <= 161; i++) {
+for (let i = 0; i <= 162; i++) {
   cookBookMsg[ i ] = "";
 }
 
@@ -181,5 +181,6 @@ cookBookTag[158] = 'Only "@Sendable" decorator can be used on "Sendable" class (
 cookBookTag[159] = 'Objects of "Sendable" type can not be initialized using object literal or array literal (arkts-sendable-obj-init)';
 cookBookTag[160] = 'Computed property names are not allowed in "Sendable" classes and interfaces (arkts-sendable-computed-prop-name)';
 cookBookTag[161] = 'Casting "Non-sendable" data to "Sendable" type is not allowed (arkts-sendable-as-expr)';
+cookBookTag[162] = "Shared module do not allow side effect import (arkts-no-side-effects-imports)";
 }
 }
