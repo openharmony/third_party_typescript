@@ -32,7 +32,7 @@ export function translateDiag(srcFile: SourceFile, problemInfo: ProblemInfo): Di
 }
 
 export function runArkTSLinter(tsBuilderProgram: ArkTSProgram, reverseStrictBuilderProgram: ArkTSProgram,
-  srcFile?: SourceFile, buildInfoWriteFile?: WriteFileCallback): Diagnostic[] {
+  srcFile?: SourceFile, buildInfoWriteFile?: WriteFileCallback, arkTSVersion?: string): Diagnostic[] {
   TypeScriptLinter.errorLineNumbersString = "";
   TypeScriptLinter.warningLineNumbersString = "";
   let diagnostics: Diagnostic[] = [];
@@ -46,7 +46,9 @@ export function runArkTSLinter(tsBuilderProgram: ArkTSProgram, reverseStrictBuil
   let programState = tsBuilderProgram.builderProgram.getState();
   const oldDiagnostics = programState.arktsLinterDiagnosticsPerFile;
   programState.arktsLinterDiagnosticsPerFile = new Map();
-  const changedFiles = collectChangedFilesFromProgramState(programState);
+  const changedFiles = collectChangedFilesFromProgramState(programState, arkTSVersion);
+  // .tsbuildinfo and inversedArkTsLinter.tsbuildinfo set arkTSVersion info.
+  programState.arkTSVersion = arkTSVersion;
 
   const tscDiagnosticsLinter = new TSCCompiledProgram(tsBuilderProgram, reverseStrictBuilderProgram);
   const strictProgram = tscDiagnosticsLinter.getStrictProgram();
@@ -114,8 +116,13 @@ function releaseReferences(): void {
   Utils.clearTrueSymbolAtLocationCache();
 }
 
-function collectChangedFilesFromProgramState(state: ReusableBuilderProgramState): Set<Path> {
+function collectChangedFilesFromProgramState(state: ReusableBuilderProgramState, arkTSVersion?: string): Set<Path> {
   const changedFiles = new Set<Path>(state.changedFilesSet);
+  
+  // If old arkTSVersion from last run is not same current arkTSVersion from ets_loader.
+  if (state.arkTSVersion !== arkTSVersion) {
+    return new Set<Path>(arrayFrom(state.fileInfos.keys()));
+  }
 
   // If any source file that affects global scope has been changed,
   // then process all files in project.

@@ -9033,7 +9033,7 @@ declare namespace ts {
             wasStrict: boolean;
         }
         function translateDiag(srcFile: SourceFile, problemInfo: ProblemInfo): Diagnostic;
-        function runArkTSLinter(tsBuilderProgram: ArkTSProgram, reverseStrictBuilderProgram: ArkTSProgram, srcFile?: SourceFile, buildInfoWriteFile?: WriteFileCallback): Diagnostic[];
+        function runArkTSLinter(tsBuilderProgram: ArkTSProgram, reverseStrictBuilderProgram: ArkTSProgram, srcFile?: SourceFile, buildInfoWriteFile?: WriteFileCallback, arkTSVersion?: string): Diagnostic[];
     }
 }
 declare namespace ts {
@@ -9606,7 +9606,7 @@ declare namespace ts {
             wasStrict: boolean;
         }
         function translateDiag(srcFile: SourceFile, problemInfo: ProblemInfo): Diagnostic;
-        function runArkTSLinter(tsBuilderProgram: ArkTSProgram, reverseStrictBuilderProgram: ArkTSProgram, srcFile?: SourceFile, buildInfoWriteFile?: WriteFileCallback): Diagnostic[];
+        function runArkTSLinter(tsBuilderProgram: ArkTSProgram, reverseStrictBuilderProgram: ArkTSProgram, srcFile?: SourceFile, buildInfoWriteFile?: WriteFileCallback, arkTSVersion?: string): Diagnostic[];
     }
 }
 declare namespace ts {
