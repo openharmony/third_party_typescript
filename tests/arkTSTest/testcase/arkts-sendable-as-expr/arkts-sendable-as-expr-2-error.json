@@ -1,0 +1,41 @@
+{
+  "arktsVersion_1_0": [
+    {
+      "messageText": "No decorators except ArkUI decorators are currently allowed (arkts-no-decorators-except-arkui)",
+      "expectLineAndCharacter": {
+        "line": 21,
+        "character": 1
+      }
+    },
+    {
+      "messageText": "Structural typing is not supported (arkts-no-structural-typing)",
+      "expectLineAndCharacter": {
+        "line": 24,
+        "character": 9
+      }
+    },
+    {
+      "messageText": "Structural typing is not supported (arkts-no-structural-typing)",
+      "expectLineAndCharacter": {
+        "line": 28,
+        "character": 9
+      }
+    }
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Casting \"Non-sendable\" data to \"Sendable\" type is not allowed (arkts-sendable-as-expr)",
+      "expectLineAndCharacter": {
+        "line": 24,
+        "character": 9
+      }
+    },
+    {
+      "messageText": "Casting \"Non-sendable\" data to \"Sendable\" type is not allowed (arkts-sendable-as-expr)",
+      "expectLineAndCharacter": {
+        "line": 28,
+        "character": 9
+      }
+    }
+  ]
+}

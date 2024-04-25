@@ -1,0 +1,62 @@
+{
+  "arktsVersion_1_0": [
+    {
+      "messageText": "No decorators except ArkUI decorators are currently allowed (arkts-no-decorators-except-arkui)",
+      "expectLineAndCharacter": {
+        "line": 19,
+        "character": 1
+      }
+    }
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Casting \"Non-sendable\" data to \"Sendable\" type is not allowed (arkts-sendable-as-expr)",
+      "expectLineAndCharacter": {
+        "line": 23,
+        "character": 3
+      }
+    },
+    {
+      "messageText": "Casting \"Non-sendable\" data to \"Sendable\" type is not allowed (arkts-sendable-as-expr)",
+      "expectLineAndCharacter": {
+        "line": 27,
+        "character": 3
+      }
+    },
+    {
+      "messageText": "Casting \"Non-sendable\" data to \"Sendable\" type is not allowed (arkts-sendable-as-expr)",
+      "expectLineAndCharacter": {
+        "line": 31,
+        "character": 3
+      }
+    },
+    {
+      "messageText": "Casting \"Non-sendable\" data to \"Sendable\" type is not allowed (arkts-sendable-as-expr)",
+      "expectLineAndCharacter": {
+        "line": 35,
+        "character": 3
+      }
+    },
+    {
+      "messageText": "Casting \"Non-sendable\" data to \"Sendable\" type is not allowed (arkts-sendable-as-expr)",
+      "expectLineAndCharacter": {
+        "line": 39,
+        "character": 3
+      }
+    },
+    {
+      "messageText": "Casting \"Non-sendable\" data to \"Sendable\" type is not allowed (arkts-sendable-as-expr)",
+      "expectLineAndCharacter": {
+        "line": 43,
+        "character": 3
+      }
+    },
+    {
+      "messageText": "Casting \"Non-sendable\" data to \"Sendable\" type is not allowed (arkts-sendable-as-expr)",
+      "expectLineAndCharacter": {
+        "line": 47,
+        "character": 3
+      }
+    }
+  ]
+}
