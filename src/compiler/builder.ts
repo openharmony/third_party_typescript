@@ -78,6 +78,10 @@ namespace ts {
          * Cache the const enum relate info
          */
         constEnumRelatePerFile?: ESMap<string, ConstEnumRelateCacheInfo>;
+        /**
+         * Cache the ArkTSVersion info
+         */
+        arkTSVersion?: string;
     }
 
     export const enum BuilderFileEmit {
@@ -152,6 +156,10 @@ namespace ts {
          * Cache the const enum relate info
          */
         constEnumRelatePerFile?: ESMap<string, ConstEnumRelateCacheInfo>;
+        /**
+         * Cache the ArkTSVersion info
+         */
+        arkTSVersion?: string;
     }
 
     export type SavedBuildProgramEmitState = Pick<BuilderProgramState,
@@ -217,6 +225,8 @@ namespace ts {
                 state.seenAffectedFiles = new Set();
             }
         }
+        
+        state.arkTSVersion = useOldState ? oldState?.arkTSVersion : undefined;
 
         // Update changed files and copy semantic diagnostics if we can
         const referencedMap = state.referencedMap;
@@ -876,6 +886,7 @@ namespace ts {
         // Because this is only output file in the program, we dont need fileId to deduplicate name
         latestChangedDtsFile?: string;
         constEnumRelateCache?: Record<string, Record<string, string>>;
+        arkTSVersion?: string;
     }
 
     export interface ProgramBundleEmitBuildInfo {
@@ -1037,6 +1048,8 @@ namespace ts {
             });
         }
 
+        const arkTSVersion = state.arkTSVersion;
+
         const result: ProgramMultiFileEmitBuildInfo = {
             fileNames,
             fileInfos,
@@ -1050,6 +1063,7 @@ namespace ts {
             changeFileSet,
             emitSignatures,
             latestChangedDtsFile,
+            arkTSVersion,
         };
         if (hasConstEnumRelateInfo) {
             result.constEnumRelateCache = constEnumRelateCache;
@@ -1656,6 +1670,7 @@ namespace ts {
                 latestChangedDtsFile,
                 emitSignatures: emitSignatures?.size ? emitSignatures : undefined,
                 constEnumRelatePerFile: constEnumRelatePerFile,
+                arkTSVersion: program.arkTSVersion,
             };
         }
 
