@@ -4461,11 +4461,12 @@ namespace ts {
         getSyntacticDiagnostics(sourceFile?: SourceFile, cancellationToken?: CancellationToken): readonly DiagnosticWithLocation[];
         /** The first time this is called, it will return global diagnostics (no location). */
         getSemanticDiagnostics(sourceFile?: SourceFile, cancellationToken?: CancellationToken): readonly Diagnostic[];
+        getSemanticDiagnosticsForLinter(sourceFile?: SourceFile, cancellationToken?: CancellationToken): readonly Diagnostic[];
         getDeclarationDiagnostics(sourceFile?: SourceFile, cancellationToken?: CancellationToken): readonly DiagnosticWithLocation[];
         getConfigFileParsingDiagnostics(): readonly Diagnostic[];
         /* @internal */ getSuggestionDiagnostics(sourceFile: SourceFile, cancellationToken?: CancellationToken): readonly DiagnosticWithLocation[];
 
-        /* @internal */ getBindAndCheckDiagnostics(sourceFile: SourceFile, cancellationToken?: CancellationToken): readonly Diagnostic[];
+        /* @internal */ getBindAndCheckDiagnostics(sourceFile: SourceFile, cancellationToken?: CancellationToken, isForLinter?: boolean): readonly Diagnostic[];
         /* @internal */ getProgramDiagnostics(sourceFile: SourceFile, cancellationToken?: CancellationToken): readonly Diagnostic[];
 
         getEtsLibSFromProgram(): string[];
@@ -4473,6 +4474,11 @@ namespace ts {
          * Gets a type checker that can be used to semantically analyze source files in the program.
          */
         getTypeChecker(): TypeChecker;
+
+        /**
+         * Gets a type checker that can be used to semantically analyze source files in the program for arkts linter.
+         */
+        getLinterTypeChecker(): TypeChecker;
 
         /* @internal */ getCommonSourceDirectory(): string;
 
@@ -4530,6 +4536,8 @@ namespace ts {
         getJsDocNodeCheckedConfig?(jsDocFileCheckInfo: FileCheckModuleInfo, symbolSourceFilePath: string): JsDocNodeCheckConfig;
         getJsDocNodeConditionCheckedResult?(jsDocFileCheckedInfo: FileCheckModuleInfo, jsDocs: JsDocTagInfo[]): ConditionCheckResult;
         getFileCheckedModuleInfo?(containFilePath: string): FileCheckModuleInfo;
+
+        /*@internal*/ getProgramBuildInfoForLinter?(): ProgramBuildInfo | undefined;
     }
 
     /*@internal*/
@@ -7683,6 +7691,8 @@ namespace ts {
         writeFile: WriteFileCallback;
         /* @internal */
         getProgramBuildInfo(): ProgramBuildInfo | undefined;
+        /* @internal */
+        getProgramBuildInfoForLinter?(): ProgramBuildInfo | undefined;
         getSourceFileFromReference: Program["getSourceFileFromReference"];
         readonly redirectTargetsMap: RedirectTargetsMap;
         createHash?(data: string): string;

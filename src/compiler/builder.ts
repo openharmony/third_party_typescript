@@ -160,6 +160,11 @@ namespace ts {
          * Cache the ArkTSVersion info
          */
         arkTSVersion?: string;
+        /**
+         * Mark whether the current BuilderProgram is used for ArkTSLinter; if so, the corresponding Linter interface
+         * should be called when obtaining Diagnostics later.
+         */
+        isForLinter?: boolean;
     }
 
     export type SavedBuildProgramEmitState = Pick<BuilderProgramState,
@@ -182,7 +187,7 @@ namespace ts {
     /**
      * Create the state so that we can iterate on changedFiles/affected files
      */
-    function createBuilderProgramState(newProgram: Program, getCanonicalFileName: GetCanonicalFileName, oldState: Readonly<ReusableBuilderProgramState> | undefined, disableUseFileVersionAsSignature: boolean | undefined): BuilderProgramState {
+    function createBuilderProgramState(newProgram: Program, getCanonicalFileName: GetCanonicalFileName, oldState: Readonly<ReusableBuilderProgramState> | undefined, disableUseFileVersionAsSignature: boolean | undefined, isForLinter?: boolean): BuilderProgramState {
         const state = BuilderState.create(newProgram, getCanonicalFileName, oldState, disableUseFileVersionAsSignature) as BuilderProgramState;
         state.program = newProgram;
         const compilerOptions = newProgram.getCompilerOptions();
@@ -225,7 +230,7 @@ namespace ts {
                 state.seenAffectedFiles = new Set();
             }
         }
-        
+
         state.arkTSVersion = useOldState ? oldState?.arkTSVersion : undefined;
 
         // Update changed files and copy semantic diagnostics if we can
@@ -267,7 +272,7 @@ namespace ts {
                     }
                     state.semanticDiagnosticsFromOldState.add(sourceFilePath);
                 }
-                
+
                 // Copy arkts linter diagnostics
                 diagnostics = oldState!.arktsLinterDiagnosticsPerFile?.get(sourceFilePath);
                 if (diagnostics) {
@@ -304,6 +309,7 @@ namespace ts {
         }
         // Since old states change files set is copied, any additional change means we would need to emit build info
         state.buildInfoEmitPending = !useOldState || state.changedFilesSet.size !== (oldState!.changedFilesSet?.size || 0);
+        state.isForLinter = !!isForLinter;
         return state;
     }
 
@@ -811,7 +817,7 @@ namespace ts {
         }
 
         // Diagnostics werent cached, get them from program, and cache the result
-        const diagnostics = Debug.checkDefined(state.program).getBindAndCheckDiagnostics(sourceFile, cancellationToken);
+        const diagnostics = Debug.checkDefined(state.program).getBindAndCheckDiagnostics(sourceFile, cancellationToken, state.isForLinter);
         if (state.semanticDiagnosticsPerFile) {
             state.semanticDiagnosticsPerFile.set(path, diagnostics);
         }
@@ -1245,8 +1251,8 @@ namespace ts {
     }
 
     export function createBuilderProgram(kind: BuilderProgramKind.SemanticDiagnosticsBuilderProgram, builderCreationParameters: BuilderCreationParameters): SemanticDiagnosticsBuilderProgram;
-    export function createBuilderProgram(kind: BuilderProgramKind.EmitAndSemanticDiagnosticsBuilderProgram, builderCreationParameters: BuilderCreationParameters): EmitAndSemanticDiagnosticsBuilderProgram;
-    export function createBuilderProgram(kind: BuilderProgramKind, { newProgram, host, oldProgram, configFileParsingDiagnostics }: BuilderCreationParameters) {
+    export function createBuilderProgram(kind: BuilderProgramKind.EmitAndSemanticDiagnosticsBuilderProgram, builderCreationParameters: BuilderCreationParameters, isForLinter?: boolean): EmitAndSemanticDiagnosticsBuilderProgram;
+    export function createBuilderProgram(kind: BuilderProgramKind, { newProgram, host, oldProgram, configFileParsingDiagnostics }: BuilderCreationParameters, isForLinter?: boolean) {
         // Return same program if underlying program doesnt change
         let oldState = oldProgram && oldProgram.getState();
         if (oldState && newProgram === oldState.program && configFileParsingDiagnostics === newProgram.getConfigFileParsingDiagnostics()) {
@@ -1263,8 +1269,12 @@ namespace ts {
          * Computing hash to for signature verification
          */
         const computeHash = maybeBind(host, host.createHash);
-        const state = createBuilderProgramState(newProgram, getCanonicalFileName, oldState, host.disableUseFileVersionAsSignature);
-        newProgram.getProgramBuildInfo = () => getProgramBuildInfo(state, getCanonicalFileName);
+        const state = createBuilderProgramState(newProgram, getCanonicalFileName, oldState, host.disableUseFileVersionAsSignature, isForLinter);
+        if (isForLinter) {
+            newProgram.getProgramBuildInfoForLinter = () => getProgramBuildInfo(state, getCanonicalFileName);
+        } else {
+            newProgram.getProgramBuildInfo = () => getProgramBuildInfo(state, getCanonicalFileName);
+        }
 
         // To ensure that we arent storing any references to old program or new program without state
         newProgram = undefined!; // TODO: GH#18217
@@ -1509,11 +1519,8 @@ namespace ts {
                 }
                 else if (affected === state.program) {
                     // When whole program is affected, get all semantic diagnostics (eg when --out or --outFile is specified)
-                    return toAffectedFileResult(
-                        state,
-                        state.program.getSemanticDiagnostics(/*targetSourceFile*/ undefined, cancellationToken),
-                        affected
-                    );
+                    let semanticDiagnostics = state.isForLinter ? state.program.getSemanticDiagnosticsForLinter(/*targetSourceFile*/ undefined, cancellationToken) : state.program.getSemanticDiagnostics(/*targetSourceFile*/ undefined, cancellationToken);
+                    return toAffectedFileResult(state, semanticDiagnostics, affected);
                 }
 
                 // Add file to affected file pending emit to handle for later emit time
@@ -1551,6 +1558,9 @@ namespace ts {
             if (outFile(compilerOptions)) {
                 Debug.assert(!state.semanticDiagnosticsPerFile);
                 // We dont need to cache the diagnostics just return them from program
+                if (state.isForLinter) {
+                    return Debug.checkDefined(state.program).getSemanticDiagnosticsForLinter(sourceFile, cancellationToken);
+                }
                 return Debug.checkDefined(state.program).getSemanticDiagnostics(sourceFile, cancellationToken);
             }
 

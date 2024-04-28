@@ -18,30 +18,16 @@ export namespace ArkTSLinter_1_0 {
 
 export class TSCCompiledProgram {
   private diagnosticsExtractor: TypeScriptDiagnosticsExtractor;
-  private wasStrict: boolean;
 
-  constructor(program: ArkTSProgram, reverseStrictBuilderProgram: ArkTSProgram) {
-    const strict = program.wasStrict ? program.builderProgram : reverseStrictBuilderProgram.builderProgram;
-    const nonStrict = program.wasStrict ? reverseStrictBuilderProgram.builderProgram : program.builderProgram;
-    this.diagnosticsExtractor = new TypeScriptDiagnosticsExtractor(strict, nonStrict);
-    this.wasStrict = program.wasStrict;
+  constructor(program: BuilderProgram) {
+    this.diagnosticsExtractor = new TypeScriptDiagnosticsExtractor(program);
   }
 
-  public getOriginalProgram(): Program {
-    return this.wasStrict
-      ? this.diagnosticsExtractor.strictProgram.getProgram()
-      : this.diagnosticsExtractor.nonStrictProgram.getProgram();
+  public getProgram(): Program {
+    return this.diagnosticsExtractor.nonStrictProgram.getProgram()
   }
 
-  public getStrictProgram(): Program {
-    return this.diagnosticsExtractor.strictProgram.getProgram();
-  }
-
-  public getStrictBuilderProgram(): BuilderProgram {
-    return this.diagnosticsExtractor.strictProgram;
-  }
-
-  public getNonStrictBuilderProgram(): BuilderProgram {
+  public getBuilderProgram(): BuilderProgram {
     return this.diagnosticsExtractor.nonStrictProgram;
   }
 
@@ -55,7 +41,7 @@ export class TSCCompiledProgram {
 }
 
 class TypeScriptDiagnosticsExtractor {
-  constructor(public strictProgram: BuilderProgram, public nonStrictProgram: BuilderProgram) {
+  constructor(public nonStrictProgram: BuilderProgram) {
   }
 
   /**
@@ -63,8 +49,9 @@ class TypeScriptDiagnosticsExtractor {
    */
    public getStrictDiagnostics(fileName: string): Diagnostic[] {
     // workaround for a tsc bug
-    const strict = getAllDiagnostics(this.strictProgram, fileName).filter(diag => !(diag.length === 0 && diag.start === 0));
-    const nonStrict = getAllDiagnostics(this.nonStrictProgram, fileName);
+    const strict = getAllDiagnostics(this.nonStrictProgram, fileName, /* isStrict */ true).filter(
+      diag => !(diag.length === 0 && diag.start === 0));
+    const nonStrict = getAllDiagnostics(this.nonStrictProgram, fileName, /* isStrict */ false);
 
     // collect hashes for later easier comparison
     const nonStrictHashes = nonStrict.reduce((result, value) => {
@@ -82,22 +69,30 @@ class TypeScriptDiagnosticsExtractor {
   }
 
   public doAllGetDiagnostics() {
-    this.strictProgram.getSemanticDiagnostics();
     const timePrinterInstance = ts.ArkTSLinterTimePrinter.getInstance();
-    timePrinterInstance.appendTime(ts.TimePhase.STRICT_PROGRAM_GET_SEMANTIC_DIAGNOSTICS);
-    this.strictProgram.getSyntacticDiagnostics();
-    timePrinterInstance.appendTime(ts.TimePhase.STRICT_PROGRAM_GET_SYNTACTIC_DIAGNOSTICS);
     this.nonStrictProgram.getSemanticDiagnostics();
     timePrinterInstance.appendTime(ts.TimePhase.NON_STRICT_PROGRAM_GET_SEMANTIC_DIAGNOSTICS);
     this.nonStrictProgram.getSyntacticDiagnostics();
     timePrinterInstance.appendTime(ts.TimePhase.NON_STRICT_PROGRAM_GET_SYNTACTIC_DIAGNOSTICS);
+    this.nonStrictProgram.builderProgramForLinter?.getSemanticDiagnostics();
+    timePrinterInstance.appendTime(ts.TimePhase.STRICT_PROGRAM_GET_SEMANTIC_DIAGNOSTICS);
   }
 }
 
-function getAllDiagnostics(program: BuilderProgram, fileName: string): Diagnostic[] {
+function getAllDiagnostics(builderProgram: BuilderProgram, fileName: string, isStrict: boolean = false): Diagnostic[] {
+  let program = builderProgram.getProgram();
   const sourceFile = program.getSourceFile(fileName);
-  return program.getSemanticDiagnostics(sourceFile)
-    .concat(program.getSyntacticDiagnostics(sourceFile))
+  const syntacticDiagnostics: readonly DiagnosticWithLocation[] = program.getSyntacticDiagnostics(sourceFile);
+  if (isStrict) {
+    if (!builderProgram.builderProgramForLinter) {
+      return [];
+    }
+    return builderProgram.builderProgramForLinter.getSemanticDiagnostics(sourceFile)
+      .concat(syntacticDiagnostics)
+      .filter(diag => diag.file === sourceFile);
+  }
+  return builderProgram.getSemanticDiagnostics(sourceFile)
+    .concat(syntacticDiagnostics)
     .filter(diag => diag.file === sourceFile);
 }
 

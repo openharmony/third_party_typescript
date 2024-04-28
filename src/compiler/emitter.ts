@@ -71,6 +71,10 @@ namespace ts {
         return buildInfoExtensionLess + Extension.TsBuildInfo;
     }
 
+    export function getTsBuildInfoEmitOutputFilePathForLinter(tsBuildInfoPath: string): string {
+        return tsBuildInfoPath + '.linter';
+    }
+
     /*@internal*/
     export function getOutputPathsForBundle(options: CompilerOptions, forceDtsPaths: boolean): EmitFileNames {
         const outPath = outFile(options)!;
@@ -367,6 +371,13 @@ namespace ts {
             const buildInfo: BuildInfo = { bundle, program, version };
             // Pass buildinfo as additional data to avoid having to reparse
             writeFile(host, emitterDiagnostics, buildInfoPath, getBuildInfoText(buildInfo), /*writeByteOrderMark*/ false, /*sourceFiles*/ undefined, { buildInfo });
+
+            const programForLinter = host.getProgramBuildInfoForLinter && host.getProgramBuildInfoForLinter();
+            if (programForLinter) {
+                const versionForLinter = ts.version;
+                const buildInfoLinter: BuildInfo = { bundle: bundle, program: programForLinter, version: versionForLinter };
+                writeFile(host, emitterDiagnostics, getTsBuildInfoEmitOutputFilePathForLinter(buildInfoPath), getBuildInfoText(buildInfoLinter), /*writeByteOrderMark*/ false, /*sourceFiles*/ undefined, { buildInfo: buildInfoLinter });
+            }
         }
 
         function emitJsFileOrBundle(

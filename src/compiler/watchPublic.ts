@@ -7,9 +7,15 @@ namespace ts {
         getBuildInfo?(fileName: string, configFilePath: string | undefined): BuildInfo | undefined;
         getLastCompiledProgram?(): Program;
     }
-    export function readBuilderProgram(compilerOptions: CompilerOptions, host: ReadBuildProgramHost) {
-        const buildInfoPath = getTsBuildInfoEmitOutputFilePath(compilerOptions);
+    export function readBuilderProgram(compilerOptions: CompilerOptions, host: ReadBuildProgramHost, isForLinter?: boolean) {
+        let buildInfoPath = getTsBuildInfoEmitOutputFilePath(compilerOptions);
+
         if (!buildInfoPath) return undefined;
+
+        if (isForLinter) {
+            buildInfoPath = getTsBuildInfoEmitOutputFilePathForLinter(buildInfoPath);
+        }
+
         let buildInfo;
         if (host.getBuildInfo) {
             // host provides buildinfo, get it from there. This allows host to cache it
@@ -50,6 +56,15 @@ namespace ts {
         createProgram = createProgram || createEmitAndSemanticDiagnosticsBuilderProgram as any as CreateProgram<T>;
         const oldProgram = readBuilderProgram(options, host) as any as T;
         return createProgram(rootNames, options, host, oldProgram, configFileParsingDiagnostics, projectReferences);
+    }
+
+    export function createIncrementalProgramForArkTs({
+        rootNames, options, configFileParsingDiagnostics, projectReferences, host
+    }: IncrementalProgramOptions<EmitAndSemanticDiagnosticsBuilderProgram>): EmitAndSemanticDiagnosticsBuilderProgram {
+        host = host || createIncrementalCompilerHost(options);
+        const oldProgram = readBuilderProgram(options, host) as any as EmitAndSemanticDiagnosticsBuilderProgram;
+        return createEmitAndSemanticDiagnosticsBuilderProgramForArkTs(
+            rootNames, options, host, oldProgram, configFileParsingDiagnostics, projectReferences);
     }
 
     export type WatchStatusReporter = (diagnostic: Diagnostic, newLine: string, options: CompilerOptions, errorCount?: number) => void;

@@ -1288,7 +1288,7 @@ namespace ts {
             return sourceFile;
         }
 
-        function synchronizeHostData(isCreateIncrementalProgramMode: boolean = false): void {
+        function synchronizeHostData(isCreateIncrementalProgramMode: boolean = false, withLinterProgram?: boolean): void {
             Debug.assert(languageServiceMode !== LanguageServiceMode.Syntactic);
             // perform fast check if host supports it
             if (host.getProjectVersion) {
@@ -1412,7 +1412,11 @@ namespace ts {
             };
 
             if (isCreateIncrementalProgramMode) {
-                builderProgram = createIncrementalProgram(options);
+                if (withLinterProgram) {
+                    builderProgram = createIncrementalProgramForArkTs(options);
+                } else {
+                    builderProgram = createIncrementalProgram(options);
+                }
                 program = builderProgram.getProgram();
             } else {
                 program = createProgram(options);
@@ -1554,13 +1558,13 @@ namespace ts {
             return program;
         }
 
-        function getBuilderProgram(): BuilderProgram | undefined {
+        function getBuilderProgram(withLinterProgram?: boolean): BuilderProgram | undefined {
             if (languageServiceMode === LanguageServiceMode.Syntactic) {
                 Debug.assert(builderProgram === undefined);
                 return undefined;
             }
 
-            synchronizeHostData(isIncrementalCompilation(host.getCompilationSettings()));
+            synchronizeHostData(isIncrementalCompilation(host.getCompilationSettings()), withLinterProgram);
 
             return builderProgram;
         }

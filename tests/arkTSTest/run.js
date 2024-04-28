@@ -107,7 +107,7 @@ function loadPares(jsonFile, result, currentFilePath, file){
   if (expectByVersion === undefined) {
     expectByVersion = [];
   }
-  
+
   const compResult = compareResult(expectByVersion, result);
   compResult["testCaseName"] = testCaseFileName
   if (Object.prototype.hasOwnProperty.call(compResults.detail, rules)) {
@@ -158,75 +158,17 @@ Object.assign(options, {
 
 // Calling the runlinter interface
 function runLinter(rootName) {
-  let WAS_STRICT = true;
-  Object.assign(options, {
-    strictNullChecks: !WAS_STRICT,
-    strictFunctionTypes: !WAS_STRICT,
-    strictPropertyInitialization: !WAS_STRICT,
-    noImplicitReturns: !WAS_STRICT,
-    allowJS : false
-  })
-  noStrictOptions = Object.assign({}, options);
-  Object.assign(noStrictOptions, {
-    strictNullChecks: WAS_STRICT,
-    strictFunctionTypes: WAS_STRICT,
-    strictPropertyInitialization: WAS_STRICT,
-    noImplicitReturns: WAS_STRICT,
+  nonStrictCheckParam = {
     allowJS: true,
-    checkJs: true
-  })
+    checkJs: false
+  };
+  Object.assign(options, nonStrictCheckParam);
+  builderProgram = ts.createIncrementalProgramForArkTs({
+      rootNames: [path.join(process.cwd(), rootName)],
+      options: options,
+    });
 
-  newNoProgram = ts.createProgram({
-    rootNames: [path.join(process.cwd(), rootName)],
-    options: options,
-  })
-  newStrictProgram = ts.createProgram({
-    rootNames: [path.join(process.cwd(), rootName)],
-    options: noStrictOptions,
-  })
-  // this type of builderProgram is not ts.BuilderProgram
-  builderProgram = {
-    program: newNoProgram,
-    getProgram() { return this.program; },
-    getSourceFile(fileName) {
-      return this.program.getSourceFile(fileName);
-    },
-    getSemanticDiagnostics(sourceFile) {
-      return this.program.getSemanticDiagnostics(sourceFile);
-    },
-    getSyntacticDiagnostics(sourceFile) {
-      return this.program.getSyntacticDiagnostics(sourceFile);
-    },
-    getState() {
-      return {
-        changedFilesSet: this.program.getSourceFiles().map(x => x.resolvedPath),
-        fileInfos: new Map()
-      };
-    }
-  };
-  reverseStrictBuilderProgram = {
-    program: newStrictProgram,
-    getProgram() { return this.program; },
-    getSourceFile(fileName) {
-      return this.program.getSourceFile(fileName);
-    },
-    getSemanticDiagnostics(sourceFile) {
-      return this.program.getSemanticDiagnostics(sourceFile);
-    },
-    getSyntacticDiagnostics(sourceFile) {
-      return this.program.getSyntacticDiagnostics(sourceFile);
-    }
-  };
-  originProgram = {
-    builderProgram: builderProgram,
-    wasStrict: !WAS_STRICT
-  };
-  reverseStrictProgram = {
-    builderProgram: reverseStrictBuilderProgram,
-    wasStrict: WAS_STRICT
-  };
-
-  let result = arktsVersion === '1.0' ? ts.ArkTSLinter_1_0.runArkTSLinter(originProgram, reverseStrictProgram) : ts.ArkTSLinter_1_1.runArkTSLinter(originProgram, reverseStrictProgram);
+  let result = arktsVersion === '1.0' ? ts.ArkTSLinter_1_0.runArkTSLinter(builderProgram) : ts.ArkTSLinter_1_1.runArkTSLinter(builderProgram);
   return result;
 }
 
@@ -362,7 +304,7 @@ function writeResult(result){
   const dir = path.join(__dirname, "test_results")
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir)
-  } 
+  }
   fs.writeFileSync(path.join(dir, "test_result.json"), JSON.stringify(result, null, 4))
 }
 
