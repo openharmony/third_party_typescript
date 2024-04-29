@@ -1,0 +1,56 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cases/#16309.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#16309.ets:15:39\n Type arguments of generic \"Sendable\" type must be a \"Sendable\" data type (arkts-sendable-generic-types)\n\n",
+                "severity": 2,
+                "reportLine": 15,
+                "reportColumn": 39,
+                "description": "Type arguments of generic \"Sendable\" type must be a \"Sendable\" data type (arkts-sendable-generic-types)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#16309.ets:16:31\n Type arguments of generic \"Sendable\" type must be a \"Sendable\" data type (arkts-sendable-generic-types)\n\n",
+                "severity": 2,
+                "reportLine": 16,
+                "reportColumn": 31,
+                "description": "Type arguments of generic \"Sendable\" type must be a \"Sendable\" data type (arkts-sendable-generic-types)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#16309.ets:16:41\n Type arguments of generic \"Sendable\" type must be a \"Sendable\" data type (arkts-sendable-generic-types)\n\n",
+                "severity": 2,
+                "reportLine": 16,
+                "reportColumn": 41,
+                "description": "Type arguments of generic \"Sendable\" type must be a \"Sendable\" data type (arkts-sendable-generic-types)"
+            },
+            {
+                "origin": "WARN: ArkTS:WARN File: /entry/src/main/ets/pages/cases/#16309.ets:18:9\n Classes cannot be used as objects (arkts-no-classes-as-obj)\n\n",
+                "severity": 1,
+                "reportLine": 18,
+                "reportColumn": 9,
+                "description": "Classes cannot be used as objects (arkts-no-classes-as-obj)"
+            },
+            {
+                "origin": "WARN: ArkTS:WARN File: /entry/src/main/ets/pages/cases/#16309.ets:21:31\n Classes cannot be used as objects (arkts-no-classes-as-obj)\n\n",
+                "severity": 1,
+                "reportLine": 21,
+                "reportColumn": 31,
+                "description": "Classes cannot be used as objects (arkts-no-classes-as-obj)"
+            },
+            {
+                "origin": "WARN: ArkTS:WARN File: /entry/src/main/ets/pages/cases/#16309.ets:21:48\n Classes cannot be used as objects (arkts-no-classes-as-obj)\n\n",
+                "severity": 1,
+                "reportLine": 21,
+                "reportColumn": 48,
+                "description": "Classes cannot be used as objects (arkts-no-classes-as-obj)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#16309.ets:23:26\n Type arguments of generic \"Sendable\" type must be a \"Sendable\" data type (arkts-sendable-generic-types)\n\n",
+                "severity": 2,
+                "reportLine": 23,
+                "reportColumn": 26,
+                "description": "Type arguments of generic \"Sendable\" type must be a \"Sendable\" data type (arkts-sendable-generic-types)"
+            }
+        ]
+    }
+}

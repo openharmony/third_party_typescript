@@ -1,0 +1,21 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cases/#16323.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#16323.ets:8:10\n Casting \"Non-sendable\" data to \"Sendable\" type is not allowed (arkts-sendable-as-expr)\n\n",
+                "severity": 2,
+                "reportLine": 8,
+                "reportColumn": 10,
+                "description": "Casting \"Non-sendable\" data to \"Sendable\" type is not allowed (arkts-sendable-as-expr)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#16323.ets:12:10\n Casting \"Non-sendable\" data to \"Sendable\" type is not allowed (arkts-sendable-as-expr)\n\n",
+                "severity": 2,
+                "reportLine": 12,
+                "reportColumn": 10,
+                "description": "Casting \"Non-sendable\" data to \"Sendable\" type is not allowed (arkts-sendable-as-expr)"
+            }
+        ]
+    }
+}

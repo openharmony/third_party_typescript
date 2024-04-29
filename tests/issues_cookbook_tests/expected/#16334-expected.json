@@ -3,25 +3,116 @@
         "filePath": "entry/src/main/ets/pages/cases/#16334.ets",
         "defects": [
             {
-                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#16334.ets:10:1\n Indexed access is not supported for fields (arkts-no-props-by-index)\n\n",
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#16334.ets:28:1\n Indexed access is not supported for fields (arkts-no-props-by-index)\n\n",
                 "severity": 2,
-                "reportLine": 10,
+                "reportLine": 28,
                 "reportColumn": 1,
                 "description": "Indexed access is not supported for fields (arkts-no-props-by-index)"
             },
             {
-                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#16334.ets:12:1\n Indexed access is not supported for fields (arkts-no-props-by-index)\n\n",
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#16334.ets:29:1\n Indexed access is not supported for fields (arkts-no-props-by-index)\n\n",
                 "severity": 2,
-                "reportLine": 12,
+                "reportLine": 29,
                 "reportColumn": 1,
                 "description": "Indexed access is not supported for fields (arkts-no-props-by-index)"
             },
             {
-                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#16334.ets:14:1\n Indexed access is not supported for fields (arkts-no-props-by-index)\n\n",
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#16334.ets:30:1\n Indexed access is not supported for fields (arkts-no-props-by-index)\n\n",
                 "severity": 2,
-                "reportLine": 14,
+                "reportLine": 30,
                 "reportColumn": 1,
                 "description": "Indexed access is not supported for fields (arkts-no-props-by-index)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#16334.ets:31:1\n Indexed access is not supported for fields (arkts-no-props-by-index)\n\n",
+                "severity": 2,
+                "reportLine": 31,
+                "reportColumn": 1,
+                "description": "Indexed access is not supported for fields (arkts-no-props-by-index)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#16334.ets:32:1\n Indexed access is not supported for fields (arkts-no-props-by-index)\n\n",
+                "severity": 2,
+                "reportLine": 32,
+                "reportColumn": 1,
+                "description": "Indexed access is not supported for fields (arkts-no-props-by-index)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#16334.ets:33:1\n Indexed access is not supported for fields (arkts-no-props-by-index)\n\n",
+                "severity": 2,
+                "reportLine": 33,
+                "reportColumn": 1,
+                "description": "Indexed access is not supported for fields (arkts-no-props-by-index)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#16334.ets:34:1\n Indexed access is not supported for fields (arkts-no-props-by-index)\n\n",
+                "severity": 2,
+                "reportLine": 34,
+                "reportColumn": 1,
+                "description": "Indexed access is not supported for fields (arkts-no-props-by-index)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#16334.ets:36:1\n Indexed access is not supported for fields (arkts-no-props-by-index)\n\n",
+                "severity": 2,
+                "reportLine": 36,
+                "reportColumn": 1,
+                "description": "Indexed access is not supported for fields (arkts-no-props-by-index)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#16334.ets:37:1\n Indexed access is not supported for fields (arkts-no-props-by-index)\n\n",
+                "severity": 2,
+                "reportLine": 37,
+                "reportColumn": 1,
+                "description": "Indexed access is not supported for fields (arkts-no-props-by-index)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#16334.ets:38:1\n Indexed access is not supported for fields (arkts-no-props-by-index)\n\n",
+                "severity": 2,
+                "reportLine": 38,
+                "reportColumn": 1,
+                "description": "Indexed access is not supported for fields (arkts-no-props-by-index)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#16334.ets:39:1\n Indexed access is not supported for fields (arkts-no-props-by-index)\n\n",
+                "severity": 2,
+                "reportLine": 39,
+                "reportColumn": 1,
+                "description": "Indexed access is not supported for fields (arkts-no-props-by-index)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#16334.ets:40:1\n Indexed access is not supported for fields (arkts-no-props-by-index)\n\n",
+                "severity": 2,
+                "reportLine": 40,
+                "reportColumn": 1,
+                "description": "Indexed access is not supported for fields (arkts-no-props-by-index)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#16334.ets:41:1\n Indexed access is not supported for fields (arkts-no-props-by-index)\n\n",
+                "severity": 2,
+                "reportLine": 41,
+                "reportColumn": 1,
+                "description": "Indexed access is not supported for fields (arkts-no-props-by-index)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#16334.ets:42:1\n Indexed access is not supported for fields (arkts-no-props-by-index)\n\n",
+                "severity": 2,
+                "reportLine": 42,
+                "reportColumn": 1,
+                "description": "Indexed access is not supported for fields (arkts-no-props-by-index)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#16334.ets:44:1\n Indexed access is not supported for fields (arkts-no-props-by-index)\n\n",
+                "severity": 2,
+                "reportLine": 44,
+                "reportColumn": 1,
+                "description": "Indexed access is not supported for fields (arkts-no-props-by-index)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#16334.ets:50:5\n Type 'number[]' is not assignable to type 'number'.\n\n",
+                "severity": 2,
+                "reportLine": 50,
+                "reportColumn": 5,
+                "description": "Type 'number[]' is not assignable to type 'number'."
             }
         ]
     }

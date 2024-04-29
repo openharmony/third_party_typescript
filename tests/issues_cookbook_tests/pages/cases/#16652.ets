@@ -1,7 +1,3 @@
-declare const Param: PropertyDecorator;
-declare const Event: PropertyDecorator;
-declare const Once: PropertyDecorator;
-
 @Entry
 @Component
 struct Index16652 {

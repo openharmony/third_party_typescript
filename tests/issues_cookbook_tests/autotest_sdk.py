@@ -83,6 +83,10 @@ class SDKLinterTest:
         hash_index_map = dict()
         for error in errors:
             filepath = self._get_filepath(error)
+            # If filepath in SDK, skip it.
+            if not filepath:
+                print('Report info filepath is not in DevEcoProject:\n', error)
+                continue
             row_col_info = re.findall('.[ts|ets]:(\d+:\d+)', error)
             row, col = (row_col_info[0].split(
                 ':')) if filepath and row_col_info else (-1, -1)
