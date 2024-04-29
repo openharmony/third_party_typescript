@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-#  Copyright (c) 2023 Huawei Device Co., Ltd.
+#  Copyright (c) 2023-2024 Huawei Device Co., Ltd.
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
 #  You may obtain a copy of the License at
@@ -39,50 +39,50 @@ def read_declaration(path):
     return context
 
 
-def is_root_dir(dir_path, file_or_dir, file_or_dir_results, limit_version):
-    rf = 'test_ts_cases'
-    root_folder = os.path.basename(dir_path)
-    if root_folder == rf:
-        # file_or_dir like: ['2.0', '2.1', '2.2', ... '4.9', 'spec']
-        for f_item in file_or_dir:
-            if limit_version is None:
-                file_or_dir_results = file_or_dir
-                break
-            else:
-                limit_version = float(limit_version)
-                try:
-                    f_num = float(f_item)
-                    if f_num <= limit_version:
-                        file_or_dir_results.append(f_item)
-                except Exception as e:
-                    print(e)
-                    continue
-        if limit_version is not None:
-            file_or_dir_results.append('spec')
-    return dir_path, file_or_dir, file_or_dir_results, limit_version
+def list_root_directorys_new(directorys_in_root, filtered_directories, max_ts_version):
+    # directorys_in_root like: ['2.0', '2.1', '2.2', ... '4.9', 'spec']
+    if max_ts_version is None:
+        filtered_directories = directorys_in_root
+    else:
+        max_ts_version = float(max_ts_version)
+        for f_item in directorys_in_root:
+            if f_item == 'spec':
+                filtered_directories.append(f_item)
+                continue
+            try:
+                f_num = float(f_item)
+                if f_num <= max_ts_version:
+                    filtered_directories.append(f_item)
+            except Exception as e:
+                print(e)
+
+    return filtered_directories
 
 
-def get_path_file(dir_path, all_file_path=None, is_root=False, limit_version=None):
+def list_all_test_files_in_dir(dir_path, all_file_path=None, limit_version=None):
     if all_file_path is None:
         all_file_path = []
-    file_or_dir = os.listdir(dir_path)
-    file_or_dir_results = []
+
     if dir_path.endswith("test_ts_cases") or dir_path.endswith("test_ts_cases/"):
         is_root = True
     else:
         is_root = False
+
+    items_in_dir = os.listdir(dir_path)
+    filtered_directories = []
+
     if is_root:
-        dir_path, file_or_dir, file_or_dir_results, limit_version = is_root_dir(dir_path, file_or_dir,
-                                                                                file_or_dir_results, limit_version)
+        filtered_directories = list_root_directorys_new(items_in_dir, filtered_directories, limit_version)
     else:
-        file_or_dir_results = file_or_dir
-    for file_dir in file_or_dir_results:
+        filtered_directories = items_in_dir
+
+    for file_dir in filtered_directories:
         file_or_dir_path = os.path.join(dir_path, file_dir)
         if '\\' in file_or_dir_path:
             file_or_dir_path = file_or_dir_path.replace('\\', '/')
 
         if os.path.isdir(file_or_dir_path):
-            get_path_file(file_or_dir_path, all_file_path, False, None)
+            list_all_test_files_in_dir(file_or_dir_path, all_file_path, None)
         else:
             all_file_path.append(file_or_dir_path)
 
@@ -96,15 +96,15 @@ def get_disable_list(file_path):
             line = f.readline()
             if not line:
                 break
-            disable_list.append(os.path.abspath(line.strip()))
+            disable_list.append(line.strip())
     return disable_list
 
-
-def is_disable_case(file_path, disable_list):
+def is_disabled_case(file_path, disable_list):
     if disable_list is None:
         return False
-    if file_path in disable_list:
-        return True
-    for disable_path in disable_list:
-        if disable_path in file_path:
+
+    for one in disable_list:
+        if file_path.endswith(one.strip()):
             return True
+
+    return False

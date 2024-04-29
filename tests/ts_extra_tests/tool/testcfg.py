@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-#  Copyright (c) 2023 Huawei Device Co., Ltd.
+#  Copyright (c) 2023-2024 Huawei Device Co., Ltd.
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
 #  You may obtain a copy of the License at
@@ -44,6 +44,7 @@ class TestCase:
     js_runtime_path = ""
     es2abc = ""
     tsc = ""
+    enable_arkguard = False
 
     def __init__(self, path):
         self.path = path
@@ -249,7 +250,33 @@ class TestCase:
             self.fail = True
             return
 
+
+    def execute_arkguard(self, input_file_path):
+        arkguard_root_dir = os.path.join("../../../../", "arkcompiler/ets_frontend/arkguard")
+        arkgurad_entry_path = os.path.join(arkguard_root_dir, "lib/cli/SecHarmony.js")
+        config_path = os.path.join(arkguard_root_dir, "test/compilerTestConfig.json")
+        arkguard_cmd = [
+            'node',
+            '--no-warnings',
+            arkgurad_entry_path,
+            input_file_path,
+            '--config-path',
+            config_path,
+            '--inplace'
+        ]
+        # print(arkguard_cmd)
+        process = subprocess.Popen(arkguard_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        out, err = process.communicate()
+        if err:
+            print("arkguard error: ", err)
+        process.wait()
+
+
     def __test_es2abc(self):
+        # run arkguard
+        if TestCase.enable_arkguard:
+            self.execute_arkguard(self.path)
+
         # compiler to abc
         process = subprocess.Popen(self.__get_es2abc_cmd(self.path), stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                                    stderr=subprocess.PIPE)
