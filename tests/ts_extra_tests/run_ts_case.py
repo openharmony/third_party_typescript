@@ -28,7 +28,7 @@ def is_testcase_exist(parsers, arg):
         arg = './' + arg
     if not os.path.exists(arg):
         parsers.error("The directory or file '%s' does not exist" % arg)
-    return os.path.abspath(arg)
+    return arg
 
 
 def is_file(parsers, arg):
@@ -150,7 +150,10 @@ def prepare(args):
 
     disable_list = parse_disabled_list(args)
     suite_files = list_all_test_files_in_dir("%s/suite" % (TEMP_DIR_NAME), None)
-    case_files = list_all_test_files_in_dir("%s/test_ts_cases" % (TEMP_DIR_NAME), None, args.limit_version)
+    case_files = []
+    for target_path in args.release:
+        files = list_all_test_files_in_dir("%s/%s" % (TEMP_DIR_NAME, target_path), None, args.limit_version)
+        case_files += files
     return disable_list, suite_files, case_files
 
 
