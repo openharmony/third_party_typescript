@@ -26,6 +26,7 @@ STRICT_ON = ['--strict', 'true']
 MODULE = ['--module']
 DECORATOR = ['--experimentalDecorators']
 STRICTNULLCHECKS = ['--strictNullChecks']
+JSX = ['--jsx']
 
 
 def get_error_message(strs, filename):
@@ -96,6 +97,11 @@ class TestCase:
         if 'module' in self.declaration:
             return True
         return False
+    
+    def is_jsx(self):
+        if 'jsx' in self.declaration:
+            return True
+        return False
 
     def check_declaration(self):
         if self.declaration == {}:
@@ -136,6 +142,9 @@ class TestCase:
         if self.null_checks():
             cmd.extend(STRICTNULLCHECKS)
             cmd.append('false')
+        if self.is_jsx():
+            cmd.extend(JSX)
+            cmd.append('react-jsx')
         if self.is_current():
             cmd.append(self.path)
             cmd.append('--outDir')
@@ -189,7 +198,7 @@ class TestCase:
 
     def __get_js_basename(self):
         sp = '/'
-        return "test_ts_cases" + sp + self.path.split(sp + "test_ts_cases" + sp)[1].replace('.ts', '.js')
+        return "test_ts_cases" + sp + self.path.split(sp + "test_ts_cases" + sp)[1].replace('.tsx', '.js').replace('.ts', '.js')
 
     def __is_strict(self):
         if 'strict' in self.declaration:

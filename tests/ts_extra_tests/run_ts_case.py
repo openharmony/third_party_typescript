@@ -57,7 +57,7 @@ def is_directory(parsers, arg):
 
 
 def parse_and_execute(path, ark_runtime=False, skip_negative=True):
-    if path.endswith(".ts"):
+    if (path.endswith(".ts") | path.endswith(".tsx")):
         test_cases = TestCase(path)
         if not test_cases.is_test_case:
             return False, False
@@ -130,13 +130,13 @@ for file_path in args.release:
     # gen abc file
     if args.ark_runtime:
         for file_paths in get_path_file("suite", None, True):
-            if file_paths.endswith(".ts"):
+            if file_paths.endswith(".ts") | file_paths.endswith(".tsx"):
                 test_case = TestCase(file_paths)
                 if not test_case.is_test_case:
                     test_case.create_abc(file_paths)
 
         for file_paths in get_path_file("test_ts_cases", None, True):
-            if file_paths.endswith(".ts"):
+            if file_paths.endswith(".ts") | file_paths.endswith(".tsx"):
                 test_case = TestCase(file_paths)
                 if not test_case.is_test_case:
                     test_case.create_abc(file_paths)
@@ -151,7 +151,7 @@ for file_path in args.release:
                 failed_case += 1
         continue
     for file_paths in get_path_file(file_path, None, True, args.limit_version):
-        if not file_paths.endswith(".ts"):
+        if not (file_paths.endswith(".ts") | file_paths.endswith(".tsx")):
             continue
         if is_disable_case(file_paths, disable_list):
             continue
@@ -172,7 +172,7 @@ if args.ark_runtime:
         if file_paths.endswith(".abc"):
             if os.path.exists(file_paths):
                 os.remove(file_paths)
-        if file_paths.endswith(".ts"):
+        if (file_paths.endswith(".ts") | file_paths.endswith(".tsx")):
             if os.path.exists(file_paths):
                 file = open(file_paths, 'r')
                 lines = file.readlines()
