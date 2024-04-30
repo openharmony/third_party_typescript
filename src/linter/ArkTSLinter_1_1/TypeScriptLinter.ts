@@ -1262,9 +1262,85 @@ export class TypeScriptLinter {
       }
     }
 
+    if (isSendableClass) {
+      tsClassDecl.members.forEach((classMember) => {
+        this.scanCapturedVarsInSendableScope(classMember, tsClassDecl);
+      });
+    }
+
     if (!this.skipArkTSStaticBlocksCheck) {
       this.processClassStaticBlocks(tsClassDecl);
     }
+  }
+
+  private scanCapturedVarsInSendableScope(startNode: ts.Node, scope: ts.Node): void {
+    const callback = (node: ts.Node): void => {
+      // Namespace import will introduce closure in the es2abc compiler stage
+      if (!ts.isIdentifier(node) || this.checkNamespaceImportVar(node)) {
+        return;
+      }
+
+      // The "b" of "A.b" should not be checked since it's load from object "A"
+      const parent: ts.Node = node.parent;
+      if (ts.isPropertyAccessExpression(parent) && parent.name === node) {
+        return;
+      }
+
+      this.checkLocalDecl(node, scope);
+    };
+    // Type nodes should not checked because no closure will be introduced
+    const stopCondition = (node: ts.Node): boolean => {
+      return ts.isTypeReferenceNode(node);
+    };
+    this.forEachNodeInSubtree(startNode, callback, stopCondition);
+  }
+
+  private checkLocalDecl(node: ts.Identifier, scope: ts.Node): void {
+    const trueSym = Utils.trueSymbolAtLocation(node);
+    // Sendable decorator should be used in method of Sendable classes
+    if (trueSym === undefined) {
+      return;
+    }
+
+    // Const enum member will be replaced by the exact value of it, no closure will be introduced
+    if (Utils.isConstEnum(trueSym)) {
+      return;
+    }
+
+    const declarations = trueSym.getDeclarations();
+    if (declarations?.length) {
+      const decl = declarations[0];
+      const declPosition = decl.getStart();
+      if (decl.getSourceFile().fileName !== node.getSourceFile().fileName ||
+          declPosition != undefined && declPosition >= scope.getStart() && declPosition < scope.getEnd()) {
+        return;
+      }
+
+      /**
+       * The cases in condition will introduce closure if defined in the same file as the Sendable class. The following
+       * cases are excluded because they are not allowed in ArkTS:
+       * 1. ImportEqualDecalration
+       * 2. BindingElement
+       */
+      if (ts.isVariableDeclaration(decl) || ts.isFunctionDeclaration(decl) || ts.isClassDeclaration(decl) ||
+          ts.isInterfaceDeclaration(decl) || ts.isEnumDeclaration(decl) || ts.isModuleDeclaration(decl) ||
+          ts.isParameter(decl) || ts.isStructDeclaration(decl)) {
+        this.incrementCounters(node, FaultID.SendableCapturedVars);
+      }
+    }
+  }
+
+  private checkNamespaceImportVar(node: ts.Node): boolean {
+    // Namespace import cannot be determined by the true symbol
+    const sym = TypeScriptLinter.tsTypeChecker.getSymbolAtLocation(node);
+    const decls = sym?.getDeclarations();
+    if (decls?.length) {
+      if (ts.isNamespaceImport(decls[0])) {
+        this.incrementCounters(node, FaultID.SendableCapturedVars);
+        return true;
+      }
+    }
+    return false;
   }
 
   private checkClassDeclarationHeritageClause(hClause: ts.HeritageClause, isSendableClass: boolean): void {

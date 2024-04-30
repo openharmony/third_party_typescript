@@ -177,6 +177,7 @@ cookBookTag[153] = 'The inheritance for "Sendable" classes is limited (arkts-sen
 cookBookTag[154] = 'Properties in "Sendable" classes and interfaces must have a Sendable data type (arkts-sendable-prop-types)';
 cookBookTag[155] = 'Definite assignment assertion is not allowed in "Sendable" classes (arkts-sendable-definite-assignment)';
 cookBookTag[156] = 'Type arguments of generic "Sendable" type must be a "Sendable" data type (arkts-sendable-generic-types)';
+cookBookTag[157] = 'Only imported variables can be captured by "Sendable" class (arkts-sendable-imported-variables)';
 cookBookTag[158] = 'Only "@Sendable" decorator can be used on "Sendable" class (arkts-sendable-class-decorator)';
 cookBookTag[159] = 'Objects of "Sendable" type can not be initialized using object literal or array literal (arkts-sendable-obj-init)';
 cookBookTag[160] = 'Computed property names are not allowed in "Sendable" classes and interfaces (arkts-sendable-computed-prop-name)';
