@@ -1920,8 +1920,13 @@ export class TypeScriptLinter {
     ) {
       this.incrementCounters(node, FaultID.TypeAssertion);
     }
-    if (!Utils.isSendableClassOrInterface(exprType) && Utils.isSendableClassOrInterface(targetType)) {
-      this.incrementCounters(tsAsExpr, FaultID.SendableAsExpr);
+    if (
+        !Utils.isSendableClassOrInterface(exprType) &&
+        !Utils.isObject(exprType) &&
+        !Utils.isAnyType(exprType) &&
+        Utils.isSendableClassOrInterface(targetType)
+    ) {
+        this.incrementCounters(tsAsExpr, FaultID.SendableAsExpr);
     }
   }
 
