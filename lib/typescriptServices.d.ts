@@ -9205,7 +9205,9 @@ declare namespace ts {
                 SendableComputedPropName = 89,
                 SendableAsExpr = 90,
                 SharedNoSideEffectImport = 91,
-                LAST_ID = 92
+                SharedModuleExports = 92,
+                SharedModuleNoStarExport = 93,
+                LAST_ID = 94
             }
             class FaultAttributes {
                 cookBookRef: number;
@@ -9393,6 +9395,7 @@ declare namespace ts {
             function unwrapParenthesizedTypeNode(typeNode: ts.TypeNode): ts.TypeNode;
             function isSendableTypeNode(typeNode: ts.TypeNode): boolean;
             function isSendableType(type: ts.Type): boolean;
+            function isShareableType(tsType: ts.Type): boolean;
             function isSendableClassOrInterface(type: ts.Type): boolean;
             function typeContainsSendableClassOrInterface(type: ts.Type): boolean;
             function isConstEnum(sym: ts.Symbol | undefined): boolean;
@@ -9402,6 +9405,7 @@ declare namespace ts {
             function getDecoratorsIfInSendableClass(declaration: ts.HasDecorators): readonly ts.Decorator[] | undefined;
             function isISendableInterface(type: ts.Type): boolean;
             function isSharedModule(sourceFile: ts.SourceFile): boolean;
+            function isShareableEntity(node: ts.Node): boolean;
         }
     }
 }
@@ -9593,6 +9597,8 @@ declare namespace ts {
             private handleClassStaticBlockDeclaration;
             private handleIndexSignature;
             lint(): void;
+            private handleExportKeyword;
+            private handleExportDeclaration;
         }
     }
 }

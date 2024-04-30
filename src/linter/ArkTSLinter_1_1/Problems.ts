@@ -41,8 +41,8 @@ export enum FaultID {
   SpreadOperator, LimitedStdLibApi, ErrorSuppression, StrictDiagnostic, ImportAfterStatement,
   EsObjectType, SendableClassInheritance, SendablePropType, SendableDefiniteAssignment, SendableGenericTypes,
   SendableCapturedVars, SendableClassDecorator, SendableObjectInitialization, SendableComputedPropName, SendableAsExpr,
-  SharedNoSideEffectImport,
-  LAST_ID, // this should always be last enum`
+  SharedNoSideEffectImport, SharedModuleExports, SharedModuleNoStarExport,
+  LAST_ID, // this should always be last enum
 }
 
 export class FaultAttributes {
@@ -147,6 +147,8 @@ faultsAttrs[FaultID.SendableObjectInitialization] = new FaultAttributes(159);
 faultsAttrs[FaultID.SendableComputedPropName] = new FaultAttributes(160);
 faultsAttrs[FaultID.SendableAsExpr] = new FaultAttributes(161);
 faultsAttrs[FaultID.SharedNoSideEffectImport] = new FaultAttributes(162);
+faultsAttrs[FaultID.SharedModuleExports] = new FaultAttributes(163);
+faultsAttrs[FaultID.SharedModuleNoStarExport] = new FaultAttributes(164);
 }
 }
 }
