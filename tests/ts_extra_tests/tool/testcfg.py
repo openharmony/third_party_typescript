@@ -30,6 +30,8 @@ JSX = ['--jsx']
 
 
 def get_error_message(strs, filename):
+    if platform.system().lower() == 'windows':
+        filename = filename.replace('\\', '/')
     if len(re.findall(filename + r':(\d+)', strs)) > 0:
         line_number = re.findall(filename + r':(\d+)', strs)
     else:
@@ -199,6 +201,8 @@ class TestCase:
 
     def __get_js_basename(self):
         sp = '/'
+        if platform.system().lower() == 'windows':
+            sp = '\\'
         return "test_ts_cases" + sp + self.path.split(sp + "test_ts_cases" + sp)[1].replace('.tsx', '.js').replace('.ts', '.js')
 
     def __is_strict(self):

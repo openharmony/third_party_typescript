@@ -15,7 +15,7 @@
 
 
 import re
-import os
+import os, platform
 
 
 def read_declaration(path):
@@ -78,7 +78,7 @@ def list_all_test_files_in_dir(dir_path, all_file_path=None, limit_version=None)
 
     for file_dir in filtered_directories:
         file_or_dir_path = os.path.join(dir_path, file_dir)
-        if '\\' in file_or_dir_path:
+        if platform.system().lower() != 'windows' and '\\' in file_or_dir_path:
             file_or_dir_path = file_or_dir_path.replace('\\', '/')
 
         if os.path.isdir(file_or_dir_path):
@@ -96,6 +96,8 @@ def get_disable_list(file_path):
             line = f.readline()
             if not line:
                 break
+            if platform.system().lower() == 'windows':
+                line = line.replace('/', '\\')
             disable_list.append(line.strip())
     return disable_list
 
