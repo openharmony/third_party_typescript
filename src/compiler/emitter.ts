@@ -4019,6 +4019,10 @@ namespace ts {
 
         function emitSourceFile(node: SourceFile) {
             writeLine();
+            // @ts-ignore
+            if (node.writeTsHarComments) {
+                writeComment("// @keepTs\n// @ts-nocheck\n");
+            }
             const statements = node.statements;
             // Emit detached comment if there are no prologue directives or if the first node is synthesized.
             // The synthesized node will have no leading comment so some comments may be missed.
