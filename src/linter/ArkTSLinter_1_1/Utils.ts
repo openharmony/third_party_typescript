@@ -58,6 +58,8 @@ export const LANG_NAMESPACE = 'lang';
 
 export const ISENDABLE_TYPE = 'ISendable';
 
+export const USE_SHARED = 'use shared';
+
 let typeChecker: TypeChecker;
 export function setTypeChecker(tsTypeChecker: TypeChecker): void {
   typeChecker = tsTypeChecker;
@@ -1969,6 +1971,23 @@ function isArkTSISendableDeclaration(decl: ts.Declaration): boolean {
     }
 
     return true;
+}
+
+export function isSharedModule(sourceFile: ts.SourceFile): boolean {
+  const statements = sourceFile.statements;
+  for (let statement of statements) {
+    if (ts.isImportDeclaration(statement)) {
+      continue;
+    }
+
+    return (
+      ts.isExpressionStatement(statement) &&
+      ts.isStringLiteral(statement.expression) &&
+      statement.expression.text === USE_SHARED
+    );
+  }
+
+  return false;
 }
 
 }

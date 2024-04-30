@@ -1,0 +1,20 @@
+{
+  "arktsVersion_1_0": [
+    {
+      "messageText": "Importing a module for side-effects only is not supported (arkts-no-side-effects-imports)",
+      "expectLineAndCharacter": {
+        "line": 19,
+        "character": 1
+      }
+    }
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Shared module do not allow side effect import (arkts-no-side-effects-imports)",
+      "expectLineAndCharacter": {
+        "line": 19,
+        "character": 1
+      }
+    }
+  ]
+}
