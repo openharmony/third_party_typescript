@@ -9199,12 +9199,13 @@ declare namespace ts {
                 SendablePropType = 83,
                 SendableDefiniteAssignment = 84,
                 SendableGenericTypes = 85,
-                SendableClassDecorator = 86,
-                SendableObjectInitialization = 87,
-                SendableComputedPropName = 88,
-                SendableAsExpr = 89,
-                SharedNoSideEffectImport = 90,
-                LAST_ID = 91
+                SendableCapturedVars = 86,
+                SendableClassDecorator = 87,
+                SendableObjectInitialization = 88,
+                SendableComputedPropName = 89,
+                SendableAsExpr = 90,
+                SharedNoSideEffectImport = 91,
+                LAST_ID = 92
             }
             class FaultAttributes {
                 cookBookRef: number;
@@ -9531,6 +9532,9 @@ declare namespace ts {
             private handleEsObjectAssignment;
             private handleCatchClause;
             private handleClassDeclaration;
+            private scanCapturedVarsInSendableScope;
+            private checkLocalDecl;
+            private checkNamespaceImportVar;
             private checkClassDeclarationHeritageClause;
             private isValidSendableClassExtends;
             private checkSendableTypeParameter;

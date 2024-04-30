@@ -1,0 +1,179 @@
+{
+    "arktsVersion_1_1": [
+        {
+            "messageText": "Only imported variables can be captured by \"Sendable\" class (arkts-sendable-imported-variables)",
+            "expectLineAndCharacter": {
+              "line": 52,
+              "character": 14
+            }
+        },
+        {
+            "messageText": "Only imported variables can be captured by \"Sendable\" class (arkts-sendable-imported-variables)",
+            "expectLineAndCharacter": {
+              "line": 53,
+              "character": 15
+            }
+        },
+        {
+            "messageText": "Only imported variables can be captured by \"Sendable\" class (arkts-sendable-imported-variables)",
+            "expectLineAndCharacter": {
+              "line": 54,
+              "character": 28
+            }
+        },
+        {
+            "messageText": "Only imported variables can be captured by \"Sendable\" class (arkts-sendable-imported-variables)",
+            "expectLineAndCharacter": {
+              "line": 59,
+              "character": 13
+            }
+        },
+        {
+            "messageText": "Only imported variables can be captured by \"Sendable\" class (arkts-sendable-imported-variables)",
+            "expectLineAndCharacter": {
+              "line": 61,
+              "character": 9
+            }
+        },
+        {
+            "messageText": "Only imported variables can be captured by \"Sendable\" class (arkts-sendable-imported-variables)",
+            "expectLineAndCharacter": {
+              "line": 69,
+              "character": 17
+            }
+        },
+        {
+            "messageText": "Only imported variables can be captured by \"Sendable\" class (arkts-sendable-imported-variables)",
+            "expectLineAndCharacter": {
+              "line": 73,
+              "character": 16
+            }
+        },
+        {
+            "messageText": "Only imported variables can be captured by \"Sendable\" class (arkts-sendable-imported-variables)",
+            "expectLineAndCharacter": {
+              "line": 81,
+              "character": 9
+            }
+        },
+        {
+            "messageText": "Only imported variables can be captured by \"Sendable\" class (arkts-sendable-imported-variables)",
+            "expectLineAndCharacter": {
+              "line": 82,
+              "character": 17
+            }
+        },
+        {
+            "messageText": "Only imported variables can be captured by \"Sendable\" class (arkts-sendable-imported-variables)",
+            "expectLineAndCharacter": {
+              "line": 86,
+              "character": 24
+            }
+        },
+        {
+            "messageText": "Only imported variables can be captured by \"Sendable\" class (arkts-sendable-imported-variables)",
+            "expectLineAndCharacter": {
+              "line": 88,
+              "character": 14
+            }
+        },
+        {
+            "messageText": "Only imported variables can be captured by \"Sendable\" class (arkts-sendable-imported-variables)",
+            "expectLineAndCharacter": {
+              "line": 90,
+              "character": 17
+            }
+        },
+        {
+            "messageText": "Only imported variables can be captured by \"Sendable\" class (arkts-sendable-imported-variables)",
+            "expectLineAndCharacter": {
+              "line": 92,
+              "character": 5
+            }
+        },
+        {
+            "messageText": "Only imported variables can be captured by \"Sendable\" class (arkts-sendable-imported-variables)",
+            "expectLineAndCharacter": {
+              "line": 93,
+              "character": 10
+            }
+        },
+        {
+            "messageText": "Only imported variables can be captured by \"Sendable\" class (arkts-sendable-imported-variables)",
+            "expectLineAndCharacter": {
+              "line": 94,
+              "character": 17
+            }
+        },
+        {
+            "messageText": "Only imported variables can be captured by \"Sendable\" class (arkts-sendable-imported-variables)",
+            "expectLineAndCharacter": {
+              "line": 95,
+              "character": 5
+            }
+        },
+        {
+            "messageText": "Properties in \"Sendable\" classes and interfaces must have a Sendable data type (arkts-sendable-prop-types)",
+            "expectLineAndCharacter": {
+              "line": 56,
+              "character": 3
+            }
+        },
+        {
+            "messageText": "Only imported variables can be captured by \"Sendable\" class (arkts-sendable-imported-variables)",
+            "expectLineAndCharacter": {
+              "line": 123,
+              "character": 21
+            }
+        },
+        {
+            "messageText": "Only imported variables can be captured by \"Sendable\" class (arkts-sendable-imported-variables)",
+            "expectLineAndCharacter": {
+              "line": 123,
+              "character": 47
+            }
+        },
+        {
+            "messageText": "Only imported variables can be captured by \"Sendable\" class (arkts-sendable-imported-variables)",
+            "expectLineAndCharacter": {
+              "line": 124,
+              "character": 19
+            }
+        },
+        {
+            "messageText": "Only imported variables can be captured by \"Sendable\" class (arkts-sendable-imported-variables)",
+            "expectLineAndCharacter": {
+              "line": 125,
+              "character": 19
+            }
+        },
+        {
+            "messageText": "Only imported variables can be captured by \"Sendable\" class (arkts-sendable-imported-variables)",
+            "expectLineAndCharacter": {
+              "line": 133,
+              "character": 16
+            }
+        },
+        {
+            "messageText": "Only imported variables can be captured by \"Sendable\" class (arkts-sendable-imported-variables)",
+            "expectLineAndCharacter": {
+              "line": 140,
+              "character": 18
+            }
+        },
+        {
+            "messageText": "Only imported variables can be captured by \"Sendable\" class (arkts-sendable-imported-variables)",
+            "expectLineAndCharacter": {
+              "line": 148,
+              "character": 15
+            }
+        },
+        {
+            "messageText": "Only imported variables can be captured by \"Sendable\" class (arkts-sendable-imported-variables)",
+            "expectLineAndCharacter": {
+              "line": 150,
+              "character": 6
+            }
+        }
+    ]
+}
