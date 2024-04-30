@@ -911,6 +911,7 @@ namespace ts {
         const moduleKind = getEmitModuleKind(printerOptions);
         const bundledHelpers = new Map<string, boolean>();
         let removeCommentsCollection: string[] | undefined;
+        let universalRemoveCommentsCollection: RegExp[] | undefined;
 
         let currentSourceFile: SourceFile | undefined;
         let nodeIdToGeneratedName: string[]; // Map of generated names for specific nodes.
@@ -1159,6 +1160,8 @@ namespace ts {
         function writeFile(sourceFile: SourceFile, output: EmitTextWriter, sourceMapGenerator: SourceMapGenerator | undefined) {
             //@ts-ignore
             removeCommentsCollection = sourceFile?.reservedComments;
+            //@ts-ignore
+            universalRemoveCommentsCollection = sourceFile?.universalReservedComments;
             isOwnFileEmit = true;
             const previousWriter = writer;
             setWriter(output, sourceMapGenerator);
@@ -5481,12 +5484,38 @@ namespace ts {
             const savedContainerPos = containerPos;
             const savedContainerEnd = containerEnd;
             const savedDeclarationListContainerEnd = declarationListContainerEnd;
-            //@ts-ignore
-            if(removeCommentsCollection == undefined || (removeCommentsCollection && node.name && removeCommentsCollection.includes(node.name.escapedText))) {
+            if(needToKeepComments(node)) {
                 emitCommentsBeforeNode(node);
             }
             pipelinePhase(hint, node);
             emitCommentsAfterNode(node, savedContainerPos, savedContainerEnd, savedDeclarationListContainerEnd);
+        }
+
+        function needToKeepComments(node: Node) {
+            if (removeCommentsCollection === undefined && universalRemoveCommentsCollection === undefined) {
+                return true;
+            }
+            //@ts-ignore
+            let escapedText = node?.name?.escapedText;
+            if (!escapedText) {
+                return false;
+            }
+            if (removeCommentsCollection?.includes(escapedText)) {
+                return true;
+            }
+            if (universalRemoveCommentsCollection) {
+                return isMatchWildcard(universalRemoveCommentsCollection, escapedText);
+            }
+            return false;
+        }
+
+        function isMatchWildcard(wildcardArray: RegExp[], item: string): boolean {
+            for (const wildcard of wildcardArray) {
+                if (wildcard.test(item)) {
+                    return true;
+                }
+            }
+            return false;
         }
 
         function emitCommentsBeforeNode(node: Node) {
