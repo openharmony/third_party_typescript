@@ -204,6 +204,8 @@ export class TypeScriptLinter {
     [SyntaxKind.EtsComponentExpression, this.handleEtsComponentExpression],
     [SyntaxKind.ClassStaticBlockDeclaration, this.handleClassStaticBlockDeclaration],
     [ts.SyntaxKind.IndexSignature, this.handleIndexSignature],
+    [ts.SyntaxKind.ExportKeyword, this.handleExportKeyword],
+    [ts.SyntaxKind.ExportDeclaration, this.handleExportDeclaration]
   ]);
 
   public incrementCounters(node: Node | CommentRange, faultId: number, autofixable = false, autofix?: Autofix[]): void {
@@ -1753,6 +1755,14 @@ export class TypeScriptLinter {
     if (exportAssignment.isExportEquals) {
       this.incrementCounters(node, FaultID.ExportAssignment);
     }
+
+    if (!TypeScriptLinter.inSharedModule(node)) {
+      return;
+    }
+
+    if (Utils.isShareableEntity(exportAssignment.expression)) {
+      this.incrementCounters(exportAssignment.expression, FaultID.SharedModuleExports);
+    }
   }
 
   private handleCallExpression(node: Node): void {
@@ -2339,6 +2349,58 @@ export class TypeScriptLinter {
     this.handleCommentDirectives(this.sourceFile);
   }
 
+  private handleExportKeyword(node: ts.Node): void {
+    const parentNode = node.parent;
+    if (!TypeScriptLinter.inSharedModule(node) || ts.isModuleBlock(parentNode.parent)) {
+      return;
+    }
+
+    switch (parentNode.kind) {
+      case ts.SyntaxKind.EnumDeclaration:
+      case ts.SyntaxKind.InterfaceDeclaration:
+      case ts.SyntaxKind.ClassDeclaration:
+        if (!Utils.isShareableType(TypeScriptLinter.tsTypeChecker.getTypeAtLocation(parentNode))) {
+          this.incrementCounters(parentNode, FaultID.SharedModuleExports);
+        }
+        return;
+      case ts.SyntaxKind.VariableStatement:
+        for (const variableDeclaration of (parentNode as ts.VariableStatement).declarationList.declarations) {
+          if (!Utils.isShareableEntity(variableDeclaration.name)) {
+            this.incrementCounters(variableDeclaration, FaultID.SharedModuleExports);
+          }
+        }
+        return;
+      case ts.SyntaxKind.TypeAliasDeclaration:
+        return;
+      default:
+        this.incrementCounters(parentNode, FaultID.SharedModuleExports);
+    }
+  }
+
+  private handleExportDeclaration(node: ts.Node): void {
+    if (!TypeScriptLinter.inSharedModule(node) || ts.isModuleBlock(node.parent)) {
+      return;
+    }
+
+    const exportDecl = node as ts.ExportDeclaration;
+    if (exportDecl.exportClause === undefined) {
+      this.incrementCounters(exportDecl, FaultID.SharedModuleNoStarExport);
+      return;
+    }
+
+    if (ts.isNamespaceExport(exportDecl.exportClause)) {
+      if (!Utils.isShareableType(TypeScriptLinter.tsTypeChecker.getTypeAtLocation(exportDecl.exportClause.name))) {
+        this.incrementCounters(exportDecl.exportClause.name, FaultID.SharedModuleExports);
+      }
+      return;
+    }
+
+    for (const exportSpecifier of exportDecl.exportClause.elements) {
+      if (!Utils.isShareableEntity(exportSpecifier.name)) {
+        this.incrementCounters(exportSpecifier.name, FaultID.SharedModuleExports);
+      }
+    }
+  }
 }
 }
 }

@@ -1,0 +1,104 @@
+{
+    "arktsVersion_1_0": [
+        {
+            "messageText": "No decorators except ArkUI decorators are currently allowed (arkts-no-decorators-except-arkui)",
+            "expectLineAndCharacter": {
+                "line": 26,
+                "character": 1
+            }
+        }
+    ],
+    "arktsVersion_1_1": [
+        {
+            "messageText": "Exported object must have a Sendable data type in shared module (arkts-shared-module-exports)",
+            "expectLineAndCharacter": {
+                "line": 21,
+                "character": 1
+            }
+        },
+        {
+            "messageText": "Exported object must have a Sendable data type in shared module (arkts-shared-module-exports)",
+            "expectLineAndCharacter": {
+                "line": 23,
+                "character": 12
+            }
+        },
+        {
+            "messageText": "Exported object must have a Sendable data type in shared module (arkts-shared-module-exports)",
+            "expectLineAndCharacter": {
+                "line": 25,
+                "character": 1
+            }
+        },
+        {
+            "messageText": "Exported object must have a Sendable data type in shared module (arkts-shared-module-exports)",
+            "expectLineAndCharacter": {
+                "line": 29,
+                "character": 12
+            }
+        },
+        {
+            "messageText": "Exported object must have a Sendable data type in shared module (arkts-shared-module-exports)",
+            "expectLineAndCharacter": {
+                "line": 31,
+                "character": 1
+            }
+        },
+        {
+            "messageText": "Exported object must have a Sendable data type in shared module (arkts-shared-module-exports)",
+            "expectLineAndCharacter": {
+                "line": 33,
+                "character": 9
+            }
+        },
+        {
+            "messageText": "Exported object must have a Sendable data type in shared module (arkts-shared-module-exports)",
+            "expectLineAndCharacter": {
+                "line": 35,
+                "character": 9
+            }
+        },
+        {
+            "messageText": "Exported object must have a Sendable data type in shared module (arkts-shared-module-exports)",
+            "expectLineAndCharacter": {
+                "line": 37,
+                "character": 13
+            }
+        },
+        {
+            "messageText": "\"export * from 'xxx'\" is not supported in shared module (arkts-shared-module-no-star-export)",
+            "expectLineAndCharacter": {
+                "line": 38,
+                "character": 1
+            }
+        },
+        {
+            "messageText": "Exported object must have a Sendable data type in shared module (arkts-shared-module-exports)",
+            "expectLineAndCharacter": {
+                "line": 41,
+                "character": 12
+            }
+        },
+        {
+            "messageText": "Exported object must have a Sendable data type in shared module (arkts-shared-module-exports)",
+            "expectLineAndCharacter": {
+                "line": 42,
+                "character": 12
+            }
+        },
+        {
+            "messageText": "Exported object must have a Sendable data type in shared module (arkts-shared-module-exports)",
+            "expectLineAndCharacter": {
+                "line": 48,
+                "character": 9
+            }
+        },
+        {
+            "messageText": "Exported object must have a Sendable data type in shared module (arkts-shared-module-exports)",
+            "expectLineAndCharacter": {
+                "line": 51,
+                "character": 9
+            }
+        }
+    ]
+}

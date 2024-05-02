@@ -1872,6 +1872,21 @@ export function isSendableType(type: ts.Type): boolean {
   return isSendableClassOrInterface(type);
 }
 
+export function isShareableType(tsType: ts.Type): boolean {
+  const sym = tsType.getSymbol();
+  if (isConstEnum(sym)) {
+    return true;
+  }
+
+  if (tsType.isUnion()) {
+    return tsType.types.every((elemType) => {
+      return isShareableType(elemType);
+    });
+  }
+
+  return isSendableType(tsType);
+}
+
 export function isSendableClassOrInterface(type: ts.Type): boolean {
   const sym = type.getSymbol();
   if (!sym) {
@@ -1988,6 +2003,25 @@ export function isSharedModule(sourceFile: ts.SourceFile): boolean {
   }
 
   return false;
+}
+
+function getDeclarationNode(node: ts.Node): ts.Declaration | undefined {
+  const sym = trueSymbolAtLocation(node);
+  return getDeclaration(sym);
+}
+
+function isFunctionLikeDeclaration(node: ts.Declaration): boolean {
+  return ts.isFunctionDeclaration(node) || ts.isMethodDeclaration(node) ||
+    ts.isGetAccessorDeclaration(node) || ts.isSetAccessorDeclaration(node) || ts.isConstructorDeclaration(node) || 
+    ts.isFunctionExpression(node) || ts.isArrowFunction(node);
+}
+
+export function isShareableEntity(node: ts.Node): boolean {
+  const decl = getDeclarationNode(node);
+  const typeNode = (decl as any)?.type;
+  return (typeNode && !isFunctionLikeDeclaration(decl!)) ?
+    isSendableTypeNode(typeNode) :
+    isShareableType(TypeScriptLinter.tsTypeChecker.getTypeAtLocation(decl ? decl : node));
 }
 
 }
