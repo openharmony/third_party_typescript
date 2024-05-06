@@ -15,5 +15,5 @@
 
 @Sendable
 export class SendableClassExp {
-    a: number = 1
+    a: number = 1;
 }

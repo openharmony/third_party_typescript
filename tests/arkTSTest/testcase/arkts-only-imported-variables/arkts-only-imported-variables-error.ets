@@ -21,12 +21,12 @@ import * as sendableNamespce from './sendable_captured_variables_namespaceimport
 let localVar = 'local';
 
 function localFun(): string {
-  return "local foo";
+  return 'local foo';
 }
 
 class LocalClass {
-  a: number = 1;
-  static b: string = '2';
+  public a: number = 1;
+  static public b: string = '2';
   foo(): void {}
   static bar(): void {}
 }
@@ -47,13 +47,13 @@ const enum ConstRGB {
 
 @Sendable
 class SendableClass {
-  static pi: number = libPi;
-  static hdr: string = libString;
+  static public pi: number = libPi;
+  static public hdr: string = libString;
   public p = localVar; // ERROR
-  static ps = localVar; // ERROR
-  sc: SendableClass2 = new SendableClass2(); // ERROR
-  csc: ConstRGB = ConstRGB.GREEN;
-  arr: Array = new Array<number>();
+  static public ps = localVar; // ERROR
+  public sc: SendableClass2 = new SendableClass2(); // ERROR
+  public csc: ConstRGB = ConstRGB.GREEN;
+  public arr: Array = new Array<number>();
 
   public foo(x: string): string {
     let s = localVar; // ERROR
@@ -112,17 +112,17 @@ interface B {
 
 @Sendable
 class SendableClass2 {
-    a: number = 1;
+    public a: number = 1;
 }
 
 @Sendable
 class C {
-  static a: number = 1;
+  static public a: number = 1;
   f(p: number) {
     @Sendable
     class D extends SendableClass2 implements B { // 2 ERRORS
-      b: number = C.a; // ERROR
-      d: number = p; // ERROR
+      public b: number = C.a; // ERROR
+      public d: number = p; // ERROR
     }
   }
 }
@@ -130,24 +130,24 @@ class C {
 export let b = 1;
 @Sendable
 class A {
-  aa: number = b; // ERROR
+  public aa: number = b; // ERROR
 }
 
-namespace xx {
+namespace Xx {
   export let b = 1;
   @Sendable
   class A {
-    aa: number = b; // ERROR
+    public aa: number = b; // ERROR
   }
 }
 
-function sealed(ctor: Function) {}
+function Sealed(ctor: Function) {}
 
 @Sendable
 class D {
-  d: number = xx.b; // ERROR
-  foo () {
-    @sealed  // ERROR
+  public d: number = Xx.b; // ERROR
+  foo() {
+    @Sealed // ERROR
     class b {}
   }
 }
