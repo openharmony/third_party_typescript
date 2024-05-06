@@ -669,20 +669,19 @@ export class TypeScriptLinter {
   
   private handleSharedModuleNoSideEffectImport(node : ts.ImportDeclaration): void {
     //check 'use shared'
-    if(TypeScriptLinter.inSharedModule(node)) {
-      if(!node.importClause){
-        this.incrementCounters(node, FaultID.SharedNoSideEffectImport);
-      }
+    if (TypeScriptLinter.inSharedModule(node) && !node.importClause) {
+      this.incrementCounters(node, FaultID.SharedNoSideEffectImport);
     }
   }
 
   private static inSharedModule(node: ts.Node): boolean {
     const sourceFile: ts.SourceFile = node.getSourceFile();
-    if (TypeScriptLinter.sharedModulesCache.has(normalizePath(sourceFile.fileName))) {
-      return TypeScriptLinter.sharedModulesCache.get(normalizePath(sourceFile.fileName))!;
+    const modulePath = normalizePath(sourceFile.fileName);
+    if (TypeScriptLinter.sharedModulesCache.has(modulePath)) {
+      return TypeScriptLinter.sharedModulesCache.get(modulePath)!;
     }
     const isSharedModule: boolean = Utils.isSharedModule(sourceFile);
-    TypeScriptLinter.sharedModulesCache.set(normalizePath(sourceFile.fileName), isSharedModule);
+    TypeScriptLinter.sharedModulesCache.set(modulePath, isSharedModule);
     return isSharedModule;
   }
 

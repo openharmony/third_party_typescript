@@ -23,6 +23,6 @@ class SendableClass {}
 
 let a = new SendableClass() as NonSendableClass; // OK, Sendable type can be casted to non-sendable
 
-let b = new Object();
+let b = Object();
 
 let c = b as SendableClass; // OK

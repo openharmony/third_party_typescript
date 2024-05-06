@@ -11,7 +11,7 @@
       "messageText": "Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)",
       "expectLineAndCharacter": {
         "line": 30,
-        "character": 17
+        "character": 27
       }
     }
   ],
@@ -20,7 +20,7 @@
       "messageText": "Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)",
       "expectLineAndCharacter": {
         "line": 30,
-        "character": 17
+        "character": 27
       }
     }
   ]
