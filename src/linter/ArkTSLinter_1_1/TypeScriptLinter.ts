@@ -84,6 +84,7 @@ export class TypeScriptLinter {
 
   static filteredDiagnosticMessages: DiagnosticMessageChain[] = [];
   static sharedModulesCache: ESMap<string, boolean>;
+  static useRelaxedRules = false;
 
   public static initGlobals(): void {
     TypeScriptLinter.filteredDiagnosticMessages = []
@@ -496,10 +497,7 @@ export class TypeScriptLinter {
       this.incrementCounters(decorator, FaultID.SendableClassDecorator);
     });
 
-    if (isArrayBindingPattern(tsParam.name) || isObjectBindingPattern(tsParam.name)) {
-      this.incrementCounters(node, FaultID.DestructuringParameter);
-    }
-
+    this.handleDeclarationDestructuring(tsParam);
     this.handleDeclarationInferredType(tsParam);
   }
 
@@ -563,29 +561,37 @@ export class TypeScriptLinter {
     }
   }
 
-  private handleForStatement(node: Node): void {
-    const tsForStmt = node as ForStatement;
-    const tsForInit = tsForStmt.initializer;
-    if (tsForInit && (isArrayLiteralExpression(tsForInit) || isObjectLiteralExpression(tsForInit))) {
-      this.incrementCounters(tsForInit, FaultID.DestructuringAssignment);
+  private checkForLoopDestructuring(forInit: ts.ForInitializer): void {
+    if (ts.isVariableDeclarationList(forInit) && forInit.declarations.length === 1) {
+      const varDecl = forInit.declarations[0];
+      if (ts.isArrayBindingPattern(varDecl.name) || ts.isObjectBindingPattern(varDecl.name)) {
+        this.incrementCounters(varDecl, FaultID.DestructuringDeclaration);
+      }
+    }
+    if (ts.isArrayLiteralExpression(forInit) || ts.isObjectLiteralExpression(forInit)) {
+      this.incrementCounters(forInit, FaultID.DestructuringAssignment);
     }
   }
 
-  private handleForInStatement(node: Node): void {
-    const tsForInStmt = node as ForInStatement;
-    const tsForInInit = tsForInStmt.initializer;
-    if (isArrayLiteralExpression(tsForInInit) || isObjectLiteralExpression(tsForInInit)) {
-      this.incrementCounters(tsForInInit, FaultID.DestructuringAssignment);
+  private handleForStatement(node: ts.Node): void {
+    const tsForStmt = node as ts.ForStatement;
+    const tsForInit = tsForStmt.initializer;
+    if (tsForInit) {
+      this.checkForLoopDestructuring(tsForInit);
     }
+  }
+
+  private handleForInStatement(node: ts.Node): void {
+    const tsForInStmt = node as ts.ForInStatement;
+    const tsForInInit = tsForInStmt.initializer;
+    this.checkForLoopDestructuring(tsForInInit);
     this.incrementCounters(node, FaultID.ForInStatement);
   }
 
-  private handleForOfStatement(node: Node): void {
-    const tsForOfStmt = node as ForOfStatement;
+  private handleForOfStatement(node: ts.Node): void {
+    const tsForOfStmt = node as ts.ForOfStatement;
     const tsForOfInit = tsForOfStmt.initializer;
-    if (isArrayLiteralExpression(tsForOfInit) || isObjectLiteralExpression(tsForOfInit)) {
-      this.incrementCounters(tsForOfInit, FaultID.DestructuringAssignment);
-    }
+    this.checkForLoopDestructuring(tsForOfInit);
   }
 
   private handleImportDeclaration(node: Node): void {
@@ -818,7 +824,6 @@ export class TypeScriptLinter {
 
   private handleFunctionExpression(node: Node): void {
     const funcExpr = node as FunctionExpression;
-    const isGeneric = funcExpr.typeParameters !== undefined && funcExpr.typeParameters.length > 0;
     const isGenerator = funcExpr.asteriskToken !== undefined;
     const [hasUnfixableReturnType, newRetTypeNode] = this.handleMissingReturnType(funcExpr);
 
@@ -827,9 +832,6 @@ export class TypeScriptLinter {
     );
     this.incrementCounters(funcExpr, FaultID.FunctionExpression, autofix);
 
-    if (isGeneric) {
-      this.incrementCounters(funcExpr, FaultID.LambdaWithTypeParameters);
-    }
     if (isGenerator) {
       this.incrementCounters(funcExpr, FaultID.GeneratorFunction);
     }
@@ -851,10 +853,6 @@ export class TypeScriptLinter {
     if (!(contextType && Utils.isLibraryType(contextType))) {
       if (!arrowFunc.type) {
         this.handleMissingReturnType(arrowFunc);
-      }
-
-      if (arrowFunc.typeParameters && arrowFunc.typeParameters.length > 0) {
-        this.incrementCounters(node, FaultID.LambdaWithTypeParameters);
       }
     }
   }
@@ -1003,24 +1001,8 @@ export class TypeScriptLinter {
     const tsBinaryExpr = node as BinaryExpression;
     const tsLhsExpr = tsBinaryExpr.left;
     const tsRhsExpr = tsBinaryExpr.right;
-
     if (Utils.isAssignmentOperator(tsBinaryExpr.operatorToken)) {
-      if (isObjectLiteralExpression(tsLhsExpr) || isArrayLiteralExpression(tsLhsExpr)) {
-        this.incrementCounters(node, FaultID.DestructuringAssignment);
-      }
-      if (isPropertyAccessExpression(tsLhsExpr)) {
-        const tsLhsSymbol = Utils.trueSymbolAtLocation(tsLhsExpr);
-        const tsLhsBaseSymbol = Utils.trueSymbolAtLocation(tsLhsExpr.expression);
-        if (tsLhsSymbol && (tsLhsSymbol.flags & SymbolFlags.Method)) {
-          this.incrementCounters(tsLhsExpr, FaultID.MethodReassignment);
-        }
-        if (
-          Utils.isMethodAssignment(tsLhsSymbol) && tsLhsBaseSymbol &&
-          (tsLhsBaseSymbol.flags & SymbolFlags.Function) !== 0
-        ) {
-          this.incrementCounters(tsLhsExpr, FaultID.PropertyDeclOnFunction);
-        }
-      }
+      this.processBinaryAssignment(node, tsLhsExpr, tsRhsExpr)
     }
 
     const leftOperandType = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(tsLhsExpr);
@@ -1082,6 +1064,40 @@ export class TypeScriptLinter {
     }
   }
 
+  private processBinaryAssignment(node: ts.Node, tsLhsExpr: ts.Expression, tsRhsExpr: ts.Expression): void {
+    if (ts.isObjectLiteralExpression(tsLhsExpr)) {
+      this.incrementCounters(node, FaultID.DestructuringAssignment);
+    } else if (ts.isArrayLiteralExpression(tsLhsExpr)) {
+      // Array destructuring is allowed only for Arrays/Tuples and without spread operator.
+      const rhsType = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(tsRhsExpr);
+      const isArrayOrTuple =
+        Utils.isOrDerivedFrom(rhsType, Utils.isArray) ||
+        Utils.isOrDerivedFrom(rhsType, Utils.isTuple);
+      const hasNestedObjectDestructuring = Utils.hasNestedObjectDestructuring(tsLhsExpr);
+
+      if (!TypeScriptLinter.useRelaxedRules || !isArrayOrTuple || hasNestedObjectDestructuring ||
+        Utils.destructuringAssignmentHasSpreadOperator(tsLhsExpr)
+      ) {
+        this.incrementCounters(node, FaultID.DestructuringAssignment);
+      }
+    }
+
+    if (ts.isPropertyAccessExpression(tsLhsExpr)) {
+      const tsLhsSymbol = Utils.trueSymbolAtLocation(tsLhsExpr);
+      const tsLhsBaseSymbol = Utils.trueSymbolAtLocation(tsLhsExpr.expression);
+      if (tsLhsSymbol && tsLhsSymbol.flags & ts.SymbolFlags.Method) {
+        this.incrementCounters(tsLhsExpr, FaultID.MethodReassignment);
+      }
+      if (
+        Utils.isMethodAssignment(tsLhsSymbol) &&
+        tsLhsBaseSymbol &&
+        (tsLhsBaseSymbol.flags & ts.SymbolFlags.Function) !== 0
+      ) {
+        this.incrementCounters(tsLhsExpr, FaultID.PropertyDeclOnFunction);
+      }
+    }
+  }
+
   private processBinaryComma(tsBinaryExpr: ts.BinaryExpression): void {
     // CommaOpertor is allowed in 'for' statement initalizer and incrementor
     let tsExprNode: ts.Node = tsBinaryExpr;
@@ -1119,27 +1135,12 @@ export class TypeScriptLinter {
 
   private handleVariableDeclaration(node: Node): void {
     const tsVarDecl = node as VariableDeclaration;
-    if (isArrayBindingPattern(tsVarDecl.name) || isObjectBindingPattern(tsVarDecl.name)) {
-      this.incrementCounters(node, FaultID.DestructuringDeclaration);
+    if (ts.isVariableDeclarationList(tsVarDecl.parent) && ts.isVariableStatement(tsVarDecl.parent.parent)) {
+      this.handleDeclarationDestructuring(tsVarDecl);
     }
-    {
-      // Check variable declaration for duplicate name.
-      const visitBindingPatternNames = (tsBindingName: BindingName): void => {
-        if (isIdentifier(tsBindingName)) {
-          // The syntax kind of the declaration is defined here by the parent of 'BindingName' node.
-          this.countDeclarationsWithDuplicateName(tsBindingName, tsBindingName, tsBindingName.parent.kind);
-        }
-        else {
-          for (const tsBindingElem of tsBindingName.elements) {
-            if (isOmittedExpression(tsBindingElem)) continue;
 
-            visitBindingPatternNames(tsBindingElem.name);
-          }
-        }
-      };
-
-      visitBindingPatternNames(tsVarDecl.name);
-    }
+    // Check variable declaration for duplicate name.
+    this.checkVarDeclForDuplicateNames(tsVarDecl.name);
 
     if (tsVarDecl.type && tsVarDecl.initializer) {
       const tsVarInit = tsVarDecl.initializer;
@@ -1153,6 +1154,42 @@ export class TypeScriptLinter {
     this.handleEsObjectDelaration(tsVarDecl);
     this.handleDeclarationInferredType(tsVarDecl);
     this.handleDefiniteAssignmentAssertion(tsVarDecl);
+  }
+
+  private handleDeclarationDestructuring(decl: ts.VariableDeclaration | ts.ParameterDeclaration): void {
+    const faultId = ts.isVariableDeclaration(decl) ? FaultID.DestructuringDeclaration : FaultID.DestructuringParameter;
+    if (ts.isObjectBindingPattern(decl.name)) {
+      this.incrementCounters(decl, faultId);
+    } else if (ts.isArrayBindingPattern(decl.name)) {
+      // Array destructuring is allowed only for Arrays/Tuples and without spread operator.
+      const rhsType = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(decl.initializer ?? decl.name);
+      const isArrayOrTuple = rhsType && (
+        Utils.isOrDerivedFrom(rhsType, Utils.isArray) ||
+        Utils.isOrDerivedFrom(rhsType, Utils.isTuple)
+      );
+      const hasNestedObjectDestructuring = Utils.hasNestedObjectDestructuring(decl.name);
+
+      if (!TypeScriptLinter.useRelaxedRules || !isArrayOrTuple || hasNestedObjectDestructuring ||
+        Utils.destructuringDeclarationHasSpreadOperator(decl.name)
+      ) {
+        this.incrementCounters(decl, faultId);
+      }
+    }
+  }
+
+  private checkVarDeclForDuplicateNames(tsBindingName: ts.BindingName): void {
+    if (ts.isIdentifier(tsBindingName)) {
+      // The syntax kind of the declaration is defined here by the parent of 'BindingName' node.
+      this.countDeclarationsWithDuplicateName(tsBindingName, tsBindingName, tsBindingName.parent.kind);
+      return;
+    }
+    for (const tsBindingElem of tsBindingName.elements) {
+      if (ts.isOmittedExpression(tsBindingElem)) {
+        continue;
+      }
+
+      this.checkVarDeclForDuplicateNames(tsBindingElem.name);
+    }
   }
 
   private handleEsObjectDelaration(node: ts.VariableDeclaration) {

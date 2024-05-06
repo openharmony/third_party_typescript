@@ -25,14 +25,14 @@ export enum FaultID {
   ThrowStatement, IndexedAccessType, UnknownType, ForInStatement, InOperator,
   FunctionExpression, IntersectionType,
   ObjectTypeLiteral, CommaOperator, LimitedReturnTypeInference,
-  LambdaWithTypeParameters, ClassExpression, DestructuringAssignment,
+  ClassExpression, DestructuringAssignment,
   DestructuringDeclaration, VarDeclaration, CatchWithUnsupportedType, DeleteOperator,
   DeclWithDuplicateName, UnaryArithmNotNumber, ConstructorType, ConstructorIface, ConstructorFuncs, CallSignature,
   TypeAssertion, PrivateIdentifier, LocalFunction,
   ConditionalType, MappedType, NamespaceAsObject, ClassAsObject,
   NonDeclarationInNamespace, GeneratorFunction, FunctionContainsThis, PropertyAccessByIndex, JsxElement,
   EnumMemberNonConstInit, ImplementsClass, MethodReassignment, MultipleStaticBlocks, ThisType,
-  IntefaceExtendDifProps, StructuralIdentity, DefaultImport,
+  IntefaceExtendDifProps, StructuralIdentity,
   ExportAssignment, ImportAssignment,
   GenericCallNoTypeArgs, ParameterProperties,
   InstanceofUnsupported, ShorthandAmbientModuleDecl, WildcardsInModuleName, UMDModuleDefinition,
@@ -79,7 +79,6 @@ faultsAttrs[FaultID.ObjectLiteralNoContextType] = new FaultAttributes(38);
 faultsAttrs[FaultID.ObjectTypeLiteral] = new FaultAttributes(40);
 faultsAttrs[FaultID.ArrayLiteralNoContextType] = new FaultAttributes(43);
 faultsAttrs[FaultID.FunctionExpression] = new FaultAttributes(46);
-faultsAttrs[FaultID.LambdaWithTypeParameters] = new FaultAttributes(49);
 faultsAttrs[FaultID.ClassExpression] = new FaultAttributes(50);
 faultsAttrs[FaultID.ImplementsClass] = new FaultAttributes(51);
 faultsAttrs[FaultID.MethodReassignment] = new FaultAttributes(52);
@@ -114,7 +113,6 @@ faultsAttrs[FaultID.EnumMemberNonConstInit] = new FaultAttributes(111);
 faultsAttrs[FaultID.EnumMerging] = new FaultAttributes(113);
 faultsAttrs[FaultID.NamespaceAsObject] = new FaultAttributes(114);
 faultsAttrs[FaultID.NonDeclarationInNamespace] = new FaultAttributes(116);
-faultsAttrs[FaultID.DefaultImport] = new FaultAttributes(120);
 faultsAttrs[FaultID.ImportAssignment] = new FaultAttributes(121);
 faultsAttrs[FaultID.ExportAssignment] = new FaultAttributes(126);
 faultsAttrs[FaultID.ShorthandAmbientModuleDecl] = new FaultAttributes(128);

@@ -9041,13 +9041,19 @@ declare namespace ts {
 declare namespace ts {
     namespace ArkTSLinter_1_1 {
         namespace Common {
+            interface AutofixInfo {
+                problemID: string;
+                start: number;
+                end: number;
+            }
             interface CommandLineOptions {
+                strictMode?: boolean;
                 ideMode?: boolean;
                 logTscErrors?: boolean;
                 warningsAsErrors: boolean;
                 parsedConfigFile?: ParsedCommandLine;
                 inputFiles: string[];
-                enableAutofix: boolean;
+                autofixInfo?: AutofixInfo[];
             }
             interface LintOptions {
                 cmdOptions: CommandLineOptions;
@@ -9205,8 +9211,9 @@ declare namespace ts {
             }
             class FaultAttributes {
                 cookBookRef: number;
+                migratable: boolean;
                 severity: ProblemSeverity;
-                constructor(cookBookRef: number, severity?: ProblemSeverity);
+                constructor(cookBookRef: number, migratable?: boolean, severity?: ProblemSeverity);
             }
             const faultsAttrs: FaultAttributes[];
         }
@@ -9214,6 +9221,7 @@ declare namespace ts {
 }
 declare namespace ts {
     namespace ArkTSLinter_1_1 {
+        import AutofixInfo = Common.AutofixInfo;
         namespace Utils {
             const PROPERTY_HAS_NO_INITIALIZER_ERROR_CODE = 2564;
             const NON_INITIALIZABLE_PROPERTY_DECORATORS: string[];
@@ -9237,7 +9245,6 @@ declare namespace ts {
             function getStartPos(nodeOrComment: Node | CommentRange): number;
             function getEndPos(nodeOrComment: Node | CommentRange): number;
             function getHighlightRange(nodeOrComment: Node | CommentRange, faultId: number): [number, number];
-            function getParameterPropertiesHighlightRange(nodeOrComment: ts.Node | ts.CommentRange): [number, number] | undefined;
             function getVarDeclarationHighlightRange(nodeOrComment: Node | CommentRange): [number, number] | undefined;
             function getCatchWithUnsupportedTypeHighlightRange(nodeOrComment: Node | CommentRange): [number, number] | undefined;
             function getForInStatementHighlightRange(nodeOrComment: Node | CommentRange): [number, number] | undefined;
@@ -9313,6 +9320,7 @@ declare namespace ts {
             function isObject(tsType: Type): boolean;
             function logTscDiagnostic(diagnostics: readonly Diagnostic[], log: (message: any, ...args: any[]) => void): void;
             function encodeProblemInfo(problem: ProblemInfo): string;
+            function decodeAutofixInfo(info: string): AutofixInfo;
             function isCallToFunctionWithOmittedReturnType(tsExpr: Expression): boolean;
             function validateObjectLiteralType(type: Type | undefined): boolean;
             function isStructDeclarationKind(kind: SyntaxKind): boolean;
@@ -9324,7 +9332,6 @@ declare namespace ts {
             function isObjectLiteralAssignable(lhsType: ts.Type | undefined, rhsExpr: ts.ObjectLiteralExpression): boolean;
             function isLiteralType(type: Type): boolean;
             function validateFields(objectType: Type, objectLiteral: ObjectLiteralExpression): boolean;
-            function getPropertySymbol(type: ts.Type, prop: ts.PropertyAssignment): ts.Symbol | undefined;
             function isSupportedType(typeNode: TypeNode): boolean;
             function isStruct(symbol: Symbol): boolean;
             type CheckType = ((t: Type) => boolean);
@@ -9347,7 +9354,6 @@ declare namespace ts {
             function getModifier(modifiers: readonly Modifier[] | undefined, modifierKind: SyntaxKind): Modifier | undefined;
             function getAccessModifier(modifiers: readonly Modifier[] | undefined): Modifier | undefined;
             function isStdRecordType(type: Type): boolean;
-            function getBaseClassType(type: ts.Type): ts.InterfaceType | undefined;
             function isStdMapType(type: Type): boolean;
             function isStdErrorType(type: ts.Type): boolean;
             function isStdPartialType(type: Type): boolean;
@@ -9400,36 +9406,27 @@ declare namespace ts {
             function isISendableInterface(type: ts.Type): boolean;
             function isSharedModule(sourceFile: ts.SourceFile): boolean;
             function isShareableEntity(node: ts.Node): boolean;
-            function classMemberHasDuplicateName(targetMember: ts.ClassElement, tsClassLikeDecl: ts.ClassLikeDeclaration, classType?: ts.Type): boolean;
         }
     }
 }
 declare namespace ts {
     namespace ArkTSLinter_1_1 {
-        namespace Autofixer_1_1 {
+        namespace Autofixer {
+            import AutofixInfo = Common.AutofixInfo;
+            import FaultID = Problems.FaultID;
+            const AUTOFIX_ALL: AutofixInfo;
+            const autofixInfo: AutofixInfo[];
+            function shouldAutofix(node: Node, faultID: FaultID): boolean;
             interface Autofix {
                 replacementText: string;
                 start: number;
                 end: number;
             }
-            class Autofixer {
-                fixLiteralAsPropertyNamePropertyAssignment(_node: ts.PropertyAssignment): Autofix[] | undefined;
-                fixLiteralAsPropertyNamePropertyName(_node: ts.PropertyName): Autofix[] | undefined;
-                fixPropertyAccessByIndex(_node: Node): Autofix[] | undefined;
-                fixFunctionExpression(funcExpr: ts.FunctionExpression, _retType: TypeNode | undefined, _modifiers: readonly ts.Modifier[] | undefined, _isGenerator: boolean, _hasUnfixableReturnType: boolean): Autofix[] | undefined;
-                fixVarDeclaration(_node: ts.VariableDeclarationList): Autofix[] | undefined;
-                fixMissingReturnType(_funcLikeDecl: FunctionLikeDeclaration, _typeNode: TypeNode): Autofix[];
-                dropTypeOnVarDecl(_varDecl: ts.VariableDeclaration): Autofix[];
-                fixTypeAssertion(_typeAssertion: ts.TypeAssertion): Autofix[];
-                fixCommaOperator(_tsNode: ts.Node): Autofix[];
-                fixEnumMerging(_enumSymbol: ts.Symbol, _enumDeclsInFile: ts.Declaration[]): Autofix[] | undefined;
-                fixCtorParameterProperties(_ctorDecl: ConstructorDeclaration, _paramTypes: ts.TypeNode[] | undefined): Autofix[] | undefined;
-                fixPrivateIdentifier(_ident: ts.PrivateIdentifier): Autofix[] | undefined;
-                fixNestedFunction(_tsFunctionDeclaration: ts.FunctionDeclaration): Autofix[] | undefined;
-                fixMultipleStaticBlocks(_nodes: ts.Node[]): Autofix[] | undefined;
-                fixUntypedObjectLiteral(_objectLiteralExpr: ts.ObjectLiteralExpression, _objectLiteralType: ts.Type | undefined): Autofix[] | undefined;
-                fixTypeliteral(_typeLiteral: ts.TypeLiteralNode): Autofix[] | undefined;
-            }
+            function fixLiteralAsPropertyName(node: Node): Autofix[] | undefined;
+            function fixPropertyAccessByIndex(node: Node): Autofix[] | undefined;
+            function fixFunctionExpression(funcExpr: FunctionExpression, params?: NodeArray<ParameterDeclaration>, retType?: TypeNode | undefined): Autofix;
+            function fixReturnType(funcLikeDecl: FunctionLikeDeclaration, typeNode: TypeNode): Autofix;
+            function fixCtorParameterProperties(ctorDecl: ConstructorDeclaration, paramTypes: TypeNode[]): Autofix[] | undefined;
         }
     }
 }
@@ -9447,8 +9444,7 @@ declare namespace ts {
 }
 declare namespace ts {
     namespace ArkTSLinter_1_1 {
-        import Autofix = Autofixer_1_1.Autofix;
-        import Autofixer = Autofixer_1_1.Autofixer;
+        import Autofix = Autofixer.Autofix;
         import LibraryTypeCallDiagnosticChecker = LibraryTypeCallDiagnosticCheckerNamespace.LibraryTypeCallDiagnosticChecker;
         interface ProblemInfo {
             line: number;
@@ -9461,12 +9457,14 @@ declare namespace ts {
             suggest: string;
             rule: string;
             ruleTag: number;
+            autofixable: boolean;
             autofix?: Autofix[];
         }
         class TypeScriptLinter {
             private sourceFile;
             private tscStrictDiagnostics?;
             static ideMode: boolean;
+            static strictMode: boolean;
             static logTscErrors: boolean;
             static warningsAsErrors: boolean;
             static lintEtsOnly: boolean;
@@ -9489,16 +9487,16 @@ declare namespace ts {
             staticBlocks: Set<string>;
             libraryTypeCallDiagnosticChecker: LibraryTypeCallDiagnosticChecker;
             skipArkTSStaticBlocksCheck: boolean;
-            autofixer: Autofixer | undefined;
             constructor(sourceFile: SourceFile, tsProgram: Program, tscStrictDiagnostics?: Map<Diagnostic[]> | undefined);
             static clearTsTypeChecker(): void;
             readonly handlersMap: ESMap<SyntaxKind, (node: Node) => void>;
-            incrementCounters(node: Node | CommentRange, faultId: number, autofix?: Autofix[]): void;
+            incrementCounters(node: Node | CommentRange, faultId: number, autofixable?: boolean, autofix?: Autofix[]): void;
             private forEachNodeInSubtree;
             private visitSourceFile;
             private countInterfaceExtendsDifferentPropertyTypes;
             private countDeclarationsWithDuplicateName;
             private countClassMembersWithDuplicateName;
+            private static scopeContainsThis;
             private isPrototypePropertyAccess;
             private interfaceInheritanceLint;
             private lintForInterfaceExtendsDifferentPorpertyTypes;
@@ -9527,13 +9525,11 @@ declare namespace ts {
             private handleFunctionExpression;
             private handleArrowFunction;
             private handleFunctionDeclaration;
-            private tryAutofixMissingReturnType;
             private handleMissingReturnType;
             private hasLimitedTypeInferenceFromReturnExpr;
             private isValidTypeForUnaryArithmeticOperator;
             private handlePrefixUnaryExpression;
             private handleBinaryExpression;
-            private processBinaryComma;
             private handleVariableDeclarationList;
             private handleVariableDeclaration;
             private handleEsObjectDelaration;
@@ -9602,13 +9598,9 @@ declare namespace ts {
             private handleCommentDirectives;
             private handleClassStaticBlockDeclaration;
             private handleIndexSignature;
+            lint(): void;
             private handleExportKeyword;
             private handleExportDeclaration;
-            private handlePrivateIdentifier;
-            private collectCtorParamTypes;
-            private handleConstructorDeclaration;
-            private handleTypeLiteral;
-            lint(): void;
         }
     }
 }

@@ -1377,6 +1377,33 @@ export function getBaseClassType(type: ts.Type): ts.InterfaceType | undefined {
   return undefined;
 }
 
+
+export function destructuringAssignmentHasSpreadOperator(node: ts.AssignmentPattern): boolean {
+  if (ts.isArrayLiteralExpression(node)) {
+    return node.elements.some((x) => {
+      if (ts.isSpreadElement(x)) {
+        return true;
+      }
+      if (ts.isObjectLiteralExpression(x) || ts.isArrayLiteralExpression(x)) {
+        return destructuringAssignmentHasSpreadOperator(x);
+      }
+      return false;
+    });
+  }
+
+  return node.properties.some((x) => {
+    if (ts.isSpreadAssignment(x)) {
+      return true;
+    }
+    if (ts.isPropertyAssignment(x) &&
+      (ts.isObjectLiteralExpression(x.initializer) || ts.isArrayLiteralExpression(x.initializer))
+    ) {
+      return destructuringAssignmentHasSpreadOperator(x.initializer);
+    }
+    return false;
+  });
+}
+
 export function isStdMapType(type: Type): boolean {
   const sym = type.symbol;
   return !!sym && sym.getName() === "Map" && isGlobalSymbol(sym);
@@ -1826,6 +1853,42 @@ function isArkTSCollectionsArrayLikeDeclaration(decl: ts.Declaration): boolean {
   }
 
   return true;
+}
+
+export function destructuringDeclarationHasSpreadOperator(node: ts.BindingPattern): boolean {
+  return node.elements.some((x) => {
+    if (ts.isBindingElement(x)) {
+      if (x.dotDotDotToken) {
+        return true;
+      }
+      if (ts.isArrayBindingPattern(x.name) || ts.isObjectBindingPattern(x.name)) {
+        return destructuringDeclarationHasSpreadOperator(x.name);
+      }
+    }
+    return false;
+  });
+}
+
+export function hasNestedObjectDestructuring(node: ts.ArrayBindingOrAssignmentPattern): boolean {
+  if (ts.isArrayLiteralExpression(node)) {
+    return node.elements.some((x) => {
+      const elem = ts.isSpreadElement(x) ? x.expression : x;
+      if (ts.isArrayLiteralExpression(elem)) {
+        return hasNestedObjectDestructuring(elem);
+      }
+      return ts.isObjectLiteralExpression(elem);
+    });
+  }
+
+  return node.elements.some((x) => {
+    if (ts.isBindingElement(x)) {
+      if (ts.isArrayBindingPattern(x.name)) {
+        return hasNestedObjectDestructuring(x.name);
+      }
+      return ts.isObjectBindingPattern(x.name);
+    }
+    return false;
+  });
 }
 
 export function getDecoratorName(decorator: ts.Decorator): string {
