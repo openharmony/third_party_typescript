@@ -141,13 +141,13 @@ namespace Xx {
   }
 }
 
-function Sealed(ctor: Function) {}
+function sealed(ctor: Function) {}
 
 @Sendable
 class D {
   public d: number = Xx.b; // ERROR
   foo() {
-    @Sealed // ERROR
-    class b {}
+    @sealed // ERROR
+    class B {}
   }
 }
