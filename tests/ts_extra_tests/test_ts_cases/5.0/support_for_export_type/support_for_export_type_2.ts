@@ -20,8 +20,8 @@
  ---*/
 
 
-import { spaceShip } from './models/index.js'
-import { Assert } from '../../../suite/assert.js'
+import { SpaceShip } from './models/index.js';
+import { Assert } from '../../../suite/assert.js';
 
-const mySpaceShip = new spaceShip();
+const mySpaceShip = new SpaceShip();
 Assert.equal(mySpaceShip.getName(), 'Star');

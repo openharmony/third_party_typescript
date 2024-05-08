@@ -20,23 +20,23 @@
  ---*/
 
 
-import { fac, spaceShip, shipString, vehicles, vehiclesFactory, myVehicles } from './models/index.js'
-import { Assert } from '../../../suite/assert.js'
+import { fac, SpaceShip, ShipString, vehicles, VehiclesFactory, MyVehicles } from './models/index.js';
+import { Assert } from '../../../suite/assert.js';
 
-function takeASpaceship(s: fac.spaceShip, d: fac.shipString) {
+function takeASpaceship(s: fac.SpaceShip, d: fac.ShipString): void {
   Assert.equal(s.getName(), 'Star');
   Assert.equal(d.toUpper(), 'SHIP');
 }
 
-function takeVehicles(s: vehicles.vehiclesFactory, d: vehicles.myVehicles) {
+function takeVehicles(s: vehicles.VehiclesFactory, d: vehicles.MyVehicles): void {
   Assert.equal(s.getName(), 'Audi');
   Assert.equal(d.myCar, 'alto');
 }
 
-const mySpaceship = new spaceShip();
-const myShipString = new shipString();
+const mySpaceship = new SpaceShip();
+const myShipString = new ShipString();
 takeASpaceship(mySpaceship, myShipString);
 
-const myCar = new vehiclesFactory();
-const myCarToUpper = new myVehicles();
+const myCar = new VehiclesFactory();
+const myCarToUpper = new MyVehicles();
 takeVehicles(myCar, myCarToUpper);

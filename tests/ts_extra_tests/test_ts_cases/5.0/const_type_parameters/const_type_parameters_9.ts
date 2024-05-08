@@ -21,7 +21,7 @@
  ---*/
 
 
-import { Assert } from '../../../suite/assert.js'
+import { Assert } from '../../../suite/assert.js';
 
 function constTest<const T extends readonly string[]>(args: T): T {
   return args;

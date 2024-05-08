@@ -14,14 +14,14 @@
  */
 /**---
  description: >
-    TypeScript 5.0 now allows JSDoc to declare overloads with a new @overload tag. 
-    Each JSDoc comment with an @overload tag is treated as a distinct overload for the following function declaration. 
+    TypeScript 5.0 now allows JSDoc to declare overloads with a new @overload tag.
+    Each JSDoc comment with an @overload tag is treated as a distinct overload for the following function declaration.
  module: ES2022
  isCurrent: true
  ---*/
 
 
-import { Assert } from '../../../suite/assert.js'
+import { Assert } from '../../../suite/assert.js';
 
 /**
  * @overload
@@ -35,13 +35,13 @@ import { Assert } from '../../../suite/assert.js'
  * @param {string} b
  */
 
-function printValue(a: string, b?: string)  {
-    if (b) {
-        return a.concat(b);
-    }
-    else {
-        return a.toUpperCase();
-    }
+function printValue(a: string, b?: string): string {
+  if (b) {
+    return a.concat(b);
+  } else {
+    return a.toUpperCase();
+  }
 }
+
 Assert.equal(printValue('hello'), 'HELLO');
 Assert.equal(printValue('hello', 'world'), 'helloworld');

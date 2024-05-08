@@ -20,7 +20,7 @@
  ---*/
 
 
-import { Assert } from '../../../suite/assert.js'
+import { Assert } from '../../../suite/assert.js';
 
 const enum Foo { Value = 0x01 }
 const enum Bar { Value = 0x02 }

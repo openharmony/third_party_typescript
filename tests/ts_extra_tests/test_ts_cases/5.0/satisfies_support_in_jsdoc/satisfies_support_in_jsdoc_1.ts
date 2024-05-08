@@ -19,8 +19,8 @@
  isCurrent: true
  ---*/
 
- 
-import { Assert } from '../../../suite/assert.js'
+
+import { Assert } from '../../../suite/assert.js';
 
 // @ts-check
 /**
@@ -36,7 +36,8 @@ interface Greeter {
 /**
 * @satisfies {Greeter}
 */
-function greeter(name: string) {
+
+function greeter(name: string): string {
   return ('Hello ' + name);
 }
 

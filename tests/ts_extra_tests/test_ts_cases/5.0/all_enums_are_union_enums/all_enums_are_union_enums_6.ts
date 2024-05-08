@@ -20,7 +20,7 @@
  ---*/
 
 
-import { Assert } from '../../../suite/assert.js'
+import { Assert } from '../../../suite/assert.js';
 
 enum ShapeKind {
   Circle,
@@ -43,8 +43,8 @@ interface Star {
   sideLength: number;
 }
 
-type values = ShapeKind.Circle | ShapeKind.Square;
-function getStringValue(c: ShapeKind): c is values {
+type Values = ShapeKind.Circle | ShapeKind.Square;
+function getStringValue(c: ShapeKind): c is Values {
   return c === ShapeKind.Circle || c === ShapeKind.Square;
 }
 

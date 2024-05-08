@@ -22,14 +22,14 @@
  ---*/
 
 
-import * as React from 'react'
+import * as React from 'react';
 
 interface Props {
   foo: string;
 }
 
 class MyComponent2 extends React.Component<Props, {}> {
-  render() {
+  render(): React.ReactNode{
     return <span>{ this.props.foo }</span>;
   }
 }

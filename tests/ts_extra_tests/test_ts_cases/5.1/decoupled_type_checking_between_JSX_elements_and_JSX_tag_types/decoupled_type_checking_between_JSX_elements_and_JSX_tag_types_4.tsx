@@ -20,14 +20,14 @@
  jsx: react-jsx
  isCurrent: true
  ---*/
- 
 
-import * as React from 'react'
+
+import * as React from 'react';
 
 class WelcomeClass extends React.Component {
-  render() {
+  render(): JSX.Element  {
     return <h1>Hello, there.</h1>;
   }
 }
 
-<WelcomeClass />
+<WelcomeClass />;

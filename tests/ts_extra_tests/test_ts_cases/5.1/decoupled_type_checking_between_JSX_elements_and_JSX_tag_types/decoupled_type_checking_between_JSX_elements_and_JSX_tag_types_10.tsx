@@ -22,10 +22,10 @@
  error: { code: Property 'foo' does not exist on type 'JSX.IntrinsicElements' }
  ---*/
 
- 
-import * as React from 'react'
 
- declare namespace JSX {
+import * as React from 'react';
+
+declare namespace JSX {
   interface IntrinsicElements {
     foo: { requiredProp: string; optionalProp?: number };
   }

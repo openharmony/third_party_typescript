@@ -19,15 +19,16 @@
  isCurrent: true
  ---*/
 
- 
-import { Assert } from '../../../suite/assert.js'
 
-function replaceMethod(value: Function, context: { kind: string }) {
+import { Assert } from '../../../suite/assert.js';
+
+function replaceMethod(value: Function, context: { kind: string }): (() => string) | undefined {
   if (context.kind === 'method') {
-    return function () {
+    return function (): string {
       return 'How are you?';
-    }
+    };
   }
+  return undefined;
 }
 
 class Person {
@@ -37,7 +38,7 @@ class Person {
   }
 
   @replaceMethod
-  hello() {
+  hello(): string {
     return `Hi ${this.name}!`;
   }
 }

@@ -20,7 +20,7 @@
  ---*/
 
 
-import { Assert } from '../../../suite/assert.js'
+import { Assert } from '../../../suite/assert.js';
 
 enum binary {
   A = 1011 + 'abc',
@@ -28,9 +28,9 @@ enum binary {
   C = 101 + 'cde'
 }
 
-type myBinary = binary.A | binary.B;
+type MyBinary = binary.A | binary.B;
 
-function isMyBinary(c: binary): c is myBinary {
+function isMyBinary(c: binary): c is MyBinary {
   return (c === binary.A || c === binary.B);
 }
 

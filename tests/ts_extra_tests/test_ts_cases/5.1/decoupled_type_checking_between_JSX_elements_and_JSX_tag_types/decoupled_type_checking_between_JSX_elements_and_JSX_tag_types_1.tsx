@@ -22,12 +22,12 @@
  error: { code: Property 'bar' does not exist on type 'JSX.IntrinsicElements' }
  ---*/
 
- 
-import * as React from 'react'
+
+import * as React from 'react';
 
 declare namespace JSX {
   interface IntrinsicElements {
-      foo: any;
+    foo: boolean;
   }
 }
 

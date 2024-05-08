@@ -14,22 +14,22 @@
  */
 
 
-export class spaceShip {
+export class SpaceShip {
   name = 'Star';
 
-  setName(myName: string) {
+  setName(myName: string): void {
     this.name = myName;
   }
 
-  getName() {
+  getName(): string {
     return this.name;
   }
 }
 
-export class shipString {
+export class ShipString {
   ship = 'ship';
 
-  toUpper() {
+  toUpper(): string {
     return this.ship.toUpperCase();
   }
 }

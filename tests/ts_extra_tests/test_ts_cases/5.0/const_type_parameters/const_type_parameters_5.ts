@@ -23,6 +23,7 @@
 
 
 type HasNames = { names: readonly string[] };
+
 function getNamesExactly<const T extends HasNames>(arg: T): T['names'] {
   return arg.names;
 }

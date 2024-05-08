@@ -22,8 +22,8 @@
  isCurrent: true
  ---*/
 
- 
-import * as React from 'react'
+
+import * as React from 'react';
 
 interface FooProp {
   name: string;
@@ -32,6 +32,6 @@ interface FooProp {
 }
 
 declare function AnotherComponent(prop: { name: string }): JSX.Element;
-function ComponentFoo(prop: FooProp) {
+function ComponentFoo(prop: FooProp): JSX.Element {
   return <AnotherComponent name = { prop.name } />;
 }

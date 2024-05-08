@@ -20,15 +20,18 @@
  ---*/
 
 
-import { Assert } from '../../../suite/assert.js'
+import { Assert } from '../../../suite/assert.js';
 
-function logged(value: Function, context: { kind: string }) {
+function logged(value: Function, context: {
+  kind: string
+}): ((this: unknown, ...args: unknown[]) => unknown) | undefined {
   if (context.kind === 'setter') {
-    return function (this: any, ...args: any[]) {
+    return function (this: unknown, ...args: unknown[]): unknown {
       const ret = value.call(this, ...args);
       return ret;
     };
   }
+  return undefined;
 }
 
 class A {
@@ -39,7 +42,7 @@ class A {
     this.value = newValue;
   }
 
-  get x() {
+  get x(): number {
     return this.value;
   }
 }

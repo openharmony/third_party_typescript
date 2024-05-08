@@ -21,7 +21,7 @@
  error: { code: Cannot assign to 'x' because it is a read-only property. }
  ---*/
 
- 
+
 function getNamesObject<const T extends object>(arg: T): T {
   return arg;
 }

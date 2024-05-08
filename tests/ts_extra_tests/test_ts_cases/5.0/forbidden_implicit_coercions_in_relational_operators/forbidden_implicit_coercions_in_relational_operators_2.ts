@@ -20,7 +20,7 @@
  error: { code: Operator '<' cannot be applied to types 'string | number' and 'number' }
  ---*/
 
- 
-function funcA(ns: number | string) {
+
+function funcA(ns: number | string): boolean {
   return ns < 4; // Operator '<' cannot be applied to types 'string | number' and 'number'
 }

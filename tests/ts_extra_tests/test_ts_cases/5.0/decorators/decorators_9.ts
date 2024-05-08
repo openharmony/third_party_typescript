@@ -20,35 +20,44 @@
  ---*/
 
 
-import { Assert } from '../../../suite/assert.js'
+import { Assert } from '../../../suite/assert.js';
 
-function accessorDecorator(value: any, { kind }: { kind: string }) {
-  if (kind === 'accessor') {
+interface ReturnType {
+  get(): number;
+  set(val: number): void;
+  init(initialValue: number): number;
+}
+
+// The type of 'value' can only be any. If other types are set, 
+// it will prompt that the get/set attribute does not exist for that type
+function accessorDecorator(value: any, context: { kind: string }): ReturnType | undefined {
+  if (context.kind === 'accessor') {
     let { get, set } = value;
 
     return {
-      get() {
+      get(): number {
         return get.call(this);
       },
 
-      set(val: number) {
+      set(val: number): void {
         Assert.equal(val, 123);
         return set.call(this, val);
       },
 
-      init(initialValue: number) {
+      init(initialValue: number): number {
         Assert.equal(initialValue, 1);
         return initialValue;
       }
     };
   }
+  return undefined;
 }
 
-class accessorTest {
+class AccessorTest {
   @accessorDecorator
   accessor x = 1;
 }
 
-let d = new accessorTest();
+let d = new AccessorTest();
 d.x;
 d.x = 123;

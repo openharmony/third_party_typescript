@@ -14,8 +14,8 @@
  */
 
 
-export type * as circle from './circle.js'
-export * from  './circle.js'
+export type * as circle from './circle.js';
+export * from './circle.js';
 
-export type * as square from './square.js'
-export * from  './square.js'
+export type * as square from './square.js';
+export * from './square.js';

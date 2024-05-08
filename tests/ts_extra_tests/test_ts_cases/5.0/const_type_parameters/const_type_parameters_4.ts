@@ -21,7 +21,7 @@
  error: { code: Cannot assign to '0' because it is a read-only property. }
  ---*/
 
- 
+
 function getFruit<const T>(arg: T): T {
   return arg;
 }

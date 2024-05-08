@@ -20,14 +20,17 @@
  ---*/
 
 
-import { Assert } from '../../../suite/assert.js'
+import { Assert } from '../../../suite/assert.js';
 
-function logged(value: any, context: { kind: string }) {
+function logged(value: unknown, context: {
+  kind: string
+}): ((initialValue: number) => number) | undefined {
   if (context.kind === 'field') {
-    return function (initialValue: number) {
+    return function (initialValue: number): number {
       return initialValue = 2;
     };
   }
+  return undefined;
 }
 
 class C {

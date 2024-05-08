@@ -23,7 +23,7 @@
  ---*/
 
 
-import * as React from 'react'
+import * as React from 'react';
 
 interface MyComponentProps {
   requiredProp: string;
@@ -38,4 +38,4 @@ class MyComponent1 extends React.Component<MyComponentProps> {
 
 const props = { optionalProp: 'optional' };
 
-<MyComponent1 { ...props } requiredProp = 'required' /> 
+<MyComponent1 { ...props } requiredProp = 'required' />;

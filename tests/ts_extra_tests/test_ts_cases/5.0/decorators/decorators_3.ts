@@ -20,25 +20,30 @@
  ---*/
 
 
-import { Assert } from '../../../suite/assert.js'
+import { Assert } from '../../../suite/assert.js';
 
-function bind(value: Function, context: { kind: string, name: string, addInitializer(initializer: () => void): void }) {
+function bind(value: Function, context: {
+  kind: string,
+  name: string,
+  addInitializer(initializer: () => void): void
+}): void {
   if (context.kind === 'method') {
-    context.addInitializer(function (this: any) {
+    context.addInitializer(function (this: Record<string, Object>): void {
       this[context.name] = value.bind(this);
     });
   }
+  return undefined;
 }
 
 class Color {
   name: string;
-  
+
   constructor(myName: string) {
     this.name = myName;
   }
 
   @bind
-  toString() {
+  toString(): string {
     return this.name;
   }
 }

@@ -14,22 +14,22 @@
  */
 
 
-export class vehiclesFactory {
+export class VehiclesFactory {
   name = 'Audi';
 
-  setName(myName: string) {
+  setName(myName: string): void {
     this.name = myName;
   }
 
-  getName() {
+  getName(): string {
     return this.name;
   }
 }
 
-export class myVehicles {
+export class MyVehicles {
   myCar = 'alto';
 
-  toUpper() {
+  toUpper(): string {
     return this.myCar.toUpperCase();
   }
 }

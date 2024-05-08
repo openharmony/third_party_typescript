@@ -20,19 +20,19 @@
  ---*/
 
 
-import { Assert } from '../../../suite/assert.js'
+import { Assert } from '../../../suite/assert.js';
 
 const prefix = '/demo';
 
 enum Routes {
-  src = `${prefix}/src`,       // "/demo/src"
-  tsdemo = `${prefix}/tsdemo`,  // "/demo/tsdemo"
-  dist = `${prefix}/dist`  // "/demo/dist"
+  src = `${prefix}/src`, // "/demo/src"
+  tsdemo = `${prefix}/tsdemo`, // "/demo/tsdemo"
+  dist = `${prefix}/dist` // "/demo/dist"
 }
 
-type value = Routes.src | Routes.tsdemo;
+type Value = Routes.src | Routes.tsdemo;
 
-function isRoutes(c: Routes): c is value {
+function isRoutes(c: Routes): c is Value {
   return (c === Routes.src || c === Routes.tsdemo);
 }
 

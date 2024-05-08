@@ -20,12 +20,12 @@
  ---*/
 
 
-import { spaceShip, vehiclesFactory } from './models/index.js'
-import { circleArea, squareArea } from './shap/index.js'
-import { Assert } from '../../../suite/assert.js'
+import { SpaceShip, VehiclesFactory } from './models/index.js';
+import { CircleArea, SquareArea } from './shap/index.js';
+import { Assert } from '../../../suite/assert.js';
 
-const mySpaceship = new spaceShip();
-const myVehicles = new vehiclesFactory();
+const mySpaceship = new SpaceShip();
+const myVehicles = new VehiclesFactory();
 
 Assert.equal(mySpaceship.getName(), 'Star');
 Assert.equal(myVehicles.getName(), 'Audi');
@@ -33,8 +33,8 @@ Assert.equal(myVehicles.getName(), 'Audi');
 myVehicles.setName('car');
 Assert.equal(myVehicles.getName(), 'car');
 
-const myCirlce = new circleArea();
-const mySqueare = new squareArea();
+const myCirlce = new CircleArea();
+const mySqueare = new SquareArea();
 
 Assert.equal(myCirlce.getArea(), 12);
 Assert.equal(mySqueare.getArea(), 9);

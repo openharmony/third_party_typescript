@@ -27,4 +27,4 @@ function value<const T>(arg: T): T {
 }
 
 const myNames = value(['Jack', 'Bob', 'Eve']);
-myNames[0] = '1';// Cannot assign to '0' because it is a read-only property
+myNames[0] = '1'; // Cannot assign to '0' because it is a read-only property

@@ -19,20 +19,20 @@
  isCurrent: true
  ---*/
 
- 
-import { Assert } from '../../../suite/assert.js'
+
+import { Assert } from '../../../suite/assert.js';
 
 const point = {
-  val:'1',
-  
+  val: '1',
+
   set value(value: string) {
     this.val = value;
   },
-  
+
   get value(): number {
     return 0;
   }
-}
+};
 
 point.value = '8888';
 

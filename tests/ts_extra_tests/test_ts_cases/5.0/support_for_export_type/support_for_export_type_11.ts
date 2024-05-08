@@ -20,34 +20,34 @@
  ---*/
 
 
-import { fac, spaceShip, vehicles, vehiclesFactory } from './models/index.js'
-import { circle, circleArea, square, squareArea } from './shap/index.js'
-import { Assert } from '../../../suite/assert.js'
+import { fac, SpaceShip, vehicles, VehiclesFactory } from './models/index.js';
+import { circle, CircleArea, square, SquareArea } from './shap/index.js';
+import { Assert } from '../../../suite/assert.js';
 
-function takeASpaceship(s: fac.spaceShip) {
+function takeASpaceship(s: fac.SpaceShip): void {
   Assert.equal(s.getName(), 'Star');
 }
 
-function takeVehicles(s: vehicles.vehiclesFactory) {
+function takeVehicles(s: vehicles.VehiclesFactory): void {
   Assert.equal(s.getName(), 'Audi');
 }
 
-function takeCircleArea(s: circle.circleArea) {
+function takeCircleArea(s: circle.CircleArea): void {
   Assert.equal(s.getArea(), 12);
 }
 
-function takeSquareArea(s: square.squareArea) {
+function takeSquareArea(s: square.SquareArea): void {
   Assert.equal(s.getArea(), 9);
 }
 
-const mySpaceship = new spaceShip();
-const myVehicles = new vehiclesFactory();
+const mySpaceship = new SpaceShip();
+const myVehicles = new VehiclesFactory();
 
 takeASpaceship(mySpaceship);
 takeVehicles(myVehicles);
 
-const myCirlceArea = new circleArea();
-const mySquareArea = new squareArea();
+const myCirlceArea = new CircleArea();
+const mySquareArea = new SquareArea();
 
 takeCircleArea(myCirlceArea);
 takeSquareArea(mySquareArea);

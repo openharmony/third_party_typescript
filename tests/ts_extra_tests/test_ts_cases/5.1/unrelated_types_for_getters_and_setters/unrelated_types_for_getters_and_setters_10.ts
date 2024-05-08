@@ -20,22 +20,22 @@
  ---*/
 
 
-import { Assert } from '../../../suite/assert.js'
+import { Assert } from '../../../suite/assert.js';
 
 interface Serializer {
-  val:boolean | number,
+  val: boolean | number,
   set value(v: boolean | number),
   get value(): string
 }
 
 let box: Serializer = {
-  val:1,
-  
+  val: 1,
+
   set value(param: boolean | number) {
     this.val = param;
   },
 
-  get value(): string{
+  get value(): string {
     return this.val.toString();
   }
 };

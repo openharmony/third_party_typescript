@@ -19,11 +19,11 @@
  isCurrent: true
  ---*/
 
- 
-import { Assert } from '../../../suite/assert.js'
+
+import { Assert } from '../../../suite/assert.js';
 
 function strToInt(ns: string): undefined {
   const val = Number(ns);
-}
+};
 
 Assert.isFunction(strToInt);

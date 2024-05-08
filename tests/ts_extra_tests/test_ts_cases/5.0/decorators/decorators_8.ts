@@ -19,18 +19,19 @@
  isCurrent: true
  ---*/
 
- 
-import { Assert } from '../../../suite/assert.js'
 
-function enumEntry(value: undefined, context: { kind: string, name: string }) {
+import { Assert } from '../../../suite/assert.js';
+
+function enumEntry(value: unknown, context: { kind: string, name: string }): void {
   if (context.kind === 'field') {
     console.log(`starting ${context.name}`);
   }
+  return undefined;
 }
 
-class colorClass {
+class ColorClass {
   @enumEntry
   static red = 'red';
 }
 
-Assert.equal(colorClass.red, 'red');
+Assert.equal(ColorClass.red, 'red');

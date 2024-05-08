@@ -20,7 +20,7 @@
  ---*/
 
 
-import { Assert } from '../../../suite/assert.js'
+import { Assert } from '../../../suite/assert.js';
 
 // @ts-check
 /**
@@ -28,5 +28,6 @@ import { Assert } from '../../../suite/assert.js'
  */
 
 /** @satisfies { WelcomeMessage } */
+
 const message = 'hello world';
 Assert.equal(message, 'hello world');

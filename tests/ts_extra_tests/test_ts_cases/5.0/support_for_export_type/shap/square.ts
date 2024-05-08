@@ -14,10 +14,10 @@
  */
 
 
-export class squareArea {
+export class SquareArea {
   length = 3;
-  
-  getArea(){
+
+  getArea(): number {
     return this.length * this.length;
   }
 }
