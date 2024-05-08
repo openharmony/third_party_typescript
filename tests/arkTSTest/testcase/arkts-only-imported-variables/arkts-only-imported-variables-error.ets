@@ -70,7 +70,7 @@ class SendableClass {
   }
 
   baz(): SendableClass2 {
-    return new SendableClass2(); // ERROR
+    return new SendableClass2();
   }
   
   bazz(): void {
@@ -120,8 +120,8 @@ class C {
   static public a: number = 1;
   f(p: number) {
     @Sendable
-    class D extends SendableClass2 implements B { // 2 ERRORS
-      public b: number = C.a; // ERROR
+    class D extends SendableClass2 implements B { // ERRORS
+      public b: number = C.a;
       public d: number = p; // ERROR
     }
   }

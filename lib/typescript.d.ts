@@ -9538,6 +9538,8 @@ declare namespace ts {
             private handleClassDeclaration;
             private scanCapturedVarsInSendableScope;
             private checkLocalDecl;
+            private checkLocalDeclWithSendableClosure;
+            private checkIsTopClosure;
             private checkNamespaceImportVar;
             private checkClassDeclarationHeritageClause;
             private isValidSendableClassExtends;

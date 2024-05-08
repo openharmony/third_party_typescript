@@ -3,20 +3,6 @@
         "filePath": "entry/src/main/ets/pages/cases/#16320.ets",
         "defects": [
             {
-                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#16320.ets:27:22\n Only imported variables can be captured by \"Sendable\" class (arkts-sendable-imported-variables)\n\n",
-                "severity": 2,
-                "reportLine": 27,
-                "reportColumn": 22,
-                "description": "Only imported variables can be captured by \"Sendable\" class (arkts-sendable-imported-variables)"
-            },
-            {
-                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#16320.ets:33:23\n Only imported variables can be captured by \"Sendable\" class (arkts-sendable-imported-variables)\n\n",
-                "severity": 2,
-                "reportLine": 33,
-                "reportColumn": 23,
-                "description": "Only imported variables can be captured by \"Sendable\" class (arkts-sendable-imported-variables)"
-            },
-            {
                 "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#16320.ets:40:3\n Properties in \"Sendable\" classes and interfaces must have a Sendable data type (arkts-sendable-prop-types)\n\n",
                 "severity": 2,
                 "reportLine": 40,

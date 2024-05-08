@@ -1,0 +1,12 @@
+{
+    "arktsVersion_1_0": [],
+    "arktsVersion_1_1": [
+        {
+            "messageText": "Property 'a' has no initializer and is not definitely assigned in the constructor.",
+            "expectLineAndCharacter": {
+              "line": 18,
+              "character": 5
+            }
+        }
+    ]
+}

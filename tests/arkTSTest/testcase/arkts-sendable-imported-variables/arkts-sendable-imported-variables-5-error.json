@@ -1,0 +1,12 @@
+{
+    "arktsVersion_1_0": [],
+    "arktsVersion_1_1": [
+        {
+            "messageText": "Classes cannot be used as objects (arkts-no-classes-as-obj)",
+            "expectLineAndCharacter": {
+              "line": 24,
+              "character": 17
+            }
+        }
+    ]
+}
