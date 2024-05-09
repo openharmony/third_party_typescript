@@ -57,3 +57,21 @@ test_ts_cases/5.2/labeledelementdeclarations_may_hold_undefined_elements/labeled
 test_ts_cases/5.2/labeledelementdeclarations_may_hold_undefined_elements/labeledelementdeclarations_may_hold_undefined_elements_8.ts
 test_ts_cases/5.2/labeledelementdeclarations_may_hold_undefined_elements/labeledelementdeclarations_may_hold_undefined_elements_9.ts
 test_ts_cases/5.2/labeledelementdeclarations_may_hold_undefined_elements/labeledelementdeclarations_may_hold_undefined_elements_10.ts
+// The test case is intended to verify that the 'never' return type does not return an erroneous value.
+// The failure of the test case is due to the use of the process.exit function, which terminates the Node.js process, causing the script to stop running.
+test_ts_cases/3.7/better_support_for_never/better_support_for_never.ts
+// In Windows environment, version 4.9.5 of tsc failed due to different interpretation of the toString method for '/n',
+// whereas versions 5.0 and above of tsc in Windows environment as well as testing in Linux environment were successful.
+test_ts_cases/4.2/abstract_construct_signatures/abstract_construct_signatures_2.ts
+// Due to the presence of import or export, await cannot be recognized as a valid identifier for parsing.
+// Errors such as 'Expression expected', 'Variable declaration expected', and 'Identifier expected' occur during the execution of the test case.
+// Only in a context without import and export can await be used as a keyword.
+test_ts_cases/spec/basic_concepts/names/reserved_words/special_mean_but_valid_identifier/await_is_valid_identifier_1.ts
+test_ts_cases/spec/basic_concepts/names/reserved_words/special_mean_but_valid_identifier/await_is_valid_identifier_2.ts
+test_ts_cases/spec/basic_concepts/names/reserved_words/special_mean_but_valid_identifier/await_is_valid_identifier_3.ts
+test_ts_cases/spec/basic_concepts/names/reserved_words/special_mean_but_valid_identifier/await_is_valid_identifier_4.ts
+// The imported file in this test case does not adhere to the CommonJS export rules.
+// While TypeScript version 4.9 can compile the corresponding '.js' file,during the Node runtime,
+// it may throw an error indicating that the imported module cannot be found.
+// It is recommended to use the '.cjs' file extension in this case.
+test_ts_cases/spec/scripts_and_modules/7_commonJS_modules/commonJS_modules_1.ts
