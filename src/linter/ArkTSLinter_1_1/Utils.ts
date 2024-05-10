@@ -480,7 +480,7 @@ export function isGenericArrayType(tsType: Type): tsType is TypeReference {
 export function isReadonlyArrayType(tsType: Type): boolean {
   return (
     isTypeReference(tsType) && tsType.typeArguments?.length === 1 && tsType.target.typeParameters?.length === 1 &&
-    (tsType.getSymbol()?.getName() === "ReadonlyArray")
+    (tsType.getSymbol()?.getName() === 'ReadonlyArray')
   );
 }
 

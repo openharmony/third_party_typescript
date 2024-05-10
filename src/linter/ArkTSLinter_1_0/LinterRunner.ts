@@ -23,7 +23,7 @@ function makeDiag(category: DiagnosticCategory, code: number, file: SourceFile, 
 export function translateDiag(srcFile: SourceFile, problemInfo: ProblemInfo): Diagnostic {
   const LINTER_MSG_CODE_START = -1;
   const severity = (problemInfo.severity === Utils.ProblemSeverity.ERROR ? DiagnosticCategory.Error : DiagnosticCategory.Warning);
-  return makeDiag(severity, LINTER_MSG_CODE_START /*+ problemInfo.ruleTag */, srcFile , problemInfo.start, (problemInfo.end - problemInfo.start + 1), problemInfo.rule);
+  return makeDiag(severity, LINTER_MSG_CODE_START /*+ problemInfo.ruleTag */, srcFile, problemInfo.start, (problemInfo.end - problemInfo.start + 1), problemInfo.rule);
 }
 
 export function runArkTSLinter(tsBuilderProgram: BuilderProgram, srcFile?: SourceFile,
@@ -55,7 +55,7 @@ export function runArkTSLinter(tsBuilderProgram: BuilderProgram, srcFile?: Sourc
   tscDiagnosticsLinter.doAllGetDiagnostics();
 
   let srcFiles: SourceFile[] = [];
-  if(!!srcFile) {
+  if (!!srcFile) {
     srcFiles.push(srcFile);
   } else {
     srcFiles = program.getSourceFiles() as SourceFile[];
@@ -66,9 +66,9 @@ export function runArkTSLinter(tsBuilderProgram: BuilderProgram, srcFile?: Sourc
 
   TypeScriptLinter.initGlobals();
 
-  for(const fileToLint of srcFiles) {
+  for (const fileToLint of srcFiles) {
     TypeScriptLinter.initStatic();
-    if(TypeScriptLinter.lintEtsOnly && fileToLint.scriptKind !==ScriptKind.ETS) {
+    if (TypeScriptLinter.lintEtsOnly && fileToLint.scriptKind !== ScriptKind.ETS) {
       continue;
     }
 

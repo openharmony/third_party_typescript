@@ -24,7 +24,7 @@ export class TSCCompiledProgram {
   }
 
   public getProgram(): Program {
-    return this.diagnosticsExtractor.nonStrictProgram.getProgram()
+    return this.diagnosticsExtractor.nonStrictProgram.getProgram();
   }
 
   public getBuilderProgram(): BuilderProgram {
@@ -35,7 +35,7 @@ export class TSCCompiledProgram {
     return this.diagnosticsExtractor.getStrictDiagnostics(fileName);
   }
 
-  public doAllGetDiagnostics() {
+  public doAllGetDiagnostics(): void {
     this.diagnosticsExtractor.doAllGetDiagnostics();
   }
 }
@@ -47,7 +47,7 @@ class TypeScriptDiagnosticsExtractor {
   /**
    * Returns diagnostics which appear in strict compilation mode only
    */
-   public getStrictDiagnostics(fileName: string): Diagnostic[] {
+  public getStrictDiagnostics(fileName: string): Diagnostic[] {
     // workaround for a tsc bug
     const strict = getAllDiagnostics(this.nonStrictProgram, fileName, /* isStrict */ true).filter(
       diag => !(diag.length === 0 && diag.start === 0));
@@ -68,7 +68,7 @@ class TypeScriptDiagnosticsExtractor {
     });
   }
 
-  public doAllGetDiagnostics() {
+  public doAllGetDiagnostics(): void {
     const timePrinterInstance = ts.ArkTSLinterTimePrinter.getInstance();
     this.nonStrictProgram.getSemanticDiagnostics();
     timePrinterInstance.appendTime(ts.TimePhase.NON_STRICT_PROGRAM_GET_SEMANTIC_DIAGNOSTICS);

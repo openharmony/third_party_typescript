@@ -852,7 +852,7 @@ export class TypeScriptLinter {
       return false;
     }
 
-    const checkDiagnostic = (val: Diagnostic) => {
+    const checkDiagnostic = (val: Diagnostic): boolean => {
       const checkInRange = filters[val.code];
       if (!checkInRange) {
         return true;
@@ -1962,10 +1962,10 @@ export class TypeScriptLinter {
     let rangesToFilter: { begin: number, end: number }[] = [];
     if (nonFilteringRanges.length !== 0) {
       let rangesSize = nonFilteringRanges.length;
-      rangesToFilter.push({ begin: callExpr.arguments.pos, end: nonFilteringRanges[0].begin })
-      rangesToFilter.push({ begin: nonFilteringRanges[rangesSize - 1].end, end: callExpr.arguments.end })
+      rangesToFilter.push({ begin: callExpr.arguments.pos, end: nonFilteringRanges[0].begin });
+      rangesToFilter.push({ begin: nonFilteringRanges[rangesSize - 1].end, end: callExpr.arguments.end });
       for (let i = 0; i < rangesSize - 1; i++) {
-        rangesToFilter.push({ begin: nonFilteringRanges[i].end, end: nonFilteringRanges[i + 1].begin })
+        rangesToFilter.push({ begin: nonFilteringRanges[i].end, end: nonFilteringRanges[i + 1].begin });
       }
     } else {
       rangesToFilter.push({ begin: callExpr.arguments.pos, end: callExpr.arguments.end })
@@ -1985,9 +1985,9 @@ export class TypeScriptLinter {
       this.libraryTypeCallDiagnosticChecker
     );
 
-    for (const msgChain of diagnosticMessages) {
+    diagnosticMessages.forEach(msgChain => {
       TypeScriptLinter.filteredDiagnosticMessages.push(msgChain);
-    }
+    });
   }
 
   private handleNewExpression(node: Node): void {
