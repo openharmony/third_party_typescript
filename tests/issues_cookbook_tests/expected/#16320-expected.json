@@ -1,0 +1,98 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cases/#16320.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#16320.ets:27:22\n Only imported variables can be captured by \"Sendable\" class (arkts-sendable-imported-variables)\n\n",
+                "severity": 2,
+                "reportLine": 27,
+                "reportColumn": 22,
+                "description": "Only imported variables can be captured by \"Sendable\" class (arkts-sendable-imported-variables)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#16320.ets:33:23\n Only imported variables can be captured by \"Sendable\" class (arkts-sendable-imported-variables)\n\n",
+                "severity": 2,
+                "reportLine": 33,
+                "reportColumn": 23,
+                "description": "Only imported variables can be captured by \"Sendable\" class (arkts-sendable-imported-variables)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#16320.ets:40:3\n Properties in \"Sendable\" classes and interfaces must have a Sendable data type (arkts-sendable-prop-types)\n\n",
+                "severity": 2,
+                "reportLine": 40,
+                "reportColumn": 3,
+                "description": "Properties in \"Sendable\" classes and interfaces must have a Sendable data type (arkts-sendable-prop-types)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#16320.ets:41:3\n Properties in \"Sendable\" classes and interfaces must have a Sendable data type (arkts-sendable-prop-types)\n\n",
+                "severity": 2,
+                "reportLine": 41,
+                "reportColumn": 3,
+                "description": "Properties in \"Sendable\" classes and interfaces must have a Sendable data type (arkts-sendable-prop-types)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#16320.ets:42:3\n Properties in \"Sendable\" classes and interfaces must have a Sendable data type (arkts-sendable-prop-types)\n\n",
+                "severity": 2,
+                "reportLine": 42,
+                "reportColumn": 3,
+                "description": "Properties in \"Sendable\" classes and interfaces must have a Sendable data type (arkts-sendable-prop-types)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#16320.ets:43:3\n Properties in \"Sendable\" classes and interfaces must have a Sendable data type (arkts-sendable-prop-types)\n\n",
+                "severity": 2,
+                "reportLine": 43,
+                "reportColumn": 3,
+                "description": "Properties in \"Sendable\" classes and interfaces must have a Sendable data type (arkts-sendable-prop-types)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#16320.ets:44:3\n Properties in \"Sendable\" classes and interfaces must have a Sendable data type (arkts-sendable-prop-types)\n\n",
+                "severity": 2,
+                "reportLine": 44,
+                "reportColumn": 3,
+                "description": "Properties in \"Sendable\" classes and interfaces must have a Sendable data type (arkts-sendable-prop-types)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#16320.ets:45:3\n Properties in \"Sendable\" classes and interfaces must have a Sendable data type (arkts-sendable-prop-types)\n\n",
+                "severity": 2,
+                "reportLine": 45,
+                "reportColumn": 3,
+                "description": "Properties in \"Sendable\" classes and interfaces must have a Sendable data type (arkts-sendable-prop-types)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#16320.ets:46:3\n Properties in \"Sendable\" classes and interfaces must have a Sendable data type (arkts-sendable-prop-types)\n\n",
+                "severity": 2,
+                "reportLine": 46,
+                "reportColumn": 3,
+                "description": "Properties in \"Sendable\" classes and interfaces must have a Sendable data type (arkts-sendable-prop-types)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#16320.ets:47:3\n Computed property names are not allowed in \"Sendable\" classes and interfaces (arkts-sendable-computed-prop-name)\n\n",
+                "severity": 2,
+                "reportLine": 47,
+                "reportColumn": 3,
+                "description": "Computed property names are not allowed in \"Sendable\" classes and interfaces (arkts-sendable-computed-prop-name)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#16320.ets:51:22\n Only imported variables can be captured by \"Sendable\" class (arkts-sendable-imported-variables)\n\n",
+                "severity": 2,
+                "reportLine": 51,
+                "reportColumn": 22,
+                "description": "Only imported variables can be captured by \"Sendable\" class (arkts-sendable-imported-variables)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#16320.ets:55:22\n Only imported variables can be captured by \"Sendable\" class (arkts-sendable-imported-variables)\n\n",
+                "severity": 2,
+                "reportLine": 55,
+                "reportColumn": 22,
+                "description": "Only imported variables can be captured by \"Sendable\" class (arkts-sendable-imported-variables)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#16320.ets:73:3\n Properties in \"Sendable\" classes and interfaces must have a Sendable data type (arkts-sendable-prop-types)\n\n",
+                "severity": 2,
+                "reportLine": 73,
+                "reportColumn": 3,
+                "description": "Properties in \"Sendable\" classes and interfaces must have a Sendable data type (arkts-sendable-prop-types)"
+            }
+        ]
+    }
+}

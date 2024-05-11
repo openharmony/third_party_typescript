@@ -1,0 +1,49 @@
+{
+    "sdklinter": {
+        "filePath": "entry/src/main/ets/pages/cases/#16365.ets",
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#16365.ets:3:27\n Objects of \"Sendable\" type can not be initialized using object literal or array literal (arkts-sendable-obj-init)\n\n",
+                "severity": 2,
+                "reportLine": 3,
+                "reportColumn": 27,
+                "description": "Objects of \"Sendable\" type can not be initialized using object literal or array literal (arkts-sendable-obj-init)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#16365.ets:4:3\n Type 'number[]' is missing the following properties from type 'SendableClass9': prop1, prop2\n\n",
+                "severity": 2,
+                "reportLine": 4,
+                "reportColumn": 3,
+                "description": "Type 'number[]' is missing the following properties from type 'SendableClass9': prop1, prop2"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#16365.ets:4:27\n Objects of \"Sendable\" type can not be initialized using object literal or array literal (arkts-sendable-obj-init)\n\n",
+                "severity": 2,
+                "reportLine": 4,
+                "reportColumn": 27,
+                "description": "Objects of \"Sendable\" type can not be initialized using object literal or array literal (arkts-sendable-obj-init)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#16365.ets:7:26\n Objects of \"Sendable\" type can not be initialized using object literal or array literal (arkts-sendable-obj-init)\n\n",
+                "severity": 2,
+                "reportLine": 7,
+                "reportColumn": 26,
+                "description": "Objects of \"Sendable\" type can not be initialized using object literal or array literal (arkts-sendable-obj-init)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#16365.ets:8:5\n Type 'number[]' is not assignable to type 'SendableClass9'.\n\n",
+                "severity": 2,
+                "reportLine": 8,
+                "reportColumn": 5,
+                "description": "Type 'number[]' is not assignable to type 'SendableClass9'."
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#16365.ets:8:26\n Objects of \"Sendable\" type can not be initialized using object literal or array literal (arkts-sendable-obj-init)\n\n",
+                "severity": 2,
+                "reportLine": 8,
+                "reportColumn": 26,
+                "description": "Objects of \"Sendable\" type can not be initialized using object literal or array literal (arkts-sendable-obj-init)"
+            }
+        ]
+    }
+}

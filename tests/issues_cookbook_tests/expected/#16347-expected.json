@@ -3,17 +3,24 @@
         "filePath": "entry/src/main/ets/pages/cases/#16347.ets",
         "defects": [
             {
-                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#16347.ets:15:31\n The inheritance for \"Sendable\" classes is limited (arkts-sendable-class-inheritance)\n\n",
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#16347.ets:16:31\n The inheritance for \"Sendable\" classes is limited (arkts-sendable-class-inheritance)\n\n",
                 "severity": 2,
-                "reportLine": 15,
+                "reportLine": 16,
                 "reportColumn": 31,
                 "description": "The inheritance for \"Sendable\" classes is limited (arkts-sendable-class-inheritance)"
             },
             {
-                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#16347.ets:18:33\n The inheritance for \"Sendable\" classes is limited (arkts-sendable-class-inheritance)\n\n",
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#16347.ets:19:33\n The inheritance for \"Sendable\" classes is limited (arkts-sendable-class-inheritance)\n\n",
                 "severity": 2,
-                "reportLine": 18,
+                "reportLine": 19,
                 "reportColumn": 33,
+                "description": "The inheritance for \"Sendable\" classes is limited (arkts-sendable-class-inheritance)"
+            },
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#16347.ets:24:22\n The inheritance for \"Sendable\" classes is limited (arkts-sendable-class-inheritance)\n\n",
+                "severity": 2,
+                "reportLine": 24,
+                "reportColumn": 22,
                 "description": "The inheritance for \"Sendable\" classes is limited (arkts-sendable-class-inheritance)"
             }
         ]

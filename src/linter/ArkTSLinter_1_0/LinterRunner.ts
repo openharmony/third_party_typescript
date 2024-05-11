@@ -114,7 +114,8 @@ function releaseReferences(): void {
 function collectChangedFilesFromProgramState(state: ReusableBuilderProgramState, arkTSVersion?: string): Set<Path> {
   const changedFiles = new Set<Path>(state.changedFilesSet);
 
-  // If old arkTSVersion from last run is not same current arkTSVersion from ets_loader.
+  // If old arkTSVersion from last run is not same current arkTSVersion from ets_loader,
+  // then process all files in project.
   if (state.arkTSVersion !== arkTSVersion) {
     return new Set<Path>(arrayFrom(state.fileInfos.keys()));
   }

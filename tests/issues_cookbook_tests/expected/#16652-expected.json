@@ -3,16 +3,16 @@
         "filePath": "entry/src/main/ets/pages/cases/#16652.ets",
         "defects": [
             {
-                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#16652.ets:8:10\n Property 'p1' has no initializer and is not definitely assigned in the constructor.\n\n",
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#16652.ets:4:10\n Property 'p1' has no initializer and is not definitely assigned in the constructor.\n\n",
                 "severity": 2,
-                "reportLine": 8,
+                "reportLine": 4,
                 "reportColumn": 10,
                 "description": "Property 'p1' has no initializer and is not definitely assigned in the constructor."
             },
             {
-                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#16652.ets:9:3\n Property 'p2' has no initializer and is not definitely assigned in the constructor.\n\n",
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#16652.ets:5:3\n Property 'p2' has no initializer and is not definitely assigned in the constructor.\n\n",
                 "severity": 2,
-                "reportLine": 9,
+                "reportLine": 5,
                 "reportColumn": 3,
                 "description": "Property 'p2' has no initializer and is not definitely assigned in the constructor."
             }
