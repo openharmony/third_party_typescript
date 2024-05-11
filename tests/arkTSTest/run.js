@@ -33,7 +33,7 @@ function getAllETSFiles(filePath) {
       const files = fs.readdirSync(filePath);
       for (let i = 0; i < files.length; i++) {
           let file = files[i]; // File name (excluding file path)
-          let currentFilePath = filePath + '/' + file;
+          let currentFilePath = path.join(filePath, file);
           let stats = fs.lstatSync(currentFilePath);
           if(ignoreList.includes(currentFilePath)){
             continue
@@ -62,7 +62,7 @@ function runComp(currentFilePath, file){
     if(checkfile){
       loadPares(jsonFile, result, currentFilePath, file)
     }else{
-      if(!currentFilePath.includes("-dependencie.ets")){
+      if (!currentFilePath.includes("-dependencie.ets") || ignoreList.includes(currentFilePath)) {
         console.log(`Test cases ${currentFilePath} expected results are not added`)
       }
     }
@@ -333,7 +333,7 @@ function run(){
    const compReportDetail = {"compDetail": compResults, "compTime": interval, "failNum": compResults.failNum, "passedNum": compResults.passedNum}
    const testCaseSum = compReportDetail.failNum + compReportDetail.passedNum
    compReportDetail["testCaseSum"] = testCaseSum
-   console.log(`Total number of test cases:${testCaseSum} Number of use cases passed:${compResults.passedNum} The number of use cases that failed:${compResults.failNum} Total running time:${JSON.stringify(interval).split(".")[0]}ms`)
+   console.log(`Total number of test cases:${testCaseSum} Number of use cases passed:${compResults.passedNum} The number of use cases that failed:${compResults.failNum} Total running time:${JSON.stringify(interval).split(".")[0]}ms. ArkTSVersion: ${arktsVersion}`)
    if(genResultFile){
      writeResult(compReportDetail)
    }
