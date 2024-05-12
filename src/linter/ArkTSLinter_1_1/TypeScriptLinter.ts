@@ -1311,25 +1311,38 @@ export class TypeScriptLinter {
 
     const declarations = trueSym.getDeclarations();
     if (declarations?.length) {
-      const decl = declarations[0];
-      const declPosition = decl.getStart();
-      if (decl.getSourceFile().fileName !== node.getSourceFile().fileName ||
-          declPosition !== undefined && declPosition >= scope.getStart() && declPosition < scope.getEnd()) {
-        return;
-      }
-
-      /**
-       * The cases in condition will introduce closure if defined in the same file as the Sendable class. The following
-       * cases are excluded because they are not allowed in ArkTS:
-       * 1. ImportEqualDecalration
-       * 2. BindingElement
-       */
-      if (ts.isVariableDeclaration(decl) || ts.isFunctionDeclaration(decl) || ts.isClassDeclaration(decl) ||
-          ts.isInterfaceDeclaration(decl) || ts.isEnumDeclaration(decl) || ts.isModuleDeclaration(decl) ||
-          ts.isParameter(decl) || ts.isStructDeclaration(decl)) {
-        this.incrementCounters(node, FaultID.SendableCapturedVars);
-      }
+      this.checkLocalDeclWithSendableClosure(node, scope, declarations[0]);
     }
+  }
+
+  private checkLocalDeclWithSendableClosure(node: ts.Identifier, scope: ts.Node, decl: ts.Declaration): void {
+    const declPosition = decl.getStart();
+    if (decl.getSourceFile().fileName !== node.getSourceFile().fileName ||
+        declPosition !== undefined && declPosition >= scope.getStart() && declPosition < scope.getEnd()) {
+      return;
+    }
+    if (this.checkIsTopClosure(decl)) {
+      return;
+    }
+
+    /**
+     * The cases in condition will introduce closure if defined in the same file as the Sendable class. The following
+     * cases are excluded because they are not allowed in ArkTS:
+     * 1. ImportEqualDecalration
+     * 2. BindingElement
+     */
+    if (ts.isVariableDeclaration(decl) || ts.isFunctionDeclaration(decl) || ts.isClassDeclaration(decl) ||
+        ts.isInterfaceDeclaration(decl) || ts.isEnumDeclaration(decl) || ts.isModuleDeclaration(decl) ||
+        ts.isParameter(decl)) {
+      this.incrementCounters(node, FaultID.SendableCapturedVars);
+    }
+  }
+
+  private checkIsTopClosure(decl: ts.Declaration): boolean {
+    return (
+      ts.isSourceFile(decl.parent) && ts.isClassDeclaration(decl) &&
+      Utils.isSendableClassOrInterface(TypeScriptLinter.tsTypeChecker.getTypeAtLocation(decl))
+    );
   }
 
   private checkNamespaceImportVar(node: ts.Node): boolean {
