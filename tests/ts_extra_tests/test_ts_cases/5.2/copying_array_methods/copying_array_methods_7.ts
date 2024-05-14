@@ -20,7 +20,7 @@
  ---*/
 
 
-import { Assert } from '../../../suite/assert.js'
+import { Assert } from '../../../suite/assert.js';
 
 const myArray = ['CCC', 'AAA', 'DDD', 'BBB'];
 const sortedArray = myArray.toSorted((a: number, b: number) => a - b);

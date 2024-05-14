@@ -20,7 +20,7 @@
  ---*/
 
 
-import { Assert } from '../../../suite/assert.js'
+import { Assert } from '../../../suite/assert.js';
 
 const myArray = ['AAA', 'BBB', 'CCC'];
 const splicedArray = myArray.toSpliced(1, 1, 'XXX', 'YYY');

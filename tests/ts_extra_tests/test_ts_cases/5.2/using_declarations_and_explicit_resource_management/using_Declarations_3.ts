@@ -20,39 +20,44 @@
  ---*/
 
 
-import { Assert } from '../../../suite/assert.js'
+import { Assert } from '../../../suite/assert.js';
 
 (Symbol as { dispose: symbol }).dispose ??= Symbol('Symbol.dispose');
 
-class ErrorA extends Error {
-  name = 'ErrorA';
+class ErrorName extends Error {
+  name = 'ErrorName';
 }
 
-class ErrorB extends Error {
-  name = 'ErrorB';
+class ErrorSuppressed extends Error {
+  name = 'ErrorSuppressedName';
 }
 
-function throwy(id: string) {
+type ThrowReturnType = {
+  [Symbol.dispose](): void;
+};
+
+function throwError(id: string): ThrowReturnType {
   return {
     [Symbol.dispose]() {
-      throw new ErrorA(`Error from ${id}`);
+      throw new ErrorName(`Error from ${id}`);
     }
   };
 }
 
-function func() {
-  using a = throwy('a');
-  throw new ErrorB('oops!')
+function func(): void {
+  using a = throwError('a');
+  throw new ErrorSuppressed('oops!')
 }
 
 try {
   func();
 }
+// The type of 'e' can only be any or unknown. When the type is unknown, the equivalent of 'e.name' cannot be found
 catch (e: any) {
   Assert.equal(e.name, 'SuppressedError');
   Assert.equal(e.message, 'An error was suppressed during disposal.');
-  Assert.equal(e.error.name, 'ErrorA');
+  Assert.equal(e.error.name, 'ErrorName');
   Assert.equal(e.error.message, 'Error from a');
-  Assert.equal(e.suppressed.name, 'ErrorB');
+  Assert.equal(e.suppressed.name, 'ErrorSuppressedName');
   Assert.equal(e.suppressed.message, 'oops!');
 }

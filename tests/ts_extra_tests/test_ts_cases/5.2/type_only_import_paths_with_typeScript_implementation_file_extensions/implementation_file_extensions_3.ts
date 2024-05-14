@@ -20,10 +20,10 @@
  ---*/
 
 
-import { Assert } from '../../../suite/assert.js'
-import type { JustAType } from './justTypes.cts'
+import { Assert } from '../../../suite/assert.js';
+import type { JustAType } from './justTypes.cts';
 
-export function f(param: JustAType) {
+export function f(param: JustAType): void {
   Assert.isString(param.name);
   Assert.equal(param.name, 'Alice');
 

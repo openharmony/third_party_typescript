@@ -22,12 +22,12 @@
  ---*/
 
 
-import { Assert } from '../../../suite/assert.js'
+import { Assert } from '../../../suite/assert.js';
 
-Symbol.metadata ??= Symbol('Symbol.metadata')
+Symbol.metadata ??= Symbol('Symbol.metadata');
 
-function appendMeta(key: string, value: string) {
-  return (_: any, context: { metadata: { [x: string]: any[]; }; }) => {
+function appendMeta(key: string, value: string): Function {
+  return (_: unknown, context: { metadata: { [x: string]: unknown[]; }; }): void => {
     const existing = context.metadata[key] ?? [];
     context.metadata[key] = [...existing, value];
   };

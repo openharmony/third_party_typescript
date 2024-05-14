@@ -20,11 +20,11 @@
  ---*/
 
 
-import { Assert } from '../../../suite/assert.js'
+import { Assert } from '../../../suite/assert.js';
 
 namespace Utils {
   export namespace Messaging {
-    export function log(msg: string) {
+    export function log(msg: string): void {
       Assert.equal(msg, 'hello');
     }
   }

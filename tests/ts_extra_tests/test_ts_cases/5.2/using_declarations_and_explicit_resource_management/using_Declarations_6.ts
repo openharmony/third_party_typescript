@@ -20,7 +20,7 @@
  ---*/
 
 
-import { Assert } from '../../../suite/assert.js'
+import { Assert } from '../../../suite/assert.js';
 
 (Symbol as { asyncDispose: symbol; dispose: symbol }).asyncDispose ??= Symbol('Symbol.asyncDispose');
 (Symbol as { dispose: symbol }).dispose ??= Symbol('Symbol.dispose');
@@ -33,10 +33,10 @@ function loggy(id: string): Disposable {
       console.log(`Disposing ${id}`);
       Assert.isTrue(id === 'a' || id === 'b' || id === 'c' || id === 'd' || id === 'e');
     }
-  }
+  };
 }
 
-function func() {
+function func(): void {
   using a = loggy('a');
   using b = loggy('b');
   {

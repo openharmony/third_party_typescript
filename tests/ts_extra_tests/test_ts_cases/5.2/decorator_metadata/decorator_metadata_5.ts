@@ -21,17 +21,18 @@
  ---*/
 
 
-import { Assert } from '../../../suite/assert.js'
+import { Assert } from '../../../suite/assert.js';
 
-Symbol.metadata ??= Symbol('Symbol.metadata')
+Symbol.metadata ??= Symbol('Symbol.metadata');
 
-let a: undefined, b: undefined;
+let a: unknown;
+let b: unknown;
 
-function meta(value: undefined, { metadata }) {
+function meta(value: unknown, { metadata }): void {
   a = metadata;
 }
 
-function needLogin(value: undefined, { metadata }) {
+function needLogin(value: unknown, { metadata }): void {
   b = metadata;
 }
 
@@ -40,7 +41,7 @@ class C {
   foo = 123;
 
   @needLogin
-  m() {}
+  m(): void {}
 }
 
 Assert.equal(a, b);

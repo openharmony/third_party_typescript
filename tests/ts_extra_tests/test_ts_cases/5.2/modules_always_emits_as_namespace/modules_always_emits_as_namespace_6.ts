@@ -20,7 +20,7 @@
  ---*/
 
 
-import { Assert } from '../../../suite/assert.js'
-import { sample } from './sample.js'
+import { Assert } from '../../../suite/assert.js';
+import { sample } from './sample.js';
 
 Assert.equal(sample.sam, 1);

@@ -20,12 +20,12 @@
  ---*/
 
 
-import { Assert } from '../../../suite/assert.js'
+import { Assert } from '../../../suite/assert.js';
 
 namespace MyMath {
   export const PI = 3.14;
 
-  export function sumValue(num1: number, num2: number) {
+  export function sumValue(num1: number, num2: number): number {
     return num1 + num2;
   }
 }

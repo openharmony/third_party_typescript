@@ -20,9 +20,9 @@
  ---*/
 
 
-import { Assert } from '../../../suite/assert.js'
+import { Assert } from '../../../suite/assert.js';
 
-function ff() {}
+function ff(): void {}
 
 namespace ff {
   export const b = 123;

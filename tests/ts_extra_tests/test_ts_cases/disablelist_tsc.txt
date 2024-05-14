@@ -46,6 +46,7 @@ test_ts_cases/5.2/decorator_metadata/decorator_metadata_10.ts
 // npm install react
 // npm i --save-dev @types/react
 test_ts_cases/5.2/type_only_import_paths_with_typeScript_implementation_file_extensions/implementation_file_extensions_2.ts
+test_ts_cases/5.2/type_only_import_paths_with_typeScript_implementation_file_extensions/implementation_file_extensions_10.ts
 //The test case failed to run in the default environment and needs to be manually installed typescript5.2
 test_ts_cases/5.2/labeledelementdeclarations_may_hold_undefined_elements/labeledelementdeclarations_may_hold_undefined_elements_1.ts
 test_ts_cases/5.2/labeledelementdeclarations_may_hold_undefined_elements/labeledelementdeclarations_may_hold_undefined_elements_2.ts

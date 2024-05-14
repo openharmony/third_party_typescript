@@ -20,7 +20,7 @@
  ---*/
 
 
-import { Assert } from '../../../suite/assert.js'
+import { Assert } from '../../../suite/assert.js';
 
 const myArray = ['AAA', 'BBB', 'CCC', 'DDD', 'EEE'];
 const reversedArray = myArray.toReversed();

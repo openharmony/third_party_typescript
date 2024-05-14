@@ -14,9 +14,8 @@
  */
 /**---
  description: >
-    In TypeScript 5.0, you can now add a const modifier to a type parameter declaration to cause const-like 
-    inference to be the default. 
- module: ESNext
+    using Declarations and Explicit Resource Management
+ lib: ESNext
  isCurrent: true
  error: { code: declarations must be initialized }
  ---*/

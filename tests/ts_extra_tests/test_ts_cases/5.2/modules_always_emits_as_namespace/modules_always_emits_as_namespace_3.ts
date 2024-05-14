@@ -20,7 +20,7 @@
  ---*/
 
 
-import { Assert } from '../../../suite/assert.js'
+import { Assert } from '../../../suite/assert.js';
 
 namespace Shapes {
   export namespace Polygons {
@@ -29,7 +29,7 @@ namespace Shapes {
     export class Square {
       val: number = 1;
 
-      get value() {
+      get value(): number {
         return this.val * 4;
       }
     }

@@ -20,7 +20,7 @@
  ---*/
 
 
-import { Assert } from '../../../suite/assert.js'
+import { Assert } from '../../../suite/assert.js';
 
 let array: string[] | number[];
 array = ['a', 'b', 'c', '', 'd'];

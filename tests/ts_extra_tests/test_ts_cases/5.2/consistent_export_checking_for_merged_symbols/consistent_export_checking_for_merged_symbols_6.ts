@@ -22,11 +22,13 @@
 
 
 declare module 'replace-in-file' {
+  // error: Individual declarations in merged declaration 'replaceInFileA' must be all exported or all local
   function replaceInFileA(): void;
 
   export {};
 
+  // error: Individual declarations in merged declaration 'replaceInFileA' must be all exported or all local
   export namespace replaceInFileA {
-    function sync(): unknown[];
+    function sync(): void;
   }
 }

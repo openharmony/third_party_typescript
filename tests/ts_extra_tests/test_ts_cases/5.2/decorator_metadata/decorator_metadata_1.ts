@@ -21,16 +21,16 @@
  ---*/
 
 
-import { Assert } from '../../../suite/assert.js'
+import { Assert } from '../../../suite/assert.js';
 
-Symbol.metadata ??= Symbol('Symbol.metadata')
+Symbol.metadata ??= Symbol('Symbol.metadata');
 
 interface Context {
   name: string;
   metadata: Record<PropertyKey, unknown>;
 }
 
-function setMetadata(_target: any, context: Context) {
+function setMetadata(_target: unknown, context: Context): void {
   context.metadata[context.name] = true;
 }
 
