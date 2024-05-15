@@ -9234,7 +9234,6 @@ declare namespace ts {
             const SENDABLE_INTERFACE = "ISendable";
             const ARKTS_COLLECTIONS_D_ETS = "@arkts.collections.d.ets";
             const COLLECTIONS_NAMESPACE = "collections";
-            const ARKTS_COLLECTIONS_TYPES: string[];
             const ARKTS_LANG_D_ETS = "@arkts.lang.d.ets";
             const LANG_NAMESPACE = "lang";
             const ISENDABLE_TYPE = "ISendable";
