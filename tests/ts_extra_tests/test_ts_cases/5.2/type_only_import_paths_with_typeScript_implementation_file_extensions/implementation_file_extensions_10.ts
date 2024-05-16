@@ -17,16 +17,17 @@
     Type-Only Import Paths with TypeScript Implementation File Extensions
  module: ESNext
  isCurrent: true
+ jsx: "react-jsx"
  ---*/
 
 
-import { Assert } from '../../../suite/assert.js'
+import { Assert } from '../../../suite/assert.js';
 
 /**
 * @param {import("./justTypes.tsx").JustAType} JustAType
 */
 
-export function f(JustAType: any) {
+export function f(JustAType: import("./justTypes.tsx").JustAType): void {
   Assert.isString(JustAType.name);
   Assert.equal(JustAType.name, 'Alice');
 

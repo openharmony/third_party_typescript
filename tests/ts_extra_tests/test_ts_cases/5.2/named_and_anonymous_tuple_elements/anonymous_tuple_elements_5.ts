@@ -21,11 +21,11 @@
  ---*/
 
 
-import { Assert } from '../../../suite/assert.js'
+import { Assert } from '../../../suite/assert.js';
 
 type Coordinates = [x: number, number];
 
-function printCoordinates([x, y]: Coordinates) {
+function printCoordinates([x, y]: Coordinates): void {
   Assert.isNumber(x);
   Assert.equal(x, 5);
 

@@ -20,21 +20,20 @@
  isCurrent: true
  ---*/
 
-import { Assert } from '../../../suite/assert.js'
+import { Assert } from '../../../suite/assert.js';
 
-Symbol.metadata ??= Symbol('Symbol.metadata')
+Symbol.metadata ??= Symbol('Symbol.metadata');
 
-function needLogin(value: any, { metadata }) {
-}
+function needLogin(value: unknown, { metadata }: { metadata: unknown; }): void {}
 
 class C {
   @needLogin
-  m() {}
+  m(): void {}
 }
 
 class D extends C {
   @needLogin
-  n() {}
+  n(): void {}
 }
 
 Assert.equal(Object.getPrototypeOf(D[Symbol.metadata]), C[Symbol.metadata]);

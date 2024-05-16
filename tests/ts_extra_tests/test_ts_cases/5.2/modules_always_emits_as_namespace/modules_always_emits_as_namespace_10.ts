@@ -20,7 +20,7 @@
  ---*/
 
 
-import { Assert } from '../../../suite/assert.js'
+import { Assert } from '../../../suite/assert.js';
 
 enum E {
   a,
@@ -31,7 +31,7 @@ enum E {
 namespace E {
   export const m = 999;
 
-  export function f() {
+  export function f(): void {
     Assert.equal(E.a, 0);
   }
 }

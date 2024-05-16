@@ -20,7 +20,7 @@
  ---*/
 
 
-import { Assert } from '../../../suite/assert.js'
+import { Assert } from '../../../suite/assert.js';
 
 const myArray = ['AAA', 'BBB', 'CCC'];
 const updatedArray = myArray.with(1, 'DDD');

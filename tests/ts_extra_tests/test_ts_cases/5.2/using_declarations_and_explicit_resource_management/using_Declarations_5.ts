@@ -20,8 +20,8 @@
  ---*/
 
 
-import { Assert } from '../../../suite/assert.js'
-import * as fs from 'fs'
+import { Assert } from '../../../suite/assert.js';
+import * as fs from 'fs';
 
 (Symbol as { dispose: symbol }).dispose ??= Symbol('Symbol.dispose');
 
@@ -43,7 +43,7 @@ class TempFile implements Disposable {
   }
 }
 
-function doSomething() {
+function doSomething(): void {
   using file = new TempFile('a');
 }
 

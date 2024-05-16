@@ -21,7 +21,7 @@
  ---*/
 
 
-import { Assert } from '../../../suite/assert.js'
+import { Assert } from '../../../suite/assert.js';
 
 type Person = [namesss: string, age: number, ... string[]];
 

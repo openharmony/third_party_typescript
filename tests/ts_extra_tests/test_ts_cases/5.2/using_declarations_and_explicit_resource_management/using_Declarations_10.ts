@@ -21,11 +21,11 @@
  ---*/
 
 
-function func() {
+function func(): string | undefined {
   let obj = ['a', 'b', 'c'];
 
   // error: using and await using declarations are not allowed in the head of a for-in statement.
-  for (using x in obj) { 
+  for (using x in obj) {
     return x;
   }
 }

@@ -20,7 +20,7 @@
  ---*/
 
 
-import { Assert } from '../../../suite/assert.js'
+import { Assert } from '../../../suite/assert.js';
 
 (Symbol as { dispose: symbol }).dispose ??= Symbol('Symbol.dispose');
 
@@ -28,6 +28,7 @@ try {
   using b = { [Symbol.dispose]() { throw new Error('b'); } };
   throw new Error('a');
 }
+// The type of 'e' can only be any or unknown. When the type is unknown, the equivalent of 'e.name' cannot be found
 catch (e: any) {
   Assert.equal(e.name, 'SuppressedError');
   Assert.equal(e.message, 'An error was suppressed during disposal.');

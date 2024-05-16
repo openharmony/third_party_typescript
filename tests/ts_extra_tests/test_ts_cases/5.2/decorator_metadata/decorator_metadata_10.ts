@@ -21,14 +21,14 @@
  ---*/
 
 
-import { Assert } from '../../../suite/assert.js'
+import { Assert } from '../../../suite/assert.js';
 
-Symbol.metadata ??= Symbol('Symbol.metadata')
+Symbol.metadata ??= Symbol('Symbol.metadata');
 
 const myMetadata = new WeakMap();
 
-function meta(key: string, value: string) {
-  return (_: any, context: { metadata: object; }) => {
+function meta(key: string, value: string): Function {
+  return (_: unknown, context: { metadata: object; }): void => {
     let metadata = myMetadata.get(context.metadata);
 
     if (!metadata) {
@@ -43,7 +43,7 @@ function meta(key: string, value: string) {
 @meta('a', 'x')
 class C {
   @meta('b', 'y')
-  m() {}
+  m(): void {}
 }
 
 Assert.equal(myMetadata.get(C[Symbol.metadata]).a, 'x');

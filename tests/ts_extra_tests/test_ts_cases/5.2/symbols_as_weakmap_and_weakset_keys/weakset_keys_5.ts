@@ -20,7 +20,7 @@
  ---*/
 
 
-import { Assert } from '../../../suite/assert.js'
+import { Assert } from '../../../suite/assert.js';
 
 const myWeakSet = new WeakSet();
 const key = { symbolKey: Symbol('key') };

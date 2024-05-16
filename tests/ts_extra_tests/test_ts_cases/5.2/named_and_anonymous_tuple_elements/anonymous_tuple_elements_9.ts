@@ -24,4 +24,5 @@
 
 type MyArgs = [name: string, number, school: string, boolean];
 
-const wrongTypeArgs: MyArgs = ['jason', '5', 'school', true];// error: Type 'string' is not assignable to type 'number'.
+// error: Type 'string' is not assignable to type 'number'.
+const wrongTypeArgs: MyArgs = ['jason', '5', 'school', true]; 

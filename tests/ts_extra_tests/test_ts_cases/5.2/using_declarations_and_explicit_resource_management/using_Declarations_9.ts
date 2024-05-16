@@ -15,12 +15,12 @@
 /**---
  description: >
     using Declarations and Explicit Resource Management.
- module: ESNext
+ lib: ESNext
  isCurrent: true
  error: { code: declarations may not have binding patterns }
  ---*/
 
 
-using { x, y } = getX();// error: 'using' declarations may not have binding patterns.
+using { x, y } = getX(); // error: 'using' declarations may not have binding patterns.
 
-function getX() {};
+function getX(): void {};

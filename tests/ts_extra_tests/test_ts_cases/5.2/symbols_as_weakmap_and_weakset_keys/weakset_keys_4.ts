@@ -20,7 +20,7 @@
  ---*/
 
 
-import { Assert } from '../../../suite/assert.js'
+import { Assert } from '../../../suite/assert.js';
 
 const myWeakMap = new WeakMap();
 const key1 = { symbolKey: Symbol('key1') };

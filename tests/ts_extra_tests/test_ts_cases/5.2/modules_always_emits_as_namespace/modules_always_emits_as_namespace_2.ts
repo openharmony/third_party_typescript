@@ -20,10 +20,10 @@
  ---*/
 
 
-import { Assert } from '../../../suite/assert.js'
+import { Assert } from '../../../suite/assert.js';
 
 namespace Utils {
-  export function isString(value: any) {
+  export function isString(value: unknown): boolean {
     return typeof value === 'string';
   }
 }

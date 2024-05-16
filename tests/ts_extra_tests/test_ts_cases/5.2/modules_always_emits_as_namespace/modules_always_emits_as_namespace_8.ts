@@ -20,12 +20,12 @@
  ---*/
 
 
-import { Assert } from '../../../suite/assert.js'
+import { Assert } from '../../../suite/assert.js';
 
 namespace a {
   export const b = 123;
 
-  function add(v1: number, v2: number) {
+  function add(v1: number, v2: number): number {
     return v1 + v2;
   }
 

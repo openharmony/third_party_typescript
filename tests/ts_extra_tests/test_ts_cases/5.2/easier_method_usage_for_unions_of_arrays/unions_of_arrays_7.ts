@@ -20,7 +20,7 @@
  ---*/
 
 
-import { Assert } from '../../../suite/assert.js'
+import { Assert } from '../../../suite/assert.js';
 
 let array: string[] | number[];
 array = ['a', 'b', 'c', '', 'd'];
@@ -31,6 +31,7 @@ array.forEach(x => {
   if (!!x) {
     filteredArray.push(x);
   }
+  return undefined;
 });
 
 Assert.equal(filteredArray[3], 'd');

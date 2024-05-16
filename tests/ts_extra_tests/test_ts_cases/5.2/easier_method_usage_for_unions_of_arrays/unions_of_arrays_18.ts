@@ -20,7 +20,7 @@
  ---*/
 
 
-import { Assert } from '../../../suite/assert.js'
+import { Assert } from '../../../suite/assert.js';
 
 let array: string[] | number[];
 array = [1, 2, 3, 4];
@@ -29,6 +29,7 @@ const mappedArray = array.map(x => {
   if (!!x) {
     return x;
   }
+  return undefined;
 });
 
 Assert.equal(mappedArray.filter(x => !!x)[0], 1);

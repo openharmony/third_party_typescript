@@ -20,12 +20,17 @@
  ---*/
 
 
-import { Assert } from '../../../suite/assert.js'
-import * as fs from 'fs'
+import { Assert } from '../../../suite/assert.js';
+import * as fs from 'fs';
 
 (Symbol as { dispose: symbol }).dispose ??= Symbol('Symbol.dispose');
 
-function openFile(path: string) {
+type OpenedFileReturnType = {
+  handle: number;
+  [Symbol.dispose](): void;
+};
+
+function openFile(path: string): OpenedFileReturnType {
   const file = fs.openSync(path, 'w+');
 
   return {
@@ -34,7 +39,7 @@ function openFile(path: string) {
       fs.closeSync(this.handle);
 
       Assert.equal(path, 'a');
-    },
+    }
   };
 }
 

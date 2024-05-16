@@ -21,19 +21,19 @@
  ---*/
 
 
-import { Assert } from '../../../suite/assert.js'
+import { Assert } from '../../../suite/assert.js';
 
-Symbol.metadata ??= Symbol('Symbol.metadata')
+Symbol.metadata ??= Symbol('Symbol.metadata');
 
-function meta(key: string, value: string) {
-  return (_: any, context: { metadata: { [x: string]: string; }; }) => {
+function meta(key: string, value: string): Function {
+  return (_: unknown, context: { metadata: { [x: string]: string; }; }): void => {
     context.metadata[key] = value;
   };
 }
 
 class C {
   @meta('b', 'y')
-  m() {}
+  m(): void {}
 }
 
 Assert.equal(C[Symbol.metadata].b, 'y'); 

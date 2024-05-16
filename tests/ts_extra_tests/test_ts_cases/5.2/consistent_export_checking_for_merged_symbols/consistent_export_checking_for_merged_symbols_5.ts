@@ -17,16 +17,16 @@
     Individual declarations in merged declaration must be all exported or all local.
  module: ESNext
  isCurrent: true
- error: { code: Individual declarations in merged declaration 'inFile' must be all exported or all local }
+ error: { code: Individual declarations in merged declaration 'File' must be all exported or all local }
  ---*/
 
 
 declare module 'replace-in-file' {
-  // Error: Individual declarations in merged declaration 'inFile' must be all exported or all local.
-  export function inFile(config: unknown);
+  // Error: Individual declarations in merged declaration 'File' must be all exported or all local.
+  export function File(): void;
 
-  export default inFile;
+  export default File;
 
-  // Error: Individual declarations in merged declaration 'inFile' must be all exported or all local.
-  class inFile {}
+  // Error: Individual declarations in merged declaration 'File' must be all exported or all local.
+  class File {}
 }

@@ -20,11 +20,11 @@
  ---*/
 
 
-import { Assert } from '../../../suite/assert.js'
+import { Assert } from '../../../suite/assert.js';
 
 (Symbol as { asyncDispose: symbol }).asyncDispose ??= Symbol('Symbol.asyncDispose');
 
-async function doWork() {
+async function doWork(): Promise<void> {
   await new Promise(resolve => setTimeout(resolve, 500));
 }
 
@@ -37,11 +37,11 @@ function loggy(id: string): AsyncDisposable {
       await doWork();
 
       Assert.isTrue(id === 'a' || id === 'b' || id === 'c' || id === 'd' || id === 'e');
-    },
-  }
+    }
+  };
 }
 
-async function func() {
+async function func(): Promise<void> {
   await using a = loggy('a');
   await using b = loggy('b');
   {
