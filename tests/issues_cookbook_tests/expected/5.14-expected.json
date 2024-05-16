@@ -8,20 +8,6 @@
                 "reportLine": 4,
                 "reportColumn": 5,
                 "description": "Declaring fields in \"constructor\" is not supported (arkts-no-ctor-prop-decls)"
-            },
-            {
-                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.14.ets:5:5\n Declaring fields in \"constructor\" is not supported (arkts-no-ctor-prop-decls)\n\n",
-                "severity": 2,
-                "reportLine": 5,
-                "reportColumn": 5,
-                "description": "Declaring fields in \"constructor\" is not supported (arkts-no-ctor-prop-decls)"
-            },
-            {
-                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.14.ets:6:5\n Declaring fields in \"constructor\" is not supported (arkts-no-ctor-prop-decls)\n\n",
-                "severity": 2,
-                "reportLine": 6,
-                "reportColumn": 5,
-                "description": "Declaring fields in \"constructor\" is not supported (arkts-no-ctor-prop-decls)"
             }
         ]
     }
