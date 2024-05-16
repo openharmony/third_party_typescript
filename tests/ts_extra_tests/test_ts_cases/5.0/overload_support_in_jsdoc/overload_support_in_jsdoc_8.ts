@@ -14,14 +14,14 @@
  */
 /**---
  description: >
-    TypeScript 5.0 now allows JSDoc to declare overloads with a new @overload tag. 
-    Each JSDoc comment with an @overload tag is treated as a distinct overload for the following function declaration. 
+    TypeScript 5.0 now allows JSDoc to declare overloads with a new @overload tag.
+    Each JSDoc comment with an @overload tag is treated as a distinct overload for the following function declaration.
  module: ES2022
  isCurrent: true
  ---*/
 
- 
-import { Assert } from '../../../suite/assert.js'
+
+import { Assert } from '../../../suite/assert.js';
 
 /**
  * @overload
@@ -30,8 +30,15 @@ import { Assert } from '../../../suite/assert.js'
 
 /**
  * @overload
- * @param {any} obj
+ * @param {Shape} obj
  */
+
+type Shape = {
+  x: number;
+  y: number;
+  height: number;
+  width: number;
+}
 
 class Square {
   public x: number;
@@ -39,7 +46,7 @@ class Square {
   public height: number;
   public width: number;
 
-  constructor(obj?: any) {
+  constructor(obj?: Shape) {
     this.x = obj?.x ?? 0;
     this.y = obj?.y ?? 0;
     this.height = obj?.height ?? 0;

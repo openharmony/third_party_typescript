@@ -22,12 +22,12 @@
  ---*/
 
 
-import { fac, spaceShip } from './models/index.js'
-import { Assert } from '../../../suite/assert.js'
+import { fac, SpaceShip } from './models/index.js';
+import { Assert } from '../../../suite/assert.js';
 
-function takeASpaceship(s: fac.spaceShip) {
+function takeASpaceship(s: fac.SpaceShip): void {
   Assert.equal(s.getName(), 'Star');
 }
 
-const mySpaceship = new spaceShip();
+const mySpaceship = new SpaceShip();
 takeASpaceship(mySpaceship);

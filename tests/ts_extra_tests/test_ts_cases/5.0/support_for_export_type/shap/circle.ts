@@ -14,11 +14,11 @@
  */
 
 
-export class circleArea {
+export class CircleArea {
   radius = 2;
   PI = 3;
 
-  getArea() {
+  getArea(): number {
     return this.PI * this.radius * this.radius;
   }
 }

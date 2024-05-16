@@ -18,13 +18,13 @@
  module: ES2022
  isCurrent: true
  ---*/
- 
 
-import { spaceShip, vehiclesFactory } from './models/index.js'
-import { Assert } from '../../../suite/assert.js'
 
-const mySpaceship = new spaceShip();
-const myVehicles = new vehiclesFactory();
+import { SpaceShip, VehiclesFactory } from './models/index.js';
+import { Assert } from '../../../suite/assert.js';
+
+const mySpaceship = new SpaceShip();
+const myVehicles = new VehiclesFactory();
 
 Assert.equal(mySpaceship.getName(), 'Star');
 Assert.equal(myVehicles.getName(), 'Audi');

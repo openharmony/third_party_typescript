@@ -19,8 +19,8 @@
  isCurrent: true
  ---*/
 
- 
-import { Assert } from '../../../suite/assert.js'
+
+import { Assert } from '../../../suite/assert.js';
 
 class SafeBox {
   private _value: number = 5;

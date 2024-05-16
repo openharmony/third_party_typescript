@@ -20,7 +20,7 @@
  error: { code: Operator '>' cannot be applied to types 'string | number' and 'number' }
  ---*/
 
- 
-function func(ns: number | string) {
+
+function func(ns: number | string): boolean {
   return ns > 4; // Operator '>' cannot be applied to types 'string | number' and 'number'
 }

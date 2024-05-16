@@ -22,15 +22,15 @@
  ---*/
 
 
-import * as React from 'react'
+import * as React from 'react';
 
-function Welcome(props: { content: JSX.Element[] | JSX.Element }): any;
-function Welcome(props: { name: string }): any;
-function Welcome(props: any) {
-  <h1>Hello, { props.name }</h1>;
-}
+function Welcome(props: { content: JSX.Element[] | JSX.Element }): React.ReactElement;
+function Welcome(props: { name: string }): React.ReactElement;
+function Welcome(props: Record<string, string | JSX.Element[] | JSX.Element>): React.ReactElement {
+  return <h1>Hello, { props.name }</h1>;
+};
 
 <div>
-  <Welcome name = 'Lily' />
-  <Welcome content = { <span>Hello</span> } />
-</div>
+  <Welcome name = 'Lily' />;
+  <Welcome content = { <span>Hello</span> } />;
+</div>;

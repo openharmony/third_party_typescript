@@ -20,11 +20,14 @@
  ---*/
 
 
-import { Assert } from '../../../suite/assert.js'
+import { Assert } from '../../../suite/assert.js';
 
-function lazy(value: Function, context: { kind: string, name: string }) {
+function lazy(value: Function, context: {
+  kind: string,
+  name: string
+}): ((this: object) => string) | undefined {
   if (context.kind === 'getter') {
-    return function (this: object) {
+    return function (this: object): string {
       const result = value.call(this);
       Object.defineProperty(
         this, context.name,
@@ -36,11 +39,12 @@ function lazy(value: Function, context: { kind: string, name: string }) {
       return 'This is result.';
     };
   }
+  return undefined;
 }
 
 class C {
   @lazy
-  get value() {
+  get value(): string {
     return 'Result of computation';
   }
 }

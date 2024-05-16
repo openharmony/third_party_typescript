@@ -20,7 +20,7 @@
  ---*/
 
 
-import { Assert } from '../../../suite/assert.js'
+import { Assert } from '../../../suite/assert.js';
 
 type Colors = 'red' | 'green' | 'blue';
 
@@ -29,10 +29,11 @@ type RGB = [red: number, green: number, blue: number];
 /**
  * @satisfies Colors | RGB
  */
+
 const palette = {
   red: [255, 0, 0],
   green: '#00ff00',
   blue: [0, 0, 255]
-}
+};
 
 Assert.equal(palette.green, '#00ff00');

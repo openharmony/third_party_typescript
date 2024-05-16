@@ -22,18 +22,17 @@
  ---*/
 
 
-import { Assert } from '../../../suite/assert.js'
-import * as React from 'react'
+import { Assert } from '../../../suite/assert.js';
+import * as React from 'react';
 
-// Both of these are equivalent:
 const x = <Foo a:b = 'hello' />;
 
 interface FooProps {
   'a:b': string;
 }
 
-function Foo(props: FooProps) {
+function Foo(props: FooProps): React.ReactElement {
   return <div>{ props['a:b'] }</div>;
-}
+};
 
 Assert.equal(x.props['a:b'], 'hello');

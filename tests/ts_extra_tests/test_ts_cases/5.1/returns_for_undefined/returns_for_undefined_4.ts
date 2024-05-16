@@ -19,13 +19,13 @@
  isCurrent: true
  ---*/
 
- 
-import { Assert } from '../../../suite/assert.js'
+
+import { Assert } from '../../../suite/assert.js';
 
 function functionB(f: () => undefined): undefined {};
 
 functionB(() => {
   // no returns
-})
+});
 
 Assert.isFunction(functionB);

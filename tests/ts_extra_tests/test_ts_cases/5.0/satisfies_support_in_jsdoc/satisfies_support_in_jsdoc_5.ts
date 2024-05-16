@@ -19,7 +19,8 @@
  isCurrent: true
  ---*/
 
-import { Assert } from '../../../suite/assert.js'
+
+import { Assert } from '../../../suite/assert.js';
 
 // @ts-check
 /**
@@ -31,6 +32,7 @@ import { Assert } from '../../../suite/assert.js'
 /**
  * @satisfies {CompilerOptions}
  */
+
 let myCompilerOptions = {
   strict: true,
   outDir: '../lib'

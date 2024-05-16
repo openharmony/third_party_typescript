@@ -20,27 +20,30 @@
  ---*/
 
 
-import { Assert } from '../../../suite/assert.js'
+import { Assert } from '../../../suite/assert.js';
 
-function trace(value: Function, context: { kind: string }) {
+function trace(value: Function, context: {
+  kind: string
+}): ((this: unknown, ...args: unknown[]) => string) | undefined {
   if (context.kind === 'method') {
-    return function (this: any, ...args: any[]) {
+    return function (this: unknown, ...args: unknown[]): string {
       const result = value.apply(this, args) + '!!!';
       return result;
     };
   }
+  return undefined;
 }
 
 class StringBuilder {
   str = '';
 
   @trace
-  add(newStr: string) {
+  add(newStr: string): void {
     this.str += newStr;
   }
-  
+
   @trace
-  toString() {
+  toString(): string {
     return this.str;
   }
 }

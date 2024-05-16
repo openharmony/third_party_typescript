@@ -19,7 +19,8 @@
  isCurrent: true
  ---*/
 
-import { Assert } from '../../../suite/assert.js'
+
+import { Assert } from '../../../suite/assert.js';
 
 // @ts-check
 /** 
@@ -27,12 +28,13 @@ import { Assert } from '../../../suite/assert.js'
  * */
 
 /**
- * @satisfies { Record<Colors, unknown> }
+ * @satisfies { Record<Colors, string> }
  */
+
 const favoriteColors = {
   red: 'yes',
   green: false,
   blue: 'kinda'
-}
+};
 
 Assert.equal(favoriteColors.red, 'yes');

@@ -20,17 +20,17 @@
  ---*/
 
 
-import { spaceShip, shipString, vehiclesFactory, myVehicles } from './models/index.js'
-import { Assert } from '../../../suite/assert.js'
+import { SpaceShip, ShipString, VehiclesFactory, MyVehicles } from './models/index.js';
+import { Assert } from '../../../suite/assert.js';
 
-const mySpaceship = new spaceShip();
-const myShipString = new shipString();
+const mySpaceship = new SpaceShip();
+const myShipString = new ShipString();
 
 Assert.equal(mySpaceship.getName(), 'Star');
 Assert.equal(myShipString.toUpper(), 'SHIP');
 
-const vehicles = new vehiclesFactory();
-const myCar = new myVehicles();
+const vehicles = new VehiclesFactory();
+const myCar = new MyVehicles();
 
 Assert.equal(vehicles.getName(), 'Audi');
 Assert.equal(myCar.toUpper(), 'ALTO');

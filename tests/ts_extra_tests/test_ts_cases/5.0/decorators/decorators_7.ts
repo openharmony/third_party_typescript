@@ -20,18 +20,21 @@
  ---*/
 
 
-import { Assert } from '../../../suite/assert.js'
+import { Assert } from '../../../suite/assert.js';
 
-function twice(value: undefined, context: { kind: string }) {
+function twice(value: unknown, context: {
+  kind: string
+}): ((initialValue: number) => number) | undefined {
   if (context.kind === 'field') {
-    return (initialValue: number) => initialValue * 2;
+    return (initialValue: number): number => initialValue * 2;
   }
+  return undefined;
 }
 
-class test {
+class Test {
   @twice
   x = 2;
 }
 
-let p = new test();
+let p = new Test();
 Assert.equal(p.x, 4);

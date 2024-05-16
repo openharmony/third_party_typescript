@@ -18,22 +18,22 @@
  module: ES2022
  isCurrent: true
  ---*/
- 
 
-import { fac, spaceShip } from './models/index.js'
-import { circle, circleArea } from './shap/index.js'
-import { Assert } from '../../../suite/assert.js'
 
-function takeASpaceship(s: fac.spaceShip) {
+import { fac, SpaceShip } from './models/index.js';
+import { circle, CircleArea } from './shap/index.js';
+import { Assert } from '../../../suite/assert.js';
+
+function takeASpaceship(s: fac.SpaceShip): void {
   Assert.equal(s.getName(), 'Star');
 }
 
-function getMyCirlceArea(s: circle.circleArea) {
+function getMyCirlceArea(s: circle.CircleArea): void {
   Assert.equal(s.getArea(), 12);
 }
 
-const mySpaceship = new spaceShip();
-const myCirlceArea = new circleArea();
+const mySpaceship = new SpaceShip();
+const myCirlceArea = new CircleArea();
 
 takeASpaceship(mySpaceship);
 getMyCirlceArea(myCirlceArea);

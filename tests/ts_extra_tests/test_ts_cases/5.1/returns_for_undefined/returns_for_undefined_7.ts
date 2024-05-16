@@ -20,8 +20,8 @@
  ---*/
 
 
-import { Assert } from '../../../suite/assert.js'
+import { Assert } from '../../../suite/assert.js';
 
-const f3 = () => {}
+const f3: () => void = () => {};
 
 Assert.isFunction(f3);

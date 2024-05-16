@@ -20,7 +20,7 @@
  ---*/
 
 
-import { Assert } from '../../../suite/assert.js'
+import { Assert } from '../../../suite/assert.js';
 
 // @ts-check
 /**
@@ -30,6 +30,7 @@ import { Assert } from '../../../suite/assert.js'
 /**
 * @satisfies {Record<Shapes, number | string>}
 */
+
 const shapesInGraphic = {
   'circle': 4,
   'square': 'one',

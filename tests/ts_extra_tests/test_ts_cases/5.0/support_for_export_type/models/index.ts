@@ -14,8 +14,8 @@
  */
 
 
-export type * as fac from './factory.js'
-export * from  './factory.js'
+export type * as fac from './factory.js';
+export * from './factory.js';
 
-export type * as vehicles from './vehicles.js'
-export * from  './vehicles.js'
+export type * as vehicles from './vehicles.js';
+export * from './vehicles.js';

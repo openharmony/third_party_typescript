@@ -24,7 +24,7 @@
  ---*/
 
 
-import * as React from 'react'
+import * as React from 'react';
 
 interface PropsType {
   children: JSX.Element;
@@ -32,12 +32,12 @@ interface PropsType {
 }
 
 class Component extends React.Component<PropsType, {}> {
-  render() {
+  render(): JSX.Element | null {
     return (
       <h2>
         { this.props.children }
       </h2>
-    )
+    );
   }
 }
 
@@ -45,4 +45,4 @@ class Component extends React.Component<PropsType, {}> {
 <Component name = 'bar'>
   <h1>Hello World</h1>
   <h2>Hello World</h2>
-</Component>
+</Component>;

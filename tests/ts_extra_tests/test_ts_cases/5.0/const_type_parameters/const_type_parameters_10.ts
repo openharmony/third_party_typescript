@@ -21,11 +21,12 @@
  ---*/
 
 
-import { Assert } from '../../../suite/assert.js'
+import { Assert } from '../../../suite/assert.js';
 
 function constObjectTest<const T extends object>(args: T): T {
   return args;
 };
+
 const myObject = { key: 1, value: 'abc' };
 
 let myObj = constObjectTest(myObject);

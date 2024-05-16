@@ -19,21 +19,26 @@
  isCurrent: true
  ---*/
 
- 
-import { Assert } from '../../../suite/assert.js'
 
-function point() {
+import { Assert } from '../../../suite/assert.js';
+
+interface ReturnType {
+  get size(): number;
+  set size(value: string);
+}
+
+function point(): ReturnType {
   let size = '0';
-  
+
   return {
     set size(value: string) {
       size = value;
     },
-    
+
     get size(): number {
       return 0;
     }
-  }
+  };
 }
 
 point().size = 'abc';

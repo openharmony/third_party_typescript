@@ -20,9 +20,9 @@
  ---*/
 
 
-import { Assert } from '../../../suite/assert.js'
+import { Assert } from '../../../suite/assert.js';
 
-type fun = () => undefined;
-const f1: fun = (): undefined => {}
+type Fun = () => undefined;
+const f1: Fun = (): undefined => {};
 
 Assert.isFunction(f1);

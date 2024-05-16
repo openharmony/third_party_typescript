@@ -19,7 +19,8 @@
  isCurrent: true
  ---*/
 
-import { Assert } from '../../../suite/assert.js'
+
+import { Assert } from '../../../suite/assert.js';
 
 // @ts-check
 /**
@@ -27,5 +28,6 @@ import { Assert } from '../../../suite/assert.js'
  */
 
 /** @satisfies { WelcomeMessage } */
+
 const myMessage = 'Hello, world';
 Assert.equal(myMessage, 'Hello, world');

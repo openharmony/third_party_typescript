@@ -20,11 +20,12 @@
  ---*/
 
 
-import { Assert } from '../../../suite/assert.js'
+import { Assert } from '../../../suite/assert.js';
 
 // @ts-check
 /**
  * @satisfies { 'foo' | 'bar' } 
  */
+
 const messageRight = 'foo';
 Assert.equal(messageRight, 'foo');

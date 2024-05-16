@@ -19,11 +19,13 @@
  isCurrent: true
  ---*/
 
-import { Assert } from '../../../suite/assert.js'
+
+import { Assert } from '../../../suite/assert.js';
 
 // @ts-check
 /**
  * @satisfies { 'foo' | 'bar' } 
  */
+
 const myMessage = 'bar';
 Assert.equal(myMessage, 'bar');

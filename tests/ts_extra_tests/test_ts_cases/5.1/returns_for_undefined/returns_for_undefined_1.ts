@@ -20,8 +20,8 @@
  ---*/
 
 
-import { Assert } from '../../../suite/assert.js'
+import { Assert } from '../../../suite/assert.js';
 
-function f4(): undefined {}
+function f4(): undefined {};
 
 Assert.isFunction(f4);

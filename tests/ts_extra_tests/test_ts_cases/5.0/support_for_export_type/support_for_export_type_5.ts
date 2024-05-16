@@ -18,17 +18,17 @@
  module: ES2022
  isCurrent: true
  ---*/
- 
 
-import { fac, spaceShip, shipString } from './models/index.js'
-import { Assert } from '../../../suite/assert.js'
 
-function takeASpaceship(s: fac.spaceShip, d: fac.shipString) {
+import { fac, SpaceShip, ShipString } from './models/index.js';
+import { Assert } from '../../../suite/assert.js';
+
+function takeASpaceship(s: fac.SpaceShip, d: fac.ShipString): void {
   Assert.equal(s.getName(), 'Star');
   Assert.equal(d.toUpper(), 'SHIP');
 }
 
-const mySpaceship = new spaceShip();
-const myShipString = new shipString();
+const mySpaceship = new SpaceShip();
+const myShipString = new ShipString();
 
 takeASpaceship(mySpaceship, myShipString);

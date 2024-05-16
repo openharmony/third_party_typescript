@@ -20,19 +20,20 @@
  ---*/
 
 
-import { Assert } from '../../../suite/assert.js'
+import { Assert } from '../../../suite/assert.js';
 
-function Greeter(value: Function, context: { kind: string }) {
+function greeter(value: Function, context: { kind: string }): void {
   if (context.kind === 'class') {
-    value.prototype.greet = function () {
+    value.prototype.greet = function (): string {
       return 'hello';
     };
   }
+  return undefined;
 }
 
-@Greeter
+@greeter
 class User {
-  greet(){
+  greet(): string {
     return 'hi';
   }
 }

@@ -19,10 +19,10 @@
  isCurrent: true
  ---*/
 
- 
-import { Assert } from '../../../suite/assert.js'
 
-function funcH(ns: number | string) {
+import { Assert } from '../../../suite/assert.js';
+
+function funcH(ns: number | string): boolean {
   return -ns > 4;
 }
 

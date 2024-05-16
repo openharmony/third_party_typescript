@@ -20,12 +20,12 @@
  ---*/
 
 
-import { spaceShip } from './models/index.js'
-import { circleArea } from './shap/index.js'
-import { Assert } from '../../../suite/assert.js'
+import { SpaceShip } from './models/index.js';
+import { CircleArea } from './shap/index.js';
+import { Assert } from '../../../suite/assert.js';
 
-const mySpaceShip = new spaceShip();
-const myCirlceArea = new circleArea();
+const mySpaceShip = new SpaceShip();
+const myCirlceArea = new CircleArea();
 
 Assert.equal(mySpaceShip.getName(), 'Star');
 Assert.equal(myCirlceArea.getArea(), 12);
