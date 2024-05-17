@@ -19,30 +19,30 @@
 @Sendable
 class SendableClass {}
 
-function A(obj: number) {
+function myFunctionA(obj: number) {
   obj as SendableClass; // ERROR
 }
 
-function B(obj: string) {
+function myFunctionB(obj: string) {
   obj as SendableClass; // ERROR
 }
 
-function C(obj: boolean) {
+function myFunctionC(obj: boolean) {
   obj as SendableClass; // ERROR
 }
 
-function D(obj: never) {
+function myFunctionD(obj: never) {
   obj as SendableClass; // ERROR
 }
 
-function E(obj: void) {
+function myFunctionE(obj: void) {
   obj as SendableClass; // ERROR
 }
 
-function F(obj: [number, string]) {
+function myFunctionF(obj: [number, string]) {
   obj as SendableClass; // ERROR
 }
 
-function G(obj: number | string) {
+function myFunctionG(obj: number | string) {
   obj as SendableClass; // ERROR
 }

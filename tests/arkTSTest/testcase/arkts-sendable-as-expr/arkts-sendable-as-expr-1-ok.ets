@@ -19,14 +19,14 @@
 @Sendable
 class SendableClass {}
 
-function B(obj: object) {
+function myFunctionB(obj: object) {
   obj as SendableClass; // OK
 }
 
-function C(obj: Object) {
+function myFunctionC(obj: Object) {
   obj as SendableClass; // OK
 }
 
-function D(obj: any) {
+function myFunctionD(obj: any) {
   obj as SendableClass; // OK
 }

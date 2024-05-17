@@ -17,10 +17,10 @@
 // Description: shared module Import module
 
 import 'lib1-dependencie'
-import * as exampleValue from "lib1-dependencie";
-import { export1 } from "lib1-dependencie";
-import { exampleValue1, exampleValue2 } from "lib1-dependencie";
-import { exampleValue1 as value1, exampleValue2 as value2 } from "lib1-dependencie";
+import * as exampleValue from 'lib1-dependencie';
+import { export1 } from 'lib1-dependencie';
+import { exampleValue1, exampleValue2 } from 'lib1-dependencie';
+import { exampleValue1 as value1, exampleValue2 as value2 } from 'lib1-dependencie';
 'use shared'
 
 window.MY_GLOBAL_VAR = 'Hello, world!'
