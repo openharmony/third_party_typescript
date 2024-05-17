@@ -50,8 +50,6 @@ export const ARKTS_COLLECTIONS_D_ETS = '@arkts.collections.d.ets';
 
 export const COLLECTIONS_NAMESPACE = 'collections';
 
-export const ARKTS_COLLECTIONS_TYPES = ['Array', 'Int8Array', 'Uint8Array', 'Int16Array', 'Uint16Array', 'Int32Array', 'Uint32Array'];
-
 export const ARKTS_LANG_D_ETS = '@arkts.lang.d.ets';
 
 export const LANG_NAMESPACE = 'lang';
@@ -1792,9 +1790,13 @@ export function isArkTSCollectionsArrayLikeType(type: ts.Type): boolean {
 }
 
 function isArkTSCollectionsArrayLikeDeclaration(decl: ts.Declaration): boolean {
-  if (!ts.isClassDeclaration(decl) || !decl.name || !ARKTS_COLLECTIONS_TYPES.includes(decl.name.text)) {
+  if (!ts.isClassDeclaration(decl) && !ts.isInterfaceDeclaration(decl) || !decl.name) {
     return false;
   }
+
+  if (!ts.hasIndexSignature(typeChecker.getTypeAtLocation(decl))) {
+    return false;
+  } 
 
   if (!ts.isModuleBlock(decl.parent) || decl.parent.parent.name.text !== COLLECTIONS_NAMESPACE) {
     return false;
