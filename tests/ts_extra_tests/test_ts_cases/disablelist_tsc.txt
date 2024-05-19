@@ -72,7 +72,18 @@ test_ts_cases/spec/basic_concepts/names/reserved_words/special_mean_but_valid_id
 test_ts_cases/spec/basic_concepts/names/reserved_words/special_mean_but_valid_identifier/await_is_valid_identifier_3.ts
 test_ts_cases/spec/basic_concepts/names/reserved_words/special_mean_but_valid_identifier/await_is_valid_identifier_4.ts
 // The imported file in this test case does not adhere to the CommonJS export rules.
-// While TypeScript version 4.9 can compile the corresponding '.js' file,during the Node runtime,
+// While TypeScript version 4.9 can compile the corresponding '.js' file, during the Node runtime,
 // it may throw an error indicating that the imported module cannot be found.
 // It is recommended to use the '.cjs' file extension in this case.
 test_ts_cases/spec/scripts_and_modules/7_commonJS_modules/commonJS_modules_1.ts
+// Seven of the new feature test cases in TypeScript version 5.2 need to be adapted to the higher versions of @types/node. 
+// If @types/node versions are too high, it will not match the version of @types/node in the chokidar file in the typescript directory, resulting in some test cases cannot pass.
+// In order to avoid this situation, we choose a fixed @types/node version and mask the 7 test cases that require a higher version of @types/node.
+// So we can control the @types/node version and mask the faulty ones.
+test_ts_cases/5.2/using_declarations_and_explicit_resource_management/using_Declarations_1.ts
+test_ts_cases/5.2/using_declarations_and_explicit_resource_management/using_Declarations_2.ts
+test_ts_cases/5.2/using_declarations_and_explicit_resource_management/using_Declarations_3.ts
+test_ts_cases/5.2/using_declarations_and_explicit_resource_management/using_Declarations_4.ts
+test_ts_cases/5.2/using_declarations_and_explicit_resource_management/using_Declarations_5.ts
+test_ts_cases/5.2/using_declarations_and_explicit_resource_management/using_Declarations_6.ts
+test_ts_cases/5.2/using_declarations_and_explicit_resource_management/using_Declarations_7.ts
