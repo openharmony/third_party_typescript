@@ -1,5 +1,20 @@
 {
-    "arktsVersion_1_0": [],
+    "arktsVersion_1_0": [
+        {
+            "messageText": "No decorators except ArkUI decorators are currently allowed (arkts-no-decorators-except-arkui)",
+            "expectLineAndCharacter": {
+              "line": 20,
+              "character": 1
+            }
+        },
+        {
+            "messageText": "Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)",
+            "expectLineAndCharacter": {
+              "line": 23,
+              "character": 13
+            }
+        }
+    ],
     "arktsVersion_1_1": [
         {
             "messageText": "Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)",
