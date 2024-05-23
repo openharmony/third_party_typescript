@@ -779,6 +779,15 @@ export class TypeScriptLinter {
   }
 
   private handlePropertySignature(node: ts.PropertySignature): void {
+    const propName = node.name;
+    if (!!propName && ts.isNumericLiteral(propName)) {
+      let autofix: Autofix[] | undefined = Autofixer.fixLiteralAsPropertyName(node);
+      const autofixable = autofix !== undefined;
+      if (!Autofixer.shouldAutofix(node, FaultID.LiteralAsPropertyName)) {
+        autofix = undefined;
+      }
+      this.incrementCounters(node, FaultID.LiteralAsPropertyName, autofixable, autofix);
+    }
     this.handleSendableInterfaceProperty(node);
   }
 
