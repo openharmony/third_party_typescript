@@ -25,14 +25,14 @@ arrayUint16[num]; // should NOT report
 arrayInt32[num]; // should NOT report
 arrayUint32[num]; // should NOT report
 
-array1["str"]; // should report, arkts-no-props-by-index
-arrayInt8["str"]; // should report, arkts-no-props-by-index
-arrayUint8["str"]; // should report, arkts-no-props-by-index
-arrayInt16["str"]; // should report, arkts-no-props-by-index
-arrayUint16["str"]; // should report, arkts-no-props-by-index
-arrayInt32["str"]; // should report, arkts-no-props-by-index
-arrayUint32["str"]; // should report, arkts-no-props-by-index
-const str = "abc";
+array1['str']; // should report, arkts-no-props-by-index
+arrayInt8['str']; // should report, arkts-no-props-by-index
+arrayUint8['str']; // should report, arkts-no-props-by-index
+arrayInt16['str']; // should report, arkts-no-props-by-index
+arrayUint16['str']; // should report, arkts-no-props-by-index
+arrayInt32['str']; // should report, arkts-no-props-by-index
+arrayUint32['str']; // should report, arkts-no-props-by-index
+const str = 'abc';
 array1[str]; // should report, arkts-no-props-by-index
 arrayInt8[str]; // should report, arkts-no-props-by-index
 arrayUint8[str]; // should report, arkts-no-props-by-index
@@ -43,7 +43,7 @@ arrayUint32[str]; // should report, arkts-no-props-by-index
 
 set1[0]; // should report, arkts-no-props-by-index
 
-let normalArray: Array<number> = new Array<number>();
+let normalArray: number[] = [];
 normalArray[0] // OK
 normalArray['0'] // OK
 
