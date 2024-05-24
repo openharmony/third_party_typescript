@@ -15,32 +15,7 @@
 
 namespace ts {
 export namespace ArkTSLinter_1_1 {
-export namespace Autofixer {
-
-import AutofixInfo = Common.AutofixInfo;
-import FaultID = Problems.FaultID;
-
-//import Utils = Utils;
-
-export const AUTOFIX_ALL: AutofixInfo = { problemID: "", start: -1, end: -1 };
-
-// Some fixes are potentially risky and may break source code if fixes
-// are applied separately.
-// Temporary solution is to disable all risky autofixes, until the
-// algorithm is improved to guarantee that fixes can be applied
-// safely and won't break program code.
-const UNSAFE_FIXES: FaultID[] = [ FaultID.LiteralAsPropertyName, FaultID.PropertyAccessByIndex ];
-
-export const autofixInfo: AutofixInfo[] = [];
-
-export function shouldAutofix(node: Node, faultID: FaultID): boolean {
-  if (UNSAFE_FIXES.includes(faultID)) return false;
-  if (autofixInfo.length === 0) return false;
-  if (autofixInfo.length === 1 && autofixInfo[0] === AUTOFIX_ALL) return true;
-  return autofixInfo.findIndex(
-    value => value.start === node.getStart() && value.end === node.getEnd() && value.problemID === FaultID[faultID]
-  ) !== -1;
-}
+export namespace Autofixer_1_1 {
 
 export interface Autofix {
   replacementText: string;
@@ -48,154 +23,100 @@ export interface Autofix {
   end: number;
 }
 
-const printer: Printer = createPrinter({ omitTrailingSemicolon: false, removeComments: false });
-
-function numericLiteral2IdentifierName(numeric: NumericLiteral): string {
-  return "__" + numeric.getText();
-}
-
-function stringLiteral2IdentifierName(str: StringLiteral): string {
-  const text = str.getText();
-  return text.substring(1, text.length-1); // cut out starting and ending quoters.
-}
-
-function propertyName2IdentifierName(name: PropertyName): string {
-  if (name.kind === SyntaxKind.NumericLiteral) {
-    return numericLiteral2IdentifierName(name);
+export class Autofixer {
+  
+  fixLiteralAsPropertyNamePropertyAssignment(_node: ts.PropertyAssignment): Autofix[] | undefined {
+    // mock
+    return [];
   }
 
-  if (name.kind === SyntaxKind.StringLiteral) {
-    return stringLiteral2IdentifierName(name);
+  fixLiteralAsPropertyNamePropertyName(_node: ts.PropertyName): Autofix[] | undefined {
+    // mock
+    return [];
   }
 
-  return "";
-}
-
-function indexExpr2IdentifierName(index: Expression): string {
-  if (index.kind === SyntaxKind.NumericLiteral) {
-    return numericLiteral2IdentifierName(index as NumericLiteral);
+  fixPropertyAccessByIndex(_node: Node): Autofix[] | undefined {
+    // mock
+    return [];
+  }
+  
+  fixFunctionExpression(
+    funcExpr: ts.FunctionExpression,
+    _retType: ts.TypeNode | undefined = funcExpr.type,
+    _modifiers: readonly ts.Modifier[] | undefined,
+    _isGenerator: boolean,
+    _hasUnfixableReturnType: boolean
+  ): Autofix[] | undefined {
+    // mock
+    return [];
   }
 
-  if (index.kind === SyntaxKind.StringLiteral) {
-    return stringLiteral2IdentifierName(index as StringLiteral);
+  fixVarDeclaration(_node: ts.VariableDeclarationList): Autofix[] | undefined {
+    // mock
+    return [];
+  }
+  
+  fixMissingReturnType(_funcLikeDecl: FunctionLikeDeclaration, _typeNode: TypeNode): Autofix[] {
+    // mock
+    return [];
   }
 
-  return "";
-}
-
-export function fixLiteralAsPropertyName(node: Node): Autofix[] | undefined {
-  if (isPropertyDeclaration(node) || isPropertyAssignment(node)) {
-    const propName = node.name;
-    const identName = propertyName2IdentifierName(propName);
-    if (identName) {
-      return [{ replacementText: identName, start: propName.getStart(), end: propName.getEnd() }];
-    }
+  dropTypeOnVarDecl(_varDecl: ts.VariableDeclaration): Autofix[] {
+    // mock
+    return [];
   }
 
-  return undefined;
-}
-
-export function fixPropertyAccessByIndex(node: Node): Autofix[] | undefined {
-  if (isElementAccessExpression(node)) {
-    const elemAccess = node;
-    const identifierName = indexExpr2IdentifierName(elemAccess.argumentExpression);
-    if (identifierName) {
-      return [{
-        replacementText: elemAccess.expression.getText() + "." + identifierName,
-        start: elemAccess.getStart(), end: elemAccess.getEnd()
-      }];
-    }
+  fixTypeAssertion(_typeAssertion: ts.TypeAssertion): Autofix[] {
+    // mock
+    return [];
+  }
+  
+  fixCommaOperator(_tsNode: ts.Node): Autofix[] {
+    // mock
+    return [];
   }
 
-  return undefined;
-}
-
-export function fixFunctionExpression(funcExpr: FunctionExpression,
-  params: NodeArray<ParameterDeclaration> = funcExpr.parameters,
-  retType: TypeNode | undefined = funcExpr.type): Autofix {
-  const arrowFunc = factory.createArrowFunction(
-    undefined, undefined, params, retType, factory.createToken(SyntaxKind.EqualsGreaterThanToken),
-    funcExpr.body
-  );
-  const text = printer.printNode(EmitHint.Unspecified, arrowFunc, funcExpr.getSourceFile());
-  return { start: funcExpr.getStart(), end: funcExpr.getEnd(), replacementText: text };
-}
-
-export function fixReturnType(funcLikeDecl: FunctionLikeDeclaration, typeNode: TypeNode): Autofix {
-  const text = ": " + printer.printNode(EmitHint.Unspecified, typeNode, funcLikeDecl.getSourceFile());
-  const pos = getReturnTypePosition(funcLikeDecl);
-  return { start: pos, end: pos, replacementText: text };
-}
-
-function getReturnTypePosition(funcLikeDecl: FunctionLikeDeclaration): number {
-  if (funcLikeDecl.body) {
-    // Find position of the first node or token that follows parameters.
-    // After that, iterate over child nodes in reverse order, until found
-    // first closing parenthesis.
-    const postParametersPosition = isArrowFunction(funcLikeDecl)
-      ? funcLikeDecl.equalsGreaterThanToken.getStart()
-      : funcLikeDecl.body.getStart();
-
-    const children = funcLikeDecl.getChildren();
-    for (let i = children.length - 1; i >= 0; i--) {
-      const child = children[i];
-      if (child.kind === SyntaxKind.CloseParenToken && child.getEnd() < postParametersPosition) {
-        return child.getEnd();
-      }
-    }
+  fixEnumMerging(_enumSymbol: ts.Symbol, _enumDeclsInFile: ts.Declaration[]): Autofix[] | undefined {
+    // mock
+    return [];
   }
 
-  // Shouldn't get here.
-  return -1;
-}
-
-export function fixCtorParameterProperties(ctorDecl: ConstructorDeclaration, paramTypes: TypeNode[]): Autofix[] | undefined {
-  const fieldInitStmts: Statement[] = [];
-  const newFieldPos = ctorDecl.getStart();
-  const autofixes: Autofix[] = [{ start: newFieldPos, end: newFieldPos, replacementText: "" }];
-
-  for (let i = 0; i < ctorDecl.parameters.length; i++) {
-    const param = ctorDecl.parameters[i];
-
-    // Parameter property can not be a destructuring parameter.
-    if (!isIdentifier(param.name)) {
-      continue;
-    }
-
-    if (Utils.hasAccessModifier(param)) {
-      const propIdent = factory.createIdentifier(param.name.text);
-
-      const newFieldNode = factory.createPropertyDeclaration(
-        param.modifiers, propIdent, undefined, paramTypes[i], undefined
-      );
-      const newFieldText = printer.printNode(EmitHint.Unspecified, newFieldNode, ctorDecl.getSourceFile()) + "\n";
-      autofixes[0].replacementText += newFieldText;
-
-      const newParamDecl = factory.createParameterDeclaration(
-        undefined, undefined, param.name, param.questionToken, param.type, param.initializer
-      );
-      const newParamText = printer.printNode(EmitHint.Unspecified, newParamDecl, ctorDecl.getSourceFile());
-      autofixes.push({ start: param.getStart(), end: param.getEnd(), replacementText: newParamText });
-
-      fieldInitStmts.push(factory.createExpressionStatement(factory.createAssignment(
-        factory.createPropertyAccessExpression(
-          factory.createThis(),
-          propIdent,
-        ),
-        propIdent
-      )));
-    }
+  fixCtorParameterProperties(_ctorDecl: ConstructorDeclaration, _paramTypes: ts.TypeNode[] | undefined): Autofix[] | undefined {
+    // mock
+    return [];
   }
 
-  // Note: Bodyless ctors can't have parameter properties.
-  if (ctorDecl.body) {
-    const newBody = factory.createBlock(fieldInitStmts.concat(ctorDecl.body.statements), true);
-    const newBodyText = printer.printNode(EmitHint.Unspecified, newBody, ctorDecl.getSourceFile());
-    autofixes.push({ start: ctorDecl.body.getStart(), end: ctorDecl.body.getEnd(), replacementText: newBodyText });
+  fixPrivateIdentifier(_ident: ts.PrivateIdentifier): Autofix[] | undefined {
+    // mock
+    return [];
   }
 
-  return autofixes;
-}
+
+  fixNestedFunction(_tsFunctionDeclaration: ts.FunctionDeclaration): Autofix[] | undefined {
+    // mock
+    return [];
+  }
+
+  fixMultipleStaticBlocks(_nodes: ts.Node[]): Autofix[] | undefined {
+    // mock
+    return [];
+  }
+
+  fixUntypedObjectLiteral(
+    _objectLiteralExpr: ts.ObjectLiteralExpression,
+    _objectLiteralType: ts.Type | undefined
+  ): Autofix[] | undefined {
+    // mock
+    return [];
+  }
+
+  fixTypeliteral(_typeLiteral: ts.TypeLiteralNode): Autofix[] | undefined {
+    // mock
+    return [];
+  }
+
+};
+
 
 }
 }

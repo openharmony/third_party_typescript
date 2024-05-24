@@ -24,8 +24,8 @@ import faultsAttrs = Problems.faultsAttrs;
 
 //import LinterConfig = ts.LinterConfig;
 
-import Autofix = Autofixer.Autofix;
-//import Autofixer = ts.Autofixer;
+import Autofix = Autofixer_1_1.Autofix;
+import Autofixer = Autofixer_1_1.Autofixer;
 
 import Logger = ts.perfLogger;
 
@@ -52,13 +52,11 @@ export interface ProblemInfo {
   suggest: string;
   rule: string;
   ruleTag: number;
-  autofixable: boolean;
   autofix?: Autofix[];
 }
 
 export class TypeScriptLinter {
   static ideMode: boolean;
-  static strictMode: boolean;
   static logTscErrors: boolean;
   static warningsAsErrors: boolean;
   static lintEtsOnly: boolean;
@@ -86,6 +84,7 @@ export class TypeScriptLinter {
 
   static filteredDiagnosticMessages: DiagnosticMessageChain[] = [];
   static sharedModulesCache: ESMap<string, boolean>;
+  static useRelaxedRules = false;
 
   public static initGlobals(): void {
     TypeScriptLinter.filteredDiagnosticMessages = []
@@ -93,7 +92,6 @@ export class TypeScriptLinter {
   }
 
   public static initStatic(): void {
-    TypeScriptLinter.strictMode = true;
     TypeScriptLinter.logTscErrors = false;
     TypeScriptLinter.warningsAsErrors = false;
     TypeScriptLinter.lintEtsOnly = true;
@@ -105,8 +103,6 @@ export class TypeScriptLinter {
     TypeScriptLinter.totalWarningLines = 0;
     TypeScriptLinter.errorLineNumbersString = "";
     TypeScriptLinter.warningLineNumbersString = "";
-
-    Autofixer.autofixInfo.length = 0;
 
     //TypeScriptLinter.tsSyntaxKindNames = [];
     //const keys = Object.keys(ts.SyntaxKind);
@@ -138,6 +134,7 @@ export class TypeScriptLinter {
   staticBlocks: Set<string>;
   libraryTypeCallDiagnosticChecker: LibraryTypeCallDiagnosticChecker;
   skipArkTSStaticBlocksCheck: boolean;
+  autofixer: Autofixer | undefined;
 
   constructor(private sourceFile: SourceFile,
               /* private */ tsProgram: Program,
@@ -160,57 +157,64 @@ export class TypeScriptLinter {
   }
 
   readonly handlersMap = new Map([
-    [SyntaxKind.ObjectLiteralExpression, this.handleObjectLiteralExpression],
-    [SyntaxKind.ArrayLiteralExpression, this.handleArrayLiteralExpression],
-    [SyntaxKind.Parameter, this.handleParameter],
-    [SyntaxKind.EnumDeclaration, this.handleEnumDeclaration],
-    [SyntaxKind.InterfaceDeclaration, this.handleInterfaceDeclaration],
-    [SyntaxKind.ThrowStatement, this.handleThrowStatement], [SyntaxKind.ImportClause, this.handleImportClause],
-    [SyntaxKind.ForStatement, this.handleForStatement],
-    [SyntaxKind.ForInStatement, this.handleForInStatement],
-    [SyntaxKind.ForOfStatement, this.handleForOfStatement],
-    [SyntaxKind.ImportDeclaration, this.handleImportDeclaration],
-    [SyntaxKind.PropertyAccessExpression, this.handlePropertyAccessExpression],
-    [SyntaxKind.PropertyDeclaration, this.handlePropertyDeclaration],
-    [SyntaxKind.PropertyAssignment, this.handlePropertyAssignment],
-    [SyntaxKind.PropertySignature, this.handlePropertySignature],
-    [SyntaxKind.FunctionExpression, this.handleFunctionExpression],
-    [SyntaxKind.ArrowFunction, this.handleArrowFunction],
-    [SyntaxKind.CatchClause, this.handleCatchClause],
-    [SyntaxKind.FunctionDeclaration, this.handleFunctionDeclaration],
-    [SyntaxKind.PrefixUnaryExpression, this.handlePrefixUnaryExpression],
-    [SyntaxKind.BinaryExpression, this.handleBinaryExpression],
-    [SyntaxKind.VariableDeclarationList, this.handleVariableDeclarationList],
-    [SyntaxKind.VariableDeclaration, this.handleVariableDeclaration],
-    [SyntaxKind.ClassDeclaration, this.handleClassDeclaration],
-    [SyntaxKind.ModuleDeclaration, this.handleModuleDeclaration],
-    [SyntaxKind.TypeAliasDeclaration, this.handleTypeAliasDeclaration],
-    [SyntaxKind.ImportSpecifier, this.handleImportSpecifier],
-    [SyntaxKind.NamespaceImport, this.handleNamespaceImport],
-    [SyntaxKind.TypeAssertionExpression, this.handleTypeAssertionExpression],
-    [SyntaxKind.MethodDeclaration, this.handleMethodDeclaration],
-    [SyntaxKind.MethodSignature, this.handleMethodSignature],
-    [SyntaxKind.Identifier, this.handleIdentifier],
-    [SyntaxKind.ElementAccessExpression, this.handleElementAccessExpression],
-    [SyntaxKind.EnumMember, this.handleEnumMember], [SyntaxKind.TypeReference, this.handleTypeReference],
-    [SyntaxKind.ExportAssignment, this.handleExportAssignment],
-    [SyntaxKind.CallExpression, this.handleCallExpression], [SyntaxKind.MetaProperty, this.handleMetaProperty],
-    [SyntaxKind.NewExpression, this.handleNewExpression], [SyntaxKind.AsExpression, this.handleAsExpression],
-    [SyntaxKind.SpreadElement, this.handleSpreadOp], [SyntaxKind.SpreadAssignment, this.handleSpreadOp],
-    [SyntaxKind.GetAccessor, this.handleGetAccessor], [SyntaxKind.SetAccessor, this.handleSetAccessor],
-    [SyntaxKind.ConstructSignature, this.handleConstructSignature],
-    [SyntaxKind.ExpressionWithTypeArguments, this.handleExpressionWithTypeArguments],
-    [SyntaxKind.ComputedPropertyName, this.handleComputedPropertyName],
-    [SyntaxKind.EtsComponentExpression, this.handleEtsComponentExpression],
-    [SyntaxKind.ClassStaticBlockDeclaration, this.handleClassStaticBlockDeclaration],
+    [ts.SyntaxKind.ObjectLiteralExpression, this.handleObjectLiteralExpression],
+    [ts.SyntaxKind.ArrayLiteralExpression, this.handleArrayLiteralExpression],
+    [ts.SyntaxKind.Parameter, this.handleParameter],
+    [ts.SyntaxKind.EnumDeclaration, this.handleEnumDeclaration],
+    [ts.SyntaxKind.InterfaceDeclaration, this.handleInterfaceDeclaration],
+    [ts.SyntaxKind.ThrowStatement, this.handleThrowStatement],
+    [ts.SyntaxKind.ImportClause, this.handleImportClause],
+    [ts.SyntaxKind.ForStatement, this.handleForStatement],
+    [ts.SyntaxKind.ForInStatement, this.handleForInStatement],
+    [ts.SyntaxKind.ForOfStatement, this.handleForOfStatement],
+    [ts.SyntaxKind.ImportDeclaration, this.handleImportDeclaration],
+    [ts.SyntaxKind.PropertyAccessExpression, this.handlePropertyAccessExpression],
+    [ts.SyntaxKind.PropertyDeclaration, this.handlePropertyDeclaration],
+    [ts.SyntaxKind.PropertyAssignment, this.handlePropertyAssignment],
+    [ts.SyntaxKind.PropertySignature, this.handlePropertySignature],
+    [ts.SyntaxKind.FunctionExpression, this.handleFunctionExpression],
+    [ts.SyntaxKind.ArrowFunction, this.handleArrowFunction],
+    [ts.SyntaxKind.CatchClause, this.handleCatchClause],
+    [ts.SyntaxKind.FunctionDeclaration, this.handleFunctionDeclaration],
+    [ts.SyntaxKind.PrefixUnaryExpression, this.handlePrefixUnaryExpression],
+    [ts.SyntaxKind.BinaryExpression, this.handleBinaryExpression],
+    [ts.SyntaxKind.VariableDeclarationList, this.handleVariableDeclarationList],
+    [ts.SyntaxKind.VariableDeclaration, this.handleVariableDeclaration],
+    [ts.SyntaxKind.ClassDeclaration, this.handleClassDeclaration],
+    [ts.SyntaxKind.ModuleDeclaration, this.handleModuleDeclaration],
+    [ts.SyntaxKind.TypeAliasDeclaration, this.handleTypeAliasDeclaration],
+    [ts.SyntaxKind.ImportSpecifier, this.handleImportSpecifier],
+    [ts.SyntaxKind.NamespaceImport, this.handleNamespaceImport],
+    [ts.SyntaxKind.TypeAssertionExpression, this.handleTypeAssertionExpression],
+    [ts.SyntaxKind.MethodDeclaration, this.handleMethodDeclaration],
+    [ts.SyntaxKind.MethodSignature, this.handleMethodSignature],
+    [ts.SyntaxKind.Identifier, this.handleIdentifier],
+    [ts.SyntaxKind.ElementAccessExpression, this.handleElementAccessExpression],
+    [ts.SyntaxKind.EnumMember, this.handleEnumMember],
+    [ts.SyntaxKind.TypeReference, this.handleTypeReference],
+    [ts.SyntaxKind.ExportAssignment, this.handleExportAssignment],
+    [ts.SyntaxKind.CallExpression, this.handleCallExpression],
+    [ts.SyntaxKind.MetaProperty, this.handleMetaProperty],
+    [ts.SyntaxKind.NewExpression, this.handleNewExpression],
+    [ts.SyntaxKind.AsExpression, this.handleAsExpression],
+    [ts.SyntaxKind.SpreadElement, this.handleSpreadOp],
+    [ts.SyntaxKind.SpreadAssignment, this.handleSpreadOp],
+    [ts.SyntaxKind.GetAccessor, this.handleGetAccessor],
+    [ts.SyntaxKind.SetAccessor, this.handleSetAccessor],
+    [ts.SyntaxKind.ConstructSignature, this.handleConstructSignature],
+    [ts.SyntaxKind.ExpressionWithTypeArguments, this.handleExpressionWithTypeArguments],
+    [ts.SyntaxKind.ComputedPropertyName, this.handleComputedPropertyName],
+    [ts.SyntaxKind.Constructor, this.handleConstructorDeclaration],
+    [ts.SyntaxKind.PrivateIdentifier, this.handlePrivateIdentifier],
     [ts.SyntaxKind.IndexSignature, this.handleIndexSignature],
+    [ts.SyntaxKind.TypeLiteral, this.handleTypeLiteral],
+    [ts.SyntaxKind.EtsComponentExpression, this.handleEtsComponentExpression],
+    [ts.SyntaxKind.ClassStaticBlockDeclaration, this.handleClassStaticBlockDeclaration],
     [ts.SyntaxKind.ExportKeyword, this.handleExportKeyword],
     [ts.SyntaxKind.ExportDeclaration, this.handleExportDeclaration]
   ]);
 
-  public incrementCounters(node: Node | CommentRange, faultId: number, autofixable = false, autofix?: Autofix[]): void {
-    if (!TypeScriptLinter.strictMode && faultsAttrs[faultId].migratable) { return; } // In relax mode skip migratable
-
+  public incrementCounters(node: Node | CommentRange, faultId: number, autofix?: Autofix[]): void {
     const [startOffset, endOffset] = Utils.getHighlightRange(node, faultId);
     const startPos = this.sourceFile!.getLineAndCharacterOfPosition(startOffset);
     //const endPos = this.sourceFile!.getLineAndCharacterOfPosition(endOffset);
@@ -236,7 +240,6 @@ export class TypeScriptLinter {
       suggest: cookBookMsgNum > 0 ? cookBookMsg[cookBookMsgNum] : "",
       rule: cookBookMsgNum > 0 && cookBookTg !== "" ? cookBookTg : faultDescr ? faultDescr : faultType,
       ruleTag: cookBookMsgNum,
-      autofixable: autofixable,
       autofix: autofix
     };
 
@@ -340,68 +343,12 @@ export class TypeScriptLinter {
     }
   }
 
-  private countClassMembersWithDuplicateName(tsClassDecl: ClassDeclaration): void {
-    for (const tsCurrentMember of tsClassDecl.members) {
-      if (
-        !tsCurrentMember.name ||
-        !(isIdentifier(tsCurrentMember.name) || isPrivateIdentifier(tsCurrentMember.name))
-      ) {
-        continue;
-      }
-      for (const tsClassMember of tsClassDecl.members) {
-        if (tsCurrentMember === tsClassMember) continue;
-
-        if (
-          !tsClassMember.name ||
-          !(isIdentifier(tsClassMember.name) || isPrivateIdentifier(tsClassMember.name))
-        ) {
-          continue;
-        }
-        if (
-          isIdentifier(tsCurrentMember.name) &&
-          isPrivateIdentifier(tsClassMember.name) &&
-          tsCurrentMember.name.text === tsClassMember.name.text.substring(1)
-        ) {
-          this.incrementCounters(tsCurrentMember, FaultID.DeclWithDuplicateName);
-          break;
-        }
-
-        if (
-          isPrivateIdentifier(tsCurrentMember.name) &&
-          isIdentifier(tsClassMember.name) &&
-          tsCurrentMember.name.text.substring(1) === tsClassMember.name.text
-        ) {
-          this.incrementCounters(tsCurrentMember, FaultID.DeclWithDuplicateName);
-          break;
-        }
+  private countClassMembersWithDuplicateName(tsClassDecl: ts.ClassDeclaration): void {
+    for (const currentMember of tsClassDecl.members) {
+      if (Utils.classMemberHasDuplicateName(currentMember, tsClassDecl)) {
+        this.incrementCounters(currentMember, FaultID.DeclWithDuplicateName);
       }
     }
-  }
-
-  private static scopeContainsThis(tsNode: ts.Expression | ts.Block): boolean {
-    function scopeContainsThisVisitor(tsNode: ts.Node): boolean {
-      if (tsNode.kind === SyntaxKind.ThisKeyword) {
-        return true;
-      }
-
-      // Visit children nodes. Skip any local declaration that defines
-      // its own scope as it needs to be checked separately.
-      const isClassLike = ts.isClassDeclaration(tsNode) || ts.isClassExpression(tsNode);
-      const isFunctionLike = ts.isFunctionDeclaration(tsNode) || ts.isFunctionExpression(tsNode);
-      const isModuleDecl = ts.isModuleDeclaration(tsNode);
-      if (isClassLike || isFunctionLike || isModuleDecl) {
-        return false;
-      }
-
-      for (const child of tsNode.getChildren()) {
-        if (scopeContainsThisVisitor(child)) {
-          return true;
-        }
-      }
-      return false;
-    }
-
-    return scopeContainsThisVisitor(tsNode);
   }
 
   private isPrototypePropertyAccess(tsPropertyAccess: ts.PropertyAccessExpression, propAccessSym: ts.Symbol | undefined, baseExprSym: ts.Symbol | undefined, baseExprType: ts.Type): boolean {
@@ -505,7 +452,8 @@ export class TypeScriptLinter {
       !Utils.isDynamicLiteralInitializer(objectLiteralExpr) &&
       !Utils.isObjectLiteralAssignable(objectLiteralType, objectLiteralExpr)
     ) {
-      this.incrementCounters(node, FaultID.ObjectLiteralNoContextType);
+      const autofix = this.autofixer?.fixUntypedObjectLiteral(objectLiteralExpr, objectLiteralType);
+      this.incrementCounters(node, FaultID.ObjectLiteralNoContextType, autofix);
     }
   }
 
@@ -549,20 +497,7 @@ export class TypeScriptLinter {
       this.incrementCounters(decorator, FaultID.SendableClassDecorator);
     });
 
-    if (isArrayBindingPattern(tsParam.name) || isObjectBindingPattern(tsParam.name)) {
-      this.incrementCounters(node, FaultID.DestructuringParameter);
-    }
-    const tsParamMods = ts.getModifiers(tsParam); //tsParam.modifiers;
-    if (
-      tsParamMods &&
-      (Utils.hasModifier(tsParamMods, SyntaxKind.PublicKeyword) ||
-        Utils.hasModifier(tsParamMods, SyntaxKind.ProtectedKeyword) ||
-        Utils.hasModifier(tsParamMods, SyntaxKind.ReadonlyKeyword) ||
-        Utils.hasModifier(tsParamMods, SyntaxKind.PrivateKeyword))
-    ) {
-      this.incrementCounters(node, FaultID.ParameterProperties);
-    }
-
+    this.handleDeclarationDestructuring(tsParam);
     this.handleDeclarationInferredType(tsParam);
   }
 
@@ -581,11 +516,19 @@ export class TypeScriptLinter {
     // enum declaration related to that specific symbol.
     // See 'countDeclarationsWithDuplicateName' method for details.
     let enumDeclCount = 0;
+    const enumDeclsInFile: ts.Declaration[] = [];
+    const nodeSrcFile = enumNode.getSourceFile();
     for (const decl of enumDecls) {
+      if (nodeSrcFile === decl.getSourceFile()) {
+        enumDeclsInFile.push(decl);
+      }
       if (decl.kind === SyntaxKind.EnumDeclaration) enumDeclCount++;
     }
 
-    if (enumDeclCount > 1) this.incrementCounters(node, FaultID.EnumMerging);
+    if (enumDeclCount > 1) {
+      const autofix = this.autofixer?.fixEnumMerging(enumSymbol, enumDeclsInFile);
+      this.incrementCounters(node, FaultID.EnumMerging, autofix);
+    }
   }
 
   private handleInterfaceDeclaration(node: Node): void {
@@ -618,29 +561,37 @@ export class TypeScriptLinter {
     }
   }
 
-  private handleForStatement(node: Node): void {
-    const tsForStmt = node as ForStatement;
-    const tsForInit = tsForStmt.initializer;
-    if (tsForInit && (isArrayLiteralExpression(tsForInit) || isObjectLiteralExpression(tsForInit))) {
-      this.incrementCounters(tsForInit, FaultID.DestructuringAssignment);
+  private checkForLoopDestructuring(forInit: ts.ForInitializer): void {
+    if (ts.isVariableDeclarationList(forInit) && forInit.declarations.length === 1) {
+      const varDecl = forInit.declarations[0];
+      if (ts.isArrayBindingPattern(varDecl.name) || ts.isObjectBindingPattern(varDecl.name)) {
+        this.incrementCounters(varDecl, FaultID.DestructuringDeclaration);
+      }
+    }
+    if (ts.isArrayLiteralExpression(forInit) || ts.isObjectLiteralExpression(forInit)) {
+      this.incrementCounters(forInit, FaultID.DestructuringAssignment);
     }
   }
 
-  private handleForInStatement(node: Node): void {
-    const tsForInStmt = node as ForInStatement;
-    const tsForInInit = tsForInStmt.initializer;
-    if (isArrayLiteralExpression(tsForInInit) || isObjectLiteralExpression(tsForInInit)) {
-      this.incrementCounters(tsForInInit, FaultID.DestructuringAssignment);
+  private handleForStatement(node: ts.Node): void {
+    const tsForStmt = node as ts.ForStatement;
+    const tsForInit = tsForStmt.initializer;
+    if (tsForInit) {
+      this.checkForLoopDestructuring(tsForInit);
     }
+  }
+
+  private handleForInStatement(node: ts.Node): void {
+    const tsForInStmt = node as ts.ForInStatement;
+    const tsForInInit = tsForInStmt.initializer;
+    this.checkForLoopDestructuring(tsForInInit);
     this.incrementCounters(node, FaultID.ForInStatement);
   }
 
-  private handleForOfStatement(node: Node): void {
-    const tsForOfStmt = node as ForOfStatement;
+  private handleForOfStatement(node: ts.Node): void {
+    const tsForOfStmt = node as ts.ForOfStatement;
     const tsForOfInit = tsForOfStmt.initializer;
-    if (isArrayLiteralExpression(tsForOfInit) || isObjectLiteralExpression(tsForOfInit)) {
-      this.incrementCounters(tsForOfInit, FaultID.DestructuringAssignment);
-    }
+    this.checkForLoopDestructuring(tsForOfInit);
   }
 
   private handleImportDeclaration(node: Node): void {
@@ -708,12 +659,8 @@ export class TypeScriptLinter {
   private handlePropertyDeclaration(node: ts.PropertyDeclaration) {
     const propName = node.name;
     if (!!propName && ts.isNumericLiteral(propName)) {
-      let autofix: Autofix[] | undefined = Autofixer.fixLiteralAsPropertyName(node);
-      const autofixable = autofix !== undefined;
-      if (!Autofixer.shouldAutofix(node, FaultID.LiteralAsPropertyName)) {
-        autofix = undefined;
-      }
-      this.incrementCounters(node, FaultID.LiteralAsPropertyName, autofixable, autofix);
+      const autofix = this.autofixer?.fixLiteralAsPropertyNamePropertyName(propName);
+      this.incrementCounters(node, FaultID.LiteralAsPropertyName, autofix);
     }
     const decorators = ts.getDecorators(node);
     this.filterOutDecoratorsDiagnostics(decorators, Utils.NON_INITIALIZABLE_PROPERTY_DECORATORS,
@@ -769,16 +716,17 @@ export class TypeScriptLinter {
 
     isDynamic = isLibraryType || Utils.isDynamicLiteralInitializer(node.parent);
     if (!isRecordObjectInitializer && !isDynamic) {
-      let autofix: Autofix[] | undefined = Autofixer.fixLiteralAsPropertyName(node);
-      let autofixable = autofix != undefined;
-      if (!Autofixer.shouldAutofix(node, FaultID.LiteralAsPropertyName)) {
-        autofix = undefined;
-      }
-      this.incrementCounters(node, FaultID.LiteralAsPropertyName, autofixable, autofix);
+      const autofix = this.autofixer?.fixLiteralAsPropertyNamePropertyAssignment(node);
+      this.incrementCounters(node, FaultID.LiteralAsPropertyName, autofix);
     }
   }
 
   private handlePropertySignature(node: ts.PropertySignature): void {
+    const propName = node.name;
+    if (!!propName && ts.isNumericLiteral(propName)) {
+      const autofix = this.autofixer?.fixLiteralAsPropertyNamePropertyName(propName);
+      this.incrementCounters(node, FaultID.LiteralAsPropertyName, autofix);
+    }
     this.handleSendableInterfaceProperty(node);
   }
 
@@ -875,21 +823,14 @@ export class TypeScriptLinter {
 
   private handleFunctionExpression(node: Node): void {
     const funcExpr = node as FunctionExpression;
-    const isGeneric = funcExpr.typeParameters !== undefined && funcExpr.typeParameters.length > 0;
     const isGenerator = funcExpr.asteriskToken !== undefined;
-    const hasThisKeyword = TypeScriptLinter.scopeContainsThis(funcExpr.body);
     const [hasUnfixableReturnType, newRetTypeNode] = this.handleMissingReturnType(funcExpr);
-    const autofixable = !isGeneric && !isGenerator && !hasThisKeyword && !hasUnfixableReturnType;
 
-    let autofix: Autofix[] | undefined;
-    if (autofixable && Autofixer.shouldAutofix(node, FaultID.FunctionExpression)) {
-      autofix = [ Autofixer.fixFunctionExpression(funcExpr, funcExpr.parameters, newRetTypeNode) ];
-    }
+    const autofix = this.autofixer?.fixFunctionExpression(
+      funcExpr, newRetTypeNode, ts.getModifiers(funcExpr), isGenerator, hasUnfixableReturnType
+    );
+    this.incrementCounters(funcExpr, FaultID.FunctionExpression, autofix);
 
-    this.incrementCounters(node, FaultID.FunctionExpression, autofixable, autofix);
-    if (isGeneric) {
-      this.incrementCounters(funcExpr, FaultID.LambdaWithTypeParameters);
-    }
     if (isGenerator) {
       this.incrementCounters(funcExpr, FaultID.GeneratorFunction);
     }
@@ -912,10 +853,6 @@ export class TypeScriptLinter {
       if (!arrowFunc.type) {
         this.handleMissingReturnType(arrowFunc);
       }
-
-      if (arrowFunc.typeParameters && arrowFunc.typeParameters.length > 0) {
-        this.incrementCounters(node, FaultID.LambdaWithTypeParameters);
-      }
     }
   }
 
@@ -932,28 +869,19 @@ export class TypeScriptLinter {
     }
     const parent = tsFunctionDeclaration.parent;
     if (!ts.isSourceFile(parent) && !ts.isModuleBlock(parent)) {
-      this.incrementCounters(tsFunctionDeclaration, FaultID.LocalFunction);
+      const autofix = this.autofixer?.fixNestedFunction(tsFunctionDeclaration);
+      this.incrementCounters(tsFunctionDeclaration, FaultID.LocalFunction, autofix);
     }
     if (tsFunctionDeclaration.asteriskToken) {
       this.incrementCounters(node, FaultID.GeneratorFunction);
     }
   }
 
-  private handleMissingReturnType(funcLikeDecl: ts.FunctionLikeDeclaration | ts.MethodSignature): [boolean, ts.TypeNode | undefined] {
-    // if (funcLikeDecl.type) return [false, funcLikeDecl.type];
-
-    // Note: Return type can't be inferred for function without body.
-    if (ts.isMethodSignature(funcLikeDecl) || !funcLikeDecl.body) {
-      // Ambient flag is not exposed, and ts.NodeFlags is made const enum, so hardcode this value
-      const isAmbientDeclaration = !!(funcLikeDecl.flags & (1 << 24));
-      const isSignature = ts.isMethodSignature(funcLikeDecl);
-      if ((isSignature || isAmbientDeclaration) && !funcLikeDecl.type) {
-        this.incrementCounters(funcLikeDecl, FaultID.LimitedReturnTypeInference);
-      }
+  private tryAutofixMissingReturnType(funcLikeDecl: ts.FunctionLikeDeclaration): [boolean, ts.TypeNode | undefined] {
+    if (!funcLikeDecl.body) {
       return [false, undefined];
     }
 
-    let autofixable = false;
     let autofix: Autofix[] | undefined;
     let newRetTypeNode: TypeNode | undefined;
     const isFuncExpr = isFunctionExpression(funcLikeDecl);
@@ -972,10 +900,9 @@ export class TypeScriptLinter {
       }
       else if (hasLimitedRetTypeInference) {
         newRetTypeNode = TypeScriptLinter.tsTypeChecker.typeToTypeNode(tsRetType, funcLikeDecl, NodeBuilderFlags.None);
-        autofixable = !!newRetTypeNode;
 
-        if (!isFuncExpr && newRetTypeNode && Autofixer.shouldAutofix(funcLikeDecl, FaultID.LimitedReturnTypeInference)) {
-          autofix = [Autofixer.fixReturnType(funcLikeDecl, newRetTypeNode)];
+        if (this.autofixer !== undefined && newRetTypeNode && !isFuncExpr) {
+          autofix = this.autofixer.fixMissingReturnType(funcLikeDecl, newRetTypeNode);
         }
       }
     }
@@ -983,9 +910,26 @@ export class TypeScriptLinter {
     // Don't report here if in function expression context.
     // See handleFunctionExpression for details.
     if (hasLimitedRetTypeInference && !isFuncExpr) {
-      this.incrementCounters(funcLikeDecl, FaultID.LimitedReturnTypeInference, autofixable, autofix);
+      this.incrementCounters(funcLikeDecl, FaultID.LimitedReturnTypeInference, autofix);
     }
     return [hasLimitedRetTypeInference && !newRetTypeNode, newRetTypeNode];
+  }
+
+  private handleMissingReturnType(funcLikeDecl: ts.FunctionLikeDeclaration | ts.MethodSignature): [boolean, ts.TypeNode | undefined] {
+    if (funcLikeDecl.type) return [false, funcLikeDecl.type];
+
+    // Note: Return type can't be inferred for function without body.
+    if (ts.isMethodSignature(funcLikeDecl) || !funcLikeDecl.body) {
+      // Ambient flag is not exposed, and ts.NodeFlags is made const enum, so hardcode this value
+      const isAmbientDeclaration = !!(funcLikeDecl.flags & (1 << 24));
+      const isSignature = ts.isMethodSignature(funcLikeDecl);
+      if ((isSignature || isAmbientDeclaration) && !funcLikeDecl.type) {
+        this.incrementCounters(funcLikeDecl, FaultID.LimitedReturnTypeInference);
+      }
+      return [false, undefined];
+    }
+
+    return this.tryAutofixMissingReturnType(funcLikeDecl);
   }
 
   private hasLimitedTypeInferenceFromReturnExpr(funBody: ConciseBody): boolean {
@@ -1056,24 +1000,8 @@ export class TypeScriptLinter {
     const tsBinaryExpr = node as BinaryExpression;
     const tsLhsExpr = tsBinaryExpr.left;
     const tsRhsExpr = tsBinaryExpr.right;
-
     if (Utils.isAssignmentOperator(tsBinaryExpr.operatorToken)) {
-      if (isObjectLiteralExpression(tsLhsExpr) || isArrayLiteralExpression(tsLhsExpr)) {
-        this.incrementCounters(node, FaultID.DestructuringAssignment);
-      }
-      if (isPropertyAccessExpression(tsLhsExpr)) {
-        const tsLhsSymbol = Utils.trueSymbolAtLocation(tsLhsExpr);
-        const tsLhsBaseSymbol = Utils.trueSymbolAtLocation(tsLhsExpr.expression);
-        if (tsLhsSymbol && (tsLhsSymbol.flags & SymbolFlags.Method)) {
-          this.incrementCounters(tsLhsExpr, FaultID.MethodReassignment);
-        }
-        if (
-          Utils.isMethodAssignment(tsLhsSymbol) && tsLhsBaseSymbol &&
-          (tsLhsBaseSymbol.flags & SymbolFlags.Function) !== 0
-        ) {
-          this.incrementCounters(tsLhsExpr, FaultID.PropertyDeclOnFunction);
-        }
-      }
+      this.processBinaryAssignment(node, tsLhsExpr, tsRhsExpr)
     }
 
     const leftOperandType = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(tsLhsExpr);
@@ -1111,19 +1039,7 @@ export class TypeScriptLinter {
       }
     }
     else if (tsBinaryExpr.operatorToken.kind === SyntaxKind.CommaToken) {
-      // CommaOpertor is allowed in 'for' statement initalizer and incrementor
-      let tsExprNode: Node = tsBinaryExpr;
-      let tsParentNode = tsExprNode.parent;
-      while (tsParentNode && tsParentNode.kind === SyntaxKind.BinaryExpression) {
-        tsExprNode = tsParentNode;
-        tsParentNode = tsExprNode.parent;
-      }
-
-      if (tsParentNode && tsParentNode.kind === SyntaxKind.ForStatement) {
-        const tsForNode = tsParentNode as ForStatement;
-        if (tsExprNode === tsForNode.initializer || tsExprNode === tsForNode.incrementor) return;
-      }
-      this.incrementCounters(node, FaultID.CommaOperator);
+      this.processBinaryComma(tsBinaryExpr);
     }
     else if (tsBinaryExpr.operatorToken.kind === SyntaxKind.InstanceOfKeyword) {
       const leftExpr = Utils.unwrapParenthesized(tsBinaryExpr.left);
@@ -1147,36 +1063,83 @@ export class TypeScriptLinter {
     }
   }
 
+  private processBinaryAssignment(node: ts.Node, tsLhsExpr: ts.Expression, tsRhsExpr: ts.Expression): void {
+    if (ts.isObjectLiteralExpression(tsLhsExpr)) {
+      this.incrementCounters(node, FaultID.DestructuringAssignment);
+    } else if (ts.isArrayLiteralExpression(tsLhsExpr)) {
+      // Array destructuring is allowed only for Arrays/Tuples and without spread operator.
+      const rhsType = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(tsRhsExpr);
+      const isArrayOrTuple =
+        Utils.isOrDerivedFrom(rhsType, Utils.isArray) ||
+        Utils.isOrDerivedFrom(rhsType, Utils.isTuple);
+      const hasNestedObjectDestructuring = Utils.hasNestedObjectDestructuring(tsLhsExpr);
+
+      if (!TypeScriptLinter.useRelaxedRules || !isArrayOrTuple || hasNestedObjectDestructuring ||
+        Utils.destructuringAssignmentHasSpreadOperator(tsLhsExpr)
+      ) {
+        this.incrementCounters(node, FaultID.DestructuringAssignment);
+      }
+    }
+
+    if (ts.isPropertyAccessExpression(tsLhsExpr)) {
+      const tsLhsSymbol = Utils.trueSymbolAtLocation(tsLhsExpr);
+      const tsLhsBaseSymbol = Utils.trueSymbolAtLocation(tsLhsExpr.expression);
+      if (tsLhsSymbol && tsLhsSymbol.flags & ts.SymbolFlags.Method) {
+        this.incrementCounters(tsLhsExpr, FaultID.MethodReassignment);
+      }
+      if (
+        Utils.isMethodAssignment(tsLhsSymbol) &&
+        tsLhsBaseSymbol &&
+        (tsLhsBaseSymbol.flags & ts.SymbolFlags.Function) !== 0
+      ) {
+        this.incrementCounters(tsLhsExpr, FaultID.PropertyDeclOnFunction);
+      }
+    }
+  }
+
+  private processBinaryComma(tsBinaryExpr: ts.BinaryExpression): void {
+    // CommaOpertor is allowed in 'for' statement initalizer and incrementor
+    let tsExprNode: ts.Node = tsBinaryExpr;
+    let tsParentNode = tsExprNode.parent;
+    while (tsParentNode && tsParentNode.kind === ts.SyntaxKind.BinaryExpression) {
+      tsExprNode = tsParentNode;
+      tsParentNode = tsExprNode.parent;
+      if ((tsExprNode as ts.BinaryExpression).operatorToken.kind === ts.SyntaxKind.CommaToken) {
+        // Need to return if one comma enclosed in expression with another comma to avoid multiple reports on one line
+        return;
+      }
+    }
+    if (tsParentNode && tsParentNode.kind === ts.SyntaxKind.ForStatement) {
+      const tsForNode = tsParentNode as ts.ForStatement;
+      if (tsExprNode === tsForNode.initializer || tsExprNode === tsForNode.incrementor) {
+        return;
+      }
+    }
+    if (tsParentNode && tsParentNode.kind === ts.SyntaxKind.ExpressionStatement) {
+      const autofix = this.autofixer?.fixCommaOperator(tsExprNode);
+      this.incrementCounters(tsExprNode, FaultID.CommaOperator, autofix);
+      return;
+    }
+
+    this.incrementCounters(tsBinaryExpr as ts.Node, FaultID.CommaOperator);
+  }
+
   private handleVariableDeclarationList(node: Node): void {
     const varDeclFlags = getCombinedNodeFlags(node);
     if (!(varDeclFlags & (NodeFlags.Let | NodeFlags.Const))) {
-      this.incrementCounters(node, FaultID.VarDeclaration);
+      const autofix = this.autofixer?.fixVarDeclaration(node as ts.VariableDeclarationList);
+      this.incrementCounters(node, FaultID.VarDeclaration, autofix);
     }
   }
 
   private handleVariableDeclaration(node: Node): void {
     const tsVarDecl = node as VariableDeclaration;
-    if (isArrayBindingPattern(tsVarDecl.name) || isObjectBindingPattern(tsVarDecl.name)) {
-      this.incrementCounters(node, FaultID.DestructuringDeclaration);
+    if (ts.isVariableDeclarationList(tsVarDecl.parent) && ts.isVariableStatement(tsVarDecl.parent.parent)) {
+      this.handleDeclarationDestructuring(tsVarDecl);
     }
-    {
-      // Check variable declaration for duplicate name.
-      const visitBindingPatternNames = (tsBindingName: BindingName): void => {
-        if (isIdentifier(tsBindingName)) {
-          // The syntax kind of the declaration is defined here by the parent of 'BindingName' node.
-          this.countDeclarationsWithDuplicateName(tsBindingName, tsBindingName, tsBindingName.parent.kind);
-        }
-        else {
-          for (const tsBindingElem of tsBindingName.elements) {
-            if (isOmittedExpression(tsBindingElem)) continue;
 
-            visitBindingPatternNames(tsBindingElem.name);
-          }
-        }
-      };
-
-      visitBindingPatternNames(tsVarDecl.name);
-    }
+    // Check variable declaration for duplicate name.
+    this.checkVarDeclForDuplicateNames(tsVarDecl.name);
 
     if (tsVarDecl.type && tsVarDecl.initializer) {
       const tsVarInit = tsVarDecl.initializer;
@@ -1190,6 +1153,42 @@ export class TypeScriptLinter {
     this.handleEsObjectDelaration(tsVarDecl);
     this.handleDeclarationInferredType(tsVarDecl);
     this.handleDefiniteAssignmentAssertion(tsVarDecl);
+  }
+
+  private handleDeclarationDestructuring(decl: ts.VariableDeclaration | ts.ParameterDeclaration): void {
+    const faultId = ts.isVariableDeclaration(decl) ? FaultID.DestructuringDeclaration : FaultID.DestructuringParameter;
+    if (ts.isObjectBindingPattern(decl.name)) {
+      this.incrementCounters(decl, faultId);
+    } else if (ts.isArrayBindingPattern(decl.name)) {
+      // Array destructuring is allowed only for Arrays/Tuples and without spread operator.
+      const rhsType = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(decl.initializer ?? decl.name);
+      const isArrayOrTuple = rhsType && (
+        Utils.isOrDerivedFrom(rhsType, Utils.isArray) ||
+        Utils.isOrDerivedFrom(rhsType, Utils.isTuple)
+      );
+      const hasNestedObjectDestructuring = Utils.hasNestedObjectDestructuring(decl.name);
+
+      if (!TypeScriptLinter.useRelaxedRules || !isArrayOrTuple || hasNestedObjectDestructuring ||
+        Utils.destructuringDeclarationHasSpreadOperator(decl.name)
+      ) {
+        this.incrementCounters(decl, faultId);
+      }
+    }
+  }
+
+  private checkVarDeclForDuplicateNames(tsBindingName: ts.BindingName): void {
+    if (ts.isIdentifier(tsBindingName)) {
+      // The syntax kind of the declaration is defined here by the parent of 'BindingName' node.
+      this.countDeclarationsWithDuplicateName(tsBindingName, tsBindingName, tsBindingName.parent.kind);
+      return;
+    }
+    for (const tsBindingElem of tsBindingName.elements) {
+      if (ts.isOmittedExpression(tsBindingElem)) {
+        continue;
+      }
+
+      this.checkVarDeclForDuplicateNames(tsBindingElem.name);
+    }
   }
 
   private handleEsObjectDelaration(node: ts.VariableDeclaration) {
@@ -1230,8 +1229,9 @@ export class TypeScriptLinter {
     // It is not compatible with STS 'catch' where the exception varilab has to be of type
     // 'Exception' or derived from it.
     // So each 'catch' which has explicite type for the exception object goes to problems in strict mode.
-    if (tsCatch.variableDeclaration && tsCatch.variableDeclaration.type) {
-      this.incrementCounters(node, FaultID.CatchWithUnsupportedType);
+    if (tsCatch.variableDeclaration?.type) {
+      const autofix = this.autofixer?.dropTypeOnVarDecl(tsCatch.variableDeclaration);
+      this.incrementCounters(node, FaultID.CatchWithUnsupportedType, autofix);
     }
   }
 
@@ -1428,14 +1428,19 @@ export class TypeScriptLinter {
   }
 
   private processClassStaticBlocks(classDecl: ts.ClassDeclaration): void {
-    let hasStaticBlock = false;
+    let staticBlocksCntr = 0;
+    const staticBlockNodes: ts.Node[] = [];
     for (const element of classDecl.members) {
       if (ts.isClassStaticBlockDeclaration(element)) {
-        if (hasStaticBlock) {
-          this.incrementCounters(element, FaultID.MultipleStaticBlocks);
-        } else {
-          hasStaticBlock = true;
-        }
+        staticBlockNodes[staticBlocksCntr] = element;
+        staticBlocksCntr++;
+      }
+    }
+    if (staticBlocksCntr > 1) {
+      const autofix = this.autofixer?.fixMultipleStaticBlocks(staticBlockNodes);
+      // autofixes for all additional static blocks are the same
+      for (let i = 1; i < staticBlocksCntr; i++) {
+        this.incrementCounters(staticBlockNodes[i], FaultID.MultipleStaticBlocks, autofix);
       }
     }
   }
@@ -1490,21 +1495,6 @@ export class TypeScriptLinter {
     if (tsImportClause.name) {
       this.countDeclarationsWithDuplicateName(tsImportClause.name, tsImportClause);
     }
-
-    if (tsImportClause.namedBindings && isNamedImports(tsImportClause.namedBindings)) {
-      const nonDefaultSpecs: ImportSpecifier[] = [];
-      let defaultSpec: ImportSpecifier | undefined;
-      for (const importSpec of tsImportClause.namedBindings.elements) {
-        if (Utils.isDefaultImport(importSpec)) defaultSpec = importSpec;
-        else nonDefaultSpecs.push(importSpec);
-      }
-      if (defaultSpec) {
-        let autofix: Autofix[] | undefined;
-        // if (Autofixer.shouldAutofix(defaultSpec, FaultID.DefaultImport))
-        //  autofix = [ Autofixer.fixDefaultImport(tsImportClause, defaultSpec, nonDefaultSpecs) ];
-        this.incrementCounters(defaultSpec, FaultID.DefaultImport, true, autofix);
-      }
-    }
   }
 
   private handleImportSpecifier(node: Node): void {
@@ -1521,9 +1511,9 @@ export class TypeScriptLinter {
     const tsTypeAssertion = node as TypeAssertion;
     if (tsTypeAssertion.type.getText() === "const") {
       this.incrementCounters(tsTypeAssertion, FaultID.ConstAssertion);
-    }
-    else {
-      this.incrementCounters(node, FaultID.TypeAssertion);
+    } else {
+      const autofix = this.autofixer?.fixTypeAssertion(tsTypeAssertion);
+      this.incrementCounters(node, FaultID.TypeAssertion, autofix);
     }
   }
 
@@ -1720,12 +1710,8 @@ export class TypeScriptLinter {
       !ts.isArrayLiteralExpression(tsElementAccessExpr.expression) &&
       !this.isElementAcessAllowed(tsElemAccessBaseExprType, tsElemAccessArgType)
     ) {
-      let autofix = Autofixer.fixPropertyAccessByIndex(node);
-      const autofixable = autofix !== undefined;
-      if (!Autofixer.shouldAutofix(node, FaultID.PropertyAccessByIndex)) {
-        autofix = undefined;
-      }
-      this.incrementCounters(node, FaultID.PropertyAccessByIndex, autofixable, autofix);
+      const autofix = this.autofixer?.fixPropertyAccessByIndex(tsElementAccessExpr);
+      this.incrementCounters(node, FaultID.PropertyAccessByIndex, autofix);
     }
     if (Utils.hasEsObjectType(tsElementAccessExpr.expression)) {
       this.incrementCounters(node, FaultID.EsObjectType);
@@ -2356,11 +2342,6 @@ export class TypeScriptLinter {
     }
   }
 
-  public lint(): void {
-    this.visitSourceFile(this.sourceFile);
-    this.handleCommentDirectives(this.sourceFile);
-  }
-
   private handleExportKeyword(node: ts.Node): void {
     const parentNode = node.parent;
     if (!TypeScriptLinter.inSharedModule(node) || ts.isModuleBlock(parentNode.parent)) {
@@ -2413,6 +2394,59 @@ export class TypeScriptLinter {
       }
     }
   }
+
+  private handlePrivateIdentifier(node: ts.Node): void {
+    const ident = node as ts.PrivateIdentifier;
+    const autofix = this.autofixer?.fixPrivateIdentifier(ident);
+    this.incrementCounters(node, FaultID.PrivateIdentifier, autofix);
+  }
+
+  private collectCtorParamTypes(ctorDecl: ts.ConstructorDeclaration): ts.TypeNode[] | undefined {
+    const paramTypes: ts.TypeNode[] = [];
+
+    for (const param of ctorDecl.parameters) {
+      let paramTypeNode = param.type;
+      if (!paramTypeNode) {
+        const paramType = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(param);
+        paramTypeNode = TypeScriptLinter.tsTypeChecker.typeToTypeNode(paramType, param, ts.NodeBuilderFlags.None);
+      }
+      if (!paramTypeNode || !Utils.isSupportedType(paramTypeNode)) {
+        return undefined;
+      }
+      paramTypes.push(paramTypeNode);
+    }
+
+    return paramTypes;
+  }
+
+  private handleConstructorDeclaration(node: ts.Node): void {
+    const ctorDecl = node as ts.ConstructorDeclaration;
+
+    if (ctorDecl.parameters.some((x) => {
+      return Utils.hasAccessModifier(x);
+    })) {
+      let paramTypes: ts.TypeNode[] | undefined;
+      if (ctorDecl.body) {
+        paramTypes = this.collectCtorParamTypes(ctorDecl);
+      }
+
+      const autofix = this.autofixer?.fixCtorParameterProperties(ctorDecl, paramTypes);
+      this.incrementCounters(node, FaultID.ParameterProperties, autofix);
+    }
+  }
+
+  private handleTypeLiteral(node: ts.Node): void {
+    const typeLiteral = node as ts.TypeLiteralNode;
+    const autofix = this.autofixer?.fixTypeliteral(typeLiteral);
+    this.incrementCounters(node, FaultID.ObjectTypeLiteral, autofix);
+  }
+
+  public lint(): void {
+    this.autofixer = new Autofixer();
+    this.visitSourceFile(this.sourceFile);
+    this.handleCommentDirectives(this.sourceFile);
+  }
+
 }
 }
 }

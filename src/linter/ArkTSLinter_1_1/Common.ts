@@ -18,20 +18,13 @@ namespace ts {
 export namespace ArkTSLinter_1_1 {
 export namespace Common {
 
-export interface AutofixInfo {
-  problemID: string;
-  start: number;
-  end: number;
-}
-
 export interface CommandLineOptions {
-  strictMode?: boolean;
   ideMode?: boolean;
   logTscErrors?: boolean;
   warningsAsErrors: boolean;
   parsedConfigFile?: ParsedCommandLine;
   inputFiles: string[];
-  autofixInfo?: AutofixInfo[];
+  enableAutofix: boolean;
 }
 
 // common options interface, additional fields may be useds by plugins

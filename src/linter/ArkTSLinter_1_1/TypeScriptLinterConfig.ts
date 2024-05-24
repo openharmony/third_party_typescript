@@ -59,7 +59,6 @@ export class LinterConfig {
     LinterConfig.nodeDesc[FaultID.ObjectTypeLiteral] = "Object type literals";
     LinterConfig.nodeDesc[FaultID.CommaOperator] = "comma operator";
     LinterConfig.nodeDesc[FaultID.LimitedReturnTypeInference] = "Functions with limited return type inference";
-    LinterConfig.nodeDesc[FaultID.LambdaWithTypeParameters] = "Lambda function with type parameters";
     LinterConfig.nodeDesc[FaultID.ClassExpression] = "Class expressions";
     LinterConfig.nodeDesc[FaultID.DestructuringAssignment] = "Destructuring assignments";
     LinterConfig.nodeDesc[FaultID.DestructuringDeclaration] = "Destructuring variable declarations";
@@ -91,7 +90,6 @@ export class LinterConfig {
     LinterConfig.nodeDesc[FaultID.ThisType] = "\"this\" type";
     LinterConfig.nodeDesc[FaultID.IntefaceExtendDifProps] = "Extends same properties with different types";
     LinterConfig.nodeDesc[FaultID.StructuralIdentity] = "Use of type structural identity";
-    LinterConfig.nodeDesc[FaultID.DefaultImport] = "Default import declarations";
     LinterConfig.nodeDesc[FaultID.ExportAssignment] = "Export assignments (export = ..)";
     LinterConfig.nodeDesc[FaultID.ImportAssignment] = "Import assignments (import = ..)";
     LinterConfig.nodeDesc[FaultID.GenericCallNoTypeArgs] = "Generic calls without type arguments";
@@ -172,19 +170,24 @@ export class LinterConfig {
 
   // tokens which can be reported without additional parsing
   static incrementOnlyTokens: ESMap<SyntaxKind , FaultID> = new Map([
-    [SyntaxKind.AnyKeyword, FaultID.AnyType], [SyntaxKind.SymbolKeyword, FaultID.SymbolType],
+    [SyntaxKind.AnyKeyword, FaultID.AnyType],
+    [SyntaxKind.SymbolKeyword, FaultID.SymbolType],
     [SyntaxKind.ThisType, FaultID.ThisType],
     [SyntaxKind.TypeQuery, FaultID.TypeQuery],
     [SyntaxKind.DeleteExpression, FaultID.DeleteOperator],
-    [SyntaxKind.TypePredicate, FaultID.IsOperator], [SyntaxKind.YieldExpression, FaultID.YieldExpression],
+    [SyntaxKind.TypePredicate, FaultID.IsOperator],
+    [SyntaxKind.YieldExpression, FaultID.YieldExpression],
     [SyntaxKind.WithStatement, FaultID.WithStatement],
-    [SyntaxKind.IndexedAccessType, FaultID.IndexedAccessType],[SyntaxKind.UnknownKeyword, FaultID.UnknownType],
+    [SyntaxKind.IndexedAccessType, FaultID.IndexedAccessType],
+    [SyntaxKind.UnknownKeyword, FaultID.UnknownType],
     [SyntaxKind.CallSignature, FaultID.CallSignature],
     [SyntaxKind.IntersectionType, FaultID.IntersectionType],
-    [SyntaxKind.TypeLiteral, FaultID.ObjectTypeLiteral], [SyntaxKind.ConstructorType, FaultID.ConstructorFuncs],
+    [SyntaxKind.ConstructorType, FaultID.ConstructorFuncs],
     [SyntaxKind.PrivateIdentifier, FaultID.PrivateIdentifier],
-    [SyntaxKind.ConditionalType, FaultID.ConditionalType], [SyntaxKind.MappedType, FaultID.MappedType],
-    [SyntaxKind.JsxElement, FaultID.JsxElement], [SyntaxKind.JsxSelfClosingElement, FaultID.JsxElement],
+    [SyntaxKind.ConditionalType, FaultID.ConditionalType],
+    [SyntaxKind.MappedType, FaultID.MappedType],
+    [SyntaxKind.JsxElement, FaultID.JsxElement],
+    [SyntaxKind.JsxSelfClosingElement, FaultID.JsxElement],
     [SyntaxKind.ImportEqualsDeclaration, FaultID.ImportAssignment],
     [SyntaxKind.NamespaceExportDeclaration, FaultID.UMDModuleDefinition],
     [SyntaxKind.ClassExpression, FaultID.ClassExpression],

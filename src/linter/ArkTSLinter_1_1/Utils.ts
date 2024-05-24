@@ -17,7 +17,6 @@ namespace ts {
 export namespace ArkTSLinter_1_1 {
 
 import FaultID = Problems.FaultID;
-import AutofixInfo = Common.AutofixInfo;
 
 export namespace Utils {
 //import * as path from 'node:path';
@@ -110,8 +109,17 @@ const highlightRangeHandlers = new Map([
   [FaultID.ObjectLiteralNoContextType, getObjectLiteralNoContextTypeHighlightRange],
   [FaultID.ClassExpression, getClassExpressionHighlightRange],
   [FaultID.MultipleStaticBlocks, getMultipleStaticBlocksHighlightRange],
-  [FaultID.SendableDefiniteAssignment, getSendableDefiniteAssignmentHighlightRange]
+  [FaultID.SendableDefiniteAssignment, getSendableDefiniteAssignmentHighlightRange],
+  [FaultID.ParameterProperties, getParameterPropertiesHighlightRange]
 ]);
+
+export function getParameterPropertiesHighlightRange(nodeOrComment: ts.Node | ts.CommentRange): [number, number] | undefined {
+  const params = (nodeOrComment as ts.ConstructorDeclaration).parameters;
+  if (params.length) {
+    return [params[0].getStart(), params[params.length - 1].getEnd()];
+  }
+  return undefined;
+}
 
 export function getVarDeclarationHighlightRange(nodeOrComment: Node | CommentRange): [number, number] | undefined {
   return getKeywordHighlightRange(nodeOrComment, 'var');
@@ -909,11 +917,6 @@ export function encodeProblemInfo(problem: ProblemInfo): string {
   return `${problem.problem}%${problem.start}%${problem.end}`;
 }
 
-export function decodeAutofixInfo(info: string): AutofixInfo {
-  const infos = info.split("%");
-  return { problemID: infos[0], start: Number.parseInt(infos[1]), end: Number.parseInt(infos[2]) };
-}
-
 export function isCallToFunctionWithOmittedReturnType(tsExpr: Expression): boolean {
   if (isCallExpression(tsExpr)) {
     const tsCallSignature = typeChecker.getResolvedSignature(tsExpr);
@@ -1129,8 +1132,7 @@ export function validateFields(objectType: Type, objectLiteral: ObjectLiteralExp
   return true;
 }
 
-function validateField(type: ts.Type, prop: ts.PropertyAssignment): boolean {
-  // Issue 15497: Use unescaped property name to find correpsponding property.
+export function getPropertySymbol(type: ts.Type, prop: ts.PropertyAssignment): ts.Symbol | undefined {
   const propNameSymbol = typeChecker.getSymbolAtLocation(prop.name);
   const propName = propNameSymbol ?
     ts.symbolName(propNameSymbol) :
@@ -1138,6 +1140,12 @@ function validateField(type: ts.Type, prop: ts.PropertyAssignment): boolean {
       ts.idText(prop.name) :
       prop.name.getText();
   const propSym = findProperty(type, propName);
+  return propSym;
+}
+
+function validateField(type: ts.Type, prop: ts.PropertyAssignment): boolean {
+  // Issue 15497: Use unescaped property name to find correpsponding property.
+  const propSym = getPropertySymbol(type, prop);
   if (!propSym || !propSym.declarations?.length) {
     return false;
   }
@@ -1352,6 +1360,46 @@ export function isStdRecordType(type: Type): boolean {
   }
 
   return false;
+}
+
+export function getBaseClassType(type: ts.Type): ts.InterfaceType | undefined {
+  const baseTypes = type.getBaseTypes();
+  if (baseTypes) {
+    for (const baseType of baseTypes) {
+      if (baseType.isClass()) {
+        return baseType;
+      }
+    }
+  }
+
+  return undefined;
+}
+
+
+export function destructuringAssignmentHasSpreadOperator(node: ts.AssignmentPattern): boolean {
+  if (ts.isArrayLiteralExpression(node)) {
+    return node.elements.some((x) => {
+      if (ts.isSpreadElement(x)) {
+        return true;
+      }
+      if (ts.isObjectLiteralExpression(x) || ts.isArrayLiteralExpression(x)) {
+        return destructuringAssignmentHasSpreadOperator(x);
+      }
+      return false;
+    });
+  }
+
+  return node.properties.some((x) => {
+    if (ts.isSpreadAssignment(x)) {
+      return true;
+    }
+    if (ts.isPropertyAssignment(x) &&
+      (ts.isObjectLiteralExpression(x.initializer) || ts.isArrayLiteralExpression(x.initializer))
+    ) {
+      return destructuringAssignmentHasSpreadOperator(x.initializer);
+    }
+    return false;
+  });
 }
 
 export function isStdMapType(type: Type): boolean {
@@ -1809,6 +1857,42 @@ function isArkTSCollectionsArrayLikeDeclaration(decl: ts.Declaration): boolean {
   return true;
 }
 
+export function destructuringDeclarationHasSpreadOperator(node: ts.BindingPattern): boolean {
+  return node.elements.some((x) => {
+    if (ts.isBindingElement(x)) {
+      if (x.dotDotDotToken) {
+        return true;
+      }
+      if (ts.isArrayBindingPattern(x.name) || ts.isObjectBindingPattern(x.name)) {
+        return destructuringDeclarationHasSpreadOperator(x.name);
+      }
+    }
+    return false;
+  });
+}
+
+export function hasNestedObjectDestructuring(node: ts.ArrayBindingOrAssignmentPattern): boolean {
+  if (ts.isArrayLiteralExpression(node)) {
+    return node.elements.some((x) => {
+      const elem = ts.isSpreadElement(x) ? x.expression : x;
+      if (ts.isArrayLiteralExpression(elem)) {
+        return hasNestedObjectDestructuring(elem);
+      }
+      return ts.isObjectLiteralExpression(elem);
+    });
+  }
+
+  return node.elements.some((x) => {
+    if (ts.isBindingElement(x)) {
+      if (ts.isArrayBindingPattern(x.name)) {
+        return hasNestedObjectDestructuring(x.name);
+      }
+      return ts.isObjectBindingPattern(x.name);
+    }
+    return false;
+  });
+}
+
 export function getDecoratorName(decorator: ts.Decorator): string {
   let decoratorName = '';
   if (ts.isIdentifier(decorator.expression)) {
@@ -2024,6 +2108,77 @@ export function isShareableEntity(node: ts.Node): boolean {
   return (typeNode && !isFunctionLikeDeclaration(decl!)) ?
     isSendableTypeNode(typeNode) :
     isShareableType(TypeScriptLinter.tsTypeChecker.getTypeAtLocation(decl ? decl : node));
+}
+
+export function classMemberHasDuplicateName(
+  targetMember: ts.ClassElement, tsClassLikeDecl: ts.ClassLikeDeclaration, classType?: ts.Type
+): boolean {
+
+  /*
+   * If two class members have the same name where one is a private identifer,
+   * then such members are considered to have duplicate names.
+   */
+  if (!isIdentifierOrPrivateIdentifier(targetMember.name)) {
+    return false;
+  }
+
+  for (const classMember of tsClassLikeDecl.members) {
+    if (targetMember === classMember) {
+      continue;
+    }
+
+    // Check constructor parameter properties.
+    if (ts.isConstructorDeclaration(classMember) && classMember.parameters.some((x) => {
+      return ts.isIdentifier(x.name) && hasAccessModifier(x) &&
+        isPrivateIdentifierDuplicateOfIdentifier(targetMember.name as ts.Identifier, x.name);
+    })) {
+      return true;
+    }
+
+    if (!isIdentifierOrPrivateIdentifier(classMember.name)) {
+      continue;
+    }
+
+    if (isPrivateIdentifierDuplicateOfIdentifier(targetMember.name, classMember.name)) {
+      return true;
+    }
+  }
+
+  classType ??= TypeScriptLinter.tsTypeChecker.getTypeAtLocation(tsClassLikeDecl);
+  if (classType) {
+    const baseType = getBaseClassType(classType);
+    if (baseType) {
+      const baseDecl = baseType.getSymbol()?.valueDeclaration as ts.ClassLikeDeclaration;
+      if (baseDecl) {
+        return classMemberHasDuplicateName(targetMember, baseDecl);
+      }
+    }
+  }
+
+  return false;
+}
+
+function isIdentifierOrPrivateIdentifier(node?: ts.PropertyName): node is ts.Identifier | ts.PrivateIdentifier {
+  if (!node) {
+    return false;
+  }
+  return ts.isIdentifier(node) || ts.isPrivateIdentifier(node);
+}
+
+function isPrivateIdentifierDuplicateOfIdentifier(
+  ident1: ts.Identifier | ts.PrivateIdentifier,
+  ident2: ts.Identifier | ts.PrivateIdentifier
+): boolean {
+  if (ts.isIdentifier(ident1) && ts.isPrivateIdentifier(ident2)) {
+    return ident1.text === ident2.text.substring(1);
+  }
+  if (ts.isIdentifier(ident2) && ts.isPrivateIdentifier(ident1)) {
+    return ident2.text === ident1.text.substring(1);
+  }
+  if (ts.isPrivateIdentifier(ident1) && ts.isPrivateIdentifier(ident2)) {
+    return ident1.text.substring(1) === ident2.text.substring(1);
+  }
+  return false;
 }
 
 }
