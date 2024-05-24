@@ -18,21 +18,24 @@ The test cases are stored in the default directory called "testcase", and the re
     npm run release
     npm pack
     ```
+    must run this step everytime if you change your code.
 
 2. Install project dependencies by running(pwd：third_party_typescript/tests/arkTSTest):
     ```shell
-    npm install
+    rm -r ./node_modules/ ./package-lock.json # must run everytime
+    npm install # must run everytime
     ``` 
 3. Place the test cases in the "testcase" folder. It is recommended to use the constraint name as the test case directory, such as "arkts-no-any-unknown".
 4. Run the "run.js" script to perform the code testing.
 
     ```nodejs
-    node run.js
+    node run.js -v1.0
+    node run.js -v1.1
     ```
 Run with a specified test case folder:
 
 ```shell
-node run.js -P:.\testcase\arkts-identifiers-as-prop-names\  // You can modify the test case to the specified directory in the current path
+node run.js -P:testcase/arkts-identifiers-as-prop-names  // You can modify the test case to the specified directory in the current path
 ```
 To get more details,you can use the command:
 ```shell

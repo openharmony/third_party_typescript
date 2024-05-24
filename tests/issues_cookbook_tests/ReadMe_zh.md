@@ -1,8 +1,8 @@
 1. 请新建一个DevEco工程，然后将pages目录复制到DevEco工程所在目录的`DevEco工程\entry\src\main\ets\pages`（工程建议命名：MyApplication），替换。
-2. 打开MyApplication工程根目录下的oh-package.json5文件，`dependencies`添加字段`"js-md5": "latest"`,形如下：
+2. 打开MyApplication工程根目录下的oh-package.json5文件，`dependencies`添加字段`"js-md5": "^0.7.3"`,形如下：
 ```json
 "dependencies": {
-    "js-md5": "latest"
+    "js-md5": "^0.7.3"
   },
 ```
 

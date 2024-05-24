@@ -21,22 +21,25 @@
     npm run release
     npm pack
     ```
+    每次修改代码必须执行以上步骤。
 
 2. 安装项目依赖，执行(工作目录：third_party_typescript/tests/arkTSTest)
     ```shell
-    npm install
+    rm -r ./node_modules/ ./package-lock.json # 每次必须执行
+    npm install # 每次必须执行
     ``` 
 3. 将测试用例放至 testcase 文件夹，建议使用约束名称作为测试用例目录，如`arkts-no-any-unknown`
 4. 运行`run.js`，进行代码测试
 
     ```nodejs
-    node run.js
+    node run.js -v1.0
+    node run.js -v1.1
     ```
 
     指定测试用例文件夹运行:
 
     ```shell
-    node run.js -P:.\testcase\arkts-identifiers-as-prop-names\  // 可修改为当前路径下指定目录的测试用例
+    node run.js -P:testcase/arkts-identifiers-as-prop-names  // 可修改为当前路径下指定目录的测试用例
     ```
 
     打印详情:
