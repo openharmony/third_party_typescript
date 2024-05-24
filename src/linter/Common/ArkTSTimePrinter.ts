@@ -1,20 +1,20 @@
 namespace ts {
 
 export enum TimePhase {
-    START= "start",
-    GET_PROGRAM= "getProgram(not ArkTSLinter)",
-    UPDATE_ERROR_FILE= "updateErrorFile",
-    INIT= "init",
-    STRICT_PROGRAM_GET_SEMANTIC_DIAGNOSTICS= "strictProgramGetSemanticDiagnostics",
-    NON_STRICT_PROGRAM_GET_SEMANTIC_DIAGNOSTICS= "nonStrictProgramGetSemanticDiagnostics",
-    NON_STRICT_PROGRAM_GET_SYNTACTIC_DIAGNOSTICS= "nonStrictProgramGetSyntacticDiagnostics",
-    GET_TSC_DIAGNOSTICS= "getTscDiagnostics",
-    EMIT_BUILD_INFO= "emitBuildInfo",
-    LINT= "lint"
+    START = 'start',
+    GET_PROGRAM = 'getProgram(not ArkTSLinter)',
+    UPDATE_ERROR_FILE = 'updateErrorFile',
+    INIT = 'init',
+    STRICT_PROGRAM_GET_SEMANTIC_DIAGNOSTICS = 'strictProgramGetSemanticDiagnostics',
+    NON_STRICT_PROGRAM_GET_SEMANTIC_DIAGNOSTICS = 'nonStrictProgramGetSemanticDiagnostics',
+    NON_STRICT_PROGRAM_GET_SYNTACTIC_DIAGNOSTICS = 'nonStrictProgramGetSyntacticDiagnostics',
+    GET_TSC_DIAGNOSTICS = 'getTscDiagnostics',
+    EMIT_BUILD_INFO = 'emitBuildInfo',
+    LINT = 'lint'
 }
 
 export class ArkTSLinterTimePrinter {
-    private static instance?: ArkTSLinterTimePrinter
+    private static instance?: ArkTSLinterTimePrinter;
     private arkTSTimePrintSwitch: boolean;
     private timeMap = new Map<string, number>();
     private constructor(ArkTSTimePrintSwitch: boolean = false) {
@@ -23,20 +23,20 @@ export class ArkTSLinterTimePrinter {
 
     public static getInstance(): ArkTSLinterTimePrinter {
         if (!ArkTSLinterTimePrinter.instance) {
-            ArkTSLinterTimePrinter.instance = new ArkTSLinterTimePrinter()
+            ArkTSLinterTimePrinter.instance = new ArkTSLinterTimePrinter();
         }
-        return ArkTSLinterTimePrinter.instance
+        return ArkTSLinterTimePrinter.instance;
     }
 
-    public static destroyInstance() {
+    public static destroyInstance(): void {
         ArkTSLinterTimePrinter.instance = undefined;
     }
 
-    public setArkTSTimePrintSwitch(arkTSTimePrintSwitch: boolean) {
-        this.arkTSTimePrintSwitch = arkTSTimePrintSwitch
+    public setArkTSTimePrintSwitch(arkTSTimePrintSwitch: boolean): void {
+        this.arkTSTimePrintSwitch = arkTSTimePrintSwitch;
     }
 
-    public appendTime(key: string) {
+    public appendTime(key: string): void {
         if (this.arkTSTimePrintSwitch) {
             this.timeMap.set(key, Date.now());
         }
@@ -44,15 +44,17 @@ export class ArkTSLinterTimePrinter {
 
     private formatMapAsTable(map: Map<number>): string {
         if (!map.has(TimePhase.START)) {
-            return "ArkTSLinterTimePrinter: START phase is not exist!";
+            return 'ArkTSLinterTimePrinter: START phase is not exist!';
         }
-        let maxKeyLength = 0, lastVal = 0, sum = 0;
+        let maxKeyLength = 0;
+        let lastVal = 0;
+        let sum = 0;
         let printMap = new Map(map);
         printMap.forEach((value, key) => {
             maxKeyLength = Math.max(maxKeyLength, key.toString().length);
-            if (key != TimePhase.START) {
+            if (key !== TimePhase.START) {
                 let relativeVal = value - lastVal;
-                if (key != TimePhase.GET_PROGRAM) {
+                if (key !== TimePhase.GET_PROGRAM) {
                     sum += relativeVal;
                 }
                 printMap.set(key, relativeVal / 1000.0);
@@ -63,7 +65,7 @@ export class ArkTSLinterTimePrinter {
 
         let table = '';
         printMap.forEach((value, key) => {
-            if (key != TimePhase.START) {
+            if (key !== TimePhase.START) {
                 const paddedKey = key.toString().padEnd(maxKeyLength, ' ');
                 table += `${paddedKey} | ${value.toString()}\n`;
             }
@@ -74,7 +76,7 @@ export class ArkTSLinterTimePrinter {
         return `${header}${separator}${table}`;
     }
 
-    public printTimes() {
+    public printTimes(): void {
         if (this.arkTSTimePrintSwitch) {
             const formattedMap = this.formatMapAsTable(this.timeMap);
             console.log(formattedMap);
