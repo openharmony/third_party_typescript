@@ -3745,14 +3745,19 @@ namespace ts {
                     (isLiteralImportTypeNode(location) ? location : undefined)?.argument.literal;
             const mode = contextSpecifier && isStringLiteralLike(contextSpecifier) ? getModeForUsageLocation(currentSourceFile, contextSpecifier) : currentSourceFile.impliedNodeFormat;
             const resolvedModule = getResolvedModule(currentSourceFile, moduleReference, mode);
-
+            // the relative path of sdk
+            const sdkPath = compilerOptions.etsLoaderPath ? resolvePath(compilerOptions.etsLoaderPath, "../..") : undefined;
             if (compilerOptions.needDoArkTsLinter &&
                 currentSourceFile && currentSourceFile.scriptKind === ScriptKind.TS &&
                 resolvedModule && (resolvedModule.extension === ".ets" || resolvedModule.extension === ".d.ets")) {
                 const diagnosticType = compilerOptions.isCompatibleVersion ?
                     Diagnostics.Importing_ArkTS_files_in_JS_and_TS_files_is_about_to_be_forbidden :
                     Diagnostics.Importing_ArkTS_files_in_JS_and_TS_files_is_forbidden;
-                error(errorNode, diagnosticType, moduleReference);
+                if (isImportCall(location) || !allowImportSendable(sdkPath, currentSourceFile)) {
+                    // If the node is ImportCall throw error
+                    // If currentSourceFile is not allowImportSendable (.d.ts inside sdk or .ts file when tsImportSendable is true)
+                    error(errorNode, diagnosticType, moduleReference);
+                }
             }
 
             const resolutionDiagnostic = resolvedModule && getResolutionDiagnostic(compilerOptions, resolvedModule);
@@ -3923,6 +3928,16 @@ namespace ts {
                 }
             }
             return undefined;
+        }
+        
+        function allowImportSendable(sdkPath: string | undefined, currentSourceFile: SourceFile): boolean {
+            const isInSdkPath = !!(sdkPath && ts.normalizePath(currentSourceFile.fileName).startsWith(sdkPath));
+            // Check the file is a TypeScript file outside of the method
+            // currentSourceFile must be a ts file
+            return (
+                (isInSdkPath && currentSourceFile.isDeclarationFile) ||
+                (!!compilerOptions.tsImportSendableEnable && !currentSourceFile.isDeclarationFile)
+            );
         }
 
         function errorOnImplicitAnyModule(isError: boolean, errorNode: Node, { packageId, resolvedFileName }: ResolvedModuleFull, moduleReference: string): void {

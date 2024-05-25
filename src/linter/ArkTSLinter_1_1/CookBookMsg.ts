@@ -17,7 +17,7 @@ export namespace ArkTSLinter_1_1 {
 export const cookBookMsg: string[] = [];
 export const cookBookTag: string[] = [];
 
-for (let i = 0; i <= 164; i++) {
+for (let i = 0; i <= 168; i++) {
   cookBookMsg[ i ] = "";
 }
 
@@ -185,5 +185,9 @@ cookBookTag[161] = 'Casting "Non-sendable" data to "Sendable" type is not allowe
 cookBookTag[162] = 'Importing a module for side-effects only is not supported in shared module (arkts-no-side-effects-imports)';
 cookBookTag[163] = 'Exported object must have a Sendable data type in shared module (arkts-shared-module-exports)';
 cookBookTag[164] = '"export * from \'xxx\'" is not supported in shared module (arkts-shared-module-no-star-export)';
+cookBookTag[165] = 'Only "Sendable" classes and "Sendable" interfaces are allowed for importing from ets into ts file (arkts-no-ts-import-ets)';
+cookBookTag[166] = 'In ts files, "Sendable" types cannot be used in implements and extends clauses (arkts-no-ts-sendable-type-inheritance)';
+cookBookTag[167] = 'In sdk ts files, "Sendable" class and "Sendable" interface can not be exported (arkts-no-dts-sendable-type-export)';
+cookBookTag[168] = 'In ts files, entities from ets files can not be re-exported (arkts-no-ts-re-export-ets)';
 }
 }
