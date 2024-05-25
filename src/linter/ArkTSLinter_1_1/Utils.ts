@@ -770,7 +770,11 @@ export function relatedByInheritanceOrIdentical(typeA: Type, typeB: Type): boole
   if (typeA === typeB || isObject(typeB)) { return true; }
   if (!typeA.symbol || !typeA.symbol.declarations) { return false; }
 
+  const isBISendable = isISendableInterface(typeB);
   for (const typeADecl of typeA.symbol.declarations) {
+    if (isBISendable && ts.isClassDeclaration(typeADecl) && hasSendableDecorator(typeADecl)) {
+      return true;
+    }
     if (
       (!isClassDeclaration(typeADecl) && !isInterfaceDeclaration(typeADecl)) ||
       !typeADecl.heritageClauses
