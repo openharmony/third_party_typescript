@@ -887,9 +887,6 @@ export class TypeScriptLinter {
     }
 
     this.incrementCounters(node, FaultID.FunctionExpression, autofixable, autofix);
-    if (isGeneric) {
-      this.incrementCounters(funcExpr, FaultID.LambdaWithTypeParameters);
-    }
     if (isGenerator) {
       this.incrementCounters(funcExpr, FaultID.GeneratorFunction);
     }
@@ -911,10 +908,6 @@ export class TypeScriptLinter {
     if (!(contextType && Utils.isLibraryType(contextType))) {
       if (!arrowFunc.type) {
         this.handleMissingReturnType(arrowFunc);
-      }
-
-      if (arrowFunc.typeParameters && arrowFunc.typeParameters.length > 0) {
-        this.incrementCounters(node, FaultID.LambdaWithTypeParameters);
       }
     }
   }
@@ -1489,21 +1482,6 @@ export class TypeScriptLinter {
     const tsImportClause = node as ImportClause;
     if (tsImportClause.name) {
       this.countDeclarationsWithDuplicateName(tsImportClause.name, tsImportClause);
-    }
-
-    if (tsImportClause.namedBindings && isNamedImports(tsImportClause.namedBindings)) {
-      const nonDefaultSpecs: ImportSpecifier[] = [];
-      let defaultSpec: ImportSpecifier | undefined;
-      for (const importSpec of tsImportClause.namedBindings.elements) {
-        if (Utils.isDefaultImport(importSpec)) defaultSpec = importSpec;
-        else nonDefaultSpecs.push(importSpec);
-      }
-      if (defaultSpec) {
-        let autofix: Autofix[] | undefined;
-        // if (Autofixer.shouldAutofix(defaultSpec, FaultID.DefaultImport))
-        //  autofix = [ Autofixer.fixDefaultImport(tsImportClause, defaultSpec, nonDefaultSpecs) ];
-        this.incrementCounters(defaultSpec, FaultID.DefaultImport, true, autofix);
-      }
     }
   }
 

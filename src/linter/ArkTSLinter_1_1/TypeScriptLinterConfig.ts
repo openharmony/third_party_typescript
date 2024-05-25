@@ -59,7 +59,6 @@ export class LinterConfig {
     LinterConfig.nodeDesc[FaultID.ObjectTypeLiteral] = "Object type literals";
     LinterConfig.nodeDesc[FaultID.CommaOperator] = "comma operator";
     LinterConfig.nodeDesc[FaultID.LimitedReturnTypeInference] = "Functions with limited return type inference";
-    LinterConfig.nodeDesc[FaultID.LambdaWithTypeParameters] = "Lambda function with type parameters";
     LinterConfig.nodeDesc[FaultID.ClassExpression] = "Class expressions";
     LinterConfig.nodeDesc[FaultID.DestructuringAssignment] = "Destructuring assignments";
     LinterConfig.nodeDesc[FaultID.DestructuringDeclaration] = "Destructuring variable declarations";
@@ -91,7 +90,6 @@ export class LinterConfig {
     LinterConfig.nodeDesc[FaultID.ThisType] = "\"this\" type";
     LinterConfig.nodeDesc[FaultID.IntefaceExtendDifProps] = "Extends same properties with different types";
     LinterConfig.nodeDesc[FaultID.StructuralIdentity] = "Use of type structural identity";
-    LinterConfig.nodeDesc[FaultID.DefaultImport] = "Default import declarations";
     LinterConfig.nodeDesc[FaultID.ExportAssignment] = "Export assignments (export = ..)";
     LinterConfig.nodeDesc[FaultID.ImportAssignment] = "Import assignments (import = ..)";
     LinterConfig.nodeDesc[FaultID.GenericCallNoTypeArgs] = "Generic calls without type arguments";
