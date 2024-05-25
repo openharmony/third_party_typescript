@@ -1,5 +1,20 @@
 {
-    "arktsVersion_1_0": [],
+    "arktsVersion_1_0": [
+        {
+            "messageText": "No decorators except ArkUI decorators are currently allowed (arkts-no-decorators-except-arkui)",
+            "expectLineAndCharacter": {
+              "line": 17,
+              "character": 5
+            }
+        },
+        {
+            "messageText": "No decorators except ArkUI decorators are currently allowed (arkts-no-decorators-except-arkui)",
+            "expectLineAndCharacter": {
+              "line": 22,
+              "character": 5
+            }
+        }
+    ],
     "arktsVersion_1_1": [
         {
             "messageText": "Only imported variables can be captured by \"Sendable\" class (arkts-sendable-imported-variables)",
