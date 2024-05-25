@@ -16,5 +16,5 @@
 
 let aOne:number = 5
 let bOne:number = 10; 
-let cOne = (aOne++, bOne--, aOne + bOne);
+let cOne =(aOne++, bOne--, aOne + bOne);
 console.log(cOne)
