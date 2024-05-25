@@ -25,14 +25,14 @@ export enum FaultID {
   ThrowStatement, IndexedAccessType, UnknownType, ForInStatement, InOperator,
   FunctionExpression, IntersectionType,
   ObjectTypeLiteral, CommaOperator, LimitedReturnTypeInference,
-  ClassExpression, DestructuringAssignment,
+  LambdaWithTypeParameters, ClassExpression, DestructuringAssignment,
   DestructuringDeclaration, VarDeclaration, CatchWithUnsupportedType, DeleteOperator,
   DeclWithDuplicateName, UnaryArithmNotNumber, ConstructorType, ConstructorIface, ConstructorFuncs, CallSignature,
   TypeAssertion, PrivateIdentifier, LocalFunction,
   ConditionalType, MappedType, NamespaceAsObject, ClassAsObject,
   NonDeclarationInNamespace, GeneratorFunction, FunctionContainsThis, PropertyAccessByIndex, JsxElement,
   EnumMemberNonConstInit, ImplementsClass, MethodReassignment, MultipleStaticBlocks, ThisType,
-  IntefaceExtendDifProps, StructuralIdentity,
+  IntefaceExtendDifProps, StructuralIdentity, DefaultImport,
   ExportAssignment, ImportAssignment,
   GenericCallNoTypeArgs, ParameterProperties,
   InstanceofUnsupported, ShorthandAmbientModuleDecl, WildcardsInModuleName, UMDModuleDefinition,
@@ -48,18 +48,19 @@ export enum FaultID {
 export class FaultAttributes {
   constructor(
     public cookBookRef: number,
+    public migratable: boolean = false,
     public severity: ProblemSeverity = ProblemSeverity.ERROR
   ) {}
 }
 
 export const faultsAttrs: FaultAttributes[] = [];
 
-faultsAttrs[FaultID.LiteralAsPropertyName] = new FaultAttributes(1);
+faultsAttrs[FaultID.LiteralAsPropertyName] = new FaultAttributes(1, true);
 faultsAttrs[FaultID.ComputedPropertyName] = new FaultAttributes(1);
 faultsAttrs[FaultID.SymbolType] = new FaultAttributes(2);
-faultsAttrs[FaultID.PrivateIdentifier] = new FaultAttributes(3);
-faultsAttrs[FaultID.DeclWithDuplicateName] = new FaultAttributes(4);
-faultsAttrs[FaultID.VarDeclaration] = new FaultAttributes(5);
+faultsAttrs[FaultID.PrivateIdentifier] = new FaultAttributes(3, true);
+faultsAttrs[FaultID.DeclWithDuplicateName] = new FaultAttributes(4, true);
+faultsAttrs[FaultID.VarDeclaration] = new FaultAttributes(5, true);
 faultsAttrs[FaultID.AnyType] = new FaultAttributes(8);
 faultsAttrs[FaultID.UnknownType] = new FaultAttributes(8);
 faultsAttrs[FaultID.CallSignature] = new FaultAttributes(14);
@@ -69,37 +70,38 @@ faultsAttrs[FaultID.IndexMember] = new FaultAttributes(17);
 faultsAttrs[FaultID.IntersectionType] = new FaultAttributes(19);
 faultsAttrs[FaultID.ThisType] = new FaultAttributes(21);
 faultsAttrs[FaultID.ConditionalType] = new FaultAttributes(22);
-faultsAttrs[FaultID.ParameterProperties] = new FaultAttributes(25);
+faultsAttrs[FaultID.ParameterProperties] = new FaultAttributes(25, true);
 faultsAttrs[FaultID.ConstructorIface] = new FaultAttributes(27);
 faultsAttrs[FaultID.IndexedAccessType] = new FaultAttributes(28);
-faultsAttrs[FaultID.PropertyAccessByIndex] = new FaultAttributes(29);
+faultsAttrs[FaultID.PropertyAccessByIndex] = new FaultAttributes(29, true);
 faultsAttrs[FaultID.StructuralIdentity] = new FaultAttributes(30);
 faultsAttrs[FaultID.GenericCallNoTypeArgs] = new FaultAttributes(34);
 faultsAttrs[FaultID.ObjectLiteralNoContextType] = new FaultAttributes(38);
 faultsAttrs[FaultID.ObjectTypeLiteral] = new FaultAttributes(40);
 faultsAttrs[FaultID.ArrayLiteralNoContextType] = new FaultAttributes(43);
-faultsAttrs[FaultID.FunctionExpression] = new FaultAttributes(46);
-faultsAttrs[FaultID.ClassExpression] = new FaultAttributes(50);
+faultsAttrs[FaultID.FunctionExpression] = new FaultAttributes(46, true);
+faultsAttrs[FaultID.LambdaWithTypeParameters] = new FaultAttributes(49, true);
+faultsAttrs[FaultID.ClassExpression] = new FaultAttributes(50, true);
 faultsAttrs[FaultID.ImplementsClass] = new FaultAttributes(51);
 faultsAttrs[FaultID.MethodReassignment] = new FaultAttributes(52);
-faultsAttrs[FaultID.TypeAssertion] = new FaultAttributes(53);
+faultsAttrs[FaultID.TypeAssertion] = new FaultAttributes(53, true);
 faultsAttrs[FaultID.JsxElement] = new FaultAttributes(54);
 faultsAttrs[FaultID.UnaryArithmNotNumber] = new FaultAttributes(55);
 faultsAttrs[FaultID.DeleteOperator] = new FaultAttributes(59);
 faultsAttrs[FaultID.TypeQuery] = new FaultAttributes(60);
 faultsAttrs[FaultID.InstanceofUnsupported] = new FaultAttributes(65);
 faultsAttrs[FaultID.InOperator] = new FaultAttributes(66);
-faultsAttrs[FaultID.DestructuringAssignment] = new FaultAttributes(69);
+faultsAttrs[FaultID.DestructuringAssignment] = new FaultAttributes(69, true);
 faultsAttrs[FaultID.CommaOperator] = new FaultAttributes(71);
-faultsAttrs[FaultID.DestructuringDeclaration] = new FaultAttributes(74);
-faultsAttrs[FaultID.CatchWithUnsupportedType] = new FaultAttributes(79);
+faultsAttrs[FaultID.DestructuringDeclaration] = new FaultAttributes(74, true);
+faultsAttrs[FaultID.CatchWithUnsupportedType] = new FaultAttributes(79, true);
 faultsAttrs[FaultID.ForInStatement] = new FaultAttributes(80);
 faultsAttrs[FaultID.MappedType] = new FaultAttributes(83);
 faultsAttrs[FaultID.WithStatement] = new FaultAttributes(84);
-faultsAttrs[FaultID.ThrowStatement] = new FaultAttributes(87);
-faultsAttrs[FaultID.LimitedReturnTypeInference] = new FaultAttributes(90);
+faultsAttrs[FaultID.ThrowStatement] = new FaultAttributes(87, true);
+faultsAttrs[FaultID.LimitedReturnTypeInference] = new FaultAttributes(90, true);
 faultsAttrs[FaultID.DestructuringParameter] = new FaultAttributes(91);
-faultsAttrs[FaultID.LocalFunction] = new FaultAttributes(92);
+faultsAttrs[FaultID.LocalFunction] = new FaultAttributes(92, true);
 faultsAttrs[FaultID.FunctionContainsThis] = new FaultAttributes(93);
 faultsAttrs[FaultID.GeneratorFunction] = new FaultAttributes(94);
 faultsAttrs[FaultID.YieldExpression] = new FaultAttributes(94);
@@ -113,26 +115,27 @@ faultsAttrs[FaultID.EnumMemberNonConstInit] = new FaultAttributes(111);
 faultsAttrs[FaultID.EnumMerging] = new FaultAttributes(113);
 faultsAttrs[FaultID.NamespaceAsObject] = new FaultAttributes(114);
 faultsAttrs[FaultID.NonDeclarationInNamespace] = new FaultAttributes(116);
+faultsAttrs[FaultID.DefaultImport] = new FaultAttributes(120, true);
 faultsAttrs[FaultID.ImportAssignment] = new FaultAttributes(121);
 faultsAttrs[FaultID.ExportAssignment] = new FaultAttributes(126);
 faultsAttrs[FaultID.ShorthandAmbientModuleDecl] = new FaultAttributes(128);
 faultsAttrs[FaultID.WildcardsInModuleName] = new FaultAttributes(129);
 faultsAttrs[FaultID.UMDModuleDefinition] = new FaultAttributes(130);
 faultsAttrs[FaultID.NewTarget] = new FaultAttributes(132);
-faultsAttrs[FaultID.DefiniteAssignment] = new FaultAttributes(134, ProblemSeverity.WARNING);
+faultsAttrs[FaultID.DefiniteAssignment] = new FaultAttributes(134, false, ProblemSeverity.WARNING);
 faultsAttrs[FaultID.Prototype] = new FaultAttributes(136);
-faultsAttrs[FaultID.GlobalThis] = new FaultAttributes(137, ProblemSeverity.WARNING);
+faultsAttrs[FaultID.GlobalThis] = new FaultAttributes(137, false, ProblemSeverity.WARNING);
 faultsAttrs[FaultID.UtilityType] = new FaultAttributes(138);
 faultsAttrs[FaultID.PropertyDeclOnFunction] = new FaultAttributes(139);
-faultsAttrs[FaultID.FunctionBind] = new FaultAttributes(140, ProblemSeverity.WARNING);
+faultsAttrs[FaultID.FunctionBind] = new FaultAttributes(140, false, ProblemSeverity.WARNING);
 faultsAttrs[FaultID.ConstAssertion] = new FaultAttributes(142);
 faultsAttrs[FaultID.ImportAssertion] = new FaultAttributes(143);
 faultsAttrs[FaultID.LimitedStdLibApi] = new FaultAttributes(144);
 faultsAttrs[FaultID.StrictDiagnostic] = new FaultAttributes(145);
 faultsAttrs[FaultID.ErrorSuppression] = new FaultAttributes(146);
-faultsAttrs[FaultID.ClassAsObject] = new FaultAttributes(149, ProblemSeverity.WARNING);
+faultsAttrs[FaultID.ClassAsObject] = new FaultAttributes(149, false, ProblemSeverity.WARNING);
 faultsAttrs[FaultID.ImportAfterStatement] = new FaultAttributes(150);
-faultsAttrs[FaultID.EsObjectType] = new FaultAttributes(151, ProblemSeverity.WARNING);
+faultsAttrs[FaultID.EsObjectType] = new FaultAttributes(151, false, ProblemSeverity.WARNING);
 faultsAttrs[FaultID.FunctionApplyCall] = new FaultAttributes(152);
 faultsAttrs[FaultID.SendableClassInheritance] = new FaultAttributes(153);
 faultsAttrs[FaultID.SendablePropType] = new FaultAttributes(154);

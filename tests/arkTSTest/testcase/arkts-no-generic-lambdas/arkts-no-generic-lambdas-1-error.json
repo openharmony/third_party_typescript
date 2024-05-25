@@ -8,5 +8,13 @@
       }
     }
   ],
-  "arktsVersion_1_1": []
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Use generic functions instead of generic arrow functions (arkts-no-generic-lambdas)",
+      "expectLineAndCharacter": {
+        "line": 17,
+        "character": 18
+      }
+    }
+  ]
 }

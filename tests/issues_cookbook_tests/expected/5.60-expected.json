@@ -1,6 +1,14 @@
 {
     "sdklinter": {
         "filePath": "entry/src/main/ets/pages/cookbook/5.60.ets",
-        "defects": []
+        "defects": [
+            {
+                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cookbook/5.60.ets:1:10\n \"import default as ...\" is not supported (arkts-no-import-default-as)\n\n",
+                "severity": 2,
+                "reportLine": 1,
+                "reportColumn": 10,
+                "description": "\"import default as ...\" is not supported (arkts-no-import-default-as)"
+            }
+        ]
     }
 }
