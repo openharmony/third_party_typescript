@@ -3164,6 +3164,7 @@ declare namespace ts {
         packageManagerType?: string;
         emitNodeModulesFiles?: boolean;
         etsLoaderPath?: string;
+        tsImportSendableEnable?: boolean;
         [option: string]: CompilerOptionsValue | TsConfigSourceFile | undefined;
     }
     export interface EtsOptions {
@@ -13146,7 +13147,11 @@ declare namespace ts {
                 SharedNoSideEffectImport = 91,
                 SharedModuleExports = 92,
                 SharedModuleNoStarExport = 93,
-                LAST_ID = 94
+                NoTsImportEts = 94,
+                SendableTypeInheritance = 95,
+                SendableTypeExported = 96,
+                SendableNoTsExportEts = 97,
+                LAST_ID = 98
             }
             class FaultAttributes {
                 cookBookRef: number;
@@ -13178,6 +13183,7 @@ declare namespace ts {
             const LANG_NAMESPACE = "lang";
             const ISENDABLE_TYPE = "ISendable";
             const USE_SHARED = "use shared";
+            const D_TS = ".d.ts";
             function setTypeChecker(tsTypeChecker: TypeChecker): void;
             function clearTypeChecker(): void;
             function setTestMode(tsTestMode: boolean): void;
@@ -13344,7 +13350,10 @@ declare namespace ts {
             function getDecoratorsIfInSendableClass(declaration: ts.HasDecorators): readonly ts.Decorator[] | undefined;
             function isISendableInterface(type: ts.Type): boolean;
             function isSharedModule(sourceFile: ts.SourceFile): boolean;
+            function getDeclarationNode(node: ts.Node): ts.Declaration | undefined;
             function isShareableEntity(node: ts.Node): boolean;
+            function isSendableClassOrInterfaceEntity(node: ts.Node): boolean;
+            function isInImportWhiteList(resolvedModule: ResolvedModuleFull): boolean;
         }
     }
 }
@@ -13540,6 +13549,64 @@ declare namespace ts {
             lint(): void;
             private handleExportKeyword;
             private handleExportDeclaration;
+        }
+    }
+}
+declare namespace ts {
+    namespace ArkTSLinter_1_1 {
+        import Autofix = Autofixer.Autofix;
+        interface KitSymbol {
+            source: string;
+            bindings: string;
+        }
+        type KitSymbols = Record<string, KitSymbol>;
+        interface KitInfo {
+            symbols?: KitSymbols;
+        }
+        class InteropTypescriptLinter {
+            private sourceFile;
+            private isInSdk;
+            static strictMode: boolean;
+            static totalVisitedNodes: number;
+            static nodeCounters: number[];
+            static lineCounters: number[];
+            static totalErrorLines: number;
+            static errorLineNumbersString: string;
+            static totalWarningLines: number;
+            static warningLineNumbersString: string;
+            static reportDiagnostics: boolean;
+            static problemsInfos: ProblemInfo[];
+            static initGlobals(): void;
+            static initStatic(): void;
+            static tsTypeChecker: TypeChecker;
+            static etsLoaderPath?: string;
+            static kitInfos: Map<KitInfo>;
+            currentErrorLine: number;
+            currentWarningLine: number;
+            constructor(sourceFile: SourceFile, tsProgram: Program, isInSdk: boolean);
+            static clearTsTypeChecker(): void;
+            readonly handlersMap: ESMap<SyntaxKind, (node: Node) => void>;
+            incrementCounters(node: Node | CommentRange, faultId: number, autofixable?: boolean, autofix?: Autofix[]): void;
+            private forEachNodeInSubtree;
+            private visitSourceFile;
+            private handleImportDeclaration;
+            private checkSendableClassorISendable;
+            private checkKitImportClause;
+            private checkImportClause;
+            private allowInSdkImportSendable;
+            private handleClassDeclaration;
+            private checkClassOrInterfaceDeclarationHeritageClause;
+            private handleInterfaceDeclaration;
+            private handleNewExpression;
+            private handleSendableGenericTypes;
+            private handleObjectLiteralExpression;
+            private handleArrayLiteralExpression;
+            private handleAsExpression;
+            private handleExportDeclaration;
+            private handleExportAssignment;
+            private initKitInfos;
+            private getOriginalFileNames;
+            lint(): void;
         }
     }
 }

@@ -30,6 +30,8 @@ export function runArkTSLinter(tsBuilderProgram: BuilderProgram, srcFile?: Sourc
   buildInfoWriteFile?: WriteFileCallback, arkTSVersion?: string): Diagnostic[] {
   TypeScriptLinter.errorLineNumbersString = "";
   TypeScriptLinter.warningLineNumbersString = "";
+  InteropTypescriptLinter.errorLineNumbersString = '';
+  InteropTypescriptLinter.warningLineNumbersString = '';
   let diagnostics: Diagnostic[] = [];
 
   LinterConfig.initStatic();
@@ -65,22 +67,41 @@ export function runArkTSLinter(tsBuilderProgram: BuilderProgram, srcFile?: Sourc
   timePrinterInstance.appendTime(ts.TimePhase.GET_TSC_DIAGNOSTICS);
 
   TypeScriptLinter.initGlobals();
+  InteropTypescriptLinter.initGlobals();
 
-  for(const fileToLint of srcFiles) {
-    TypeScriptLinter.initStatic();
-    if(TypeScriptLinter.lintEtsOnly && fileToLint.scriptKind !==ScriptKind.ETS) {
+  for (const fileToLint of srcFiles) {
+    if (fileToLint.scriptKind !== ScriptKind.ETS && fileToLint.scriptKind !== ScriptKind.TS) {
       continue;
     }
 
     let currentDiagnostics: Diagnostic[];
     if (changedFiles.has(fileToLint.resolvedPath)) {
-      const linter = new TypeScriptLinter(fileToLint, program, tscStrictDiagnostics);
-      Utils.setTypeChecker(TypeScriptLinter.tsTypeChecker);
-      linter.lint();
+      if (fileToLint.scriptKind === ScriptKind.ETS) {
+        TypeScriptLinter.initStatic();
+        const linter = new TypeScriptLinter(fileToLint, program, tscStrictDiagnostics);
+        Utils.setTypeChecker(TypeScriptLinter.tsTypeChecker);
+        linter.lint();
 
-      // Get list of bad nodes from the current run.
-      currentDiagnostics = tscStrictDiagnostics.get(normalizePath(fileToLint.fileName)) ?? [];
-      TypeScriptLinter.problemsInfos.forEach((x) => currentDiagnostics.push(translateDiag(fileToLint, x)));
+        // Get list of bad nodes from the current run.
+        currentDiagnostics = tscStrictDiagnostics.get(normalizePath(fileToLint.fileName)) ?? [];
+        TypeScriptLinter.problemsInfos.forEach((x) => currentDiagnostics.push(translateDiag(fileToLint, x)));
+      } else {
+        InteropTypescriptLinter.initStatic();
+        const isKit = ts.getBaseFileName(fileToLint.fileName).indexOf('@kit.') === 0;
+        const etsLoaderPath = program.getCompilerOptions().etsLoaderPath;
+        const isInSdk = etsLoaderPath ? normalizePath(fileToLint.fileName).indexOf(resolvePath(etsLoaderPath, '../..')) === 0 : false;
+        const isInOhModules = isOHModules(fileToLint.fileName);
+        const tsImportSendableEnable = program.getCompilerOptions().tsImportSendableEnable;
+        if (isKit || isInOhModules || (!tsImportSendableEnable && !isInSdk)) {
+          continue;
+        }
+        const InteropLinter = new InteropTypescriptLinter(fileToLint, program, isInSdk);
+        Utils.setTypeChecker(InteropTypescriptLinter.tsTypeChecker);
+        InteropLinter.lint();
+
+        currentDiagnostics = [];
+        InteropTypescriptLinter.problemsInfos.forEach((x) => currentDiagnostics.push(translateDiag(fileToLint, x)));
+      } 
     } else {
       // Get diagnostics from old run.
       currentDiagnostics = (oldDiagnostics?.get(fileToLint.resolvedPath) as Diagnostic[]) ?? [];
@@ -106,6 +127,7 @@ export function runArkTSLinter(tsBuilderProgram: BuilderProgram, srcFile?: Sourc
 // reclaiming memory for Hvigor with "no-parallel" and "daemon", .
 function releaseReferences(): void {
   TypeScriptLinter.clearTsTypeChecker();
+  InteropTypescriptLinter.clearTsTypeChecker();
   Utils.clearTypeChecker();
   Utils.clearTrueSymbolAtLocationCache();
 }
