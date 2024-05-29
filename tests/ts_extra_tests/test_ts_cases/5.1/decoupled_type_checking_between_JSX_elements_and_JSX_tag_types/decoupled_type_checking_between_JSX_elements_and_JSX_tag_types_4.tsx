@@ -25,7 +25,7 @@
 import * as React from 'react';
 
 class WelcomeClass extends React.Component {
-  render(): JSX.Element  {
+  render(): JSX.Element {
     return <h1>Hello, there.</h1>;
   }
 }

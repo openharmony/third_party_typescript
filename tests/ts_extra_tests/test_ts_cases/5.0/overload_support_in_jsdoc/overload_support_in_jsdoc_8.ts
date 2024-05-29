@@ -38,7 +38,7 @@ type Shape = {
   y: number;
   height: number;
   width: number;
-}
+};
 
 class Square {
   public x: number;
