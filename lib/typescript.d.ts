@@ -3164,6 +3164,7 @@ declare namespace ts {
         packageManagerType?: string;
         emitNodeModulesFiles?: boolean;
         etsLoaderPath?: string;
+        tsImportSendableEnable?: boolean;
         [option: string]: CompilerOptionsValue | TsConfigSourceFile | undefined;
     }
     export interface EtsOptions {
@@ -9205,7 +9206,11 @@ declare namespace ts {
                 SharedNoSideEffectImport = 89,
                 SharedModuleExports = 90,
                 SharedModuleNoStarExport = 91,
-                LAST_ID = 92
+                NoTsImportEts = 92,
+                SendableTypeInheritance = 93,
+                SendableTypeExported = 94,
+                SendableNoTsExportEts = 95,
+                LAST_ID = 96
             }
             class FaultAttributes {
                 cookBookRef: number;
@@ -9402,7 +9407,10 @@ declare namespace ts {
             function getDecoratorsIfInSendableClass(declaration: ts.HasDecorators): readonly ts.Decorator[] | undefined;
             function isISendableInterface(type: ts.Type): boolean;
             function isSharedModule(sourceFile: ts.SourceFile): boolean;
+            function getDeclarationNode(node: ts.Node): ts.Declaration | undefined;
             function isShareableEntity(node: ts.Node): boolean;
+            function isShareableClassOrInterfaceEntity(node: ts.Node): boolean;
+            function isInImportWhiteList(resolvedModule: ResolvedModuleFull): boolean;
         }
     }
 }
@@ -9598,6 +9606,51 @@ declare namespace ts {
             lint(): void;
             private handleExportKeyword;
             private handleExportDeclaration;
+        }
+    }
+}
+declare namespace ts {
+    namespace ArkTSLinter_1_1 {
+        import Autofix = Autofixer.Autofix;
+        class InteropTypescriptLinter {
+            private sourceFile;
+            private isInSdk;
+            static strictMode: boolean;
+            static totalVisitedNodes: number;
+            static nodeCounters: number[];
+            static lineCounters: number[];
+            static totalErrorLines: number;
+            static errorLineNumbersString: string;
+            static totalWarningLines: number;
+            static warningLineNumbersString: string;
+            static reportDiagnostics: boolean;
+            static problemsInfos: ProblemInfo[];
+            static initGlobals(): void;
+            static initStatic(): void;
+            static tsTypeChecker: TypeChecker;
+            currentErrorLine: number;
+            currentWarningLine: number;
+            readonly ARKTS_COLLECTIONS_ETS = "@arkts.collections";
+            readonly KIT_ARKTS_ETS = "@kit.ArkTS";
+            constructor(sourceFile: SourceFile, tsProgram: Program, isInSdk: boolean);
+            static clearTsTypeChecker(): void;
+            readonly handlersMap: ESMap<SyntaxKind, (node: Node) => void>;
+            incrementCounters(node: Node | CommentRange, faultId: number, autofixable?: boolean, autofix?: Autofix[]): void;
+            private forEachNodeInSubtree;
+            private visitSourceFile;
+            private handleImportDeclaration;
+            private checkSendableClassorISendable;
+            private checkImportClause;
+            private handleClassDeclaration;
+            private checkClassOrInterfaceDeclarationHeritageClause;
+            private handleInterfaceDeclaration;
+            private handleNewExpression;
+            private handleSendableGenericTypes;
+            private handleObjectLiteralExpression;
+            private handleArrayLiteralExpression;
+            private handleAsExpression;
+            private handleExportDeclaration;
+            lint(): void;
         }
     }
 }

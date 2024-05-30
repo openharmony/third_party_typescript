@@ -6745,6 +6745,7 @@ namespace ts {
         packageManagerType?: string;
         emitNodeModulesFiles?: boolean;
         etsLoaderPath?: string;
+        tsImportSendableEnable?: boolean;
         [option: string]: CompilerOptionsValue | TsConfigSourceFile | undefined;
     }
 

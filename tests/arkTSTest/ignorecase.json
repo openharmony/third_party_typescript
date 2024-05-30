@@ -1,3 +1,27 @@
 {
-    "ignoreCase":["testcase/arkts-shared-module-exports/@arkts.lang.d.ets"]
+    "ignoreCase":["testcase/arkts-shared-module-exports/@arkts.lang.d.ets",
+                "testcase/arkts-no-globalthis/arkts-no-globalthis-1-error/arkts-no-globalthis-1-error.ts",
+                "testcase/arkts-no-globalthis/arkts-no-globalthis-3-error/arkts-no-globalthis-3-error.ts",
+                "testcase/arkts-no-globalthis/arkts-no-globalthis-4-error/arkts-no-globalthis-4-error.ts",
+                "testcase/arkts-limited-esobj/arkts-limited-esobj.d.ts",
+                "testcase/arkts-no-aliases-by-index/arkts-no-aliases-by-index-7-error/case7.1.ts",
+                "testcase/arkts-no-import-assertions/path/module.ts",
+                "testcase/arkts-no-import-assertions/path/my-module.ts",
+                "testcase/arkts-no-misplaced-imports/path/module.ts",
+                "testcase/arkts-no-misplaced-imports/path/moduleName.ts",
+                "testcase/arkts-no-module-wildcards/arkts-no-module-wildcards-2-ok/math.ts",
+                "testcase/arkts-no-module-wildcards/arkts-no-module-wildcards-4-ok/utils.ts",
+                "testcase/arkts-no-module-wildcards/arkts-no-module-wildcards-5-ok/logger.ts",
+                "testcase/arkts-no-regexp-literals/arkts-no-regexp-literals-7-ok/case7.1.ts",
+                "testcase/arkts-no-ts-deps/arkts-no-ts-deps-2-ok/lib1-dependencie.ts",
+                "testcase/arkts-no-ts-deps/arkts-no-ts-deps-7-ok/lib1-dependencie.ts",
+                "testcase/arkts-no-ts-deps/arkts-no-ts-deps-7-ok/lib2-dependencie.ts",
+                "testcase/arkts-no-ts-deps/arkts-no-ts-deps-7-ok/lib3-dependencie.ts",
+                "testcase/arkts-no-ts-deps/arkts-no-ts-deps-9-ok/lib2-dependencie.ts",
+                "testcase/arkts-only-imported-variables/sendable_captured_variables_lib.d.ts",
+                "testcase/arkts-only-imported-variables/sendable_captured_variables_namespaceimport_lib.d.ts",
+                "testcase/arkts-no-ts-sendable-type-inheritance/@arkts.lang.d.ets",
+                "testcase/arkts-sendable-as-expr/arkts-sendable-as-expr-ts/@arkts.lang.d.ets",
+                "testcase/arkts-sendable-generic-types/@arkts.lang.d.ets",
+                "testcase/arkts-sendable-obj-init/@arkts.lang.d.ets"]
 }

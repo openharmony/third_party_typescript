@@ -1142,7 +1142,7 @@ function validateField(type: ts.Type, prop: ts.PropertyAssignment): boolean {
     return false;
   }
 
-  const propType = TypeScriptLinter.tsTypeChecker.getTypeOfSymbolAtLocation(propSym, propSym.declarations[0]);
+  const propType = typeChecker.getTypeOfSymbolAtLocation(propSym, propSym.declarations[0]);
   const initExpr = unwrapParenthesized(prop.initializer);
   if (ts.isObjectLiteralExpression(initExpr)) {
     if (!isObjectLiteralAssignable(propType, initExpr)) {
@@ -1150,7 +1150,7 @@ function validateField(type: ts.Type, prop: ts.PropertyAssignment): boolean {
     }
   } else {
     // Only check for structural sub-typing.
-    if (needToDeduceStructuralIdentity(propType, TypeScriptLinter.tsTypeChecker.getTypeAtLocation(initExpr), initExpr)) {
+    if (needToDeduceStructuralIdentity(propType, typeChecker.getTypeAtLocation(initExpr), initExpr)) {
       return false;
     }
   }
@@ -1305,7 +1305,7 @@ export function isSymbolAPI(symbol: Symbol): boolean {
 }
 
 export function isStdSymbol(symbol: ts.Symbol): boolean {
-  const name = TypeScriptLinter.tsTypeChecker.getFullyQualifiedName(symbol)
+  const name = typeChecker.getFullyQualifiedName(symbol)
   return name === 'Symbol' && isGlobalSymbol(symbol);
 }
 
@@ -1609,7 +1609,7 @@ export function  isValueAssignableToESObject(node: ts.Node): boolean {
   if (ts.isArrayLiteralExpression(node) || ts.isObjectLiteralExpression(node)) {
     return false;
   }
-  const valueType = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(node);
+  const valueType = typeChecker.getTypeAtLocation(node);
   return isUnsupportedType(valueType) || isAnonymousType(valueType)
 }
 
@@ -1745,7 +1745,7 @@ export function isStdBooleanType(type: ts.Type): boolean {
 export function isEnumStringLiteral(expr: ts.Expression): boolean {
   const symbol = trueSymbolAtLocation(expr);
   const isEnumMember = !!symbol && !!(symbol.flags & ts.SymbolFlags.EnumMember);
-  const type = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(expr);
+  const type = typeChecker.getTypeAtLocation(expr);
   const isStringEnumLiteral = isEnumType(type) && !!(type.flags & ts.TypeFlags.StringLiteral);
   return isEnumMember && isStringEnumLiteral;
 }
@@ -1772,7 +1772,7 @@ export function isAllowedIndexSignature(node: ts.IndexSignatureDeclaration): boo
     return false;
   }
 
-  const paramType = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(node.parameters[0]);
+  const paramType = typeChecker.getTypeAtLocation(node.parameters[0]);
   if ((paramType.flags & ts.TypeFlags.Number) === 0) {
     return false;
   }
@@ -1861,7 +1861,7 @@ export function isSendableTypeNode(typeNode: ts.TypeNode): boolean {
     return true;
   }
 
-  return isSendableType(TypeScriptLinter.tsTypeChecker.getTypeFromTypeNode(typeNode));
+  return isSendableType(typeChecker.getTypeFromTypeNode(typeNode));
 }
 
 export function isSendableType(type: ts.Type): boolean {
@@ -2007,7 +2007,7 @@ export function isSharedModule(sourceFile: ts.SourceFile): boolean {
   return false;
 }
 
-function getDeclarationNode(node: ts.Node): ts.Declaration | undefined {
+export function getDeclarationNode(node: ts.Node): ts.Declaration | undefined {
   const sym = trueSymbolAtLocation(node);
   return getDeclaration(sym);
 }
@@ -2023,9 +2023,24 @@ export function isShareableEntity(node: ts.Node): boolean {
   const typeNode = (decl as any)?.type;
   return (typeNode && !isFunctionLikeDeclaration(decl!)) ?
     isSendableTypeNode(typeNode) :
-    isShareableType(TypeScriptLinter.tsTypeChecker.getTypeAtLocation(decl ? decl : node));
+    isShareableType(typeChecker.getTypeAtLocation(decl ? decl : node));
 }
 
+export function isShareableClassOrInterfaceEntity(node: ts.Node): boolean {
+  const decl = getDeclarationNode(node);
+  return isSendableClassOrInterface(typeChecker.getTypeAtLocation(decl ?? node));
+}
+
+export function isInImportWhiteList(resolvedModule: ResolvedModuleFull): boolean {
+  if (
+    !resolvedModule.resolvedFileName ||
+    ts.getBaseFileName(resolvedModule.resolvedFileName) !== ARKTS_LANG_D_ETS &&
+    ts.getBaseFileName(resolvedModule.resolvedFileName) !== ARKTS_COLLECTIONS_D_ETS
+  ) {
+    return false;
+  }
+  return true;
+}
 }
 }
 }
