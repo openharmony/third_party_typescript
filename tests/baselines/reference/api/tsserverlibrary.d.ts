@@ -13567,10 +13567,9 @@ declare namespace ts {
             static initGlobals(): void;
             static initStatic(): void;
             static tsTypeChecker: TypeChecker;
+            static etsLoaderPath: string | undefined;
             currentErrorLine: number;
             currentWarningLine: number;
-            readonly ARKTS_COLLECTIONS_ETS = "@arkts.collections";
-            readonly KIT_ARKTS_ETS = "@kit.ArkTS";
             constructor(sourceFile: SourceFile, tsProgram: Program, isInSdk: boolean);
             static clearTsTypeChecker(): void;
             readonly handlersMap: ESMap<SyntaxKind, (node: Node) => void>;
@@ -13580,6 +13579,7 @@ declare namespace ts {
             private handleImportDeclaration;
             private checkSendableClassorISendable;
             private checkImportClause;
+            private allowInSdkImportSendable;
             private handleClassDeclaration;
             private checkClassOrInterfaceDeclarationHeritageClause;
             private handleInterfaceDeclaration;

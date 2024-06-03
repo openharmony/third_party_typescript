@@ -3746,14 +3746,17 @@ namespace ts {
             const mode = contextSpecifier && isStringLiteralLike(contextSpecifier) ? getModeForUsageLocation(currentSourceFile, contextSpecifier) : currentSourceFile.impliedNodeFormat;
             const resolvedModule = getResolvedModule(currentSourceFile, moduleReference, mode);
             // the relative path of sdk
-            const sdkPath = compilerOptions.etsLoaderPath ? resolvePath(compilerOptions.etsLoaderPath, "../..") : undefined;
+            const sdkPath = compilerOptions.etsLoaderPath ? resolvePath(compilerOptions.etsLoaderPath, '../..') : undefined;
             if (compilerOptions.needDoArkTsLinter &&
                 currentSourceFile && currentSourceFile.scriptKind === ScriptKind.TS &&
                 resolvedModule && (resolvedModule.extension === ".ets" || resolvedModule.extension === ".d.ets")) {
                 const diagnosticType = compilerOptions.isCompatibleVersion ?
                     Diagnostics.Importing_ArkTS_files_in_JS_and_TS_files_is_about_to_be_forbidden :
                     Diagnostics.Importing_ArkTS_files_in_JS_and_TS_files_is_forbidden;
-                if (isImportCall(location) || !allowImportSendable(sdkPath, currentSourceFile)) {
+                if (contextSpecifier &&
+                    !isImportDeclaration(contextSpecifier.parent) &&
+                    !isExportDeclaration(contextSpecifier.parent) ||
+                    !allowImportSendable(sdkPath, currentSourceFile)) {
                     // If the node is ImportCall throw error
                     // If currentSourceFile is not allowImportSendable (.d.ts inside sdk or .ts file when tsImportSendable is true)
                     error(errorNode, diagnosticType, moduleReference);

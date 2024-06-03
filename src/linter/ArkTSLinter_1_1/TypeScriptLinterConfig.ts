@@ -129,7 +129,7 @@ export class LinterConfig {
     LinterConfig.nodeDesc[FaultID.NoTsImportEts] = 'No ts Import Ets';
     LinterConfig.nodeDesc[FaultID.SendableTypeInheritance] = 'Sendable type inheritance';
     LinterConfig.nodeDesc[FaultID.SendableTypeExported] = 'Sendable type exported';
-    LinterConfig.nodeDesc[FaultID.SendableNoTsExportEts] = 'Sendable no ts export ets'
+    LinterConfig.nodeDesc[FaultID.SendableNoTsExportEts] = 'Sendable no ts export ets';
   }
 
   /*

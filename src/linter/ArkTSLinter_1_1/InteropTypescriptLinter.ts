@@ -47,8 +47,8 @@ namespace ts {
   
       InteropTypescriptLinter.totalErrorLines = 0;
       InteropTypescriptLinter.totalWarningLines = 0;
-      InteropTypescriptLinter.errorLineNumbersString = "";
-      InteropTypescriptLinter.warningLineNumbersString = "";
+      InteropTypescriptLinter.errorLineNumbersString = '';
+      InteropTypescriptLinter.warningLineNumbersString = '';
   
       for (let i = 0; i < FaultID.LAST_ID; i++) {
         InteropTypescriptLinter.nodeCounters[i] = 0;
@@ -59,16 +59,16 @@ namespace ts {
     }
   
     public static tsTypeChecker: TypeChecker;
+    public static etsLoaderPath: string | undefined;
   
     currentErrorLine: number;
     currentWarningLine: number;
-    readonly ARKTS_COLLECTIONS_ETS = '@arkts.collections';
-    readonly KIT_ARKTS_ETS = '@kit.ArkTS';
   
     constructor(private sourceFile: SourceFile,
                 /* private */ tsProgram: Program,
                 private isInSdk: boolean) {
       InteropTypescriptLinter.tsTypeChecker = tsProgram.getLinterTypeChecker();
+      InteropTypescriptLinter.etsLoaderPath = tsProgram.getCompilerOptions().etsLoaderPath;
       this.currentErrorLine = 0;
       this.currentWarningLine = 0;
     }
@@ -97,7 +97,7 @@ namespace ts {
       InteropTypescriptLinter.nodeCounters[faultId]++;
   
       const faultDescr = LinterConfig.nodeDesc[faultId];
-      const faultType = "unknown";
+      const faultType = 'unknown';
   
       const cookBookMsgNum = faultsAttrs[faultId] ? faultsAttrs[faultId].cookBookRef : 0;
       const cookBookTg = cookBookTag[cookBookMsgNum];
@@ -110,8 +110,8 @@ namespace ts {
         type: faultType,
         severity: severity,
         problem: FaultID[faultId],
-        suggest: cookBookMsgNum > 0 ? cookBookMsg[cookBookMsgNum] : "",
-        rule: cookBookMsgNum > 0 && cookBookTg !== "" ? cookBookTg : faultDescr ? faultDescr : faultType,
+        suggest: cookBookMsgNum > 0 ? cookBookMsg[cookBookMsgNum] : '',
+        rule: cookBookMsgNum > 0 && cookBookTg !== '' ? cookBookTg : faultDescr ? faultDescr : faultType,
         ruleTag: cookBookMsgNum,
         autofixable: autofixable,
         autofix: autofix
@@ -181,7 +181,7 @@ namespace ts {
       this.checkSendableClassorISendable(importDeclNode);
     }
 
-    private checkSendableClassorISendable(node: ts.ImportDeclaration) {
+    private checkSendableClassorISendable(node: ts.ImportDeclaration): void {
       const currentSourceFile = ts.getSourceFileOfNode(node);
       const contextSpecifier = node.moduleSpecifier;
       if (!isStringLiteralLike(contextSpecifier)) {
@@ -193,22 +193,22 @@ namespace ts {
       if (!resolvedModule) {
         return;
       }
-      if (!importClause) {
-        this.incrementCounters(node,FaultID.NoTsImportEts);
-        return;
-      }
-      if (resolvedModule?.extension !== ".ets" && resolvedModule?.extension !== ".d.ets") {
+      if (resolvedModule?.extension !== '.ets' && resolvedModule?.extension !== '.d.ets') {
         return;
       }
       if (Utils.isInImportWhiteList(resolvedModule)) {
         return;
       }
+      if (!importClause) {
+        this.incrementCounters(node, FaultID.NoTsImportEts);
+        return;
+      }
 
-      this.checkImportClause(importClause);
+      this.checkImportClause(importClause, resolvedModule);
     }
 
-    private checkImportClause(node: ts.ImportClause) {
-      const checkAndIncrement = (identifier: ts.Identifier | undefined) => {
+    private checkImportClause(node: ts.ImportClause, resolvedModule: ResolvedModuleFull): void {
+      const checkAndIncrement = (identifier: ts.Identifier | undefined): void => {
         if (identifier && !Utils.isShareableClassOrInterfaceEntity(identifier)) {
           this.incrementCounters(identifier, FaultID.NoTsImportEts);
         }
@@ -216,15 +216,28 @@ namespace ts {
       if (node.name) {
         checkAndIncrement(node.name);
       }
-      if (node.namedBindings) {
-        if (ts.isNamespaceImport(node.namedBindings)) {
-          this.incrementCounters(node.namedBindings, FaultID.NoTsImportEts);
-        } else if (ts.isNamedImports(node.namedBindings)) {
-          node.namedBindings.elements.forEach(element => {
-            checkAndIncrement(element.name);
-          });
-        }
+      if (!node.namedBindings) {
+        return;
       }
+      if (ts.isNamespaceImport(node.namedBindings)) {
+          if (this.allowInSdkImportSendable(resolvedModule)) {
+              return;
+          }
+          this.incrementCounters(node.namedBindings, FaultID.NoTsImportEts);
+          return;
+      }
+      if (ts.isNamedImports(node.namedBindings)) {
+          node.namedBindings.elements.forEach(element => {
+              checkAndIncrement(element.name);
+          });
+      }    
+    }
+
+    private allowInSdkImportSendable(resolvedModule: ResolvedModuleFull): boolean {
+      const resolvedModuleIsInSdk = InteropTypescriptLinter.etsLoaderPath ?
+        normalizePath(resolvedModule.resolvedFileName).startsWith(resolvePath(InteropTypescriptLinter.etsLoaderPath, '../../')) :
+        false;
+      return resolvedModuleIsInSdk && ts.getBaseFileName(resolvedModule.resolvedFileName).indexOf('sendable') !== -1;
     }
 
     private handleClassDeclaration(node: Node): void {
@@ -345,7 +358,6 @@ namespace ts {
         }
         return;
       }
-
       if (!this.isInSdk) {
         return;
       }

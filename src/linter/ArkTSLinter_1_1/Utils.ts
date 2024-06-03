@@ -1305,7 +1305,7 @@ export function isSymbolAPI(symbol: Symbol): boolean {
 }
 
 export function isStdSymbol(symbol: ts.Symbol): boolean {
-  const name = typeChecker.getFullyQualifiedName(symbol)
+  const name = typeChecker.getFullyQualifiedName(symbol);
   return name === 'Symbol' && isGlobalSymbol(symbol);
 }
 

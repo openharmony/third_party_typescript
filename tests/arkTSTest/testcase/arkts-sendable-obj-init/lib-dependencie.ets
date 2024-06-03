@@ -25,7 +25,7 @@ export { B, B as B1 }
 
 @Sendable
 class C implements lang.ISendable {
-  value: number = 0
+  public value: number = 0
 }
 export { C, C as C1 }
 
