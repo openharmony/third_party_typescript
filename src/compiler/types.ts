@@ -4538,6 +4538,11 @@ namespace ts {
         getFileCheckedModuleInfo?(containFilePath: string): FileCheckModuleInfo;
 
         /*@internal*/ getProgramBuildInfoForLinter?(): ProgramBuildInfo | undefined;
+
+        /**
+         * Release typeChecker & linterTypeChecker
+         */
+        releaseTypeChecker(): void;
     }
 
     /*@internal*/
