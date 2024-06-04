@@ -13180,6 +13180,7 @@ declare namespace ts {
             const LANG_NAMESPACE = "lang";
             const ISENDABLE_TYPE = "ISendable";
             const USE_SHARED = "use shared";
+            const D_TS = ".d.ts";
             function setTypeChecker(tsTypeChecker: TypeChecker): void;
             function clearTypeChecker(): void;
             function setTestMode(tsTestMode: boolean): void;
@@ -13348,7 +13349,7 @@ declare namespace ts {
             function isSharedModule(sourceFile: ts.SourceFile): boolean;
             function getDeclarationNode(node: ts.Node): ts.Declaration | undefined;
             function isShareableEntity(node: ts.Node): boolean;
-            function isShareableClassOrInterfaceEntity(node: ts.Node): boolean;
+            function isSendableClassOrInterfaceEntity(node: ts.Node): boolean;
             function isInImportWhiteList(resolvedModule: ResolvedModuleFull): boolean;
         }
     }
@@ -13551,6 +13552,14 @@ declare namespace ts {
 declare namespace ts {
     namespace ArkTSLinter_1_1 {
         import Autofix = Autofixer.Autofix;
+        interface KitSymbol {
+            source: string;
+            bindings: string;
+        }
+        type KitSymbols = Record<string, KitSymbol>;
+        interface KitInfo {
+            symbols?: KitSymbols;
+        }
         class InteropTypescriptLinter {
             private sourceFile;
             private isInSdk;
@@ -13567,7 +13576,8 @@ declare namespace ts {
             static initGlobals(): void;
             static initStatic(): void;
             static tsTypeChecker: TypeChecker;
-            static etsLoaderPath: string | undefined;
+            static etsLoaderPath?: string;
+            static kitInfos: Map<KitInfo>;
             currentErrorLine: number;
             currentWarningLine: number;
             constructor(sourceFile: SourceFile, tsProgram: Program, isInSdk: boolean);
@@ -13578,6 +13588,7 @@ declare namespace ts {
             private visitSourceFile;
             private handleImportDeclaration;
             private checkSendableClassorISendable;
+            private checkKitImportClause;
             private checkImportClause;
             private allowInSdkImportSendable;
             private handleClassDeclaration;
@@ -13589,6 +13600,9 @@ declare namespace ts {
             private handleArrayLiteralExpression;
             private handleAsExpression;
             private handleExportDeclaration;
+            private handleExportAssignment;
+            private initKitInfos;
+            private getOriginalFileNames;
             lint(): void;
         }
     }
