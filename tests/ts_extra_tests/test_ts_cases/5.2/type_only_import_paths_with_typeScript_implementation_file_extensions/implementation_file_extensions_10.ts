@@ -24,10 +24,10 @@
 import { Assert } from '../../../suite/assert.js';
 
 /**
-* @param {import("./justTypes.tsx").JustAType} JustAType
+* @param {import('./justTypes.tsx').JustAType} JustAType
 */
 
-export function f(JustAType: import("./justTypes.tsx").JustAType): void {
+export function f(JustAType: import('./justTypes.tsx').JustAType): void {
   Assert.isString(JustAType.name);
   Assert.equal(JustAType.name, 'Alice');
 

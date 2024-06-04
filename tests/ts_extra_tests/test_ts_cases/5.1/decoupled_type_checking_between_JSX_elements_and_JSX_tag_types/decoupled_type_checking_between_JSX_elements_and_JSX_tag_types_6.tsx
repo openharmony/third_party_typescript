@@ -29,7 +29,7 @@ interface Props {
 }
 
 class MyComponent2 extends React.Component<Props, {}> {
-  render(): React.ReactNode{
+  render(): React.ReactNode {
     return <span>{ this.props.foo }</span>;
   }
 }
