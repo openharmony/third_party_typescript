@@ -63,7 +63,7 @@ function runComp(currentFilePath, file){
     if(checkfile){
       loadPares(jsonFile, result, currentFilePath, file)
     }else{
-      if (!currentFilePath.includes("-dependencie.ets") || ignoreList.includes(currentFilePath)) {
+      if (!currentFilePath.includes('-dependencie.ets') || ignoreList.includes(currentFilePath)) {
         console.log(`Test cases ${currentFilePath} expected results are not added`)
       }
     }
