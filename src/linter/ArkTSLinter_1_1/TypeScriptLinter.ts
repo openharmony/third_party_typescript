@@ -2350,13 +2350,13 @@ export class TypeScriptLinter {
       case ts.SyntaxKind.InterfaceDeclaration:
       case ts.SyntaxKind.ClassDeclaration:
         if (!Utils.isShareableType(TypeScriptLinter.tsTypeChecker.getTypeAtLocation(parentNode))) {
-          this.incrementCounters(parentNode, FaultID.SharedModuleExports);
+          this.incrementCounters((parentNode as ts.NamedDeclaration).name ?? parentNode, FaultID.SharedModuleExports);
         }
         return;
       case ts.SyntaxKind.VariableStatement:
         for (const variableDeclaration of (parentNode as ts.VariableStatement).declarationList.declarations) {
           if (!Utils.isShareableEntity(variableDeclaration.name)) {
-            this.incrementCounters(variableDeclaration, FaultID.SharedModuleExports);
+            this.incrementCounters(variableDeclaration.name, FaultID.SharedModuleExports);
           }
         }
         return;
@@ -2374,7 +2374,7 @@ export class TypeScriptLinter {
 
     const exportDecl = node as ts.ExportDeclaration;
     if (exportDecl.exportClause === undefined) {
-      this.incrementCounters(exportDecl, FaultID.SharedModuleNoStarExport);
+      this.incrementCounters(exportDecl, FaultID.SharedModuleNoWildcardExport);
       return;
     }
 
