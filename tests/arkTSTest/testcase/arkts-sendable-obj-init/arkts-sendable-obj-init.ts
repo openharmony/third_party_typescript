@@ -14,8 +14,8 @@
  */
 
 
-import { A, A1, A as A2, B, B1, B as B2, C, C1, C as C2 } from './lib-dependencie'
-import { I, J } from './lib-dependencie'
+import { A, A1, A as A2, B, B1, B as B2, C, C1, C as C2 } from './lib-dependencie';
+import { I, J } from './lib-dependencie';
 
 let a1: A = {};
 let a2: A1 = {};

@@ -30,8 +30,8 @@ export function runArkTSLinter(tsBuilderProgram: BuilderProgram, srcFile?: Sourc
   buildInfoWriteFile?: WriteFileCallback, arkTSVersion?: string): Diagnostic[] {
   TypeScriptLinter.errorLineNumbersString = "";
   TypeScriptLinter.warningLineNumbersString = "";
-  InteropTypescriptLinter.errorLineNumbersString = "";
-  InteropTypescriptLinter.warningLineNumbersString = "";
+  InteropTypescriptLinter.errorLineNumbersString = '';
+  InteropTypescriptLinter.warningLineNumbersString = '';
   let diagnostics: Diagnostic[] = [];
 
   LinterConfig.initStatic();
@@ -89,7 +89,7 @@ export function runArkTSLinter(tsBuilderProgram: BuilderProgram, srcFile?: Sourc
         InteropTypescriptLinter.initStatic();
         const isKit = ts.getBaseFileName(fileToLint.fileName).indexOf('@kit.') === 0;
         const etsLoaderPath = program.getCompilerOptions().etsLoaderPath;
-        const isInSdk = etsLoaderPath ? normalizePath(fileToLint.fileName).indexOf(resolvePath(etsLoaderPath, "../..")) === 0 : false;
+        const isInSdk = etsLoaderPath ? normalizePath(fileToLint.fileName).indexOf(resolvePath(etsLoaderPath, '../..')) === 0 : false;
         const isInOhModules = isOHModules(fileToLint.fileName);
         const tsImportSendableEnable = program.getCompilerOptions().tsImportSendableEnable;
         if (isKit || isInOhModules || (!tsImportSendableEnable && !isInSdk)) {

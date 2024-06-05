@@ -23,6 +23,17 @@ namespace ts {
   
   import Logger = ts.perfLogger;
   
+  export interface KitSymbol {
+    source: string
+    bindings: string
+  }
+  
+  export type KitSymbols = Record<string, KitSymbol>;
+  
+  export interface KitInfo {
+    symbols?: KitSymbols;
+  }
+
   export class InteropTypescriptLinter {
     static strictMode: boolean;
     static totalVisitedNodes: number;
@@ -47,8 +58,8 @@ namespace ts {
   
       InteropTypescriptLinter.totalErrorLines = 0;
       InteropTypescriptLinter.totalWarningLines = 0;
-      InteropTypescriptLinter.errorLineNumbersString = "";
-      InteropTypescriptLinter.warningLineNumbersString = "";
+      InteropTypescriptLinter.errorLineNumbersString = '';
+      InteropTypescriptLinter.warningLineNumbersString = '';
   
       for (let i = 0; i < FaultID.LAST_ID; i++) {
         InteropTypescriptLinter.nodeCounters[i] = 0;
@@ -56,19 +67,22 @@ namespace ts {
       }
   
       InteropTypescriptLinter.problemsInfos = [];
+      InteropTypescriptLinter.kitInfos = new Map<string, KitInfo>();
     }
   
     public static tsTypeChecker: TypeChecker;
+    public static etsLoaderPath?: string;
   
+    public static kitInfos: Map<KitInfo>;
+
     currentErrorLine: number;
     currentWarningLine: number;
-    readonly ARKTS_COLLECTIONS_ETS = '@arkts.collections';
-    readonly KIT_ARKTS_ETS = '@kit.ArkTS';
   
     constructor(private sourceFile: SourceFile,
                 /* private */ tsProgram: Program,
                 private isInSdk: boolean) {
       InteropTypescriptLinter.tsTypeChecker = tsProgram.getLinterTypeChecker();
+      InteropTypescriptLinter.etsLoaderPath = tsProgram.getCompilerOptions().etsLoaderPath;
       this.currentErrorLine = 0;
       this.currentWarningLine = 0;
     }
@@ -85,7 +99,8 @@ namespace ts {
       [ts.SyntaxKind.ObjectLiteralExpression, this.handleObjectLiteralExpression],
       [ts.SyntaxKind.ArrayLiteralExpression, this.handleArrayLiteralExpression],
       [ts.SyntaxKind.AsExpression, this.handleAsExpression],
-      [ts.SyntaxKind.ExportDeclaration, this.handleExportDeclaration]
+      [ts.SyntaxKind.ExportDeclaration, this.handleExportDeclaration],
+      [ts.SyntaxKind.ExportAssignment, this.handleExportAssignment]
     ]);
   
     public incrementCounters(node: Node | CommentRange, faultId: number, autofixable = false, autofix?: Autofix[]): void {
@@ -97,7 +112,7 @@ namespace ts {
       InteropTypescriptLinter.nodeCounters[faultId]++;
   
       const faultDescr = LinterConfig.nodeDesc[faultId];
-      const faultType = "unknown";
+      const faultType = 'unknown';
   
       const cookBookMsgNum = faultsAttrs[faultId] ? faultsAttrs[faultId].cookBookRef : 0;
       const cookBookTg = cookBookTag[cookBookMsgNum];
@@ -110,8 +125,8 @@ namespace ts {
         type: faultType,
         severity: severity,
         problem: FaultID[faultId],
-        suggest: cookBookMsgNum > 0 ? cookBookMsg[cookBookMsgNum] : "",
-        rule: cookBookMsgNum > 0 && cookBookTg !== "" ? cookBookTg : faultDescr ? faultDescr : faultType,
+        suggest: cookBookMsgNum > 0 ? cookBookMsg[cookBookMsgNum] : '',
+        rule: cookBookMsgNum > 0 && cookBookTg !== '' ? cookBookTg : faultDescr ? faultDescr : faultType,
         ruleTag: cookBookMsgNum,
         autofixable: autofixable,
         autofix: autofix
@@ -181,7 +196,7 @@ namespace ts {
       this.checkSendableClassorISendable(importDeclNode);
     }
 
-    private checkSendableClassorISendable(node: ts.ImportDeclaration) {
+    private checkSendableClassorISendable(node: ts.ImportDeclaration): void {
       const currentSourceFile = ts.getSourceFileOfNode(node);
       const contextSpecifier = node.moduleSpecifier;
       if (!isStringLiteralLike(contextSpecifier)) {
@@ -193,38 +208,101 @@ namespace ts {
       if (!resolvedModule) {
         return;
       }
-      if (!importClause) {
-        this.incrementCounters(node,FaultID.NoTsImportEts);
-        return;
-      }
-      if (resolvedModule?.extension !== ".ets" && resolvedModule?.extension !== ".d.ets") {
-        return;
-      }
-      if (Utils.isInImportWhiteList(resolvedModule)) {
+
+      // handle kit
+      let baseFileName = ts.getBaseFileName(resolvedModule.resolvedFileName);
+      if (baseFileName.startsWith('@kit.') && baseFileName.endsWith('.d.ts')) {
+        if (!InteropTypescriptLinter.etsLoaderPath) {
+          return;
+        }
+        this.initKitInfos(baseFileName);
+
+        if (!importClause) {
+          return;
+        }
+
+        // skip default import
+        if (importClause.name) {
+          return;
+        }
+
+        if (importClause.namedBindings && ts.isNamedImports(importClause.namedBindings)) {
+          this.checkKitImportClause(importClause.namedBindings, baseFileName);
+        }
         return;
       }
 
-      this.checkImportClause(importClause);
+      if (
+        resolvedModule?.extension !== '.ets' &&
+        resolvedModule?.extension !== '.d.ets' ||
+        Utils.isInImportWhiteList(resolvedModule)
+      ) {
+        return;
+      }
+  
+      // import 'path'
+      if (!importClause) {
+        this.incrementCounters(node, FaultID.NoTsImportEts);
+        return;
+      }
+
+      this.checkImportClause(importClause, resolvedModule);
     }
 
-    private checkImportClause(node: ts.ImportClause) {
-      const checkAndIncrement = (identifier: ts.Identifier | undefined) => {
-        if (identifier && !Utils.isShareableClassOrInterfaceEntity(identifier)) {
+    private checkKitImportClause(node: ts.NamedImports | ts.NamedExports, kitFileName: string): void {
+      const length = node.elements.length;
+      for (let i = 0; i < length; i++) {
+        const fileName = this.getOriginalFileNames(kitFileName, node, i);
+        if (fileName === '' || fileName.endsWith(Utils.D_TS)) {
+          continue;
+        }
+
+        const element = node.elements[i];
+        const decl = Utils.getDeclarationNode(element.name);
+        if (!decl) {
+          continue;
+        }
+        if (ts.isModuleDeclaration(decl)) {
+          if (fileName !== Utils.ARKTS_COLLECTIONS_D_ETS && fileName !== Utils.ARKTS_LANG_D_ETS) {
+            this.incrementCounters(element, FaultID.NoTsImportEts);
+          }
+        } else if (!Utils.isSendableClassOrInterfaceEntity(element.name)) {
+          this.incrementCounters(element, FaultID.NoTsImportEts);
+        }
+      }
+    }
+
+    private checkImportClause(node: ts.ImportClause, resolvedModule: ResolvedModuleFull): void {
+      const checkAndIncrement = (identifier: ts.Identifier | undefined): void => {
+        if (identifier && !Utils.isSendableClassOrInterfaceEntity(identifier)) {
           this.incrementCounters(identifier, FaultID.NoTsImportEts);
         }
       };
       if (node.name) {
+        if (this.allowInSdkImportSendable(resolvedModule)) {
+          return;
+        }
         checkAndIncrement(node.name);
       }
-      if (node.namedBindings) {
-        if (ts.isNamespaceImport(node.namedBindings)) {
-          this.incrementCounters(node.namedBindings, FaultID.NoTsImportEts);
-        } else if (ts.isNamedImports(node.namedBindings)) {
-          node.namedBindings.elements.forEach(element => {
-            checkAndIncrement(element.name);
-          });
-        }
+      if (!node.namedBindings) {
+        return;
       }
+      if (ts.isNamespaceImport(node.namedBindings)) {
+          this.incrementCounters(node.namedBindings, FaultID.NoTsImportEts);
+          return;
+      }
+      if (ts.isNamedImports(node.namedBindings)) {
+          node.namedBindings.elements.forEach(element => {
+              checkAndIncrement(element.name);
+          });
+      }    
+    }
+
+    private allowInSdkImportSendable(resolvedModule: ResolvedModuleFull): boolean {
+      const resolvedModuleIsInSdk = InteropTypescriptLinter.etsLoaderPath ?
+        normalizePath(resolvedModule.resolvedFileName).startsWith(resolvePath(InteropTypescriptLinter.etsLoaderPath, '../../')) :
+        false;
+      return this.isInSdk && resolvedModuleIsInSdk && ts.getBaseFileName(resolvedModule.resolvedFileName).indexOf('sendable') !== -1;
     }
 
     private handleClassDeclaration(node: Node): void {
@@ -340,12 +418,29 @@ namespace ts {
       if (contextSpecifier && isStringLiteralLike(contextSpecifier)) {
         const mode = contextSpecifier && isStringLiteralLike(contextSpecifier) ? getModeForUsageLocation(currentSourceFile, contextSpecifier) : currentSourceFile.impliedNodeFormat;
         const resolvedModule = ts.getResolvedModule(currentSourceFile, contextSpecifier.text, mode);
-        if (resolvedModule?.extension === ".ets" || resolvedModule?.extension === ".d.ets") {
-          this.incrementCounters(node,FaultID.SendableNoTsExportEts);
+        if (!resolvedModule) {
+          return;
+        }
+        // handle kit
+        let baseFileName = ts.getBaseFileName(resolvedModule.resolvedFileName);
+        if (baseFileName.startsWith('@kit.') && baseFileName.endsWith('.d.ts')) {
+          if (!InteropTypescriptLinter.etsLoaderPath) {
+            return;
+          }
+          this.initKitInfos(baseFileName);
+          const exportClause = exportDecl.exportClause;
+
+          if (exportClause && ts.isNamedExports(exportClause)) {
+            this.checkKitImportClause(exportClause, baseFileName);
+          }
+          return;
+        }
+
+        if (resolvedModule?.extension === '.ets' || resolvedModule?.extension === '.d.ets') {
+          this.incrementCounters(contextSpecifier, FaultID.SendableNoTsExportEts);
         }
         return;
       }
-
       if (!this.isInSdk) {
         return;
       }
@@ -360,9 +455,68 @@ namespace ts {
       }
 
       for (const exportSpecifier of exportDecl.exportClause.elements) {
-        if (Utils.isShareableClassOrInterfaceEntity(exportSpecifier.name)) {
+        if (Utils.isSendableClassOrInterfaceEntity(exportSpecifier.name)) {
           this.incrementCounters(exportSpecifier.name, FaultID.SendableTypeExported);
         }
+      }
+    }
+
+    private handleExportAssignment(node: Node): void {
+      if (!this.isInSdk) {
+        return;
+      }
+
+      // In sdk .d.ts files, sendable classes and sendable interfaces can not be "default" exported.
+      const exportAssignment = node as ExportAssignment;
+
+      if (Utils.isSendableClassOrInterfaceEntity(exportAssignment.expression)) {
+        this.incrementCounters(exportAssignment.expression, FaultID.SendableTypeExported);
+      }
+    }
+
+    private initKitInfos(fileName: string): void {
+      if (InteropTypescriptLinter.kitInfos.has(fileName)) {
+        return;
+      }
+
+      let _path = require('path');
+      let _fs = require('fs');
+
+      const JSON_SUFFIX = '.json';
+      const KIT_CONFIGS = '../ets-loader/kit_configs';
+      const KIT_CONFIG_PATH = './build-tools/ets-loader/kit_configs';
+      
+      const kitConfigs: string[] = [_path.resolve(InteropTypescriptLinter.etsLoaderPath, KIT_CONFIGS)];
+      if (process.env.externalApiPaths) {
+        const externalApiPaths = process.env.externalApiPaths.split(_path.delimiter);
+        externalApiPaths.forEach(sdkPath => {
+          kitConfigs.push(_path.resolve(sdkPath, KIT_CONFIG_PATH));
+        });
+      }
+    
+      for (const kitConfig of kitConfigs) {
+        const kitModuleConfigJson = _path.resolve(kitConfig, './' + fileName.replace('.d.ts', JSON_SUFFIX));
+        if (_fs.existsSync(kitModuleConfigJson)) {
+          InteropTypescriptLinter.kitInfos.set(fileName, JSON.parse(_fs.readFileSync(kitModuleConfigJson, 'utf-8')));
+        }
+      }
+    }
+
+    private getOriginalFileNames(fileName: string, node: ts.NamedImports | ts.NamedExports, index: number): string {
+      if (!InteropTypescriptLinter.kitInfos.has(fileName)) {
+        return '';
+      }
+
+      const kitInfo = InteropTypescriptLinter.kitInfos.get(fileName);
+      if (!kitInfo || !kitInfo.symbols) {
+        return '';
+      }
+
+      const element = node.elements[index];
+      if (element.propertyName) {
+        return kitInfo.symbols[element.propertyName.text].source;
+      } else {
+        return kitInfo.symbols[element.name.text].source;
       }
     }
 

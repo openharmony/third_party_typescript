@@ -58,6 +58,8 @@ export const ISENDABLE_TYPE = 'ISendable';
 
 export const USE_SHARED = 'use shared';
 
+export const D_TS = '.d.ts';
+
 let typeChecker: TypeChecker;
 export function setTypeChecker(tsTypeChecker: TypeChecker): void {
   typeChecker = tsTypeChecker;
@@ -1305,7 +1307,7 @@ export function isSymbolAPI(symbol: Symbol): boolean {
 }
 
 export function isStdSymbol(symbol: ts.Symbol): boolean {
-  const name = typeChecker.getFullyQualifiedName(symbol)
+  const name = typeChecker.getFullyQualifiedName(symbol);
   return name === 'Symbol' && isGlobalSymbol(symbol);
 }
 
@@ -2026,9 +2028,20 @@ export function isShareableEntity(node: ts.Node): boolean {
     isShareableType(typeChecker.getTypeAtLocation(decl ? decl : node));
 }
 
-export function isShareableClassOrInterfaceEntity(node: ts.Node): boolean {
+export function isSendableClassOrInterfaceEntity(node: ts.Node): boolean {
   const decl = getDeclarationNode(node);
-  return isSendableClassOrInterface(typeChecker.getTypeAtLocation(decl ?? node));
+  if (!decl) {
+    return false;
+  }
+
+  if (ts.isClassDeclaration(decl)) {
+    return hasSendableDecorator(decl);
+  }
+
+  if (ts.isInterfaceDeclaration(decl)) {
+    return isOrDerivedFrom(typeChecker.getTypeAtLocation(decl), isISendableInterface);
+  }
+  return false;
 }
 
 export function isInImportWhiteList(resolvedModule: ResolvedModuleFull): boolean {

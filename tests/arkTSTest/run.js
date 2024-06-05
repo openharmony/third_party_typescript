@@ -43,7 +43,7 @@ function getAllETSFiles(filePath) {
           } else {
               var index= currentFilePath.lastIndexOf(".");
               var ext = currentFilePath.substring(index+1);
-              if (ext == "ets" || ext == "ts"){
+              if (ext === 'ets' || ext === 'ts') {
                 allFilePaths.push(currentFilePath);
                 runComp(currentFilePath, file)
               }
@@ -57,8 +57,8 @@ function getAllETSFiles(filePath) {
 
 function runComp(currentFilePath, file){
     const result = runLinter(currentFilePath)
-    let jsonFile = currentFilePath.replace('.ets','.json')
-    jsonFile = jsonFile.replace('.ts','.json')
+    let jsonFile = currentFilePath.replace('.ets', '.json');
+    jsonFile = jsonFile.replace('.ts', '.json');
     const checkfile = fs.existsSync(jsonFile);
     if(checkfile){
       loadPares(jsonFile, result, currentFilePath, file)

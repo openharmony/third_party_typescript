@@ -14,7 +14,7 @@
  */
 
 
-import { A, A1, A as A2, B, B1, B as B2, C, C1, C as C2 } from './lib-dependencie'
+import { A, A1, A as A2, B, B1, B as B2, C, C1, C as C2 } from './lib-dependencie';
 
 class D {}
 interface T {}
