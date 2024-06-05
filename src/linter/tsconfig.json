@@ -34,6 +34,7 @@
         "./ArkTSLinter_1_1/Autofixer.ts",
         "./ArkTSLinter_1_1/TypeScriptLinterConfig.ts",
         "./ArkTSLinter_1_1/TypeScriptLinter.ts",
+        "./ArkTSLinter_1_1/InteropTypescriptLinter.ts",
         "./ArkTSLinter_1_1/TSDiagnostics.ts",
         "./ArkTSLinter_1_1/LinterRunner.ts",
         "./Common/ArkTSTimePrinter.ts"
