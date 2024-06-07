@@ -2323,6 +2323,10 @@ declare namespace ts {
         getJsDocNodeCheckedConfig?(jsDocFileCheckInfo: FileCheckModuleInfo, symbolSourceFilePath: string): JsDocNodeCheckConfig;
         getJsDocNodeConditionCheckedResult?(jsDocFileCheckedInfo: FileCheckModuleInfo, jsDocs: JsDocTagInfo[]): ConditionCheckResult;
         getFileCheckedModuleInfo?(containFilePath: string): FileCheckModuleInfo;
+        /**
+         * Release typeChecker & linterTypeChecker
+         */
+        releaseTypeChecker(): void;
     }
     export type RedirectTargetsMap = ReadonlyESMap<Path, readonly string[]>;
     export interface ResolvedProjectReference {
