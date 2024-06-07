@@ -9205,7 +9205,7 @@ declare namespace ts {
                 SendableAsExpr = 88,
                 SharedNoSideEffectImport = 89,
                 SharedModuleExports = 90,
-                SharedModuleNoStarExport = 91,
+                SharedModuleNoWildcardExport = 91,
                 NoTsImportEts = 92,
                 SendableTypeInheritance = 93,
                 SendableTypeExported = 94,

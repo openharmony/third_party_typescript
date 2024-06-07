@@ -125,7 +125,7 @@ export class LinterConfig {
     LinterConfig.nodeDesc[FaultID.SendableAsExpr] = 'Sendable as expr';
     LinterConfig.nodeDesc[FaultID.SharedNoSideEffectImport] = 'Shared no side effect import';
     LinterConfig.nodeDesc[FaultID.SharedModuleExports] = 'Shared module exports';
-    LinterConfig.nodeDesc[FaultID.SharedModuleNoStarExport] = 'Share module no star export';
+    LinterConfig.nodeDesc[FaultID.SharedModuleNoWildcardExport] = 'Share module no wildcard export';
     LinterConfig.nodeDesc[FaultID.NoTsImportEts] = 'No ts Import Ets';
     LinterConfig.nodeDesc[FaultID.SendableTypeInheritance] = 'Sendable type inheritance';
     LinterConfig.nodeDesc[FaultID.SendableTypeExported] = 'Sendable type exported';
