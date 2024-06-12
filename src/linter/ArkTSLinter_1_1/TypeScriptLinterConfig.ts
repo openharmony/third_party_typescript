@@ -129,7 +129,9 @@ export class LinterConfig {
     LinterConfig.nodeDesc[FaultID.NoTsImportEts] = 'No ts Import Ets';
     LinterConfig.nodeDesc[FaultID.SendableTypeInheritance] = 'Sendable type inheritance';
     LinterConfig.nodeDesc[FaultID.SendableTypeExported] = 'Sendable type exported';
-    LinterConfig.nodeDesc[FaultID.SendableNoTsExportEts] = 'Sendable no ts export ets';
+    LinterConfig.nodeDesc[FaultID.NoTsReExportEts] = 'No ts re-export ets';
+    LinterConfig.nodeDesc[FaultID.NoNamespaceImportEtsToTs] = 'No namespace import ets to ts';
+    LinterConfig.nodeDesc[FaultID.NoSideEffectImportEtsToTs] = 'No side effect import ets to ts';
   }
 
   /*

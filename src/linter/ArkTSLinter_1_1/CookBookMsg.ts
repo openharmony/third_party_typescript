@@ -17,7 +17,7 @@ export namespace ArkTSLinter_1_1 {
 export const cookBookMsg: string[] = [];
 export const cookBookTag: string[] = [];
 
-for (let i = 0; i <= 168; i++) {
+for (let i = 0; i <= 170; i++) {
   cookBookMsg[ i ] = "";
 }
 
@@ -189,5 +189,7 @@ cookBookTag[165] = 'Only "Sendable" classes and "Sendable" interfaces are allowe
 cookBookTag[166] = 'In ts files, "Sendable" types cannot be used in implements and extends clauses (arkts-no-ts-sendable-type-inheritance)';
 cookBookTag[167] = 'In sdk ts files, "Sendable" class and "Sendable" interface can not be exported (arkts-no-dts-sendable-type-export)';
 cookBookTag[168] = 'In ts files, entities from ets files can not be re-exported (arkts-no-ts-re-export-ets)';
+cookBookTag[169] = 'Namespace import is not allowed for importing from ets to ts file (arkts-no-namespace-import-in-ts-import-ets)';
+cookBookTag[170] = 'Side effect import is not allowed for importing from ets to ts file (artkts-no-side-effect-import-in-ts-import-ets)';
 }
 }

@@ -13152,8 +13152,10 @@ declare namespace ts {
                 NoTsImportEts = 92,
                 SendableTypeInheritance = 93,
                 SendableTypeExported = 94,
-                SendableNoTsExportEts = 95,
-                LAST_ID = 96
+                NoTsReExportEts = 95,
+                NoNamespaceImportEtsToTs = 96,
+                NoSideEffectImportEtsToTs = 97,
+                LAST_ID = 98
             }
             class FaultAttributes {
                 cookBookRef: number;
@@ -13582,6 +13584,11 @@ declare namespace ts {
             static tsTypeChecker: TypeChecker;
             static etsLoaderPath?: string;
             static kitInfos: Map<KitInfo>;
+            private KIT;
+            private D_TS;
+            private D_ETS;
+            private ETS;
+            private SDK_PATH;
             currentErrorLine: number;
             currentWarningLine: number;
             constructor(sourceFile: SourceFile, tsProgram: Program, isInSdk: boolean);
@@ -13606,7 +13613,7 @@ declare namespace ts {
             private handleExportDeclaration;
             private handleExportAssignment;
             private initKitInfos;
-            private getOriginalFileNames;
+            private getKitModuleFileNames;
             lint(): void;
         }
     }
