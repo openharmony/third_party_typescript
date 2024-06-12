@@ -1032,8 +1032,8 @@ namespace ts {
         let files: SourceFile[];
         let symlinks: SymlinkCache | undefined;
         let commonSourceDirectory: string;
-        let typeChecker: TypeChecker;
-        let linterTypeChecker: TypeChecker;
+        let typeChecker: TypeChecker | undefined;
+        let linterTypeChecker: TypeChecker | undefined;
         let classifiableNames: Set<__String>;
         const ambientModuleNameToUnmodifiedFileName = new Map<string, string>();
         let fileReasons = createMultiMap<Path, FileIncludeReason>();
@@ -1364,6 +1364,7 @@ namespace ts {
             getJsDocNodeCheckedConfig: host.getJsDocNodeCheckedConfig,
             getJsDocNodeConditionCheckedResult: host. getJsDocNodeConditionCheckedResult,
             getFileCheckedModuleInfo: host.getFileCheckedModuleInfo,
+            releaseTypeChecker: () => { typeChecker = undefined; linterTypeChecker = undefined; }
         };
 
         onProgramCreateComplete();
