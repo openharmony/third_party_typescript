@@ -13528,6 +13528,7 @@ declare namespace ts {
             private handleSendableGenericTypes;
             private handleAsExpression;
             private handleTypeReference;
+            private checkSendableTypeArguments;
             private handleMetaProperty;
             private handleSpreadOp;
             private handleConstructSignature;

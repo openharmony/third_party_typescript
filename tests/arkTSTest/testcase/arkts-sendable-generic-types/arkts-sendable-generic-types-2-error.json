@@ -1,0 +1,48 @@
+{
+    "arktsVersion_1_0": [
+        {
+            "messageText": "No decorators except ArkUI decorators are currently allowed (arkts-no-decorators-except-arkui)",
+            "expectLineAndCharacter": {
+              "line": 16,
+              "character": 1
+            }
+        },
+        {
+          "messageText": "No decorators except ArkUI decorators are currently allowed (arkts-no-decorators-except-arkui)",
+          "expectLineAndCharacter": {
+            "line": 29,
+            "character": 1
+          }
+        },
+        {
+          "messageText": "No decorators except ArkUI decorators are currently allowed (arkts-no-decorators-except-arkui)",
+          "expectLineAndCharacter": {
+            "line": 35,
+            "character": 1
+          }
+        }
+    ],
+    "arktsVersion_1_1": [
+        {
+            "messageText": "Type arguments of generic \"Sendable\" type must be a \"Sendable\" data type (arkts-sendable-generic-types)",
+            "expectLineAndCharacter": {
+              "line": 27,
+              "character": 24
+            }
+        },
+        {
+            "messageText": "Type arguments of generic \"Sendable\" type must be a \"Sendable\" data type (arkts-sendable-generic-types)",
+            "expectLineAndCharacter": {
+              "line": 27,
+              "character": 65
+            }
+        },
+        {
+            "messageText": "Type arguments of generic \"Sendable\" type must be a \"Sendable\" data type (arkts-sendable-generic-types)",
+            "expectLineAndCharacter": {
+              "line": 42,
+              "character": 45
+            }
+        }
+    ]
+}
