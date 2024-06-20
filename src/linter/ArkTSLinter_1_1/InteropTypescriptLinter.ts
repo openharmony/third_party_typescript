@@ -72,8 +72,13 @@ namespace ts {
   
     public static tsTypeChecker: TypeChecker;
     public static etsLoaderPath?: string;
-  
     public static kitInfos: Map<KitInfo>;
+
+    private KIT: string = '@kit.';
+    private D_TS: string = '.d.ts';
+    private D_ETS: string = '.d.ets';
+    private ETS: string = '.ets';
+    private SDK_PATH: string | undefined;
 
     currentErrorLine: number;
     currentWarningLine: number;
@@ -85,6 +90,7 @@ namespace ts {
       InteropTypescriptLinter.etsLoaderPath = tsProgram.getCompilerOptions().etsLoaderPath;
       this.currentErrorLine = 0;
       this.currentWarningLine = 0;
+      this.SDK_PATH = InteropTypescriptLinter.etsLoaderPath ? resolvePath(InteropTypescriptLinter.etsLoaderPath, '../../') : undefined;
     }
   
     public static clearTsTypeChecker(): void {
@@ -211,7 +217,7 @@ namespace ts {
 
       // handle kit
       let baseFileName = ts.getBaseFileName(resolvedModule.resolvedFileName);
-      if (baseFileName.startsWith('@kit.') && baseFileName.endsWith('.d.ts')) {
+      if (baseFileName.startsWith(this.KIT) && baseFileName.endsWith(this.D_TS)) {
         if (!InteropTypescriptLinter.etsLoaderPath) {
           return;
         }
@@ -233,8 +239,8 @@ namespace ts {
       }
 
       if (
-        resolvedModule?.extension !== '.ets' &&
-        resolvedModule?.extension !== '.d.ets' ||
+        resolvedModule?.extension !== this.ETS &&
+        resolvedModule?.extension !== this.D_ETS ||
         Utils.isInImportWhiteList(resolvedModule)
       ) {
         return;
@@ -242,7 +248,7 @@ namespace ts {
   
       // import 'path'
       if (!importClause) {
-        this.incrementCounters(node, FaultID.NoTsImportEts);
+        this.incrementCounters(node, FaultID.NoSideEffectImportEtsToTs);
         return;
       }
 
@@ -252,7 +258,7 @@ namespace ts {
     private checkKitImportClause(node: ts.NamedImports | ts.NamedExports, kitFileName: string): void {
       const length = node.elements.length;
       for (let i = 0; i < length; i++) {
-        const fileName = this.getOriginalFileNames(kitFileName, node, i);
+        const fileName = this.getKitModuleFileNames(kitFileName, node, i);
         if (fileName === '' || fileName.endsWith(Utils.D_TS)) {
           continue;
         }
@@ -288,7 +294,7 @@ namespace ts {
         return;
       }
       if (ts.isNamespaceImport(node.namedBindings)) {
-          this.incrementCounters(node.namedBindings, FaultID.NoTsImportEts);
+          this.incrementCounters(node.namedBindings, FaultID.NoNamespaceImportEtsToTs);
           return;
       }
       if (ts.isNamedImports(node.namedBindings)) {
@@ -299,8 +305,8 @@ namespace ts {
     }
 
     private allowInSdkImportSendable(resolvedModule: ResolvedModuleFull): boolean {
-      const resolvedModuleIsInSdk = InteropTypescriptLinter.etsLoaderPath ?
-        normalizePath(resolvedModule.resolvedFileName).startsWith(resolvePath(InteropTypescriptLinter.etsLoaderPath, '../../')) :
+      const resolvedModuleIsInSdk = this.SDK_PATH ?
+        normalizePath(resolvedModule.resolvedFileName).startsWith(this.SDK_PATH) :
         false;
       return this.isInSdk && resolvedModuleIsInSdk && ts.getBaseFileName(resolvedModule.resolvedFileName).indexOf('sendable') !== -1;
     }
@@ -423,7 +429,7 @@ namespace ts {
         }
         // handle kit
         let baseFileName = ts.getBaseFileName(resolvedModule.resolvedFileName);
-        if (baseFileName.startsWith('@kit.') && baseFileName.endsWith('.d.ts')) {
+        if (baseFileName.startsWith(this.KIT) && baseFileName.endsWith(this.D_TS)) {
           if (!InteropTypescriptLinter.etsLoaderPath) {
             return;
           }
@@ -436,8 +442,8 @@ namespace ts {
           return;
         }
 
-        if (resolvedModule?.extension === '.ets' || resolvedModule?.extension === '.d.ets') {
-          this.incrementCounters(contextSpecifier, FaultID.SendableNoTsExportEts);
+        if (resolvedModule?.extension === this.ETS || resolvedModule?.extension === this.D_ETS) {
+          this.incrementCounters(contextSpecifier, FaultID.NoTsReExportEts);
         }
         return;
       }
@@ -495,14 +501,14 @@ namespace ts {
       }
     
       for (const kitConfig of kitConfigs) {
-        const kitModuleConfigJson = _path.resolve(kitConfig, './' + fileName.replace('.d.ts', JSON_SUFFIX));
+        const kitModuleConfigJson = _path.resolve(kitConfig, './' + fileName.replace(this.D_TS, JSON_SUFFIX));
         if (_fs.existsSync(kitModuleConfigJson)) {
           InteropTypescriptLinter.kitInfos.set(fileName, JSON.parse(_fs.readFileSync(kitModuleConfigJson, 'utf-8')));
         }
       }
     }
 
-    private getOriginalFileNames(fileName: string, node: ts.NamedImports | ts.NamedExports, index: number): string {
+    private getKitModuleFileNames(fileName: string, node: ts.NamedImports | ts.NamedExports, index: number): string {
       if (!InteropTypescriptLinter.kitInfos.has(fileName)) {
         return '';
       }
@@ -513,11 +519,9 @@ namespace ts {
       }
 
       const element = node.elements[index];
-      if (element.propertyName) {
-        return kitInfo.symbols[element.propertyName.text].source;
-      } else {
-        return kitInfo.symbols[element.name.text].source;
-      }
+      return element.propertyName ?
+        kitInfo.symbols[element.propertyName.text].source :
+        kitInfo.symbols[element.name.text].source;
     }
 
     public lint(): void {
