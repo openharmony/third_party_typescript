@@ -1,0 +1,188 @@
+{
+  "arktsVersion_1_0": [
+    {
+      "messageText": "Objects with property names that are not identifiers are not supported (arkts-identifiers-as-prop-names)",
+      "expectLineAndCharacter": {
+        "line": 25,
+        "character": 3
+      }
+    },
+    {
+      "messageText": "Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)",
+      "expectLineAndCharacter": {
+        "line": 29,
+        "character": 13
+      }
+    },
+    {
+      "messageText": "Objects with property names that are not identifiers are not supported (arkts-identifiers-as-prop-names)",
+      "expectLineAndCharacter": {
+        "line": 31,
+        "character": 3
+      }
+    },
+    {
+      "messageText": "Objects with property names that are not identifiers are not supported (arkts-identifiers-as-prop-names)",
+      "expectLineAndCharacter": {
+        "line": 32,
+        "character": 3
+      }
+    },
+    {
+      "messageText": "Objects with property names that are not identifiers are not supported (arkts-identifiers-as-prop-names)",
+      "expectLineAndCharacter": {
+        "line": 33,
+        "character": 3
+      }
+    },
+    {
+      "messageText": "Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)",
+      "expectLineAndCharacter": {
+        "line": 35,
+        "character": 15
+      }
+    },
+    {
+      "messageText": "Objects with property names that are not identifiers are not supported (arkts-identifiers-as-prop-names)",
+      "expectLineAndCharacter": {
+        "line": 37,
+        "character": 3
+      }
+    },
+    {
+      "messageText": "Objects with property names that are not identifiers are not supported (arkts-identifiers-as-prop-names)",
+      "expectLineAndCharacter": {
+        "line": 38,
+        "character": 3
+      }
+    },
+    {
+      "messageText": "Objects with property names that are not identifiers are not supported (arkts-identifiers-as-prop-names)",
+      "expectLineAndCharacter": {
+        "line": 39,
+        "character": 3
+      }
+    },
+    {
+      "messageText": "Objects with property names that are not identifiers are not supported (arkts-identifiers-as-prop-names)",
+      "expectLineAndCharacter": {
+        "line": 45,
+        "character": 3
+      }
+    },
+    {
+      "messageText": "Objects with property names that are not identifiers are not supported (arkts-identifiers-as-prop-names)",
+      "expectLineAndCharacter": {
+        "line": 46,
+        "character": 3
+      }
+    },
+    {
+      "messageText": "Objects with property names that are not identifiers are not supported (arkts-identifiers-as-prop-names)",
+      "expectLineAndCharacter": {
+        "line": 47,
+        "character": 10
+      }
+    },
+    {
+      "messageText": "Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)",
+      "expectLineAndCharacter": {
+        "line": 50,
+        "character": 15
+      }
+    },
+    {
+      "messageText": "Objects with property names that are not identifiers are not supported (arkts-identifiers-as-prop-names)",
+      "expectLineAndCharacter": {
+        "line": 52,
+        "character": 3
+      }
+    },
+    {
+      "messageText": "Objects with property names that are not identifiers are not supported (arkts-identifiers-as-prop-names)",
+      "expectLineAndCharacter": {
+        "line": 53,
+        "character": 3
+      }
+    },
+    {
+      "messageText": "Objects with property names that are not identifiers are not supported (arkts-identifiers-as-prop-names)",
+      "expectLineAndCharacter": {
+        "line": 54,
+        "character": 3
+      }
+    },
+    {
+      "messageText": "Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)",
+      "expectLineAndCharacter": {
+        "line": 57,
+        "character": 15
+      }
+    },
+    {
+      "messageText": "Objects with property names that are not identifiers are not supported (arkts-identifiers-as-prop-names)",
+      "expectLineAndCharacter": {
+        "line": 59,
+        "character": 3
+      }
+    },
+    {
+      "messageText": "Objects with property names that are not identifiers are not supported (arkts-identifiers-as-prop-names)",
+      "expectLineAndCharacter": {
+        "line": 60,
+        "character": 3
+      }
+    },
+    {
+      "messageText": "Objects with property names that are not identifiers are not supported (arkts-identifiers-as-prop-names)",
+      "expectLineAndCharacter": {
+        "line": 61,
+        "character": 3
+      }
+    }
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Objects with property names that are not identifiers are not supported (arkts-identifiers-as-prop-names)",
+      "expectLineAndCharacter": {
+        "line": 23,
+        "character": 3
+      }
+    },
+    {
+      "messageText": "Objects with property names that are not identifiers are not supported (arkts-identifiers-as-prop-names)",
+      "expectLineAndCharacter": {
+        "line": 31,
+        "character": 3
+      }
+    },
+    {
+      "messageText": "Objects with property names that are not identifiers are not supported (arkts-identifiers-as-prop-names)",
+      "expectLineAndCharacter": {
+        "line": 37,
+        "character": 3
+      }
+    },
+    {
+      "messageText": "Objects with property names that are not identifiers are not supported (arkts-identifiers-as-prop-names)",
+      "expectLineAndCharacter": {
+        "line": 45,
+        "character": 3
+      }
+    },
+    {
+      "messageText": "Objects with property names that are not identifiers are not supported (arkts-identifiers-as-prop-names)",
+      "expectLineAndCharacter": {
+        "line": 52,
+        "character": 3
+      }
+    },
+    {
+      "messageText": "Objects with property names that are not identifiers are not supported (arkts-identifiers-as-prop-names)",
+      "expectLineAndCharacter": {
+        "line": 59,
+        "character": 3
+      }
+    }
+  ]
+}
