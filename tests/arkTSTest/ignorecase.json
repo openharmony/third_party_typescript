@@ -23,5 +23,6 @@
                 "testcase/arkts-no-ts-sendable-type-inheritance/@arkts.lang.d.ets",
                 "testcase/arkts-sendable-as-expr/arkts-sendable-as-expr-ts/@arkts.lang.d.ets",
                 "testcase/arkts-sendable-generic-types/@arkts.lang.d.ets",
-                "testcase/arkts-sendable-obj-init/@arkts.lang.d.ets"]
+                "testcase/arkts-sendable-obj-init/@arkts.lang.d.ets",
+                "testcase/arkts-no-structural-typing/@arkts.lang.d.ets"]
 }
