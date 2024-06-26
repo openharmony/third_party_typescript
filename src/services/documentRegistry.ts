@@ -391,6 +391,11 @@ namespace ts {
     }
 
     function getKeyForCompilationSettings(settings: CompilerOptions): DocumentRegistryBucketKey {
+        if (settings.skipPathsInKeyForCompilationSettings) {
+            return sourceFileAffectingCompilerOptions.map(
+                option => (option.name !== "paths" ? compilerOptionValueToString(getCompilerOptionValue(settings, option)) : "paths")).join("|") +
+                (settings.pathsBasePath ? `|${settings.pathsBasePath}` : undefined) as DocumentRegistryBucketKey;
+        }
         return sourceFileAffectingCompilerOptions.map(option => compilerOptionValueToString(getCompilerOptionValue(settings, option))).join("|") + (settings.pathsBasePath ? `|${settings.pathsBasePath}` : undefined) as DocumentRegistryBucketKey;
     }
 
