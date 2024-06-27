@@ -13308,6 +13308,7 @@ declare namespace ts {
             function isSymbolAPI(symbol: Symbol): boolean;
             function isStdSymbol(symbol: ts.Symbol): boolean;
             function isSymbolIterator(symbol: ts.Symbol): boolean;
+            function isSymbolIteratorExpression(expr: ts.Expression): boolean;
             function isDefaultImport(importSpec: ImportSpecifier): boolean;
             function hasAccessModifier(decl: Declaration): boolean;
             function getModifier(modifiers: readonly Modifier[] | undefined, modifierKind: SyntaxKind): Modifier | undefined;
@@ -13350,6 +13351,7 @@ declare namespace ts {
             function isValidComputedPropertyName(computedProperty: ComputedPropertyName, isRecordObjectInitializer?: boolean): boolean;
             function isAllowedIndexSignature(node: ts.IndexSignatureDeclaration): boolean;
             function isArkTSCollectionsArrayLikeType(type: ts.Type): boolean;
+            function isArkTSCollectionsClassOrInterfaceDeclaration(decl: ts.Node): boolean;
             function getDecoratorName(decorator: ts.Decorator): string;
             function unwrapParenthesizedTypeNode(typeNode: ts.TypeNode): ts.TypeNode;
             function isSendableTypeNode(typeNode: ts.TypeNode): boolean;
@@ -13554,7 +13556,7 @@ declare namespace ts {
             private handleConstructSignature;
             private handleExpressionWithTypeArguments;
             private handleComputedPropertyName;
-            private isSendableInvalidCompPropName;
+            private isSendableCompPropName;
             private handleGetAccessor;
             private handleSetAccessor;
             private handleDeclarationInferredType;
