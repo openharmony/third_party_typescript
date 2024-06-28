@@ -6751,6 +6751,7 @@ namespace ts {
         emitNodeModulesFiles?: boolean;
         etsLoaderPath?: string;
         tsImportSendableEnable?: boolean;
+        skipPathsInKeyForCompilationSettings?: boolean;
         [option: string]: CompilerOptionsValue | TsConfigSourceFile | undefined;
     }
 
