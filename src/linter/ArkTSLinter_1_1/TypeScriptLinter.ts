@@ -2065,6 +2065,21 @@ export class TypeScriptLinter {
       this.incrementCounters(node, FaultID.UtilityType);
       return;
     }
+
+    const typeNameType = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(typeRef.typeName);
+    if (Utils.isSendableClassOrInterface(typeNameType)) {
+      this.checkSendableTypeArguments(typeRef);
+    }
+  }
+
+  private checkSendableTypeArguments(typeRef: TypeReferenceNode): void {
+    if (typeRef.typeArguments) {
+      for (const typeArg of typeRef.typeArguments) {
+        if (!Utils.isSendableTypeNode(typeArg)) {
+          this.incrementCounters(typeArg, FaultID.SendableGenericTypes);
+        }
+      }
+    }
   }
 
   private handleMetaProperty(node: Node): void {
