@@ -205,7 +205,8 @@ export class TypeScriptLinter {
     [SyntaxKind.ClassStaticBlockDeclaration, this.handleClassStaticBlockDeclaration],
     [ts.SyntaxKind.IndexSignature, this.handleIndexSignature],
     [ts.SyntaxKind.ExportKeyword, this.handleExportKeyword],
-    [ts.SyntaxKind.ExportDeclaration, this.handleExportDeclaration]
+    [ts.SyntaxKind.ExportDeclaration, this.handleExportDeclaration],
+    [ts.SyntaxKind.ReturnStatement, this.handleReturnStatement]
   ]);
 
   public incrementCounters(node: Node | CommentRange, faultId: number, autofixable = false, autofix?: Autofix[]): void {
@@ -527,13 +528,16 @@ export class TypeScriptLinter {
     // e.g. there is no element which is untyped object literals
     const arrayLitElements = arrayLitNode.elements;
     for(const element of arrayLitElements) {
+      const elementContextType = TypeScriptLinter.tsTypeChecker.getContextualType(element);
       if(element.kind === SyntaxKind.ObjectLiteralExpression) {
-        const objectLiteralType = TypeScriptLinter.tsTypeChecker.getContextualType(element);
         if (!Utils.isDynamicLiteralInitializer(arrayLitNode) &&
-            !Utils.isObjectLiteralAssignable(objectLiteralType, element as ts.ObjectLiteralExpression)) {
+            !Utils.isObjectLiteralAssignable(elementContextType, element as ts.ObjectLiteralExpression)) {
           noContextTypeForArrayLiteral = true;
           break;
         }
+      }
+      if (elementContextType) {
+        this.checkAssignmentMatching(element, elementContextType, element, true);
       }
     }
 
@@ -724,7 +728,9 @@ export class TypeScriptLinter {
     const propType = (node as ts.PropertyDeclaration).type?.getText();
     this.filterOutDecoratorsDiagnostics(classDecorators, Utils.NON_INITIALIZABLE_PROPERTY_CLASS_DECORATORS,
       {begin: propName.getStart(), end: propName.getStart()}, Utils.PROPERTY_HAS_NO_INITIALIZER_ERROR_CODE, propType);
-
+    if (node.type && node.initializer) {
+      this.checkAssignmentMatching(node, TypeScriptLinter.tsTypeChecker.getTypeAtLocation(node.type), node.initializer, true);
+    }
     this.handleDeclarationInferredType(node);
     this.handleDefiniteAssignmentAssertion(node);
     this.handleSendableClassProperty(node);
@@ -1141,9 +1147,7 @@ export class TypeScriptLinter {
     } else if (tsBinaryExpr.operatorToken.kind === SyntaxKind.InKeyword) {
       this.incrementCounters(tsBinaryExpr.operatorToken, FaultID.InOperator);
     } else if (tsBinaryExpr.operatorToken.kind === SyntaxKind.EqualsToken) {
-      if (Utils.needToDeduceStructuralIdentity(leftOperandType, rightOperandType, tsRhsExpr)) {
-        this.incrementCounters(tsBinaryExpr, FaultID.StructuralIdentity);
-      }
+      this.checkAssignmentMatching(tsBinaryExpr, leftOperandType, tsRhsExpr);
       const typeNode = Utils.getVariableDeclarationTypeNode(tsLhsExpr);
       this.handleEsObjectAssignment(tsBinaryExpr, typeNode, tsRhsExpr);
     }
@@ -1181,12 +1185,11 @@ export class TypeScriptLinter {
     }
 
     if (tsVarDecl.type && tsVarDecl.initializer) {
-      const tsVarInit = tsVarDecl.initializer;
-      const tsVarType = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(tsVarDecl.type);
-      const tsInitType = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(tsVarInit);
-      if (Utils.needToDeduceStructuralIdentity(tsVarType, tsInitType, tsVarInit)) {
-        this.incrementCounters(tsVarDecl, FaultID.StructuralIdentity);
-      }
+      this.checkAssignmentMatching(
+        tsVarDecl,
+        TypeScriptLinter.tsTypeChecker.getTypeAtLocation(tsVarDecl.type),
+        tsVarDecl.initializer
+      );
     }
 
     this.handleEsObjectDelaration(tsVarDecl);
@@ -1898,9 +1901,7 @@ export class TypeScriptLinter {
         }
         if (!tsParamType) continue;
 
-        if (Utils.needToDeduceStructuralIdentity(tsParamType, tsArgType, tsArg)) {
-          this.incrementCounters(tsArg, FaultID.StructuralIdentity);
-        }
+        this.checkAssignmentMatching(tsArg, tsParamType, tsArg);
       }
     }
   }
@@ -2398,6 +2399,42 @@ export class TypeScriptLinter {
       if (!Utils.isShareableEntity(exportSpecifier.name)) {
         this.incrementCounters(exportSpecifier.name, FaultID.SharedModuleExports);
       }
+    }
+  }
+
+  private handleReturnStatement(node: ts.Node): void {
+    // The return value must match the return type of the 'function'
+    const returnStat = node as ts.ReturnStatement;
+    const expr = returnStat.expression;
+    if (!expr) {
+      return;
+    }
+    const lhsType = TypeScriptLinter.tsTypeChecker.getContextualType(expr);
+    if (!lhsType) {
+      return;
+    }
+    this.checkAssignmentMatching(node, lhsType, expr, true);
+  }
+
+  /**
+   * 'arkts-no-structural-typing' check was missing in some scenarios, 
+   * in order not to cause incompatibility, 
+   * only need to strictly match the type of filling the check again
+   */
+  private checkAssignmentMatching(
+    field: ts.Node,
+    lhsType: ts.Type,
+    rhsExpr: ts.Expression,
+    isOnlyCheckStrict: boolean = false
+  ): void {
+    const rhsType = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(rhsExpr);
+    const isStrict = Utils.needStrictMatchType(lhsType, rhsType);
+    // 'isOnlyCheckStrict' means that this assignment scenario was previously omitted, so only strict matches are checked now
+    if (isOnlyCheckStrict && !isStrict) {
+      return;
+    }
+    if (Utils.needToDeduceStructuralIdentity(lhsType, rhsType, rhsExpr, isStrict)) {
+      this.incrementCounters(field, FaultID.StructuralIdentity);
     }
   }
 }

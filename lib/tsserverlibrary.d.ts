@@ -13262,7 +13262,8 @@ declare namespace ts {
             function isStringConstantValue(tsExpr: EnumMember | PropertyAccessExpression | ElementAccessExpression): boolean;
             function relatedByInheritanceOrIdentical(typeA: Type, typeB: Type): boolean;
             function reduceReference(t: ts.Type): ts.Type;
-            function needToDeduceStructuralIdentity(lhsType: Type, rhsType: Type, rhsExpr: Expression): boolean;
+            function needToDeduceStructuralIdentity(lhsType: Type, rhsType: Type, rhsExpr: Expression, isStrict?: boolean): boolean;
+            function needStrictMatchType(lhsType: ts.Type, rhsType: ts.Type): boolean;
             function hasPredecessor(node: Node, predicate: (node: Node) => boolean): boolean;
             function processParentTypes(parentTypes: NodeArray<ExpressionWithTypeArguments>, typeB: Type, processInterfaces: boolean): boolean;
             function isObject(tsType: Type): boolean;
@@ -13346,6 +13347,7 @@ declare namespace ts {
             function isShareableType(tsType: ts.Type): boolean;
             function isSendableClassOrInterface(type: ts.Type): boolean;
             function typeContainsSendableClassOrInterface(type: ts.Type): boolean;
+            function typeContainsNonSendableClassOrInterface(type: ts.Type): boolean;
             function isConstEnum(sym: ts.Symbol | undefined): boolean;
             function isSendableUnionType(type: ts.UnionType): boolean;
             function hasSendableDecorator(decl: ts.ClassDeclaration): boolean;
@@ -13552,6 +13554,13 @@ declare namespace ts {
             lint(): void;
             private handleExportKeyword;
             private handleExportDeclaration;
+            private handleReturnStatement;
+            /**
+             * 'arkts-no-structural-typing' check was missing in some scenarios,
+             * in order not to cause incompatibility,
+             * only need to strictly match the type of filling the check again
+             */
+            private checkAssignmentMatching;
         }
     }
 }

@@ -791,12 +791,13 @@ export function reduceReference(t: ts.Type): ts.Type {
 function needToDeduceStructuralIdentityHandleUnions(
   lhsType: Type,
   rhsType: Type,
-  rhsExpr: Expression
+  rhsExpr: Expression,
+  isStrict: boolean
 ): boolean {
   if (rhsType.isUnion()) {
     // Each Class/Interface of the RHS union type must be compatible with LHS type.
     for (const compType of rhsType.types) {
-      if (needToDeduceStructuralIdentity(lhsType, compType, rhsExpr)) {
+      if (needToDeduceStructuralIdentity(lhsType, compType, rhsExpr, isStrict)) {
         return true;
       }
     }
@@ -806,7 +807,7 @@ function needToDeduceStructuralIdentityHandleUnions(
   if (lhsType.isUnion()) {
     // RHS type needs to be compatible with at least one type of the LHS union.
     for (const compType of lhsType.types) {
-      if (!needToDeduceStructuralIdentity(compType, rhsType, rhsExpr)) {
+      if (!needToDeduceStructuralIdentity(compType, rhsType, rhsExpr, isStrict)) {
         return false;
       }
     }
@@ -820,7 +821,8 @@ function needToDeduceStructuralIdentityHandleUnions(
 export function needToDeduceStructuralIdentity(
   lhsType: Type,
   rhsType: Type,
-  rhsExpr: Expression
+  rhsExpr: Expression,
+  isStrict: boolean = false
 ): boolean {
   lhsType = getNonNullableType(lhsType);
   rhsType = getNonNullableType(rhsType);
@@ -835,10 +837,48 @@ export function needToDeduceStructuralIdentity(
     return false;
   }
   if (rhsType.isUnion() || lhsType.isUnion()) {
-    return needToDeduceStructuralIdentityHandleUnions(lhsType, rhsType, rhsExpr);
+    return needToDeduceStructuralIdentityHandleUnions(lhsType, rhsType, rhsExpr, isStrict);
+  }
+  // if isStrict, things like generics need to be checked
+  if (isStrict) {
+    if (isTypeReference(rhsType) && !!(rhsType.objectFlags & ts.ObjectFlags.ArrayLiteral)) {
+      // The 'arkts-sendable-obj-init' rule already exists. Wait for the new 'strict type' to be modified.
+      return false;
+    }
+    lhsType = reduceReference(lhsType);
+    rhsType = reduceReference(rhsType);
   }
   return lhsType.isClassOrInterface() && rhsType.isClassOrInterface() &&
     !relatedByInheritanceOrIdentical(rhsType, lhsType);
+}
+
+// Does the 'arkts-no-structure-typing' rule need to be strictly enforced to complete previously missed scenarios
+export function needStrictMatchType(lhsType: ts.Type, rhsType: ts.Type): boolean {
+  if (isStrictSendableMatch(lhsType, rhsType)) {
+    return true;
+  }
+  // add other requirements with strict type requirements here
+  return false;
+}
+
+// For compatibility, left must all ClassOrInterface is sendable, right must has non-sendable ClassorInterface
+function isStrictSendableMatch(lhsType: ts.Type, rhsType: ts.Type): boolean {
+  let isStrictLhs = false;
+  if (lhsType.isUnion()) {
+    for (let compType of lhsType.types) {
+      compType = reduceReference(compType);
+      if (!compType.isClassOrInterface()) {
+        continue;
+      }
+      if (!isSendableClassOrInterface(compType)) {
+        return false;
+      }
+      isStrictLhs = true;
+    }
+  } else {
+    isStrictLhs = isSendableClassOrInterface(lhsType);
+  }
+  return isStrictLhs && typeContainsNonSendableClassOrInterface(rhsType);
 }
 
 export function hasPredecessor(node: Node, predicate: (node: Node) => boolean): boolean {
@@ -1146,13 +1186,19 @@ function validateField(type: ts.Type, prop: ts.PropertyAssignment): boolean {
 
   const propType = typeChecker.getTypeOfSymbolAtLocation(propSym, propSym.declarations[0]);
   const initExpr = unwrapParenthesized(prop.initializer);
+  const tsInitType = typeChecker.getTypeAtLocation(initExpr);
   if (ts.isObjectLiteralExpression(initExpr)) {
     if (!isObjectLiteralAssignable(propType, initExpr)) {
       return false;
     }
   } else {
     // Only check for structural sub-typing.
-    if (needToDeduceStructuralIdentity(propType, typeChecker.getTypeAtLocation(initExpr), initExpr)) {
+    if (needToDeduceStructuralIdentity(
+      propType,
+      tsInitType,
+      initExpr,
+      needStrictMatchType(propType, tsInitType)
+    )) {
       return false;
     }
   }
@@ -1921,6 +1967,16 @@ export function typeContainsSendableClassOrInterface(type: ts.Type): boolean {
   }
 
   return isSendableClassOrInterface(type);
+}
+
+export function typeContainsNonSendableClassOrInterface(type: ts.Type): boolean {
+  if (type.isUnion()) {
+    return type.types.some((compType) => {
+      return typeContainsNonSendableClassOrInterface(compType);
+    });
+  }
+  type = reduceReference(type);
+  return type.isClassOrInterface() && !isSendableClassOrInterface(type);
 }
 
 export function isConstEnum(sym: ts.Symbol | undefined): boolean {
