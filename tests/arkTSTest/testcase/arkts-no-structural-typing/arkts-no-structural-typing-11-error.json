@@ -1,0 +1,405 @@
+{
+  "arktsVersion_1_0": [
+    {
+      "messageText": "No decorators except ArkUI decorators are currently allowed (arkts-no-decorators-except-arkui)",
+      "expectLineAndCharacter": {
+        "line": 16,
+        "character": 1
+      }
+    },
+    {
+      "messageText": "No decorators except ArkUI decorators are currently allowed (arkts-no-decorators-except-arkui)",
+      "expectLineAndCharacter": {
+        "line": 19,
+        "character": 1
+      }
+    },
+    {
+      "messageText": "No decorators except ArkUI decorators are currently allowed (arkts-no-decorators-except-arkui)",
+      "expectLineAndCharacter": {
+        "line": 22,
+        "character": 1
+      }
+    },
+    {
+      "messageText": "No decorators except ArkUI decorators are currently allowed (arkts-no-decorators-except-arkui)",
+      "expectLineAndCharacter": {
+        "line": 25,
+        "character": 1
+      }
+    },
+    {
+      "messageText": "Structural typing is not supported (arkts-no-structural-typing)",
+      "expectLineAndCharacter": {
+        "line": 41,
+        "character": 5
+      }
+    },
+    {
+      "messageText": "Structural typing is not supported (arkts-no-structural-typing)",
+      "expectLineAndCharacter": {
+        "line": 42,
+        "character": 1
+      }
+    },
+    {
+      "messageText": "Structural typing is not supported (arkts-no-structural-typing)",
+      "expectLineAndCharacter": {
+        "line": 44,
+        "character": 8
+      }
+    },
+    {
+      "messageText": "Structural typing is not supported (arkts-no-structural-typing)",
+      "expectLineAndCharacter": {
+        "line": 48,
+        "character": 11
+      }
+    },
+    {
+      "messageText": "Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)",
+      "expectLineAndCharacter": {
+        "line": 50,
+        "character": 23
+      }
+    },
+    {
+      "messageText": "Array literals must contain elements of only inferrable types (arkts-no-noninferrable-arr-literals)",
+      "expectLineAndCharacter": {
+        "line": 51,
+        "character": 27
+      }
+    },
+    {
+      "messageText": "Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)",
+      "expectLineAndCharacter": {
+        "line": 51,
+        "character": 28
+      }
+    },
+    {
+      "messageText": "Structural typing is not supported (arkts-no-structural-typing)",
+      "expectLineAndCharacter": {
+        "line": 56,
+        "character": 5
+      }
+    }
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Structural typing is not supported (arkts-no-structural-typing)",
+      "expectLineAndCharacter": {
+        "line": 41,
+        "character": 5
+      }
+    },
+    {
+      "messageText": "Structural typing is not supported (arkts-no-structural-typing)",
+      "expectLineAndCharacter": {
+        "line": 42,
+        "character": 1
+      }
+    },
+    {
+      "messageText": "Structural typing is not supported (arkts-no-structural-typing)",
+      "expectLineAndCharacter": {
+        "line": 44,
+        "character": 8
+      }
+    },
+    {
+      "messageText": "Structural typing is not supported (arkts-no-structural-typing)",
+      "expectLineAndCharacter": {
+        "line": 48,
+        "character": 11
+      }
+    },
+    {
+      "messageText": "Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)",
+      "expectLineAndCharacter": {
+        "line": 50,
+        "character": 23
+      }
+    },
+    {
+      "messageText": "Array literals must contain elements of only inferrable types (arkts-no-noninferrable-arr-literals)",
+      "expectLineAndCharacter": {
+        "line": 51,
+        "character": 27
+      }
+    },
+    {
+      "messageText": "Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)",
+      "expectLineAndCharacter": {
+        "line": 51,
+        "character": 28
+      }
+    },
+    {
+      "messageText": "Structural typing is not supported (arkts-no-structural-typing)",
+      "expectLineAndCharacter": {
+        "line": 56,
+        "character": 5
+      }
+    },
+    {
+      "messageText": "Structural typing is not supported (arkts-no-structural-typing)",
+      "expectLineAndCharacter": {
+        "line": 58,
+        "character": 5
+      }
+    },
+    {
+      "messageText": "Structural typing is not supported (arkts-no-structural-typing)",
+      "expectLineAndCharacter": {
+        "line": 60,
+        "character": 5
+      }
+    },
+    {
+      "messageText": "Structural typing is not supported (arkts-no-structural-typing)",
+      "expectLineAndCharacter": {
+        "line": 62,
+        "character": 5
+      }
+    },
+    {
+      "messageText": "Structural typing is not supported (arkts-no-structural-typing)",
+      "expectLineAndCharacter": {
+        "line": 64,
+        "character": 5
+      }
+    },
+    {
+      "messageText": "Structural typing is not supported (arkts-no-structural-typing)",
+      "expectLineAndCharacter": {
+        "line": 65,
+        "character": 5
+      }
+    },
+    {
+      "messageText": "Structural typing is not supported (arkts-no-structural-typing)",
+      "expectLineAndCharacter": {
+        "line": 66,
+        "character": 5
+      }
+    },
+    {
+      "messageText": "Structural typing is not supported (arkts-no-structural-typing)",
+      "expectLineAndCharacter": {
+        "line": 69,
+        "character": 5
+      }
+    },
+    {
+      "messageText": "Structural typing is not supported (arkts-no-structural-typing)",
+      "expectLineAndCharacter": {
+        "line": 70,
+        "character": 5
+      }
+    },
+    {
+      "messageText": "Structural typing is not supported (arkts-no-structural-typing)",
+      "expectLineAndCharacter": {
+        "line": 71,
+        "character": 5
+      }
+    },
+    {
+      "messageText": "Structural typing is not supported (arkts-no-structural-typing)",
+      "expectLineAndCharacter": {
+        "line": 72,
+        "character": 5
+      }
+    },
+    {
+      "messageText": "Structural typing is not supported (arkts-no-structural-typing)",
+      "expectLineAndCharacter": {
+        "line": 73,
+        "character": 5
+      }
+    },
+    {
+      "messageText": "Structural typing is not supported (arkts-no-structural-typing)",
+      "expectLineAndCharacter": {
+        "line": 74,
+        "character": 5
+      }
+    },
+    {
+      "messageText": "Structural typing is not supported (arkts-no-structural-typing)",
+      "expectLineAndCharacter": {
+        "line": 91,
+        "character": 5
+      }
+    },
+    {
+      "messageText": "Structural typing is not supported (arkts-no-structural-typing)",
+      "expectLineAndCharacter": {
+        "line": 93,
+        "character": 5
+      }
+    },
+    {
+      "messageText": "Structural typing is not supported (arkts-no-structural-typing)",
+      "expectLineAndCharacter": {
+        "line": 104,
+        "character": 5
+      }
+    },
+    {
+      "messageText": "Structural typing is not supported (arkts-no-structural-typing)",
+      "expectLineAndCharacter": {
+        "line": 105,
+        "character": 5
+      }
+    },
+    {
+      "messageText": "Structural typing is not supported (arkts-no-structural-typing)",
+      "expectLineAndCharacter": {
+        "line": 106,
+        "character": 5
+      }
+    },
+    {
+      "messageText": "Structural typing is not supported (arkts-no-structural-typing)",
+      "expectLineAndCharacter": {
+        "line": 107,
+        "character": 5
+      }
+    },
+    {
+      "messageText": "Structural typing is not supported (arkts-no-structural-typing)",
+      "expectLineAndCharacter": {
+        "line": 108,
+        "character": 5
+      }
+    },
+    {
+      "messageText": "Structural typing is not supported (arkts-no-structural-typing)",
+      "expectLineAndCharacter": {
+        "line": 109,
+        "character": 5
+      }
+    },
+    {
+      "messageText": "Structural typing is not supported (arkts-no-structural-typing)",
+      "expectLineAndCharacter": {
+        "line": 114,
+        "character": 20
+      }
+    },
+    {
+      "messageText": "Structural typing is not supported (arkts-no-structural-typing)",
+      "expectLineAndCharacter": {
+        "line": 116,
+        "character": 20
+      }
+    },
+    {
+      "messageText": "Structural typing is not supported (arkts-no-structural-typing)",
+      "expectLineAndCharacter": {
+        "line": 118,
+        "character": 29
+      }
+    },
+    {
+      "messageText": "Structural typing is not supported (arkts-no-structural-typing)",
+      "expectLineAndCharacter": {
+        "line": 132,
+        "character": 5
+      }
+    },
+    {
+      "messageText": "Structural typing is not supported (arkts-no-structural-typing)",
+      "expectLineAndCharacter": {
+        "line": 133,
+        "character": 5
+      }
+    },
+    {
+      "messageText": "Structural typing is not supported (arkts-no-structural-typing)",
+      "expectLineAndCharacter": {
+        "line": 134,
+        "character": 5
+      }
+    },
+    {
+      "messageText": "Structural typing is not supported (arkts-no-structural-typing)",
+      "expectLineAndCharacter": {
+        "line": 135,
+        "character": 5
+      }
+    },
+    {
+      "messageText": "Structural typing is not supported (arkts-no-structural-typing)",
+      "expectLineAndCharacter": {
+        "line": 136,
+        "character": 5
+      }
+    },
+    {
+      "messageText": "Structural typing is not supported (arkts-no-structural-typing)",
+      "expectLineAndCharacter": {
+        "line": 137,
+        "character": 5
+      }
+    },
+    {
+      "messageText": "Structural typing is not supported (arkts-no-structural-typing)",
+      "expectLineAndCharacter": {
+        "line": 143,
+        "character": 9
+      }
+    },
+    {
+      "messageText": "Structural typing is not supported (arkts-no-structural-typing)",
+      "expectLineAndCharacter": {
+        "line": 150,
+        "character": 9
+      }
+    },
+    {
+      "messageText": "Structural typing is not supported (arkts-no-structural-typing)",
+      "expectLineAndCharacter": {
+        "line": 192,
+        "character": 9
+      }
+    },
+    {
+      "messageText": "Structural typing is not supported (arkts-no-structural-typing)",
+      "expectLineAndCharacter": {
+        "line": 195,
+        "character": 9
+      }
+    },
+    {
+      "messageText": "Structural typing is not supported (arkts-no-structural-typing)",
+      "expectLineAndCharacter": {
+        "line": 198,
+        "character": 9
+      }
+    },
+    {
+      "messageText": "Structural typing is not supported (arkts-no-structural-typing)",
+      "expectLineAndCharacter": {
+        "line": 201,
+        "character": 9
+      }
+    },
+    {
+      "messageText": "Structural typing is not supported (arkts-no-structural-typing)",
+      "expectLineAndCharacter": {
+        "line": 204,
+        "character": 9
+      }
+    },
+    {
+      "messageText": "Structural typing is not supported (arkts-no-structural-typing)",
+      "expectLineAndCharacter": {
+        "line": 207,
+        "character": 9
+      }
+    }
+  ]
+}
