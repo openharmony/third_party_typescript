@@ -8236,12 +8236,17 @@ namespace ts {
             }
 
             let isTypeOnly = false;
+            let isLazy = false;
             if (token() !== SyntaxKind.FromKeyword &&
                 identifier?.escapedText === "type" &&
                 (isIdentifier() || tokenAfterImportDefinitelyProducesImportDeclaration())
             ) {
                 isTypeOnly = true;
                 identifier = isIdentifier() ? parseIdentifier() : undefined;
+            }
+            else if (identifier?.escapedText === 'lazy' && token() === SyntaxKind.OpenBraceToken) {
+                isLazy = true;
+                identifier = undefined;
             }
 
             if (identifier && !tokenAfterImportedIdentifierDefinitelyProducesImportDeclaration()) {
@@ -8257,6 +8262,7 @@ namespace ts {
                 token() === SyntaxKind.OpenBraceToken    // import {
             ) {
                 importClause = parseImportClause(identifier, afterImportPos, isTypeOnly);
+                (importClause as Mutable<ImportClause>).isLazy = isLazy;
                 parseExpected(SyntaxKind.FromKeyword);
             }
             const moduleSpecifier = parseModuleSpecifier();
