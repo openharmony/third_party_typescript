@@ -13,53 +13,59 @@
  * limitations under the License.
  */
 
+enum E1 {
+  str = '5'
+}
 
-enum E {
-  str = 'e5'
+enum E2 {
+  num = 6
 }
 
 interface I {
   one: string,
-  2: string, // ERROR v1.1
-  '3': string, // OK v1.1 rule relax case
-  [E.str]: string; // OK v1.1 rule relax case
-  
+  2: string, // ERROR
+  '3': string, // OK
+  [E1.str]: string, // OK
+  [E2.num]: string // ERROR
 }
 
-let v1: I = {
+let vOne1: I = {
   one: 'i1',
-  2: 'i2', // ERROR v1.1
-  '3': 'i3', // OK v1.1
-  [E.str]: 'e5' // OK v1.1
+  2: 'i2', // ERROR
+  '3': 'i3', // OK
+  [E1.str]: 'e5', // OK
+  [E2.num]: 'e6' // ERROR
 }
-let v1_2: I = {
+
+let vOne2: I = {
   one: 'i1',
-  2: 'i2', // ERROR v1.1
-  '3': 'i3', // OK v1.1
-  'e5': 'e5' // OK v1.1
+  2: 'i2', // ERROR
+  '3': 'i3', // OK
+  '5': 'e5', // OK
+  6: 'e6' // ERROR
 }
 
 
 class C {
-  public  one?: string = 'c1';
-  public 3?: string = 'c3'; // ERROR v1.1
-  public '4': string = 'c4'; // OK v1.1 rule relax case
-  public [E.str]: string = 'e5'; // OK v1.1 rule relax case
+  public one?: string = 'c1';
+  public 3?: string = 'c3'; // ERROR
+  public '4': string = 'c4'; // OK
+  public [E1.str]: string = 'e5'; // OK
+  public [E2.num]: string = 'e6'; // ERROR
 }
 
-let v2_1: C = {
+let vTwo1: C = {
   one: 'c1',
-  3: 'c3', // ERROR v1.1
-  '4': 'c4', // OK v1.1
-  'e5': 'e5' // OK v1.1
+  3: 'c3', // ERROR
+  '4': 'c4', // OK
+  [E1.str]: 'e5', // OK
+  [E2.num]: 'e6' // ERROR
 }
 
-let v2_2: C = {
+let vTwo2: C = {
   one: 'c1',
-  3: 'c3', // ERROR v1.1
-  '4': 'c4', // OK v1.1
-  [E.str]: 'e5' // OK v1.1
+  3: 'c3', // ERROR
+  '4': 'c4', // OK
+  '5': 'e5', // OK
+  6: 'e6' // ERROR
 }
-
-
-export let other = 1;
