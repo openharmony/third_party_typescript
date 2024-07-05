@@ -1,0 +1,26 @@
+{
+  "arktsVersion_1_0": [],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Only \"Sendable\" function or \"Sendable\" typeAlias object can be assigned to \"Sendable\" typeAlias (arkts-sendable-function-assignment)",
+      "expectLineAndCharacter": {
+        "line": 13,
+        "character": 7
+      }
+    },
+    {
+      "messageText": "Only \"Sendable\" function or \"Sendable\" typeAlias object can be assigned to \"Sendable\" typeAlias (arkts-sendable-function-assignment)",
+      "expectLineAndCharacter": {
+        "line": 14,
+        "character": 7
+      }
+    },
+    {
+      "messageText": "Only \"Sendable\" function or \"Sendable\" typeAlias object can be assigned to \"Sendable\" typeAlias (arkts-sendable-function-assignment)",
+      "expectLineAndCharacter": {
+        "line": 17,
+        "character": 7
+      }
+    }
+  ]
+}

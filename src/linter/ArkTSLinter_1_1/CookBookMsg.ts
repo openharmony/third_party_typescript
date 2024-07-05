@@ -17,7 +17,7 @@ export namespace ArkTSLinter_1_1 {
 export const cookBookMsg: string[] = [];
 export const cookBookTag: string[] = [];
 
-for (let i = 0; i <= 171; i++) {
+for (let i = 0; i <= 179; i++) {
   cookBookMsg[ i ] = "";
 }
 
@@ -192,5 +192,13 @@ cookBookTag[168] = 'In ts files, entities from ets files can not be re-exported 
 cookBookTag[169] = 'Namespace import is not allowed for importing from ets to ts file (arkts-no-namespace-import-in-ts-import-ets)';
 cookBookTag[170] = 'Side effect import is not allowed for importing from ets to ts file (artkts-no-side-effect-import-in-ts-import-ets)';
 cookBookTag[171] = 'Field in sendable class must have type annotation (arkts-sendable-type-annotation)';
+cookBookTag[172] = 'Only imported variables can be captured by "Sendable" function (arkts-sendable-function-imported-variables)';
+cookBookTag[173] = 'Only "@Sendable" decorator can be used on "Sendable" function (arkts-sendable-function-decorator)';
+cookBookTag[174] = 'Only "@Sendable" decorator can be used on "Sendable" typeAlias (arkts-sendable-typealias-decorator)';
+cookBookTag[175] = 'Only "FunctionType" can declare "Sendable" typeAlias (arkts-sendable-typeAlias-declaration)';
+cookBookTag[176] = 'Only "Sendable" function or "Sendable" typeAlias object can be assigned to "Sendable" typeAlias (arkts-sendable-function-assignment)';
+cookBookTag[177] = 'When declaring "@Sendable" overloaded function, needs to add "@Sendable" decorator on each function (arkts-sendable-function-overload-decorator)';
+cookBookTag[178] = 'The property of "Sendable" function is limited (arkts-sendable-function-property)';
+cookBookTag[179] = 'Casting "Non-sendable" function to "Sendable" typeAlias is not allowed (arkts-sendable-function-as-expr)';
 }
 }

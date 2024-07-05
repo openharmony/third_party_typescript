@@ -44,6 +44,8 @@ export enum FaultID {
   SharedNoSideEffectImport, SharedModuleExports, SharedModuleNoWildcardExport, NoTsImportEts,
   SendableTypeInheritance, SendableTypeExported, NoTsReExportEts, NoNamespaceImportEtsToTs, NoSideEffectImportEtsToTs,
   SendableTypeAnnotation,
+  SendableFunctionImportedVariables, SendableFunctionDecorator, SendableTypeAliasDecorator, SendableTypeAliasDeclaration, 
+  SendableFunctionAssignment, SendableFunctionOverloadDecorator, SendableFunctionProperty, SendableFunctionAsExpr,
   LAST_ID, // this should always be last enum
 }
 
@@ -156,6 +158,14 @@ faultsAttrs[FaultID.NoTsReExportEts] = new FaultAttributes(168);
 faultsAttrs[FaultID.NoNamespaceImportEtsToTs] = new FaultAttributes(169);
 faultsAttrs[FaultID.NoSideEffectImportEtsToTs] = new FaultAttributes(170);
 faultsAttrs[FaultID.SendableTypeAnnotation] = new FaultAttributes(171);
+faultsAttrs[FaultID.SendableFunctionImportedVariables] = new FaultAttributes(172);
+faultsAttrs[FaultID.SendableFunctionDecorator] = new FaultAttributes(173);
+faultsAttrs[FaultID.SendableTypeAliasDecorator] = new FaultAttributes(174);
+faultsAttrs[FaultID.SendableTypeAliasDeclaration] = new FaultAttributes(175);
+faultsAttrs[FaultID.SendableFunctionAssignment] = new FaultAttributes(176);
+faultsAttrs[FaultID.SendableFunctionOverloadDecorator] = new FaultAttributes(177);
+faultsAttrs[FaultID.SendableFunctionProperty] = new FaultAttributes(178);
+faultsAttrs[FaultID.SendableFunctionAsExpr] = new FaultAttributes(179);
 }
 }
 }

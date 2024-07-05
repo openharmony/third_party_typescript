@@ -1,0 +1,12 @@
+{
+  "arktsVersion_1_0": [],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Only \"@Sendable\" decorator can be used on \"Sendable\" function (arkts-sendable-function-decorator)",
+      "expectLineAndCharacter": {
+        "line": 11,
+        "character": 1
+      }
+    }
+  ]
+}

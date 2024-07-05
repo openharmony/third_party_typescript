@@ -1,0 +1,26 @@
+{
+  "arktsVersion_1_0": [],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Only \"FunctionType\" can declare \"Sendable\" typeAlias (arkts-sendable-typeAlias-declaration)",
+      "expectLineAndCharacter": {
+        "line": 8,
+        "character": 13
+      }
+    },
+    {
+      "messageText": "Only \"FunctionType\" can declare \"Sendable\" typeAlias (arkts-sendable-typeAlias-declaration)",
+      "expectLineAndCharacter": {
+        "line": 10,
+        "character": 13
+      }
+    },
+    {
+      "messageText": "Only \"FunctionType\" can declare \"Sendable\" typeAlias (arkts-sendable-typeAlias-declaration)",
+      "expectLineAndCharacter": {
+        "line": 14,
+        "character": 13
+      }
+    }
+  ]
+}

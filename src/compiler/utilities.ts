@@ -1986,7 +1986,9 @@ namespace ts {
                         || parent!.kind === SyntaxKind.SetAccessor)
                     && (grandparent!.kind === SyntaxKind.ClassDeclaration || grandparent!.kind === SyntaxKind.StructDeclaration);
             case SyntaxKind.FunctionDeclaration:
-                return isArkTsDecorator(node, compilerOptions);
+                return isArkTsDecorator(node, compilerOptions) || isSendableFunctionOrType(node);
+            case SyntaxKind.TypeAliasDeclaration:
+                return isSendableFunctionOrType(node);
         }
 
         return false;

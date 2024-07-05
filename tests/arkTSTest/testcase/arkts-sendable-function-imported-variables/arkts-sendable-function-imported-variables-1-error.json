@@ -1,0 +1,69 @@
+{
+  "arktsVersion_1_0": [
+    {
+      "messageText": "No decorators except ArkUI decorators are currently allowed (arkts-no-decorators-except-arkui)",
+      "expectLineAndCharacter": {
+        "line": 12,
+        "character": 1
+      }
+    },
+    {
+      "messageText": "No decorators except ArkUI decorators are currently allowed (arkts-no-decorators-except-arkui)",
+      "expectLineAndCharacter": {
+        "line": 16,
+        "character": 1
+      }
+    },
+    {
+      "messageText": "No decorators except ArkUI decorators are currently allowed (arkts-no-decorators-except-arkui)",
+      "expectLineAndCharacter": {
+        "line": 25,
+        "character": 3
+      }
+    }
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Only imported variables can be captured by \"Sendable\" class (arkts-sendable-imported-variables)",
+      "expectLineAndCharacter": {
+        "line": 20,
+        "character": 20
+      }
+    },
+    {
+      "messageText": "Only imported variables can be captured by \"Sendable\" class (arkts-sendable-imported-variables)",
+      "expectLineAndCharacter": {
+        "line": 22,
+        "character": 23
+      }
+    },
+    {
+      "messageText": "Only \"@Sendable\" decorator can be used on \"Sendable\" class (arkts-sendable-class-decorator)",
+      "expectLineAndCharacter": {
+        "line": 25,
+        "character": 3
+      }
+    },
+    {
+      "messageText": "Only \"@Sendable\" decorator can be used on \"Sendable\" function (arkts-sendable-function-decorator)",
+      "expectLineAndCharacter": {
+        "line": 30,
+        "character": 1
+      }
+    },
+    {
+      "messageText": "Only imported variables can be captured by \"Sendable\" function (arkts-sendable-function-imported-variables)",
+      "expectLineAndCharacter": {
+        "line": 33,
+        "character": 18
+      }
+    },
+    {
+      "messageText": "Only imported variables can be captured by \"Sendable\" function (arkts-sendable-function-imported-variables)",
+      "expectLineAndCharacter": {
+        "line": 35,
+        "character": 21
+      }
+    }
+  ]
+}
