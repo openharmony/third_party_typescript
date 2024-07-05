@@ -84,7 +84,7 @@ class A {
     readonly optSendableClass3: SendableClass = new SendableClass();
     readonly optNoSendableClass3: NoSendableClass = new NoSendableClass();
 
-    // Error, Field in sendable class must have type annotation (arkts-sendable-type-annotation)
+    // Error, Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)
     booleanProp4 = true;
     numberProp4 = 42;
     stringProp4 = "Hello";
@@ -99,7 +99,7 @@ class A {
     sendableClass4 = new SendableClass();
     noSendableClass4 = new NoSendableClass();
 
-    // Error, Field in sendable class must have type annotation (arkts-sendable-type-annotation)
+    // Error, Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)
     booleanProp5? = true;
     numberProp5? = 42;
     stringProp5? = "Hello";
@@ -114,7 +114,7 @@ class A {
     sendableClass5? = new SendableClass();
     noSendableClass5? = new NoSendableClass();
 
-    // Error, Field in sendable class must have type annotation (arkts-sendable-type-annotation)
+    // Error, Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)
     public optBooleanProp6 = true;
     public optNumberProp6 = 42;
     public optStringProp6 = "Hello";
@@ -129,7 +129,7 @@ class A {
     public optSendableClass6 = new SendableClass();
     public optNoSendableClass6 = new NoSendableClass();
 
-    // Error, Field in sendable class must have type annotation (arkts-sendable-type-annotation)
+    // Error, Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)
     readonly optBooleanProp7 = true;
     readonly optNumberProp7 = 42;
     readonly optStringProp7 = "Hello";
@@ -206,7 +206,7 @@ class A1 extends A {
     readonly optSendableClass3: SendableClass = new SendableClass();
     readonly optNoSendableClass3: NoSendableClass = new NoSendableClass();
 
-    // Error, Field in sendable class must have type annotation (arkts-sendable-type-annotation)
+    // Error, Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)
     booleanProp4 = true;
     numberProp4 = 42;
     stringProp4 = "Hello";
@@ -221,7 +221,7 @@ class A1 extends A {
     sendableClass4 = new SendableClass();
     noSendableClass4 = new NoSendableClass();
 
-    // Error, Field in sendable class must have type annotation (arkts-sendable-type-annotation)
+    // Error, Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)
     booleanProp5? = true;
     numberProp5? = 42;
     stringProp5? = "Hello";
@@ -236,7 +236,7 @@ class A1 extends A {
     sendableClass5? = new SendableClass();
     noSendableClass5? = new NoSendableClass();
 
-    // Error, Field in sendable class must have type annotation (arkts-sendable-type-annotation)
+    // Error, Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)
     public optBooleanProp6 = true;
     public optNumberProp6 = 42;
     public optStringProp6 = "Hello";
@@ -251,7 +251,7 @@ class A1 extends A {
     public optSendableClass6 = new SendableClass();
     public optNoSendableClass6 = new NoSendableClass();
 
-    // Error, Field in sendable class must have type annotation (arkts-sendable-type-annotation)
+    // Error, Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)
     readonly optBooleanProp7 = true;
     readonly optNumberProp7 = 42;
     readonly optStringProp7 = "Hello";
@@ -325,7 +325,7 @@ class A2 implements lang.ISendable {
     readonly optSendableClass3: SendableClass = new SendableClass();
     readonly optNoSendableClass3: NoSendableClass = new NoSendableClass();
 
-    // Error, Field in sendable class must have type annotation (arkts-sendable-type-annotation)
+    // Error, Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)
     booleanProp4 = true;
     numberProp4 = 42;
     stringProp4 = "Hello";
@@ -340,7 +340,7 @@ class A2 implements lang.ISendable {
     sendableClass4 = new SendableClass();
     noSendableClass4 = new NoSendableClass();
 
-    // Error, Field in sendable class must have type annotation (arkts-sendable-type-annotation)
+    // Error, Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)
     booleanProp5? = true;
     numberProp5? = 42;
     stringProp5? = "Hello";
@@ -355,7 +355,7 @@ class A2 implements lang.ISendable {
     sendableClass5? = new SendableClass();
     noSendableClass5? = new NoSendableClass();
 
-    // Error, Field in sendable class must have type annotation (arkts-sendable-type-annotation)
+    // Error, Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)
     public optBooleanProp6 = true;
     public optNumberProp6 = 42;
     public optStringProp6 = "Hello";
@@ -370,7 +370,7 @@ class A2 implements lang.ISendable {
     public optSendableClass6 = new SendableClass();
     public optNoSendableClass6 = new NoSendableClass();
 
-    // Error, Field in sendable class must have type annotation (arkts-sendable-type-annotation)
+    // Error, Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)
     readonly optBooleanProp7 = true;
     readonly optNumberProp7 = 42;
     readonly optStringProp7 = "Hello";

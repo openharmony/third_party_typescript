@@ -13156,7 +13156,7 @@ declare namespace ts {
                 NoTsReExportEts = 95,
                 NoNamespaceImportEtsToTs = 96,
                 NoSideEffectImportEtsToTs = 97,
-                SendableTypeAnnotation = 98,
+                SendableExplicitFieldType = 98,
                 SendableFunctionImportedVariables = 99,
                 SendableFunctionDecorator = 100,
                 SendableTypeAliasDecorator = 101,

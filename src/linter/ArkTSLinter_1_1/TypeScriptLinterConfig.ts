@@ -132,7 +132,7 @@ export class LinterConfig {
     LinterConfig.nodeDesc[FaultID.NoTsReExportEts] = 'No ts re-export ets';
     LinterConfig.nodeDesc[FaultID.NoNamespaceImportEtsToTs] = 'No namespace import ets to ts';
     LinterConfig.nodeDesc[FaultID.NoSideEffectImportEtsToTs] = 'No side effect import ets to ts';
-    LinterConfig.nodeDesc[FaultID.SendableTypeAnnotation] = 'Field in sendable class must have type annotation';
+    LinterConfig.nodeDesc[FaultID.SendableExplicitFieldType] = 'Field in sendable class must have type annotation';
   }
 
   /*

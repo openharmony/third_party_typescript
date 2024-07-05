@@ -864,49 +864,49 @@
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 88,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 89,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 90,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 91,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 92,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 93,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 94,
         "character": 5
@@ -920,28 +920,28 @@
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 95,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 96,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 97,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 98,
         "character": 5
@@ -955,63 +955,63 @@
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 99,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 100,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 103,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 104,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 105,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 106,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 107,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 108,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 109,
         "character": 5
@@ -1025,28 +1025,28 @@
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 110,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 111,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 112,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 113,
         "character": 5
@@ -1060,63 +1060,63 @@
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 114,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 115,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 118,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 119,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 120,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 121,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 122,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 123,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 124,
         "character": 5
@@ -1130,28 +1130,28 @@
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 125,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 126,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 127,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 128,
         "character": 5
@@ -1165,63 +1165,63 @@
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 129,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 130,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 133,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 134,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 135,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 136,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 137,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 138,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 139,
         "character": 5
@@ -1235,28 +1235,28 @@
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 140,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 141,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 142,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 143,
         "character": 5
@@ -1270,14 +1270,14 @@
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 144,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 145,
         "character": 5
@@ -1648,49 +1648,49 @@
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 210,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 211,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 212,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 213,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 214,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 215,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 216,
         "character": 5
@@ -1704,28 +1704,28 @@
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 217,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 218,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 219,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 220,
         "character": 5
@@ -1739,63 +1739,63 @@
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 221,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 222,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 225,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 226,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 227,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 228,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 229,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 230,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 231,
         "character": 5
@@ -1809,28 +1809,28 @@
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 232,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 233,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 234,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 235,
         "character": 5
@@ -1844,63 +1844,63 @@
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 236,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 237,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 240,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 241,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 242,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 243,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 244,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 245,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 246,
         "character": 5
@@ -1914,28 +1914,28 @@
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 247,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 248,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 249,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 250,
         "character": 5
@@ -1949,63 +1949,63 @@
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 251,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 252,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 255,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 256,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 257,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 258,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 259,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 260,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 261,
         "character": 5
@@ -2019,28 +2019,28 @@
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 262,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 263,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 264,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 265,
         "character": 5
@@ -2054,14 +2054,14 @@
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 266,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 267,
         "character": 5
@@ -2432,49 +2432,49 @@
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 329,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 330,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 331,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 332,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 333,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 334,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 335,
         "character": 5
@@ -2488,28 +2488,28 @@
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 336,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 337,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 338,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 339,
         "character": 5
@@ -2523,63 +2523,63 @@
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 340,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 341,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 344,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 345,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 346,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 347,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 348,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 349,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 350,
         "character": 5
@@ -2593,28 +2593,28 @@
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 351,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 352,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 353,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 354,
         "character": 5
@@ -2628,63 +2628,63 @@
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 355,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 356,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 359,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 360,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 361,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 362,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 363,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 364,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 365,
         "character": 5
@@ -2698,28 +2698,28 @@
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 366,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 367,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 368,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 369,
         "character": 5
@@ -2733,63 +2733,63 @@
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 370,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 371,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 374,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 375,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 376,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 377,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 378,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 379,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 380,
         "character": 5
@@ -2803,28 +2803,28 @@
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 381,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 382,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 383,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 384,
         "character": 5
@@ -2838,14 +2838,14 @@
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 385,
         "character": 5
       }
     },
     {
-      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-explicit-field-type)",
       "expectLineAndCharacter": {
         "line": 386,
         "character": 5
