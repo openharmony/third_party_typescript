@@ -17,7 +17,7 @@ export namespace ArkTSLinter_1_1 {
 export const cookBookMsg: string[] = [];
 export const cookBookTag: string[] = [];
 
-for (let i = 0; i <= 170; i++) {
+for (let i = 0; i <= 171; i++) {
   cookBookMsg[ i ] = "";
 }
 
@@ -191,5 +191,6 @@ cookBookTag[167] = 'In sdk ts files, "Sendable" class and "Sendable" interface c
 cookBookTag[168] = 'In ts files, entities from ets files can not be re-exported (arkts-no-ts-re-export-ets)';
 cookBookTag[169] = 'Namespace import is not allowed for importing from ets to ts file (arkts-no-namespace-import-in-ts-import-ets)';
 cookBookTag[170] = 'Side effect import is not allowed for importing from ets to ts file (artkts-no-side-effect-import-in-ts-import-ets)';
+cookBookTag[171] = 'Field in sendable class must have type annotation (arkts-sendable-type-annotation)';
 }
 }

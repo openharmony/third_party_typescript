@@ -157,6 +157,20 @@
       }
     },
     {
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "expectLineAndCharacter": {
+        "line": 52,
+        "character": 3
+      }
+    },
+    {
+      "messageText": "Field in sendable class must have type annotation (arkts-sendable-type-annotation)",
+      "expectLineAndCharacter": {
+        "line": 53,
+        "character": 3
+      }
+    },
+    {
       "messageText": "Properties in \"Sendable\" classes and interfaces must have a Sendable data type (arkts-sendable-prop-types)",
       "expectLineAndCharacter": {
         "line": 56,

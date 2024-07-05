@@ -9217,7 +9217,8 @@ declare namespace ts {
                 NoTsReExportEts = 95,
                 NoNamespaceImportEtsToTs = 96,
                 NoSideEffectImportEtsToTs = 97,
-                LAST_ID = 98
+                SendableTypeAnnotation = 98,
+                LAST_ID = 99
             }
             class FaultAttributes {
                 cookBookRef: number;

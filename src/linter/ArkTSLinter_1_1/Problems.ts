@@ -43,6 +43,7 @@ export enum FaultID {
   SendableCapturedVars, SendableClassDecorator, SendableObjectInitialization, SendableComputedPropName, SendableAsExpr,
   SharedNoSideEffectImport, SharedModuleExports, SharedModuleNoWildcardExport, NoTsImportEts,
   SendableTypeInheritance, SendableTypeExported, NoTsReExportEts, NoNamespaceImportEtsToTs, NoSideEffectImportEtsToTs,
+  SendableTypeAnnotation,
   LAST_ID, // this should always be last enum
 }
 
@@ -154,6 +155,7 @@ faultsAttrs[FaultID.SendableTypeExported] = new FaultAttributes(167);
 faultsAttrs[FaultID.NoTsReExportEts] = new FaultAttributes(168);
 faultsAttrs[FaultID.NoNamespaceImportEtsToTs] = new FaultAttributes(169);
 faultsAttrs[FaultID.NoSideEffectImportEtsToTs] = new FaultAttributes(170);
+faultsAttrs[FaultID.SendableTypeAnnotation] = new FaultAttributes(171);
 }
 }
 }

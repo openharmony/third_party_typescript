@@ -737,12 +737,13 @@ export class TypeScriptLinter {
   }
 
   private handleSendableClassProperty(node: ts.PropertyDeclaration): void {
-    const typeNode = node.type;
-    if (!typeNode) {
-      return;
-    }
     const classNode = node.parent;
     if (!ts.isClassDeclaration(classNode) || !Utils.hasSendableDecorator(classNode)) {
+      return;
+    }
+    const typeNode = node.type;
+    if (!typeNode) {
+      this.incrementCounters(node, FaultID.SendableTypeAnnotation);
       return;
     }
     Utils.getDecoratorsIfInSendableClass(node)?.forEach((decorator) => {
