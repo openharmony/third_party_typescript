@@ -45068,6 +45068,9 @@ namespace ts {
 
         function checkGrammarDecorators(node: Node): boolean {
             if (canHaveIllegalDecorators(node) && some(node.illegalDecorators) && !isArkTsDecorator(node, compilerOptions)) {
+                if (isSendableFunctionOrType(node)) {
+                    return false;
+                }
                 return grammarErrorOnFirstToken(node, Diagnostics.Decorators_are_not_valid_here);
             }
             if (!canHaveDecorators(node) || !hasDecorators(node) && !(isFunctionDeclaration(node) && !isArkTsDecorator(node, compilerOptions))) {

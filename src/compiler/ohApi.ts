@@ -799,4 +799,20 @@ namespace ts {
             getTextPosWithWriteLine
         };
     }
+
+    /* @internal */
+    export function isSendableFunctionOrType(node: Node, maybeNotOriginalNode: boolean = false): boolean {
+        if (!node || !(isFunctionDeclaration(node) || isTypeAliasDeclaration(node))) {
+            return false;
+        }
+        if (!isInEtsFile(node) && !(maybeNotOriginalNode && isInEtsFileWithOriginal(node))) {
+            return false;
+        }
+        const illegalDecorators = getIllegalDecorators(node);
+        if (!illegalDecorators || illegalDecorators.length !== 1) {
+            return false;
+        }
+        const nameExpr = illegalDecorators[0].expression;
+        return (isIdentifier(nameExpr) && nameExpr.escapedText.toString() === 'Sendable');
+    }
 }

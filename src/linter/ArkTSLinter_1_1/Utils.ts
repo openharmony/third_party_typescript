@@ -1190,7 +1190,7 @@ function validateField(type: ts.Type, prop: ts.PropertyAssignment): boolean {
 
   const propType = typeChecker.getTypeOfSymbolAtLocation(propSym, propSym.declarations[0]);
   const initExpr = unwrapParenthesized(prop.initializer);
-  const tsInitType = typeChecker.getTypeAtLocation(initExpr);
+  const rhsType = typeChecker.getTypeAtLocation(initExpr);
   if (ts.isObjectLiteralExpression(initExpr)) {
     if (!isObjectLiteralAssignable(propType, initExpr)) {
       return false;
@@ -1199,10 +1199,14 @@ function validateField(type: ts.Type, prop: ts.PropertyAssignment): boolean {
     // Only check for structural sub-typing.
     if (needToDeduceStructuralIdentity(
       propType,
-      tsInitType,
+      rhsType,
       initExpr,
-      needStrictMatchType(propType, tsInitType)
+      needStrictMatchType(propType, rhsType)
     )) {
+      return false; 
+    }
+
+    if (isWrongSendableFunctionAssignment(propType, rhsType)) {
       return false;
     }
   }
@@ -1922,6 +1926,9 @@ export function isSendableType(type: ts.Type): boolean {
     ts.TypeFlags.TypeParameter)) !== 0) {
     return true;
   }
+  if (isSendableTypeAlias(type)) {
+    return true;
+  }
 
   return isSendableClassOrInterface(type);
 }
@@ -1998,15 +2005,15 @@ export function isSendableUnionType(type: ts.UnionType): boolean {
   });
 }
 
-export function hasSendableDecorator(decl: ts.ClassDeclaration): boolean {
-  const decorators = ts.getDecorators(decl);
+export function hasSendableDecorator(decl: ts.ClassDeclaration | ts.FunctionDeclaration | ts.TypeAliasDeclaration): boolean {
+  const decorators = ts.getAllDecorators(decl);
   return decorators !== undefined && decorators.some((x) => {
     return getDecoratorName(x) === SENDABLE_DECORATOR;
   });
 }
 
-export function getNonSendableDecorators(decl: ts.ClassDeclaration): ts.Decorator[] | undefined {
-  const decorators = ts.getDecorators(decl);
+export function getNonSendableDecorators(decl: ts.ClassDeclaration | ts.FunctionDeclaration | ts.TypeAliasDeclaration): ts.Decorator[] | undefined {
+  const decorators = ts.getAllDecorators(decl);
   return decorators?.filter((x) => {
     return getDecoratorName(x) !== SENDABLE_DECORATOR;
   });
@@ -2114,6 +2121,112 @@ export function isInImportWhiteList(resolvedModule: ResolvedModuleFull): boolean
   }
   return true;
 }
+
+// If it is an overloaded function, all declarations for that function are found
+export function hasSendableDecoratorFunctionOverload(decl: ts.FunctionDeclaration): boolean {
+  const decorators = getFunctionOverloadDecorators(decl);
+  return !!decorators?.some((x) => {
+    return getDecoratorName(x) === SENDABLE_DECORATOR;
+  });
+}
+
+function getFunctionOverloadDecorators(funcDecl: ts.FunctionDeclaration): readonly ts.Decorator[] | undefined {
+  const decls = funcDecl.symbol.getDeclarations();
+  if (!decls?.length) {
+    return undefined;
+  }
+  let result: ts.Decorator[] = [];
+  decls.forEach((decl) => {
+    if (!ts.isFunctionDeclaration(decl)) {
+      return;
+    }
+    const decorators = ts.getAllDecorators(decl);
+    if (decorators) {
+      result = result.concat(decorators);
+    }
+  });
+  return result.length ? result : undefined;
+}
+
+export function isSendableFunction(type: ts.Type): boolean {
+  const callSigns = type.getCallSignatures();
+  if (!callSigns?.length) {
+    return false;
+  }
+  const decl = callSigns[0].declaration;
+  if (!decl || !ts.isFunctionDeclaration(decl)) {
+    return false;
+  }
+  return hasSendableDecoratorFunctionOverload(decl);
+}
+
+
+export function isSendableTypeAlias(type: ts.Type): boolean {
+  const decl = getTypsAliasOriginalDecl(type);
+  return !!decl && hasSendableDecorator(decl);
+}
+
+export function hasSendableTypeAlias(type: ts.Type) :boolean {
+  if (type.isUnion()) {
+    return type.types.some((compType) => {
+      return hasSendableTypeAlias(compType);
+    })
+  };
+  return isSendableTypeAlias(type);
+}
+
+export function isNonSendableFunctionTypeAlias(type: ts.Type): boolean {
+  const decl = getTypsAliasOriginalDecl(type);
+  return !!decl && ts.isFunctionTypeNode(decl.type) && !hasSendableDecorator(decl);
+}
+
+// If the alias refers to another alias, the search continues
+function getTypsAliasOriginalDecl(type: ts.Type): ts.TypeAliasDeclaration | undefined {
+  if (!type.aliasSymbol) {
+    return undefined;
+  }
+  const decl = getDeclaration(type.aliasSymbol);
+  if (!decl || !ts.isTypeAliasDeclaration(decl)) {
+    return undefined;
+  }
+  if (ts.isTypeReferenceNode(decl.type)) {
+    const targetType = typeChecker.getTypeAtLocation(decl.type.typeName);
+    if (targetType.aliasSymbol && (targetType.aliasSymbol.getFlags() & ts.SymbolFlags.TypeAlias)) {
+      return getTypsAliasOriginalDecl(targetType);
+    }
+  }
+  return decl;
+}
+
+// not allow 'lhsType' contains 'sendable typeAlias' && 'rhsType' contains 'non-sendable function/non-sendable function typeAlias'
+export function isWrongSendableFunctionAssignment (
+  lhsType: ts.Type,
+  rhsType: ts.Type
+): boolean {
+  lhsType = getNonNullableType(lhsType);
+  rhsType = getNonNullableType(rhsType);
+  if (!hasSendableTypeAlias(lhsType)) {
+    return false;
+  }
+
+  if (rhsType.isUnion()) {
+    return rhsType.types.some((compType) => {
+      return isInvalidSendableFunctionAssignmentType(compType);
+    });
+  } 
+  return isInvalidSendableFunctionAssignmentType(rhsType);
+}
+
+function isInvalidSendableFunctionAssignmentType(type: ts.Type): boolean {
+  if (type.aliasSymbol) {
+    return isNonSendableFunctionTypeAlias(type);
+  }
+  if (isFunctionalType(type)) {
+    return !isSendableFunction(type);
+  }
+  return false;
+}
+
 }
 }
 }

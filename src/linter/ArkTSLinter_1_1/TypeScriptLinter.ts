@@ -704,8 +704,11 @@ export class TypeScriptLinter {
     if (!!exprSym && Utils.isSymbolAPI(exprSym) && !Utils.ALLOWED_STD_SYMBOL_API.includes(exprSym.getName())) {
       this.incrementCounters(propertyAccessNode, FaultID.SymbolType);
     }
-    if (!!baseExprSym  && Utils.symbolHasEsObjectType(baseExprSym)) {
+    if (!!baseExprSym && Utils.symbolHasEsObjectType(baseExprSym)) {
       this.incrementCounters(propertyAccessNode, FaultID.EsObjectType);
+    }
+    if (Utils.isSendableFunction(baseExprType) || Utils.hasSendableTypeAlias(baseExprType)) {
+      this.incrementCounters(propertyAccessNode, FaultID.SendableFunctionProperty);
     }
   }
 
@@ -945,6 +948,15 @@ export class TypeScriptLinter {
     }
     if (tsFunctionDeclaration.asteriskToken) {
       this.incrementCounters(node, FaultID.GeneratorFunction);
+    }
+    if (Utils.hasSendableDecoratorFunctionOverload(tsFunctionDeclaration)) {
+      Utils.getNonSendableDecorators(tsFunctionDeclaration)?.forEach((decorator) => {
+        this.incrementCounters(decorator, FaultID.SendableFunctionDecorator);
+      });
+      if (!Utils.hasSendableDecorator(tsFunctionDeclaration)) {
+        this.incrementCounters(tsFunctionDeclaration, FaultID.SendableFunctionOverloadDecorator);
+      }
+      this.scanCapturedVarsInSendableScope(tsFunctionDeclaration, tsFunctionDeclaration, FaultID.SendableFunctionImportedVariables);
     }
   }
 
@@ -1271,7 +1283,7 @@ export class TypeScriptLinter {
 
     if (isSendableClass) {
       tsClassDecl.members.forEach((classMember) => {
-        this.scanCapturedVarsInSendableScope(classMember, tsClassDecl);
+        this.scanCapturedVarsInSendableScope(classMember, tsClassDecl, FaultID.SendableCapturedVars);
       });
     }
 
@@ -1280,7 +1292,7 @@ export class TypeScriptLinter {
     }
   }
 
-  private scanCapturedVarsInSendableScope(startNode: ts.Node, scope: ts.Node): void {
+  private scanCapturedVarsInSendableScope(startNode: ts.Node, scope: ts.Node, faultId: FaultID): void {
     const callback = (node: ts.Node): void => {
       // Namespace import will introduce closure in the es2abc compiler stage
       if (!ts.isIdentifier(node) || this.checkNamespaceImportVar(node)) {
@@ -1292,17 +1304,25 @@ export class TypeScriptLinter {
       if (ts.isPropertyAccessExpression(parent) && parent.name === node) {
         return;
       }
+      // When overloading function, will misreport
+      if (ts.isFunctionDeclaration(startNode) && startNode.name === node) {
+        return;
+      }
 
-      this.checkLocalDecl(node, scope);
+      this.checkLocalDecl(node, scope, faultId);
     };
     // Type nodes should not checked because no closure will be introduced
     const stopCondition = (node: ts.Node): boolean => {
+      // already existed 'arkts-sendable-class-decoratos' error
+      if (ts.isDecorator(node) && node.parent === startNode) {
+        return true;
+      }
       return ts.isTypeReferenceNode(node);
     };
     this.forEachNodeInSubtree(startNode, callback, stopCondition);
   }
 
-  private checkLocalDecl(node: ts.Identifier, scope: ts.Node): void {
+  private checkLocalDecl(node: ts.Identifier, scope: ts.Node, faultId: FaultID): void {
     const trueSym = Utils.trueSymbolAtLocation(node);
     // Sendable decorator should be used in method of Sendable classes
     if (trueSym === undefined) {
@@ -1316,11 +1336,16 @@ export class TypeScriptLinter {
 
     const declarations = trueSym.getDeclarations();
     if (declarations?.length) {
-      this.checkLocalDeclWithSendableClosure(node, scope, declarations[0]);
+      this.checkLocalDeclWithSendableClosure(node, scope, declarations[0], faultId);
     }
   }
 
-  private checkLocalDeclWithSendableClosure(node: ts.Identifier, scope: ts.Node, decl: ts.Declaration): void {
+  private checkLocalDeclWithSendableClosure(
+    node: ts.Identifier,
+    scope: ts.Node,
+    decl: ts.Declaration,
+    faultId: FaultID
+  ): void {
     const declPosition = decl.getStart();
     if (decl.getSourceFile().fileName !== node.getSourceFile().fileName ||
         declPosition !== undefined && declPosition >= scope.getStart() && declPosition < scope.getEnd()) {
@@ -1339,15 +1364,21 @@ export class TypeScriptLinter {
     if (ts.isVariableDeclaration(decl) || ts.isFunctionDeclaration(decl) || ts.isClassDeclaration(decl) ||
         ts.isInterfaceDeclaration(decl) || ts.isEnumDeclaration(decl) || ts.isModuleDeclaration(decl) ||
         ts.isParameter(decl)) {
-      this.incrementCounters(node, FaultID.SendableCapturedVars);
+      this.incrementCounters(node, faultId);
     }
   }
 
   private checkIsTopClosure(decl: ts.Declaration): boolean {
-    return (
-      ts.isSourceFile(decl.parent) && ts.isClassDeclaration(decl) &&
-      Utils.isSendableClassOrInterface(TypeScriptLinter.tsTypeChecker.getTypeAtLocation(decl))
-    );
+    if (!ts.isSourceFile(decl.parent)) {
+      return false;
+    }
+    if (ts.isClassDeclaration(decl) && Utils.isSendableClassOrInterface(TypeScriptLinter.tsTypeChecker.getTypeAtLocation(decl))) {
+      return true;
+    }
+    if (ts.isFunctionDeclaration(decl) && Utils.hasSendableDecoratorFunctionOverload(decl)) {
+      return true;
+    }
+    return false;
   }
 
   private checkNamespaceImportVar(node: ts.Node): boolean {
@@ -1489,6 +1520,14 @@ export class TypeScriptLinter {
   private handleTypeAliasDeclaration(node: Node): void {
     const tsTypeAlias = node as TypeAliasDeclaration;
     this.countDeclarationsWithDuplicateName(tsTypeAlias.name, tsTypeAlias);
+    if (Utils.hasSendableDecorator(tsTypeAlias)) {
+      Utils.getNonSendableDecorators(tsTypeAlias)?.forEach((decorator) => {
+        this.incrementCounters(decorator, FaultID.SendableTypeAliasDecorator);
+      });
+      if (!ts.isFunctionTypeNode(tsTypeAlias.type)) {
+        this.incrementCounters(tsTypeAlias.type, FaultID.SendableTypeAliasDeclaration);
+      }
+    }
   }
 
   private handleImportClause(node: Node): void {
@@ -2040,6 +2079,11 @@ export class TypeScriptLinter {
     ) {
         this.incrementCounters(tsAsExpr, FaultID.SendableAsExpr);
     }
+    if (
+      Utils.isWrongSendableFunctionAssignment(targetType, exprType)
+    ) {
+      this.incrementCounters(tsAsExpr, FaultID.SendableFunctionAsExpr);
+    }
   }
 
   private handleTypeReference(node: Node): void {
@@ -2441,12 +2485,16 @@ export class TypeScriptLinter {
     field: ts.Node,
     lhsType: ts.Type,
     rhsExpr: ts.Expression,
-    isOnlyCheckStrict: boolean = false
+    isMissStructural: boolean = false
   ): void {
     const rhsType = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(rhsExpr);
+    // check that 'sendable typeAlias' is assigned correctly
+    if (Utils.isWrongSendableFunctionAssignment(lhsType, rhsType)) {
+      this.incrementCounters(field, FaultID.SendableFunctionAssignment);
+    }
     const isStrict = Utils.needStrictMatchType(lhsType, rhsType);
-    // 'isOnlyCheckStrict' means that this assignment scenario was previously omitted, so only strict matches are checked now
-    if (isOnlyCheckStrict && !isStrict) {
+    // 'isMissStructural' means that this assignment scenario was previously omitted, so only strict matches are checked now
+    if (isMissStructural && !isStrict) {
       return;
     }
     if (Utils.needToDeduceStructuralIdentity(lhsType, rhsType, rhsExpr, isStrict)) {

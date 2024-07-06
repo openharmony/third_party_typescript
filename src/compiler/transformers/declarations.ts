@@ -1240,6 +1240,10 @@ namespace ts {
                         visitNodes(input.typeParameters, visitDeclarationSubtree, isTypeParameterDeclaration),
                         visitNode(input.type, visitDeclarationSubtree, isTypeNode)
                     ));
+                    // Default factory will set illegalDecorators in updateTypeAliasDeclaration, add extra set here to avoid abnormal case.
+                    if (isSendableFunctionOrType(input)) {
+                        (clean as Mutable<TypeAliasDeclaration>).illegalDecorators = input.illegalDecorators;
+                    }
                     needsDeclare = previousNeedsDeclare;
                     return clean;
                 }
@@ -1265,7 +1269,10 @@ namespace ts {
                         ensureType(input, input.type),
                         /*body*/ undefined
                     ));
-                    if (isInEtsFile(input)) {
+                    if (isSendableFunctionOrType(input)) {
+                        (clean as Mutable<FunctionDeclaration>).illegalDecorators = input.illegalDecorators;
+                    }
+                    else if (isInEtsFile(input)) {
                         const reservedDecorators = getEffectiveDecorators(input.illegalDecorators, host);
                         (clean as Mutable<FunctionDeclaration>).illegalDecorators = factory.createNodeArray(reservedDecorators);
                     }

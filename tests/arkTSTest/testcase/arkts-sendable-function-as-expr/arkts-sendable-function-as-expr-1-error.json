@@ -1,0 +1,26 @@
+{
+  "arktsVersion_1_0": [],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Casting \"Non-sendable\" function to \"Sendable\" typeAlias is not allowed (arkts-sendable-function-as-expr)",
+      "expectLineAndCharacter": {
+        "line": 13,
+        "character": 17
+      }
+    },
+    {
+      "messageText": "Casting \"Non-sendable\" function to \"Sendable\" typeAlias is not allowed (arkts-sendable-function-as-expr)",
+      "expectLineAndCharacter": {
+        "line": 14,
+        "character": 17
+      }
+    },
+    {
+      "messageText": "Casting \"Non-sendable\" function to \"Sendable\" typeAlias is not allowed (arkts-sendable-function-as-expr)",
+      "expectLineAndCharacter": {
+        "line": 15,
+        "character": 17
+      }
+    }
+  ]
+}

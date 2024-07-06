@@ -3381,6 +3381,9 @@ namespace ts {
         }
 
         function emitTypeAliasDeclaration(node: TypeAliasDeclaration) {
+            if (isSendableFunctionOrType(node, /*maybeNotOriginalNode*/ true)) {
+                emitDecorators(node, node.illegalDecorators);
+            }
             emitModifiers(node, node.modifiers);
             writeKeyword("type");
             writeSpace();

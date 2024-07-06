@@ -13157,7 +13157,15 @@ declare namespace ts {
                 NoNamespaceImportEtsToTs = 96,
                 NoSideEffectImportEtsToTs = 97,
                 SendableTypeAnnotation = 98,
-                LAST_ID = 99
+                SendableFunctionImportedVariables = 99,
+                SendableFunctionDecorator = 100,
+                SendableTypeAliasDecorator = 101,
+                SendableTypeAliasDeclaration = 102,
+                SendableFunctionAssignment = 103,
+                SendableFunctionOverloadDecorator = 104,
+                SendableFunctionProperty = 105,
+                SendableFunctionAsExpr = 106,
+                LAST_ID = 107
             }
             class FaultAttributes {
                 cookBookRef: number;
@@ -13352,8 +13360,8 @@ declare namespace ts {
             function typeContainsNonSendableClassOrInterface(type: ts.Type): boolean;
             function isConstEnum(sym: ts.Symbol | undefined): boolean;
             function isSendableUnionType(type: ts.UnionType): boolean;
-            function hasSendableDecorator(decl: ts.ClassDeclaration): boolean;
-            function getNonSendableDecorators(decl: ts.ClassDeclaration): ts.Decorator[] | undefined;
+            function hasSendableDecorator(decl: ts.ClassDeclaration | ts.FunctionDeclaration | ts.TypeAliasDeclaration): boolean;
+            function getNonSendableDecorators(decl: ts.ClassDeclaration | ts.FunctionDeclaration | ts.TypeAliasDeclaration): ts.Decorator[] | undefined;
             function getDecoratorsIfInSendableClass(declaration: ts.HasDecorators): readonly ts.Decorator[] | undefined;
             function isISendableInterface(type: ts.Type): boolean;
             function isSharedModule(sourceFile: ts.SourceFile): boolean;
@@ -13361,6 +13369,12 @@ declare namespace ts {
             function isShareableEntity(node: ts.Node): boolean;
             function isSendableClassOrInterfaceEntity(node: ts.Node): boolean;
             function isInImportWhiteList(resolvedModule: ResolvedModuleFull): boolean;
+            function hasSendableDecoratorFunctionOverload(decl: ts.FunctionDeclaration): boolean;
+            function isSendableFunction(type: ts.Type): boolean;
+            function isSendableTypeAlias(type: ts.Type): boolean;
+            function hasSendableTypeAlias(type: ts.Type): boolean;
+            function isNonSendableFunctionTypeAlias(type: ts.Type): boolean;
+            function isWrongSendableFunctionAssignment(lhsType: ts.Type, rhsType: ts.Type): boolean;
         }
     }
 }
