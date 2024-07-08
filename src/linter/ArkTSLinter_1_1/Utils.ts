@@ -1371,6 +1371,11 @@ export function isSymbolIterator(symbol: ts.Symbol): boolean {
   return (parName === 'Symbol' || parName === 'SymbolConstructor') && name === 'iterator'
 }
 
+export function isSymbolIteratorExpression(expr: ts.Expression): boolean {
+  const symbol = trueSymbolAtLocation(expr);
+  return !!symbol && isSymbolIterator(symbol);
+}
+
 export function isDefaultImport(importSpec: ImportSpecifier): boolean {
   return importSpec?.propertyName?.text === "default";
 }
@@ -1809,8 +1814,7 @@ export function isEnumStringLiteral(expr: ts.Expression): boolean {
 export function isValidComputedPropertyName(computedProperty: ComputedPropertyName, isRecordObjectInitializer = false): boolean {
   const expr = computedProperty.expression;
   if (!isRecordObjectInitializer) {
-    const symbol = trueSymbolAtLocation(expr);
-    if (!!symbol && isSymbolIterator(symbol)) {
+    if (isSymbolIteratorExpression(expr)) {
       return true;
     }
   }
@@ -1846,22 +1850,25 @@ export function isArkTSCollectionsArrayLikeType(type: ts.Type): boolean {
 }
 
 function isArkTSCollectionsArrayLikeDeclaration(decl: ts.Declaration): boolean {
-  if (!ts.isClassDeclaration(decl) && !ts.isInterfaceDeclaration(decl) || !decl.name) {
+  if (!isArkTSCollectionsClassOrInterfaceDeclaration(decl)) {
     return false;
   }
-
   if (!ts.hasIndexSignature(typeChecker.getTypeAtLocation(decl))) {
     return false;
   } 
+  return true;
+}
 
+export function isArkTSCollectionsClassOrInterfaceDeclaration(decl: ts.Node): boolean {
+  if (!ts.isClassDeclaration(decl) && !ts.isInterfaceDeclaration(decl) || !decl.name) {
+    return false;
+  }
   if (!ts.isModuleBlock(decl.parent) || decl.parent.parent.name.text !== COLLECTIONS_NAMESPACE) {
     return false;
   }
-
   if (getBaseFileName(decl.getSourceFile().fileName).toLowerCase() !== ARKTS_COLLECTIONS_D_ETS) {
     return false;
   }
-
   return true;
 }
 
