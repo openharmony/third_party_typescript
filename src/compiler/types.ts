@@ -188,6 +188,7 @@ namespace ts {
         StringKeyword,
         SymbolKeyword,
         TypeKeyword,
+        LazyKeyword,
         UndefinedKeyword,
         UniqueKeyword,
         UnknownKeyword,
@@ -627,6 +628,7 @@ namespace ts {
         | SyntaxKind.TrueKeyword
         | SyntaxKind.TryKeyword
         | SyntaxKind.TypeKeyword
+        | SyntaxKind.LazyKeyword
         | SyntaxKind.TypeOfKeyword
         | SyntaxKind.UndefinedKeyword
         | SyntaxKind.UniqueKeyword
@@ -3494,6 +3496,9 @@ namespace ts {
         readonly isTypeOnly: boolean;
         readonly name?: Identifier; // Default binding
         readonly namedBindings?: NamedImportBindings;
+
+        // Used for import lazy feature
+        readonly isLazy?: boolean;
     }
 
     export type AssertionKey = Identifier | StringLiteral;

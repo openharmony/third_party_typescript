@@ -4233,6 +4233,8 @@ namespace ts {
                 node.transformFlags |= TransformFlags.ContainsTypeScript;
             }
             node.transformFlags &= ~TransformFlags.ContainsPossibleTopLevelAwait; // always parsed in an Await context
+
+            node.isLazy = undefined;
             return node;
         }
 
@@ -4241,8 +4243,15 @@ namespace ts {
             return node.isTypeOnly !== isTypeOnly
                 || node.name !== name
                 || node.namedBindings !== namedBindings
-                ? update(createImportClause(isTypeOnly, name, namedBindings), node)
+                ? finishUpdateImportClause(createImportClause(isTypeOnly, name, namedBindings), node)
                 : node;
+        }
+
+        function finishUpdateImportClause(updated: Mutable<ImportClause>, original: ImportClause) {
+            if (updated !== original) {
+                updated.isLazy = original.isLazy;
+            }
+            return update(updated, original);
         }
 
         // @api

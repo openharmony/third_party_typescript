@@ -151,6 +151,7 @@ namespace ts {
         true: SyntaxKind.TrueKeyword,
         try: SyntaxKind.TryKeyword,
         type: SyntaxKind.TypeKeyword,
+        lazy: SyntaxKind.LazyKeyword,
         typeof: SyntaxKind.TypeOfKeyword,
         undefined: SyntaxKind.UndefinedKeyword,
         unique: SyntaxKind.UniqueKeyword,
