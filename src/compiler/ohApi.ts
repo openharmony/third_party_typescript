@@ -108,8 +108,9 @@ namespace ts {
     }
 
     export function isEtsFunctionDecorators(name: string | undefined, options: CompilerOptions): boolean {
-        return (name === options.ets?.render?.decorator || name === options.ets?.styles?.decorator ||
-            (options.ets?.extend?.decorator?.includes(name as string) ?? false));
+        const renderDecorators: string[] | undefined = options.ets?.render?.decorator;
+        return ((renderDecorators?.length && name && renderDecorators.includes(name)) ||
+            name === options.ets?.styles?.decorator || (options.ets?.extend?.decorator?.includes(name as string) ?? false));
     }
 
     export function isOhpm(packageManagerType: string | undefined): boolean {
@@ -228,12 +229,16 @@ namespace ts {
     /* @internal */
     export function hasEtsBuilderDecoratorNames(decorators: NodeArray<Decorator> | readonly Decorator[] | undefined, options: CompilerOptions): boolean {
         const names: string[] = [];
+        const renderDecorators: string[] | undefined = options.ets?.render?.decorator;
         if (!decorators || !decorators.length) {
-        return false;
+            return false;
+        }
+        if (!(renderDecorators && renderDecorators.length)) {
+            return false;
         }
         decorators.forEach(decorator => {
             const nameExpr = decorator.expression;
-            if (isIdentifier(nameExpr) && nameExpr.escapedText.toString() === options.ets?.render?.decorator) {
+            if (isIdentifier(nameExpr) && renderDecorators.includes(nameExpr.escapedText.toString())) {
                 names.push(nameExpr.escapedText.toString());
             }
         });
@@ -257,14 +262,18 @@ namespace ts {
 
     /* @internal */
     export function isTokenInsideBuilder(decorators: NodeArray<Decorator> | readonly Decorator[] | undefined, compilerOptions: CompilerOptions): boolean {
-        const renderDecorator = compilerOptions.ets?.render?.decorator ?? "Builder";
+        const renderDecorators = compilerOptions.ets?.render?.decorator ?? ["Builder", "LocalBuilder"];
 
         if (!decorators) {
             return false;
         }
 
+        if (!(renderDecorators && renderDecorators.length)) {
+            return false;
+        }
+
         for (const decorator of decorators) {
-            if (decorator.expression.kind === SyntaxKind.Identifier && (<Identifier>(decorator.expression)).escapedText === renderDecorator) {
+            if (isIdentifier(decorator.expression) && renderDecorators.includes((<Identifier>(decorator.expression)).escapedText.toString())) {
                 return true;
             }
         }

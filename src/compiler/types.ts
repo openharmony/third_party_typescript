@@ -6761,7 +6761,7 @@ namespace ts {
     }
 
     export interface EtsOptions {
-        render: { method: string[]; decorator: string };
+        render: { method: string[]; decorator: string[] };
         components: string[];
         libs: string[];
         extend: {

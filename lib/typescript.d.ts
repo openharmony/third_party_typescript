@@ -3177,7 +3177,7 @@ declare namespace ts {
     export interface EtsOptions {
         render: {
             method: string[];
-            decorator: string;
+            decorator: string[];
         };
         components: string[];
         libs: string[];

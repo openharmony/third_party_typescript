@@ -1640,7 +1640,7 @@ declare namespace ts.server.protocol {
     interface EtsOptions {
         render: {
             method: string[];
-            decorator: string;
+            decorator: string[];
         };
         components: string[];
         libs: string[];
