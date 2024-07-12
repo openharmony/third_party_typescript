@@ -8,6 +8,6 @@ function stf<T>(p:T):T {
   return p;
 } 
 @Sendable 
-@Other  // ERROR
+@Other // ERROR
 function sf2():void {
 }

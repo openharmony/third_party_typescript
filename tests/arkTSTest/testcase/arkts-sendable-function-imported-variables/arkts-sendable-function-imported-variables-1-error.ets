@@ -6,7 +6,7 @@ function nf():void {}
 @Sendable 
 type Sft = () => void;
 type Nft = () => void;
-function LocalDecorator() {};
+function localDecorator() {};
 
 
 @Sendable 
@@ -22,20 +22,20 @@ class SendableClassClosure {
     const a4:Nc = new Nc(); // ERROR
   }
 
-  @LocalDecorator // ERROR
+  @localDecorator // ERROR
   handle() {}
 }
 
 @Sendable 
 @nf
-function SendableFunctionClosure() {
+function sendableFunctionClosure() {
   const a1:Sft = sf; // OK
   const a2:Nft = nf; // ERROR
   const a3:Sc = new Sc(); // OK
   const a4:Nc = new Nc(); // ERROR
 }
 
-namespace ns {
+namespace Ns {
   @Sendable
   function sf():void;
   @Sendable

@@ -490,7 +490,15 @@ export function isTypedArray(tsType: ts.Type): boolean {
     return false;
   }
   const name = typeChecker.getFullyQualifiedName(symbol);
-  return isGlobalSymbol(symbol) && TYPED_ARRAYS.includes(name);
+  if(isGlobalSymbol(symbol) && TYPED_ARRAYS.includes(name)) {
+    return true;
+  }
+  const decl = getDeclaration(symbol);
+  return (
+    !!decl &&
+    isArkTSCollectionsClassOrInterfaceDeclaration(decl) &&
+    TYPED_ARRAYS.includes(symbol.getName())
+  );
 }
 
 export function isArray(tsType: ts.Type): boolean {
@@ -1936,6 +1944,9 @@ export function isSendableType(type: ts.Type): boolean {
   if (isSendableTypeAlias(type)) {
     return true;
   }
+  if (isSendableFunction(type)) {
+    return true;
+  }
 
   return isSendableClassOrInterface(type);
 }
@@ -2177,7 +2188,7 @@ export function hasSendableTypeAlias(type: ts.Type) :boolean {
   if (type.isUnion()) {
     return type.types.some((compType) => {
       return hasSendableTypeAlias(compType);
-    })
+    });
   };
   return isSendableTypeAlias(type);
 }
@@ -2206,7 +2217,7 @@ function getTypsAliasOriginalDecl(type: ts.Type): ts.TypeAliasDeclaration | unde
 }
 
 // not allow 'lhsType' contains 'sendable typeAlias' && 'rhsType' contains 'non-sendable function/non-sendable function typeAlias'
-export function isWrongSendableFunctionAssignment (
+export function isWrongSendableFunctionAssignment(
   lhsType: ts.Type,
   rhsType: ts.Type
 ): boolean {
