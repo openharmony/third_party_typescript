@@ -16,7 +16,7 @@ function sf4():void {}
 function sf5():void;
 
 @Sendable 
-@Other  // ERROR
+@Other // ERROR
 function sf5():void;
 
 @Sendable 

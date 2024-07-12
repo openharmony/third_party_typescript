@@ -2425,6 +2425,7 @@ export class TypeScriptLinter {
     switch (parentNode.kind) {
       case ts.SyntaxKind.EnumDeclaration:
       case ts.SyntaxKind.InterfaceDeclaration:
+      case ts.SyntaxKind.FunctionDeclaration:
       case ts.SyntaxKind.ClassDeclaration:
         if (!Utils.isShareableType(TypeScriptLinter.tsTypeChecker.getTypeAtLocation(parentNode))) {
           this.incrementCounters((parentNode as ts.NamedDeclaration).name ?? parentNode, FaultID.SharedModuleExports);

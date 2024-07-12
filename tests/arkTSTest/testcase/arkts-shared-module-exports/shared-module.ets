@@ -49,3 +49,12 @@ export {ns} // error, ns is not sendable type
 
 function fun: boolean() {}
 export {fun}
+
+@Sendable
+export function sf():void {
+}
+
+@Sendable
+function sf2():void {
+}
+export {sf2};
