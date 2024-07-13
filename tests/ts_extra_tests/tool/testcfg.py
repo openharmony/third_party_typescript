@@ -63,6 +63,35 @@ class TestCase:
         self.abc_file_path = ""
         self.abc_file_path_temp = ""
 
+    def check_declaration(self):
+        if self.declaration == {}:
+            self.detail_result = "parse test case declaration failed, maybe bad format."
+            return False
+        if 'error' in self.declaration:
+            if self.declaration['error'] is None or 'code' not in self.declaration['error'] and 'type' not in \
+                    self.declaration['error']:
+                self.detail_result = "neither error code nor error type are defined in negative case."
+                return False
+        return True
+
+    # create abc files
+    def create_abc(self, filename):
+        process = subprocess.Popen(self.__get_es2abc_cmd(filename), stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                                   stderr=subprocess.PIPE)
+        out, err = process.communicate(timeout=5000)
+        return_code = process.returncode
+        if return_code != 0:
+            err_msg, line = get_error_message(
+                out.decode("utf-8", errors="ignore") + err.decode("utf-8", errors="ignore"), filename)
+            self.detail_result = err_msg
+            self.err_line = line
+            self.fail = True
+            return
+        if "TESTCASE SUCCESS" not in out.decode("utf-8", errors="ignore"):
+            self.detail_result = "check stdout failed!"
+            self.fail = True
+            return
+
     def execute(self, ark_runtime=False):
         if not self.is_test_case:
             return
@@ -76,6 +105,31 @@ class TestCase:
         else:
             self.__tsc_test()
 
+    def execute_arkguard(self, input_file_path):
+        arkguard_root_dir = os.path.join("../../../../", "arkcompiler/ets_frontend/arkguard")
+        arkgurad_entry_path = os.path.join(arkguard_root_dir, "lib/cli/SecHarmony.js")
+        config_path = os.path.join(arkguard_root_dir, "test/compilerTestConfig.json")
+        arkguard_cmd = [
+            'node',
+            '--no-warnings',
+            arkgurad_entry_path,
+            input_file_path,
+            '--config-path',
+            config_path,
+            '--inplace'
+        ]
+
+        process = subprocess.Popen(arkguard_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        out, err = process.communicate()
+        if err:
+            print("arkguard error: ", err)
+        process.wait()
+
+    def experimental_decorators(self):
+        if 'experimentalDecorators' in self.declaration:
+            return True
+        return False
+
     def is_negative(self):
         if 'error' in self.declaration:
             return True
@@ -83,11 +137,6 @@ class TestCase:
 
     def is_current(self):
         if 'isCurrent' in self.declaration:
-            return True
-        return False
-
-    def experimental_decorators(self):
-        if 'experimentalDecorators' in self.declaration:
             return True
         return False
 
@@ -105,17 +154,6 @@ class TestCase:
         if 'jsx' in self.declaration:
             return True
         return False
-
-    def check_declaration(self):
-        if self.declaration == {}:
-            self.detail_result = "parse test case declaration failed, maybe bad format."
-            return False
-        if 'error' in self.declaration:
-            if self.declaration['error'] is None or 'code' not in self.declaration['error'] and 'type' not in \
-                    self.declaration['error']:
-                self.detail_result = "neither error code nor error type are defined in negative case."
-                return False
-        return True
 
     def __error_code(self):
         if 'code' in self.declaration['error']:
@@ -173,24 +211,6 @@ class TestCase:
         else:
             cmd.extend(['--module', '--output', abc_file_path, file_path])
         return cmd
-
-    # create abc files
-    def create_abc(self, filename):
-        process = subprocess.Popen(self.__get_es2abc_cmd(filename), stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                                   stderr=subprocess.PIPE)
-        out, err = process.communicate(timeout=5000)
-        return_code = process.returncode
-        if return_code != 0:
-            err_msg, line = get_error_message(
-                out.decode("utf-8", errors="ignore") + err.decode("utf-8", errors="ignore"), filename)
-            self.detail_result = err_msg
-            self.err_line = line
-            self.fail = True
-            return
-        if "TESTCASE SUCCESS" not in out.decode("utf-8", errors="ignore"):
-            self.detail_result = "check stdout failed!"
-            self.fail = True
-            return
 
     # get es2abc file commands
     def _get_ark_js_cmd(self):
@@ -253,27 +273,6 @@ class TestCase:
             self.detail_result = "check stdout failed!"
             self.fail = True
             return
-
-
-    def execute_arkguard(self, input_file_path):
-        arkguard_root_dir = os.path.join("../../../../", "arkcompiler/ets_frontend/arkguard")
-        arkgurad_entry_path = os.path.join(arkguard_root_dir, "lib/cli/SecHarmony.js")
-        config_path = os.path.join(arkguard_root_dir, "test/compilerTestConfig.json")
-        arkguard_cmd = [
-            'node',
-            '--no-warnings',
-            arkgurad_entry_path,
-            input_file_path,
-            '--config-path',
-            config_path,
-            '--inplace'
-        ]
-        # print(arkguard_cmd)
-        process = subprocess.Popen(arkguard_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        out, err = process.communicate()
-        if err:
-            print("arkguard error: ", err)
-        process.wait()
 
 
     def __test_es2abc(self):

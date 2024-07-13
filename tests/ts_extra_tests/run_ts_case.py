@@ -23,6 +23,7 @@ from tool.testcfg import TestCase
 
 TEMP_DIR_NAME = ".local/"
 
+
 def is_testcase_exist(parsers, arg):
     if not os.path.isabs(arg):
         arg = './' + arg
@@ -103,6 +104,7 @@ def parse_input_args():
     args = parser.parse_args()
     return args
 
+
 def copy_directory(src_dir, target_dir):
     if os.path.exists(target_dir):
         shutil.rmtree(target_dir)
@@ -113,6 +115,7 @@ def copy_dir_to_temp(work_dir, dir_name, temp_dir):
     src_dir = os.path.join(work_dir, dir_name)
     target_dir = os.path.join(temp_dir, dir_name)
     copy_directory(src_dir, target_dir)
+
 
 def prepare_for_js_runtime(args):
     if args.js_runtime_path:
