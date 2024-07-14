@@ -102,6 +102,7 @@ def get_disable_list(file_path):
             disable_list.append(line.strip())
     return disable_list
 
+
 def is_disabled_case(file_path, disable_list):
     if disable_list is None:
         return False
