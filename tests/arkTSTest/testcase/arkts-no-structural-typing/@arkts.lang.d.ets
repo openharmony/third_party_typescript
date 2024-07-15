@@ -17,31 +17,4 @@ declare namespace lang {
   interface ISendable {}
 }
 
-// sendable class
-@Sendable
-class sendableClassA {}
-
-// sendable class var
-let sendableVar = sendableClassA
-
-// non-sendable class
-class nonSendableClassB {}
-
-// non-sendable class var
-let nonSendableVar = nonSendableClassB
-
-// sendable interface
-interface sendableInterface extends lang.ISendable {}
-
-// non-sendable interface
-interface nonSendableInterface {}
-
-export { 
-  sendableClassA,
-  sendableVar,
-  nonSendableClassB,
-  nonSendableVar,
-  sendableInterface,
-  nonSendableInterface,
-  lang,
-};
+export { lang };

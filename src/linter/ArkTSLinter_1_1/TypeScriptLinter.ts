@@ -2175,7 +2175,7 @@ export class TypeScriptLinter {
   private handleComputedPropertyName(node: ts.Node) {
     const computedProperty = node as ts.ComputedPropertyName;
     if (this.isSendableCompPropName(computedProperty)) {
-      // cancel the '[Symbol.iterface]' restriction of 'sendable class/interface' in the 'collections.d.ts' file
+      // cancel the '[Symbol.iterface]' restriction of 'sendable class/interface' in the '@arkts.collections.d.ets' file
       if (Utils.isSymbolIteratorExpression(computedProperty.expression)) {
         const declNode = computedProperty.parent?.parent;
         if (declNode && Utils.isArkTSCollectionsClassOrInterfaceDeclaration(declNode)) {
