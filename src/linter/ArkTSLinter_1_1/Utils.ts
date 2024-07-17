@@ -490,7 +490,7 @@ export function isTypedArray(tsType: ts.Type): boolean {
     return false;
   }
   const name = typeChecker.getFullyQualifiedName(symbol);
-  if(isGlobalSymbol(symbol) && TYPED_ARRAYS.includes(name)) {
+  if (isGlobalSymbol(symbol) && TYPED_ARRAYS.includes(name)) {
     return true;
   }
   const decl = getDeclaration(symbol);

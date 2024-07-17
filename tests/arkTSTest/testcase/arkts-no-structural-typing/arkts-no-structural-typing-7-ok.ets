@@ -12,7 +12,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-import {lang} from "@arkts.lang";
+import {lang} from '@arkts.lang';
 
 // 7. Interface implementations can be used
 interface Z {
@@ -36,8 +36,8 @@ foo(new Y())
 // Sendable can be thought of as implement ISendable
 @Sendable
 class SendableClass {
-  n: number = 0;
+  public n: number = 0;
 }
-function foo (s: lang.ISendable) {
+function foo(s: lang.ISendable) {
 }
 foo(new SendableClass())
