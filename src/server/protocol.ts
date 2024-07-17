@@ -2224,6 +2224,13 @@ namespace ts.server.protocol {
             name: string,
             emitParameters: boolean
         }[];
+        syntaxComponents: {
+            paramsUICallback: string[];
+            attrUICallback: {
+                name: string;
+                attributes: string[];
+            }[];
+        };
     }
 
     /**

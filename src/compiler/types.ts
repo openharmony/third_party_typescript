@@ -828,7 +828,9 @@ namespace ts {
         EtsBuilderContext =          1 << 5,  // If context was parsed as Ets builder methods or functions
         EtsStateStylesContext =      1 << 6,  // If context was parsed as Ets stateStyles Components
         EtsComponentsContext =       1 << 7,  // If context was parsed as a Ets Components
-        EtsNewExpressionContext =    1 << 8,  // If context was parsed ad a new expression
+        EtsNewExpressionContext =    1 << 8,  // If context was parsed as a new expression
+        UICallbackContext =          1 << 9,  // If context was parsed in build/builder/Syntax ui ArrowFunction
+        SyntaxComponentContext =     1 << 10, // If context was parsed in ForEach/LazyForEach/Repeat.each/Repeat.template
     }
 
     export const enum ModifierFlags {
@@ -6785,6 +6787,13 @@ namespace ts {
             name: string,
             emitParameters: boolean
         }[];
+        syntaxComponents: {
+            paramsUICallback: string[];
+            attrUICallback: {
+                name: string;
+                attributes: string[];
+            }[];
+        };
     }
 
     export interface WatchOptions {

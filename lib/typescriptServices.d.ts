@@ -553,7 +553,9 @@ declare namespace ts {
         EtsBuilderContext = 32,
         EtsStateStylesContext = 64,
         EtsComponentsContext = 128,
-        EtsNewExpressionContext = 256
+        EtsNewExpressionContext = 256,
+        UICallbackContext = 512,
+        SyntaxComponentContext = 1024
     }
     export enum ModifierFlags {
         None = 0,
@@ -3210,6 +3212,13 @@ declare namespace ts {
             name: string;
             emitParameters: boolean;
         }[];
+        syntaxComponents: {
+            paramsUICallback: string[];
+            attrUICallback: {
+                name: string;
+                attributes: string[];
+            }[];
+        };
     }
     export interface WatchOptions {
         watchFile?: WatchFileKind;

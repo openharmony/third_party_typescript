@@ -1652,6 +1652,14 @@ namespace ts {
             setEtsFlag(val, EtsFlags.EtsStateStylesContext);
         }
 
+        function setUICallbackContext(val: boolean) {
+            setEtsFlag(val, EtsFlags.UICallbackContext);
+        }
+
+        function setSyntaxComponentContext(val: boolean) {
+            setEtsFlag(val, EtsFlags.SyntaxComponentContext);
+        }
+
         function doOutsideOfContext<T>(context: NodeFlags, func: () => T): T {
             // contextFlagsToClear will contain only the context flags that are
             // currently set that we need to temporarily clear
@@ -1810,6 +1818,14 @@ namespace ts {
 
         function inEtsStateStylesContext() {
             return inEtsContext() && (inBuildContext() || inBuilderContext() || inEtsExtendComponentsContext() || inEtsStylesComponentsContext()) && inEtsFlagsContext(EtsFlags.EtsStateStylesContext);
+        }
+
+        function inUICallbackContext() {
+            return inEtsContext() && (inBuildContext() || inBuilderContext()) && inEtsFlagsContext(EtsFlags.UICallbackContext);
+        }
+
+        function inSyntaxComponentContext() {
+            return inEtsContext() && (inBuildContext() || inBuilderContext()) && inEtsFlagsContext(EtsFlags.SyntaxComponentContext);
         }
 
         function parseErrorAtPosition(start: number, length: number, message: DiagnosticMessage, arg0?: any): DiagnosticWithDetachedLocation | undefined {
@@ -4805,7 +4821,7 @@ namespace ts {
             }
 
             // It's a CallExpression with open brace followed, therefore, we think it's an EtsComponentExpression
-            if ((inStructContext() || inBuildContext() || inBuilderContext()) && isCallExpression(expr) && token() === SyntaxKind.OpenBraceToken) {
+            if ((inBuildContext() || inBuilderContext()) && inUICallbackContext() && ts.isCallExpression(expr) && token() === SyntaxKind.OpenBraceToken) {
                 return makeEtsComponentExpression(expr, pos);
             }
 
@@ -5177,10 +5193,13 @@ namespace ts {
             // have an opening brace, just in case we're in an error state.
             const lastToken = token();
             const equalsGreaterThanToken = parseExpectedToken(SyntaxKind.EqualsGreaterThanToken);
+            let originUIContextFlag = inUICallbackContext()
+            setUICallbackContext(inSyntaxComponentContext() ? true : false);
+            setSyntaxComponentContext(false);
             const body = (lastToken === SyntaxKind.EqualsGreaterThanToken || lastToken === SyntaxKind.OpenBraceToken)
                 ? parseArrowFunctionExpressionBody(some(modifiers, isAsyncModifier), allowReturnTypeInArrowFunction)
                 : parseIdentifier();
-
+            setUICallbackContext(originUIContextFlag);
             // Given:
             //     x ? y => ({ y }) : z => ({ z })
             // We try to parse the body of the first arrow function by looking at:
@@ -6180,7 +6199,7 @@ namespace ts {
                     }
 
                     if (isValidVirtualTypeArgumentsContext() && isPropertyAccessExpression(expression)) {
-                        const rootNode = getRootEtsComponent(expression);
+                        const rootNode = getRootComponent(expression, sourceFileCompilerOptions);
                         if (rootNode) {
                             const rootNodeName = (<Identifier>(rootNode.expression)).escapedText.toString();
                             currentNodeName = getTextOfPropertyName(expression.name).toString();
@@ -6192,7 +6211,14 @@ namespace ts {
                                 setEtsStateStylesContext(false);
                                 stateStylesRootNode = undefined;
                             }
-                            typeArguments = parseEtsTypeArguments(pos, `${rootNodeName}Attribute`);
+                            if (sourceFileCompilerOptions?.ets?.syntaxComponents?.attrUICallback?.map((item: any)=>item.name).includes(rootNodeName)) {
+                                const syntaxComponents = sourceFileCompilerOptions?.ets?.syntaxComponents?.attrUICallback?.filter((item: any)=> item.name === rootNodeName);
+                                if (syntaxComponents.length && syntaxComponents[0]?.attributes?.includes(currentNodeName)) {
+                                    setSyntaxComponentContext(true);
+                                }
+                            } else {
+                                typeArguments = parseEtsTypeArguments(pos, `${rootNodeName}Attribute`);
+                            }
                         }
                         else if (inEtsStateStylesContext() && stateStylesRootNode) {
                             typeArguments = parseEtsTypeArguments(pos, `${stateStylesRootNode}Attribute`);
@@ -6209,6 +6235,10 @@ namespace ts {
                                 }
                             }
                         }
+                    }
+                    if (isValidVirtualTypeArgumentsContext() && ts.isIdentifier(expression) &&
+                        sourceFileCompilerOptions?.ets?.syntaxComponents?.paramsUICallback?.includes(expression.escapedText.toString())) {
+                        setSyntaxComponentContext(true);
                     }
                     const argumentList = parseArgumentList();
                     const callExpr = questionDotToken || tryReparseOptionalChain(expression) ?
@@ -7499,8 +7529,10 @@ namespace ts {
             const methodName = getPropertyNameForPropertyNameNode(name)?.toString();
             const orignalEtsBuildContext = inBuildContext();
             const orignalEtsBuilderContext = inBuilderContext();
+            const orignalUICallbackContext = inUICallbackContext();
             setEtsBuildContext(methodName === sourceFileCompilerOptions?.ets?.render?.method?.find(render => render === "build"));
             setEtsBuilderContext(hasEtsBuilderDecoratorNames(decorators, sourceFileCompilerOptions));
+            setUICallbackContext(inBuildContext() || inBuilderContext());
             if (inStructContext() && hasEtsStylesDecoratorNames(decorators, sourceFileCompilerOptions)) {
                 if (methodName && currentStructName) {
                     structStylesComponents.set(methodName, { structName: currentStructName, kind: SyntaxKind.MethodDeclaration });
@@ -7536,6 +7568,7 @@ namespace ts {
             (node as Mutable<MethodDeclaration>).exclamationToken = exclamationToken;
             setEtsBuildContext(orignalEtsBuildContext);
             setEtsBuilderContext(orignalEtsBuilderContext);
+            setUICallbackContext(orignalUICallbackContext);
             setEtsStylesComponentsContext(false);
             stylesEtsComponentDeclaration = undefined;
             setEtsComponentsContext(orignalEtsComponentsContext);

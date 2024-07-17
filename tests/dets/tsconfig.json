@@ -700,6 +700,18 @@
         "property": "stateStyles"
       },
       "customComponent": "CustomComponent",
+      "syntaxComponents": {
+        "paramsUICallback": [
+          "ForEach",
+          "LazyForEach"
+        ],
+        "attrUICallback": [
+          {
+            "name": "Repeat",
+            "attributes": ["each", "template"]
+          }
+        ]
+      }
     },
     "emitDeclarationOnly": true,
     "allowJs": true,
