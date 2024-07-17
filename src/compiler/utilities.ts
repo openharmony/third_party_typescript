@@ -2236,8 +2236,8 @@ namespace ts {
             return false;
         }
         const methodNames = compilerOptions.ets?.render?.method;
-        const decoratorName = compilerOptions.ets?.render?.decorator;
-        if (!methodNames && !decoratorName) {
+        const decoratorNames = compilerOptions.ets?.render?.decorator;
+        if (!methodNames && !decoratorNames) {
             return false;
         }
 
@@ -2251,15 +2251,13 @@ namespace ts {
                 }
             }
 
-            // check if is in function or method with the decorator "@Builder"
+            // check if is in function or method with the decorator "@Builder @LocalBuilder"
             const decorators = getAllDecorators(container);
-            if (decoratorName &&
+            if (decoratorNames && decoratorNames.length &&
                 (isMethodDeclaration(container) || isFunctionDeclaration(container)) &&
-                decorators &&
-                decorators.some(
-                    decorator => isIdentifier(decorator.expression) && getTextOfPropertyName(decorator.expression).toString() === decoratorName
-                )) {
-                return true;
+                decorators && decorators.some(
+                    decorator => isIdentifier(decorator.expression) && decoratorNames.includes(getTextOfPropertyName(decorator.expression).toString()))) {
+                        return true;
             }
 
             container = getContainingFunctionDeclaration(container);
