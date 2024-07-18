@@ -46,6 +46,7 @@ export enum FaultID {
   SendableExplicitFieldType,
   SendableFunctionImportedVariables, SendableFunctionDecorator, SendableTypeAliasDecorator, SendableTypeAliasDeclaration, 
   SendableFunctionAssignment, SendableFunctionOverloadDecorator, SendableFunctionProperty, SendableFunctionAsExpr,
+  SendableDecoratorLimited,
   LAST_ID, // this should always be last enum
 }
 
@@ -166,6 +167,7 @@ faultsAttrs[FaultID.SendableFunctionAssignment] = new FaultAttributes(176);
 faultsAttrs[FaultID.SendableFunctionOverloadDecorator] = new FaultAttributes(177);
 faultsAttrs[FaultID.SendableFunctionProperty] = new FaultAttributes(178);
 faultsAttrs[FaultID.SendableFunctionAsExpr] = new FaultAttributes(179);
+faultsAttrs[FaultID.SendableDecoratorLimited] = new FaultAttributes(180);
 }
 }
 }

@@ -1,0 +1,83 @@
+{
+  "arktsVersion_1_0": [
+    {
+      "messageText": "No decorators except ArkUI decorators are currently allowed (arkts-no-decorators-except-arkui)",
+      "expectLineAndCharacter": {
+        "line": 22,
+        "character": 3
+      }
+    },
+    {
+      "messageText": "No decorators except ArkUI decorators are currently allowed (arkts-no-decorators-except-arkui)",
+      "expectLineAndCharacter": {
+        "line": 25,
+        "character": 3
+      }
+    },
+    {
+      "messageText": "No decorators except ArkUI decorators are currently allowed (arkts-no-decorators-except-arkui)",
+      "expectLineAndCharacter": {
+        "line": 30,
+        "character": 11
+      }
+    },
+    {
+      "messageText": "No decorators except ArkUI decorators are currently allowed (arkts-no-decorators-except-arkui)",
+      "expectLineAndCharacter": {
+        "line": 34,
+        "character": 3
+      }
+    },
+    {
+      "messageText": "No decorators except ArkUI decorators are currently allowed (arkts-no-decorators-except-arkui)",
+      "expectLineAndCharacter": {
+        "line": 39,
+        "character": 3
+      }
+    }
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "The \"@Sendable\" decorator can only be used on \"class\", \"function\" and \"typeAlias\" (arkts-sendable-decorator-limited)",
+      "expectLineAndCharacter": {
+        "line": 16,
+        "character": 1
+      }
+    },
+    {
+      "messageText": "The \"@Sendable\" decorator can only be used on \"class\", \"function\" and \"typeAlias\" (arkts-sendable-decorator-limited)",
+      "expectLineAndCharacter": {
+        "line": 22,
+        "character": 3
+      }
+    },
+    {
+      "messageText": "The \"@Sendable\" decorator can only be used on \"class\", \"function\" and \"typeAlias\" (arkts-sendable-decorator-limited)",
+      "expectLineAndCharacter": {
+        "line": 25,
+        "character": 3
+      }
+    },
+    {
+      "messageText": "The \"@Sendable\" decorator can only be used on \"class\", \"function\" and \"typeAlias\" (arkts-sendable-decorator-limited)",
+      "expectLineAndCharacter": {
+        "line": 30,
+        "character": 11
+      }
+    },
+    {
+      "messageText": "The \"@Sendable\" decorator can only be used on \"class\", \"function\" and \"typeAlias\" (arkts-sendable-decorator-limited)",
+      "expectLineAndCharacter": {
+        "line": 34,
+        "character": 3
+      }
+    },
+    {
+      "messageText": "The \"@Sendable\" decorator can only be used on \"class\", \"function\" and \"typeAlias\" (arkts-sendable-decorator-limited)",
+      "expectLineAndCharacter": {
+        "line": 39,
+        "character": 3
+      }
+    }
+  ]
+}

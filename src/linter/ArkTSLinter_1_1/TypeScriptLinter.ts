@@ -206,7 +206,8 @@ export class TypeScriptLinter {
     [ts.SyntaxKind.IndexSignature, this.handleIndexSignature],
     [ts.SyntaxKind.ExportKeyword, this.handleExportKeyword],
     [ts.SyntaxKind.ExportDeclaration, this.handleExportDeclaration],
-    [ts.SyntaxKind.ReturnStatement, this.handleReturnStatement]
+    [ts.SyntaxKind.ReturnStatement, this.handleReturnStatement],
+    [ts.SyntaxKind.Decorator, this.handleDecorator]
   ]);
 
   public incrementCounters(node: Node | CommentRange, faultId: number, autofixable = false, autofix?: Autofix[]): void {
@@ -2507,6 +2508,16 @@ export class TypeScriptLinter {
     }
     if (Utils.needToDeduceStructuralIdentity(lhsType, rhsType, rhsExpr, isStrict)) {
       this.incrementCounters(field, FaultID.StructuralIdentity);
+    }
+  }
+
+  private handleDecorator(node: ts.Node): void {
+    const decorator: ts.Decorator = node as ts.Decorator;
+    if (Utils.getDecoratorName(decorator) === Utils.SENDABLE_DECORATOR) {
+      const parent: ts.Node = decorator.parent;
+      if (!parent || !Utils.SENDABLE_DECORATOR_NODES.includes(parent.kind)) {
+        this.incrementCounters(decorator, FaultID.SendableDecoratorLimited);
+      }
     }
   }
 }

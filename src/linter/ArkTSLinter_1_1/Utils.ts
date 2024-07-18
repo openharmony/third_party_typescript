@@ -46,6 +46,12 @@ export const SENDABLE_DECORATOR = 'Sendable';
 
 export const SENDABLE_INTERFACE = 'ISendable';
 
+export const SENDABLE_DECORATOR_NODES = [
+  ts.SyntaxKind.ClassDeclaration,
+  ts.SyntaxKind.FunctionDeclaration,
+  ts.SyntaxKind.TypeAliasDeclaration
+];
+
 export const ARKTS_COLLECTIONS_D_ETS = '@arkts.collections.d.ets';
 
 export const COLLECTIONS_NAMESPACE = 'collections';

@@ -31,25 +31,11 @@
                 "description": "Only \"@Sendable\" decorator can be used on \"Sendable\" class (arkts-sendable-class-decorator)"
             },
             {
-                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#16322.ets:30:4\n Only imported variables can be captured by \"Sendable\" class (arkts-sendable-imported-variables)\n\n",
-                "severity": 2,
-                "reportLine": 30,
-                "reportColumn": 4,
-                "description": "Only imported variables can be captured by \"Sendable\" class (arkts-sendable-imported-variables)"
-            },
-            {
                 "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#16322.ets:35:3\n Only \"@Sendable\" decorator can be used on \"Sendable\" class (arkts-sendable-class-decorator)\n\n",
                 "severity": 2,
                 "reportLine": 35,
                 "reportColumn": 3,
                 "description": "Only \"@Sendable\" decorator can be used on \"Sendable\" class (arkts-sendable-class-decorator)"
-            },
-            {
-                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#16322.ets:35:4\n Only imported variables can be captured by \"Sendable\" class (arkts-sendable-imported-variables)\n\n",
-                "severity": 2,
-                "reportLine": 35,
-                "reportColumn": 4,
-                "description": "Only imported variables can be captured by \"Sendable\" class (arkts-sendable-imported-variables)"
             },
             {
                 "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#16322.ets:38:13\n Only \"@Sendable\" decorator can be used on \"Sendable\" class (arkts-sendable-class-decorator)\n\n",
@@ -73,25 +59,11 @@
                 "description": "Only \"@Sendable\" decorator can be used on \"Sendable\" class (arkts-sendable-class-decorator)"
             },
             {
-                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#16322.ets:40:4\n Only imported variables can be captured by \"Sendable\" class (arkts-sendable-imported-variables)\n\n",
-                "severity": 2,
-                "reportLine": 40,
-                "reportColumn": 4,
-                "description": "Only imported variables can be captured by \"Sendable\" class (arkts-sendable-imported-variables)"
-            },
-            {
                 "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#16322.ets:44:3\n Only \"@Sendable\" decorator can be used on \"Sendable\" class (arkts-sendable-class-decorator)\n\n",
                 "severity": 2,
                 "reportLine": 44,
                 "reportColumn": 3,
                 "description": "Only \"@Sendable\" decorator can be used on \"Sendable\" class (arkts-sendable-class-decorator)"
-            },
-            {
-                "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#16322.ets:44:4\n Only imported variables can be captured by \"Sendable\" class (arkts-sendable-imported-variables)\n\n",
-                "severity": 2,
-                "reportLine": 44,
-                "reportColumn": 4,
-                "description": "Only imported variables can be captured by \"Sendable\" class (arkts-sendable-imported-variables)"
             }
         ]
     }

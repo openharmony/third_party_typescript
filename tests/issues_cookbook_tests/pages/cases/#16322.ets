@@ -27,21 +27,21 @@ declare const NonSendable:ClassDecorator;
 @NonSendable // should report, arkts-sendable-class-decorator
 @Sendable
 class SendableClass8 {
-  @SomeDecorator // should report 2 error, arkts-sendable-class-decorator, arkts-sendable-imported-variables
-  prop: string = '';
+  @SomeDecorator // should report 1 error, arkts-sendable-class-decorator
+  public prop: string = '';
 
   constructor() {}
 
-  @SomeDecorator // should report 2 error, arkts-sendable-class-decorator, arkts-sendable-imported-variables
+  @SomeDecorator // should report 1 error, arkts-sendable-class-decorator
   myMethod1() {}
 
   myMethod2(@SomeDecorator2 param: string) {} // should report 2 error, arkts-sendable-class-decorator, arkts-sendable-imported-variables
 
-  @SomeDecorator // should report 2 error, arkts-sendable-class-decorator, arkts-sendable-imported-variables
+  @SomeDecorator // should report 1 error, arkts-sendable-class-decorator
   get myPropertyGet(): string {
     return this.prop;
   }
-  @SomeDecorator // should report 2 error, arkts-sendable-class-decorator, arkts-sendable-imported-variables
+  @SomeDecorator // should report 1 error, arkts-sendable-class-decorator
   set myProperty2Set(value: string) {
     this.prop = value;
   }

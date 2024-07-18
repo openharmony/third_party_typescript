@@ -9228,7 +9228,8 @@ declare namespace ts {
                 SendableFunctionOverloadDecorator = 104,
                 SendableFunctionProperty = 105,
                 SendableFunctionAsExpr = 106,
-                LAST_ID = 107
+                SendableDecoratorLimited = 107,
+                LAST_ID = 108
             }
             class FaultAttributes {
                 cookBookRef: number;
@@ -9253,6 +9254,7 @@ declare namespace ts {
             const ARKTS_IGNORE_FILES: string[];
             const SENDABLE_DECORATOR = "Sendable";
             const SENDABLE_INTERFACE = "ISendable";
+            const SENDABLE_DECORATOR_NODES: SyntaxKind[];
             const ARKTS_COLLECTIONS_D_ETS = "@arkts.collections.d.ets";
             const COLLECTIONS_NAMESPACE = "collections";
             const ARKTS_LANG_D_ETS = "@arkts.lang.d.ets";
@@ -9643,6 +9645,7 @@ declare namespace ts {
              * only need to strictly match the type of filling the check again
              */
             private checkAssignmentMatching;
+            private handleDecorator;
         }
     }
 }
