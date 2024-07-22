@@ -2218,14 +2218,17 @@ namespace ts {
             );
         }
 
-        function getBindAndCheckDiagnosticsForFile(sourceFile: SourceFile, cancellationToken: CancellationToken | undefined, isForLinter: boolean = false): readonly Diagnostic[] {
+        function getBindAndCheckDiagnosticsForFile(sourceFile: SourceFile, cancellationToken: CancellationToken | undefined,
+            isForLinter: boolean = false): readonly Diagnostic[] {
             if (!isForLinter) {
                 return getAndCacheDiagnostics(sourceFile, cancellationToken, cachedBindAndCheckDiagnosticsForFile, getBindAndCheckDiagnosticsForFileNoCache);
             }
-            return getAndCacheDiagnostics(sourceFile, cancellationToken, cachedBindAndCheckDiagnosticsForFileForLinter, getBindAndCheckDiagnosticsForFileNoCache, true);
+            return getAndCacheDiagnostics(sourceFile, cancellationToken, cachedBindAndCheckDiagnosticsForFileForLinter,
+                getBindAndCheckDiagnosticsForFileNoCache, true);
         }
 
-        function getBindAndCheckDiagnosticsForFileNoCache(sourceFile: SourceFile, cancellationToken: CancellationToken | undefined, isForLinter: boolean = false): readonly Diagnostic[] {
+        function getBindAndCheckDiagnosticsForFileNoCache(sourceFile: SourceFile, cancellationToken: CancellationToken | undefined,
+            isForLinter: boolean = false): readonly Diagnostic[] {
             return runWithCancellationToken(() => {
                 // Only check and block .d.ts import .ets behavior when it is called by "ets-loader" and scanned.
                 const filterFlag = !!options.needDoArkTsLinter;

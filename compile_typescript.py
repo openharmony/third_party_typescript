@@ -24,7 +24,7 @@ def run_cmd(cmd, execution_path=None):
                            stdin=subprocess.PIPE,
                            stderr=subprocess.PIPE,
                            cwd=execution_path)
-    stdout, stderr = proc.communicate()
+    stdout, stderr = proc.communicate(timeout=120)
     if proc.returncode != 0:
         print(stdout.decode(), stderr.decode())
         raise Exception(stderr.decode())
