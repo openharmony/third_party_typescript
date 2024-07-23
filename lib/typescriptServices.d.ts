@@ -3200,6 +3200,7 @@ declare namespace ts {
         skipPathsInKeyForCompilationSettings?: boolean;
         compatibleSdkVersion?: number;
         compatibleSdkVersionStage?: string;
+        noTransformedKitInParser?: boolean;
         [option: string]: CompilerOptionsValue | TsConfigSourceFile | undefined;
         etsAnnotationsEnable?: boolean;
     }
@@ -5475,6 +5476,7 @@ declare namespace ts {
     function transformTypeExportImportAndConstEnumInTypeScript(context: TransformationContext): (node: SourceFile) => SourceFile;
     function hasTsNoCheckOrTsIgnoreFlag(node: SourceFile): boolean;
     function createObfTextSingleLineWriter(): EmitTextWriter;
+    function cleanKitJsonCache(): void;
 }
 declare namespace ts {
     /**
