@@ -4031,7 +4031,7 @@ namespace ts {
             writeLine();
             // @ts-ignore
             if (node.writeTsHarComments) {
-                writeComment("// @keepTs\n// @ts-nocheck\n");
+                writeComment('// @keepTs\n// @ts-nocheck\n');
             }
             const statements = node.statements;
             // Emit detached comment if there are no prologue directives or if the first node is synthesized.

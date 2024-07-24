@@ -30457,7 +30457,7 @@ namespace ts {
             }
 
             if (isConstEnumObjectType(objectType)) {
-                checkConstEnumRelate(node, objectType.symbol)
+                checkConstEnumRelate(node, objectType.symbol);
             }
 
             const effectiveIndexType = isForInVariableForNumericPropertyNames(indexExpression) ? numberType : indexType;
