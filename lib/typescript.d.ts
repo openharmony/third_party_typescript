@@ -9307,6 +9307,8 @@ declare namespace ts {
             function symbolHasDuplicateName(symbol: Symbol, tsDeclKind: SyntaxKind): boolean;
             function isReferenceType(tsType: Type): boolean;
             function isPrimitiveType(type: Type): boolean;
+            function isPrimitiveLiteralType(type: ts.Type): boolean;
+            function isPurePrimitiveLiteralType(type: ts.Type): boolean;
             function isTypeSymbol(symbol: Symbol | undefined): boolean;
             function isGenericArrayType(tsType: Type): tsType is TypeReference;
             function isReadonlyArrayType(tsType: Type): boolean;
@@ -9417,7 +9419,7 @@ declare namespace ts {
             function isArkTSCollectionsClassOrInterfaceDeclaration(decl: ts.Node): boolean;
             function getDecoratorName(decorator: ts.Decorator): string;
             function unwrapParenthesizedTypeNode(typeNode: ts.TypeNode): ts.TypeNode;
-            function isSendableTypeNode(typeNode: ts.TypeNode): boolean;
+            function isSendableTypeNode(typeNode: ts.TypeNode, isShared?: boolean): boolean;
             function isSendableType(type: ts.Type): boolean;
             function isShareableType(tsType: ts.Type): boolean;
             function isSendableClassOrInterface(type: ts.Type): boolean;

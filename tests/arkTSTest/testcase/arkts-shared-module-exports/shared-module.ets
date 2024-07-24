@@ -58,3 +58,37 @@ export function sf():void {
 function sf2():void {
 }
 export {sf2};
+
+export const primitive_str = 'a'; // OK
+export const primitive_num = 1; // OK
+export const primitive_bool = true; // OK
+export const primitive_big = 1n; // OK
+
+export enum NormalEnum { // ERROR,
+  a,
+  b,
+  c,
+  d
+}
+
+export const enum ConstEnum { // OK
+  a,
+  b,
+  c,
+  d
+}
+
+export const unite1 = // ERROR
+  Math.random() < 0.5
+    ? NormalEnum.a
+    : primitive_str;
+
+export const unite2 = Math.random() < 0.5 ? primitive_str : primitive_big; // OK
+
+export {
+  primitive_str as strAlias,
+  primitive_num as numAlias,
+  primitive_bool as boolAlias,
+  primitive_big as bigAlias,
+  NormalEnum as NormalEnumAlas // ERROR
+};
