@@ -468,6 +468,20 @@ export function isPrimitiveType(type: Type): boolean {
   );
 }
 
+export function isPrimitiveLiteralType(type: ts.Type): boolean {
+  return !!(
+    type.flags &
+    (ts.TypeFlags.BooleanLiteral |
+      ts.TypeFlags.NumberLiteral |
+      ts.TypeFlags.StringLiteral |
+      ts.TypeFlags.BigIntLiteral)
+  );
+}
+
+export function isPurePrimitiveLiteralType(type: ts.Type): boolean {
+  return isPrimitiveLiteralType(type) && !(type.flags & ts.TypeFlags.EnumLiteral);
+}
+
 export function isTypeSymbol(symbol: Symbol | undefined): boolean {
   return (
     !!symbol && !!symbol.flags &&
@@ -1904,7 +1918,7 @@ export function unwrapParenthesizedTypeNode(typeNode: ts.TypeNode): ts.TypeNode 
   return unwrappedTypeNode;
 }
 
-export function isSendableTypeNode(typeNode: ts.TypeNode): boolean {
+export function isSendableTypeNode(typeNode: ts.TypeNode, isShared: boolean = false): boolean {
 
   /*
    * In order to correctly identify the usage of the enum member or
@@ -1918,7 +1932,7 @@ export function isSendableTypeNode(typeNode: ts.TypeNode): boolean {
   // Only a sendable union type is supported
   if (ts.isUnionTypeNode(typeNode)) {
     return typeNode.types.every((elemType) => {
-      return isSendableTypeNode(elemType);
+      return isSendableTypeNode(elemType, isShared);
     });
   }
 
@@ -1929,7 +1943,7 @@ export function isSendableTypeNode(typeNode: ts.TypeNode): boolean {
   if (sym && sym.getFlags() & ts.SymbolFlags.TypeAlias) {
     const typeDecl = getDeclaration(sym);
     if (typeDecl && ts.isTypeAliasDeclaration(typeDecl)) {
-      return isSendableTypeNode(typeDecl.type);
+      return isSendableTypeNode(typeDecl.type, isShared);
     }
   }
 
@@ -1937,8 +1951,14 @@ export function isSendableTypeNode(typeNode: ts.TypeNode): boolean {
   if (isConstEnum(sym)) {
     return true;
   }
+  const type: ts.Type = typeChecker.getTypeFromTypeNode(typeNode);
 
-  return isSendableType(typeChecker.getTypeFromTypeNode(typeNode));
+  // In shared module, literal forms of primitive data types can be exported
+  if (isShared && isPurePrimitiveLiteralType(type)) {
+    return true;
+  }
+
+  return isSendableType(type);
 }
 
 export function isSendableType(type: ts.Type): boolean {
@@ -1967,6 +1987,10 @@ export function isShareableType(tsType: ts.Type): boolean {
     return tsType.types.every((elemType) => {
       return isShareableType(elemType);
     });
+  }
+
+  if (isPurePrimitiveLiteralType(tsType)) {
+    return true;
   }
 
   return isSendableType(tsType);
@@ -2115,7 +2139,7 @@ export function isShareableEntity(node: ts.Node): boolean {
   const decl = getDeclarationNode(node);
   const typeNode = (decl as any)?.type;
   return (typeNode && !isFunctionLikeDeclaration(decl!)) ?
-    isSendableTypeNode(typeNode) :
+    isSendableTypeNode(typeNode, true) :
     isShareableType(typeChecker.getTypeAtLocation(decl ? decl : node));
 }
 
