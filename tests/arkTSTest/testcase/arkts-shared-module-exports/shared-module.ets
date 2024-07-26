@@ -36,7 +36,7 @@ export {var4}; // error
 
 export * as ns from '@arkts.lang'; // err,  ns is not sendable type
 export * from '@arkts.lang'; // error, export * from 'xxx' is not supported
-export default lang.ISendable; // ok
+export default D; // ok
 
 export let var6: A | A.a; // error, union type of sendable and unsendbale
 export let var7: string | B = 'aaa'; // error , union type of sendable and unsendbale
@@ -92,3 +92,6 @@ export {
   primitive_big as bigAlias,
   NormalEnum as NormalEnumAlas // ERROR
 };
+
+export type TypeC = C; // ERROR
+export type TypeE = E; // ERROR

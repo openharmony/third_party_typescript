@@ -138,6 +138,7 @@ export class TypeScriptLinter {
   staticBlocks: Set<string>;
   libraryTypeCallDiagnosticChecker: LibraryTypeCallDiagnosticChecker;
   skipArkTSStaticBlocksCheck: boolean;
+  private fileExportSendableDeclCaches?: Set<ts.Node>;
 
   constructor(private sourceFile: SourceFile,
               /* private */ tsProgram: Program,
@@ -215,7 +216,6 @@ export class TypeScriptLinter {
 
     const [startOffset, endOffset] = Utils.getHighlightRange(node, faultId);
     const startPos = this.sourceFile!.getLineAndCharacterOfPosition(startOffset);
-    //const endPos = this.sourceFile!.getLineAndCharacterOfPosition(endOffset);
     const line = startPos.line + 1;
     const character = startPos.character + 1;
 
@@ -1352,6 +1352,10 @@ export class TypeScriptLinter {
         declPosition !== undefined && declPosition >= scope.getStart() && declPosition < scope.getEnd()) {
       return;
     }
+    if (this.isFileExportSendableDecl(decl)) {
+      // This part of the check is removed when the relevant functionality is implemented at runtime
+      this.incrementCounters(node, FaultID.SendableClosureExport);
+    }
     if (this.checkIsTopClosure(decl)) {
       return;
     }
@@ -1393,6 +1397,19 @@ export class TypeScriptLinter {
       }
     }
     return false;
+  }
+
+  isFileExportSendableDecl(decl: ts.Declaration): boolean {
+    if (
+      !ts.isSourceFile(decl.parent) ||
+      (!ts.isClassDeclaration(decl) && !ts.isFunctionDeclaration(decl))
+    ) {
+      return false;
+    }
+    if (!this.fileExportSendableDeclCaches) {
+      this.fileExportSendableDeclCaches = Utils.searchFileExportDecl(decl.parent, Utils.SENDABLE_CLOSURE_DECLS);
+    }
+    return this.fileExportSendableDeclCaches.has(decl);
   }
 
   private checkClassDeclarationHeritageClause(hClause: ts.HeritageClause, isSendableClass: boolean): void {
@@ -1803,7 +1820,7 @@ export class TypeScriptLinter {
       return;
     }
 
-    if (Utils.isShareableEntity(exportAssignment.expression)) {
+    if (!Utils.isShareableEntity(exportAssignment.expression)) {
       this.incrementCounters(exportAssignment.expression, FaultID.SharedModuleExports);
     }
   }
@@ -2440,6 +2457,9 @@ export class TypeScriptLinter {
         }
         return;
       case ts.SyntaxKind.TypeAliasDeclaration:
+        if (!Utils.isShareableEntity(parentNode)) {
+          this.incrementCounters(parentNode, FaultID.SharedModuleExportsWarning);
+        }
         return;
       default:
         this.incrementCounters(parentNode, FaultID.SharedModuleExports);
