@@ -13168,7 +13168,9 @@ declare namespace ts {
                 SendableFunctionProperty = 105,
                 SendableFunctionAsExpr = 106,
                 SendableDecoratorLimited = 107,
-                LAST_ID = 108
+                SendableClosureExport = 108,
+                SharedModuleExportsWarning = 109,
+                LAST_ID = 110
             }
             class FaultAttributes {
                 cookBookRef: number;
@@ -13194,6 +13196,7 @@ declare namespace ts {
             const SENDABLE_DECORATOR = "Sendable";
             const SENDABLE_INTERFACE = "ISendable";
             const SENDABLE_DECORATOR_NODES: SyntaxKind[];
+            const SENDABLE_CLOSURE_DECLS: SyntaxKind[];
             const ARKTS_COLLECTIONS_D_ETS = "@arkts.collections.d.ets";
             const COLLECTIONS_NAMESPACE = "collections";
             const ARKTS_LANG_D_ETS = "@arkts.lang.d.ets";
@@ -13383,6 +13386,7 @@ declare namespace ts {
             function hasSendableTypeAlias(type: ts.Type): boolean;
             function isNonSendableFunctionTypeAlias(type: ts.Type): boolean;
             function isWrongSendableFunctionAssignment(lhsType: ts.Type, rhsType: ts.Type): boolean;
+            function searchFileExportDecl(sourceFile: ts.SourceFile, targetDecls?: ts.SyntaxKind[]): Set<ts.Node>;
         }
     }
 }
@@ -13464,6 +13468,7 @@ declare namespace ts {
             staticBlocks: Set<string>;
             libraryTypeCallDiagnosticChecker: LibraryTypeCallDiagnosticChecker;
             skipArkTSStaticBlocksCheck: boolean;
+            private fileExportSendableDeclCaches?;
             constructor(sourceFile: SourceFile, tsProgram: Program, tscStrictDiagnostics?: Map<Diagnostic[]> | undefined);
             static clearTsTypeChecker(): void;
             readonly handlersMap: ESMap<SyntaxKind, (node: Node) => void>;
@@ -13518,6 +13523,7 @@ declare namespace ts {
             private checkLocalDeclWithSendableClosure;
             private checkIsTopClosure;
             private checkNamespaceImportVar;
+            isFileExportSendableDecl(decl: ts.Declaration): boolean;
             private checkClassDeclarationHeritageClause;
             private isValidSendableClassExtends;
             private checkSendableTypeParameter;

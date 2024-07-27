@@ -20,7 +20,7 @@ struct SendableStruct {
 
 class NormalClass {
   @Sendable // ERROR
-  name: string = 'name';
+  public name: string = 'name';
 
   @Sendable // ERROR
   handle() {
