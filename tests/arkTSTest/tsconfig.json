@@ -764,6 +764,18 @@
         "decorator": "Concurrent"
       },
       "customComponent": "CustomComponent",
+      "syntaxComponents": {
+        "paramsUICallback": [
+          "ForEach",
+          "LazyForEach"
+        ],
+        "attrUICallback": [
+          {
+            "name": "Repeat",
+            "attributes": ["each", "template"]
+          }
+        ]
+      }
     },
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,

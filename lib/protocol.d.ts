@@ -1673,6 +1673,13 @@ declare namespace ts.server.protocol {
             name: string;
             emitParameters: boolean;
         }[];
+        syntaxComponents: {
+            paramsUICallback: string[];
+            attrUICallback: {
+                name: string;
+                attributes: string[];
+            }[];
+        };
     }
     /**
      * Completions request; value of command field is "completions".

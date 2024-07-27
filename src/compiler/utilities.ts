@@ -3375,6 +3375,17 @@ namespace ts {
         return undefined;
     }
 
+    export function getRootComponent(node: Node | undefined, compilerOptions: CompilerOptions): EtsComponentExpression | CallExpression | undefined {
+        while (node) {
+            if (isEtsComponentExpression(node) || isCallExpression(node) && isIdentifier(node.expression) &&
+                compilerOptions.ets?.syntaxComponents?.attrUICallback?.map((item: any)=>item.name).includes(node.expression.escapedText.toString())) {
+                return node;
+            }
+            node = (node as PropertyAccessExpression | CallExpression).expression;
+        }
+        return undefined;
+    }
+
     export function getVirtualEtsComponent(node: Node | undefined): PropertyAccessExpression | undefined {
         while (node) {
             if (isPropertyAccessExpression(node) && node.expression && node.expression.virtual) {

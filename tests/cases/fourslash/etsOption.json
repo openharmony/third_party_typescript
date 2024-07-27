@@ -37,5 +37,17 @@
         "tests/cases/fourslash/etslib/flex.d.ts",
         "tests/cases/fourslash/etslib/text.d.ts"
     ],
-    "customComponent": "CustomComponent"
+    "customComponent": "CustomComponent",
+    "syntaxComponents": {
+      "paramsUICallback": [
+        "ForEach",
+        "LazyForEach"
+      ],
+      "attrUICallback": [
+        {
+          "name": "Repeat",
+          "attributes": ["each", "template"]
+        }
+      ]
+    }
 }
