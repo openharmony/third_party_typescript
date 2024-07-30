@@ -2072,6 +2072,13 @@ export function getNonSendableDecorators(decl: ts.ClassDeclaration | ts.Function
   });
 }
 
+export function getSendableDecorator(decl: ts.ClassDeclaration | ts.FunctionDeclaration | ts.TypeAliasDeclaration): ts.Decorator | undefined {
+  const decorators = ts.getAllDecorators(decl);
+  return decorators?.find((x) => {
+    return getDecoratorName(x) === SENDABLE_DECORATOR;
+  });
+}
+
 export function getDecoratorsIfInSendableClass(declaration: ts.HasDecorators): readonly ts.Decorator[] | undefined {
   const classNode = getClassNodeFromDeclaration(declaration);
   if (classNode === undefined || !hasSendableDecorator(classNode)) {

@@ -3174,6 +3174,8 @@ declare namespace ts {
         etsLoaderPath?: string;
         tsImportSendableEnable?: boolean;
         skipPathsInKeyForCompilationSettings?: boolean;
+        compatibleSdkVersion?: number;
+        compatibleSdkVersionStage?: string;
         [option: string]: CompilerOptionsValue | TsConfigSourceFile | undefined;
     }
     export interface EtsOptions {
@@ -13186,7 +13188,9 @@ declare namespace ts {
                 SendableDecoratorLimited = 107,
                 SendableClosureExport = 108,
                 SharedModuleExportsWarning = 109,
-                LAST_ID = 110
+                SendableBetaCompatible = 110,
+                ImportLazyBetaCompatible = 111,
+                LAST_ID = 112
             }
             class FaultAttributes {
                 cookBookRef: number;
@@ -13389,6 +13393,7 @@ declare namespace ts {
             function isSendableUnionType(type: ts.UnionType): boolean;
             function hasSendableDecorator(decl: ts.ClassDeclaration | ts.FunctionDeclaration | ts.TypeAliasDeclaration): boolean;
             function getNonSendableDecorators(decl: ts.ClassDeclaration | ts.FunctionDeclaration | ts.TypeAliasDeclaration): ts.Decorator[] | undefined;
+            function getSendableDecorator(decl: ts.ClassDeclaration | ts.FunctionDeclaration | ts.TypeAliasDeclaration): ts.Decorator | undefined;
             function getDecoratorsIfInSendableClass(declaration: ts.HasDecorators): readonly ts.Decorator[] | undefined;
             function isISendableInterface(type: ts.Type): boolean;
             function isSharedModule(sourceFile: ts.SourceFile): boolean;
@@ -13485,6 +13490,8 @@ declare namespace ts {
             libraryTypeCallDiagnosticChecker: LibraryTypeCallDiagnosticChecker;
             skipArkTSStaticBlocksCheck: boolean;
             private fileExportSendableDeclCaches?;
+            private compatibleSdkVersionStage;
+            private compatibleSdkVersion;
             constructor(sourceFile: SourceFile, tsProgram: Program, tscStrictDiagnostics?: Map<Diagnostic[]> | undefined);
             static clearTsTypeChecker(): void;
             readonly handlersMap: ESMap<SyntaxKind, (node: Node) => void>;
@@ -13609,6 +13616,8 @@ declare namespace ts {
              */
             private checkAssignmentMatching;
             private handleDecorator;
+            private isSendableDecoratorValid;
+            private isImportLazyValid;
         }
     }
 }

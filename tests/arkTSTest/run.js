@@ -155,6 +155,8 @@ Object.assign(options, {
   ],
   'types': [],
   'etsLoaderPath': 'null_sdkPath',
+  'compatibleSdkVersion': 12,
+  'compatibleSdkVersionStage': 'beta3'
 });
 
 // Calling the runlinter interface

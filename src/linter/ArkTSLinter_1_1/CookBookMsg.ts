@@ -17,7 +17,7 @@ export namespace ArkTSLinter_1_1 {
 export const cookBookMsg: string[] = [];
 export const cookBookTag: string[] = [];
 
-for (let i = 0; i <= 181; i++) {
+for (let i = 0; i <= 183; i++) {
   cookBookMsg[ i ] = "";
 }
 
@@ -204,5 +204,9 @@ cookBookTag[180] =
   'The "@Sendable" decorator can only be used on "class", "function" and "typeAlias" (arkts-sendable-decorator-limited)';
 cookBookTag[181] =
   'The exported "Sendable" class or function cannot be captured by "Sendable" Class or function in current file (arkts-sendable-closure-export)';
+cookBookTag[182] =
+   'Sendable functions and sendable typealias are not available when compatibleSdkVersionStage is lowering than Beta3 of API12 (arkts-sendable-beta-compatible)';
+cookBookTag[183] =
+   'Lazy imports are not available when compatibleSdkVersionStage is lowering than Beta3 of API12 (arkts-import-lazy-beta-compatible)';
 }
 }
