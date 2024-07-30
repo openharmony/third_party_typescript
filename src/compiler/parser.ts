@@ -7424,7 +7424,9 @@ namespace ts {
             if(name && hasEtsStylesDecoratorNames(decorators, sourceFileCompilerOptions)) {
                 fileStylesComponents.set(name.escapedText.toString(), SyntaxKind.FunctionDeclaration);
             }
+            const originalUICallbackContext = inUICallbackContext();
             setEtsBuilderContext(hasEtsBuilderDecoratorNames(decorators, sourceFileCompilerOptions));
+            setUICallbackContext(inBuilderContext());
             const isGenerator = asteriskToken ? SignatureFlags.Yield : SignatureFlags.None;
             const isAsync = modifierFlags & ModifierFlags.Async ? SignatureFlags.Await : SignatureFlags.None;
             const typeParameters = inEtsStylesComponentsContext() && stylesEtsComponentDeclaration ? parseEtsTypeParameters(scanner.getStartPos()) : parseTypeParameters();
@@ -7434,6 +7436,7 @@ namespace ts {
             const type = getFunctionDeclarationReturnType();
             const body = parseFunctionBlockOrSemicolon(isGenerator | isAsync, Diagnostics.or_expected);
             setEtsBuilderContext(false);
+            setUICallbackContext(originalUICallbackContext);
             setEtsExtendComponentsContext(false);
             extendEtsComponentDeclaration = undefined;
             setEtsStylesComponentsContext(false);
