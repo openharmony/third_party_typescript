@@ -139,6 +139,8 @@ export class TypeScriptLinter {
   libraryTypeCallDiagnosticChecker: LibraryTypeCallDiagnosticChecker;
   skipArkTSStaticBlocksCheck: boolean;
   private fileExportSendableDeclCaches?: Set<ts.Node>;
+  private compatibleSdkVersionStage: string = 'beta1';
+  private compatibleSdkVersion: number = 12;
 
   constructor(private sourceFile: SourceFile,
               /* private */ tsProgram: Program,
@@ -153,6 +155,12 @@ export class TypeScriptLinter {
     this.skipArkTSStaticBlocksCheck = false;
     if (options.skipArkTSStaticBlocksCheck) {
       this.skipArkTSStaticBlocksCheck = options.skipArkTSStaticBlocksCheck as boolean;
+    }
+    if (options.compatibleSdkVersion) {
+      this.compatibleSdkVersion = options.compatibleSdkVersion;
+    }
+    if (options.compatibleSdkVersionStage) {
+      this.compatibleSdkVersionStage = options.compatibleSdkVersionStage;
     }
   }
 
@@ -951,6 +959,9 @@ export class TypeScriptLinter {
       this.incrementCounters(node, FaultID.GeneratorFunction);
     }
     if (Utils.hasSendableDecoratorFunctionOverload(tsFunctionDeclaration)) {
+      if (!this.isSendableDecoratorValid(tsFunctionDeclaration)) {
+        return;
+      }
       Utils.getNonSendableDecorators(tsFunctionDeclaration)?.forEach((decorator) => {
         this.incrementCounters(decorator, FaultID.SendableFunctionDecorator);
       });
@@ -1539,6 +1550,9 @@ export class TypeScriptLinter {
     const tsTypeAlias = node as TypeAliasDeclaration;
     this.countDeclarationsWithDuplicateName(tsTypeAlias.name, tsTypeAlias);
     if (Utils.hasSendableDecorator(tsTypeAlias)) {
+      if (!this.isSendableDecoratorValid(tsTypeAlias)) {
+        return;
+      }
       Utils.getNonSendableDecorators(tsTypeAlias)?.forEach((decorator) => {
         this.incrementCounters(decorator, FaultID.SendableTypeAliasDecorator);
       });
@@ -1553,6 +1567,7 @@ export class TypeScriptLinter {
     if (tsImportClause.name) {
       this.countDeclarationsWithDuplicateName(tsImportClause.name, tsImportClause);
     }
+    this.isImportLazyValid(tsImportClause);
   }
 
   private handleImportSpecifier(node: Node): void {
@@ -2539,6 +2554,32 @@ export class TypeScriptLinter {
         this.incrementCounters(decorator, FaultID.SendableDecoratorLimited);
       }
     }
+  }
+
+  private isSendableDecoratorValid(decl: ts.FunctionDeclaration | ts.TypeAliasDeclaration): boolean {
+    if (
+      this.compatibleSdkVersion > 12 ||
+      this.compatibleSdkVersion === 12 && (this.compatibleSdkVersionStage !== 'beta1' && this.compatibleSdkVersionStage !== 'beta2')
+    ) {
+      return true;
+    }
+    const curDecorator = Utils.getSendableDecorator(decl);
+    if (curDecorator) {
+      this.incrementCounters(curDecorator, FaultID.SendableBetaCompatible);
+    }
+    return false;
+  }
+
+  private isImportLazyValid(tsImportClause: ImportClause): boolean {
+    if (
+      !tsImportClause.isLazy ||
+      this.compatibleSdkVersion > 12 ||
+      this.compatibleSdkVersion === 12 && (this.compatibleSdkVersionStage !== 'beta1' && this.compatibleSdkVersionStage !== 'beta2')
+    ) {
+      return true;
+    }
+    this.incrementCounters(tsImportClause, FaultID.ImportLazyBetaCompatible);
+    return false;
   }
 }
 }

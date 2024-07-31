@@ -6759,6 +6759,8 @@ namespace ts {
         etsLoaderPath?: string;
         tsImportSendableEnable?: boolean;
         skipPathsInKeyForCompilationSettings?: boolean;
+        compatibleSdkVersion?: number;
+        compatibleSdkVersionStage?: string;
         [option: string]: CompilerOptionsValue | TsConfigSourceFile | undefined;
     }
 
