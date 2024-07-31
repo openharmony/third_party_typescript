@@ -1567,7 +1567,7 @@ export class TypeScriptLinter {
     if (tsImportClause.name) {
       this.countDeclarationsWithDuplicateName(tsImportClause.name, tsImportClause);
     }
-    this.isImportLazyValid(tsImportClause);
+    this.checkImportLazy(tsImportClause);
   }
 
   private handleImportSpecifier(node: Node): void {
@@ -2570,16 +2570,15 @@ export class TypeScriptLinter {
     return false;
   }
 
-  private isImportLazyValid(tsImportClause: ImportClause): boolean {
+  private checkImportLazy(tsImportClause: ImportClause): void {
     if (
       !tsImportClause.isLazy ||
       this.compatibleSdkVersion > 12 ||
       this.compatibleSdkVersion === 12 && (this.compatibleSdkVersionStage !== 'beta1' && this.compatibleSdkVersionStage !== 'beta2')
     ) {
-      return true;
+      return;
     }
     this.incrementCounters(tsImportClause, FaultID.ImportLazyBetaCompatible);
-    return false;
   }
 }
 }
