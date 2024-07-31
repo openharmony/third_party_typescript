@@ -229,10 +229,10 @@ namespace ts {
     /* @internal */
     export function hasEtsBuilderDecoratorNames(decorators: NodeArray<Decorator> | readonly Decorator[] | undefined, options: CompilerOptions): boolean {
         const names: string[] = [];
-        const renderDecorators: string[] | undefined = options.ets?.render?.decorator;
         if (!decorators || !decorators.length) {
             return false;
         }
+        const renderDecorators: string[] | undefined = options?.ets?.render?.decorator;
         if (!(renderDecorators && renderDecorators.length)) {
             return false;
         }
