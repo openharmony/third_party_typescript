@@ -43,13 +43,18 @@ export function runArkTSLinter(tsBuilderProgram: BuilderProgram, srcFile?: Sourc
   let programState = tsBuilderProgram.getState();
   const oldDiagnostics = programState.arktsLinterDiagnosticsPerFile;
   programState.arktsLinterDiagnosticsPerFile = new Map();
-  const changedFiles = collectChangedFilesFromProgramState(programState, arkTSVersion);
-  // Set arkTSVersion info for file .tsbuildinfo.
-  // File .tsbuildinfo.linter dosen't need to set arkTSVersion because it dosen't contain linter diagnostics.
-  programState.arkTSVersion = arkTSVersion;
 
   const tscDiagnosticsLinter = new TSCCompiledProgram(tsBuilderProgram);
   const program = tscDiagnosticsLinter.getProgram();
+  const compilerOptions = program.getCompilerOptions();
+  const changedFiles = collectChangedFilesFromProgramState(programState, arkTSVersion, compilerOptions.compatibleSdkVersion, compilerOptions.compatibleSdkVersionStage);
+  // Set arkTSVersion info for file .tsbuildinfo.
+  // File .tsbuildinfo.linter dosen't need to set arkTSVersion because it dosen't contain linter diagnostics.
+  programState.arkTSVersion = arkTSVersion;
+  // Record the compatible version information configured in 'build-profile.json5', 
+  // so that incremental compilation needs to recheck all files when the configuration changes.
+  programState.compatibleSdkVersion = compilerOptions.compatibleSdkVersion;
+  programState.compatibleSdkVersionStage = compilerOptions.compatibleSdkVersionStage;
 
   const timePrinterInstance = ts.ArkTSLinterTimePrinter.getInstance();
   timePrinterInstance.appendTime(ts.TimePhase.INIT);
@@ -132,12 +137,22 @@ function releaseReferences(): void {
   Utils.clearTrueSymbolAtLocationCache();
 }
 
-function collectChangedFilesFromProgramState(state: ReusableBuilderProgramState, arkTSVersion?: string): Set<Path> {
+function collectChangedFilesFromProgramState(
+  state: ReusableBuilderProgramState,
+  arkTSVersion?: string,
+  compatibleSdkVersion?: number,
+  compatibleSdkVersionStage?: string
+): Set<Path> {
   const changedFiles = new Set<Path>(state.changedFilesSet);
 
   // If old arkTSVersion from last run is not same current arkTSVersion from ets_loader,
   // the process all files in project.
-  if (state.arkTSVersion !== arkTSVersion) {
+  // The compatibleSdkVersion and compatibleSdkVersionStage is the same as arkTSVersion
+  if (
+    state.arkTSVersion !== arkTSVersion ||
+    state.compatibleSdkVersion !== compatibleSdkVersion ||
+    state.compatibleSdkVersionStage !== compatibleSdkVersionStage
+  ) {
     return new Set<Path>(arrayFrom(state.fileInfos.keys()));
   }
 
