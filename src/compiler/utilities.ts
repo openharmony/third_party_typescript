@@ -3375,15 +3375,22 @@ namespace ts {
         return undefined;
     }
 
-    export function getRootComponent(node: Node | undefined, compilerOptions: CompilerOptions): EtsComponentExpression | CallExpression | undefined {
+    export function getRootComponent(node: Node | undefined, compilerOptions: CompilerOptions):
+        [EtsComponentExpression | CallExpression | undefined, string | undefined] {
         while (node) {
-            if (isEtsComponentExpression(node) || isCallExpression(node) && isIdentifier(node.expression) &&
-                compilerOptions.ets?.syntaxComponents?.attrUICallback?.map((item: any)=>item.name).includes(node.expression.escapedText.toString())) {
-                return node;
+            if (isEtsComponentExpression(node)) {
+                return [node, 'etsComponentType'];
+            } else if (isCallExpression(node) && isIdentifier(node.expression)) {
+                if (compilerOptions.ets?.syntaxComponents?.attrUICallback?.map((item: any) => item.name).includes(node.expression.escapedText.toString())) {
+                    return [node, 'callExpressionComponentType'];
+                } else {
+                    return [node, 'otherType'];
+                }
+
             }
             node = (node as PropertyAccessExpression | CallExpression).expression;
         }
-        return undefined;
+        return [undefined, undefined];
     }
 
     export function getVirtualEtsComponent(node: Node | undefined): PropertyAccessExpression | undefined {
