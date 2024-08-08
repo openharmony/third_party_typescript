@@ -1307,7 +1307,7 @@ export class TypeScriptLinter {
   private scanCapturedVarsInSendableScope(startNode: ts.Node, scope: ts.Node, faultId: FaultID): void {
     const callback = (node: ts.Node): void => {
       // Namespace import will introduce closure in the es2abc compiler stage
-      if (!ts.isIdentifier(node) || this.checkNamespaceImportVar(node)) {
+      if (!ts.isIdentifier(node) || this.checkNamespaceImportVar(node, faultId)) {
         return;
       }
 
@@ -1397,13 +1397,13 @@ export class TypeScriptLinter {
     return false;
   }
 
-  private checkNamespaceImportVar(node: ts.Node): boolean {
+  private checkNamespaceImportVar(node: ts.Node, faultId: FaultID): boolean {
     // Namespace import cannot be determined by the true symbol
     const sym = TypeScriptLinter.tsTypeChecker.getSymbolAtLocation(node);
     const decls = sym?.getDeclarations();
     if (decls?.length) {
       if (ts.isNamespaceImport(decls[0])) {
-        this.incrementCounters(node, FaultID.SendableCapturedVars);
+        this.incrementCounters(node, faultId);
         return true;
       }
     }
@@ -1567,7 +1567,7 @@ export class TypeScriptLinter {
     if (tsImportClause.name) {
       this.countDeclarationsWithDuplicateName(tsImportClause.name, tsImportClause);
     }
-    this.isImportLazyValid(tsImportClause);
+    this.checkImportLazy(tsImportClause);
   }
 
   private handleImportSpecifier(node: Node): void {
@@ -2570,16 +2570,15 @@ export class TypeScriptLinter {
     return false;
   }
 
-  private isImportLazyValid(tsImportClause: ImportClause): boolean {
+  private checkImportLazy(tsImportClause: ImportClause): void {
     if (
       !tsImportClause.isLazy ||
       this.compatibleSdkVersion > 12 ||
       this.compatibleSdkVersion === 12 && (this.compatibleSdkVersionStage !== 'beta1' && this.compatibleSdkVersionStage !== 'beta2')
     ) {
-      return true;
+      return;
     }
     this.incrementCounters(tsImportClause, FaultID.ImportLazyBetaCompatible);
-    return false;
   }
 }
 }

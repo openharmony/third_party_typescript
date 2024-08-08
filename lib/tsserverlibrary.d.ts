@@ -13617,7 +13617,7 @@ declare namespace ts {
             private checkAssignmentMatching;
             private handleDecorator;
             private isSendableDecoratorValid;
-            private isImportLazyValid;
+            private checkImportLazy;
         }
     }
 }

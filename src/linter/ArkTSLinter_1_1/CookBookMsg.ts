@@ -203,10 +203,10 @@ cookBookTag[179] = 'Casting "Non-sendable" function to "Sendable" typeAlias is n
 cookBookTag[180] =
   'The "@Sendable" decorator can only be used on "class", "function" and "typeAlias" (arkts-sendable-decorator-limited)';
 cookBookTag[181] =
-  'The exported "Sendable" class or function cannot be captured by "Sendable" Class or function in current file (arkts-sendable-closure-export)';
+  'The exported "Sendable" class or function cannot be captured by "Sendable" class or function in current file (arkts-sendable-closure-export)';
 cookBookTag[182] =
-   'Sendable functions and sendable typealias are not available when compatibleSdkVersionStage is lowering than Beta3 of API12 (arkts-sendable-beta-compatible)';
+  'Sendable functions and sendable typealias are not available when compatibleSdkVersionStage is lowering than beta3 of API12 (arkts-sendable-beta-compatible)';
 cookBookTag[183] =
-   'Lazy imports are not available when compatibleSdkVersionStage is lowering than Beta3 of API12 (arkts-import-lazy-beta-compatible)';
+  'Lazy imports are not available when compatibleSdkVersionStage is lowering than beta3 of API12 (arkts-import-lazy-beta-compatible)';
 }
 }
