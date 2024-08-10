@@ -1,0 +1,9 @@
+tests/cases/conformance/annotations/annotationAsTypeError4.ets(3,17): error TS28027: Annotation cannot be used as type or variable or function or method.
+
+
+==== tests/cases/conformance/annotations/annotationAsTypeError4.ets (1 errors) ====
+    @interface Anno {}
+    
+    class C extends Anno{}
+                    ~~~~
+!!! error TS28027: Annotation cannot be used as type or variable or function or method.

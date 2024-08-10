@@ -59,6 +59,8 @@ namespace ts {
             case SyntaxKind.ClassDeclaration:
             case SyntaxKind.StructDeclaration:
                 return SemanticMeaning.Value | SemanticMeaning.Type;
+            case SyntaxKind.AnnotationDeclaration:
+                return SemanticMeaning.Type;
 
             case SyntaxKind.ModuleDeclaration:
                 if (isAmbientModule(node as ModuleDeclaration)) {
@@ -3449,8 +3451,8 @@ namespace ts {
     }
 
     export function isVirtualAttributeTypeArgument(node: CallExpression | EtsComponentExpression): boolean {
-        return node.typeArguments ? 
-            some(node.typeArguments, 
+        return node.typeArguments ?
+            some(node.typeArguments,
                 (argument) => isTypeReferenceNode(argument) &&
                 !!argument.virtual &&
                 isIdentifier(argument.typeName) &&

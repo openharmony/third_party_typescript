@@ -210,6 +210,7 @@ namespace ts {
         // TypeMember
         PropertySignature,
         PropertyDeclaration,
+        AnnotationPropertyDeclaration,
         MethodSignature,
         MethodDeclaration,
         ClassStaticBlockDeclaration,
@@ -309,6 +310,7 @@ namespace ts {
         FunctionDeclaration,
         ClassDeclaration,
         StructDeclaration,
+        AnnotationDeclaration,
         InterfaceDeclaration,
         TypeAliasDeclaration,
         EnumDeclaration,
@@ -977,6 +979,7 @@ namespace ts {
         | Decorator
         | PropertySignature
         | PropertyDeclaration
+        | AnnotationPropertyDeclaration
         | MethodSignature
         | MethodDeclaration
         | ConstructorDeclaration
@@ -1065,6 +1068,7 @@ namespace ts {
         | FunctionDeclaration
         | ClassDeclaration
         | StructDeclaration
+        | AnnotationDeclaration
         | InterfaceDeclaration
         | TypeAliasDeclaration
         | EnumDeclaration
@@ -1145,6 +1149,8 @@ namespace ts {
         | MethodDeclaration
         | VariableDeclaration
         | PropertyDeclaration
+        | AnnotationPropertyDeclaration
+        | AnnotationDeclaration
         | AccessorDeclaration
         | ClassLikeDeclaration
         | InterfaceDeclaration
@@ -1173,6 +1179,7 @@ namespace ts {
         | ParameterDeclaration
         | PropertySignature
         | PropertyDeclaration
+        | AnnotationPropertyDeclaration
         | TypePredicateNode
         | ParenthesizedTypeNode
         | TypeOperatorNode
@@ -1223,6 +1230,7 @@ namespace ts {
         | ParameterDeclaration
         | BindingElement
         | PropertyDeclaration
+        | AnnotationPropertyDeclaration
         | PropertyAssignment
         | EnumMember
         ;
@@ -1291,6 +1299,7 @@ namespace ts {
         | FunctionDeclaration
         | ClassDeclaration
         | StructDeclaration
+        | AnnotationDeclaration
         | InterfaceDeclaration
         | TypeAliasDeclaration
         | EnumDeclaration
@@ -1562,8 +1571,11 @@ namespace ts {
         readonly kind: SyntaxKind.Decorator;
         readonly parent: NamedDeclaration;
         readonly expression: LeftHandSideExpression;
+        /** Refers to a annotation declaration (or undefined when decorator isn't annotation) */
+        readonly annotationDeclaration?: AnnotationDeclaration;
     }
 
+    export type Annotation = Decorator;
     export interface TypeParameterDeclaration extends NamedDeclaration {
         readonly kind: SyntaxKind.TypeParameter;
         readonly parent: DeclarationWithTypeParameterChildren | InferTypeNode;
@@ -1674,6 +1686,14 @@ namespace ts {
         readonly initializer?: Expression;           // Optional initializer
     }
 
+    export interface AnnotationPropertyDeclaration extends AnnotationElement, JSDocContainer {
+        readonly kind: SyntaxKind.AnnotationPropertyDeclaration;
+        readonly parent: AnnotationDeclaration;
+        readonly name: PropertyName;
+        readonly type?: TypeNode;
+        readonly initializer?: Expression;           // Optional initializer
+    }
+
     export interface AutoAccessorPropertyDeclaration extends PropertyDeclaration {
         _autoAccessorBrand: any;
     }
@@ -1765,6 +1785,7 @@ namespace ts {
         | ParameterDeclaration
         | BindingElement
         | PropertyDeclaration
+        | AnnotationPropertyDeclaration
         | PropertyAssignment
         | PropertySignature
         | JsxAttribute
@@ -3284,7 +3305,7 @@ namespace ts {
         ;
 
     export interface ClassLikeDeclarationBase extends NamedDeclaration, JSDocContainer {
-        readonly kind: SyntaxKind.ClassDeclaration | SyntaxKind.ClassExpression | SyntaxKind.StructDeclaration;
+        readonly kind: SyntaxKind.ClassDeclaration | SyntaxKind.ClassExpression | SyntaxKind.StructDeclaration | SyntaxKind.AnnotationDeclaration;
         readonly name?: Identifier;
         readonly typeParameters?: NodeArray<TypeParameterDeclaration>;
         readonly heritageClauses?: NodeArray<HeritageClause>;
@@ -3305,6 +3326,13 @@ namespace ts {
         readonly name?: Identifier;
     }
 
+    export interface AnnotationDeclaration extends DeclarationStatement {
+        readonly kind: SyntaxKind.AnnotationDeclaration;
+        readonly modifiers?: NodeArray<ModifierLike>;
+        readonly name: Identifier;
+        readonly members: NodeArray<AnnotationElement>;
+    }
+
     export interface ClassExpression extends ClassLikeDeclarationBase, PrimaryExpression {
         readonly kind: SyntaxKind.ClassExpression;
         readonly modifiers?: NodeArray<ModifierLike>;
@@ -3319,6 +3347,11 @@ namespace ts {
     export interface ClassElement extends NamedDeclaration {
         _classElementBrand: any;
         readonly name?: PropertyName;
+    }
+
+    export interface AnnotationElement extends NamedDeclaration {
+        _annnotationElementBrand: any;
+        readonly name: PropertyName;
     }
 
     export interface TypeElement extends NamedDeclaration {
@@ -5217,7 +5250,8 @@ namespace ts {
         | TypeAliasDeclaration
         | InterfaceDeclaration
         | EnumDeclaration
-        | StructDeclaration;
+        | StructDeclaration
+        | AnnotationDeclaration;
 
     /* @internal */
     export interface SymbolVisibilityResult {
@@ -5336,6 +5370,12 @@ namespace ts {
         isBindingCapturedByNode(node: Node, decl: VariableDeclaration | BindingElement): boolean;
         getDeclarationStatementsForSourceFile(node: SourceFile, flags: NodeBuilderFlags, tracker: SymbolTracker, bundled?: boolean): Statement[] | undefined;
         isImportRequiredByAugmentation(decl: ImportDeclaration): boolean;
+        getAnnotationObjectLiteralEvaluatedProps(node: Annotation): ESMap<__String, Expression> | undefined;
+        getAnnotationPropertyEvaluatedInitializer(node: AnnotationPropertyDeclaration): Expression | undefined;
+        getAnnotationPropertyInferredType(node: AnnotationPropertyDeclaration): TypeNode | undefined;
+        setAnnotationDeclarationUniquePrefix(node: AnnotationDeclaration, name: string): void;
+        getAnnotationDeclarationUniquePrefix(node: AnnotationDeclaration): string | undefined;
+        isReferredToAnnotation(node: ImportSpecifier | ExportSpecifier | ExportAssignment): boolean | undefined;
     }
 
     export const enum SymbolFlags {
@@ -5368,6 +5408,7 @@ namespace ts {
         Transient               = 1 << 25,  // Transient symbol (created during type check)
         Assignment              = 1 << 26,  // Assignment treated as declaration (eg `this.prop = 1`)
         ModuleExports           = 1 << 27,  // Symbol for CommonJS `module` of `module.exports`
+        Annotation              = 1 << 28,  // Annotation
         /* @internal */
         All = FunctionScopedVariable | BlockScopedVariable | Property | EnumMember | Function | Class | Interface | ConstEnum | RegularEnum | ValueModule | NamespaceModule | TypeLiteral
             | ObjectLiteral | Method | Constructor | GetAccessor | SetAccessor | Signature | TypeParameter | TypeAlias | ExportValue | Alias | Prototype | ExportStar | Optional | Transient,
@@ -5659,6 +5700,11 @@ namespace ts {
         skipDirectInference?: true;         // Flag set by the API `getContextualType` call on a node when `Completions` is passed to force the checker to skip making inferences to a node's type
         declarationRequiresScopeChange?: boolean; // Set by `useOuterVariableScopeInParameter` in checker when downlevel emit would change the name resolution scope inside of a parameter.
         serializedTypes?: ESMap<string, TypeNode & {truncating?: boolean, addedLength: number}>; // Collection of types serialized at this location
+        annotationObjectLiteralEvaluatedProps?: ESMap<__String, Expression>; // Stores evaluated values of each PropertyAssignments if decorator is annotation and expression is callExpression
+        annotationPropertyEvaluatedInitializer?: Expression;  // Cached evaluated constant expression of AnnotationPropertyDeclaration initializer
+        annotationPropertyInferredType?: TypeNode; // Cached inferred type of AnnotationPropertyDeclaration
+        annotationDeclarationUniquePrefix?: string; // Cached a prefix of AnnotationDeclaration name
+        exportOrImportRefersToAnnotation?: boolean; // Indicates that ImportSpecifier, ExportSpecifier or ExportAssignment are referred to AnnotationDeclaration.
     }
 
     export const enum TypeFlags {
@@ -5850,6 +5896,7 @@ namespace ts {
         JSLiteral        = 1 << 12, // Object type declared in JS - disables errors on read/write of nonexisting members
         FreshLiteral     = 1 << 13, // Fresh object literal
         ArrayLiteral     = 1 << 14, // Originates in an array literal
+        Annotation       = 1 << 27, // Annotation
         /* @internal */
         PrimitiveUnion   = 1 << 15, // Union of only primitive types
         /* @internal */
@@ -6762,6 +6809,7 @@ namespace ts {
         compatibleSdkVersion?: number;
         compatibleSdkVersionStage?: string;
         [option: string]: CompilerOptionsValue | TsConfigSourceFile | undefined;
+        etsAnnotationsEnable?: boolean;
     }
 
     export interface EtsOptions {
@@ -7354,7 +7402,7 @@ namespace ts {
         message?: string;
     }
     export interface CompilerHost extends ModuleResolutionHost {
-        getSourceFile(fileName: string, languageVersionOrOptions: ScriptTarget | CreateSourceFileOptions, onError?: (message: string) => void, shouldCreateNewSourceFile?: boolean): SourceFile | undefined;
+        getSourceFile(fileName: string, languageVersionOrOptions: ScriptTarget | CreateSourceFileOptions, onError?: (message: string) => void, shouldCreateNewSourceFile?: boolean, options?: CompilerOptions): SourceFile | undefined;
         getSourceFileByPath?(fileName: string, path: Path, languageVersionOrOptions: ScriptTarget | CreateSourceFileOptions, onError?: (message: string) => void, shouldCreateNewSourceFile?: boolean): SourceFile | undefined;
         getCancellationToken?(): CancellationToken;
         getDefaultLibFileName(options: CompilerOptions): string;
@@ -7926,8 +7974,8 @@ namespace ts {
         updateTypeParameterDeclaration(node: TypeParameterDeclaration, modifiers: readonly Modifier[] | undefined, name: Identifier, constraint: TypeNode | undefined, defaultType: TypeNode | undefined): TypeParameterDeclaration;
         createParameterDeclaration(modifiers: readonly ModifierLike[] | undefined, dotDotDotToken: DotDotDotToken | undefined, name: string | BindingName, questionToken?: QuestionToken, type?: TypeNode, initializer?: Expression): ParameterDeclaration;
         updateParameterDeclaration(node: ParameterDeclaration, modifiers: readonly ModifierLike[] | undefined, dotDotDotToken: DotDotDotToken | undefined, name: string | BindingName, questionToken: QuestionToken | undefined, type: TypeNode | undefined, initializer: Expression | undefined): ParameterDeclaration;
-        createDecorator(expression: Expression): Decorator;
-        updateDecorator(node: Decorator, expression: Expression): Decorator;
+        createDecorator(expression: Expression, annotationDeclaration?: AnnotationDeclaration): Decorator;
+        updateDecorator(node: Decorator, expression: Expression, annotationDeclaration?: AnnotationDeclaration): Decorator;
 
         //
         // Type Elements
@@ -7937,6 +7985,8 @@ namespace ts {
         updatePropertySignature(node: PropertySignature, modifiers: readonly Modifier[] | undefined, name: PropertyName, questionToken: QuestionToken | undefined, type: TypeNode | undefined): PropertySignature;
         createPropertyDeclaration(modifiers: readonly ModifierLike[] | undefined, name: string | PropertyName, questionOrExclamationToken: QuestionToken | ExclamationToken | undefined, type: TypeNode | undefined, initializer: Expression | undefined): PropertyDeclaration;
         updatePropertyDeclaration(node: PropertyDeclaration, modifiers: readonly ModifierLike[] | undefined, name: string | PropertyName, questionOrExclamationToken: QuestionToken | ExclamationToken | undefined, type: TypeNode | undefined, initializer: Expression | undefined): PropertyDeclaration;
+        createAnnotationPropertyDeclaration(name: string | PropertyName, type: TypeNode | undefined, initializer: Expression | undefined): AnnotationPropertyDeclaration;
+        updateAnnotationPropertyDeclaration(node: AnnotationPropertyDeclaration, name: string | PropertyName, type: TypeNode | undefined, initializer: Expression | undefined): AnnotationPropertyDeclaration;
         createMethodSignature(modifiers: readonly Modifier[] | undefined, name: string | PropertyName, questionToken: QuestionToken | undefined, typeParameters: readonly TypeParameterDeclaration[] | undefined, parameters: readonly ParameterDeclaration[], type: TypeNode | undefined): MethodSignature;
         updateMethodSignature(node: MethodSignature, modifiers: readonly Modifier[] | undefined, name: PropertyName, questionToken: QuestionToken | undefined, typeParameters: NodeArray<TypeParameterDeclaration> | undefined, parameters: NodeArray<ParameterDeclaration>, type: TypeNode | undefined): MethodSignature;
         createMethodDeclaration(modifiers: readonly ModifierLike[] | undefined, asteriskToken: AsteriskToken | undefined, name: string | PropertyName, questionToken: QuestionToken | undefined, typeParameters: readonly TypeParameterDeclaration[] | undefined, parameters: readonly ParameterDeclaration[], type: TypeNode | undefined, body: Block | undefined): MethodDeclaration;
@@ -8163,6 +8213,10 @@ namespace ts {
         updateClassDeclaration(node: ClassDeclaration, modifiers: readonly ModifierLike[] | undefined, name: Identifier | undefined, typeParameters: readonly TypeParameterDeclaration[] | undefined, heritageClauses: readonly HeritageClause[] | undefined, members: readonly ClassElement[]): ClassDeclaration;
         createStructDeclaration(modifiers: readonly ModifierLike[] | undefined, name: string | Identifier | undefined, typeParameters: readonly TypeParameterDeclaration[] | undefined, heritageClauses: readonly HeritageClause[] | undefined, members: readonly ClassElement[]): StructDeclaration;
         updateStructDeclaration(node: StructDeclaration, modifiers: readonly ModifierLike[] | undefined, name: Identifier | undefined, typeParameters: readonly TypeParameterDeclaration[] | undefined, heritageClauses: readonly HeritageClause[] | undefined, members: readonly ClassElement[]): StructDeclaration;
+
+        createAnnotationDeclaration(modifiers: readonly ModifierLike[] | undefined, name: string | Identifier | undefined, members: readonly AnnotationElement[]): AnnotationDeclaration;
+        updateAnnotationDeclaration(node: AnnotationDeclaration, modifiers: readonly ModifierLike[] | undefined, name: Identifier | undefined, members: readonly AnnotationElement[]): AnnotationDeclaration;
+
         createInterfaceDeclaration(modifiers: readonly Modifier[] | undefined, name: string | Identifier, typeParameters: readonly TypeParameterDeclaration[] | undefined, heritageClauses: readonly HeritageClause[] | undefined, members: readonly TypeElement[]): InterfaceDeclaration;
         updateInterfaceDeclaration(node: InterfaceDeclaration, modifiers: readonly Modifier[] | undefined, name: Identifier, typeParameters: readonly TypeParameterDeclaration[] | undefined, heritageClauses: readonly HeritageClause[] | undefined, members: readonly TypeElement[]): InterfaceDeclaration;
         createTypeAliasDeclaration(modifiers: readonly Modifier[] | undefined, name: string | Identifier, typeParameters: readonly TypeParameterDeclaration[] | undefined, type: TypeNode): TypeAliasDeclaration;

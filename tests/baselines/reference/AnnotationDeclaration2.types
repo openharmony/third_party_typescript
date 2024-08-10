@@ -1,0 +1,3 @@
+=== tests/cases/conformance/parser/ets/annotations/AnnotationDeclaration2.ets ===
+
+export @interface Anno {}

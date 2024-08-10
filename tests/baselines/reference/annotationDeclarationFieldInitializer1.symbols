@@ -1,0 +1,79 @@
+=== tests/cases/conformance/annotations/annotationDeclarationFieldInitializer1.ets ===
+@interface Anno {
+>Anno : Symbol(Anno, Decl(annotationDeclarationFieldInitializer1.ets, 0, 0))
+
+    a: number = +1
+>a : Symbol(Anno.a, Decl(annotationDeclarationFieldInitializer1.ets, 0, 17))
+
+    b: number = -1
+>b : Symbol(Anno.b, Decl(annotationDeclarationFieldInitializer1.ets, 1, 18))
+
+    c: number = ~1
+>c : Symbol(Anno.c, Decl(annotationDeclarationFieldInitializer1.ets, 2, 18))
+
+    d  = !1
+>d : Symbol(Anno.d, Decl(annotationDeclarationFieldInitializer1.ets, 3, 18))
+
+    e: number = 1 | 2
+>e : Symbol(Anno.e, Decl(annotationDeclarationFieldInitializer1.ets, 4, 11))
+
+    f: number = 1 & 2
+>f : Symbol(Anno.f, Decl(annotationDeclarationFieldInitializer1.ets, 5, 21))
+
+    g: number = 100 >> 1
+>g : Symbol(Anno.g, Decl(annotationDeclarationFieldInitializer1.ets, 6, 21))
+
+    h: number = 100 >>> 1
+>h : Symbol(Anno.h, Decl(annotationDeclarationFieldInitializer1.ets, 7, 24))
+
+    i: number = 10 << 1
+>i : Symbol(Anno.i, Decl(annotationDeclarationFieldInitializer1.ets, 8, 25))
+
+    j: number = 1 ^ 2
+>j : Symbol(Anno.j, Decl(annotationDeclarationFieldInitializer1.ets, 9, 23))
+
+    k: number = 10 * 10
+>k : Symbol(Anno.k, Decl(annotationDeclarationFieldInitializer1.ets, 10, 21))
+
+    l: number = 100 / 10
+>l : Symbol(Anno.l, Decl(annotationDeclarationFieldInitializer1.ets, 11, 23))
+
+    m: number = 2 + 3
+>m : Symbol(Anno.m, Decl(annotationDeclarationFieldInitializer1.ets, 12, 24))
+
+    o: number = 2 - 3
+>o : Symbol(Anno.o, Decl(annotationDeclarationFieldInitializer1.ets, 13, 21))
+
+    p: number = 9 % 3
+>p : Symbol(Anno.p, Decl(annotationDeclarationFieldInitializer1.ets, 14, 21))
+
+    q: number = 2 ** 3
+>q : Symbol(Anno.q, Decl(annotationDeclarationFieldInitializer1.ets, 15, 21))
+
+    r: number = 10 && 10
+>r : Symbol(Anno.r, Decl(annotationDeclarationFieldInitializer1.ets, 16, 22))
+
+    s: number = 0 || 10
+>s : Symbol(Anno.s, Decl(annotationDeclarationFieldInitializer1.ets, 17, 24))
+
+    t = 1 < 2
+>t : Symbol(Anno.t, Decl(annotationDeclarationFieldInitializer1.ets, 18, 23))
+
+    u = 1 <= 1
+>u : Symbol(Anno.u, Decl(annotationDeclarationFieldInitializer1.ets, 19, 13))
+
+    v = 1 > 2
+>v : Symbol(Anno.v, Decl(annotationDeclarationFieldInitializer1.ets, 20, 14))
+
+    w = 1 >= 1
+>w : Symbol(Anno.w, Decl(annotationDeclarationFieldInitializer1.ets, 21, 13))
+
+    x = 1 === 1
+>x : Symbol(Anno.x, Decl(annotationDeclarationFieldInitializer1.ets, 22, 14))
+
+    y = 1 !== 1
+>y : Symbol(Anno.y, Decl(annotationDeclarationFieldInitializer1.ets, 23, 15))
+
+    z = 1 == 1
+>z : Symbol(Anno.z, Decl(annotationDeclarationFieldInitializer1.ets, 24, 15))
+}

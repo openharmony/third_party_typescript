@@ -1,0 +1,6 @@
+=== tests/cases/conformance/parser/ets/annotations/AnnotationDeclarationNegative16.ets ===
+@interface Anno {
+    var
+    public
+>public : any
+}

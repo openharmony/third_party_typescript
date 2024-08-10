@@ -1,0 +1,10 @@
+=== tests/cases/conformance/annotations/annotationAsTypeError2.ets ===
+@interface Anno {}
+
+class C<T>{}
+>C : C<T>
+
+new C<Anno>();
+>new C<Anno>() : C<Anno>
+>C : typeof C
+

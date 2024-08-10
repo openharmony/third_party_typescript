@@ -1,0 +1,8 @@
+=== tests/cases/conformance/annotations/annotationAsTypeError4.ets ===
+@interface Anno {}
+>Anno : Symbol(Anno, Decl(annotationAsTypeError4.ets, 0, 0))
+
+class C extends Anno{}
+>C : Symbol(C, Decl(annotationAsTypeError4.ets, 0, 18))
+>Anno : Symbol(Anno, Decl(annotationAsTypeError4.ets, 0, 0))
+

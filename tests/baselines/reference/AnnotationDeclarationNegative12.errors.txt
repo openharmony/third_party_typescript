@@ -1,0 +1,10 @@
+tests/cases/conformance/parser/ets/annotations/AnnotationDeclarationNegative12.ets(1,16): error TS1005: '{' expected.
+tests/cases/conformance/parser/ets/annotations/AnnotationDeclarationNegative12.ets(1,17): error TS1110: Type expected.
+
+
+==== tests/cases/conformance/parser/ets/annotations/AnnotationDeclarationNegative12.ets (2 errors) ====
+    @interface Anno<> {}
+                   ~
+!!! error TS1005: '{' expected.
+                    ~
+!!! error TS1110: Type expected.

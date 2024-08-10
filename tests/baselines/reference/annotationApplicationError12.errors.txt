@@ -1,0 +1,15 @@
+tests/cases/conformance/annotations/annotationApplicationError12.ets(7,1): error TS28023: Repeatable annotation are not supported, got: '@Anno'.
+
+
+==== tests/cases/conformance/annotations/annotationApplicationError12.ets (1 errors) ====
+    @interface Anno {
+        a: number = 10
+        b: string[] = []
+    }
+    
+    @Anno
+    @Anno
+    ~~~~~
+!!! error TS28023: Repeatable annotation are not supported, got: '@Anno'.
+    class C {}
+    

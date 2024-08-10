@@ -1,0 +1,14 @@
+tests/cases/conformance/annotations/annotationApplicationError6.ets(6,1): error TS28020: Only an object literal have to be provided as annotation parameters list, got: 'Anno()'.
+
+
+==== tests/cases/conformance/annotations/annotationApplicationError6.ets (1 errors) ====
+    @interface Anno {
+        a: number
+        b: string[]
+    }
+    
+    @Anno()
+    ~~~~~~~
+!!! error TS28020: Only an object literal have to be provided as annotation parameters list, got: 'Anno()'.
+    class C {}
+    

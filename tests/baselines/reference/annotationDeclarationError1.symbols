@@ -1,0 +1,14 @@
+=== tests/cases/conformance/annotations/annotationDeclarationError1.ets ===
+function goo(target: any) {}
+>goo : Symbol(goo, Decl(annotationDeclarationError1.ets, 0, 0))
+>target : Symbol(target, Decl(annotationDeclarationError1.ets, 0, 13))
+
+@goo
+>goo : Symbol(goo, Decl(annotationDeclarationError1.ets, 0, 0))
+
+@interface Anno {
+>Anno : Symbol(Anno, Decl(annotationDeclarationError1.ets, 0, 28))
+
+    a: number
+>a : Symbol(Anno.a, Decl(annotationDeclarationError1.ets, 3, 17))
+}

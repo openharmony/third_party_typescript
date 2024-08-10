@@ -1,0 +1,21 @@
+=== tests/cases/conformance/annotations/annotationDeclarationFieldTypeError4.ets ===
+const enum E {
+>E : Symbol(E, Decl(annotationDeclarationFieldTypeError4.ets, 0, 0))
+
+    A,
+>A : Symbol(E.A, Decl(annotationDeclarationFieldTypeError4.ets, 0, 14))
+
+    B
+>B : Symbol(E.B, Decl(annotationDeclarationFieldTypeError4.ets, 1, 6))
+}
+type U = boolean | E
+>U : Symbol(U, Decl(annotationDeclarationFieldTypeError4.ets, 3, 1))
+>E : Symbol(E, Decl(annotationDeclarationFieldTypeError4.ets, 0, 0))
+
+@interface Anno {
+>Anno : Symbol(Anno, Decl(annotationDeclarationFieldTypeError4.ets, 4, 20))
+
+    a: U
+>a : Symbol(Anno.a, Decl(annotationDeclarationFieldTypeError4.ets, 6, 17))
+>U : Symbol(U, Decl(annotationDeclarationFieldTypeError4.ets, 3, 1))
+}

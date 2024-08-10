@@ -1,0 +1,54 @@
+=== tests/cases/conformance/annotations/annotationApplicationError3.ets ===
+@interface Anno {
+    a: number = 20
+>a : number
+
+    b: string[]
+>b : string[]
+}
+
+function foo(): number {
+>foo : () => number
+
+    return 10
+>10 : 10
+}
+
+@Anno({a: foo(), b: new C().s})
+>Anno({a: foo(), b: new C().s}) : void
+>Anno : typeof Anno
+>{a: foo(), b: new C().s} : { a: number; b: string[]; }
+>a : number
+>foo() : number
+>foo : () => number
+>b : string[]
+>new C().s : string[]
+>new C() : C
+>C : typeof C
+>s : string[]
+
+class C {
+>C : C
+
+    readonly s: string[] = ["a", "b", "c"]
+>s : string[]
+>["a", "b", "c"] : string[]
+>"a" : "a"
+>"b" : "b"
+>"c" : "c"
+}
+
+
+@Anno({b: new C().s})
+>Anno({b: new C().s}) : void
+>Anno : typeof Anno
+>{b: new C().s} : { b: string[]; }
+>b : string[]
+>new C().s : string[]
+>new C() : C
+>C : typeof C
+>s : string[]
+
+class D {}
+>D : D
+

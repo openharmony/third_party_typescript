@@ -1,0 +1,13 @@
+=== tests/cases/conformance/parser/ets/annotations/AnnotationDeclaration5.ets ===
+@interface Anno {
+>Anno : Symbol(Anno, Decl(AnnotationDeclaration5.ets, 0, 0))
+
+    a = 42
+>a : Symbol(Anno.a, Decl(AnnotationDeclaration5.ets, 0, 17))
+
+    b = false
+>b : Symbol(Anno.b, Decl(AnnotationDeclaration5.ets, 1, 10))
+
+    c = "abc"
+>c : Symbol(Anno.c, Decl(AnnotationDeclaration5.ets, 2, 13))
+}

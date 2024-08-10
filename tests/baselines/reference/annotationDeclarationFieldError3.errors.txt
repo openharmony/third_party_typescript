@@ -1,0 +1,20 @@
+tests/cases/conformance/annotations/annotationDeclarationFieldError3.ets(4,5): error TS28018: Unexpected token. An annotation property was expected.
+tests/cases/conformance/annotations/annotationDeclarationFieldError3.ets(4,9): error TS1146: Declaration expected.
+tests/cases/conformance/annotations/annotationDeclarationFieldError3.ets(4,13): error TS2693: 'number' only refers to a type, but is being used as a value here.
+tests/cases/conformance/annotations/annotationDeclarationFieldError3.ets(5,1): error TS1128: Declaration or statement expected.
+
+
+==== tests/cases/conformance/annotations/annotationDeclarationFieldError3.ets (4 errors) ====
+    function foo(target: any, key: string) {}
+    
+    @interface Anno {
+        @foo a: number
+        ~
+!!! error TS28018: Unexpected token. An annotation property was expected.
+            
+!!! error TS1146: Declaration expected.
+                ~~~~~~
+!!! error TS2693: 'number' only refers to a type, but is being used as a value here.
+    }
+    ~
+!!! error TS1128: Declaration or statement expected.

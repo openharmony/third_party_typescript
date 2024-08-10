@@ -1,0 +1,12 @@
+=== tests/cases/conformance/parser/ets/annotations/AnnotationDeclarationNegative18.ets ===
+function foo(d: Function){}
+>foo : Symbol(foo, Decl(AnnotationDeclarationNegative18.ets, 0, 0))
+>d : Symbol(d, Decl(AnnotationDeclarationNegative18.ets, 0, 13))
+>Function : Symbol(Function, Decl(lib.es5.d.ts, --, --), Decl(lib.es5.d.ts, --, --))
+
+@foo
+>foo : Symbol(foo, Decl(AnnotationDeclarationNegative18.ets, 0, 0))
+
+@interface Anno {}
+>Anno : Symbol(Anno, Decl(AnnotationDeclarationNegative18.ets, 0, 27))
+

@@ -1,0 +1,148 @@
+=== tests/cases/conformance/annotations/annotationDeclarationFieldInitializer1.ets ===
+@interface Anno {
+    a: number = +1
+>a : number
+>+1 : 1
+>1 : 1
+
+    b: number = -1
+>b : number
+>-1 : -1
+>1 : 1
+
+    c: number = ~1
+>c : number
+>~1 : number
+>1 : 1
+
+    d  = !1
+>d : boolean
+>!1 : boolean
+>1 : 1
+
+    e: number = 1 | 2
+>e : number
+>1 | 2 : number
+>1 : 1
+>2 : 2
+
+    f: number = 1 & 2
+>f : number
+>1 & 2 : number
+>1 : 1
+>2 : 2
+
+    g: number = 100 >> 1
+>g : number
+>100 >> 1 : number
+>100 : 100
+>1 : 1
+
+    h: number = 100 >>> 1
+>h : number
+>100 >>> 1 : number
+>100 : 100
+>1 : 1
+
+    i: number = 10 << 1
+>i : number
+>10 << 1 : number
+>10 : 10
+>1 : 1
+
+    j: number = 1 ^ 2
+>j : number
+>1 ^ 2 : number
+>1 : 1
+>2 : 2
+
+    k: number = 10 * 10
+>k : number
+>10 * 10 : number
+>10 : 10
+>10 : 10
+
+    l: number = 100 / 10
+>l : number
+>100 / 10 : number
+>100 : 100
+>10 : 10
+
+    m: number = 2 + 3
+>m : number
+>2 + 3 : number
+>2 : 2
+>3 : 3
+
+    o: number = 2 - 3
+>o : number
+>2 - 3 : number
+>2 : 2
+>3 : 3
+
+    p: number = 9 % 3
+>p : number
+>9 % 3 : number
+>9 : 9
+>3 : 3
+
+    q: number = 2 ** 3
+>q : number
+>2 ** 3 : number
+>2 : 2
+>3 : 3
+
+    r: number = 10 && 10
+>r : number
+>10 && 10 : 0 | 10
+>10 : 10
+>10 : 10
+
+    s: number = 0 || 10
+>s : number
+>0 || 10 : 10
+>0 : 0
+>10 : 10
+
+    t = 1 < 2
+>t : boolean
+>1 < 2 : boolean
+>1 : 1
+>2 : 2
+
+    u = 1 <= 1
+>u : boolean
+>1 <= 1 : boolean
+>1 : 1
+>1 : 1
+
+    v = 1 > 2
+>v : boolean
+>1 > 2 : boolean
+>1 : 1
+>2 : 2
+
+    w = 1 >= 1
+>w : boolean
+>1 >= 1 : boolean
+>1 : 1
+>1 : 1
+
+    x = 1 === 1
+>x : boolean
+>1 === 1 : boolean
+>1 : 1
+>1 : 1
+
+    y = 1 !== 1
+>y : boolean
+>1 !== 1 : boolean
+>1 : 1
+>1 : 1
+
+    z = 1 == 1
+>z : boolean
+>1 == 1 : boolean
+>1 : 1
+>1 : 1
+}

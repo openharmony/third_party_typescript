@@ -1,0 +1,25 @@
+=== tests/cases/conformance/parser/ets/annotations/AnnotationDeclarationNegative23.ets ===
+declare let interface:PropertyDecorator
+>interface : Symbol(interface, Decl(AnnotationDeclarationNegative23.ets, 0, 11))
+>PropertyDecorator : Symbol(PropertyDecorator, Decl(lib.es5.d.ts, --, --))
+
+declare let f:PropertyDecorator;
+>f : Symbol(f, Decl(AnnotationDeclarationNegative23.ets, 1, 11))
+>PropertyDecorator : Symbol(PropertyDecorator, Decl(lib.es5.d.ts, --, --))
+
+class C{
+>C : Symbol(C, Decl(AnnotationDeclarationNegative23.ets, 1, 32))
+
+    @interface
+    @f
+> : Symbol((Missing), Decl(AnnotationDeclarationNegative23.ets, 2, 8))
+>f : Symbol(f, Decl(AnnotationDeclarationNegative23.ets, 1, 11))
+
+    a:number=1;
+    @f
+>f : Symbol(f, Decl(AnnotationDeclarationNegative23.ets, 1, 11))
+
+    @interface
+    b:number=1;
+>b : Symbol(b, Decl(AnnotationDeclarationNegative23.ets, 5, 15))
+}

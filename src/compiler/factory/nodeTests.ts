@@ -176,7 +176,11 @@ namespace ts {
     }
 
     export function isDecorator(node: Node): node is Decorator {
-        return node.kind === SyntaxKind.Decorator;
+        return node.kind === SyntaxKind.Decorator && (node as Decorator).annotationDeclaration === undefined;
+    }
+
+    export function isAnnotation(node: Node): node is Annotation {
+        return node.kind === SyntaxKind.Decorator && (node as Annotation).annotationDeclaration !== undefined;
     }
 
     // TypeMember
@@ -187,6 +191,10 @@ namespace ts {
 
     export function isPropertyDeclaration(node: Node): node is PropertyDeclaration {
         return node.kind === SyntaxKind.PropertyDeclaration;
+    }
+
+    export function isAnnotationPropertyDeclaration(node: Node): node is AnnotationPropertyDeclaration {
+        return node.kind === SyntaxKind.AnnotationPropertyDeclaration;
     }
 
     export function isMethodSignature(node: Node): node is MethodSignature {
@@ -577,6 +585,10 @@ namespace ts {
 
     export function isStructDeclaration(node: Node): node is StructDeclaration {
         return node.kind === SyntaxKind.StructDeclaration;
+    }
+
+    export function isAnnotationDeclaration(node: Node): node is AnnotationDeclaration {
+        return node.kind === SyntaxKind.AnnotationDeclaration;
     }
 
     export function isInterfaceDeclaration(node: Node): node is InterfaceDeclaration {

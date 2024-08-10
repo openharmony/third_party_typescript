@@ -1,0 +1,7 @@
+=== tests/cases/conformance/parser/ets/annotations/AnnotationDeclarationNegative21.ets ===
+namespace X {
+>X : Symbol(X, Decl(AnnotationDeclarationNegative21.ets, 0, 0))
+
+    @interface Anno {}
+>Anno : Symbol(Anno, Decl(AnnotationDeclarationNegative21.ets, 0, 13))
+}

@@ -1,0 +1,10 @@
+tests/cases/conformance/parser/ets/annotations/AnnotationDeclarationNegative13.ets(1,16): error TS1005: '{' expected.
+tests/cases/conformance/parser/ets/annotations/AnnotationDeclarationNegative13.ets(1,17): error TS2304: Cannot find name 'T'.
+
+
+==== tests/cases/conformance/parser/ets/annotations/AnnotationDeclarationNegative13.ets (2 errors) ====
+    @interface Anno<T> {}
+                   ~
+!!! error TS1005: '{' expected.
+                    ~
+!!! error TS2304: Cannot find name 'T'.

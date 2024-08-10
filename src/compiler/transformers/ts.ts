@@ -474,6 +474,9 @@ namespace ts {
                     // - method overload signatures
                     return visitClassExpression(node as ClassExpression);
 
+                case SyntaxKind.AnnotationDeclaration:
+                    return factory.createNotEmittedStatement(node);
+
                 case SyntaxKind.HeritageClause:
                     // This may be a heritage clause with TypeScript syntax extensions.
                     //
@@ -490,6 +493,7 @@ namespace ts {
 
                 case SyntaxKind.Constructor:
                 case SyntaxKind.PropertyDeclaration:
+                case SyntaxKind.AnnotationPropertyDeclaration:
                 case SyntaxKind.MethodDeclaration:
                 case SyntaxKind.GetAccessor:
                 case SyntaxKind.SetAccessor:

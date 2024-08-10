@@ -1,0 +1,9 @@
+tests/cases/conformance/annotations/annotationAsValueError2.ets(3,11): error TS28027: Annotation cannot be used as type or variable or function or method.
+
+
+==== tests/cases/conformance/annotations/annotationAsValueError2.ets (1 errors) ====
+    @interface Anno {}
+    
+    const a = Anno;
+              ~~~~
+!!! error TS28027: Annotation cannot be used as type or variable or function or method.

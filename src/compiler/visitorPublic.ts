@@ -458,7 +458,7 @@ namespace ts {
 
         [SyntaxKind.Decorator]: function visitEachChildOfDecorator(node, visitor, context, _nodesVisitor, nodeVisitor, _tokenVisitor) {
             return context.factory.updateDecorator(node,
-                nodeVisitor(node.expression, visitor, isExpression));
+                nodeVisitor(node.expression, visitor, isExpression), node.annotationDeclaration);
         },
 
         // Type elements
@@ -476,6 +476,13 @@ namespace ts {
                 nodeVisitor(node.name, visitor, isPropertyName),
                 // QuestionToken and ExclamationToken are mutually exclusive in PropertyDeclaration
                 nodeVisitor(node.questionToken ?? node.exclamationToken, tokenVisitor, isQuestionOrExclamationToken),
+                nodeVisitor(node.type, visitor, isTypeNode),
+                nodeVisitor(node.initializer, visitor, isExpression));
+        },
+
+        [SyntaxKind.AnnotationPropertyDeclaration]: function visitEachChildOfAnnotationPropertyDeclaration(node, visitor, context, _nodesVisitor, nodeVisitor, _tokenVisitor) {
+            return context.factory.updateAnnotationPropertyDeclaration(node,
+                nodeVisitor(node.name, visitor, isPropertyName),
                 nodeVisitor(node.type, visitor, isTypeNode),
                 nodeVisitor(node.initializer, visitor, isExpression));
         },
@@ -1098,6 +1105,13 @@ namespace ts {
                 nodesVisitor(node.typeParameters, visitor, isTypeParameterDeclaration),
                 nodesVisitor(node.heritageClauses, visitor, isHeritageClause),
                 nodesVisitor(node.members, visitor, isClassElement));
+        },
+
+        [SyntaxKind.AnnotationDeclaration]: function visitEachChildOfAnnotationDeclaration(node, visitor, context, nodesVisitor, nodeVisitor, _tokenVisitor) {
+            return context.factory.updateAnnotationDeclaration(node,
+                nodesVisitor(node.modifiers, visitor, isModifier),
+                nodeVisitor(node.name, visitor, isIdentifier),
+                nodesVisitor(node.members, visitor, isAnnotationElement));
         },
 
         [SyntaxKind.InterfaceDeclaration]: function visitEachChildOfInterfaceDeclaration(node, visitor, context, nodesVisitor, nodeVisitor, _tokenVisitor) {

@@ -1,0 +1,8 @@
+=== tests/cases/conformance/annotations/annotationDeclarationFieldTypeError3.ets ===
+type T = [number, string]
+>T : [number, string]
+
+@interface Anno {
+    a: T
+>a : T
+}

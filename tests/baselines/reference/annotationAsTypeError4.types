@@ -1,0 +1,7 @@
+=== tests/cases/conformance/annotations/annotationAsTypeError4.ets ===
+@interface Anno {}
+
+class C extends Anno{}
+>C : C
+>Anno : any
+

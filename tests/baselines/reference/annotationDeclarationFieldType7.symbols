@@ -1,0 +1,18 @@
+=== tests/cases/conformance/annotations/annotationDeclarationFieldType7.ets ===
+const enum E {
+>E : Symbol(E, Decl(annotationDeclarationFieldType7.ets, 0, 0))
+
+    A,
+>A : Symbol(E.A, Decl(annotationDeclarationFieldType7.ets, 0, 14))
+
+    B
+>B : Symbol(E.B, Decl(annotationDeclarationFieldType7.ets, 1, 6))
+}
+
+@interface Anno {
+>Anno : Symbol(Anno, Decl(annotationDeclarationFieldType7.ets, 3, 1))
+
+    a: E[]
+>a : Symbol(Anno.a, Decl(annotationDeclarationFieldType7.ets, 5, 17))
+>E : Symbol(E, Decl(annotationDeclarationFieldType7.ets, 0, 0))
+}

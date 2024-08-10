@@ -1,0 +1,11 @@
+tests/cases/conformance/annotations/annotationAsTypeError2.ets(5,7): error TS28028: Annotation cannot be used as a type.
+
+
+==== tests/cases/conformance/annotations/annotationAsTypeError2.ets (1 errors) ====
+    @interface Anno {}
+    
+    class C<T>{}
+    
+    new C<Anno>();
+          ~~~~
+!!! error TS28028: Annotation cannot be used as a type.

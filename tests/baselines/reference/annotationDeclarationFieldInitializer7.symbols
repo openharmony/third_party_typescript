@@ -1,0 +1,227 @@
+=== tests/cases/conformance/annotations/annotationDeclarationFieldInitializer7.ets ===
+const enum E {
+>E : Symbol(E, Decl(annotationDeclarationFieldInitializer7.ets, 0, 0))
+
+    A,
+>A : Symbol(E.A, Decl(annotationDeclarationFieldInitializer7.ets, 0, 14))
+
+    B
+>B : Symbol(E.B, Decl(annotationDeclarationFieldInitializer7.ets, 1, 6))
+}
+
+@interface Anno {
+>Anno : Symbol(Anno, Decl(annotationDeclarationFieldInitializer7.ets, 3, 1))
+
+    a: number = +E.A
+>a : Symbol(Anno.a, Decl(annotationDeclarationFieldInitializer7.ets, 5, 17))
+>E.A : Symbol(E.A, Decl(annotationDeclarationFieldInitializer7.ets, 0, 14))
+>E : Symbol(E, Decl(annotationDeclarationFieldInitializer7.ets, 0, 0))
+>A : Symbol(E.A, Decl(annotationDeclarationFieldInitializer7.ets, 0, 14))
+
+    b: number = -E.A
+>b : Symbol(Anno.b, Decl(annotationDeclarationFieldInitializer7.ets, 6, 20))
+>E.A : Symbol(E.A, Decl(annotationDeclarationFieldInitializer7.ets, 0, 14))
+>E : Symbol(E, Decl(annotationDeclarationFieldInitializer7.ets, 0, 0))
+>A : Symbol(E.A, Decl(annotationDeclarationFieldInitializer7.ets, 0, 14))
+
+    c: number = ~E.A
+>c : Symbol(Anno.c, Decl(annotationDeclarationFieldInitializer7.ets, 7, 20))
+>E.A : Symbol(E.A, Decl(annotationDeclarationFieldInitializer7.ets, 0, 14))
+>E : Symbol(E, Decl(annotationDeclarationFieldInitializer7.ets, 0, 0))
+>A : Symbol(E.A, Decl(annotationDeclarationFieldInitializer7.ets, 0, 14))
+
+    d  = !E.A
+>d : Symbol(Anno.d, Decl(annotationDeclarationFieldInitializer7.ets, 8, 20))
+>E.A : Symbol(E.A, Decl(annotationDeclarationFieldInitializer7.ets, 0, 14))
+>E : Symbol(E, Decl(annotationDeclarationFieldInitializer7.ets, 0, 0))
+>A : Symbol(E.A, Decl(annotationDeclarationFieldInitializer7.ets, 0, 14))
+
+    e: number = E.A | E.B
+>e : Symbol(Anno.e, Decl(annotationDeclarationFieldInitializer7.ets, 9, 13))
+>E.A : Symbol(E.A, Decl(annotationDeclarationFieldInitializer7.ets, 0, 14))
+>E : Symbol(E, Decl(annotationDeclarationFieldInitializer7.ets, 0, 0))
+>A : Symbol(E.A, Decl(annotationDeclarationFieldInitializer7.ets, 0, 14))
+>E.B : Symbol(E.B, Decl(annotationDeclarationFieldInitializer7.ets, 1, 6))
+>E : Symbol(E, Decl(annotationDeclarationFieldInitializer7.ets, 0, 0))
+>B : Symbol(E.B, Decl(annotationDeclarationFieldInitializer7.ets, 1, 6))
+
+    f: number = E.A & E.B
+>f : Symbol(Anno.f, Decl(annotationDeclarationFieldInitializer7.ets, 10, 25))
+>E.A : Symbol(E.A, Decl(annotationDeclarationFieldInitializer7.ets, 0, 14))
+>E : Symbol(E, Decl(annotationDeclarationFieldInitializer7.ets, 0, 0))
+>A : Symbol(E.A, Decl(annotationDeclarationFieldInitializer7.ets, 0, 14))
+>E.B : Symbol(E.B, Decl(annotationDeclarationFieldInitializer7.ets, 1, 6))
+>E : Symbol(E, Decl(annotationDeclarationFieldInitializer7.ets, 0, 0))
+>B : Symbol(E.B, Decl(annotationDeclarationFieldInitializer7.ets, 1, 6))
+
+    g: number = E.A >> E.B
+>g : Symbol(Anno.g, Decl(annotationDeclarationFieldInitializer7.ets, 11, 25))
+>E.A : Symbol(E.A, Decl(annotationDeclarationFieldInitializer7.ets, 0, 14))
+>E : Symbol(E, Decl(annotationDeclarationFieldInitializer7.ets, 0, 0))
+>A : Symbol(E.A, Decl(annotationDeclarationFieldInitializer7.ets, 0, 14))
+>E.B : Symbol(E.B, Decl(annotationDeclarationFieldInitializer7.ets, 1, 6))
+>E : Symbol(E, Decl(annotationDeclarationFieldInitializer7.ets, 0, 0))
+>B : Symbol(E.B, Decl(annotationDeclarationFieldInitializer7.ets, 1, 6))
+
+    h: number = E.A >>> E.B
+>h : Symbol(Anno.h, Decl(annotationDeclarationFieldInitializer7.ets, 12, 26))
+>E.A : Symbol(E.A, Decl(annotationDeclarationFieldInitializer7.ets, 0, 14))
+>E : Symbol(E, Decl(annotationDeclarationFieldInitializer7.ets, 0, 0))
+>A : Symbol(E.A, Decl(annotationDeclarationFieldInitializer7.ets, 0, 14))
+>E.B : Symbol(E.B, Decl(annotationDeclarationFieldInitializer7.ets, 1, 6))
+>E : Symbol(E, Decl(annotationDeclarationFieldInitializer7.ets, 0, 0))
+>B : Symbol(E.B, Decl(annotationDeclarationFieldInitializer7.ets, 1, 6))
+
+    i: number = E.A << E.B
+>i : Symbol(Anno.i, Decl(annotationDeclarationFieldInitializer7.ets, 13, 27))
+>E.A : Symbol(E.A, Decl(annotationDeclarationFieldInitializer7.ets, 0, 14))
+>E : Symbol(E, Decl(annotationDeclarationFieldInitializer7.ets, 0, 0))
+>A : Symbol(E.A, Decl(annotationDeclarationFieldInitializer7.ets, 0, 14))
+>E.B : Symbol(E.B, Decl(annotationDeclarationFieldInitializer7.ets, 1, 6))
+>E : Symbol(E, Decl(annotationDeclarationFieldInitializer7.ets, 0, 0))
+>B : Symbol(E.B, Decl(annotationDeclarationFieldInitializer7.ets, 1, 6))
+
+    j: number = E.A ^ E.B
+>j : Symbol(Anno.j, Decl(annotationDeclarationFieldInitializer7.ets, 14, 26))
+>E.A : Symbol(E.A, Decl(annotationDeclarationFieldInitializer7.ets, 0, 14))
+>E : Symbol(E, Decl(annotationDeclarationFieldInitializer7.ets, 0, 0))
+>A : Symbol(E.A, Decl(annotationDeclarationFieldInitializer7.ets, 0, 14))
+>E.B : Symbol(E.B, Decl(annotationDeclarationFieldInitializer7.ets, 1, 6))
+>E : Symbol(E, Decl(annotationDeclarationFieldInitializer7.ets, 0, 0))
+>B : Symbol(E.B, Decl(annotationDeclarationFieldInitializer7.ets, 1, 6))
+
+    k: number = E.A * E.B
+>k : Symbol(Anno.k, Decl(annotationDeclarationFieldInitializer7.ets, 15, 25))
+>E.A : Symbol(E.A, Decl(annotationDeclarationFieldInitializer7.ets, 0, 14))
+>E : Symbol(E, Decl(annotationDeclarationFieldInitializer7.ets, 0, 0))
+>A : Symbol(E.A, Decl(annotationDeclarationFieldInitializer7.ets, 0, 14))
+>E.B : Symbol(E.B, Decl(annotationDeclarationFieldInitializer7.ets, 1, 6))
+>E : Symbol(E, Decl(annotationDeclarationFieldInitializer7.ets, 0, 0))
+>B : Symbol(E.B, Decl(annotationDeclarationFieldInitializer7.ets, 1, 6))
+
+    l: number = E.A / E.B
+>l : Symbol(Anno.l, Decl(annotationDeclarationFieldInitializer7.ets, 16, 25))
+>E.A : Symbol(E.A, Decl(annotationDeclarationFieldInitializer7.ets, 0, 14))
+>E : Symbol(E, Decl(annotationDeclarationFieldInitializer7.ets, 0, 0))
+>A : Symbol(E.A, Decl(annotationDeclarationFieldInitializer7.ets, 0, 14))
+>E.B : Symbol(E.B, Decl(annotationDeclarationFieldInitializer7.ets, 1, 6))
+>E : Symbol(E, Decl(annotationDeclarationFieldInitializer7.ets, 0, 0))
+>B : Symbol(E.B, Decl(annotationDeclarationFieldInitializer7.ets, 1, 6))
+
+    m: number = E.A + E.B
+>m : Symbol(Anno.m, Decl(annotationDeclarationFieldInitializer7.ets, 17, 25))
+>E.A : Symbol(E.A, Decl(annotationDeclarationFieldInitializer7.ets, 0, 14))
+>E : Symbol(E, Decl(annotationDeclarationFieldInitializer7.ets, 0, 0))
+>A : Symbol(E.A, Decl(annotationDeclarationFieldInitializer7.ets, 0, 14))
+>E.B : Symbol(E.B, Decl(annotationDeclarationFieldInitializer7.ets, 1, 6))
+>E : Symbol(E, Decl(annotationDeclarationFieldInitializer7.ets, 0, 0))
+>B : Symbol(E.B, Decl(annotationDeclarationFieldInitializer7.ets, 1, 6))
+
+    o: number = E.A - E.B
+>o : Symbol(Anno.o, Decl(annotationDeclarationFieldInitializer7.ets, 18, 25))
+>E.A : Symbol(E.A, Decl(annotationDeclarationFieldInitializer7.ets, 0, 14))
+>E : Symbol(E, Decl(annotationDeclarationFieldInitializer7.ets, 0, 0))
+>A : Symbol(E.A, Decl(annotationDeclarationFieldInitializer7.ets, 0, 14))
+>E.B : Symbol(E.B, Decl(annotationDeclarationFieldInitializer7.ets, 1, 6))
+>E : Symbol(E, Decl(annotationDeclarationFieldInitializer7.ets, 0, 0))
+>B : Symbol(E.B, Decl(annotationDeclarationFieldInitializer7.ets, 1, 6))
+
+    p: number = E.A % E.B
+>p : Symbol(Anno.p, Decl(annotationDeclarationFieldInitializer7.ets, 19, 25))
+>E.A : Symbol(E.A, Decl(annotationDeclarationFieldInitializer7.ets, 0, 14))
+>E : Symbol(E, Decl(annotationDeclarationFieldInitializer7.ets, 0, 0))
+>A : Symbol(E.A, Decl(annotationDeclarationFieldInitializer7.ets, 0, 14))
+>E.B : Symbol(E.B, Decl(annotationDeclarationFieldInitializer7.ets, 1, 6))
+>E : Symbol(E, Decl(annotationDeclarationFieldInitializer7.ets, 0, 0))
+>B : Symbol(E.B, Decl(annotationDeclarationFieldInitializer7.ets, 1, 6))
+
+    q: number = E.A ** E.B
+>q : Symbol(Anno.q, Decl(annotationDeclarationFieldInitializer7.ets, 20, 25))
+>E.A : Symbol(E.A, Decl(annotationDeclarationFieldInitializer7.ets, 0, 14))
+>E : Symbol(E, Decl(annotationDeclarationFieldInitializer7.ets, 0, 0))
+>A : Symbol(E.A, Decl(annotationDeclarationFieldInitializer7.ets, 0, 14))
+>E.B : Symbol(E.B, Decl(annotationDeclarationFieldInitializer7.ets, 1, 6))
+>E : Symbol(E, Decl(annotationDeclarationFieldInitializer7.ets, 0, 0))
+>B : Symbol(E.B, Decl(annotationDeclarationFieldInitializer7.ets, 1, 6))
+
+    r: number = E.A && E.B
+>r : Symbol(Anno.r, Decl(annotationDeclarationFieldInitializer7.ets, 21, 26))
+>E.A : Symbol(E.A, Decl(annotationDeclarationFieldInitializer7.ets, 0, 14))
+>E : Symbol(E, Decl(annotationDeclarationFieldInitializer7.ets, 0, 0))
+>A : Symbol(E.A, Decl(annotationDeclarationFieldInitializer7.ets, 0, 14))
+>E.B : Symbol(E.B, Decl(annotationDeclarationFieldInitializer7.ets, 1, 6))
+>E : Symbol(E, Decl(annotationDeclarationFieldInitializer7.ets, 0, 0))
+>B : Symbol(E.B, Decl(annotationDeclarationFieldInitializer7.ets, 1, 6))
+
+    s: number = E.A || E.B
+>s : Symbol(Anno.s, Decl(annotationDeclarationFieldInitializer7.ets, 22, 26))
+>E.A : Symbol(E.A, Decl(annotationDeclarationFieldInitializer7.ets, 0, 14))
+>E : Symbol(E, Decl(annotationDeclarationFieldInitializer7.ets, 0, 0))
+>A : Symbol(E.A, Decl(annotationDeclarationFieldInitializer7.ets, 0, 14))
+>E.B : Symbol(E.B, Decl(annotationDeclarationFieldInitializer7.ets, 1, 6))
+>E : Symbol(E, Decl(annotationDeclarationFieldInitializer7.ets, 0, 0))
+>B : Symbol(E.B, Decl(annotationDeclarationFieldInitializer7.ets, 1, 6))
+
+    t = E.A < E.B
+>t : Symbol(Anno.t, Decl(annotationDeclarationFieldInitializer7.ets, 23, 26))
+>E.A : Symbol(E.A, Decl(annotationDeclarationFieldInitializer7.ets, 0, 14))
+>E : Symbol(E, Decl(annotationDeclarationFieldInitializer7.ets, 0, 0))
+>A : Symbol(E.A, Decl(annotationDeclarationFieldInitializer7.ets, 0, 14))
+>E.B : Symbol(E.B, Decl(annotationDeclarationFieldInitializer7.ets, 1, 6))
+>E : Symbol(E, Decl(annotationDeclarationFieldInitializer7.ets, 0, 0))
+>B : Symbol(E.B, Decl(annotationDeclarationFieldInitializer7.ets, 1, 6))
+
+    u = E.A <= E.B
+>u : Symbol(Anno.u, Decl(annotationDeclarationFieldInitializer7.ets, 24, 17))
+>E.A : Symbol(E.A, Decl(annotationDeclarationFieldInitializer7.ets, 0, 14))
+>E : Symbol(E, Decl(annotationDeclarationFieldInitializer7.ets, 0, 0))
+>A : Symbol(E.A, Decl(annotationDeclarationFieldInitializer7.ets, 0, 14))
+>E.B : Symbol(E.B, Decl(annotationDeclarationFieldInitializer7.ets, 1, 6))
+>E : Symbol(E, Decl(annotationDeclarationFieldInitializer7.ets, 0, 0))
+>B : Symbol(E.B, Decl(annotationDeclarationFieldInitializer7.ets, 1, 6))
+
+    v = E.A > E.B
+>v : Symbol(Anno.v, Decl(annotationDeclarationFieldInitializer7.ets, 25, 18))
+>E.A : Symbol(E.A, Decl(annotationDeclarationFieldInitializer7.ets, 0, 14))
+>E : Symbol(E, Decl(annotationDeclarationFieldInitializer7.ets, 0, 0))
+>A : Symbol(E.A, Decl(annotationDeclarationFieldInitializer7.ets, 0, 14))
+>E.B : Symbol(E.B, Decl(annotationDeclarationFieldInitializer7.ets, 1, 6))
+>E : Symbol(E, Decl(annotationDeclarationFieldInitializer7.ets, 0, 0))
+>B : Symbol(E.B, Decl(annotationDeclarationFieldInitializer7.ets, 1, 6))
+
+    w = E.A >= E.B
+>w : Symbol(Anno.w, Decl(annotationDeclarationFieldInitializer7.ets, 26, 17))
+>E.A : Symbol(E.A, Decl(annotationDeclarationFieldInitializer7.ets, 0, 14))
+>E : Symbol(E, Decl(annotationDeclarationFieldInitializer7.ets, 0, 0))
+>A : Symbol(E.A, Decl(annotationDeclarationFieldInitializer7.ets, 0, 14))
+>E.B : Symbol(E.B, Decl(annotationDeclarationFieldInitializer7.ets, 1, 6))
+>E : Symbol(E, Decl(annotationDeclarationFieldInitializer7.ets, 0, 0))
+>B : Symbol(E.B, Decl(annotationDeclarationFieldInitializer7.ets, 1, 6))
+
+    x = E.A === E.A
+>x : Symbol(Anno.x, Decl(annotationDeclarationFieldInitializer7.ets, 27, 18))
+>E.A : Symbol(E.A, Decl(annotationDeclarationFieldInitializer7.ets, 0, 14))
+>E : Symbol(E, Decl(annotationDeclarationFieldInitializer7.ets, 0, 0))
+>A : Symbol(E.A, Decl(annotationDeclarationFieldInitializer7.ets, 0, 14))
+>E.A : Symbol(E.A, Decl(annotationDeclarationFieldInitializer7.ets, 0, 14))
+>E : Symbol(E, Decl(annotationDeclarationFieldInitializer7.ets, 0, 0))
+>A : Symbol(E.A, Decl(annotationDeclarationFieldInitializer7.ets, 0, 14))
+
+    y = E.B !== E.B
+>y : Symbol(Anno.y, Decl(annotationDeclarationFieldInitializer7.ets, 28, 19))
+>E.B : Symbol(E.B, Decl(annotationDeclarationFieldInitializer7.ets, 1, 6))
+>E : Symbol(E, Decl(annotationDeclarationFieldInitializer7.ets, 0, 0))
+>B : Symbol(E.B, Decl(annotationDeclarationFieldInitializer7.ets, 1, 6))
+>E.B : Symbol(E.B, Decl(annotationDeclarationFieldInitializer7.ets, 1, 6))
+>E : Symbol(E, Decl(annotationDeclarationFieldInitializer7.ets, 0, 0))
+>B : Symbol(E.B, Decl(annotationDeclarationFieldInitializer7.ets, 1, 6))
+
+    z = E.A == E.A
+>z : Symbol(Anno.z, Decl(annotationDeclarationFieldInitializer7.ets, 29, 19))
+>E.A : Symbol(E.A, Decl(annotationDeclarationFieldInitializer7.ets, 0, 14))
+>E : Symbol(E, Decl(annotationDeclarationFieldInitializer7.ets, 0, 0))
+>A : Symbol(E.A, Decl(annotationDeclarationFieldInitializer7.ets, 0, 14))
+>E.A : Symbol(E.A, Decl(annotationDeclarationFieldInitializer7.ets, 0, 14))
+>E : Symbol(E, Decl(annotationDeclarationFieldInitializer7.ets, 0, 0))
+>A : Symbol(E.A, Decl(annotationDeclarationFieldInitializer7.ets, 0, 14))
+}

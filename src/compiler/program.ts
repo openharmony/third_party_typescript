@@ -3045,7 +3045,8 @@ namespace ts {
                 fileName,
                 sourceFileOptions,
                 hostErrorMessage => addFilePreprocessingFileExplainingDiagnostic(/*file*/ undefined, reason, Diagnostics.Cannot_read_file_0_Colon_1, [fileName, hostErrorMessage]),
-                shouldCreateNewSourceFile || (oldProgram?.getSourceFileByPath(toPath(fileName))?.impliedNodeFormat !== sourceFileOptions.impliedNodeFormat)
+                shouldCreateNewSourceFile || (oldProgram?.getSourceFileByPath(toPath(fileName))?.impliedNodeFormat !== sourceFileOptions.impliedNodeFormat),
+                options
             );
 
             if (packageId) {

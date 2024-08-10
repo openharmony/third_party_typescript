@@ -1,0 +1,14 @@
+=== tests/cases/conformance/annotations/annotationApplication2.ets ===
+@interface Anno {
+    a = 10
+>a : number
+}
+
+@Anno({})
+>Anno({}) : void
+>Anno : typeof Anno
+>{} : {}
+
+class C {}
+>C : C
+

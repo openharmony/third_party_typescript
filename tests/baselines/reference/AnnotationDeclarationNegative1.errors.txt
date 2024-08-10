@@ -1,0 +1,7 @@
+tests/cases/conformance/parser/ets/annotations/AnnotationDeclarationNegative1.ets(1,18): error TS1005: '}' expected.
+
+
+==== tests/cases/conformance/parser/ets/annotations/AnnotationDeclarationNegative1.ets (1 errors) ====
+    @interface Anno {
+                     
+!!! error TS1005: '}' expected.

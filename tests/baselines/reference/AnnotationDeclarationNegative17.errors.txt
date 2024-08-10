@@ -1,0 +1,27 @@
+tests/cases/conformance/parser/ets/annotations/AnnotationDeclarationNegative17.ets(2,5): error TS28018: Unexpected token. An annotation property was expected.
+tests/cases/conformance/parser/ets/annotations/AnnotationDeclarationNegative17.ets(2,6): error TS2304: Cannot find name 'index'.
+tests/cases/conformance/parser/ets/annotations/AnnotationDeclarationNegative17.ets(2,11): error TS1005: ',' expected.
+tests/cases/conformance/parser/ets/annotations/AnnotationDeclarationNegative17.ets(2,12): error TS2693: 'number' only refers to a type, but is being used as a value here.
+tests/cases/conformance/parser/ets/annotations/AnnotationDeclarationNegative17.ets(2,19): error TS1005: ';' expected.
+tests/cases/conformance/parser/ets/annotations/AnnotationDeclarationNegative17.ets(2,20): error TS2693: 'number' only refers to a type, but is being used as a value here.
+tests/cases/conformance/parser/ets/annotations/AnnotationDeclarationNegative17.ets(3,1): error TS1128: Declaration or statement expected.
+
+
+==== tests/cases/conformance/parser/ets/annotations/AnnotationDeclarationNegative17.ets (7 errors) ====
+    @interface Anno {
+        [index:number]:number
+        ~
+!!! error TS28018: Unexpected token. An annotation property was expected.
+         ~~~~~
+!!! error TS2304: Cannot find name 'index'.
+              ~
+!!! error TS1005: ',' expected.
+               ~~~~~~
+!!! error TS2693: 'number' only refers to a type, but is being used as a value here.
+                      ~
+!!! error TS1005: ';' expected.
+                       ~~~~~~
+!!! error TS2693: 'number' only refers to a type, but is being used as a value here.
+    }
+    ~
+!!! error TS1128: Declaration or statement expected.

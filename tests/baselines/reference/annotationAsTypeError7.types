@@ -1,0 +1,10 @@
+=== tests/cases/conformance/annotations/annotationAsTypeError7.ets ===
+@interface Anno {}
+
+function foo(o: Object): o is Anno {
+>foo : (o: Object) => o is Anno
+>o : Object
+
+    return true;
+>true : true
+}

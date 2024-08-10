@@ -1,0 +1,11 @@
+tests/cases/conformance/annotations/annotationDeclarationError15.ets(1,2): error TS28036: Annotation 'Anno' used before its declaration.
+
+
+==== tests/cases/conformance/annotations/annotationDeclarationError15.ets (1 errors) ====
+    @Anno
+     ~~~~
+!!! error TS28036: Annotation 'Anno' used before its declaration.
+!!! related TS2728 tests/cases/conformance/annotations/annotationDeclarationError15.ets:4:1: 'Anno' is declared here.
+    class C {}
+    
+    @interface Anno {}

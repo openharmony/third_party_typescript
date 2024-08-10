@@ -1,0 +1,15 @@
+tests/cases/conformance/annotations/annotationDeclarationFieldTypeError4.ets(8,5): error TS28033: A type of annotation property have to be number, boolean, string, const enumeration types or array of above types, got: 'U'.
+
+
+==== tests/cases/conformance/annotations/annotationDeclarationFieldTypeError4.ets (1 errors) ====
+    const enum E {
+        A,
+        B
+    }
+    type U = boolean | E
+    
+    @interface Anno {
+        a: U
+        ~
+!!! error TS28033: A type of annotation property have to be number, boolean, string, const enumeration types or array of above types, got: 'U'.
+    }

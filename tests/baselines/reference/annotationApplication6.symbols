@@ -1,0 +1,19 @@
+=== tests/cases/conformance/annotations/A.ets ===
+export @interface Anno {
+>Anno : Symbol(Anno, Decl(A.ets, 0, 0))
+
+    a: number = 10
+>a : Symbol(Anno.a, Decl(A.ets, 0, 24))
+}
+
+=== tests/cases/conformance/annotations/B.ets ===
+import {Anno} from "./A";
+>Anno : Symbol(Anno, Decl(B.ets, 0, 8))
+
+@Anno({a: 20})
+>Anno : Symbol(Anno, Decl(B.ets, 0, 8))
+>a : Symbol(a, Decl(B.ets, 2, 7))
+
+class C {}
+>C : Symbol(C, Decl(B.ets, 0, 25))
+

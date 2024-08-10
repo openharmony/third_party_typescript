@@ -1,0 +1,10 @@
+=== tests/cases/conformance/annotations/annotationDeclarationError9.ets ===
+@interface Anno {
+    a: number
+>a : number
+}
+
+export {Anno as A}
+>Anno : typeof Anno
+>A : typeof Anno
+

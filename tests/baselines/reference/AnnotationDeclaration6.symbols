@@ -1,0 +1,13 @@
+=== tests/cases/conformance/parser/ets/annotations/AnnotationDeclaration6.ets ===
+@interface Anno {
+>Anno : Symbol(Anno, Decl(AnnotationDeclaration6.ets, 0, 0))
+
+    a: number = 42
+>a : Symbol(Anno.a, Decl(AnnotationDeclaration6.ets, 0, 17))
+
+    b: boolean = true
+>b : Symbol(Anno.b, Decl(AnnotationDeclaration6.ets, 1, 18))
+
+    c: string = "abc"
+>c : Symbol(Anno.c, Decl(AnnotationDeclaration6.ets, 2, 21))
+}

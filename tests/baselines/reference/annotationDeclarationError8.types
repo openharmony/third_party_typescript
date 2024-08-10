@@ -1,0 +1,10 @@
+=== tests/cases/conformance/annotations/annotationDeclarationError8.ets ===
+@interface Anno {
+    a: number
+>a : number
+}
+
+export default {Anno}
+>{Anno} : { Anno: typeof Anno; }
+>Anno : typeof Anno
+

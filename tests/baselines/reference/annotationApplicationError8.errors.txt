@@ -1,0 +1,40 @@
+tests/cases/conformance/annotations/annotationApplicationError8.ets(8,5): error TS28022: Annotation have to be applied for classes or methods only, got: '@Anno
+    public a: number'.
+tests/cases/conformance/annotations/annotationApplicationError8.ets(11,16): error TS28022: Annotation have to be applied for classes or methods only, got: '@Anno a: number'.
+tests/cases/conformance/annotations/annotationApplicationError8.ets(13,5): error TS28022: Annotation have to be applied for classes or methods only, got: '@Anno
+    get prop(): number { return 0}'.
+tests/cases/conformance/annotations/annotationApplicationError8.ets(16,5): error TS28022: Annotation have to be applied for classes or methods only, got: '@Anno
+    set prop(a: number) {}'.
+
+
+==== tests/cases/conformance/annotations/annotationApplicationError8.ets (4 errors) ====
+    @interface Anno {
+        a: number = 10
+        b: string[] = []
+    }
+    
+    
+    class C {
+        @Anno
+        ~~~~~
+!!! error TS28022: Annotation have to be applied for classes or methods only, got: '@Anno
+!!! error TS28022:     public a: number'.
+        public a: number
+    
+        public foo(@Anno a: number) {}
+                   ~~~~~
+!!! error TS28022: Annotation have to be applied for classes or methods only, got: '@Anno a: number'.
+    
+        @Anno
+        ~~~~~
+!!! error TS28022: Annotation have to be applied for classes or methods only, got: '@Anno
+!!! error TS28022:     get prop(): number { return 0}'.
+        get prop(): number { return 0}
+    
+        @Anno
+        ~~~~~
+!!! error TS28022: Annotation have to be applied for classes or methods only, got: '@Anno
+!!! error TS28022:     set prop(a: number) {}'.
+        set prop(a: number) {}
+    }
+    

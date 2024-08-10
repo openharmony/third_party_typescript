@@ -1,0 +1,15 @@
+=== tests/cases/conformance/annotations/annotationDeclarationFieldType8.ets ===
+const enum E {
+>E : E
+
+    A,
+>A : E.A
+
+    B
+>B : E.B
+}
+
+@interface Anno {
+    a: E
+>a : E
+}

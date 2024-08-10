@@ -1,0 +1,8 @@
+=== tests/cases/conformance/annotations/annotationDeclarationError15.ets ===
+@Anno
+>Anno : typeof Anno
+
+class C {}
+>C : C
+
+@interface Anno {}

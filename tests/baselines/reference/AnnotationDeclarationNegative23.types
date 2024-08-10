@@ -1,0 +1,29 @@
+=== tests/cases/conformance/parser/ets/annotations/AnnotationDeclarationNegative23.ets ===
+declare let interface:PropertyDecorator
+>interface : PropertyDecorator
+
+declare let f:PropertyDecorator;
+>f : PropertyDecorator
+
+class C{
+>C : C
+
+    @interface
+    @f
+>f : PropertyDecorator
+
+    a:number=1;
+>a : any
+>number=1 : 1
+>number : any
+>1 : 1
+
+    @f
+>f : PropertyDecorator
+
+    @interface
+    b:number=1;
+>number=1 : 1
+>number : any
+>1 : 1
+}

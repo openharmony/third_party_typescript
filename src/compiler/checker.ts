@@ -169,6 +169,8 @@ namespace ts {
         WriteType,
     }
 
+    type AnnotationConstantExpressionType = number | string | boolean | AnnotationConstantExpressionType[];
+
     export const enum CheckMode {
         Normal = 0,                                     // Normal type checking
         Contextual = 1 << 0,                            // Explicitly assigned contextual type, therefore not cacheable
@@ -919,6 +921,7 @@ namespace ts {
         const unknownSignature = createSignature(undefined, undefined, undefined, emptyArray, errorType, /*resolvedTypePredicate*/ undefined, 0, SignatureFlags.None);
         const resolvingSignature = createSignature(undefined, undefined, undefined, emptyArray, anyType, /*resolvedTypePredicate*/ undefined, 0, SignatureFlags.None);
         const silentNeverSignature = createSignature(undefined, undefined, undefined, emptyArray, silentNeverType, /*resolvedTypePredicate*/ undefined, 0, SignatureFlags.None);
+        const annotationDefaultSignature = createSignature(undefined, undefined, undefined, emptyArray, voidType, /*resolvedTypePredicate*/ undefined, 0, SignatureFlags.None);
 
         const enumNumberIndexInfo = createIndexInfo(numberType, stringType, /*isReadonly*/ true);
 
@@ -1885,6 +1888,8 @@ namespace ts {
                             return target < ScriptTarget.ESNext || !useDefineForClassFields;
                         }
                         return requiresScopeChangeWorker((node as PropertyDeclaration).name);
+                    case SyntaxKind.AnnotationPropertyDeclaration:
+                        return requiresScopeChangeWorker((node as AnnotationPropertyDeclaration).name);
                     default:
                         // null coalesce and optional chain pre-es2020 produce temporary variables
                         if (isNullishCoalesce(node) || isOptionalChain(node)) {
@@ -2682,7 +2687,7 @@ namespace ts {
             }
             // Block-scoped variables cannot be used before their definition
             const declaration = result.declarations?.find(
-                d => isBlockOrCatchScoped(d) || isClassLike(d) || (d.kind === SyntaxKind.EnumDeclaration));
+                d => isBlockOrCatchScoped(d) || isClassLike(d) || isAnnotationDeclaration(d) || (d.kind === SyntaxKind.EnumDeclaration));
 
             if (declaration === undefined) return Debug.fail("checkResolvedBlockScopedVariable could not find block-scoped declaration");
 
@@ -2691,6 +2696,9 @@ namespace ts {
                 const declarationName = declarationNameToString(getNameOfDeclaration(declaration));
                 if (result.flags & SymbolFlags.BlockScopedVariable) {
                     diagnosticMessage = error(errorLocation, Diagnostics.Block_scoped_variable_0_used_before_its_declaration, declarationName);
+                }
+                else if (result.flags & SymbolFlags.Annotation) {
+                    diagnosticMessage = error(errorLocation, Diagnostics.Annotation_0_used_before_its_declaration, declarationName);
                 }
                 else if (result.flags & SymbolFlags.Class) {
                     diagnosticMessage = error(errorLocation, Diagnostics.Class_0_used_before_its_declaration, declarationName);
@@ -3932,7 +3940,7 @@ namespace ts {
             }
             return undefined;
         }
-        
+
         function allowImportSendable(sdkPath: string | undefined, currentSourceFile: SourceFile): boolean {
             const isInSdkPath = !!(sdkPath && ts.normalizePath(currentSourceFile.fileName).startsWith(sdkPath));
             // Check the file is a TypeScript file outside of the method
@@ -9224,7 +9232,7 @@ namespace ts {
 
         // Return the inferred type for a variable, parameter, or property declaration
         function getTypeForVariableLikeDeclaration(
-            declaration: ParameterDeclaration | PropertyDeclaration | PropertySignature | VariableDeclaration | BindingElement | JSDocPropertyLikeTag,
+            declaration: ParameterDeclaration | PropertyDeclaration | PropertySignature | AnnotationPropertyDeclaration | VariableDeclaration | BindingElement | JSDocPropertyLikeTag,
             includeOptionality: boolean,
             checkMode: CheckMode,
         ): Type | undefined {
@@ -9808,7 +9816,7 @@ namespace ts {
         // Here, the array literal [1, "one"] is contextually typed by the type [any, string], which is the implied type of the
         // binding pattern [x, s = ""]. Because the contextual type is a tuple type, the resulting type of [1, "one"] is the
         // tuple type [number, string]. Thus, the type inferred for 'x' is number and the type inferred for 's' is string.
-        function getWidenedTypeForVariableLikeDeclaration(declaration: ParameterDeclaration | PropertyDeclaration | PropertySignature | VariableDeclaration | BindingElement | JSDocPropertyLikeTag, reportErrors?: boolean): Type {
+        function getWidenedTypeForVariableLikeDeclaration(declaration: ParameterDeclaration | PropertyDeclaration | PropertySignature | AnnotationPropertyDeclaration | VariableDeclaration | BindingElement | JSDocPropertyLikeTag, reportErrors?: boolean): Type {
             return widenTypeForVariableLikeDeclaration(getTypeForVariableLikeDeclaration(declaration, /*includeOptionality*/ true, CheckMode.Normal), declaration, reportErrors);
         }
 
@@ -9973,6 +9981,7 @@ namespace ts {
             else if (isParameter(declaration)
                      || isPropertyDeclaration(declaration)
                      || isPropertySignature(declaration)
+                     || isAnnotationPropertyDeclaration(declaration)
                      || isVariableDeclaration(declaration)
                      || isBindingElement(declaration)
                      || isJSDocPropertyLikeTag(declaration)) {
@@ -10659,6 +10668,9 @@ namespace ts {
 
         // A valid base type is `any`, an object type or intersection of object types.
         function isValidBaseType(type: Type): type is BaseType {
+            if ((type.flags & TypeFlags.Object) && ((type as ObjectType).objectFlags & ObjectFlags.Annotation)) {
+                return false;
+            }
             if (type.flags & TypeFlags.TypeParameter) {
                 const constraint = getBaseConstraintOfType(type);
                 if (constraint) {
@@ -10738,7 +10750,7 @@ namespace ts {
             let links = getSymbolLinks(symbol);
             const originalLinks = links;
             if (!links.declaredType) {
-                const kind = symbol.flags & SymbolFlags.Class ? ObjectFlags.Class : ObjectFlags.Interface;
+                const kind = (symbol.flags & SymbolFlags.Class ? ObjectFlags.Class : ObjectFlags.Interface) | (symbol.flags & SymbolFlags.Annotation ? ObjectFlags.Annotation : 0);
                 const merged = mergeJSSymbols(symbol, symbol.valueDeclaration && getAssignedClassSymbol(symbol.valueDeclaration));
                 if (merged) {
                     // note:we overwrite links because we just cloned the symbol
@@ -11891,6 +11903,21 @@ namespace ts {
             // And likewise for construct signatures for classes
             if (symbol.flags & SymbolFlags.Class) {
                 const classType = getDeclaredTypeOfClassOrInterface(symbol);
+                if (symbol.flags & SymbolFlags.Annotation) {
+                    // Make call signature "(annotationType): voidType"
+                    const proto = getPropertyOfType(getTypeOfSymbol(symbol), "prototype" as __String)!;
+                    type.callSignatures = [createSignature(
+                        /*declaration*/ undefined,
+                        /*typeParameters*/ undefined,
+                        /*thisParameter*/  undefined,
+                        /*parameters*/ [proto],
+                        /*resolvedReturnType*/ voidType,
+                        /*resolvedTypePredicate*/ undefined,
+                        /*resolvedReturnType*/ 1,
+                        /*flags*/ SignatureFlags.None)];
+                    type.constructSignatures = [];
+                    return;
+                }
                 let constructSignatures = symbol.members ? getSignaturesOfSymbol(symbol.members.get(InternalSymbolName.Constructor)) : emptyArray;
                 if (symbol.flags & SymbolFlags.Function) {
                     constructSignatures = addRange(constructSignatures.slice(), mapDefined(
@@ -26344,6 +26371,17 @@ namespace ts {
             let type = getNarrowedTypeOfSymbol(localOrExportSymbol, node);
             const assignmentKind = getAssignmentTargetKind(node);
 
+            if ((localOrExportSymbol.flags & SymbolFlags.Annotation) &&
+                !findAncestor(node, isAnnotationDeclaration) &&
+                !findAncestor(node, isAnnotation) &&
+                !findAncestor(node, isDecorator) &&
+                !findAncestor(node, isImportDeclaration) &&
+                !findAncestor(node, isExportDeclaration) &&
+                !findAncestor(node, isExportAssignment)) {
+                error(node, Diagnostics.Annotation_cannot_be_used_as_type_or_variable_or_function_or_method);
+                return errorType;
+            }
+
             if (assignmentKind) {
                 if (!(localOrExportSymbol.flags & SymbolFlags.Variable) &&
                     !(isInJSFile(node) && localOrExportSymbol.flags & SymbolFlags.ValueModule)) {
@@ -28483,6 +28521,9 @@ namespace ts {
                         Debug.assert(inferenceContext);  // In CheckMode.Inferential we should always have an inference context
                         const inferenceNode = memberDecl.kind === SyntaxKind.PropertyAssignment ? memberDecl.initializer : memberDecl;
                         addIntraExpressionInferenceSite(inferenceContext, inferenceNode, type);
+                    }
+                    if (type.symbol && (type.symbol.flags & SymbolFlags.Annotation)) {
+                        error(memberDecl, Diagnostics.Annotation_cannot_be_used_as_a_value);
                     }
                 }
                 else if (memberDecl.kind === SyntaxKind.SpreadAssignment) {
@@ -32281,6 +32322,93 @@ namespace ts {
             }
         }
 
+        function annotationHasDefaultValue(node: Annotation): boolean {
+            const members = node.annotationDeclaration!.members;
+            return every(members, (elem) => (elem as AnnotationPropertyDeclaration).initializer !== undefined);
+        }
+
+        /**
+         * Resolves an annotation as if it were a call expression.
+         */
+        function resolveAnnotation(node: Annotation): Signature {
+            // @Anno
+            // class C {}
+            //
+            // or
+            //
+            // @t.Anno
+            // class C {}
+            if (isIdentifier(node.expression) || isPropertyAccessExpression(node.expression)) {
+                const identType = checkExpression(node.expression);
+                Debug.assert(identType.symbol.flags & SymbolFlags.Annotation);
+
+                if (!annotationHasDefaultValue(node)) {
+                    const nodeStr = getTextOfNode(node.expression, /*includeTrivia*/ false);
+                    error(node, Diagnostics.When_annotation_0_is_applied_all_fields_without_default_values_must_be_provided, nodeStr);
+                    return resolveErrorCall(node);
+                }
+                return annotationDefaultSignature;
+            }
+
+            Debug.assert(isCallExpression(node.expression));
+            // let d = {}
+            // @Anno(d)
+            // class C {}
+            if (!node.expression.arguments ||
+                node.expression.arguments.length !== 1 ||
+                !isObjectLiteralExpression(node.expression.arguments[0])) {
+                const nodeStr = getTextOfNode(node.expression.arguments[0] || node.expression, /*includeTrivia*/ false);
+                error(node, Diagnostics.Only_an_object_literal_have_to_be_provided_as_annotation_parameters_list_got_Colon_0, nodeStr);
+                return resolveErrorCall(node);
+            }
+
+            // let bar = goo()
+            // @Anno({foo: bar})
+            // class C {}
+            const arg = node.expression.arguments[0];
+            const evaluatedProps = new Map<__String, AnnotationConstantExpressionType>();
+            for (const prop of arg.properties) {
+                if (!isPropertyAssignment(prop)) {
+                    const nodeStr = getTextOfNode(arg, /*includeTrivia*/ false);
+                    error(node, Diagnostics.Only_an_object_literal_have_to_be_provided_as_annotation_parameters_list_got_Colon_0, nodeStr);
+                    return resolveErrorCall(node);
+                }
+                const evaluated = evaluateAnnotationPropertyConstantExpression(prop.initializer);
+                if (evaluated === undefined) {
+                    const nodeStr = getTextOfNode(prop.initializer, /*includeTrivia*/ false);
+                    error(node, Diagnostics.All_members_of_object_literal_which_is_provided_as_annotation_parameters_list_have_to_be_constant_expressions_got_Colon_0, nodeStr);
+                    return resolveErrorCall(node);
+                }
+                evaluatedProps.set(tryGetTextOfPropertyName(prop.name)!, evaluated);
+            }
+
+            // @Anno()
+            // class C {}
+            //
+            // or
+            //
+            // @Anno({...})
+            // class C {}
+            const funcType = checkExpression(node.expression);
+            const apparentType = getApparentType(funcType);
+            if (isErrorType(apparentType)) {
+                return resolveErrorCall(node);
+            }
+
+            const members = node.annotationDeclaration!.members;
+            for (const m of members) {
+                const memberName = tryGetTextOfPropertyName(m.name)!;
+                if (evaluatedProps.has(memberName)) {
+                    const propValue = annotationEvaluatedValueToExpr(evaluatedProps.get(memberName)!, getTypeOfNode(m))!;
+                    if (getNodeLinks(node).annotationObjectLiteralEvaluatedProps === undefined) {
+                        getNodeLinks(node).annotationObjectLiteralEvaluatedProps = new Map<__String, Expression>();
+                    }
+                    getNodeLinks(node).annotationObjectLiteralEvaluatedProps!.set(memberName, propValue);
+                }
+            }
+            return getResolvedSignature(node.expression);
+        }
+
         /**
          * Resolves a decorator as if it were a call expression.
          */
@@ -32397,6 +32525,9 @@ namespace ts {
                 case SyntaxKind.TaggedTemplateExpression:
                     return resolveTaggedTemplateExpression(node, candidatesOutArray, checkMode);
                 case SyntaxKind.Decorator:
+                    if (isAnnotation(node)) {
+                        return resolveAnnotation(node);
+                    }
                     return resolveDecorator(node, candidatesOutArray, checkMode);
                 case SyntaxKind.JsxOpeningElement:
                 case SyntaxKind.JsxSelfClosingElement:
@@ -36418,7 +36549,7 @@ namespace ts {
             }
         }
 
-        function checkClassForDuplicateDeclarations(node: ClassLikeDeclaration) {
+        function checkClassForDuplicateDeclarations(node: ClassLikeDeclaration | AnnotationDeclaration) {
             const instanceNames = new Map<__String, DeclarationMeaning>();
             const staticNames = new Map<__String, DeclarationMeaning>();
             // instance and static private identifiers share the same scope
@@ -36456,6 +36587,10 @@ namespace ts {
                                 break;
 
                             case SyntaxKind.PropertyDeclaration:
+                                addName(names, name, memberName, DeclarationMeaning.GetOrSetAccessor | privateStaticFlags);
+                                break;
+
+                            case SyntaxKind.AnnotationPropertyDeclaration:
                                 addName(names, name, memberName, DeclarationMeaning.GetOrSetAccessor | privateStaticFlags);
                                 break;
 
@@ -36597,9 +36732,221 @@ namespace ts {
             }
         }
 
-        function checkPropertyDeclaration(node: PropertyDeclaration | PropertySignature) {
+        function isAllowedAnnotationPropertyEnumType(type: Type): boolean {
+            // Non-constant enums are prohibited
+            if (!type.symbol || !isConstEnumSymbol(type.symbol)) {
+                return false;
+            }
+            // Mixing of numbers and strings is prohibited
+            if (type.symbol.declarations) {
+                for (const decl of type.symbol.declarations) {
+                    if (decl.kind === SyntaxKind.EnumDeclaration) {
+                        const members = (decl as EnumDeclaration).members;
+                        for (let i = 0; i < members.length; ++i) {
+                            if (i > 1 && typeof getConstantValue(members[i - 1]) !== typeof getConstantValue(members[i])) {
+                                return false;
+                            }
+                        }
+                    }
+                }
+            }
+            return true;
+        }
+
+        function isAllowedAnnotationPropertyType(type: Type): boolean {
+            if (type === numberType ||
+                type === booleanType ||
+                type === stringType ||
+                isAllowedAnnotationPropertyEnumType(type)) {
+                return true;
+            }
+            else if (isArrayType(type)) {
+                const elemType = getElementTypeOfArrayType(type);
+                if (!elemType) {
+                    return false;
+                }
+                return isAllowedAnnotationPropertyType(elemType);
+            }
+            return false;
+        }
+
+        function annotationEvaluatedValueToExpr(initVal: AnnotationConstantExpressionType, initValType: Type): Expression | undefined {
+            if (initVal === undefined || initValType === errorType)  {
+                return undefined;
+            }
+            if (typeof initVal === "number") {
+                return factory.createNumericLiteral(initVal);
+            }
+            else if (typeof initVal === "string") {
+                return factory.createStringLiteral(initVal);
+            }
+            else if (initValType === booleanType && typeof initVal === "boolean") {
+                return (initVal) ? factory.createTrue() : factory.createFalse();
+            }
+            else if (isArrayType(initValType)) {
+                Debug.assert(Array.isArray(initVal));
+                const elemType = (initValType as GenericType).resolvedTypeArguments![0];
+                // It is a special case since we need to store information about array element type,
+                // when array literal is empty. For example,
+                // '[]' -- have no information about element type
+                // 'new Array<T>()' -- is valid expression with explicit type annotation and the same semantics with '[]'
+                if (initVal.length === 0) {
+                    if (isArrayType(elemType)) {
+                        return factory.createArrayLiteralExpression([annotationEvaluatedValueToExpr(initVal, elemType)!]);
+                    }
+                    const args = new Array<Expression>();
+                    // We add the argument '1' just for indicating that enum has numeric members
+                    // '3' - string members
+                    if (elemType.symbol && isConstEnumSymbol(elemType.symbol)) {
+                        const enumMembers = (elemType.symbol.declarations![0] as EnumDeclaration).members;
+                        if (enumMembers.length === 0 || typeof getConstantValue(enumMembers[0]) === "number") {
+                            args.push(factory.createNumericLiteral(1));
+                        }
+                        else {
+                            args.push(factory.createNumericLiteral(3));
+                        }
+                    }
+                    return factory.createNewExpression(
+                        factory.createIdentifier(
+                            typeToString(initValType, /*enclosingDeclaration*/undefined, TypeFormatFlags.WriteArrayAsGenericType)
+                        ),
+                        /*typeArguments*/ undefined,
+                        args);
+                }
+                const result = new Array<Expression>(initVal.length);
+                for (let i = 0; i < initVal.length; ++i) {
+                    result[i] = annotationEvaluatedValueToExpr(initVal[i], elemType)!;
+                }
+                return factory.createArrayLiteralExpression(result);
+            }
+        }
+
+        function evaluateAnnotationPropertyConstantExpression(expr: Expression): AnnotationConstantExpressionType | undefined {
+            switch (expr.kind) {
+                case SyntaxKind.PrefixUnaryExpression:
+                    const value = evaluateAnnotationPropertyConstantExpression((expr as PrefixUnaryExpression).operand);
+                    if (typeof value === "number" || typeof value === "string" || typeof value === "boolean") {
+                        switch ((expr as PrefixUnaryExpression).operator) {
+                            case SyntaxKind.ExclamationToken: return !value;
+                        }
+                    }
+                    if (typeof value === "number") {
+                        switch ((expr as PrefixUnaryExpression).operator) {
+                            case SyntaxKind.PlusToken: return value;
+                            case SyntaxKind.MinusToken: return -value;
+                            case SyntaxKind.TildeToken: return ~value;
+                        }
+                    }
+                    break;
+                case SyntaxKind.BinaryExpression:
+                    const left = evaluateAnnotationPropertyConstantExpression((expr as BinaryExpression).left);
+                    const right = evaluateAnnotationPropertyConstantExpression((expr as BinaryExpression).right);
+                    // `number` binop `number`
+                    // `string` binop `string`
+                    // `boolean` binop `boolean`
+                    if (left !== undefined && right !== undefined && typeof left === typeof right) {
+                        switch ((expr as BinaryExpression).operatorToken.kind) {
+                            case SyntaxKind.LessThanToken: return left < right;
+                            case SyntaxKind.LessThanEqualsToken: return left <= right;
+                            case SyntaxKind.GreaterThanToken: return left > right;
+                            case SyntaxKind.GreaterThanEqualsToken: return left >= right;
+                            case SyntaxKind.EqualsEqualsEqualsToken: return left === right;
+                            case SyntaxKind.ExclamationEqualsEqualsToken: return left !== right;
+                            case SyntaxKind.EqualsEqualsToken: return left == right;
+                            case SyntaxKind.ExclamationEqualsToken: return left != right;
+                            case SyntaxKind.AmpersandAmpersandToken: return left && right;
+                            case SyntaxKind.BarBarToken: return left || right;
+                        }
+                    }
+                    // `number` binop (`number` | `string` | `boolean`)
+                    // `string` binop (`number` | `string` | `boolean`)
+                    // `boolean` binop (`number` | `string` | `boolean`)
+                    if ((typeof left === "number" || typeof left === "string" || typeof left === "boolean") &&
+                        (typeof right === "number" || typeof right === "string" || typeof right === "boolean")) {
+                        switch ((expr as BinaryExpression).operatorToken.kind) {
+                            case SyntaxKind.AmpersandAmpersandToken: return left && right;
+                            case SyntaxKind.BarBarToken: return left || right;
+                        }
+                    }
+                    if (typeof left === "number" && typeof right === "number") {
+                        switch ((expr as BinaryExpression).operatorToken.kind) {
+                            case SyntaxKind.BarToken: return left | right;
+                            case SyntaxKind.AmpersandToken: return left & right;
+                            case SyntaxKind.GreaterThanGreaterThanToken: return left >> right;
+                            case SyntaxKind.GreaterThanGreaterThanGreaterThanToken: return left >>> right;
+                            case SyntaxKind.LessThanLessThanToken: return left << right;
+                            case SyntaxKind.CaretToken: return left ^ right;
+                            case SyntaxKind.AsteriskToken: return left * right;
+                            case SyntaxKind.SlashToken: return left / right;
+                            case SyntaxKind.PlusToken: return left + right;
+                            case SyntaxKind.MinusToken: return left - right;
+                            case SyntaxKind.PercentToken: return left % right;
+                            case SyntaxKind.AsteriskAsteriskToken: return left ** right;
+                        }
+                    }
+                    else if (typeof left === "string" && typeof right === "string") {
+                        switch ((expr as BinaryExpression).operatorToken.kind) {
+                            case SyntaxKind.PlusToken: return left + right;
+                        }
+                    }
+                    break;
+                case SyntaxKind.ArrayLiteralExpression:
+                    const elements = (expr as ArrayLiteralExpression).elements;
+                    const result = new Array<AnnotationConstantExpressionType>(elements.length);
+                    for (let i = 0; i < elements.length; ++i) {
+                        const elem = evaluateAnnotationPropertyConstantExpression(elements[i]);
+                        if (elem === undefined) {
+                            return undefined;
+                        }
+                        if (i > 0 && (typeof result[i - 1] !== typeof elem)) {
+                            return undefined;
+                        }
+                        result[i] = elem;
+                    }
+                    return result;
+                case SyntaxKind.TrueKeyword:
+                    return true;
+                case SyntaxKind.FalseKeyword:
+                    return false;
+                case SyntaxKind.StringLiteral:
+                case SyntaxKind.NoSubstitutionTemplateLiteral:
+                    return (expr as StringLiteralLike).text;
+                case SyntaxKind.NumericLiteral:
+                    checkGrammarNumericLiteral(expr as NumericLiteral);
+                    return +(expr as NumericLiteral).text;
+                case SyntaxKind.ParenthesizedExpression:
+                    return evaluateAnnotationPropertyConstantExpression((expr as ParenthesizedExpression).expression);
+                case SyntaxKind.Identifier:
+                    if (isInfinityOrNaNString((expr as Identifier).escapedText)) {
+                        return +((expr as Identifier).escapedText);
+                    }
+                    const symbol = getExportSymbolOfValueSymbolIfExported(getResolvedSymbol(expr as Identifier));
+                    // Only `const a = ...` like are prohibited
+                    if (!symbol || !isConstVariable(symbol)) {
+                        return undefined;
+                    }
+                    // Initializer must be present and able to be evaluated as constant expression
+                    if (symbol.valueDeclaration && hasOnlyExpressionInitializer(symbol.valueDeclaration) && symbol.valueDeclaration.initializer) {
+                        return evaluateAnnotationPropertyConstantExpression(symbol.valueDeclaration.initializer);
+                    }
+                    break;
+                case SyntaxKind.PropertyAccessExpression:
+                    if (isConstantMemberAccess(expr)) {
+                        return getConstantValue(expr);
+                    }
+                    break;
+            }
+            return undefined;
+        }
+
+        function checkPropertyDeclaration(node: PropertyDeclaration | PropertySignature | AnnotationPropertyDeclaration) {
             // Grammar checking
-            if (!checkGrammarDecoratorsAndModifiers(node) && !checkGrammarProperty(node)) checkGrammarComputedPropertyName(node.name);
+            if (!isAnnotationPropertyDeclaration(node) && !checkGrammarDecoratorsAndModifiers(node) && !checkGrammarProperty(node)) checkGrammarComputedPropertyName(node.name);
+            if (isAnnotationPropertyDeclaration(node)) {
+                if (!node.type && !node.initializer) {
+                    error(node, Diagnostics.An_annotation_property_must_have_a_type_or_Slashand_an_initializer);
+                }
+            }
             checkVariableLikeDeclaration(node);
 
             setNodeLinksForPrivateIdentifierScope(node);
@@ -36608,6 +36955,112 @@ namespace ts {
             if (hasSyntacticModifier(node, ModifierFlags.Abstract) && node.kind === SyntaxKind.PropertyDeclaration && node.initializer) {
                 error(node, Diagnostics.Property_0_cannot_have_an_initializer_because_it_is_marked_abstract, declarationNameToString(node.name));
             }
+
+            if (isAnnotationPropertyDeclaration(node)) {
+                checkAnnotationPropertyDeclaration(node);
+            }
+        }
+
+        function checkAnnotationPropertyDeclaration(node: AnnotationPropertyDeclaration) {
+            const propType = getTypeOfNode(node);
+            if (!isAllowedAnnotationPropertyType(propType)) {
+                error(node, Diagnostics.A_type_of_annotation_property_have_to_be_number_boolean_string_const_enumeration_types_or_array_of_above_types_got_Colon_0, typeToString(propType));
+            }
+            if (node.initializer) {
+                const evaluated = evaluateAnnotationPropertyConstantExpression(node.initializer);
+                if (evaluated === undefined) {
+                    error(node, Diagnostics.Default_value_of_annotation_property_can_be_a_constant_expression_got_Colon_0, getTextOfNode(node.initializer, /*includeTrivia*/ false));
+                }
+                else {
+                    const evaluatedExpr = annotationEvaluatedValueToExpr(evaluated, getTypeOfNode(node));
+                    getNodeLinks(node).annotationPropertyEvaluatedInitializer = evaluatedExpr;
+                }
+            }
+
+            // Special cases for enums
+            if (!node.initializer) {
+                const initializer = addAnnotationPropertyEnumInitalizer(propType);
+                if (initializer) {
+                    getNodeLinks(node).annotationPropertyEvaluatedInitializer = initializer;
+                }
+            }
+
+            getNodeLinks(node).annotationPropertyInferredType = nodeBuilder.typeToTypeNode(propType);
+        }
+
+        function addAnnotationPropertyEnumInitalizer(propType: Type): Expression | undefined {
+            // Since we need to store information about type of enum members
+            // We introduce a prohibited for users "useless" expression with explicit type annotation
+            // For example;
+            // const enum E {A, B}
+            //
+            // @interface Anno {
+            //     a: E  -->  a: E = new Number(0) as number
+            // }
+            // Following expression indicates that the E is enum with numeric members
+            if (propType.symbol && isConstEnumSymbol(propType.symbol)) {
+                const enumMembers = (propType.symbol.declarations![0] as EnumDeclaration).members;
+                const firstMemeberVal = getConstantValue(enumMembers[0])!;
+                if (enumMembers.length === 0 || typeof firstMemeberVal === "number") {
+                    return factory.createAsExpression(
+                        factory.createNewExpression(
+                            factory.createIdentifier(
+                                typeToString(globalNumberType)
+                            ),
+                            /* typeArguments */ undefined,
+                            [factory.createNumericLiteral(firstMemeberVal)]),
+                        nodeBuilder.typeToTypeNode(numberType)!
+                    );
+                }
+            }
+            // @interface Anno {
+            //     a: NumberEnum[]  -->  a: NumberEnum[] = new Array<NumberEnum>(0)
+            // }
+            //
+            // or
+            //
+            // @interface Anno {
+            //     a: StringEnum[]  -->  a: StringEnum[] = new Array<StringEnum>(2)
+            // }
+            //
+            // or
+            //
+            // @interface Anno {
+            //     a: StringEnum[][]  -->  a: StringEnum[][] = [new Array<StringEnum>(2)]
+            // }
+            else if (isArrayType(propType)) {
+                return addAnnotationPropertyEnumArrayInitalizer(propType);
+            }
+            return undefined;
+        }
+
+        function addAnnotationPropertyEnumArrayInitalizer(propType: Type): Expression | undefined {
+            if (isArrayType(propType)) {
+                const elemType = (propType as GenericType).resolvedTypeArguments![0];
+                if (isArrayType(elemType)) {
+                    const arr = addAnnotationPropertyEnumArrayInitalizer(elemType);
+                    if (arr) {
+                        return factory.createArrayLiteralExpression([arr]);
+                    }
+                }
+                if (elemType.symbol && isConstEnumSymbol(elemType.symbol)) {
+                    const args = new Array<Expression>();
+                    const enumMembers = (elemType.symbol.declarations![0] as EnumDeclaration).members;
+                    if (enumMembers.length === 0 || typeof getConstantValue(enumMembers[0]) === "number") {
+                        args.push(factory.createNumericLiteral(0));
+                    }
+                    else {
+                        args.push(factory.createNumericLiteral(2));
+                    }
+                    return factory.createNewExpression(
+                        factory.createIdentifier(
+                            typeToString(propType, /*enclosingDeclaration*/ undefined, TypeFormatFlags.WriteArrayAsGenericType)
+                        ),
+                        /*typeArguments*/ undefined,
+                        args);
+                }
+            }
+            return undefined;
         }
 
         function checkPropertySignature(node: PropertySignature) {
@@ -36641,7 +37094,7 @@ namespace ts {
             setNodeLinksForPrivateIdentifierScope(node);
         }
 
-        function setNodeLinksForPrivateIdentifierScope(node: PropertyDeclaration | PropertySignature | MethodDeclaration | MethodSignature | AccessorDeclaration) {
+        function setNodeLinksForPrivateIdentifierScope(node: PropertyDeclaration | PropertySignature | AnnotationPropertyDeclaration | MethodDeclaration | MethodSignature | AccessorDeclaration) {
             if (isPrivateIdentifier(node.name) && languageVersion < ScriptTarget.ESNext) {
                 for (let lexicalScope = getEnclosingBlockScopeContainer(node); !!lexicalScope; lexicalScope = getEnclosingBlockScopeContainer(lexicalScope)) {
                     getNodeLinks(lexicalScope).flags |= NodeCheckFlags.ContainsClassWithPrivateIdentifiers;
@@ -36899,6 +37352,9 @@ namespace ts {
             }
             forEach(node.typeArguments, checkSourceElement);
             const type = getTypeFromTypeReference(node);
+            if (type.symbol && (type.symbol.flags & SymbolFlags.Annotation)) {
+                error(node, Diagnostics.Annotation_cannot_be_used_as_a_type);
+            }
             if (!isErrorType(type)) {
                 if (node.typeArguments) {
                     addLazyDiagnostic(() => {
@@ -37503,6 +37959,7 @@ namespace ts {
                             : DeclarationSpaces.ExportNamespace;
                     case SyntaxKind.ClassDeclaration:
                     case SyntaxKind.StructDeclaration:
+                    case SyntaxKind.AnnotationDeclaration:
                     case SyntaxKind.EnumDeclaration:
                     case SyntaxKind.EnumMember:
                         return DeclarationSpaces.ExportType | DeclarationSpaces.ExportValue;
@@ -38169,8 +38626,102 @@ namespace ts {
                 expressionCheckByJsDoc(declaration, node, sourceFile, checkParam.checkConfig);
             });
         }
+
+        /** Check the annotation of a node */
+        function checkAnnotation(annotation: Annotation, annotationsSet: Set<String>): void {
+            const signature = getResolvedSignature(annotation);
+            const returnType = getReturnTypeOfSignature(signature);
+            if (isErrorType(returnType)) {
+                return;
+            }
+
+            const annotatedDecl = annotation.parent;
+
+            // Only classes or methods must be annotated
+            if (!isClassDeclaration(annotatedDecl) && !isMethodDeclaration(annotatedDecl)) {
+                const nodeStr = getTextOfNode(annotatedDecl, /*includeTrivia*/ false);
+                error(annotation, Diagnostics.Annotation_have_to_be_applied_for_classes_or_methods_only_got_Colon_0, nodeStr);
+                return;
+            }
+
+            // Prohibit application of annotation for abstract classes and methods
+            if (hasSyntacticModifier(annotatedDecl, ModifierFlags.Abstract)) {
+                const nodeStr = getTextOfNode(annotatedDecl, /*includeTrivia*/ false);
+                error(annotation, Diagnostics.Annotation_have_to_be_applied_only_for_non_abstract_class_declarations_and_method_declarations_in_non_abstract_classes_got_Colon_0, nodeStr);
+                return;
+            }
+
+            switch (annotatedDecl.kind) {
+                case SyntaxKind.ClassDeclaration:
+                    break;
+                case SyntaxKind.MethodDeclaration:
+                    const enclosingDecl = annotatedDecl.parent;
+                    Debug.assert(isClassDeclaration(enclosingDecl));
+
+                    /* abstract class C {
+                     *    @goo
+                     *    puiblic foo(){}
+                     * }
+                     */
+                    if (hasSyntacticModifier(enclosingDecl, ModifierFlags.Abstract)) {
+                        const nodeStr = getTextOfNode(enclosingDecl, /*includeTrivia*/ false);
+                        error(annotation, Diagnostics.Annotation_have_to_be_applied_only_for_non_abstract_class_declarations_and_method_declarations_in_non_abstract_classes_got_Colon_0, nodeStr);
+                    }
+                    break;
+                default:
+                    Debug.fail();
+            }
+
+            // Check duplication
+
+            Debug.assert(annotation.annotationDeclaration);
+            const typeName = typeToString(getTypeOfSymbol(getSymbolOfNode(annotation.annotationDeclaration)), /*enclosingDeclaration*/ undefined, TypeFormatFlags.UseFullyQualifiedType);
+            if (annotationsSet.size && annotationsSet.has(typeName)) {
+                const nodeStr = getTextOfNode(annotation, /*includeTrivia*/ false);
+                error(annotation, Diagnostics.Repeatable_annotation_are_not_supported_got_Colon_0, nodeStr);
+                return;
+            }
+            else {
+                annotationsSet.add(typeName);
+            }
+        }
+
+        /** Returns declaration which is related to an annotation */
+        function getAnnotationDeclaration(da: Decorator | Annotation): AnnotationDeclaration | undefined {
+            let ident;
+            switch (da.expression.kind) {
+                case SyntaxKind.Identifier:
+                    ident = da.expression as Identifier;
+                    break;
+                case SyntaxKind.PropertyAccessExpression:
+                    ident = da.expression as PropertyAccessExpression;
+                    break;
+                case SyntaxKind.CallExpression:
+                    ident = getIdentifierFromEntityNameExpression((da.expression as CallExpression).expression);
+                    break;
+                default:
+                    return undefined;
+            }
+            if (!ident) {
+                return undefined;
+            }
+            const symbol = getSymbolOfNameOrPropertyAccessExpression(ident, /*ignoreErrors*/ true);
+            if (!symbol) {
+                return undefined;
+            }
+            const type = getTypeOfSymbolAtLocation(symbol, ident);
+            if (!type || !type.symbol || !type.symbol.declarations) {
+                return undefined;
+            }
+            if (!isAnnotationDeclaration(type.symbol.declarations[0])) {
+                return undefined;
+            }
+            return type.symbol.declarations[0];
+        }
+
         /** Check the decorators of a node */
         function checkDecorators(node: Node): void {
+            let atLeastOneDecorator = false;
             getAllDecorators(node).forEach(item => {
                 if (isIdentifier(item.expression)) {
                     const symbol = getResolvedSymbol(item.expression);
@@ -38178,16 +38729,33 @@ namespace ts {
                         checkIdentifierJsDoc(item.expression, symbol);
                     }
                 }
+                const annotationDecl = getAnnotationDeclaration(item);
+                if (annotationDecl) {
+                    (item as Mutable<Decorator>).annotationDeclaration = annotationDecl;
+                }
+                else {
+                    atLeastOneDecorator = true;
+                }
             });
 
             // skip this check for nodes that cannot have decorators. These should have already had an error reported by
             // checkGrammarDecorators.
-            if (!canHaveDecorators(node) || !hasDecorators(node) || !node.modifiers || !nodeCanBeDecorated(node, node.parent, node.parent.parent)) {
+            if (!canHaveDecorators(node) || !hasDecorators(node) && !hasAnnotations(node) || !node.modifiers || !nodeCanBeDecorated(node, node.parent, node.parent.parent)) {
                 return;
             }
 
-            if (!compilerOptions.experimentalDecorators) {
+            // Skip checking if we have no at least one decorator
+            if (atLeastOneDecorator && !compilerOptions.experimentalDecorators) {
                 error(node, Diagnostics.Experimental_support_for_decorators_is_a_feature_that_is_subject_to_change_in_a_future_release_Set_the_experimentalDecorators_option_in_your_tsconfig_or_jsconfig_to_remove_this_warning);
+            }
+
+            // Accumulator for duplications check
+            const annotationsSet = new Set<String>();
+            // Detect annotations and performing specific checks
+            for (const modifier of node.modifiers) {
+                if (isAnnotation(modifier)) {
+                    checkAnnotation(modifier, annotationsSet);
+                }
             }
 
             const firstDecorator = find(node.modifiers, isDecorator);
@@ -38974,6 +39542,12 @@ namespace ts {
             else if (isEnumDeclaration(node)) {
                 checkTypeNameIsReserved(name, Diagnostics.Enum_name_cannot_be_0);
             }
+            else if (isAnnotationDeclaration(node)) {
+                checkTypeNameIsReserved(name, Diagnostics.Annotation_name_cannot_be_0);
+                if (!(node.flags & NodeFlags.Ambient)) {
+                    checkClassNameCollisionWithObject(name);
+                }
+            }
         }
 
         function checkVarDeclaredNamesNotShadowed(node: VariableDeclaration | BindingElement) {
@@ -39055,7 +39629,7 @@ namespace ts {
         }
 
         // Check variable, parameter, or property declaration
-        function checkVariableLikeDeclaration(node: ParameterDeclaration | PropertyDeclaration | PropertySignature | VariableDeclaration | BindingElement) {
+        function checkVariableLikeDeclaration(node: ParameterDeclaration | PropertyDeclaration | PropertySignature | AnnotationPropertyDeclaration | VariableDeclaration | BindingElement) {
             checkDecorators(node);
             if (!isBindingElement(node)) {
                 checkSourceElement(node.type);
@@ -39125,6 +39699,7 @@ namespace ts {
 
                 forEach(node.name.elements, checkSourceElement);
             }
+
             // For a parameter declaration with an initializer, error and exit if the containing function doesn't have a body
             if (isParameter(node) && node.initializer && nodeIsMissing((getContainingFunction(node) as FunctionLikeDeclaration).body)) {
                 error(node, Diagnostics.A_parameter_initializer_is_only_allowed_in_a_function_or_constructor_implementation);
@@ -39202,7 +39777,7 @@ namespace ts {
                     error(node.name, Diagnostics.All_declarations_of_0_must_have_identical_modifiers, declarationNameToString(node.name));
                 }
             }
-            if (node.kind !== SyntaxKind.PropertyDeclaration && node.kind !== SyntaxKind.PropertySignature) {
+            if (node.kind !== SyntaxKind.PropertyDeclaration && node.kind !== SyntaxKind.PropertySignature && node.kind !== SyntaxKind.AnnotationPropertyDeclaration) {
                 // We know we don't have a binding pattern or computed name here
                 checkExportsOnMergedDeclarations(node);
                 if (node.kind === SyntaxKind.VariableDeclaration || node.kind === SyntaxKind.BindingElement) {
@@ -40939,6 +41514,46 @@ namespace ts {
             }
         }
 
+        function checkAnnotationDeclaration(node: AnnotationDeclaration) {
+            checkGrammarAnnotationDeclaration(node);
+            checkDecorators(node);
+
+            const firstDecorator = find(node.modifiers, isDecorator);
+            if (firstDecorator) {
+                grammarErrorOnNode(firstDecorator, Diagnostics.Decorators_are_not_valid_here);
+            }
+            const firstAnnotation = find(node.modifiers, isAnnotation);
+            if (firstAnnotation) {
+                grammarErrorOnNode(firstAnnotation, Diagnostics.Annotation_cannot_be_applied_for_annotation_declaration);
+            }
+
+            checkCollisionsForDeclarationName(node, node.name);
+
+            checkExportsOnMergedDeclarations(node);
+            const symbol = getSymbolOfNode(node);
+            const type = getDeclaredTypeOfSymbol(symbol) as InterfaceType;
+            const staticType = getTypeOfSymbol(symbol) as ObjectType;
+
+            checkClassForDuplicateDeclarations(node);
+
+            addLazyDiagnostic(() => {
+                checkIndexConstraints(type, symbol);
+                checkIndexConstraints(staticType, symbol, /*isStaticIndex*/ true);
+                checkTypeForDuplicateIndexSignatures(node);
+                checkPropertyInitialization(node);
+            });
+
+            forEach(node.members, checkSourceElement);
+        }
+
+        function checkGrammarAnnotationDeclaration(node: AnnotationDeclaration) {
+            Debug.assert(node.parent);
+            if (!isSourceFile(node.parent)) {
+                grammarErrorOnNode(node, Diagnostics.Annotation_must_be_defined_at_top_level_only);
+            }
+            checkGrammarDecoratorsAndModifiers(node);
+        }
+
         function checkClassLikeDeclaration(node: ClassLikeDeclaration) {
             checkGrammarClassLikeDeclaration(node);
             checkDecorators(node);
@@ -41540,11 +42155,11 @@ namespace ts {
             return ok;
         }
 
-        function checkPropertyInitialization(node: ClassLikeDeclaration) {
+        function checkPropertyInitialization(node: ClassLikeDeclaration | AnnotationDeclaration) {
             if (!strictNullChecks || !strictPropertyInitialization || node.flags & NodeFlags.Ambient) {
                 return;
             }
-            const constructor = findConstructorDeclaration(node);
+            const constructor = (!isAnnotationDeclaration(node)) ? findConstructorDeclaration(node) : undefined;
             for (const member of node.members) {
                 if (getEffectiveModifierFlags(member) & ModifierFlags.Ambient) {
                     continue;
@@ -42244,6 +42859,15 @@ namespace ts {
                     }
                 }
 
+                if ((isImportSpecifier(node) || isExportSpecifier(node))) {
+                    if (targetFlags & SymbolFlags.Annotation) {
+                        getNodeLinks(node).exportOrImportRefersToAnnotation = true;
+                        if (node.propertyName) {
+                            error(node, Diagnostics.Annotation_cannot_be_renamed_in_import_or_export);
+                        }
+                    }
+                }
+
                 if (!isVariableDeclaration(node) && !isBindingElement(node)) {
                     if (targetFlags & SymbolFlags.ConstEnum) {
                         checkConstEnumRelate(node, target);
@@ -42551,6 +43175,33 @@ namespace ts {
             }
         }
 
+        function checkAnnotationInExportAssignment(node: ExportAssignment) {
+            let ident;
+            switch (node.expression.kind) {
+                case SyntaxKind.Identifier:
+                    ident = node.expression as Identifier;
+                    break;
+                case SyntaxKind.PropertyAccessExpression:
+                    ident = node.expression as PropertyAccessExpression;
+                    break;
+                default:
+                    return;
+            }
+            if (!ident) {
+                return;
+            }
+            const symbol = getSymbolOfNameOrPropertyAccessExpression(ident, /*ignoreErrors*/ true);
+            if (!symbol) {
+                return;
+            }
+            if (getAllSymbolFlags(symbol) & SymbolFlags.Annotation) {
+                getNodeLinks(node).exportOrImportRefersToAnnotation = true;
+                if (node.isExportEquals === undefined) {
+                    error(node, Diagnostics.Annotation_cannot_be_exported_as_default);
+                }
+            }
+        }
+
         function checkExportAssignment(node: ExportAssignment) {
             const illegalContextMessage = node.isExportEquals
                 ? Diagnostics.An_export_assignment_must_be_at_the_top_level_of_a_file_or_module_declaration
@@ -42604,6 +43255,8 @@ namespace ts {
             else {
                 checkExpressionCached(node.expression);
             }
+
+            checkAnnotationInExportAssignment(node);
 
             checkExternalModuleExports(container);
 
@@ -42723,6 +43376,8 @@ namespace ts {
                     return checkPropertyDeclaration(node as PropertyDeclaration);
                 case SyntaxKind.PropertySignature:
                     return checkPropertySignature(node as PropertySignature);
+                case SyntaxKind.AnnotationPropertyDeclaration:
+                    return checkPropertyDeclaration(node as AnnotationPropertyDeclaration);
                 case SyntaxKind.ConstructorType:
                 case SyntaxKind.FunctionType:
                 case SyntaxKind.CallSignature:
@@ -42860,6 +43515,8 @@ namespace ts {
                     return checkClassDeclaration(node as ClassDeclaration);
                 case SyntaxKind.StructDeclaration:
                     return checkStructDeclaration(node as StructDeclaration);
+                case SyntaxKind.AnnotationDeclaration:
+                    return checkAnnotationDeclaration(node as AnnotationDeclaration);
                 case SyntaxKind.InterfaceDeclaration:
                     return checkInterfaceDeclaration(node as InterfaceDeclaration);
                 case SyntaxKind.TypeAliasDeclaration:
@@ -43428,7 +44085,7 @@ namespace ts {
             return undefined;
         }
 
-        function getSymbolOfNameOrPropertyAccessExpression(name: EntityName | PrivateIdentifier | PropertyAccessExpression | JSDocMemberName): Symbol | undefined {
+        function getSymbolOfNameOrPropertyAccessExpression(name: EntityName | PrivateIdentifier | PropertyAccessExpression | JSDocMemberName, ignoreErrors?: boolean): Symbol | undefined {
             if (isDeclarationName(name)) {
                 return getSymbolOfNode(name.parent);
             }
@@ -43518,7 +44175,7 @@ namespace ts {
                         const symbol = getIntrinsicTagSymbol(name.parent as JsxOpeningLikeElement);
                         return symbol === unknownSymbol ? undefined : symbol;
                     }
-                    const result = resolveEntityName(name, meaning, /*ignoreErrors*/ false, /* dontResolveAlias */ true, getHostSignatureFromJSDoc(name));
+                    const result = resolveEntityName(name, meaning, /*ignoreErrors*/ ignoreErrors, /* dontResolveAlias */ true, getHostSignatureFromJSDoc(name));
                     if (!result && isJSDoc) {
                         const container = findAncestor(name, or(isClassLike, isInterfaceDeclaration));
                         if (container) {
@@ -44722,6 +45379,24 @@ namespace ts {
                     return !sym.exports ? [] : nodeBuilder.symbolTableToDeclarationStatements(sym.exports, node, flags, tracker, bundled);
                 },
                 isImportRequiredByAugmentation,
+                getAnnotationObjectLiteralEvaluatedProps: (node: Annotation): ESMap<__String, Expression> | undefined => {
+                    return getNodeLinks(node).annotationObjectLiteralEvaluatedProps;
+                },
+                getAnnotationPropertyEvaluatedInitializer: (node: AnnotationPropertyDeclaration): Expression | undefined => {
+                    return getNodeLinks(node).annotationPropertyEvaluatedInitializer;
+                },
+                getAnnotationPropertyInferredType: (node: AnnotationPropertyDeclaration): TypeNode | undefined => {
+                    return getNodeLinks(node).annotationPropertyInferredType;
+                },
+                setAnnotationDeclarationUniquePrefix: (node: AnnotationDeclaration, prefix: string): void => {
+                    getNodeLinks(node).annotationDeclarationUniquePrefix = prefix;
+                },
+                getAnnotationDeclarationUniquePrefix: (node: AnnotationDeclaration): string | undefined => {
+                    return getNodeLinks(node).annotationDeclarationUniquePrefix;
+                },
+                isReferredToAnnotation: (node: ImportSpecifier | ExportSpecifier | ExportAssignment): boolean | undefined => {
+                    return getNodeLinks(node).exportOrImportRefersToAnnotation;
+                }
             };
 
             function isImportRequiredByAugmentation(node: ImportDeclaration) {
@@ -45469,6 +46144,7 @@ namespace ts {
                             return nodeHasAnyModifiersExcept(node, SyntaxKind.AsyncKeyword);
                         case SyntaxKind.ClassDeclaration:
                         case SyntaxKind.StructDeclaration:
+                        case SyntaxKind.AnnotationDeclaration:
                         case SyntaxKind.ConstructorType:
                             return nodeHasAnyModifiersExcept(node, SyntaxKind.AbstractKeyword);
                         case SyntaxKind.ClassExpression:

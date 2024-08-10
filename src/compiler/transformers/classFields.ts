@@ -222,12 +222,16 @@ namespace ts {
                     return shouldTransformAutoAccessors ? undefined : node;
                 case SyntaxKind.ClassDeclaration:
                     return visitClassDeclaration(node as ClassDeclaration);
+                case SyntaxKind.AnnotationDeclaration:
+                    return undefined;
                 case SyntaxKind.ClassExpression:
                     return visitClassExpression(node as ClassExpression);
                 case SyntaxKind.ClassStaticBlockDeclaration:
                     return visitClassStaticBlockDeclaration(node as ClassStaticBlockDeclaration);
                 case SyntaxKind.PropertyDeclaration:
                     return visitPropertyDeclaration(node as PropertyDeclaration);
+                case SyntaxKind.AnnotationPropertyDeclaration:
+                    return undefined;
                 case SyntaxKind.VariableStatement:
                     return visitVariableStatement(node as VariableStatement);
                 case SyntaxKind.PrivateIdentifier:

@@ -1,0 +1,5 @@
+=== tests/cases/conformance/parser/ets/annotations/AnnotationDeclarationNegative13.ets ===
+@interface Anno<T> {}
+><T> {} : T
+>{} : {}
+

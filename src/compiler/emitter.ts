@@ -712,6 +712,12 @@ namespace ts {
         isBindingCapturedByNode: notImplemented,
         getDeclarationStatementsForSourceFile: notImplemented,
         isImportRequiredByAugmentation: notImplemented,
+        getAnnotationObjectLiteralEvaluatedProps: notImplemented,
+        getAnnotationPropertyEvaluatedInitializer: notImplemented,
+        getAnnotationPropertyInferredType: notImplemented,
+        setAnnotationDeclarationUniquePrefix: notImplemented,
+        getAnnotationDeclarationUniquePrefix: notImplemented,
+        isReferredToAnnotation: notImplemented,
     };
 
     /*@internal*/
@@ -1395,6 +1401,8 @@ namespace ts {
                         return emitPropertySignature(node as PropertySignature);
                     case SyntaxKind.PropertyDeclaration:
                         return emitPropertyDeclaration(node as PropertyDeclaration);
+                    case SyntaxKind.AnnotationPropertyDeclaration:
+                        return emitAnnotationPropertyDeclaration(node as AnnotationPropertyDeclaration);
                     case SyntaxKind.MethodSignature:
                         return emitMethodSignature(node as MethodSignature);
                     case SyntaxKind.MethodDeclaration:
@@ -1529,6 +1537,8 @@ namespace ts {
                         return emitClassOrStructDeclaration(node as ClassDeclaration);
                     case SyntaxKind.StructDeclaration:
                         return emitClassOrStructDeclaration(<StructDeclaration>node);
+                    case SyntaxKind.AnnotationDeclaration:
+                        return emitAnnotationDeclaration(node as AnnotationDeclaration);
                     case SyntaxKind.InterfaceDeclaration:
                         return emitInterfaceDeclaration(node as InterfaceDeclaration);
                     case SyntaxKind.TypeAliasDeclaration:
@@ -2135,6 +2145,13 @@ namespace ts {
             emit(node.exclamationToken);
             emitTypeAnnotation(node.type);
             emitInitializer(node.initializer, node.type ? node.type.end : node.questionToken ? node.questionToken.end : node.name.end, node);
+            writeTrailingSemicolon();
+        }
+
+        function emitAnnotationPropertyDeclaration(node: AnnotationPropertyDeclaration) {
+            emit(node.name);
+            emitTypeAnnotation(node.type);
+            emitInitializer(node.initializer, node.type ? node.type.end : node.name.end, node);
             writeTrailingSemicolon();
         }
 
@@ -3379,6 +3396,30 @@ namespace ts {
             writePunctuation("{");
             emitList(node, node.members, ListFormat.InterfaceMembers);
             writePunctuation("}");
+        }
+
+        function emitAnnotationDeclaration(node: AnnotationDeclaration) {
+            emitDecoratorsAndModifiers(node, node.modifiers);
+            writeKeyword("@interface");
+
+            if (node.name) {
+                writeSpace();
+                emitIdentifierName(node.name);
+            }
+
+            const indentedFlag = getEmitFlags(node) & EmitFlags.Indented;
+            if (indentedFlag) {
+                increaseIndent();
+            }
+
+            writeSpace();
+            writePunctuation("{");
+            emitList(node, node.members, ListFormat.ClassMembers);
+            writePunctuation("}");
+
+            if (indentedFlag) {
+                decreaseIndent();
+            }
         }
 
         function emitTypeAliasDeclaration(node: TypeAliasDeclaration) {
@@ -5182,6 +5223,7 @@ namespace ts {
                 case SyntaxKind.PropertyAssignment:
                 case SyntaxKind.ShorthandPropertyAssignment:
                 case SyntaxKind.PropertyDeclaration:
+                case SyntaxKind.AnnotationPropertyDeclaration:
                 case SyntaxKind.MethodDeclaration:
                 case SyntaxKind.GetAccessor:
                 case SyntaxKind.SetAccessor:

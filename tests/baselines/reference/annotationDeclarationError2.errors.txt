@@ -1,0 +1,10 @@
+tests/cases/conformance/annotations/annotationDeclarationError2.ets(1,1): error TS28026: Annotation cannot be applied for annotation declaration.
+
+
+==== tests/cases/conformance/annotations/annotationDeclarationError2.ets (1 errors) ====
+    @Anno
+    ~~~~~
+!!! error TS28026: Annotation cannot be applied for annotation declaration.
+    @interface Anno {
+        a: number
+    }

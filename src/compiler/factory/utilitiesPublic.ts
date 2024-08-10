@@ -20,6 +20,7 @@ namespace ts {
             || kind === SyntaxKind.ArrowFunction
             || kind === SyntaxKind.ClassExpression
             || kind === SyntaxKind.StructDeclaration
+            || kind === SyntaxKind.AnnotationDeclaration
             || kind === SyntaxKind.VariableStatement
             || kind === SyntaxKind.FunctionDeclaration
             || kind === SyntaxKind.ClassDeclaration

@@ -1,0 +1,16 @@
+tests/cases/conformance/annotations/annotationAsTypeError9.ets(4,8): error TS28028: Annotation cannot be used as a type.
+tests/cases/conformance/annotations/annotationAsTypeError9.ets(7,8): error TS28028: Annotation cannot be used as a type.
+
+
+==== tests/cases/conformance/annotations/annotationAsTypeError9.ets (2 errors) ====
+    @interface Anno {}
+    
+    class C {
+        a: Anno
+           ~~~~
+!!! error TS28028: Annotation cannot be used as a type.
+    }
+    
+    let a: Anno[];
+           ~~~~
+!!! error TS28028: Annotation cannot be used as a type.

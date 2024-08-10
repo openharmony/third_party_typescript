@@ -1,0 +1,17 @@
+tests/cases/conformance/annotations/annotationAsTypeError8.ets(3,17): error TS28028: Annotation cannot be used as a type.
+tests/cases/conformance/annotations/annotationAsTypeError8.ets(7,19): error TS28028: Annotation cannot be used as a type.
+
+
+==== tests/cases/conformance/annotations/annotationAsTypeError8.ets (2 errors) ====
+    @interface Anno {}
+    
+    function foo(a: Anno) {
+                    ~~~~
+!!! error TS28028: Annotation cannot be used as a type.
+    }
+    
+    class C {
+        public goo(a: Anno) {}
+                      ~~~~
+!!! error TS28028: Annotation cannot be used as a type.
+    }

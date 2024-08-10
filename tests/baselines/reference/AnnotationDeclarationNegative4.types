@@ -1,0 +1,5 @@
+=== tests/cases/conformance/parser/ets/annotations/AnnotationDeclarationNegative4.ets ===
+@interface Anno implements A {}
+>implements : any
+>A : any
+

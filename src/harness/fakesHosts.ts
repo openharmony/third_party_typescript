@@ -327,7 +327,7 @@ namespace fakes {
             return vpath.resolve(this.getDefaultLibLocation(), ts.getDefaultLibFileName(options));
         }
 
-        public getSourceFile(fileName: string, languageVersion: number): ts.SourceFile | undefined {
+        public getSourceFile(fileName: string, languageVersion: number, _onError?: (message: string) => void, _shouldCreateNewSourceFile?: boolean, options?: ts.CompilerOptions): ts.SourceFile | undefined {
             const canonicalFileName = this.getCanonicalFileName(vpath.resolve(this.getCurrentDirectory(), fileName));
             const existing = this._sourceFiles.get(canonicalFileName);
             if (existing) return existing;
@@ -351,7 +351,7 @@ namespace fakes {
                 }
             }
 
-            const parsed = ts.createSourceFile(fileName, content, languageVersion, this._setParentNodes || this.shouldAssertInvariants);
+            const parsed = ts.createSourceFile(fileName, content, languageVersion, this._setParentNodes || this.shouldAssertInvariants, undefined, options);
             if (this.shouldAssertInvariants) {
                 Utils.assertInvariants(parsed, /*parent*/ undefined);
             }

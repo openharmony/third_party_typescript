@@ -1,0 +1,144 @@
+=== tests/cases/conformance/annotations/annotationDeclarationFieldInitializer2.ets ===
+const a = 1
+>a : 1
+>1 : 1
+
+const b = 2
+>b : 2
+>2 : 2
+
+@interface Anno {
+    d  = !a
+>d : boolean
+>!a : boolean
+>a : 1
+
+    e: number = a | b
+>e : number
+>a | b : number
+>a : 1
+>b : 2
+
+    f: number = a & b
+>f : number
+>a & b : number
+>a : 1
+>b : 2
+
+    g: number = a >> b
+>g : number
+>a >> b : number
+>a : 1
+>b : 2
+
+    h: number = a >>> b
+>h : number
+>a >>> b : number
+>a : 1
+>b : 2
+
+    i: number = a << b
+>i : number
+>a << b : number
+>a : 1
+>b : 2
+
+    j: number = a ^ b
+>j : number
+>a ^ b : number
+>a : 1
+>b : 2
+
+    k: number = a * b
+>k : number
+>a * b : number
+>a : 1
+>b : 2
+
+    l: number = a / b
+>l : number
+>a / b : number
+>a : 1
+>b : 2
+
+    m: number = a + b
+>m : number
+>a + b : number
+>a : 1
+>b : 2
+
+    o: number = a - b
+>o : number
+>a - b : number
+>a : 1
+>b : 2
+
+    p: number = a % b
+>p : number
+>a % b : number
+>a : 1
+>b : 2
+
+    q: number = a ** b
+>q : number
+>a ** b : number
+>a : 1
+>b : 2
+
+    r: number = a && b
+>r : number
+>a && b : 0 | 2
+>a : 1
+>b : 2
+
+    s: number = (a - 1) || b
+>s : number
+>(a - 1) || b : number
+>(a - 1) : number
+>a - 1 : number
+>a : 1
+>1 : 1
+>b : 2
+
+    t = a < 2
+>t : boolean
+>a < 2 : boolean
+>a : 1
+>2 : 2
+
+    u = a <= 1
+>u : boolean
+>a <= 1 : boolean
+>a : 1
+>1 : 1
+
+    v = a > 2
+>v : boolean
+>a > 2 : boolean
+>a : 1
+>2 : 2
+
+    w = a >= 1
+>w : boolean
+>a >= 1 : boolean
+>a : 1
+>1 : 1
+
+    x = a === 1
+>x : boolean
+>a === 1 : boolean
+>a : 1
+>1 : 1
+
+    y = a !== 1
+>y : boolean
+>a !== 1 : boolean
+>a : 1
+>1 : 1
+
+    z = a == 1
+>z : boolean
+>a == 1 : boolean
+>a : 1
+>1 : 1
+}

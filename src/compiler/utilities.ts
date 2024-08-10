@@ -909,6 +909,7 @@ namespace ts {
             case SyntaxKind.FunctionExpression:
             case SyntaxKind.ArrowFunction:
             case SyntaxKind.PropertyDeclaration:
+            case SyntaxKind.AnnotationPropertyDeclaration:
             case SyntaxKind.ClassStaticBlockDeclaration:
                 return true;
 
@@ -985,6 +986,7 @@ namespace ts {
             case SyntaxKind.VariableStatement:
             case SyntaxKind.ClassDeclaration:
             case SyntaxKind.StructDeclaration:
+            case SyntaxKind.AnnotationDeclaration:
             case SyntaxKind.FunctionDeclaration:
             case SyntaxKind.ModuleDeclaration:
             case SyntaxKind.TypeAliasDeclaration:
@@ -1207,6 +1209,7 @@ namespace ts {
             case SyntaxKind.SetAccessor:
             case SyntaxKind.TypeAliasDeclaration:
             case SyntaxKind.PropertyDeclaration:
+            case SyntaxKind.AnnotationPropertyDeclaration:
             case SyntaxKind.PropertySignature:
             case SyntaxKind.NamespaceImport:
                 errorNode = (node as NamedDeclaration).name;
@@ -2811,6 +2814,8 @@ namespace ts {
                 return v && v.initializer;
             case SyntaxKind.PropertyDeclaration:
                 return (node as PropertyDeclaration).initializer;
+            case SyntaxKind.AnnotationPropertyDeclaration:
+                return (node as AnnotationPropertyDeclaration).initializer;
             case SyntaxKind.PropertyAssignment:
                 return (node as PropertyAssignment).initializer;
         }
@@ -3203,6 +3208,7 @@ namespace ts {
         const parent = node.parent;
         switch (parent.kind) {
             case SyntaxKind.PropertyDeclaration:
+            case SyntaxKind.AnnotationPropertyDeclaration:
             case SyntaxKind.PropertySignature:
             case SyntaxKind.MethodDeclaration:
             case SyntaxKind.MethodSignature:
@@ -4960,7 +4966,11 @@ namespace ts {
     }
 
     export function hasDecorators(node: Node): boolean {
-        return hasSyntacticModifier(node, ModifierFlags.Decorator);
+        return hasSyntacticModifier(node, ModifierFlags.Decorator) && some((node as HasModifiers).modifiers, isDecorator);
+    }
+
+    export function hasAnnotations(node: Node): boolean {
+        return hasSyntacticModifier(node, ModifierFlags.Decorator) && some((node as HasModifiers).modifiers, isAnnotation);
     }
 
     export function getSelectedEffectiveModifierFlags(node: Node, flags: ModifierFlags): ModifierFlags {

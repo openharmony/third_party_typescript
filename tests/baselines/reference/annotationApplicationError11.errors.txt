@@ -1,0 +1,18 @@
+error TS-1: Pre-emit (1) and post-emit (0) diagnostic counts do not match! This can indicate that a semantic _error_ was added by the emit resolver - such an error may not be reflected on the command line or in the editor, but may be captured in a baseline here!
+
+
+!!! error TS-1: Pre-emit (1) and post-emit (0) diagnostic counts do not match! This can indicate that a semantic _error_ was added by the emit resolver - such an error may not be reflected on the command line or in the editor, but may be captured in a baseline here!
+!!! related TS-1: The excess diagnostics are:
+!!! related TS1249 tests/cases/conformance/annotations/annotationApplicationError11.ets:8:5: A decorator can only decorate a method implementation, not an overload.
+==== tests/cases/conformance/annotations/annotationApplicationError11.ets (0 errors) ====
+    @interface Anno {
+        a: number = 10
+        b: string[] = []
+    }
+    
+    
+    abstract class C {
+        @Anno
+        abstract foo();
+    }
+    

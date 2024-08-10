@@ -1,0 +1,29 @@
+=== tests/cases/conformance/annotations/annotationDeclarationFieldInitializerError1.ets ===
+let A = 10;
+>A : Symbol(A, Decl(annotationDeclarationFieldInitializerError1.ets, 0, 3))
+
+function B(): number {
+>B : Symbol(B, Decl(annotationDeclarationFieldInitializerError1.ets, 0, 11))
+
+    return 10;
+}
+
+const C = A + B();
+>C : Symbol(C, Decl(annotationDeclarationFieldInitializerError1.ets, 6, 5))
+>A : Symbol(A, Decl(annotationDeclarationFieldInitializerError1.ets, 0, 3))
+>B : Symbol(B, Decl(annotationDeclarationFieldInitializerError1.ets, 0, 11))
+
+@interface Anno {
+>Anno : Symbol(Anno, Decl(annotationDeclarationFieldInitializerError1.ets, 6, 18))
+
+    a = A
+>a : Symbol(Anno.a, Decl(annotationDeclarationFieldInitializerError1.ets, 8, 17))
+
+    b = B()
+>b : Symbol(Anno.b, Decl(annotationDeclarationFieldInitializerError1.ets, 9, 9))
+>B : Symbol(B, Decl(annotationDeclarationFieldInitializerError1.ets, 0, 11))
+
+    c = C
+>c : Symbol(Anno.c, Decl(annotationDeclarationFieldInitializerError1.ets, 10, 11))
+
+}

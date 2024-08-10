@@ -1359,6 +1359,11 @@ namespace ts {
         return isSourceFile(node) || isModuleBlock(node) || isBlock(node) && isFunctionLike(node.parent);
     }
 
+    export function isAnnotationElement(node: Node): node is AnnotationElement {
+        const kind = node.kind;
+        return kind === SyntaxKind.AnnotationPropertyDeclaration;
+    }
+
     // Classes
     export function isClassElement(node: Node): node is ClassElement {
         const kind = node.kind;
@@ -1755,6 +1760,62 @@ namespace ts {
         return isAnyImportOrReExport(result) || isExportAssignment(result) || hasSyntacticModifier(result, ModifierFlags.Export);
     }
 
+    /**
+     * Semantics of annotations is not defined for JS. The presence of AnnotationDeclaration
+     * in SourceFile shouldn't effect on resulting JS code.
+     * But AnnotationDeclaration reuse a general mechanics for declaration importing and exporting.
+     * It may lead to generation of boilerplate code in process of transformation into JS.
+     * For example,
+     * // A.ts
+     * export @inteface Anno {}
+     *
+     * // A.js
+     * exports.__esModule = true; // <-- side effect
+     *
+     * Following function returns true if SourceFile contains only AnnotationDeclaration
+     * as importing or exporting entity.
+     */
+    /* @internal */
+    export function isOnlyAnnotationsAreExportedOrImported(s: SourceFile, resolver: EmitResolver) {
+        // Ingnore any files except ets
+        if (!isInEtsFile(s)) {
+            return false;
+        }
+        // SourceFile exports or imports contains only annotation declarations
+        const exports = mapDefined(s.statements, (s: Statement) => {
+            const os = getOriginalNode(s) as Statement;
+            return isExternalModuleIndicator(os) ? os : undefined;
+        });
+        const imports = s.imports;
+        if (exports.length === 0 && imports.length === 0) {
+            return false;
+        }
+        return every(exports, e => {
+            if (isAnnotationDeclaration(e)) {
+                return true;
+            }
+            else if (isExportDeclaration(e) && e.exportClause && isNamedExports(e.exportClause)) {
+                return e.exportClause.elements.length > 0 && every(e.exportClause.elements, e => resolver.isReferredToAnnotation(e) === true);
+            }
+            else if (isExportAssignment(e) && resolver.isReferredToAnnotation(e) === true) {
+                return true;
+            }
+            else if (isImportDeclaration(e) && e.importClause && e.importClause.namedBindings && isNamedImports(e.importClause.namedBindings)) {
+                return e.importClause.namedBindings.elements.length > 0 && every(e.importClause.namedBindings.elements, e => resolver.isReferredToAnnotation(e) === true);
+            }
+            return false;
+        }) && every(imports, i => {
+            if (isImportDeclaration(i.parent) && i.parent.importClause && i.parent.importClause.namedBindings && isNamedImports(i.parent.importClause.namedBindings)) {
+                return i.parent.importClause.namedBindings.elements.length > 0 && every(i.parent.importClause.namedBindings.elements, e => resolver.isReferredToAnnotation(e) === true);
+            }
+            else if (isExportDeclaration(i.parent) && i.parent.exportClause && isNamedExports(i.parent.exportClause)) {
+                return i.parent.exportClause.elements.length > 0 && every(i.parent.exportClause.elements, e => resolver.isReferredToAnnotation(e) === true);
+            }
+            return false;
+        });
+    }
+
+
     /* @internal */
     export function isForInOrOfStatement(node: Node): node is ForInOrOfStatement {
         return node.kind === SyntaxKind.ForInStatement || node.kind === SyntaxKind.ForOfStatement;
@@ -1820,6 +1881,7 @@ namespace ts {
             || kind === SyntaxKind.ClassExpression
             || kind === SyntaxKind.ClassStaticBlockDeclaration
             || kind === SyntaxKind.StructDeclaration
+            || kind === SyntaxKind.AnnotationDeclaration
             || kind === SyntaxKind.Constructor
             || kind === SyntaxKind.EnumDeclaration
             || kind === SyntaxKind.EnumMember
@@ -1841,6 +1903,7 @@ namespace ts {
             || kind === SyntaxKind.Parameter
             || kind === SyntaxKind.PropertyAssignment
             || kind === SyntaxKind.PropertyDeclaration
+            || kind === SyntaxKind.AnnotationPropertyDeclaration
             || kind === SyntaxKind.PropertySignature
             || kind === SyntaxKind.SetAccessor
             || kind === SyntaxKind.ShorthandPropertyAssignment
@@ -1857,6 +1920,7 @@ namespace ts {
             || kind === SyntaxKind.MissingDeclaration
             || kind === SyntaxKind.ClassDeclaration
             || kind === SyntaxKind.StructDeclaration
+            || kind === SyntaxKind.AnnotationDeclaration
             || kind === SyntaxKind.InterfaceDeclaration
             || kind === SyntaxKind.TypeAliasDeclaration
             || kind === SyntaxKind.EnumDeclaration
@@ -2061,6 +2125,7 @@ namespace ts {
             case SyntaxKind.Parameter:
             case SyntaxKind.BindingElement:
             case SyntaxKind.PropertyDeclaration:
+            case SyntaxKind.AnnotationPropertyDeclaration:
             case SyntaxKind.PropertyAssignment:
             case SyntaxKind.EnumMember:
                 return true;

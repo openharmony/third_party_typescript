@@ -1,0 +1,9 @@
+=== tests/cases/conformance/annotations/annotationDeclarationError6.ets ===
+namespace N {
+>N : typeof N
+
+    @interface Anno {
+        a: number
+>a : number
+    }
+}

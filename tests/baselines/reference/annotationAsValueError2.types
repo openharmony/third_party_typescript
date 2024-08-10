@@ -1,0 +1,7 @@
+=== tests/cases/conformance/annotations/annotationAsValueError2.ets ===
+@interface Anno {}
+
+const a = Anno;
+>a : any
+>Anno : any
+

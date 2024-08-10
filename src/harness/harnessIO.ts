@@ -707,7 +707,7 @@ namespace Harness {
         }
 
         export function doErrorBaseline(baselinePath: string, inputFiles: readonly TestFile[], errors: readonly ts.Diagnostic[], pretty?: boolean) {
-            Baseline.runBaseline(baselinePath.replace(/\.tsx?$/, ".errors.txt"),
+            Baseline.runBaseline(baselinePath.replace(/\.(ets|tsx?)$/, ".errors.txt"),
                 !errors || (errors.length === 0) ? null : getErrorBaseline(inputFiles, errors, pretty)); // eslint-disable-line no-null/no-null
         }
 
@@ -765,8 +765,8 @@ namespace Harness {
                 // When calling this function from rwc-runner, the baselinePath will have no extension.
                 // As rwc test- file is stored in json which ".json" will get stripped off.
                 // When calling this function from compiler-runner, the baselinePath will then has either ".ts" or ".tsx" extension
-                const outputFileName = ts.endsWith(baselinePath, ts.Extension.Ts) || ts.endsWith(baselinePath, ts.Extension.Tsx) ?
-                    baselinePath.replace(/\.tsx?/, "") : baselinePath;
+                const outputFileName = ts.endsWith(baselinePath, ts.Extension.Ts) || ts.endsWith(baselinePath, ts.Extension.Tsx) || ts.endsWith(baselinePath, ts.Extension.Ets) ?
+                    baselinePath.replace(/\.(ets|tsx?)/, "") : baselinePath;
 
                 if (!multifile) {
                     const fullBaseLine = generateBaseLine(isSymbolBaseLine, isSymbolBaseLine ? skipSymbolBaselines : skipTypeBaselines);
@@ -862,7 +862,7 @@ namespace Harness {
                         }
                     });
                 }
-                Baseline.runBaseline(baselinePath.replace(/\.tsx?/, ".js.map"), sourceMapCode);
+                Baseline.runBaseline(baselinePath.replace(/\.(ets|tsx?)/, ".js.map"), sourceMapCode);
             }
         }
 
@@ -901,7 +901,7 @@ namespace Harness {
                     jsCode += "\r\n";
                 }
                 if (!result.diagnostics.length && !ts.endsWith(file.file, ts.Extension.Json)) {
-                    const fileParseResult = ts.createSourceFile(file.file, file.text, ts.getEmitScriptTarget(options), /*parentNodes*/ false, ts.endsWith(file.file, "x") ? ts.ScriptKind.JSX : ts.ScriptKind.JS);
+                    const fileParseResult = ts.createSourceFile(file.file, file.text, ts.getEmitScriptTarget(options), /*parentNodes*/ false, ts.endsWith(file.file, "x") ? ts.ScriptKind.JSX : ts.ScriptKind.JS, options);
                     if (ts.length(fileParseResult.parseDiagnostics)) {
                         jsCode += getErrorBaseline([file.asTestFile()], fileParseResult.parseDiagnostics);
                         return;
@@ -929,7 +929,7 @@ namespace Harness {
             }
 
             // eslint-disable-next-line no-null/no-null
-            Baseline.runBaseline(baselinePath.replace(/\.tsx?/, ts.Extension.Js), jsCode.length > 0 ? tsCode + "\r\n\r\n" + jsCode : null);
+            Baseline.runBaseline(baselinePath.replace(/\.(ets|tsx?)/, ts.Extension.Js), jsCode.length > 0 ? tsCode + "\r\n\r\n" + jsCode : null);
         }
 
         function fileOutput(file: documents.TextDocument, harnessSettings: TestCaseParser.CompilerSettings): string {

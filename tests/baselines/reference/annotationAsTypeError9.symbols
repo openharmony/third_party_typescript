@@ -1,0 +1,16 @@
+=== tests/cases/conformance/annotations/annotationAsTypeError9.ets ===
+@interface Anno {}
+>Anno : Symbol(Anno, Decl(annotationAsTypeError9.ets, 0, 0))
+
+class C {
+>C : Symbol(C, Decl(annotationAsTypeError9.ets, 0, 18))
+
+    a: Anno
+>a : Symbol(C.a, Decl(annotationAsTypeError9.ets, 2, 9))
+>Anno : Symbol(Anno, Decl(annotationAsTypeError9.ets, 0, 0))
+}
+
+let a: Anno[];
+>a : Symbol(a, Decl(annotationAsTypeError9.ets, 6, 3))
+>Anno : Symbol(Anno, Decl(annotationAsTypeError9.ets, 0, 0))
+

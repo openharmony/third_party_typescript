@@ -1,0 +1,13 @@
+=== tests/cases/conformance/annotations/annotationAsTypeError7.ets ===
+@interface Anno {}
+>Anno : Symbol(Anno, Decl(annotationAsTypeError7.ets, 0, 0))
+
+function foo(o: Object): o is Anno {
+>foo : Symbol(foo, Decl(annotationAsTypeError7.ets, 0, 18))
+>o : Symbol(o, Decl(annotationAsTypeError7.ets, 2, 13))
+>Object : Symbol(Object, Decl(lib.es5.d.ts, --, --), Decl(lib.es5.d.ts, --, --))
+>o : Symbol(o, Decl(annotationAsTypeError7.ets, 2, 13))
+>Anno : Symbol(Anno, Decl(annotationAsTypeError7.ets, 0, 0))
+
+    return true;
+}

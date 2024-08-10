@@ -1,0 +1,5 @@
+=== tests/cases/conformance/annotations/annotationDeclarationFieldTypeError9.ets ===
+@interface Anno {
+    a: BigInt
+>a : BigInt
+}

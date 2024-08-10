@@ -1,0 +1,12 @@
+=== tests/cases/conformance/annotations/annotationDeclarationFieldError3.ets ===
+function foo(target: any, key: string) {}
+>foo : (target: any, key: string) => void
+>target : any
+>key : string
+
+@interface Anno {
+    @foo a: number
+>foo : (target: any, key: string) => void
+>a : any
+>number : any
+}

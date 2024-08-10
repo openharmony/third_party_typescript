@@ -1,0 +1,7 @@
+=== tests/cases/conformance/parser/ets/annotations/AnnotationDeclarationNegative5.ets ===
+@interface Anno {
+>Anno : Symbol(Anno, Decl(AnnotationDeclarationNegative5.ets, 0, 0))
+
+    public a = 10
+>a : Symbol(Anno.a, Decl(AnnotationDeclarationNegative5.ets, 1, 10))
+}

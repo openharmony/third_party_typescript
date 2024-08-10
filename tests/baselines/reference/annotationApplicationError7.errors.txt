@@ -1,0 +1,14 @@
+tests/cases/conformance/annotations/annotationApplicationError7.ets(6,1): error TS28019: When annotation 'Anno' is applied, all fields without default values must be provided.
+
+
+==== tests/cases/conformance/annotations/annotationApplicationError7.ets (1 errors) ====
+    @interface Anno {
+        a: number
+        b: string[]
+    }
+    
+    @Anno
+    ~~~~~
+!!! error TS28019: When annotation 'Anno' is applied, all fields without default values must be provided.
+    class C {}
+    

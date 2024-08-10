@@ -1,0 +1,15 @@
+=== tests/cases/conformance/annotations/A.ets ===
+export @interface Anno {
+    a: number
+>a : number
+}
+
+=== tests/cases/conformance/annotations/B.ets ===
+export {Anno} from "./A";
+>Anno : typeof import("tests/cases/conformance/annotations/A").Anno
+
+
+=== tests/cases/conformance/annotations/C.ets ===
+import {Anno} from "./B";
+>Anno : typeof Anno
+

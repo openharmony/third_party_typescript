@@ -1,0 +1,13 @@
+=== tests/cases/conformance/annotations/annotationAsTypeError9.ets ===
+@interface Anno {}
+
+class C {
+>C : C
+
+    a: Anno
+>a : Anno
+}
+
+let a: Anno[];
+>a : Anno[]
+

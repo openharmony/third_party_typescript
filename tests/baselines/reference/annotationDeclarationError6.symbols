@@ -1,0 +1,11 @@
+=== tests/cases/conformance/annotations/annotationDeclarationError6.ets ===
+namespace N {
+>N : Symbol(N, Decl(annotationDeclarationError6.ets, 0, 0))
+
+    @interface Anno {
+>Anno : Symbol(Anno, Decl(annotationDeclarationError6.ets, 0, 13))
+
+        a: number
+>a : Symbol(Anno.a, Decl(annotationDeclarationError6.ets, 1, 21))
+    }
+}

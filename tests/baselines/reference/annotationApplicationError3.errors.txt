@@ -1,0 +1,26 @@
+tests/cases/conformance/annotations/annotationApplicationError3.ets(10,1): error TS28035: All members of object literal which is provided as annotation parameters list, have to be constant expressions, got: 'foo()'.
+tests/cases/conformance/annotations/annotationApplicationError3.ets(16,1): error TS28035: All members of object literal which is provided as annotation parameters list, have to be constant expressions, got: 'new C().s'.
+
+
+==== tests/cases/conformance/annotations/annotationApplicationError3.ets (2 errors) ====
+    @interface Anno {
+        a: number = 20
+        b: string[]
+    }
+    
+    function foo(): number {
+        return 10
+    }
+    
+    @Anno({a: foo(), b: new C().s})
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+!!! error TS28035: All members of object literal which is provided as annotation parameters list, have to be constant expressions, got: 'foo()'.
+    class C {
+        readonly s: string[] = ["a", "b", "c"]
+    }
+    
+    
+    @Anno({b: new C().s})
+    ~~~~~~~~~~~~~~~~~~~~~
+!!! error TS28035: All members of object literal which is provided as annotation parameters list, have to be constant expressions, got: 'new C().s'.
+    class D {}

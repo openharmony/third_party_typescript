@@ -1,0 +1,184 @@
+=== tests/cases/conformance/annotations/annotationApplication12.ets ===
+const enum E {
+>E : E
+
+	A = 10,
+>A : E.A
+>10 : 10
+
+	B = 20,
+>B : E.B
+>20 : 20
+
+	C = 30
+>C : E.C
+>30 : 30
+}
+
+const enum E1 {
+>E1 : E1
+
+	A = "A",
+>A : E1.A
+>"A" : "A"
+
+	B = "B"
+>B : E1.B
+>"B" : "B"
+}
+
+@interface Anno {
+	a: number
+>a : number
+
+	b = [(10 + 3), E.A]
+>b : number[]
+>[(10 + 3), E.A] : number[]
+>(10 + 3) : number
+>10 + 3 : number
+>10 : 10
+>3 : 3
+>E.A : E.A
+>E : typeof E
+>A : E.A
+
+	c: string
+>c : string
+
+	d: boolean
+>d : boolean
+
+	e: E[] = [E.A, E.B, E.C]
+>e : E[]
+>[E.A, E.B, E.C] : E[]
+>E.A : E.A
+>E : typeof E
+>A : E.A
+>E.B : E.B
+>E : typeof E
+>B : E.B
+>E.C : E.C
+>E : typeof E
+>C : E.C
+
+	f: number[]
+>f : number[]
+
+	g: number[][][]
+>g : number[][][]
+
+	h: E
+>h : E
+
+	i: E[][][]
+>i : E[][][]
+
+	j: E1
+>j : E1
+
+	k: E1[][][]
+>k : E1[][][]
+}
+
+
+@Anno({a: E.A + 10, c: "a" + "b", d: (1 === 1), f: [], g: [[[0]]], h: E.A, i: [], j: E1.B, k: []})
+>Anno({a: E.A + 10, c: "a" + "b", d: (1 === 1), f: [], g: [[[0]]], h: E.A, i: [], j: E1.B, k: []}) : void
+>Anno : typeof Anno
+>{a: E.A + 10, c: "a" + "b", d: (1 === 1), f: [], g: [[[0]]], h: E.A, i: [], j: E1.B, k: []} : { a: number; c: string; d: boolean; f: undefined[]; g: number[][][]; h: E.A; i: undefined[]; j: E1.B; k: undefined[]; }
+>a : number
+>E.A + 10 : number
+>E.A : E.A
+>E : typeof E
+>A : E.A
+>10 : 10
+>c : string
+>"a" + "b" : string
+>"a" : "a"
+>"b" : "b"
+>d : boolean
+>(1 === 1) : boolean
+>1 === 1 : boolean
+>1 : 1
+>1 : 1
+>f : undefined[]
+>[] : undefined[]
+>g : number[][][]
+>[[[0]]] : number[][][]
+>[[0]] : number[][]
+>[0] : number[]
+>0 : 0
+>h : E.A
+>E.A : E.A
+>E : typeof E
+>A : E.A
+>i : undefined[]
+>[] : undefined[]
+>j : E1.B
+>E1.B : E1.B
+>E1 : typeof E1
+>B : E1.B
+>k : undefined[]
+>[] : undefined[]
+
+class C{
+>C : C
+
+	@Anno({a: 10, b: [1, 2, 3], c: "cde", d: true, f: [1], g:[[[0], [1]]], h: E.A, i: [[[E.A], [E.B]]], j: E1.B, k: [[[E1.A], [E1.B]]]})
+>Anno({a: 10, b: [1, 2, 3], c: "cde", d: true, f: [1], g:[[[0], [1]]], h: E.A, i: [[[E.A], [E.B]]], j: E1.B, k: [[[E1.A], [E1.B]]]}) : void
+>Anno : typeof Anno
+>{a: 10, b: [1, 2, 3], c: "cde", d: true, f: [1], g:[[[0], [1]]], h: E.A, i: [[[E.A], [E.B]]], j: E1.B, k: [[[E1.A], [E1.B]]]} : { a: number; b: number[]; c: string; d: true; f: number[]; g: number[][][]; h: E.A; i: (E.A[] | E.B[])[][]; j: E1.B; k: (E1.A[] | E1.B[])[][]; }
+>a : number
+>10 : 10
+>b : number[]
+>[1, 2, 3] : number[]
+>1 : 1
+>2 : 2
+>3 : 3
+>c : string
+>"cde" : "cde"
+>d : true
+>true : true
+>f : number[]
+>[1] : number[]
+>1 : 1
+>g : number[][][]
+>[[[0], [1]]] : number[][][]
+>[[0], [1]] : number[][]
+>[0] : number[]
+>0 : 0
+>[1] : number[]
+>1 : 1
+>h : E.A
+>E.A : E.A
+>E : typeof E
+>A : E.A
+>i : (E.A[] | E.B[])[][]
+>[[[E.A], [E.B]]] : (E.A[] | E.B[])[][]
+>[[E.A], [E.B]] : (E.A[] | E.B[])[]
+>[E.A] : E.A[]
+>E.A : E.A
+>E : typeof E
+>A : E.A
+>[E.B] : E.B[]
+>E.B : E.B
+>E : typeof E
+>B : E.B
+>j : E1.B
+>E1.B : E1.B
+>E1 : typeof E1
+>B : E1.B
+>k : (E1.A[] | E1.B[])[][]
+>[[[E1.A], [E1.B]]] : (E1.A[] | E1.B[])[][]
+>[[E1.A], [E1.B]] : (E1.A[] | E1.B[])[]
+>[E1.A] : E1.A[]
+>E1.A : E1.A
+>E1 : typeof E1
+>A : E1.A
+>[E1.B] : E1.B[]
+>E1.B : E1.B
+>E1 : typeof E1
+>B : E1.B
+
+	public foo() {}
+>foo : () => void
+}

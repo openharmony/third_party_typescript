@@ -1,0 +1,8 @@
+=== tests/cases/conformance/annotations/annotationAsTypeError1.ets ===
+@interface Anno {}
+
+
+new Anno;
+>new Anno : any
+>Anno : any
+

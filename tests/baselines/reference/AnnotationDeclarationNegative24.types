@@ -1,0 +1,3 @@
+=== tests/cases/conformance/parser/ets/annotations/AnnotationDeclarationNegative24.ets ===
+
+@ interface Anno {}

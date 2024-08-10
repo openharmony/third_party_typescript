@@ -1,0 +1,6 @@
+=== tests/cases/conformance/annotations/annotationApplicationError15.ets ===
+@interface Anno {}
+Anno()
+>Anno() : any
+>Anno : any
+

@@ -40,6 +40,9 @@ namespace ts {
                 if (!isExternalModule(node) || some(result.statements, isExternalModuleIndicator)) {
                     return result;
                 }
+                if (isOnlyAnnotationsAreExportedOrImported(result, resolver)) {
+                    return result;
+                }
                 return factory.updateSourceFile(
                     result,
                     setTextRange(factory.createNodeArray([...result.statements, createEmptyExports(factory)]), result.statements),

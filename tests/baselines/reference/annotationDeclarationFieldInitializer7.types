@@ -1,0 +1,250 @@
+=== tests/cases/conformance/annotations/annotationDeclarationFieldInitializer7.ets ===
+const enum E {
+>E : E
+
+    A,
+>A : E.A
+
+    B
+>B : E.B
+}
+
+@interface Anno {
+    a: number = +E.A
+>a : number
+>+E.A : number
+>E.A : E.A
+>E : typeof E
+>A : E.A
+
+    b: number = -E.A
+>b : number
+>-E.A : number
+>E.A : E.A
+>E : typeof E
+>A : E.A
+
+    c: number = ~E.A
+>c : number
+>~E.A : number
+>E.A : E.A
+>E : typeof E
+>A : E.A
+
+    d  = !E.A
+>d : boolean
+>!E.A : true
+>E.A : E.A
+>E : typeof E
+>A : E.A
+
+    e: number = E.A | E.B
+>e : number
+>E.A | E.B : number
+>E.A : E.A
+>E : typeof E
+>A : E.A
+>E.B : E.B
+>E : typeof E
+>B : E.B
+
+    f: number = E.A & E.B
+>f : number
+>E.A & E.B : number
+>E.A : E.A
+>E : typeof E
+>A : E.A
+>E.B : E.B
+>E : typeof E
+>B : E.B
+
+    g: number = E.A >> E.B
+>g : number
+>E.A >> E.B : number
+>E.A : E.A
+>E : typeof E
+>A : E.A
+>E.B : E.B
+>E : typeof E
+>B : E.B
+
+    h: number = E.A >>> E.B
+>h : number
+>E.A >>> E.B : number
+>E.A : E.A
+>E : typeof E
+>A : E.A
+>E.B : E.B
+>E : typeof E
+>B : E.B
+
+    i: number = E.A << E.B
+>i : number
+>E.A << E.B : number
+>E.A : E.A
+>E : typeof E
+>A : E.A
+>E.B : E.B
+>E : typeof E
+>B : E.B
+
+    j: number = E.A ^ E.B
+>j : number
+>E.A ^ E.B : number
+>E.A : E.A
+>E : typeof E
+>A : E.A
+>E.B : E.B
+>E : typeof E
+>B : E.B
+
+    k: number = E.A * E.B
+>k : number
+>E.A * E.B : number
+>E.A : E.A
+>E : typeof E
+>A : E.A
+>E.B : E.B
+>E : typeof E
+>B : E.B
+
+    l: number = E.A / E.B
+>l : number
+>E.A / E.B : number
+>E.A : E.A
+>E : typeof E
+>A : E.A
+>E.B : E.B
+>E : typeof E
+>B : E.B
+
+    m: number = E.A + E.B
+>m : number
+>E.A + E.B : number
+>E.A : E.A
+>E : typeof E
+>A : E.A
+>E.B : E.B
+>E : typeof E
+>B : E.B
+
+    o: number = E.A - E.B
+>o : number
+>E.A - E.B : number
+>E.A : E.A
+>E : typeof E
+>A : E.A
+>E.B : E.B
+>E : typeof E
+>B : E.B
+
+    p: number = E.A % E.B
+>p : number
+>E.A % E.B : number
+>E.A : E.A
+>E : typeof E
+>A : E.A
+>E.B : E.B
+>E : typeof E
+>B : E.B
+
+    q: number = E.A ** E.B
+>q : number
+>E.A ** E.B : number
+>E.A : E.A
+>E : typeof E
+>A : E.A
+>E.B : E.B
+>E : typeof E
+>B : E.B
+
+    r: number = E.A && E.B
+>r : number
+>E.A && E.B : E.A
+>E.A : E.A
+>E : typeof E
+>A : E.A
+>E.B : E.B
+>E : typeof E
+>B : E.B
+
+    s: number = E.A || E.B
+>s : number
+>E.A || E.B : E.B
+>E.A : E.A
+>E : typeof E
+>A : E.A
+>E.B : E.B
+>E : typeof E
+>B : E.B
+
+    t = E.A < E.B
+>t : boolean
+>E.A < E.B : boolean
+>E.A : E.A
+>E : typeof E
+>A : E.A
+>E.B : E.B
+>E : typeof E
+>B : E.B
+
+    u = E.A <= E.B
+>u : boolean
+>E.A <= E.B : boolean
+>E.A : E.A
+>E : typeof E
+>A : E.A
+>E.B : E.B
+>E : typeof E
+>B : E.B
+
+    v = E.A > E.B
+>v : boolean
+>E.A > E.B : boolean
+>E.A : E.A
+>E : typeof E
+>A : E.A
+>E.B : E.B
+>E : typeof E
+>B : E.B
+
+    w = E.A >= E.B
+>w : boolean
+>E.A >= E.B : boolean
+>E.A : E.A
+>E : typeof E
+>A : E.A
+>E.B : E.B
+>E : typeof E
+>B : E.B
+
+    x = E.A === E.A
+>x : boolean
+>E.A === E.A : boolean
+>E.A : E.A
+>E : typeof E
+>A : E.A
+>E.A : E.A
+>E : typeof E
+>A : E.A
+
+    y = E.B !== E.B
+>y : boolean
+>E.B !== E.B : boolean
+>E.B : E.B
+>E : typeof E
+>B : E.B
+>E.B : E.B
+>E : typeof E
+>B : E.B
+
+    z = E.A == E.A
+>z : boolean
+>E.A == E.A : boolean
+>E.A : E.A
+>E : typeof E
+>A : E.A
+>E.A : E.A
+>E : typeof E
+>A : E.A
+}

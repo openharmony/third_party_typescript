@@ -1,0 +1,12 @@
+=== tests/cases/conformance/annotations/annotationDeclarationError9.ets ===
+@interface Anno {
+>Anno : Symbol(Anno, Decl(annotationDeclarationError9.ets, 0, 0))
+
+    a: number
+>a : Symbol(Anno.a, Decl(annotationDeclarationError9.ets, 0, 17))
+}
+
+export {Anno as A}
+>Anno : Symbol(Anno, Decl(annotationDeclarationError9.ets, 0, 0))
+>A : Symbol(A, Decl(annotationDeclarationError9.ets, 4, 8))
+

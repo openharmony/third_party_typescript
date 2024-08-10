@@ -1,0 +1,11 @@
+tests/cases/conformance/annotations/annotationDeclarationFieldTypeError2.ets(4,5): error TS28033: A type of annotation property have to be number, boolean, string, const enumeration types or array of above types, got: 'I'.
+
+
+==== tests/cases/conformance/annotations/annotationDeclarationFieldTypeError2.ets (1 errors) ====
+    interface I {}
+    
+    @interface Anno {
+        a: I
+        ~
+!!! error TS28033: A type of annotation property have to be number, boolean, string, const enumeration types or array of above types, got: 'I'.
+    }

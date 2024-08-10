@@ -1,0 +1,7 @@
+=== tests/cases/conformance/annotations/annotationDeclarationFieldError1.ets ===
+@interface Anno {
+>Anno : Symbol(Anno, Decl(annotationDeclarationFieldError1.ets, 0, 0))
+
+    a
+>a : Symbol(Anno.a, Decl(annotationDeclarationFieldError1.ets, 0, 17))
+}

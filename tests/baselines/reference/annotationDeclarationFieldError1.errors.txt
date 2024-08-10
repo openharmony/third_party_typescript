@@ -1,0 +1,12 @@
+tests/cases/conformance/annotations/annotationDeclarationFieldError1.ets(2,5): error TS28032: An annotation property must have a type or/and an initializer.
+tests/cases/conformance/annotations/annotationDeclarationFieldError1.ets(2,5): error TS28033: A type of annotation property have to be number, boolean, string, const enumeration types or array of above types, got: 'any'.
+
+
+==== tests/cases/conformance/annotations/annotationDeclarationFieldError1.ets (2 errors) ====
+    @interface Anno {
+        a
+        ~
+!!! error TS28032: An annotation property must have a type or/and an initializer.
+        ~
+!!! error TS28033: A type of annotation property have to be number, boolean, string, const enumeration types or array of above types, got: 'any'.
+    }

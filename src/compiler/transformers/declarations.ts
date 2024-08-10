@@ -540,6 +540,7 @@ namespace ts {
             | CallSignatureDeclaration
             | ParameterDeclaration
             | PropertyDeclaration
+            | AnnotationPropertyDeclaration
             | PropertySignature;
 
         function ensureType(node: HasInferredType, type: TypeNode | undefined, ignorePrivate?: boolean): TypeNode | undefined {
@@ -579,7 +580,8 @@ namespace ts {
             }
             if (node.kind === SyntaxKind.Parameter
                 || node.kind === SyntaxKind.PropertyDeclaration
-                || node.kind === SyntaxKind.PropertySignature) {
+                || node.kind === SyntaxKind.PropertySignature
+                || node.kind === SyntaxKind.AnnotationPropertyDeclaration) {
                 if (isPropertySignature(node) || !node.initializer) return cleanup(resolver.createTypeOfDeclaration(node, enclosingDeclaration, declarationEmitNodeBuilderFlags, symbolTracker, shouldUseResolverType));
                 return cleanup(resolver.createTypeOfDeclaration(node, enclosingDeclaration, declarationEmitNodeBuilderFlags, symbolTracker, shouldUseResolverType) || resolver.createTypeOfExpression(node.initializer, enclosingDeclaration, declarationEmitNodeBuilderFlags, symbolTracker));
             }
@@ -692,6 +694,7 @@ namespace ts {
                 || isModuleDeclaration(node)
                 || isClassDeclaration(node)
                 || isStructDeclaration(node)
+                || isAnnotationDeclaration(node)
                 || isInterfaceDeclaration(node)
                 || isFunctionLike(node)
                 || isIndexSignatureDeclaration(node)
@@ -1012,6 +1015,13 @@ namespace ts {
                             input.questionToken,
                             ensureType(input, input.type),
                             ensureNoInitializer(input)
+                        ));
+                    case SyntaxKind.AnnotationPropertyDeclaration:
+                        return cleanup(factory.updateAnnotationPropertyDeclaration(
+                            input,
+                            input.name,
+                            ensureType(input, input.type),
+                            input.initializer,
                         ));
                     case SyntaxKind.PropertySignature:
                         if (isPrivateIdentifier(input.name)) {
@@ -1430,6 +1440,21 @@ namespace ts {
                         members
                     ));
                 }
+                case SyntaxKind.AnnotationDeclaration: {
+                    errorNameNode = input.name;
+                    errorFallbackNode = input;
+
+                    const modifiers = factory.createNodeArray(ensureModifiers(input));
+                    const memberNodes = visitNodes(input.members, visitDeclarationSubtree);
+                    const members = factory.createNodeArray(memberNodes);
+
+                    return cleanup(factory.updateAnnotationDeclaration(
+                        input,
+                        modifiers,
+                        input.name,
+                        members
+                    ));
+                }
                 case SyntaxKind.ClassDeclaration: {
                     errorNameNode = input.name;
                     errorFallbackNode = input;
@@ -1738,6 +1763,7 @@ namespace ts {
             case SyntaxKind.InterfaceDeclaration:
             case SyntaxKind.ClassDeclaration:
             case SyntaxKind.StructDeclaration:
+            case SyntaxKind.AnnotationDeclaration:
             case SyntaxKind.TypeAliasDeclaration:
             case SyntaxKind.EnumDeclaration:
             case SyntaxKind.VariableStatement:
@@ -1756,6 +1782,7 @@ namespace ts {
         | GetAccessorDeclaration
         | SetAccessorDeclaration
         | PropertyDeclaration
+        | AnnotationPropertyDeclaration
         | PropertySignature
         | MethodSignature
         | CallSignatureDeclaration
@@ -1777,6 +1804,7 @@ namespace ts {
             case SyntaxKind.GetAccessor:
             case SyntaxKind.SetAccessor:
             case SyntaxKind.PropertyDeclaration:
+            case SyntaxKind.AnnotationPropertyDeclaration:
             case SyntaxKind.PropertySignature:
             case SyntaxKind.MethodSignature:
             case SyntaxKind.CallSignature:
