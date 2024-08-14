@@ -82,6 +82,14 @@ namespace ts {
          * Cache the ArkTSVersion info
          */
         arkTSVersion?: string;
+        /**
+         * Cache the compatibleSdkVersion info
+         */
+        compatibleSdkVersion?: number;
+        /**
+         * Cache the compatibleSdkVersionStage info
+         */
+        compatibleSdkVersionStage?: string;
     }
 
     export const enum BuilderFileEmit {
@@ -165,6 +173,14 @@ namespace ts {
          * should be called when obtaining Diagnostics later.
          */
         isForLinter?: boolean;
+        /**
+         * Cache the compatibleSdkVersion info
+         */
+        compatibleSdkVersion?: number;
+        /**
+         * Cache the compatibleSdkVersionStage info
+         */
+        compatibleSdkVersionStage?: string;
     }
 
     export type SavedBuildProgramEmitState = Pick<BuilderProgramState,
@@ -232,6 +248,8 @@ namespace ts {
         }
 
         state.arkTSVersion = useOldState ? oldState?.arkTSVersion : undefined;
+        state.compatibleSdkVersion = useOldState ? oldState?.compatibleSdkVersion : undefined;
+        state.compatibleSdkVersionStage = useOldState ? oldState?.compatibleSdkVersionStage : undefined;
 
         // Update changed files and copy semantic diagnostics if we can
         const referencedMap = state.referencedMap;
@@ -893,6 +911,8 @@ namespace ts {
         latestChangedDtsFile?: string;
         constEnumRelateCache?: Record<string, Record<string, string>>;
         arkTSVersion?: string;
+        compatibleSdkVersion?: number;
+        compatibleSdkVersionStage?: string;
     }
 
     export interface ProgramBundleEmitBuildInfo {
@@ -1055,6 +1075,8 @@ namespace ts {
         }
 
         const arkTSVersion = state.arkTSVersion;
+        const compatibleSdkVersion = state.compatibleSdkVersion;
+        const compatibleSdkVersionStage = state.compatibleSdkVersionStage;
 
         const result: ProgramMultiFileEmitBuildInfo = {
             fileNames,
@@ -1070,6 +1092,8 @@ namespace ts {
             emitSignatures,
             latestChangedDtsFile,
             arkTSVersion,
+            compatibleSdkVersion,
+            compatibleSdkVersionStage,
         };
         if (hasConstEnumRelateInfo) {
             result.constEnumRelateCache = constEnumRelateCache;
@@ -1681,6 +1705,8 @@ namespace ts {
                 emitSignatures: emitSignatures?.size ? emitSignatures : undefined,
                 constEnumRelatePerFile: constEnumRelatePerFile,
                 arkTSVersion: program.arkTSVersion,
+                compatibleSdkVersion: program.compatibleSdkVersion,
+                compatibleSdkVersionStage: program.compatibleSdkVersionStage,
             };
         }
 
