@@ -1,0 +1,83 @@
+{
+  "arktsVersion_1_0": [
+    {
+      "messageText": "No decorators except ArkUI decorators are currently allowed (arkts-no-decorators-except-arkui)",
+      "expectLineAndCharacter": {
+        "line": 17,
+        "character": 1
+      }
+    },
+    {
+      "messageText": "No decorators except ArkUI decorators are currently allowed (arkts-no-decorators-except-arkui)",
+      "expectLineAndCharacter": {
+        "line": 23,
+        "character": 1
+      }
+    },
+    {
+      "messageText": "No decorators except ArkUI decorators are currently allowed (arkts-no-decorators-except-arkui)",
+      "expectLineAndCharacter": {
+        "line": 29,
+        "character": 1
+      }
+    }
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Type arguments of generic \"Sendable\" type must be a \"Sendable\" data type (arkts-sendable-generic-types)",
+      "expectLineAndCharacter": {
+        "line": 42,
+        "character": 24
+      }
+    },
+    {
+      "messageText": "Type arguments of generic \"Sendable\" type must be a \"Sendable\" data type (arkts-sendable-generic-types)",
+      "expectLineAndCharacter": {
+        "line": 42,
+        "character": 81
+      }
+    },
+    {
+      "messageText": "Type arguments of generic \"Sendable\" type must be a \"Sendable\" data type (arkts-sendable-generic-types)",
+      "expectLineAndCharacter": {
+        "line": 43,
+        "character": 24
+      }
+    },
+    {
+      "messageText": "Type arguments of generic \"Sendable\" type must be a \"Sendable\" data type (arkts-sendable-generic-types)",
+      "expectLineAndCharacter": {
+        "line": 44,
+        "character": 24
+      }
+    },
+    {
+      "messageText": "Type arguments of generic \"Sendable\" type must be a \"Sendable\" data type (arkts-sendable-generic-types)",
+      "expectLineAndCharacter": {
+        "line": 44,
+        "character": 81
+      }
+    },
+    {
+      "messageText": "Type arguments of generic \"Sendable\" type must be a \"Sendable\" data type (arkts-sendable-generic-types)",
+      "expectLineAndCharacter": {
+        "line": 45,
+        "character": 24
+      }
+    },
+    {
+      "messageText": "Type arguments of generic \"Sendable\" type must be a \"Sendable\" data type (arkts-sendable-generic-types)",
+      "expectLineAndCharacter": {
+        "line": 46,
+        "character": 22
+      }
+    },
+    {
+      "messageText": "Type arguments of generic \"Sendable\" type must be a \"Sendable\" data type (arkts-sendable-generic-types)",
+      "expectLineAndCharacter": {
+        "line": 48,
+        "character": 22
+      }
+    }
+  ]
+}

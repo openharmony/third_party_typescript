@@ -1,0 +1,48 @@
+{
+  "arktsVersion_1_0": [
+    {
+      "messageText": "No decorators except ArkUI decorators are currently allowed (arkts-no-decorators-except-arkui)",
+      "expectLineAndCharacter": {
+        "line": 17,
+        "character": 1
+      }
+    },
+    {
+      "messageText": "Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)",
+      "expectLineAndCharacter": {
+        "line": 38,
+        "character": 12
+      }
+    }
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)",
+      "expectLineAndCharacter": {
+        "line": 38,
+        "character": 12
+      }
+    },
+    {
+      "messageText": "Objects of \"Sendable\" type can not be initialized using object literal or array literal (arkts-sendable-obj-init)",
+      "expectLineAndCharacter": {
+        "line": 44,
+        "character": 7
+      }
+    },
+    {
+      "messageText": "Objects of \"Sendable\" type can not be initialized using object literal or array literal (arkts-sendable-obj-init)",
+      "expectLineAndCharacter": {
+        "line": 45,
+        "character": 7
+      }
+    },
+    {
+      "messageText": "Objects of \"Sendable\" type can not be initialized using object literal or array literal (arkts-sendable-obj-init)",
+      "expectLineAndCharacter": {
+        "line": 46,
+        "character": 7
+      }
+    }
+  ]
+}

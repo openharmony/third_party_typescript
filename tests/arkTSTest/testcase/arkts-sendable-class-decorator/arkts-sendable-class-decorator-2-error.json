@@ -1,0 +1,97 @@
+{
+  "arktsVersion_1_0": [
+    {
+      "messageText": "No decorators except ArkUI decorators are currently allowed (arkts-no-decorators-except-arkui)",
+      "expectLineAndCharacter": {
+        "line": 19,
+        "character": 1
+      }
+    },
+    {
+      "messageText": "No decorators except ArkUI decorators are currently allowed (arkts-no-decorators-except-arkui)",
+      "expectLineAndCharacter": {
+        "line": 20,
+        "character": 1
+      }
+    },
+    {
+      "messageText": "No decorators except ArkUI decorators are currently allowed (arkts-no-decorators-except-arkui)",
+      "expectLineAndCharacter": {
+        "line": 23,
+        "character": 3
+      }
+    },
+    {
+      "messageText": "No decorators except ArkUI decorators are currently allowed (arkts-no-decorators-except-arkui)",
+      "expectLineAndCharacter": {
+        "line": 28,
+        "character": 3
+      }
+    },
+    {
+      "messageText": "No decorators except ArkUI decorators are currently allowed (arkts-no-decorators-except-arkui)",
+      "expectLineAndCharacter": {
+        "line": 32,
+        "character": 13
+      }
+    },
+    {
+      "messageText": "No decorators except ArkUI decorators are currently allowed (arkts-no-decorators-except-arkui)",
+      "expectLineAndCharacter": {
+        "line": 34,
+        "character": 3
+      }
+    },
+    {
+      "messageText": "No decorators except ArkUI decorators are currently allowed (arkts-no-decorators-except-arkui)",
+      "expectLineAndCharacter": {
+        "line": 39,
+        "character": 3
+      }
+    }
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Only \"@Sendable\" decorator can be used on \"Sendable\" class (arkts-sendable-class-decorator)",
+      "expectLineAndCharacter": {
+        "line": 19,
+        "character": 1
+      }
+    },
+    {
+      "messageText": "Only \"@Sendable\" decorator can be used on \"Sendable\" class (arkts-sendable-class-decorator)",
+      "expectLineAndCharacter": {
+        "line": 23,
+        "character": 3
+      }
+    },
+    {
+      "messageText": "Only \"@Sendable\" decorator can be used on \"Sendable\" class (arkts-sendable-class-decorator)",
+      "expectLineAndCharacter": {
+        "line": 28,
+        "character": 3
+      }
+    },
+    {
+      "messageText": "Only \"@Sendable\" decorator can be used on \"Sendable\" class (arkts-sendable-class-decorator)",
+      "expectLineAndCharacter": {
+        "line": 32,
+        "character": 13
+      }
+    },
+    {
+      "messageText": "Only \"@Sendable\" decorator can be used on \"Sendable\" class (arkts-sendable-class-decorator)",
+      "expectLineAndCharacter": {
+        "line": 34,
+        "character": 3
+      }
+    },
+    {
+      "messageText": "Only \"@Sendable\" decorator can be used on \"Sendable\" class (arkts-sendable-class-decorator)",
+      "expectLineAndCharacter": {
+        "line": 39,
+        "character": 3
+      }
+    }
+  ]
+}
