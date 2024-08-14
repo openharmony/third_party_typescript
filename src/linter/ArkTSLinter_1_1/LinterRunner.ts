@@ -47,7 +47,12 @@ export function runArkTSLinter(tsBuilderProgram: BuilderProgram, srcFile?: Sourc
   const tscDiagnosticsLinter = new TSCCompiledProgram(tsBuilderProgram);
   const program = tscDiagnosticsLinter.getProgram();
   const compilerOptions = program.getCompilerOptions();
-  const changedFiles = collectChangedFilesFromProgramState(programState, arkTSVersion, compilerOptions.compatibleSdkVersion, compilerOptions.compatibleSdkVersionStage);
+  const changedFiles = collectChangedFilesFromProgramState(
+    programState,
+    arkTSVersion,
+    compilerOptions.compatibleSdkVersion,
+    compilerOptions.compatibleSdkVersionStage
+  );
   // Set arkTSVersion info for file .tsbuildinfo.
   // File .tsbuildinfo.linter dosen't need to set arkTSVersion because it dosen't contain linter diagnostics.
   programState.arkTSVersion = arkTSVersion;
