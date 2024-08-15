@@ -9278,8 +9278,7 @@ declare namespace ts {
                 SendableClosureExport = 108,
                 SharedModuleExportsWarning = 109,
                 SendableBetaCompatible = 110,
-                ImportLazyBetaCompatible = 111,
-                LAST_ID = 112
+                LAST_ID = 111
             }
             class FaultAttributes {
                 cookBookRef: number;
@@ -9706,7 +9705,6 @@ declare namespace ts {
             private checkAssignmentMatching;
             private handleDecorator;
             private isSendableDecoratorValid;
-            private checkImportLazy;
         }
     }
 }
