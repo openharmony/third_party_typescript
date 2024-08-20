@@ -1567,7 +1567,6 @@ export class TypeScriptLinter {
     if (tsImportClause.name) {
       this.countDeclarationsWithDuplicateName(tsImportClause.name, tsImportClause);
     }
-    this.checkImportLazy(tsImportClause);
   }
 
   private handleImportSpecifier(node: Node): void {
@@ -2568,17 +2567,6 @@ export class TypeScriptLinter {
       this.incrementCounters(curDecorator, FaultID.SendableBetaCompatible);
     }
     return false;
-  }
-
-  private checkImportLazy(tsImportClause: ImportClause): void {
-    if (
-      !tsImportClause.isLazy ||
-      this.compatibleSdkVersion > 12 ||
-      this.compatibleSdkVersion === 12 && (this.compatibleSdkVersionStage !== 'beta1' && this.compatibleSdkVersionStage !== 'beta2')
-    ) {
-      return;
-    }
-    this.incrementCounters(tsImportClause, FaultID.ImportLazyBetaCompatible);
   }
 }
 }
