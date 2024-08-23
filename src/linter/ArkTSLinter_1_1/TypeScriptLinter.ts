@@ -86,10 +86,14 @@ export class TypeScriptLinter {
 
   static filteredDiagnosticMessages: DiagnosticMessageChain[] = [];
   static sharedModulesCache: ESMap<string, boolean>;
+  static strictDiagnosticCache: Set<Diagnostic>;
+  static unknowDiagnosticCache: Set<Diagnostic>;
 
   public static initGlobals(): void {
     TypeScriptLinter.filteredDiagnosticMessages = []
     TypeScriptLinter.sharedModulesCache = new Map<string, boolean>();
+    TypeScriptLinter.strictDiagnosticCache = new Set<Diagnostic>();
+    TypeScriptLinter.unknowDiagnosticCache = new Set<Diagnostic>();
   }
 
   public static initStatic(): void {
@@ -869,7 +873,7 @@ export class TypeScriptLinter {
   }
 
   private filterStrictDiagnostics(filters: { [code: number]: (pos: number) => boolean },
-    diagnosticChecker: DiagnosticChecker): boolean {
+    diagnosticChecker: DiagnosticChecker, inLibCall: boolean): boolean {
     if (!this.tscStrictDiagnostics || !this.sourceFile) {
       return false;
     }
@@ -885,6 +889,22 @@ export class TypeScriptLinter {
         return true;
       }
       if (val.start === undefined || checkInRange(val.start)) {
+        return true;
+      }
+      if (TypeScriptLinter.unknowDiagnosticCache.has(val)) {
+        TypeScriptLinter.filteredDiagnosticMessages.push(val.messageText as DiagnosticMessageChain);
+        return false;
+      }
+
+      /**
+       * When a fault is DiagnosticMessageChain, a filter error is reported when the node source is ts or a tripartite database.
+       * When a fault does not match TypeScriptLinter.strictDiagnosticCache and error type is not string，just return true directly.
+       */
+      if (TypeScriptLinter.strictDiagnosticCache.has(val)) {
+        if (inLibCall) {
+          TypeScriptLinter.filteredDiagnosticMessages.push(val.messageText as DiagnosticMessageChain);
+          return false;
+        }
         return true;
       }
       return diagnosticChecker.checkDiagnosticMessage(val.messageText);
@@ -2054,7 +2074,8 @@ export class TypeScriptLinter {
           return this.checkInRange(rangesToFilter, pos);
         }
       },
-      this.libraryTypeCallDiagnosticChecker
+      this.libraryTypeCallDiagnosticChecker,
+      inLibCall
     );
 
     diagnosticMessages.forEach(msgChain => {

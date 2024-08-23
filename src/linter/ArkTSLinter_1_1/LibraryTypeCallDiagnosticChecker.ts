@@ -30,6 +30,17 @@ export const ARGUMENT_OF_TYPE_NULL_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_RE =
 export const ARGUMENT_OF_TYPE_UNDEFINED_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_RE = /^Argument of type '(.*)\bundefined\b(.*)' is not assignable to parameter of type '.*'\.$/;
 
 export const NO_OVERLOAD_MATCHES_THIS_CALL_ERROR_CODE = 2769;
+export const TYPE = 'Type';
+export const IS_NOT_ASSIGNABLE_TO_TYPE = 'is not assignable to type';
+export const ARGUMENT_OF_TYPE = 'Argument of type';
+export const IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE = 'is not assignable to parameter of type';
+
+export enum ErrorType {
+  NO_ERROR,
+  UNKNOW,
+  NULL,
+  UNDEFINED
+}
 
 export class LibraryTypeCallDiagnosticChecker implements DiagnosticChecker {
   inLibCall: boolean = false;
@@ -56,27 +67,27 @@ export class LibraryTypeCallDiagnosticChecker implements DiagnosticChecker {
     return true;
   }
 
-  checkMessageChain(chain: ts.DiagnosticMessageChain): boolean {
-    if (chain.code == TYPE_0_IS_NOT_ASSIGNABLE_TO_TYPE_1_ERROR_CODE) {
+  static checkMessageChain(chain: ts.DiagnosticMessageChain, inLibCall: boolean): ErrorType {
+    if (chain.code === TYPE_0_IS_NOT_ASSIGNABLE_TO_TYPE_1_ERROR_CODE) {
       if (chain.messageText.match(TYPE_UNKNOWN_IS_NOT_ASSIGNABLE_TO_TYPE_1_RE)) {
-        return false;
+        return ErrorType.UNKNOW;
       }
-      if (this.inLibCall && chain.messageText.match(TYPE_UNDEFINED_IS_NOT_ASSIGNABLE_TO_TYPE_1_RE)) {
-        return false;
+      if (inLibCall && chain.messageText.match(TYPE_UNDEFINED_IS_NOT_ASSIGNABLE_TO_TYPE_1_RE)) {
+        return ErrorType.UNDEFINED;
       }
-      if (this.inLibCall && chain.messageText.match(TYPE_NULL_IS_NOT_ASSIGNABLE_TO_TYPE_1_RE)) {
-        return false;
-      }
-    }
-    if (chain.code == ARGUMENT_OF_TYPE_0_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_ERROR_CODE) {
-      if (this.inLibCall && chain.messageText.match(ARGUMENT_OF_TYPE_UNDEFINED_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_RE)) {
-        return false;
-      }
-      if (this.inLibCall && chain.messageText.match(ARGUMENT_OF_TYPE_NULL_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_RE)) {
-        return false;
+      if (inLibCall && chain.messageText.match(TYPE_NULL_IS_NOT_ASSIGNABLE_TO_TYPE_1_RE)) {
+        return ErrorType.NULL;
       }
     }
-    return chain.next == undefined ? true : this.checkMessageChain(chain.next[0]);
+    if (chain.code === ARGUMENT_OF_TYPE_0_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_ERROR_CODE) {
+      if (inLibCall && chain.messageText.match(ARGUMENT_OF_TYPE_UNDEFINED_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_RE)) {
+        return ErrorType.UNDEFINED;
+      }
+      if (inLibCall && chain.messageText.match(ARGUMENT_OF_TYPE_NULL_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_RE)) {
+        return ErrorType.NULL;
+      }
+    }
+    return chain.next === undefined ? ErrorType.NO_ERROR : LibraryTypeCallDiagnosticChecker.checkMessageChain(chain.next[0], inLibCall);
   };
 
   checkFilteredDiagnosticMessages(msgText: ts.DiagnosticMessageChain | string) {
@@ -133,11 +144,71 @@ export class LibraryTypeCallDiagnosticChecker implements DiagnosticChecker {
       return this.checkMessageText(msgText);
     }
 
-    if (!this.checkMessageChain(msgText)) {
+    if (LibraryTypeCallDiagnosticChecker.checkMessageChain(msgText, this.inLibCall) !== ErrorType.NO_ERROR) {
       this.diagnosticMessages.push(msgText);
       return false;
     }
     return true;
+  }
+
+  static rebuildTscDiagnostics(tscStrictDiagnostics: Map<Diagnostic[]>): void {
+    if (tscStrictDiagnostics.size === 0) {
+      return;
+    }
+  
+    let diagnosticMessageChainArr: Diagnostic[] = [];
+    let strictArr: Diagnostic[] = [];
+    tscStrictDiagnostics.forEach((strict) => {
+      if (strict.length === 0) {
+        return;
+      }
+  
+      for (let i = 0; i < strict.length; i++) {
+        if (typeof strict[i].messageText === 'string') {
+          strictArr.push(strict[i]);
+        } else {
+          diagnosticMessageChainArr.push(strict[i]);
+        }
+      }
+    });
+  
+    if (diagnosticMessageChainArr.length === 0 || strictArr.length === 0) {
+      return;
+    }
+  
+    /**
+     * DiagnosticMessageChain in strict mode errors are reported across files and need to be traversed for DiagnosticMessageChain errors on all files
+     * DiagnosticMessageChain type errors require that both type and argument error text be constructed to match those with string errors
+     * TypeScriptLinter. StrictDiagnosticCache can only keep by white list DiagnosticMessageChain type error and its matching success string type errors
+     */
+    const textSet: Set<string> = new Set<string>();
+    diagnosticMessageChainArr.forEach((item) => {
+      const diagnosticMessageChain = item.messageText as DiagnosticMessageChain;
+      const isAllowFilter: ErrorType = LibraryTypeCallDiagnosticChecker.checkMessageChain(diagnosticMessageChain, true);
+      if (isAllowFilter === ErrorType.UNKNOW) {
+        TypeScriptLinter.unknowDiagnosticCache.add(item);
+        return;
+      }
+      if (isAllowFilter !== ErrorType.NO_ERROR) {
+        const isTypeError = diagnosticMessageChain.code === TYPE_0_IS_NOT_ASSIGNABLE_TO_TYPE_1_ERROR_CODE;
+        const typeText = isTypeError ?
+          diagnosticMessageChain.messageText :
+          diagnosticMessageChain.messageText.replace(ARGUMENT_OF_TYPE, TYPE)
+            .replace(IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE, IS_NOT_ASSIGNABLE_TO_TYPE);
+        const argumentText = isTypeError ?
+          diagnosticMessageChain.messageText.replace(TYPE, ARGUMENT_OF_TYPE)
+            .replace(IS_NOT_ASSIGNABLE_TO_TYPE, IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE) :
+          diagnosticMessageChain.messageText;
+        textSet.add(typeText);
+        textSet.add(argumentText);
+        TypeScriptLinter.strictDiagnosticCache.add(item);
+      }
+    });
+    strictArr.forEach((item) => {
+      if (textSet.has(item.messageText as string)) {
+        TypeScriptLinter.strictDiagnosticCache.add(item);
+      }
+    });
   }
 }
 }
