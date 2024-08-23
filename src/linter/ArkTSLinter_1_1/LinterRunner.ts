@@ -78,6 +78,7 @@ export function runArkTSLinter(tsBuilderProgram: BuilderProgram, srcFile?: Sourc
 
   TypeScriptLinter.initGlobals();
   InteropTypescriptLinter.initGlobals();
+  LibraryTypeCallDiagnosticCheckerNamespace.LibraryTypeCallDiagnosticChecker.rebuildTscDiagnostics(tscStrictDiagnostics);
 
   for (const fileToLint of srcFiles) {
     if (fileToLint.scriptKind !== ScriptKind.ETS && fileToLint.scriptKind !== ScriptKind.TS) {
@@ -208,6 +209,5 @@ function getTscDiagnostics(
   });
   return strictDiagnostics;
 }
-
 }
 }
