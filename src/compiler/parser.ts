@@ -6222,9 +6222,14 @@ namespace ts {
                     }
 
                     if (isValidVirtualTypeArgumentsContext() && isPropertyAccessExpression(expression)) {
-                        const rootNode = getRootComponent(expression, sourceFileCompilerOptions);
-                        if (rootNode) {
-                            const rootNodeName = (<Identifier>(rootNode.expression)).escapedText.toString();
+                        const [rootNode, type] = getRootComponent(expression, sourceFileCompilerOptions);
+                        if (rootNode && type) {
+                            let rootNodeName = '';
+                            if (type === 'otherType') {
+                                rootNodeName = 'Common';
+                            } else {
+                                rootNodeName = (<Identifier>(rootNode.expression)).escapedText.toString();
+                            }
                             currentNodeName = getTextOfPropertyName(expression.name).toString();
                             if (currentNodeName === sourceFileCompilerOptions?.ets?.styles?.property) {
                                 setEtsStateStylesContext(true);
@@ -6234,12 +6239,12 @@ namespace ts {
                                 setEtsStateStylesContext(false);
                                 stateStylesRootNode = undefined;
                             }
-                            if (sourceFileCompilerOptions?.ets?.syntaxComponents?.attrUICallback?.map((item: any)=>item.name).includes(rootNodeName)) {
-                                const syntaxComponents = sourceFileCompilerOptions?.ets?.syntaxComponents?.attrUICallback?.filter((item: any)=> item.name === rootNodeName);
-                                if (syntaxComponents.length && syntaxComponents[0]?.attributes?.includes(currentNodeName)) {
-                                    setSyntaxComponentContext(true);
-                                }
-                            } else {
+                            const syntaxComponents = sourceFileCompilerOptions?.ets?.syntaxComponents?.attrUICallback?.filter(
+                                (item: any) => item.name === rootNodeName);
+                            if (type === 'callExpressionComponentType' && syntaxComponents && syntaxComponents.length &&
+                                syntaxComponents[0]?.attributes?.includes(currentNodeName)) {
+                                setSyntaxComponentContext(true);  
+                            } else if (type === 'etsComponentType') {
                                 typeArguments = parseEtsTypeArguments(pos, `${rootNodeName}Attribute`);
                             }
                         }
