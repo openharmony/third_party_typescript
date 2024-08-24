@@ -803,6 +803,7 @@ namespace ts {
         /* @internal */ Deprecated                    = 1 << 28, // If has '@deprecated' JSDoc tag
 
         EtsContext = 1 << 30,  // If context was parsed as a Struct
+        /* @internal */ NoOriginalText = 1 << 31,  // If don't has original text in source file
 
         BlockScoped = Let | Const,
 
@@ -4173,6 +4174,8 @@ namespace ts {
 
         /* @internal */ exportedModulesFromDeclarationEmit?: ExportedModulesFromDeclarationEmit;
         /* @internal */ endFlowNode?: FlowNode;
+
+        /* @internal */ markedKitImportRange?: Array<TextRange>;
     }
 
     /* @internal */
@@ -6808,6 +6811,7 @@ namespace ts {
         skipPathsInKeyForCompilationSettings?: boolean;
         compatibleSdkVersion?: number;
         compatibleSdkVersionStage?: string;
+        noTransformedKitInParser?: boolean;
         [option: string]: CompilerOptionsValue | TsConfigSourceFile | undefined;
         etsAnnotationsEnable?: boolean;
     }

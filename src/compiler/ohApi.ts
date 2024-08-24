@@ -1037,4 +1037,253 @@ namespace ts {
         const nameExpr = illegalDecorators[0].expression;
         return (isIdentifier(nameExpr) && nameExpr.escapedText.toString() === 'Sendable');
     }
+
+    const JSON_SUFFIX = ".json";
+    const KIT_PREFIX = '@kit.';
+    const DEFAULT_KEYWORD = 'default';
+    const ETS_DECLARATION = '.d.ets'
+    const OHOS_KIT_CONFIG_PATH = './openharmony/ets/build-tools/ets-loader/kit_configs';
+    const HMS_KIT_CONFIG_PATH = './hms/ets/build-tools/ets-loader/kit_configs';
+
+    interface KitSymbolInfo {
+        source: string,
+        bindings: string,
+    }
+
+    interface KitJsonInfo {
+        symbols: {
+            [symbol: string]: KitSymbolInfo,
+        }
+    }
+
+    const kitJsonCache = new Map<string, KitJsonInfo | undefined>();
+
+    /* @internal */
+    export function getSdkPath(compilerOptions: CompilerOptions): string | undefined {
+        return compilerOptions.etsLoaderPath ? resolvePath(compilerOptions.etsLoaderPath, '../../../..') : undefined;
+    }
+
+    function getKitJsonObject(name: string, sdkPath: string): KitJsonInfo | undefined {
+        if (kitJsonCache?.has(name)) {
+            return kitJsonCache.get(name);
+        }
+        const ohosJsonPath = resolvePath(sdkPath, OHOS_KIT_CONFIG_PATH, `./${name}${JSON_SUFFIX}`);
+        const hmsJsonPath = resolvePath(sdkPath, HMS_KIT_CONFIG_PATH, `./${name}${JSON_SUFFIX}`);
+
+        let fileInfo: string | undefined =
+            ts.sys.fileExists(ohosJsonPath) ? ts.sys.readFile(ohosJsonPath, 'utf-8') :
+            ts.sys.fileExists(hmsJsonPath) ? ts.sys.readFile(hmsJsonPath, 'utf-8') :
+            undefined;
+        if (!fileInfo) {
+            kitJsonCache?.set(name, undefined);
+            return undefined;
+        }
+
+        const obj = JSON.parse(fileInfo) as KitJsonInfo;
+        kitJsonCache?.set(name, obj);
+
+        return obj;
+    }
+
+    export function cleanKitJsonCache(): void {
+        kitJsonCache?.clear();
+    }
+
+    function setVirtualNode<T extends Node>(node: T, start: number = 0, end: number = 0): T {
+        node.virtual = true;
+        setTextRangePosEnd(node, start, end);
+        return node;
+    }
+
+    function setNoOriginalText<T extends Node>(node: T): T {
+        (node as Mutable<T>).flags |= NodeFlags.NoOriginalText;
+        return node;
+    }
+
+    function createNameImportDeclaration(factory: NodeFactory, isType: boolean, name: Identifier, source: string,
+        oldStatement: ImportDeclaration): ImportDeclaration {
+        const oldModuleSpecifier = oldStatement.moduleSpecifier;
+        const oldImportClause = oldStatement.importClause!; // shouldn't be undefined
+        const newModuleSpecifier = setNoOriginalText(setVirtualNode(factory.createStringLiteral(source), oldModuleSpecifier.pos, oldModuleSpecifier.end));
+        const newImportClause = setVirtualNode(factory.createImportClause(isType, name, undefined), oldImportClause.pos, oldImportClause.end);
+        const newImportDeclaration = setVirtualNode(
+            factory.createImportDeclaration(undefined, newImportClause, newModuleSpecifier), oldStatement.pos, oldStatement.end);
+        return newImportDeclaration;
+    }
+
+    function createBindingImportDeclaration(factory: NodeFactory, isType: boolean, propname: string, name: Identifier, source: string,
+        oldStatement: ImportDeclaration): ImportDeclaration {
+        const oldModuleSpecifier = oldStatement.moduleSpecifier;
+        const oldImportClause = oldStatement.importClause!; // shouldn't be undefined
+        const newModuleSpecifier = setNoOriginalText(setVirtualNode(factory.createStringLiteral(source), oldModuleSpecifier.pos, oldModuleSpecifier.end));
+        const newPropertyName = setNoOriginalText(setVirtualNode(factory.createIdentifier(propname), name.pos, name.end));
+        const newImportSpecific = setVirtualNode(factory.createImportSpecifier(false, newPropertyName, name), oldImportClause.pos, oldImportClause.end);
+        const newNamedBindings = setVirtualNode(factory.createNamedImports([newImportSpecific]), oldImportClause.pos, oldImportClause.end);
+        const newImportClause = setVirtualNode(factory.createImportClause(isType, undefined, newNamedBindings), oldImportClause.pos, oldImportClause.end);
+        const newImportDeclaration = setVirtualNode(
+            factory.createImportDeclaration(undefined, newImportClause, newModuleSpecifier), oldStatement.pos, oldStatement.end);
+        return newImportDeclaration;
+    }
+
+    function createImportDeclarationForKit(factory: NodeFactory, isType: boolean, name: Identifier, symbol: KitSymbolInfo,
+        oldStatement: ImportDeclaration): ImportDeclaration {
+        const source = symbol.source.replace(/\.d.[e]?ts$/, '');
+        const binding = symbol.bindings;
+        if (binding === DEFAULT_KEYWORD) {
+            return createNameImportDeclaration(factory, isType, name, source, oldStatement);
+        }
+        return createBindingImportDeclaration(factory, isType, binding, name, source, oldStatement);
+    }
+
+    function markKitImport(statement : Statement, markedkitImportRanges: Array<TextRange>): void {
+        markedkitImportRanges.push({ pos: statement.pos, end: statement.end });
+    }
+
+    /* @internal */
+    export function isInMarkedKitImport(sourceFile: SourceFile, pos: number, end: number): boolean {
+        return !!sourceFile.markedKitImportRange?.some(
+            range => {
+                return (range.pos <= pos) && (end <= range.end);
+            }
+        );
+    }
+
+    function excludeStatementForKitImport(statement: Statement): boolean {
+        if (!isImportDeclaration(statement) ||  // check is ImportDeclaration
+            !statement.importClause ||  // exclude import 'mode'
+            statement.importClause.isLazy ||  // exclude import lazy, it may report error
+            (statement.importClause.namedBindings && ts.isNamespaceImport(statement.importClause.namedBindings)) ||  // exclude namespace import
+            !isStringLiteral(statement.moduleSpecifier) || statement.illegalDecorators ||  // exclude if may has error
+            !statement.moduleSpecifier.text.startsWith(KIT_PREFIX) || // is not kit import
+            statement.modifiers ||  // exclude if has modifiers
+            statement.assertClause) {  // not support assertClause
+            return true;
+        }
+        return false;
+    }
+
+    interface WhiteListInfo {
+        kitName: string;
+        symbolName: string;
+    }
+    // This symbols have error in kit files, so add it in white list and don't change
+    const whiteListForErrorSymbol: WhiteListInfo[] = [
+        { kitName: '@kit.CoreFileKit', symbolName: 'DfsListeners' },
+        { kitName: '@kit.NetworkKit', symbolName: 'VpnExtensionContext' },
+        { kitName: '@kit.ArkUI', symbolName: 'CustomContentDialog' },
+    ];
+
+    // This symbol will clause new warning in ts files
+    const whiteListForTsWarning: WhiteListInfo[] = [
+        { kitName: '@kit.ConnectivityKit', symbolName: 'socket' },
+    ];
+
+    // This files import the symbol from ets file, so we won't change them in ts files
+    const whiteListForTsFile: Set<string> = new Set([
+        '@kit.AccountKit', '@kit.MapKit', '@kit.Penkit', '@kit.ScenarioFusionKit',
+        '@kit.ServiceCollaborationKit', '@kit.SpeechKit', '@kit.VisionKit',
+    ]);
+
+    function InWhiteList(moduleSpecifierText: string, importName: string, inEtsContext: boolean): boolean {
+        if (whiteListForErrorSymbol.some(info => (info.kitName === moduleSpecifierText && info.symbolName === importName))) {
+            return true;
+        }
+        if (!inEtsContext &&
+            whiteListForTsWarning.some(info => (info.kitName === moduleSpecifierText && info.symbolName === importName))) {
+            return true;
+        }
+        return false;
+    }
+
+    function processKitStatementSuccess(factory: NodeFactory, statement: ImportDeclaration, jsonObject: KitJsonInfo | undefined, inEtsContext: boolean,
+        newImportStatements: Array<ImportDeclaration>): boolean {
+        const importClause = statement.importClause!;
+        const moduleSpecifierText = (statement.moduleSpecifier as StringLiteral).text;
+        const kitSymbol = jsonObject?.symbols;
+        if (!kitSymbol) {
+            return false;
+        }
+
+        const isType = importClause.isTypeOnly;
+        if (importClause.name) {
+            const symbol = kitSymbol[DEFAULT_KEYWORD];
+            // has error when import ets declaration in ts file
+            if (!symbol || (!inEtsContext && symbol.source.endsWith(ETS_DECLARATION))) {
+                return false;
+            }
+            newImportStatements.push(createImportDeclarationForKit(factory, isType, importClause.name, symbol, statement));
+        }
+
+        if (importClause.namedBindings) {
+            let hasError = false;
+            (importClause.namedBindings as NamedImports).elements.forEach(
+                element => {
+                    if (hasError) {
+                        return;
+                    }
+                    const importName = unescapeLeadingUnderscores(element.propertyName ? element.propertyName.escapedText : element.name.escapedText);
+                    const aliasName = element.name;
+
+                    if (InWhiteList(moduleSpecifierText, importName, inEtsContext)) {
+                        hasError = true;
+                        return;
+                    }
+
+                    const symbol = kitSymbol[importName];
+                    if (!symbol || !aliasName ||
+                        // has error when import ets declaration in ts file
+                        (!inEtsContext && symbol.source.endsWith(ETS_DECLARATION)) ||
+                        // can not have duplicate type
+                        (isType && element.isTypeOnly)) {
+                        hasError = true;
+                        return;
+                    }
+
+                    newImportStatements.push(
+                        createImportDeclarationForKit(factory, isType || element.isTypeOnly, aliasName, symbol, statement));
+                }
+            );
+            if (hasError) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /* @internal */
+    export function processKit(factory: NodeFactory, statements: NodeArray<Statement>, sdkPath: string,
+        markedkitImportRanges: Array<TextRange>, inEtsContext: boolean): Statement[] {
+        const list: Statement[] = [];
+        let skipRestStatements = false;
+        statements.forEach(
+            statement => {
+                // ArkTS don't allow import declaration after other statements
+                if (!skipRestStatements && inEtsContext && !isImportDeclaration(statement)) {
+                    skipRestStatements = true;
+                }
+                if (skipRestStatements || excludeStatementForKitImport(statement)) {
+                    list.push(statement);
+                    return;
+                }
+
+                const moduleSpecifierText = ((statement as ImportDeclaration).moduleSpecifier as StringLiteral).text;
+                if (!inEtsContext && whiteListForTsFile.has(moduleSpecifierText)) {
+                    list.push(statement);
+                    return;
+                }
+
+                const jsonObject = getKitJsonObject(moduleSpecifierText, sdkPath);
+                const newImportStatements = new Array<ImportDeclaration>();
+               
+                if (!processKitStatementSuccess(factory, statement as ImportDeclaration, jsonObject, inEtsContext, newImportStatements)) {
+                    list.push(statement);
+                    return;
+                }
+
+                list.push(...newImportStatements);
+                markKitImport(statement, markedkitImportRanges);
+            }
+        )
+        return list;
+    }
 }

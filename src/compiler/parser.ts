@@ -1397,11 +1397,19 @@ namespace ts {
             // Prime the scanner.
             nextToken();
 
-            const statements = parseList(ParsingContext.SourceElements, parseStatement);
+            let statements = parseList(ParsingContext.SourceElements, parseStatement);
+            const markedkitImportRanges = new Array<TextRange>();
+            const sdkPath = getSdkPath(sourceFileCompilerOptions);
+            statements = (!!sourceFileCompilerOptions.noTransformedKitInParser || !sdkPath || parseDiagnostics.length) ?
+                statements :
+                createNodeArray(processKit(factory, statements, sdkPath, markedkitImportRanges, inEtsContext()), statements.pos);
             Debug.assert(token() === SyntaxKind.EndOfFileToken);
             const endOfFileToken = addJSDocComment(parseTokenNode<EndOfFileToken>());
 
             const sourceFile = createSourceFile(fileName, languageVersion, scriptKind, isDeclarationFile, statements, endOfFileToken, sourceFlags, setExternalModuleIndicator);
+            if (markedkitImportRanges.length > 0) {
+                sourceFile.markedKitImportRange = markedkitImportRanges;
+            }
 
             // A member of ReadonlyArray<T> isn't assignable to a member of T[] (and prevents a direct cast) - but this is where we set up those members so they can be readonly in the future
             processCommentPragmas(sourceFile as {} as PragmaContext, sourceText);

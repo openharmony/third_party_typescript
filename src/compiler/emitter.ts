@@ -5058,7 +5058,7 @@ namespace ts {
                 return getTextOfNode(node.textSourceNode, includeTrivia);
             }
             const sourceFile = currentSourceFile; // const needed for control flow
-            const canUseSourceFile = !!sourceFile && !!node.parent && !nodeIsSynthesized(node);
+            const canUseSourceFile = !!sourceFile && !!node.parent && !nodeIsSynthesized(node) && !(node.flags & NodeFlags.NoOriginalText);
             if (isMemberName(node)) {
                 if (!canUseSourceFile || getSourceFileOfNode(node) !== getOriginalNode(sourceFile)) {
                     return idText(node);

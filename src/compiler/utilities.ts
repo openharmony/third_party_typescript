@@ -748,7 +748,8 @@ namespace ts {
     }
 
     function canUseOriginalText(node: LiteralLikeNode, flags: GetLiteralTextFlags): boolean {
-        if (nodeIsSynthesized(node) || !node.parent || (flags & GetLiteralTextFlags.TerminateUnterminatedLiterals && node.isUnterminated)) {
+        if (nodeIsSynthesized(node) || !node.parent || (flags & GetLiteralTextFlags.TerminateUnterminatedLiterals && node.isUnterminated) ||
+            (node.flags & NodeFlags.NoOriginalText)) {
             return false;
         }
 
