@@ -13059,6 +13059,16 @@ declare namespace ts {
             const ARGUMENT_OF_TYPE_NULL_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_RE: RegExp;
             const ARGUMENT_OF_TYPE_UNDEFINED_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_RE: RegExp;
             const NO_OVERLOAD_MATCHES_THIS_CALL_ERROR_CODE = 2769;
+            const TYPE = "Type";
+            const IS_NOT_ASSIGNABLE_TO_TYPE = "is not assignable to type";
+            const ARGUMENT_OF_TYPE = "Argument of type";
+            const IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE = "is not assignable to parameter of type";
+            enum ErrorType {
+                NO_ERROR = 0,
+                UNKNOW = 1,
+                NULL = 2,
+                UNDEFINED = 3
+            }
             class LibraryTypeCallDiagnosticChecker implements DiagnosticChecker {
                 inLibCall: boolean;
                 diagnosticMessages: Array<ts.DiagnosticMessageChain> | undefined;
@@ -13066,9 +13076,10 @@ declare namespace ts {
                 constructor(filteredDiagnosticMessages: DiagnosticMessageChain[]);
                 configure(inLibCall: boolean, diagnosticMessages: Array<ts.DiagnosticMessageChain>): void;
                 checkMessageText(msg: string): boolean;
-                checkMessageChain(chain: ts.DiagnosticMessageChain): boolean;
+                static checkMessageChain(chain: ts.DiagnosticMessageChain, inLibCall: boolean): ErrorType;
                 checkFilteredDiagnosticMessages(msgText: ts.DiagnosticMessageChain | string): boolean;
                 checkDiagnosticMessage(msgText: string | ts.DiagnosticMessageChain): boolean;
+                static rebuildTscDiagnostics(tscStrictDiagnostics: Map<Diagnostic[]>): void;
             }
         }
     }
@@ -13480,6 +13491,8 @@ declare namespace ts {
             static problemsInfos: ProblemInfo[];
             static filteredDiagnosticMessages: DiagnosticMessageChain[];
             static sharedModulesCache: ESMap<string, boolean>;
+            static strictDiagnosticCache: Set<Diagnostic>;
+            static unknowDiagnosticCache: Set<Diagnostic>;
             static initGlobals(): void;
             static initStatic(): void;
             static tsTypeChecker: TypeChecker;
