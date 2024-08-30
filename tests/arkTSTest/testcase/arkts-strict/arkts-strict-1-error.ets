@@ -13,14 +13,14 @@
  * limitations under the License.
  */
 
-import {doSomething, cc , dd} from "./test";
+import {doSomething, TestClassC, TestClassD} from './test';
 
-class bb {
-  private c:dd | undefined = new dd();
+class TestClassB {
+  private c:TestClassD | undefined = new TestClassD();
   add() {
     doSomething({
       topic: (topic: string) => {
-        let a = new cc();
+        let a = new TestClassC();
         this.c = a;
         this.c = a;
       }

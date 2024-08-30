@@ -1,7 +1,7 @@
 {
     "arktsVersion_1_0": [
       {
-        "messageText": "Type 'cc' is not assignable to type 'dd'.",
+        "messageText": "Type 'TestClassC' is not assignable to type 'TestClassD'.",
         "expectLineAndCharacter": {
           "line": 25,
           "character": 9

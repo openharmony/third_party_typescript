@@ -17,18 +17,18 @@ export interface a {
   test:(topic: string) => void
 }
 
-export function doSomething(a: a, topic: string) {
+export function doSomething(a: a, topic: string): void {
 
 }
 
-export class cc {
+export class TestClassC {
   public ccc: null = null;
 }
 
-export class dd {
+export class TestClassD {
   public ccc: string = '';
 }
 
-export function test(b: dd) {
+export function test(b: TestClassD): void {
 
 }
