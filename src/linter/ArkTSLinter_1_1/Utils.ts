@@ -1376,10 +1376,18 @@ export const TYPED_ARRAYS = [
   "BigUint64Array",
   ];
 
+let parentSymbolCache: ESMap<Symbol, string | undefined> | undefined = new Map<Symbol, string | undefined>();
 export function getParentSymbolName(symbol: Symbol): string | undefined {
+  parentSymbolCache = parentSymbolCache ? parentSymbolCache : new Map<Symbol, string | undefined>();
+  const cached = parentSymbolCache.get(symbol);
+  if (cached) {
+    return cached;
+  }
   const name = typeChecker.getFullyQualifiedName(symbol);
   const dotPosition = name.lastIndexOf(".");
-  return (dotPosition === -1) ? undefined : name.substring(0, dotPosition);
+  const result = (dotPosition === -1) ? undefined : name.substring(0, dotPosition);
+  parentSymbolCache.set(symbol, result);
+  return result;
 }
 
 export function isGlobalSymbol(symbol: Symbol): boolean {
@@ -1507,7 +1515,7 @@ export function isLibrarySymbol(sym: Symbol | undefined) {
     // extension support.
     const ext = getAnyExtensionFromPath(fileName);
     const isThirdPartyCode =
-      ARKTS_IGNORE_DIRS.some(ignore => pathContainsDirectory(normalizePath(fileName), ignore)) ||
+      ARKTS_IGNORE_DIRS.some(ignore => srcFilePathContainsDirectory(srcFile, ignore)) ||
       ARKTS_IGNORE_FILES.some(ignore => getBaseFileName(fileName) === ignore);
     const isEts = (ext === '.ets');
     const isTs = (ext === '.ts' && !srcFile.isDeclarationFile);
@@ -1519,6 +1527,21 @@ export function isLibrarySymbol(sym: Symbol | undefined) {
     return !isStatic && !isStdLib;
   }
 
+  return false;
+}
+
+const srcFilePathComponents = new Map<SourceFile, string[]>();
+export function srcFilePathContainsDirectory(srcFile: SourceFile, dir: string): boolean {
+  let pathComps = srcFilePathComponents.get(srcFile);
+  if (!pathComps) {
+    pathComps = getPathComponents(Utils.normalizePath(srcFile.fileName));
+    srcFilePathComponents.set(srcFile, pathComps);
+  }
+  for (const subdir of pathComps) {
+    if (subdir === dir) {
+      return true;
+    }
+  }
   return false;
 }
 
@@ -2330,6 +2353,25 @@ export function searchFileExportDecl(sourceFile: ts.SourceFile, targetDecls?: ts
     }
   });
   return exportDeclSet;
+}
+
+let normalizedPathCache: ESMap<string, string> | undefined = new Map<string, string>();
+export function normalizePath(path: string): string {
+  normalizedPathCache = normalizedPathCache ? normalizedPathCache : new Map<string, string>();
+  const cached = normalizedPathCache.get(path);
+  if (cached) {
+    return cached;
+  }
+  const normalized = ts.normalizePath(path);
+  normalizedPathCache.set(path, normalized);
+  return normalized;
+}
+
+export function clearUtilsGlobalvariables(): void {
+  parentSymbolCache?.clear();
+  parentSymbolCache = undefined;
+  normalizedPathCache?.clear();
+  normalizedPathCache = undefined;
 }
 }
 }

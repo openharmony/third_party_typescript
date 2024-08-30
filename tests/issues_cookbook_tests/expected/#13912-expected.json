@@ -15,6 +15,13 @@
                 "reportLine": 10,
                 "reportColumn": 22,
                 "description": "'injectEvent' is system api"
+            },
+            {
+                "origin": "WARN: ArkTS:WARN File: /entry/src/main/ets/pages/cases/#13912.ets:10:22\n To use this API, you need to apply for the permissions: ohos.permission.INJECT_INPUT_EVENT\n\n",
+                "severity": 1,
+                "reportLine": 10,
+                "reportColumn": 22,
+                "description": "To use this API, you need to apply for the permissions: ohos.permission.INJECT_INPUT_EVENT"
             }
         ]
     }

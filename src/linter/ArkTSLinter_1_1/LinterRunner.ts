@@ -94,13 +94,14 @@ export function runArkTSLinter(tsBuilderProgram: BuilderProgram, srcFile?: Sourc
         linter.lint();
 
         // Get list of bad nodes from the current run.
-        currentDiagnostics = tscStrictDiagnostics.get(normalizePath(fileToLint.fileName)) ?? [];
+        currentDiagnostics = tscStrictDiagnostics.get(Utils.normalizePath(fileToLint.fileName)) ?? [];
         TypeScriptLinter.problemsInfos.forEach((x) => currentDiagnostics.push(translateDiag(fileToLint, x)));
       } else {
         InteropTypescriptLinter.initStatic();
         const isKit = ts.getBaseFileName(fileToLint.fileName).indexOf('@kit.') === 0;
         const etsLoaderPath = program.getCompilerOptions().etsLoaderPath;
-        const isInSdk = etsLoaderPath ? normalizePath(fileToLint.fileName).indexOf(resolvePath(etsLoaderPath, '../..')) === 0 : false;
+        const isInSdk = etsLoaderPath ? 
+          Utils.normalizePath(fileToLint.fileName).indexOf(resolvePath(etsLoaderPath, '../..')) === 0 : false;
         const isInOhModules = isOHModules(fileToLint.fileName);
         const tsImportSendableEnable = program.getCompilerOptions().tsImportSendableEnable;
         if (isKit || isInOhModules || (!tsImportSendableEnable && !isInSdk)) {
@@ -141,6 +142,7 @@ function releaseReferences(): void {
   InteropTypescriptLinter.clearTsTypeChecker();
   Utils.clearTypeChecker();
   Utils.clearTrueSymbolAtLocationCache();
+  Utils.clearUtilsGlobalvariables();
 }
 
 function collectChangedFilesFromProgramState(
@@ -202,7 +204,7 @@ function getTscDiagnostics(
 ): Map<Diagnostic[]> {
   const strictDiagnostics = new Map<string, Diagnostic[]>();
   sourceFiles.forEach(file => {
-    const diagnostics = tscDiagnosticsLinter.getStrictDiagnostics(file.fileName);
+    const diagnostics = tscDiagnosticsLinter.getStrictDiagnostics(file);
     if (diagnostics.length !== 0) {
       strictDiagnostics.set(normalizePath(file.fileName), diagnostics);
     }

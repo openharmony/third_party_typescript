@@ -31,8 +31,8 @@ export class TSCCompiledProgram {
     return this.diagnosticsExtractor.nonStrictProgram;
   }
 
-  public getStrictDiagnostics(fileName: string): Diagnostic[] {
-    return this.diagnosticsExtractor.getStrictDiagnostics(fileName);
+  public getStrictDiagnostics(sourceFile: SourceFile): Diagnostic[] {
+    return this.diagnosticsExtractor.getStrictDiagnostics(sourceFile);
   }
 
   public doAllGetDiagnostics(): void {
@@ -47,11 +47,11 @@ class TypeScriptDiagnosticsExtractor {
   /**
    * Returns diagnostics which appear in strict compilation mode only
    */
-  public getStrictDiagnostics(fileName: string): Diagnostic[] {
+  public getStrictDiagnostics(sourceFile: SourceFile): Diagnostic[] {
     // workaround for a tsc bug
-    const strict = getAllDiagnostics(this.nonStrictProgram, fileName, /* isStrict */ true).filter(
+    const strict = getAllDiagnostics(this.nonStrictProgram, sourceFile, /* isStrict */ true).filter(
       diag => !(diag.length === 0 && diag.start === 0));
-    const nonStrict = getAllDiagnostics(this.nonStrictProgram, fileName, /* isStrict */ false);
+    const nonStrict = getAllDiagnostics(this.nonStrictProgram, sourceFile, /* isStrict */ false);
 
     // collect hashes for later easier comparison
     const nonStrictHashes = nonStrict.reduce((result, value) => {
@@ -79,20 +79,19 @@ class TypeScriptDiagnosticsExtractor {
   }
 }
 
-function getAllDiagnostics(builderProgram: BuilderProgram, fileName: string, isStrict: boolean = false): Diagnostic[] {
-  let program = builderProgram.getProgram();
-  const sourceFile = program.getSourceFile(fileName);
-  const syntacticDiagnostics: readonly DiagnosticWithLocation[] = program.getSyntacticDiagnostics(sourceFile);
+/**
+ * Actually, we only run `getSemanticDiagnostics`, 
+ * because the linter care only about strict errors, which do not include syntactic diagnostics.
+ */
+function getAllDiagnostics(builderProgram: BuilderProgram, sourceFile: SourceFile, isStrict: boolean = false): Diagnostic[] {
   if (isStrict) {
     if (!builderProgram.builderProgramForLinter) {
       return [];
     }
     return builderProgram.builderProgramForLinter.getSemanticDiagnostics(sourceFile)
-      .concat(syntacticDiagnostics)
       .filter(diag => diag.file === sourceFile);
   }
   return builderProgram.getSemanticDiagnostics(sourceFile)
-    .concat(syntacticDiagnostics)
     .filter(diag => diag.file === sourceFile);
 }
 
