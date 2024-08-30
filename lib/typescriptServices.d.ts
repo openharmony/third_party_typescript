@@ -9134,6 +9134,7 @@ declare namespace ts {
                 checkFilteredDiagnosticMessages(msgText: ts.DiagnosticMessageChain | string): boolean;
                 checkDiagnosticMessage(msgText: string | ts.DiagnosticMessageChain): boolean;
                 static rebuildTscDiagnostics(tscStrictDiagnostics: Map<Diagnostic[]>): void;
+                static collectDiagnosticMessage(diagnosticMessageChain: DiagnosticMessageChain, textSet: Set<string>): void;
             }
         }
     }
