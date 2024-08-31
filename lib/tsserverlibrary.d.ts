@@ -13399,6 +13399,7 @@ declare namespace ts {
             function isLibraryType(type: Type): boolean;
             function hasLibraryType(node: Node): boolean;
             function isLibrarySymbol(sym: Symbol | undefined): boolean;
+            function srcFilePathContainsDirectory(srcFile: SourceFile, dir: string): boolean;
             function pathContainsDirectory(targetPath: string, dir: string): boolean;
             function getScriptKind(srcFile: SourceFile): ScriptKind;
             function isStdLibraryType(type: Type): boolean;
@@ -13456,6 +13457,8 @@ declare namespace ts {
             function isNonSendableFunctionTypeAlias(type: ts.Type): boolean;
             function isWrongSendableFunctionAssignment(lhsType: ts.Type, rhsType: ts.Type): boolean;
             function searchFileExportDecl(sourceFile: ts.SourceFile, targetDecls?: ts.SyntaxKind[]): Set<ts.Node>;
+            function normalizePath(path: string): string;
+            function clearUtilsGlobalvariables(): void;
         }
     }
 }
@@ -13740,7 +13743,7 @@ declare namespace ts {
             constructor(program: BuilderProgram);
             getProgram(): Program;
             getBuilderProgram(): BuilderProgram;
-            getStrictDiagnostics(fileName: string): Diagnostic[];
+            getStrictDiagnostics(sourceFile: SourceFile): Diagnostic[];
             doAllGetDiagnostics(): void;
         }
     }
