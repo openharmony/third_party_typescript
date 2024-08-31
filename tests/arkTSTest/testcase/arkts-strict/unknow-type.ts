@@ -15,4 +15,4 @@
 
 export type CallbackType = (name: string, param: unknown) => void;
 
-export const callback = (name: string, param: Object) => {}
+export const callback = (name: string, param: Object): void => {};

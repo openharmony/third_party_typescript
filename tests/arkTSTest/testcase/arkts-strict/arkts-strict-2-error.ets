@@ -16,7 +16,7 @@
 import {doSomething, TestClassC, TestClassD, test} from './test';
 
 class TestClassB {
-  private c:TestClassD | undefined = new TestClassD();
+  private c: TestClassD | undefined = new TestClassD();
   add() {
     doSomething({
       topic: (topic: string) => {

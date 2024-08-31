@@ -4,7 +4,7 @@
       "messageText": "Argument of type '(name: string, param: Object) => void' is not assignable to parameter of type 'CallbackType'.",
       "expectLineAndCharacter": {
         "line": 23,
-        "character": 11
+        "character": 10
       }
     }
   ],
