@@ -1,0 +1,55 @@
+{
+    "arktsVersion_1_0": [
+      {
+        "messageText": "Property 'c' has no initializer and is not definitely assigned in the constructor.",
+        "expectLineAndCharacter": {
+          "line": 23,
+          "character": 3
+        }
+      },
+      {
+        "messageText": "No decorators except ArkUI decorators are currently allowed (arkts-no-decorators-except-arkui)",
+        "expectLineAndCharacter": {
+          "line": 26,
+          "character": 1
+        }
+      }
+    ],
+    "arktsVersion_1_1": [
+      {
+        "messageText": "Property 'c' has no initializer and is not definitely assigned in the constructor.",
+        "expectLineAndCharacter": {
+          "line": 23,
+          "character": 3
+        }
+      },
+      {
+        "messageText": "Only imported variables can be captured by \"Sendable\" class (arkts-sendable-imported-variables)",
+        "expectLineAndCharacter": {
+          "line": 29,
+          "character": 24
+        }
+      },
+      {
+        "messageText": "Properties in \"Sendable\" classes and interfaces must have a Sendable data type (arkts-sendable-prop-types)",
+        "expectLineAndCharacter": {
+          "line": 28,
+          "character": 3
+        }
+      },
+      {
+        "messageText": "Properties in \"Sendable\" classes and interfaces must have a Sendable data type (arkts-sendable-prop-types)",
+        "expectLineAndCharacter": {
+          "line": 29,
+          "character": 3
+        }
+      },
+      {
+        "messageText": "Properties in \"Sendable\" classes and interfaces must have a Sendable data type (arkts-sendable-prop-types)",
+        "expectLineAndCharacter": {
+          "line": 31,
+          "character": 3
+        }
+      }
+    ]
+}
