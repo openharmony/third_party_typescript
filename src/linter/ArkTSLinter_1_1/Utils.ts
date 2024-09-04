@@ -1534,7 +1534,7 @@ const srcFilePathComponents = new Map<SourceFile, string[]>();
 export function srcFilePathContainsDirectory(srcFile: SourceFile, dir: string): boolean {
   let pathComps = srcFilePathComponents.get(srcFile);
   if (!pathComps) {
-    pathComps = getPathComponents(Utils.normalizePath(srcFile.fileName));
+    pathComps = getPathComponents(normalizePath(srcFile.fileName));
     srcFilePathComponents.set(srcFile, pathComps);
   }
   for (const subdir of pathComps) {
@@ -2355,23 +2355,9 @@ export function searchFileExportDecl(sourceFile: ts.SourceFile, targetDecls?: ts
   return exportDeclSet;
 }
 
-let normalizedPathCache: ESMap<string, string> | undefined = new Map<string, string>();
-export function normalizePath(path: string): string {
-  normalizedPathCache = normalizedPathCache ? normalizedPathCache : new Map<string, string>();
-  const cached = normalizedPathCache.get(path);
-  if (cached) {
-    return cached;
-  }
-  const normalized = ts.normalizePath(path);
-  normalizedPathCache.set(path, normalized);
-  return normalized;
-}
-
 export function clearUtilsGlobalvariables(): void {
   parentSymbolCache?.clear();
   parentSymbolCache = undefined;
-  normalizedPathCache?.clear();
-  normalizedPathCache = undefined;
 }
 }
 }

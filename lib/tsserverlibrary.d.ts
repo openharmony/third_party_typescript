@@ -13457,7 +13457,6 @@ declare namespace ts {
             function isNonSendableFunctionTypeAlias(type: ts.Type): boolean;
             function isWrongSendableFunctionAssignment(lhsType: ts.Type, rhsType: ts.Type): boolean;
             function searchFileExportDecl(sourceFile: ts.SourceFile, targetDecls?: ts.SyntaxKind[]): Set<ts.Node>;
-            function normalizePath(path: string): string;
             function clearUtilsGlobalvariables(): void;
         }
     }
