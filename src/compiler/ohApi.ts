@@ -1089,9 +1089,10 @@ namespace ts {
         kitJsonCache?.clear();
     }
 
-    function setVirtualNode<T extends Node>(node: T, start: number = 0, end: number = 0): T {
+    function setVirtualNodeAndKitImportFlags<T extends Node>(node: T, start: number = 0, end: number = 0): T {
         node.virtual = true;
         setTextRangePosEnd(node, start, end);
+        (node as Mutable<T>).flags |= NodeFlags.KitImportFlags;
         return node;
     }
 
@@ -1101,38 +1102,39 @@ namespace ts {
     }
 
     function createNameImportDeclaration(factory: NodeFactory, isType: boolean, name: Identifier, source: string,
-        oldStatement: ImportDeclaration): ImportDeclaration {
+        oldStatement: ImportDeclaration, importSpecifier: TextRange): ImportDeclaration {
         const oldModuleSpecifier = oldStatement.moduleSpecifier;
-        const oldImportClause = oldStatement.importClause!; // shouldn't be undefined
-        const newModuleSpecifier = setNoOriginalText(setVirtualNode(factory.createStringLiteral(source), oldModuleSpecifier.pos, oldModuleSpecifier.end));
-        const newImportClause = setVirtualNode(factory.createImportClause(isType, name, undefined), oldImportClause.pos, oldImportClause.end);
-        const newImportDeclaration = setVirtualNode(
+        const newModuleSpecifier = setNoOriginalText(setVirtualNodeAndKitImportFlags(factory.createStringLiteral(source), oldModuleSpecifier.pos, oldModuleSpecifier.end));
+        const newImportClause = setVirtualNodeAndKitImportFlags(factory.createImportClause(isType, name, undefined), importSpecifier.pos, importSpecifier.end);
+        const newImportDeclaration = setVirtualNodeAndKitImportFlags(
             factory.createImportDeclaration(undefined, newImportClause, newModuleSpecifier), oldStatement.pos, oldStatement.end);
         return newImportDeclaration;
     }
 
     function createBindingImportDeclaration(factory: NodeFactory, isType: boolean, propname: string, name: Identifier, source: string,
-        oldStatement: ImportDeclaration): ImportDeclaration {
+        oldStatement: ImportDeclaration, importSpecifier: TextRange): ImportDeclaration {
         const oldModuleSpecifier = oldStatement.moduleSpecifier;
-        const oldImportClause = oldStatement.importClause!; // shouldn't be undefined
-        const newModuleSpecifier = setNoOriginalText(setVirtualNode(factory.createStringLiteral(source), oldModuleSpecifier.pos, oldModuleSpecifier.end));
-        const newPropertyName = setNoOriginalText(setVirtualNode(factory.createIdentifier(propname), name.pos, name.end));
-        const newImportSpecific = setVirtualNode(factory.createImportSpecifier(false, newPropertyName, name), oldImportClause.pos, oldImportClause.end);
-        const newNamedBindings = setVirtualNode(factory.createNamedImports([newImportSpecific]), oldImportClause.pos, oldImportClause.end);
-        const newImportClause = setVirtualNode(factory.createImportClause(isType, undefined, newNamedBindings), oldImportClause.pos, oldImportClause.end);
-        const newImportDeclaration = setVirtualNode(
+        const newModuleSpecifier = setNoOriginalText(setVirtualNodeAndKitImportFlags(factory.createStringLiteral(source), oldModuleSpecifier.pos, oldModuleSpecifier.end));
+        const newPropertyName = setNoOriginalText(setVirtualNodeAndKitImportFlags(factory.createIdentifier(propname), name.pos, name.end));
+        // The location information of the newImportSpecific is created using the location information of the old importSpecifier.
+        const newImportSpecific = setVirtualNodeAndKitImportFlags(factory.createImportSpecifier(false, newPropertyName, name), importSpecifier.pos, importSpecifier.end);
+        // The location information of the newNamedBindings is created using the location information of the old importSpecifier.
+        const newNamedBindings = setVirtualNodeAndKitImportFlags(factory.createNamedImports([newImportSpecific]), importSpecifier.pos, importSpecifier.end);
+        // The location information of the newImportClause is created using the location information of the old importSpecifier.
+        const newImportClause = setVirtualNodeAndKitImportFlags(factory.createImportClause(isType, undefined, newNamedBindings), importSpecifier.pos, importSpecifier.end);
+        const newImportDeclaration = setVirtualNodeAndKitImportFlags(
             factory.createImportDeclaration(undefined, newImportClause, newModuleSpecifier), oldStatement.pos, oldStatement.end);
         return newImportDeclaration;
     }
 
     function createImportDeclarationForKit(factory: NodeFactory, isType: boolean, name: Identifier, symbol: KitSymbolInfo,
-        oldStatement: ImportDeclaration): ImportDeclaration {
+        oldStatement: ImportDeclaration, importSpecifier: TextRange): ImportDeclaration {
         const source = symbol.source.replace(/\.d.[e]?ts$/, '');
         const binding = symbol.bindings;
         if (binding === DEFAULT_KEYWORD) {
-            return createNameImportDeclaration(factory, isType, name, source, oldStatement);
+            return createNameImportDeclaration(factory, isType, name, source, oldStatement, importSpecifier);
         }
-        return createBindingImportDeclaration(factory, isType, binding, name, source, oldStatement);
+        return createBindingImportDeclaration(factory, isType, binding, name, source, oldStatement, importSpecifier);
     }
 
     function markKitImport(statement : Statement, markedkitImportRanges: Array<TextRange>): void {
@@ -1211,7 +1213,7 @@ namespace ts {
             if (!symbol || (!inEtsContext && symbol.source.endsWith(ETS_DECLARATION))) {
                 return false;
             }
-            newImportStatements.push(createImportDeclarationForKit(factory, isType, importClause.name, symbol, statement));
+            newImportStatements.push(createImportDeclarationForKit(factory, isType, importClause.name, symbol, statement, importClause.name));
         }
 
         if (importClause.namedBindings) {
@@ -1240,7 +1242,7 @@ namespace ts {
                     }
 
                     newImportStatements.push(
-                        createImportDeclarationForKit(factory, isType || element.isTypeOnly, aliasName, symbol, statement));
+                        createImportDeclarationForKit(factory, isType || element.isTypeOnly, aliasName, symbol, statement, element));
                 }
             );
             if (hasError) {
