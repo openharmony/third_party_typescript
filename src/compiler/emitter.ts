@@ -376,7 +376,8 @@ namespace ts {
             if (programForLinter) {
                 const versionForLinter = ts.version;
                 const buildInfoLinter: BuildInfo = { bundle: bundle, program: programForLinter, version: versionForLinter };
-                writeFile(host, emitterDiagnostics, getTsBuildInfoEmitOutputFilePathForLinter(buildInfoPath), getBuildInfoText(buildInfoLinter), /*writeByteOrderMark*/ false, /*sourceFiles*/ undefined, { buildInfo: buildInfoLinter });
+                writeFile(host, emitterDiagnostics, getTsBuildInfoEmitOutputFilePathForLinter(buildInfoPath), getBuildInfoText(buildInfoLinter),
+                    /*writeByteOrderMark*/ false, /*sourceFiles*/ undefined, { buildInfo: buildInfoLinter });
             }
         }
 
