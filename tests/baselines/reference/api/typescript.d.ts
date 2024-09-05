@@ -2353,6 +2353,7 @@ declare namespace ts {
          * Release typeChecker & linterTypeChecker
          */
         releaseTypeChecker(): void;
+        getEmitHost(writeFileCallback?: WriteFileCallback): EmitHost;
     }
     export type RedirectTargetsMap = ReadonlyESMap<Path, readonly string[]>;
     export interface ResolvedProjectReference {
