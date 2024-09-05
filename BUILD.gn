@@ -11,6 +11,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import("//build/ohos.gni")
+import("//build/ohos/notice/notice.gni")
+
 typescript_sources = [
   "lib/.gitattributes",
   "lib/README.md",
@@ -116,7 +119,14 @@ typescript_sources = [
   "lib/zh-tw/diagnosticMessages.generated.json",
 ]
 
-action("build_typescript") {
+group("build_typescript") {
+  deps = [
+    "//third_party/typescript:build_typescript_pack",
+    "//third_party/typescript:typescript_notice",
+  ]
+}
+
+action("build_typescript_pack") {
   sources = typescript_sources
   script = "compile_typescript.py"
   args = [
@@ -124,4 +134,12 @@ action("build_typescript") {
     rebase_path("${target_out_dir}"),
   ]
   outputs = [ "${target_out_dir}/ohos-typescript-4.9.5-r4.tgz" ]
+}
+
+collect_notice("typescript_notice") {
+  license_file = "LICENSE"
+  module_source_dir = get_label_info(":${target_name}", "dir")
+  outputs = [
+    "${sdk_notice_dir}/ets/build-tools/ets-loader/node_modules/typescript.txt",
+  ]
 }
