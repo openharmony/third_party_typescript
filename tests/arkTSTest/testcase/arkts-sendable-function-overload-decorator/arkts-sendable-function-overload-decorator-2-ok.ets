@@ -15,30 +15,8 @@
 
 // check overloading
 @Sendable 
-function sendableFunction1(): void;
-function sendableFunction1(): void; // ERROR
+function sendableFunction1(): void; // OK
+@Sendable 
+function sendableFunction1(): void; // OK
 @Sendable 
 function sendableFunction1(): void {} // OK
-
-@Sendable
-function sendableFunction2(): void ;
-
-@Sendable 
-@Other // ERROR
-function sendableFunction2(): void;
-
-@Sendable 
-function sendableFunction2(): void {}
-
-function noneSendableFunction(): void {}
-
-@Sendable
-function sendableFunction1(): string {
-    let a: string = 'one';
-    return a;
-}
-
-function sendableFunction1(): string { // ERROR
-    let a: string = 'two';
-    return a;
-}

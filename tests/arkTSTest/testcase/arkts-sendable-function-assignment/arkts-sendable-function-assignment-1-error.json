@@ -4,21 +4,21 @@
     {
       "messageText": "Only \"Sendable\" function or \"Sendable\" typeAlias object can be assigned to \"Sendable\" typeAlias (arkts-sendable-function-assignment)",
       "expectLineAndCharacter": {
-        "line": 13,
+        "line": 26,
         "character": 7
       }
     },
     {
       "messageText": "Only \"Sendable\" function or \"Sendable\" typeAlias object can be assigned to \"Sendable\" typeAlias (arkts-sendable-function-assignment)",
       "expectLineAndCharacter": {
-        "line": 14,
+        "line": 27,
         "character": 7
       }
     },
     {
       "messageText": "Only \"Sendable\" function or \"Sendable\" typeAlias object can be assigned to \"Sendable\" typeAlias (arkts-sendable-function-assignment)",
       "expectLineAndCharacter": {
-        "line": 17,
+        "line": 29,
         "character": 7
       }
     }

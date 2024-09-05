@@ -13,32 +13,15 @@
  * limitations under the License.
  */
 
-// check overloading
 @Sendable 
-function sendableFunction1(): void;
-function sendableFunction1(): void; // ERROR
-@Sendable 
-function sendableFunction1(): void {} // OK
-
-@Sendable
-function sendableFunction2(): void ;
-
-@Sendable 
-@Other // ERROR
-function sendableFunction2(): void;
-
-@Sendable 
-function sendableFunction2(): void {}
-
+function sendableFunction(): void {} 
 function noneSendableFunction(): void {}
 
-@Sendable
-function sendableFunction1(): string {
-    let a: string = 'one';
-    return a;
-}
+@Sendable 
+type SendableType = () => void; 
+type NoneSendableType = () => void;
 
-function sendableFunction1(): string { // ERROR
-    let a: string = 'two';
-    return a;
-}
+const a1: NoneSendableType = sendableFunction;
+const a2: NoneSendableType = noneSendableFunction;
+const a3: SendableType = sendableFunction as SendableType; // OK
+const a4: NoneSendableType = noneSendableFunction as NoneSendableType; // OK

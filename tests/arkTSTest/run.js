@@ -26,6 +26,7 @@ let ignoreList = [];
 let failTestCaseList = [];
 let genResultFile = false;
 let arktsVersion = '1.1';
+let enableBeta2 = false;
 // Traverse the directory to find all test cases
 function getAllETSFiles(filePath) {
   let allFilePaths = [];
@@ -166,6 +167,10 @@ function runLinter(rootName) {
     checkJs: false
   };
   Object.assign(options, nonStrictCheckParam);
+  if (enableBeta2) {
+    beta2Param = { compatibleSdkVersionStage: 'beta2'};
+    Object.assign(options, beta2Param);
+  }
   builderProgram = ts.createIncrementalProgramForArkTs({
       rootNames: [path.join(process.cwd(), rootName)],
       options: options,
@@ -322,6 +327,11 @@ function run(){
    let ignoreCaseConfigList = []
    if(fs.existsSync(ignoreCaseFilePath)){
     ignoreCaseConfigList = JSON.parse(fs.readFileSync(ignoreCaseFilePath)).ignoreCase
+    if (enableBeta2) {
+      ignoreCaseConfigList.push(...JSON.parse(fs.readFileSync(ignoreCaseFilePath)).beta3);
+    } else {
+      ignoreCaseConfigList.push(...JSON.parse(fs.readFileSync(ignoreCaseFilePath)).beta2);
+    }
    }
 
    ignoreList = ignoreList.concat(ignoreCaseConfigList)
@@ -379,6 +389,9 @@ function getParam(){
     }
     if (key === '-v1.1') {
       arktsVersion = '1.1';
+    }
+    if (key === '-beta2') {
+      enableBeta2 = true;
     }
   }
   return pathArg
