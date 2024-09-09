@@ -14,7 +14,7 @@
  */
 
 @Sendable 
-function sf(): void {} 
+function sendableFunction(): void {} 
 
 @Sendable 
-type Sft = () => void;
+type SendableType = () => void;

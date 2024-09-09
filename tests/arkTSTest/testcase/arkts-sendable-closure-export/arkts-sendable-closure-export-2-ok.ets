@@ -13,32 +13,36 @@
  * limitations under the License.
  */
 
-// check overloading
-@Sendable 
-function sendableFunction1(): void;
-function sendableFunction1(): void; // ERROR
-@Sendable 
-function sendableFunction1(): void {} // OK
-
 @Sendable
-function sendableFunction2(): void ;
+class SendableClass1 {
 
-@Sendable 
-@Other // ERROR
-function sendableFunction2(): void;
-
-@Sendable 
-function sendableFunction2(): void {}
-
-function noneSendableFunction(): void {}
-
-@Sendable
-function sendableFunction1(): string {
-    let a: string = 'one';
-    return a;
 }
 
-function sendableFunction1(): string { // ERROR
-    let a: string = 'two';
-    return a;
+@Sendable
+function sendableFunction1(): void{
+
+}
+
+@Sendable
+function sendableFunction2(): number{
+    return 0;
+}
+
+@Sendable
+function sendableFunction3(): string{
+    return '1';
+}
+
+@Sendable
+class SendableClass {
+    new SendableClass1(); // OK
+    sendableFunction1(); // OK
+    sendableFunction2(); // OK
+    sendableFunction3(); // OK
+    handle() {
+        new SendableClass1(); // OK
+        sendableFunction1(); // OK
+        sendableFunction2(); // OK
+        sendableFunction3(); // OK
+    }
 }

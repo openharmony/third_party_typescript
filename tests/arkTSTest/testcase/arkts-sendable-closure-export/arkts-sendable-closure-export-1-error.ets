@@ -14,84 +14,87 @@
  */
 
 @Sendable
-class Sc1 {
+class SendableClass1 {
 
 }
 
 @Sendable
-function sf1() {
+function sendableFunction1() {
 
 };
 
 @Sendable
-export class Sc2 {
+export class SendableClass2 {
 
 }
 
 @Sendable
-export function sf2() {
+export function sendableFunction2() {
 
 };
 
 @Sendable
-class Sc3 {
+class SendableClass3 {
 
 }
 
 @Sendable
-function sf3() {
+function sendableFunction3() {
 
 };
 
 @Sendable
-class Sc4 {
+class SendableClass4 {
 
 }
 
 @Sendable
-function sf4() {
+function sendableFunction4() {
 
 };
 
 @Sendable
-class Sc5 {
+class SendableClass5 {
 
 }
 
 @Sendable
-function sf5() {
+function sendableFunction5() {
 
 };
 
 @Sendable 
 class SendableClass {
   handle() {
-    new Sc1(); // OK
-    sf1(); // OK
-    new Sc2(); // WARING, export decl
-    sf2(); // WARING, export decl
-    new Sc3(); // WARING, export { decl }
-    sf3(); // WARING, export { decl }
-    new Sc4(); // WARING, export { decl as alias }
-    sf4(); // WARING, export { decl as alias }
-    new Sc5(); // WARING, export default decl
+    new SendableClass1(); // OK
+    sendableFunction1(); // OK
+    new SendableClass2(); // WARING, export decl
+    sendableFunction2(); // WARING, export decl
+    new SendableClass3(); // WARING, export { decl }
+    sendableFunction3(); // WARING, export { decl }
+    new SendableClass4(); // WARING, export { decl as alias }
+    sendableFunction4(); // WARING, export { decl as alias }
+    new SendableClass5(); // WARING, export default decl
   }
 }
 
 @Sendable
 function sendableFunction() {
-  new Sc1(); // OK
-  sf1(); // OK
-  new Sc2(); // WARING, export decl
-  sf2(); // WARING, export decl
-  new Sc3(); // WARING, export { decl }
-  sf3(); // WARING, export { decl }
-  new Sc4(); // WARING, export { decl as alias }
-  sf4(); // WARING, export { decl as alias }
-  new Sc5(); // WARING, export default decl
+  new SendableClass1(); // OK
+  sendableFunction1(); // OK
+  new SendableClass2(); // WARING, export decl
+  sendableFunction2(); // WARING, export decl
+  new SendableClass3(); // WARING, export { decl }
+  sendableFunction3(); // WARING, export { decl }
+  new SendableClass4(); // WARING, export { decl as alias }
+  sendableFunction4(); // WARING, export { decl as alias }
+  new SendableClass5(); // WARING, export default decl
 }
 
-export { Sc3, sf3, Sc4 as Sc42, sf4 as sf42 };
+export { SendableClass3, 
+        sendableFunction3, 
+        SendableClass4 as sendableFunction42,
+        sendableFunction4 as sendableFunction42 };
 
 
-export default Sc5;
+export default SendableClass5;

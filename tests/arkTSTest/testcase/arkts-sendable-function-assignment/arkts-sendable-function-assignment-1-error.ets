@@ -1,17 +1,29 @@
-@Sendable 
-function sf(): void {} 
-function nf(): void {}
+/*
+ * Copyright (c) 2024 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 @Sendable 
-type Sft = () => void; 
-type Nft = () => void;
+function sendableFunction(): void {} 
+function noneSendableFunction(): void {}
+
+@Sendable 
+type SendableType = () => void; 
+type NoneSendableType = () => void;
 
 const af = () => {};
 
-
-const a1: Sft = sf; // OK
-const a2: Sft = nf; // ERROR
-const a3: Sft = af; // ERROR
-const a4: Nft = nf; // OK
-const a5: Sft = a1; // OK
-const a6: Sft = a4; // ERROR
+const a2: SendableType = noneSendableFunction; // ERROR
+const a3: SendableType = af; // ERROR
+const a4: NoneSendableType = noneSendableFunction; // OK
+const a6: SendableType = a4; // ERROR

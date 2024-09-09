@@ -1,0 +1,19 @@
+{
+    "arktsVersion_1_0": [],
+    "arktsVersion_1_1": [
+        {
+            "messageText": "Sendable functions and sendable typealias are not available when compatibleSdkVersionStage is lowering than beta3 of API12 (arkts-sendable-beta-compatible)",
+            "expectLineAndCharacter": {
+              "line": 16,
+              "character": 1
+            }
+        },
+        {
+            "messageText": "Sendable functions and sendable typealias are not available when compatibleSdkVersionStage is lowering than beta3 of API12 (arkts-sendable-beta-compatible)",
+            "expectLineAndCharacter": {
+              "line": 19,
+              "character": 1
+            }
+        }
+    ]
+}

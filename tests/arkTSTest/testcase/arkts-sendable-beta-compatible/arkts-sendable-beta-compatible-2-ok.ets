@@ -13,32 +13,16 @@
  * limitations under the License.
  */
 
-// check overloading
-@Sendable 
-function sendableFunction1(): void;
-function sendableFunction1(): void; // ERROR
-@Sendable 
-function sendableFunction1(): void {} // OK
+function noneSendableFunction(): void {} // OK
 
-@Sendable
-function sendableFunction2(): void ;
+@Concurrent // OK
+function noneSendableFunction1(): void;
 
-@Sendable 
-@Other // ERROR
-function sendableFunction2(): void;
+function noneSendableFunction1(): void; // OK
 
-@Sendable 
-function sendableFunction2(): void {}
+type NoneSendableType = () => void; // OK
 
-function noneSendableFunction(): void {}
+@Sendable // OK
+class SendableClass {
 
-@Sendable
-function sendableFunction1(): string {
-    let a: string = 'one';
-    return a;
-}
-
-function sendableFunction1(): string { // ERROR
-    let a: string = 'two';
-    return a;
 }

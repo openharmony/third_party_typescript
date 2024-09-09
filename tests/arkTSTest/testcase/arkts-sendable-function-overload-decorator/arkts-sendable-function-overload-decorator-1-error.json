@@ -4,14 +4,21 @@
     {
       "messageText": "When declaring \"@Sendable\" overloaded function, needs to add \"@Sendable\" decorator on each function (arkts-sendable-function-overload-decorator)",
       "expectLineAndCharacter": {
-        "line": 11,
+        "line": 19,
         "character": 1
       }
     },
     {
       "messageText": "Only \"@Sendable\" decorator can be used on \"Sendable\" function (arkts-sendable-function-decorator)",
       "expectLineAndCharacter": {
-        "line": 19,
+        "line": 27,
+        "character": 1
+      }
+    },
+    {
+      "messageText": "When declaring \"@Sendable\" overloaded function, needs to add \"@Sendable\" decorator on each function (arkts-sendable-function-overload-decorator)",
+      "expectLineAndCharacter": {
+        "line": 41,
         "character": 1
       }
     }
