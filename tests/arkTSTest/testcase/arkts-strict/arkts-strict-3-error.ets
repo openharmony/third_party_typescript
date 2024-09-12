@@ -15,9 +15,9 @@
 
 import {CallbackType, callback} from './unknow-type';
 
-function foo_local(callback: CallbackType): void {
+function fooLocal(callback: CallbackType): void {
 
 }
 
-foo_local(callback);
-foo_local(callback);
+fooLocal(callback);
+fooLocal(callback);
