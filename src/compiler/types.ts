@@ -4586,6 +4586,7 @@ namespace ts {
          * Release typeChecker & linterTypeChecker
          */
         releaseTypeChecker(): void;
+        getEmitHost(writeFileCallback?: WriteFileCallback): EmitHost;
     }
 
     /*@internal*/

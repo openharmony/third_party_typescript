@@ -1364,7 +1364,8 @@ namespace ts {
             getJsDocNodeCheckedConfig: host.getJsDocNodeCheckedConfig,
             getJsDocNodeConditionCheckedResult: host. getJsDocNodeConditionCheckedResult,
             getFileCheckedModuleInfo: host.getFileCheckedModuleInfo,
-            releaseTypeChecker: () => { typeChecker = undefined; linterTypeChecker = undefined; }
+            releaseTypeChecker: () => { typeChecker = undefined; linterTypeChecker = undefined; },
+            getEmitHost
         };
 
         onProgramCreateComplete();
