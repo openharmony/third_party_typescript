@@ -34,7 +34,7 @@ function getAllETSFiles(filePath) {
       const files = fs.readdirSync(filePath);
       for (let i = 0; i < files.length; i++) {
           let file = files[i]; // File name (excluding file path)
-          let currentFilePath = path.join(filePath, file);
+          let currentFilePath = path.normalize(path.join(filePath, file));
           let stats = fs.lstatSync(currentFilePath);
           if(ignoreList.includes(currentFilePath)){
             continue
@@ -334,7 +334,8 @@ function run(){
     }
    }
 
-   ignoreList = ignoreList.concat(ignoreCaseConfigList)
+   ignoreList = ignoreList.concat(ignoreCaseConfigList).map(x => path.normalize(x))
+
    let filePathStats = fs.lstatSync(filePath)
    if(!filePathStats.isDirectory()){
       runComp(filePath, path.basename(filePath))
