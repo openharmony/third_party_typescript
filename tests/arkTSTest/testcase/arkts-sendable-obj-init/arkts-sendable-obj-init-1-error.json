@@ -1,0 +1,62 @@
+{
+  "arktsVersion_1_0": [
+    {
+      "messageText": "No decorators except ArkUI decorators are currently allowed (arkts-no-decorators-except-arkui)",
+      "expectLineAndCharacter": {
+        "line": 26,
+        "character": 1
+      }
+    },
+    {
+      "messageText": "No decorators except ArkUI decorators are currently allowed (arkts-no-decorators-except-arkui)",
+      "expectLineAndCharacter": {
+        "line": 28,
+        "character": 1
+      }
+    },
+    {
+      "messageText": "Structural typing is not supported (arkts-no-structural-typing)",
+      "expectLineAndCharacter": {
+        "line": 37,
+        "character": 5
+      }
+    },
+    {
+      "messageText": "Structural typing is not supported (arkts-no-structural-typing)",
+      "expectLineAndCharacter": {
+        "line": 38,
+        "character": 5
+      }
+    }
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Objects of \"Sendable\" type can not be initialized using object literal or array literal (arkts-sendable-obj-init)",
+      "expectLineAndCharacter": {
+        "line": 34,
+        "character": 25
+      }
+    },
+    {
+      "messageText": "Objects of \"Sendable\" type can not be initialized using object literal or array literal (arkts-sendable-obj-init)",
+      "expectLineAndCharacter": {
+        "line": 35,
+        "character": 25
+      }
+    },
+    {
+      "messageText": "Structural typing is not supported (arkts-no-structural-typing)",
+      "expectLineAndCharacter": {
+        "line": 37,
+        "character": 5
+      }
+    },
+    {
+      "messageText": "Structural typing is not supported (arkts-no-structural-typing)",
+      "expectLineAndCharacter": {
+        "line": 38,
+        "character": 5
+      }
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "arktsVersion_1_0": [
+    {
+      "messageText": "No decorators except ArkUI decorators are currently allowed (arkts-no-decorators-except-arkui)",
+      "expectLineAndCharacter": {
+        "line": 17,
+        "character": 1
+      }
+    },
+    {
+      "messageText": "Definite assignment assertions are not supported (arkts-no-definite-assignment)",
+      "expectLineAndCharacter": {
+        "line": 19,
+        "character": 3
+      }
+    }
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Definite assignment assertion is not allowed in \"Sendable\" classes (arkts-sendable-definite-assignment)",
+      "expectLineAndCharacter": {
+        "line": 19,
+        "character": 10
+      }
+    }
+  ]
+}

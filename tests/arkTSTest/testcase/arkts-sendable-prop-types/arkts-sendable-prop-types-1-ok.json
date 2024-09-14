@@ -1,0 +1,26 @@
+{
+  "arktsVersion_1_0": [
+    {
+      "messageText": "No decorators except ArkUI decorators are currently allowed (arkts-no-decorators-except-arkui)",
+      "expectLineAndCharacter": {
+        "line": 20,
+        "character": 1
+      }
+    },
+    {
+      "messageText": "No decorators except ArkUI decorators are currently allowed (arkts-no-decorators-except-arkui)",
+      "expectLineAndCharacter": {
+        "line": 27,
+        "character": 1
+      }
+    },
+    {
+      "messageText": "No decorators except ArkUI decorators are currently allowed (arkts-no-decorators-except-arkui)",
+      "expectLineAndCharacter": {
+        "line": 58,
+        "character": 1
+      }
+    }
+  ],
+  "arktsVersion_1_1": []
+}
