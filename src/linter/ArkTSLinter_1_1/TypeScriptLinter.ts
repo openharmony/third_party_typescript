@@ -733,7 +733,7 @@ export class TypeScriptLinter {
       if (!Autofixer.shouldAutofix(node, FaultID.LiteralAsPropertyName)) {
         autofix = undefined;
       }
-      this.incrementCounters(node, FaultID.LiteralAsPropertyName, autofixable, autofix);
+      this.incrementCounters(node.name, FaultID.LiteralAsPropertyName, autofixable, autofix);
     }
     const decorators = ts.getDecorators(node);
     this.filterOutDecoratorsDiagnostics(decorators, Utils.NON_INITIALIZABLE_PROPERTY_DECORATORS,
@@ -797,7 +797,7 @@ export class TypeScriptLinter {
       if (!Autofixer.shouldAutofix(node, FaultID.LiteralAsPropertyName)) {
         autofix = undefined;
       }
-      this.incrementCounters(node, FaultID.LiteralAsPropertyName, autofixable, autofix);
+      this.incrementCounters(node.name, FaultID.LiteralAsPropertyName, autofixable, autofix);
     }
   }
 
@@ -809,7 +809,7 @@ export class TypeScriptLinter {
       if (!Autofixer.shouldAutofix(node, FaultID.LiteralAsPropertyName)) {
         autofix = undefined;
       }
-      this.incrementCounters(node, FaultID.LiteralAsPropertyName, autofixable, autofix);
+      this.incrementCounters(node.name, FaultID.LiteralAsPropertyName, autofixable, autofix);
     }
     this.handleSendableInterfaceProperty(node);
   }
