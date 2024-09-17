@@ -1971,15 +1971,6 @@ export function isSendableTypeNode(typeNode: ts.TypeNode, isShared: boolean = fa
   if (sym && sym.getFlags() & ts.SymbolFlags.TypeAlias) {
     const typeDecl = getDeclaration(sym);
     if (typeDecl && ts.isTypeAliasDeclaration(typeDecl)) {
-      const typeArgs = (typeNode as ts.TypeReferenceNode).typeArguments;
-      if (
-        typeArgs &&
-        !typeArgs.every((typeArg) => {
-          return isSendableTypeNode(typeArg);
-        })
-      ) {
-        return false;
-      }
       return isSendableTypeNode(typeDecl.type, isShared);
     }
   }

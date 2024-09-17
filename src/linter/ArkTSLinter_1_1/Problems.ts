@@ -46,7 +46,7 @@ export enum FaultID {
   SendableExplicitFieldType,
   SendableFunctionImportedVariables, SendableFunctionDecorator, SendableTypeAliasDecorator, SendableTypeAliasDeclaration, 
   SendableFunctionAssignment, SendableFunctionOverloadDecorator, SendableFunctionProperty, SendableFunctionAsExpr,
-  SendableDecoratorLimited, SendableClosureExport, SharedModuleExportsWarning, SendableBetaCompatible,
+  SendableDecoratorLimited, SendableClosureExport, SharedModuleExportsWarning, SendableBetaCompatible, SendablePropTypeWarning,
   LAST_ID, // this should always be last enum
 }
 
@@ -171,6 +171,7 @@ faultsAttrs[FaultID.SendableDecoratorLimited] = new FaultAttributes(180);
 faultsAttrs[FaultID.SendableClosureExport] = new FaultAttributes(181, false, ProblemSeverity.WARNING);
 faultsAttrs[FaultID.SharedModuleExportsWarning] = new FaultAttributes(163, false, ProblemSeverity.WARNING);
 faultsAttrs[FaultID.SendableBetaCompatible] = new FaultAttributes(182);
+faultsAttrs[FaultID.SendablePropTypeWarning] = new FaultAttributes(154, false, ProblemSeverity.WARNING);
 }
 }
 }
