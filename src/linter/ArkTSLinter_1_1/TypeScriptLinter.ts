@@ -767,7 +767,47 @@ export class TypeScriptLinter {
     });
     if (!Utils.isSendableTypeNode(typeNode)) {
       this.incrementCounters(node, FaultID.SendablePropType);
+    } else {
+      this.checkTypeAliasInSendableScope(node);
     }
+  }
+
+  private checkTypeAliasInSendableScope(node: ts.PropertyDeclaration | ts.PropertySignature): void {
+    if (!node.type) {
+      return;
+    }
+  
+    const typeNode = Utils.unwrapParenthesizedTypeNode(node.type);
+    const needWarning = 
+    (ts.isUnionTypeNode(typeNode) && typeNode.types.some((elemType) => this.isNoneSendableTypeAlias(elemType))) ||
+    (ts.isTypeReferenceNode(typeNode) && this.isNoneSendableTypeAlias(typeNode));
+
+    if (needWarning) {
+      this.incrementCounters(node.type, FaultID.SendablePropTypeWarning);
+    }
+  }
+
+  private isNoneSendableTypeAlias(typeNode: TypeNode): boolean {
+    if (!ts.isTypeReferenceNode(typeNode)) {
+      return false;
+    }
+  
+    const sym = Utils.trueSymbolAtLocation(typeNode.typeName);
+    if (!sym || !(sym.getFlags() & ts.SymbolFlags.TypeAlias)) {
+      return false;
+    }
+  
+    const typeDecl = Utils.getDeclaration(sym);
+    if (!typeDecl || !ts.isTypeAliasDeclaration(typeDecl)) {
+      return false;
+    }
+  
+    const typeArgs = typeNode.typeArguments;
+  
+    if (typeArgs && !typeArgs.every((typeArg) => Utils.isSendableTypeNode(typeArg))) {
+      return true;
+    }
+    return false;
   }
 
   private handlePropertyAssignment(node: ts.PropertyAssignment) {
@@ -826,6 +866,8 @@ export class TypeScriptLinter {
     }
     if (!Utils.isSendableTypeNode(typeNode)) {
       this.incrementCounters(node, FaultID.SendablePropType);
+    } else {
+      this.checkTypeAliasInSendableScope(node);
     }
   }
 

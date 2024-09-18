@@ -334,7 +334,7 @@ function run(){
     }
    }
 
-   ignoreList = ignoreList.concat(ignoreCaseConfigList).map(x => path.normalize(x))
+   ignoreList = ignoreList.concat(ignoreCaseConfigList).map(x => path.normalize(x));
 
    let filePathStats = fs.lstatSync(filePath)
    if(!filePathStats.isDirectory()){

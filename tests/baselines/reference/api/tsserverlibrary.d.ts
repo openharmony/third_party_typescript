@@ -13239,7 +13239,8 @@ declare namespace ts {
                 SendableClosureExport = 108,
                 SharedModuleExportsWarning = 109,
                 SendableBetaCompatible = 110,
-                LAST_ID = 111
+                SendablePropTypeWarning = 111,
+                LAST_ID = 112
             }
             class FaultAttributes {
                 cookBookRef: number;
@@ -13574,6 +13575,8 @@ declare namespace ts {
             private handlePropertyAccessExpression;
             private handlePropertyDeclaration;
             private handleSendableClassProperty;
+            private checkTypeAliasInSendableScope;
+            private isNoneSendableTypeAlias;
             private handlePropertyAssignment;
             private handlePropertySignature;
             private handleSendableInterfaceProperty;

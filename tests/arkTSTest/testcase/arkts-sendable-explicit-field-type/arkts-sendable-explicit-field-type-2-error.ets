@@ -20,15 +20,16 @@ declare type Nullable<T> = T | undefined;
 type MyType<T> = B<T> | undefined;
 
 class C {
-  c: number;
+  public c: number;
 }
 
 @Sendable
 class D {
-  a: Nullable<A>; // NOT OK
-  b: Nullable<C> = new C(); // NOT OK
-  c: Nullable<number> = 1; // OK
-  d: MyType<number>; // NOT OK
+  public a: Nullable<A>; // NOT OK
+  public b: Nullable<C> = new C(); // NOT OK
+  public c: Nullable<number> = 1; // OK
+  public d: MyType<number>; // NOT OK
+  public e: Nullable<A> || number; // NOT OK
 }
 
 let d = new D();
