@@ -31951,7 +31951,7 @@ namespace ts {
                 }
             }
 
-            let expressionType = checkNonNullExpression(node.expression);
+            let expressionType = checkNonNullExpression(node.expression, checkMode);
             if (expressionType === silentNeverType) {
                 return silentNeverSignature;
             }
