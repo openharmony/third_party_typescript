@@ -1,0 +1,48 @@
+{
+  "arktsVersion_1_0": [
+    {
+      "messageText": "No overload matches this call.",
+      "expectLineAndCharacter": {
+        "line": 29,
+        "character": 21
+      }
+    },
+    {
+      "messageText": "No overload matches this call.",
+      "expectLineAndCharacter": {
+        "line": 30,
+        "character": 21
+      }
+    },
+    {
+      "messageText": "No overload matches this call.",
+      "expectLineAndCharacter": {
+        "line": 30,
+        "character": 21
+      }
+    }
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "No overload matches this call.",
+      "expectLineAndCharacter": {
+        "line": 29,
+        "character": 21
+      }
+    },
+    {
+      "messageText": "No overload matches this call.",
+      "expectLineAndCharacter": {
+        "line": 30,
+        "character": 21
+      }
+    },
+    {
+      "messageText": "No overload matches this call.",
+      "expectLineAndCharacter": {
+        "line": 30,
+        "character": 21
+      }
+    }
+  ]
+}
