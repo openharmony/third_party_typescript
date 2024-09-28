@@ -914,7 +914,7 @@ export class TypeScriptLinter {
     return true;
   }
 
-  private filterStrictDiagnostics(filters: { [code: number]: (pos: number) => boolean },
+  private filterStrictDiagnostics(filters: { [code: number]: (pos: number, length?: number) => boolean },
     diagnosticChecker: DiagnosticChecker, inLibCall: boolean): boolean {
     if (!this.tscStrictDiagnostics || !this.sourceFile) {
       return false;
@@ -930,7 +930,7 @@ export class TypeScriptLinter {
       if (!checkInRange) {
         return true;
       }
-      if (val.start === undefined || checkInRange(val.start)) {
+      if (val.start === undefined || checkInRange(val.start, val.length)) {
         return true;
       }
       if (TypeScriptLinter.unknowDiagnosticCache.has(val)) {
@@ -2109,8 +2109,9 @@ export class TypeScriptLinter {
         [ARGUMENT_OF_TYPE_0_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_ERROR_CODE]: (pos: number) => {
           return this.checkInRange(rangesToFilter, pos);
         },
-        [NO_OVERLOAD_MATCHES_THIS_CALL_ERROR_CODE]: (pos: number) => {
-          return this.checkInRange(rangesToFilter, pos);
+        [NO_OVERLOAD_MATCHES_THIS_CALL_ERROR_CODE]: (pos: number, length?: number) => {
+          // The 'No-overload...' error is in some cases mounted on the callExpression node rather than a argument node
+          return this.checkInRange(rangesToFilter, pos) && !(length && callExpr.end === pos + length);
         },
         [TYPE_0_IS_NOT_ASSIGNABLE_TO_TYPE_1_ERROR_CODE]: (pos: number) => {
           return this.checkInRange(rangesToFilter, pos);

@@ -87,7 +87,22 @@ export class LibraryTypeCallDiagnosticChecker implements DiagnosticChecker {
         return ErrorType.NULL;
       }
     }
-    return chain.next === undefined ? ErrorType.NO_ERROR : LibraryTypeCallDiagnosticChecker.checkMessageChain(chain.next[0], inLibCall);
+    
+    if (!chain.next?.length) {
+      return ErrorType.NO_ERROR;
+    }
+    // 'No_overrload...' error need to check each sub-error message, others only check the first one
+    if (chain.code !== NO_OVERLOAD_MATCHES_THIS_CALL_ERROR_CODE) {
+      return LibraryTypeCallDiagnosticChecker.checkMessageChain(chain.next[0], inLibCall);
+    }
+    let result = ErrorType.NO_ERROR;
+    for (const child of chain.next) {
+      result = LibraryTypeCallDiagnosticChecker.checkMessageChain(child, inLibCall);
+      if (result !== ErrorType.NO_ERROR) {
+        break;
+      }
+    }
+    return result;
   };
 
   checkFilteredDiagnosticMessages(msgText: ts.DiagnosticMessageChain | string) {
