@@ -1,7 +1,7 @@
 namespace ts {
     /* @internal */
     // Required for distinguishing annotations and decorators in other code analysis tools
-    export const annotationMagicNamePrefix = "#";
+    export const annotationMagicNamePrefix = "__$$ETS_ANNOTATION$$__";
 
     /* @internal */
     export function isInEtsFile(node: Node |undefined): boolean {
@@ -398,13 +398,12 @@ namespace ts {
         return transformTypeExportImportAndConstEnumInTypeScript(context);
     }
 
-    export function getAnnotationTransformer(relativeFilePath: string): TransformerFactory<SourceFile> {
-        return (context: TransformationContext) => transformAnnotation(context, relativeFilePath);
+    export function getAnnotationTransformer(): TransformerFactory<SourceFile> {
+        return (context: TransformationContext) => transformAnnotation(context);
     }
 
-    export function transformAnnotation(context: TransformationContext, relativeFilePath: string): (node: SourceFile) => SourceFile {
+    export function transformAnnotation(context: TransformationContext): (node: SourceFile) => SourceFile {
         const resolver = context.getEmitResolver();
-        const annotationUniqueNamePrefix = getAnnotationUniqueNamePrefixFromFilePath(relativeFilePath);
 
         return transformSourceFile;
 
@@ -440,21 +439,14 @@ namespace ts {
         }
 
         function visitAnnotationDeclaration(node: AnnotationDeclaration): VisitResult<AnnotationDeclaration> {
-            resolver.setAnnotationDeclarationUniquePrefix(node, annotationUniqueNamePrefix);
-
-            // Add unique prefix for AnnotationDeclaration. For example,
-            // @interface Anno {} --- >  @interface e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855Anno {}
-            const uniqueName = addUniquePrefixToAnnotationNameIdentifier(node.name, annotationUniqueNamePrefix);
-            Debug.assert(isIdentifier(uniqueName));
-
             // Add explicit type annotation and initializer. For example,
-            // @interface e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855Anno {
+            // @interface Anno {
             //     a = 10 + 5
             // }
             //
             // will be transformed to
             //
-            // @interface e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855Anno {
+            // @interface Anno {
             //     a: number = 15
             // }
             const members = node.members.map((node: AnnotationPropertyDeclaration) => {
@@ -463,7 +455,7 @@ namespace ts {
                 return factory.updateAnnotationPropertyDeclaration(node, node.name, type, initializer);
             });
 
-            return factory.updateAnnotationDeclaration(node, node.modifiers, uniqueName, members);
+            return factory.updateAnnotationDeclaration(node, node.modifiers, node.name, members);
         }
 
         function visitAnnotation(node: Annotation): VisitResult<Annotation> {
@@ -481,48 +473,13 @@ namespace ts {
             //
             // and
             //
-            // Add unique prefix for annotation name. For example,
-            // @myModule.Anno({a: 10, b: "abc"}) --- > @myModule.e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855({a: 10, b: "abc"})
-            //
-            // and
-            //
             // Add the magic prefix for annotation name. For example,
-            // @myModule.Anno({a: 10, b: "abc"}) --- > @#myModule.e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855({a: 10, b: "abc"})
+            // @myModule.Anno({a: 10, b: "abc"}) --- > @#myModule.Anno({a: 10, b: "abc"})
             return factory.updateDecorator(
                 node,
                 addMagicPrefixToAnnotationNameIdentifier(
-                    addUniquePrefixToAnnotationNameIdentifier(
-                        addDefaultValuesIntoAnnotationObjectLiteral(node),
-                        resolver.getAnnotationDeclarationUniquePrefix(node.annotationDeclaration)!
-                    )
-                )
+                    addDefaultValuesIntoAnnotationObjectLiteral(node))
             );
-        }
-
-        function addUniquePrefixToAnnotationNameIdentifier(expr: Expression, prefix: string): Identifier | PropertyAccessExpression | CallExpression {
-            switch (expr.kind) {
-                case SyntaxKind.Identifier:
-                    return factory.createIdentifier(
-                        prefix + (expr as Identifier).escapedText
-                    );
-                case SyntaxKind.PropertyAccessExpression:
-                    const propAccessExpr = expr as PropertyAccessExpression;
-                    return factory.updatePropertyAccessExpression(
-                        propAccessExpr,
-                        propAccessExpr.expression,
-                        addUniquePrefixToAnnotationNameIdentifier(propAccessExpr.name, prefix) as MemberName
-                    );
-                case SyntaxKind.CallExpression:
-                    const callExpr = expr as CallExpression;
-                    return factory.updateCallExpression(
-                        callExpr,
-                        addUniquePrefixToAnnotationNameIdentifier(callExpr.expression, prefix),
-                        callExpr.typeArguments,
-                        callExpr.arguments
-                    );
-                default:
-                    return expr as (Identifier | PropertyAccessExpression | CallExpression);
-            }
         }
 
         function addMagicPrefixToAnnotationNameIdentifier(expr: Expression): Identifier | PropertyAccessExpression | CallExpression {
@@ -600,10 +557,6 @@ namespace ts {
                 return newCallExpr;
             }
             Debug.fail();
-        }
-
-        function getAnnotationUniqueNamePrefixFromFilePath(filePath: string): string {
-            return sys.createHash!(filePath);
         }
     }
 

@@ -5468,8 +5468,8 @@ declare namespace ts {
     function pathContainsOHModules(path: string): boolean;
     function choosePathContainsModules(packageManagerType: string | undefined, fileName: string): boolean;
     function getTypeExportImportAndConstEnumTransformer(context: TransformationContext): (node: SourceFile) => SourceFile;
-    function getAnnotationTransformer(relativeFilePath: string): TransformerFactory<SourceFile>;
-    function transformAnnotation(context: TransformationContext, relativeFilePath: string): (node: SourceFile) => SourceFile;
+    function getAnnotationTransformer(): TransformerFactory<SourceFile>;
+    function transformAnnotation(context: TransformationContext): (node: SourceFile) => SourceFile;
     /**
      * Add 'type' flag to import/export when import/export an type member.
      * Replace const enum with number and string literal.

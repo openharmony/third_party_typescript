@@ -5378,8 +5378,6 @@ namespace ts {
         getAnnotationObjectLiteralEvaluatedProps(node: Annotation): ESMap<__String, Expression> | undefined;
         getAnnotationPropertyEvaluatedInitializer(node: AnnotationPropertyDeclaration): Expression | undefined;
         getAnnotationPropertyInferredType(node: AnnotationPropertyDeclaration): TypeNode | undefined;
-        setAnnotationDeclarationUniquePrefix(node: AnnotationDeclaration, name: string): void;
-        getAnnotationDeclarationUniquePrefix(node: AnnotationDeclaration): string | undefined;
         isReferredToAnnotation(node: ImportSpecifier | ExportSpecifier | ExportAssignment): boolean | undefined;
     }
 
