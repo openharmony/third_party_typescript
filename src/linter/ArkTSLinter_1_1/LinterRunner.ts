@@ -94,14 +94,13 @@ export function runArkTSLinter(tsBuilderProgram: BuilderProgram, srcFile?: Sourc
         linter.lint();
 
         // Get list of bad nodes from the current run.
-        currentDiagnostics = tscStrictDiagnostics.get(Utils.normalizePath(fileToLint.fileName)) ?? [];
+        currentDiagnostics = tscStrictDiagnostics.get(normalizePath(fileToLint.fileName)) ?? [];
         TypeScriptLinter.problemsInfos.forEach((x) => currentDiagnostics.push(translateDiag(fileToLint, x)));
       } else {
         InteropTypescriptLinter.initStatic();
         const isKit = ts.getBaseFileName(fileToLint.fileName).indexOf('@kit.') === 0;
         const etsLoaderPath = program.getCompilerOptions().etsLoaderPath;
-        const isInSdk = etsLoaderPath ? 
-          Utils.normalizePath(fileToLint.fileName).indexOf(resolvePath(etsLoaderPath, '../..')) === 0 : false;
+        const isInSdk = etsLoaderPath ? normalizePath(fileToLint.fileName).indexOf(resolvePath(etsLoaderPath, '../..')) === 0 : false;
         const isInOhModules = isOHModules(fileToLint.fileName);
         const tsImportSendableEnable = program.getCompilerOptions().tsImportSendableEnable;
         if (isKit || isInOhModules || (!tsImportSendableEnable && !isInSdk)) {
