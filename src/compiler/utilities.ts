@@ -1233,7 +1233,7 @@ namespace ts {
         Debug.assert(!isJSDoc(errorNode));
 
         const isMissing = nodeIsMissing(errorNode);
-        const pos = isMissing || isJsxText(node) || node.virtual
+        const pos = isMissing || isJsxText(node) || (node.virtual && !(node.flags & NodeFlags.KitImportFlags))
             ? errorNode.pos
             : skipTrivia(sourceFile.text, errorNode.pos);
 
