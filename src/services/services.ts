@@ -1485,7 +1485,9 @@ namespace ts {
             }
 
             function getOrCreateSourceFileByPath(fileName: string, path: Path, languageVersionOrOptions: ScriptTarget | CreateSourceFileOptions, _onError?: (message: string) => void, shouldCreateNewSourceFile?: boolean): SourceFile | undefined {
-                Debug.assert(compilerHost, "getOrCreateSourceFileByPath called after typical CompilerHost lifetime, check the callstack something with a reference to an old host.");
+                // There was originally an assert here to ensure that getOrCreateSourceFileByPath was called in typical CompilerHost lifetime.
+                // We removed this assert because currently this function may also be called outside of the typical CompilerHost lifetime,
+                // in which case the compilerhost may be undefined. 
                 // The program is asking for this file, check first if the host can locate it.
                 // If the host can not locate the file, then it does not exist. return undefined
                 // to the program to allow reporting of errors for missing files.
