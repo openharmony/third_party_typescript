@@ -222,6 +222,7 @@ namespace ts {
             disposeEmitNodes(getSourceFileOfNode(getParseTreeNode(node)));
         }
 
+        recordStage(TRANSFORM);
         performance.mark("beforeTransform");
 
         // Chain together and initialize each transformer.
@@ -248,6 +249,7 @@ namespace ts {
         state = TransformationState.Completed;
 
         performance.mark("afterTransform");
+        stopRecordStage(TRANSFORM);
         performance.measure("transformTime", "beforeTransform", "afterTransform");
 
         return {

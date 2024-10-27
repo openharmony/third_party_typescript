@@ -174,11 +174,13 @@ namespace ts {
     const binder = createBinder();
 
     export function bindSourceFile(file: SourceFile, options: CompilerOptions) {
+        recordStage(BINDE_SOURCE_FILE);
         performance.mark("beforeBind");
         perfLogger.logStartBindFile("" + file.fileName);
         binder(file, options);
         perfLogger.logStopBindFile();
         performance.mark("afterBind");
+        stopRecordStage(BINDE_SOURCE_FILE);
         performance.measure("Bind", "beforeBind", "afterBind");
     }
 

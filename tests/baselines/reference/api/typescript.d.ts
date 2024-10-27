@@ -4601,6 +4601,19 @@ declare namespace ts {
     export {};
 }
 declare namespace ts {
+    const BINDE_SOURCE_FILE = "binder(bindSourceFile: Bind)";
+    const CHECK_SOURCE_FILE = "checker(checkSourceFile: Check)";
+    const EMIT_FILES = "emitter(emitFiles: EmitEachOutputFile)";
+    const CREATE_SORUCE_FILE_PARSE = "parser(createSourceFile: Parse)";
+    const BEFORE_PROGRAM = "program(createProgram: beforeProgram)";
+    const CREATE_SCANNER = "scanner(createScanner: createScanner)";
+    const TRANSFORM = "transformer(transformNodes: Transform)";
+    function recordStage(stage: string, parentStage?: string): void;
+    function stopRecordStage(stage: string, parentStage?: string): void;
+    function setMemoryDottingCallBack(memorydottingCallback: (stage: string, parentStage?: string) => void, memorydottingStopCallback: (stage: string, parentStage?: string) => void): void;
+    function clearCallBack(): void;
+}
+declare namespace ts {
     type ErrorCallback = (message: DiagnosticMessage, length: number) => void;
     interface Scanner {
         getStartPos(): number;

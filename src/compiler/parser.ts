@@ -955,6 +955,7 @@ namespace ts {
     let sourceFileCompilerOptions: CompilerOptions;
     export function createSourceFile(fileName: string, sourceText: string, languageVersionOrOptions: ScriptTarget | CreateSourceFileOptions, setParentNodes = false, scriptKind?: ScriptKind, options?: CompilerOptions): SourceFile {
         tracing?.push(tracing.Phase.Parse, "createSourceFile", { path: fileName }, /*separateBeginAndEnd*/ true);
+        recordStage(CREATE_SORUCE_FILE_PARSE);
         performance.mark("beforeParse");
         let result: SourceFile;
         sourceFileCompilerOptions = options ?? defaultInitCompilerOptions;
@@ -977,6 +978,7 @@ namespace ts {
         perfLogger.logStopParseSourceFile();
 
         performance.mark("afterParse");
+        stopRecordStage(CREATE_SORUCE_FILE_PARSE);
         performance.measure("Parse", "beforeParse", "afterParse");
         tracing?.pop();
         return result;
@@ -6251,7 +6253,7 @@ namespace ts {
                                 (item: any) => item.name === rootNodeName);
                             if (type === 'callExpressionComponentType' && syntaxComponents && syntaxComponents.length &&
                                 syntaxComponents[0]?.attributes?.includes(currentNodeName)) {
-                                setSyntaxComponentContext(true);  
+                                setSyntaxComponentContext(true);
                             } else if (type === 'etsComponentType') {
                                 typeArguments = parseEtsTypeArguments(pos, `${rootNodeName}Attribute`);
                             }
