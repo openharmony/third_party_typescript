@@ -22,6 +22,7 @@
         "sys.ts",
         "path.ts",
         "diagnosticInformationMap.generated.ts",
+		"memorydotting/memoryDotting.ts",
         "scanner.ts",
         "utilitiesPublic.ts",
         "utilities.ts",
