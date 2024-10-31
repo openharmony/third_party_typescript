@@ -1038,10 +1038,10 @@ namespace ts {
         return (isIdentifier(nameExpr) && nameExpr.escapedText.toString() === 'Sendable');
     }
 
-    const JSON_SUFFIX = ".json";
+    const JSON_SUFFIX = '.json';
     const KIT_PREFIX = '@kit.';
     const DEFAULT_KEYWORD = 'default';
-    const ETS_DECLARATION = '.d.ets'
+    const ETS_DECLARATION = '.d.ets';
     const OHOS_KIT_CONFIG_PATH = './openharmony/ets/build-tools/ets-loader/kit_configs';
     const HMS_KIT_CONFIG_PATH = './hms/ets/build-tools/ets-loader/kit_configs';
 
@@ -1104,7 +1104,9 @@ namespace ts {
     function createNameImportDeclaration(factory: NodeFactory, isType: boolean, name: Identifier, source: string,
         oldStatement: ImportDeclaration, importSpecifier: TextRange): ImportDeclaration {
         const oldModuleSpecifier = oldStatement.moduleSpecifier;
-        const newModuleSpecifier = setNoOriginalText(setVirtualNodeAndKitImportFlags(factory.createStringLiteral(source), oldModuleSpecifier.pos, oldModuleSpecifier.end));
+        const newModuleSpecifier = setNoOriginalText(setVirtualNodeAndKitImportFlags(
+            factory.createStringLiteral(source), oldModuleSpecifier.pos, oldModuleSpecifier.end)
+        );
         const newImportClause = setVirtualNodeAndKitImportFlags(factory.createImportClause(isType, name, undefined), importSpecifier.pos, importSpecifier.end);
         const newImportDeclaration = setVirtualNodeAndKitImportFlags(
             factory.createImportDeclaration(undefined, newImportClause, newModuleSpecifier), oldStatement.pos, oldStatement.end);
@@ -1114,14 +1116,17 @@ namespace ts {
     function createBindingImportDeclaration(factory: NodeFactory, isType: boolean, propname: string, name: Identifier, source: string,
         oldStatement: ImportDeclaration, importSpecifier: TextRange): ImportDeclaration {
         const oldModuleSpecifier = oldStatement.moduleSpecifier;
-        const newModuleSpecifier = setNoOriginalText(setVirtualNodeAndKitImportFlags(factory.createStringLiteral(source), oldModuleSpecifier.pos, oldModuleSpecifier.end));
+        const newModuleSpecifier = setNoOriginalText(
+            setVirtualNodeAndKitImportFlags(factory.createStringLiteral(source), oldModuleSpecifier.pos, oldModuleSpecifier.end));
         const newPropertyName = setNoOriginalText(setVirtualNodeAndKitImportFlags(factory.createIdentifier(propname), name.pos, name.end));
         // The location information of the newImportSpecific is created using the location information of the old importSpecifier.
-        const newImportSpecific = setVirtualNodeAndKitImportFlags(factory.createImportSpecifier(false, newPropertyName, name), importSpecifier.pos, importSpecifier.end);
+        const newImportSpecific = setVirtualNodeAndKitImportFlags(
+            factory.createImportSpecifier(false, newPropertyName, name), importSpecifier.pos, importSpecifier.end);
         // The location information of the newNamedBindings is created using the location information of the old importSpecifier.
         const newNamedBindings = setVirtualNodeAndKitImportFlags(factory.createNamedImports([newImportSpecific]), importSpecifier.pos, importSpecifier.end);
         // The location information of the newImportClause is created using the location information of the old importSpecifier.
-        const newImportClause = setVirtualNodeAndKitImportFlags(factory.createImportClause(isType, undefined, newNamedBindings), importSpecifier.pos, importSpecifier.end);
+        const newImportClause = setVirtualNodeAndKitImportFlags(
+            factory.createImportClause(isType, undefined, newNamedBindings), importSpecifier.pos, importSpecifier.end);
         const newImportDeclaration = setVirtualNodeAndKitImportFlags(
             factory.createImportDeclaration(undefined, newImportClause, newModuleSpecifier), oldStatement.pos, oldStatement.end);
         return newImportDeclaration;
@@ -1151,14 +1156,14 @@ namespace ts {
     }
 
     function excludeStatementForKitImport(statement: Statement): boolean {
-        if (!isImportDeclaration(statement) ||  // check is ImportDeclaration
-            !statement.importClause ||  // exclude import 'mode'
-            statement.importClause.isLazy ||  // exclude import lazy, it may report error
-            (statement.importClause.namedBindings && ts.isNamespaceImport(statement.importClause.namedBindings)) ||  // exclude namespace import
-            !isStringLiteral(statement.moduleSpecifier) || statement.illegalDecorators ||  // exclude if may has error
+        if (!isImportDeclaration(statement) || // check is ImportDeclaration
+            !statement.importClause || // exclude import 'mode'
+            statement.importClause.isLazy || // exclude import lazy, it may report error
+            (statement.importClause.namedBindings && ts.isNamespaceImport(statement.importClause.namedBindings)) || // exclude namespace import
+            !isStringLiteral(statement.moduleSpecifier) || statement.illegalDecorators || // exclude if may has error
             !statement.moduleSpecifier.text.startsWith(KIT_PREFIX) || // is not kit import
-            statement.modifiers ||  // exclude if has modifiers
-            statement.assertClause) {  // not support assertClause
+            statement.modifiers || // exclude if has modifiers
+            statement.assertClause) { // not support assertClause
             return true;
         }
         return false;
@@ -1186,7 +1191,7 @@ namespace ts {
         '@kit.ServiceCollaborationKit', '@kit.SpeechKit', '@kit.VisionKit',
     ]);
 
-    function InWhiteList(moduleSpecifierText: string, importName: string, inEtsContext: boolean): boolean {
+    function inWhiteList(moduleSpecifierText: string, importName: string, inEtsContext: boolean): boolean {
         if (whiteListForErrorSymbol.some(info => (info.kitName === moduleSpecifierText && info.symbolName === importName))) {
             return true;
         }
@@ -1226,7 +1231,7 @@ namespace ts {
                     const importName = unescapeLeadingUnderscores(element.propertyName ? element.propertyName.escapedText : element.name.escapedText);
                     const aliasName = element.name;
 
-                    if (InWhiteList(moduleSpecifierText, importName, inEtsContext)) {
+                    if (inWhiteList(moduleSpecifierText, importName, inEtsContext)) {
                         hasError = true;
                         return;
                     }
@@ -1285,7 +1290,7 @@ namespace ts {
                 list.push(...newImportStatements);
                 markKitImport(statement, markedkitImportRanges);
             }
-        )
+        );
         return list;
     }
 }
