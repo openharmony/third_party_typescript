@@ -930,15 +930,10 @@ namespace ts {
         let output: string;
         let lineStart: boolean;
         let linePos: number;
-        let lineCount: number;
-        // If the last character of string is the one of below chars, there is no need to write space again.
-        const noSpaceTrailingChars: Set<string> = new Set([' ', ';', ',', '(', ')', '{', '}']);
 
         function updateLineCountAndPosFor(s: string) {
             const lineStartsOfS = computeLineStarts(s);
             if (lineStartsOfS.length > 1) {
-                // 1: The first element of the lineStartsOfS
-                lineCount = lineCount + lineStartsOfS.length - 1;
                 linePos = output.length - s.length + last(lineStartsOfS);
                 lineStart = (linePos - output.length) === 0;
             }
@@ -965,16 +960,10 @@ namespace ts {
             output = "";
             lineStart = true;
             linePos = 0;
-            lineCount = 0;
         }
 
-        // This method is used to write indentation and line breaks. If the string is blank, the writing is skipped.
-        // In addition, this method can be called to write comments and code in bundle mode, but obfuscation is not in bundle mode.
         function rawWrite(s: string) {
             if (s !== undefined) {
-                if ((lineStart || endsWithNoSpaceTrailingChar(output)) && s.trim().length === 0) {
-                    return;
-                }
                 output += s;
                 updateLineCountAndPosFor(s);
             }
@@ -986,18 +975,11 @@ namespace ts {
             }
         }
 
-        function writeLine(force?: boolean): void {
-            if (!force && (lineStart || endsWithNoSpaceTrailingChar(output))) {
-                return;
+        function writeLine(force?: boolean) {
+            if (!lineStart || force) {
+                output += space;
+                linePos = output.length;
             }
-            output += space;
-            lineStart = false;
-        }
-
-        function endsWithNoSpaceTrailingChar(input: string): boolean {
-            // Get the last character of a string.
-            const lastChar: string = input.charAt(input.length - 1);
-            return noSpaceTrailingChars.has(lastChar);
         }
 
         function getTextPosWithWriteLine() {
@@ -1015,7 +997,7 @@ namespace ts {
             decreaseIndent: noop,
             getIndent: () => 0,
             getTextPos: () => output.length,
-            getLine: () => lineCount,
+            getLine: () => 0,
             getColumn: () => lineStart ? 0 : output.length - linePos,
             getText: () => output,
             isAtStartOfLine: () => lineStart,
