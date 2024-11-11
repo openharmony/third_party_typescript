@@ -802,9 +802,9 @@ namespace ts {
         /* @internal */ TypeCached                    = 1 << 27, // If a type was cached for node at any point
         /* @internal */ Deprecated                    = 1 << 28, // If has '@deprecated' JSDoc tag
 
-        /* @internal */ KitImportFlags = 1 << 29,  // If node was in a converted kit-import statement
-        EtsContext = 1 << 30,  // If context was parsed as a Struct
-        /* @internal */ NoOriginalText = 1 << 31,  // If don't has original text in source file
+        /* @internal */ KitImportFlags = 1 << 29, // If node was in a converted kit-import statement
+        EtsContext = 1 << 30, // If context was parsed as a Struct
+        /* @internal */ NoOriginalText = 1 << 31, // If don't has original text in source file
 
         BlockScoped = Let | Const,
 
