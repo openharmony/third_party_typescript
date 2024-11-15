@@ -6816,6 +6816,7 @@ namespace ts {
         noTransformedKitInParser?: boolean;
         [option: string]: CompilerOptionsValue | TsConfigSourceFile | undefined;
         etsAnnotationsEnable?: boolean;
+        maxFlowDepth?: number; // The value of maxFlowDepth ranges from 2000 to 65535.
     }
 
     export interface EtsOptions {
