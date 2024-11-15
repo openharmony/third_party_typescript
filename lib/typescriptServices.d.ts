@@ -3204,6 +3204,7 @@ declare namespace ts {
         noTransformedKitInParser?: boolean;
         [option: string]: CompilerOptionsValue | TsConfigSourceFile | undefined;
         etsAnnotationsEnable?: boolean;
+        maxFlowDepth?: number;
     }
     export interface EtsOptions {
         render: {
@@ -5496,6 +5497,7 @@ declare namespace ts {
     function hasTsNoCheckOrTsIgnoreFlag(node: SourceFile): boolean;
     function createObfTextSingleLineWriter(): EmitTextWriter;
     function cleanKitJsonCache(): void;
+    function getMaxFlowDepth(compilerOptions: CompilerOptions): number;
 }
 declare namespace ts {
     /**
