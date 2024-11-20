@@ -118,7 +118,9 @@
         "release": "gulp LKG",
         "baseline": "gulp baseline-accept",
         "lint": "gulp lint",
-        "setup-hooks": "node scripts/link-hooks.mjs"
+        "setup-hooks": "node scripts/link-hooks.mjs",
+        "test:system-api": "tsc ./tests/system_api_test/system_api_test.ts && node ./tests/system_api_test/system_api_test.js",
+        "alltest": "npm run test && npm run test:system-api"
     },
     "browser": {
         "fs": false,
