@@ -963,6 +963,7 @@ namespace ts {
         let inJSDocType = 0;
         let inEtsContext: boolean = false;
 
+        recordStage(CREATE_SCANNER);
         setText(text, start, length);
 
         const scanner: Scanner = {
@@ -1021,6 +1022,7 @@ namespace ts {
             });
         }
 
+        stopRecordStage(CREATE_SCANNER);
         return scanner;
 
         function setEtsContext(isEtsContext: boolean): void {

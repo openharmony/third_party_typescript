@@ -292,6 +292,7 @@ namespace ts {
         const { enter, exit } = performance.createTimer("printTime", "beforePrint", "afterPrint");
         let bundleBuildInfo: BundleBuildInfo | undefined;
         let emitSkipped = false;
+        recordStage(EMIT_FILES);
 
         // Emit each output file
         enter();
@@ -304,6 +305,7 @@ namespace ts {
             !targetSourceFile
         );
         exit();
+        stopRecordStage(EMIT_FILES);
 
 
         return {

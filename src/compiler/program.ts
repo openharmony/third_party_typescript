@@ -1064,6 +1064,7 @@ namespace ts {
         tracing?.push(tracing.Phase.Program, "createProgram", { configFilePath: options.configFilePath, rootDir: options.rootDir }, /*separateBeginAndEnd*/ true);
         performance.mark("beforeProgram");
 
+        recordStage(BEFORE_PROGRAM);
         const host = createProgramOptions.host || createCompilerHost(options);
         const configParsingHost = parseConfigHostFromCompilerHostLike(host);
 
@@ -1385,6 +1386,7 @@ namespace ts {
 
         verifyCompilerOptions();
         performance.mark("afterProgram");
+        stopRecordStage(BEFORE_PROGRAM);
         performance.measure("Program", "beforeProgram", "afterProgram");
         tracing?.pop();
 

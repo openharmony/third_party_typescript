@@ -43695,6 +43695,7 @@ namespace ts {
 
         function checkSourceFile(node: SourceFile) {
             tracing?.push(tracing.Phase.Check, "checkSourceFile", { path: node.path }, /*separateBeginAndEnd*/ true);
+            recordStage(CHECK_SOURCE_FILE);
             performance.mark("beforeCheck");
             if (host.getFileCheckedModuleInfo) {
                 jsDocFileCheckInfo = host.getFileCheckedModuleInfo(node.fileName);
@@ -43702,6 +43703,7 @@ namespace ts {
             }
             checkSourceFileWorker(node);
             performance.mark("afterCheck");
+            stopRecordStage(CHECK_SOURCE_FILE);
             performance.measure("Check", "beforeCheck", "afterCheck");
             tracing?.pop();
         }
