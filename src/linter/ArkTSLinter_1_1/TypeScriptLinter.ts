@@ -1823,7 +1823,7 @@ export class TypeScriptLinter {
     return (
       Utils.isLibraryType(type) ||
       Utils.isAnyType(type) ||
-      Utils.isOrDerivedFrom(type, Utils.isArray) ||
+      Utils.isOrDerivedFrom(type, Utils.isIndexableArray) ||
       Utils.isOrDerivedFrom(type, Utils.isTuple) ||
       Utils.isOrDerivedFrom(type, Utils.isStdRecordType) ||
       Utils.isOrDerivedFrom(type, Utils.isStringType) ||
@@ -2241,7 +2241,10 @@ export class TypeScriptLinter {
       const spreadExprType = Utils.getTypeOrTypeConstraintAtLocation(node.expression);
       if (spreadExprType) {
         if (ts.isCallLikeExpression(node.parent) || ts.isArrayLiteralExpression(node.parent)) {
-          if (Utils.isOrDerivedFrom(spreadExprType, Utils.isArray)) {
+          if (
+            Utils.isOrDerivedFrom(spreadExprType, Utils.isArray) ||
+            Utils.isOrDerivedFrom(spreadExprType, Utils.isCollectionArrayType)
+          ) {
             return;
           }
         }

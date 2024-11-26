@@ -509,25 +509,60 @@ export function isReadonlyArrayType(tsType: Type): boolean {
   );
 }
 
-export function isTypedArray(tsType: ts.Type): boolean {
+export function isConcatArrayType(tsType: Type): boolean {
+  return (
+    isStdLibraryType(tsType) &&
+    isTypeReference(tsType) &&
+    tsType.typeArguments?.length === 1 &&
+    tsType.target.typeParameters?.length === 1 &&
+    (tsType.getSymbol()?.getName() === 'ConcatArray')
+  );
+}
+
+export function isArrayLikeType(tsType: Type): boolean {
+  return (
+    isStdLibraryType(tsType) &&
+    isTypeReference(tsType) &&
+    tsType.typeArguments?.length === 1 &&
+    tsType.target.typeParameters?.length === 1 &&
+    (tsType.getSymbol()?.getName() === 'ArrayLike')
+  );
+}
+
+export function isTypedArray(tsType: ts.Type, allowTypeArrays: string[]): boolean {
   const symbol = tsType.symbol;
   if (!symbol) {
     return false;
   }
   const name = typeChecker.getFullyQualifiedName(symbol);
-  if (isGlobalSymbol(symbol) && TYPED_ARRAYS.includes(name)) {
+  if (isGlobalSymbol(symbol) && allowTypeArrays.includes(name)) {
     return true;
   }
   const decl = getDeclaration(symbol);
   return (
     !!decl &&
     isArkTSCollectionsClassOrInterfaceDeclaration(decl) &&
-    TYPED_ARRAYS.includes(symbol.getName())
+    allowTypeArrays.includes(symbol.getName())
   );
 }
 
 export function isArray(tsType: ts.Type): boolean {
-  return isGenericArrayType(tsType) || isReadonlyArrayType(tsType) || isTypedArray(tsType);
+  return isGenericArrayType(tsType) || isReadonlyArrayType(tsType) || isTypedArray(tsType, TYPED_ARRAYS);
+}
+
+export function isCollectionArrayType(tsType: ts.Type): boolean {
+  return isTypedArray(tsType, TYPED_COLLECTIONS);
+}
+
+export function isIndexableArray(tsType: ts.Type): boolean {
+  return (
+    isGenericArrayType(tsType) ||
+    isReadonlyArrayType(tsType) ||
+    isConcatArrayType(tsType) ||
+    isArrayLikeType(tsType) ||
+    isTypedArray(tsType, TYPED_ARRAYS) ||
+    isTypedArray(tsType, TYPED_COLLECTIONS)
+  );
 }
 
 export function isTuple(tsType: ts.Type): boolean {
@@ -1363,17 +1398,21 @@ export const STANDARD_LIBRARIES = [
 ];
 
 export const TYPED_ARRAYS = [
-  "Int8Array",
-  "Uint8Array",
-  "Uint8ClampedArray",
-  "Int16Array",
-  "Uint16Array",
-  "Int32Array",
-  "Uint32Array",
-  "Float32Array",
-  "Float64Array",
-  "BigInt64Array",
-  "BigUint64Array",
+  'Int8Array',
+  'Uint8Array',
+  'Uint8ClampedArray',
+  'Int16Array',
+  'Uint16Array',
+  'Int32Array',
+  'Uint32Array',
+  'Float32Array',
+  'Float64Array',
+  'BigInt64Array',
+  'BigUint64Array',
+  ];
+
+export const TYPED_COLLECTIONS = [
+  'BitVector'
   ];
 
 let parentSymbolCache: ESMap<Symbol, string | undefined> | undefined = new Map<Symbol, string | undefined>();
