@@ -24932,8 +24932,9 @@ namespace ts {
             }
 
             function getTypeAtFlowNode(flow: FlowNode): FlowType {
-                if (flowDepth === 2000) {
-                    // We have made 2000 recursive invocations. To avoid overflowing the call stack we report an error
+                if (flowDepth === getMaxFlowDepth(compilerOptions)) {
+                    // We have made the number of recursive invocations by user configuring, or default value 2000.
+                    // To avoid overflowing the call stack we report an error
                     // and disable further control flow analysis in the containing function or module body.
                     tracing?.instant(tracing.Phase.CheckTypes, "getTypeAtFlowNode_DepthLimit", { flowId: flow.id });
                     flowAnalysisDisabled = true;
