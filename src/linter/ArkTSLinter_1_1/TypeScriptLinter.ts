@@ -1746,6 +1746,9 @@ export class TypeScriptLinter {
         return;
       }
     }
+    if ((tsIdentSym.flags & SymbolFlags.Annotation) !== 0) {
+      return;
+    }
 
     if (tsIdentSym.flags & SymbolFlags.ValueModule) {
       this.incrementCounters(tsIdentifier, FaultID.NamespaceAsObject);

@@ -715,8 +715,6 @@ namespace ts {
         getAnnotationObjectLiteralEvaluatedProps: notImplemented,
         getAnnotationPropertyEvaluatedInitializer: notImplemented,
         getAnnotationPropertyInferredType: notImplemented,
-        setAnnotationDeclarationUniquePrefix: notImplemented,
-        getAnnotationDeclarationUniquePrefix: notImplemented,
         isReferredToAnnotation: notImplemented,
     };
 

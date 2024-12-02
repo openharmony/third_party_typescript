@@ -26050,8 +26050,9 @@ namespace ts {
                 isFunctionLike(node) && !getImmediatelyInvokedFunctionExpression(node) ||
                 node.kind === SyntaxKind.ModuleBlock ||
                 node.kind === SyntaxKind.SourceFile ||
-                node.kind === SyntaxKind.PropertyDeclaration)!;
-        }
+                node.kind === SyntaxKind.PropertyDeclaration ||
+                node.kind === SyntaxKind.AnnotationPropertyDeclaration)!;
+            }
 
         // Check if a parameter or catch variable is assigned anywhere
         function isSymbolAssigned(symbol: Symbol) {
@@ -36774,6 +36775,9 @@ namespace ts {
             if (initVal === undefined || initValType === errorType)  {
                 return undefined;
             }
+            if (isArrayType(initValType) && !Array.isArray(initVal)) {
+                return undefined;
+            }
             if (typeof initVal === "number") {
                 return factory.createNumericLiteral(initVal);
             }
@@ -36807,15 +36811,16 @@ namespace ts {
                         }
                     }
                     return factory.createNewExpression(
-                        factory.createIdentifier(
-                            typeToString(initValType, /*enclosingDeclaration*/undefined, TypeFormatFlags.WriteArrayAsGenericType)
-                        ),
-                        /*typeArguments*/ undefined,
+                        factory.createIdentifier("Array"),
+                        [nodeBuilder.typeToTypeNode(elemType) as TypeNode],
                         args);
                 }
                 const result = new Array<Expression>(initVal.length);
                 for (let i = 0; i < initVal.length; ++i) {
                     result[i] = annotationEvaluatedValueToExpr(initVal[i], elemType)!;
+                    if (result[i] === undefined){
+                        return undefined;
+                    }
                 }
                 return factory.createArrayLiteralExpression(result);
             }
@@ -45387,12 +45392,6 @@ namespace ts {
                 },
                 getAnnotationPropertyInferredType: (node: AnnotationPropertyDeclaration): TypeNode | undefined => {
                     return getNodeLinks(node).annotationPropertyInferredType;
-                },
-                setAnnotationDeclarationUniquePrefix: (node: AnnotationDeclaration, prefix: string): void => {
-                    getNodeLinks(node).annotationDeclarationUniquePrefix = prefix;
-                },
-                getAnnotationDeclarationUniquePrefix: (node: AnnotationDeclaration): string | undefined => {
-                    return getNodeLinks(node).annotationDeclarationUniquePrefix;
                 },
                 isReferredToAnnotation: (node: ImportSpecifier | ExportSpecifier | ExportAssignment): boolean | undefined => {
                     return getNodeLinks(node).exportOrImportRefersToAnnotation;
