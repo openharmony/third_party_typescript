@@ -1074,19 +1074,22 @@ namespace ts {
     }
 
     function createNameImportDeclaration(factory: NodeFactory, isType: boolean, name: Identifier, source: string,
-        oldStatement: ImportDeclaration, importSpecifier: TextRange): ImportDeclaration {
+        oldStatement: ImportDeclaration, importSpecifier: TextRange, isLazy?: boolean): ImportDeclaration {
         const oldModuleSpecifier = oldStatement.moduleSpecifier;
         const newModuleSpecifier = setNoOriginalText(setVirtualNodeAndKitImportFlags(
             factory.createStringLiteral(source), oldModuleSpecifier.pos, oldModuleSpecifier.end)
         );
-        const newImportClause = setVirtualNodeAndKitImportFlags(factory.createImportClause(isType, name, undefined), importSpecifier.pos, importSpecifier.end);
+        let newImportClause = factory.createImportClause(isType, name, undefined);
+        // Add the isLazy flag in the original importDeclaration to the new importClause statement.
+        (newImportClause as Mutable<ImportClause>).isLazy = isLazy;
+        newImportClause = setVirtualNodeAndKitImportFlags(newImportClause, importSpecifier.pos, importSpecifier.end);
         const newImportDeclaration = setVirtualNodeAndKitImportFlags(
             factory.createImportDeclaration(undefined, newImportClause, newModuleSpecifier), oldStatement.pos, oldStatement.end);
         return newImportDeclaration;
     }
 
     function createBindingImportDeclaration(factory: NodeFactory, isType: boolean, propname: string, name: Identifier, source: string,
-        oldStatement: ImportDeclaration, importSpecifier: TextRange): ImportDeclaration {
+        oldStatement: ImportDeclaration, importSpecifier: TextRange, isLazy?: boolean): ImportDeclaration {
         const oldModuleSpecifier = oldStatement.moduleSpecifier;
         const newModuleSpecifier = setNoOriginalText(
             setVirtualNodeAndKitImportFlags(factory.createStringLiteral(source), oldModuleSpecifier.pos, oldModuleSpecifier.end));
@@ -1096,22 +1099,25 @@ namespace ts {
             factory.createImportSpecifier(false, newPropertyName, name), importSpecifier.pos, importSpecifier.end);
         // The location information of the newNamedBindings is created using the location information of the old importSpecifier.
         const newNamedBindings = setVirtualNodeAndKitImportFlags(factory.createNamedImports([newImportSpecific]), importSpecifier.pos, importSpecifier.end);
+        let newImportClause = factory.createImportClause(isType, undefined, newNamedBindings);
+        // Add the isLazy flag in the original importDeclaration to the new importClause statement.
+        (newImportClause as Mutable<ImportClause>).isLazy = isLazy;
         // The location information of the newImportClause is created using the location information of the old importSpecifier.
-        const newImportClause = setVirtualNodeAndKitImportFlags(
-            factory.createImportClause(isType, undefined, newNamedBindings), importSpecifier.pos, importSpecifier.end);
+        newImportClause = setVirtualNodeAndKitImportFlags(
+            newImportClause, importSpecifier.pos, importSpecifier.end);
         const newImportDeclaration = setVirtualNodeAndKitImportFlags(
             factory.createImportDeclaration(undefined, newImportClause, newModuleSpecifier), oldStatement.pos, oldStatement.end);
         return newImportDeclaration;
     }
 
     function createImportDeclarationForKit(factory: NodeFactory, isType: boolean, name: Identifier, symbol: KitSymbolInfo,
-        oldStatement: ImportDeclaration, importSpecifier: TextRange): ImportDeclaration {
+        oldStatement: ImportDeclaration, importSpecifier: TextRange, isLazy?: boolean): ImportDeclaration {
         const source = symbol.source.replace(/\.d.[e]?ts$/, '');
         const binding = symbol.bindings;
         if (binding === DEFAULT_KEYWORD) {
-            return createNameImportDeclaration(factory, isType, name, source, oldStatement, importSpecifier);
+            return createNameImportDeclaration(factory, isType, name, source, oldStatement, importSpecifier, isLazy);
         }
-        return createBindingImportDeclaration(factory, isType, binding, name, source, oldStatement, importSpecifier);
+        return createBindingImportDeclaration(factory, isType, binding, name, source, oldStatement, importSpecifier, isLazy);
     }
 
     function markKitImport(statement : Statement, markedkitImportRanges: Array<TextRange>): void {
@@ -1130,7 +1136,6 @@ namespace ts {
     function excludeStatementForKitImport(statement: Statement): boolean {
         if (!isImportDeclaration(statement) || // check is ImportDeclaration
             !statement.importClause || // exclude import 'mode'
-            statement.importClause.isLazy || // exclude import lazy, it may report error
             (statement.importClause.namedBindings && ts.isNamespaceImport(statement.importClause.namedBindings)) || // exclude namespace import
             !isStringLiteral(statement.moduleSpecifier) || statement.illegalDecorators || // exclude if may has error
             !statement.moduleSpecifier.text.startsWith(KIT_PREFIX) || // is not kit import
@@ -1184,13 +1189,14 @@ namespace ts {
         }
 
         const isType = importClause.isTypeOnly;
+        const isLazy = importClause.isLazy;
         if (importClause.name) {
             const symbol = kitSymbol[DEFAULT_KEYWORD];
             // has error when import ets declaration in ts file
             if (!symbol || (!inEtsContext && symbol.source.endsWith(ETS_DECLARATION))) {
                 return false;
             }
-            newImportStatements.push(createImportDeclarationForKit(factory, isType, importClause.name, symbol, statement, importClause.name));
+            newImportStatements.push(createImportDeclarationForKit(factory, isType, importClause.name, symbol, statement, importClause.name, isLazy));
         }
 
         if (importClause.namedBindings) {
@@ -1219,7 +1225,7 @@ namespace ts {
                     }
 
                     newImportStatements.push(
-                        createImportDeclarationForKit(factory, isType || element.isTypeOnly, aliasName, symbol, statement, element));
+                        createImportDeclarationForKit(factory, isType || element.isTypeOnly, aliasName, symbol, statement, element, isLazy));
                 }
             );
             if (hasError) {
