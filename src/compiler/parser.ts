@@ -8461,9 +8461,15 @@ namespace ts {
                 isTypeOnly = true;
                 identifier = isIdentifier() ? parseIdentifier() : undefined;
             }
-            else if (identifier?.escapedText === 'lazy' && token() === SyntaxKind.OpenBraceToken) {
+            // 1. import lazy { export } from "mod";
+            // 2. import lazy defaultExport from "mod";
+            // 3. import lazy defaultExport, { export, /* ... */ } from "mod";
+            else if (identifier?.escapedText === 'lazy' &&
+                (token() === SyntaxKind.OpenBraceToken ||
+                (isIdentifier() && lookAhead(() => nextToken() === SyntaxKind.FromKeyword)) ||
+                (isIdentifier() && lookAhead(() => nextToken() === SyntaxKind.CommaToken && nextToken() === SyntaxKind.OpenBraceToken)))) {
                 isLazy = true;
-                identifier = undefined;
+                identifier = isIdentifier() ? parseIdentifier() : undefined;
             }
 
             if (identifier && !tokenAfterImportedIdentifierDefinitelyProducesImportDeclaration()) {
@@ -8471,7 +8477,7 @@ namespace ts {
             }
 
             // ImportDeclaration:
-            //  import ImportClause from ModuleSpecifier ;
+            //  import ImportClause from ModuleSpecifier;
             //  import ModuleSpecifier;
             let importClause: ImportClause | undefined;
             if (identifier || // import id
