@@ -1010,6 +1010,14 @@ namespace ts {
         return (isIdentifier(nameExpr) && nameExpr.escapedText.toString() === 'Sendable');
     }
 
+    /* @internal */
+    export function checkStructPropertyPosition(declaration: Node, prop: Node): boolean {
+        // Struct can't be declared inside another struct, so if the parent of PropertyDeclaration node is StructDeclaration 
+        // and its end position is behind the end position of PropertyDeclaration node, we can make sure the property is declared and used in the same struct.
+        return declaration.pos < prop.pos && isStructDeclaration(declaration.parent) && declaration.parent.end > prop.end;
+    }
+
+    export const REQUIRE_DECORATOR = 'Require';
     const JSON_SUFFIX = '.json';
     const KIT_PREFIX = '@kit.';
     const DEFAULT_KEYWORD = 'default';
