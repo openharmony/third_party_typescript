@@ -5498,6 +5498,31 @@ declare namespace ts {
     function createObfTextSingleLineWriter(): EmitTextWriter;
     function cleanKitJsonCache(): void;
     function getMaxFlowDepth(compilerOptions: CompilerOptions): number;
+    interface MoreInfo {
+        cn: string;
+        en: string;
+    }
+    class ErrorInfo {
+        code: string;
+        description: string;
+        cause: string;
+        position: string;
+        solutions: string[];
+        moreInfo?: MoreInfo;
+        getCode(): string;
+        getDescription(): string;
+        getCause(): string;
+        getPosition(): string;
+        getSolutions(): string[];
+        getMoreInfo(): MoreInfo | undefined;
+    }
+    enum ErrorCodeArea {
+        TSC = 0,
+        LINTER = 1,
+        UI = 2
+    }
+    function getErrorCode(diagnostic: Diagnostic): ErrorInfo;
+    function getErrorCodeArea(code: number): ErrorCodeArea;
 }
 declare namespace ts {
     /**
