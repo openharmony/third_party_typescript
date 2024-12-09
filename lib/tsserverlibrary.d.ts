@@ -13326,8 +13326,12 @@ declare namespace ts {
             function isTypeSymbol(symbol: Symbol | undefined): boolean;
             function isGenericArrayType(tsType: Type): tsType is TypeReference;
             function isReadonlyArrayType(tsType: Type): boolean;
-            function isTypedArray(tsType: ts.Type): boolean;
+            function isConcatArrayType(tsType: Type): boolean;
+            function isArrayLikeType(tsType: Type): boolean;
+            function isTypedArray(tsType: ts.Type, allowTypeArrays: string[]): boolean;
             function isArray(tsType: ts.Type): boolean;
+            function isCollectionArrayType(tsType: ts.Type): boolean;
+            function isIndexableArray(tsType: ts.Type): boolean;
             function isTuple(tsType: ts.Type): boolean;
             function isOrDerivedFrom(tsType: ts.Type, checkType: CheckType, checkedBaseTypes?: Set<ts.Type>): boolean;
             function isTypeReference(tsType: Type): tsType is TypeReference;
@@ -13382,6 +13386,7 @@ declare namespace ts {
             const NON_RETURN_FUNCTION_DECORATORS: string[];
             const STANDARD_LIBRARIES: string[];
             const TYPED_ARRAYS: string[];
+            const TYPED_COLLECTIONS: string[];
             function getParentSymbolName(symbol: Symbol): string | undefined;
             function isGlobalSymbol(symbol: Symbol): boolean;
             function isSymbolAPI(symbol: Symbol): boolean;
