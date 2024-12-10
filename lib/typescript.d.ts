@@ -9305,11 +9305,10 @@ declare namespace ts {
                 SendableFunctionProperty = 105,
                 SendableFunctionAsExpr = 106,
                 SendableDecoratorLimited = 107,
-                SendableClosureExport = 108,
-                SharedModuleExportsWarning = 109,
-                SendableBetaCompatible = 110,
-                SendablePropTypeWarning = 111,
-                LAST_ID = 112
+                SharedModuleExportsWarning = 108,
+                SendableBetaCompatible = 109,
+                SendablePropTypeWarning = 110,
+                LAST_ID = 111
             }
             class FaultAttributes {
                 cookBookRef: number;
@@ -9612,7 +9611,7 @@ declare namespace ts {
             staticBlocks: Set<string>;
             libraryTypeCallDiagnosticChecker: LibraryTypeCallDiagnosticChecker;
             skipArkTSStaticBlocksCheck: boolean;
-            private fileExportSendableDeclCaches?;
+            private fileExportDeclCaches?;
             private compatibleSdkVersionStage;
             private compatibleSdkVersion;
             constructor(sourceFile: SourceFile, tsProgram: Program, tscStrictDiagnostics?: Map<Diagnostic[]> | undefined);
@@ -9671,7 +9670,7 @@ declare namespace ts {
             private checkLocalDeclWithSendableClosure;
             private checkIsTopClosure;
             private checkNamespaceImportVar;
-            isFileExportSendableDecl(decl: ts.Declaration): boolean;
+            isFileExportDecl(decl: ts.Declaration): boolean;
             private checkClassDeclarationHeritageClause;
             private isValidSendableClassExtends;
             private checkSendableTypeParameter;

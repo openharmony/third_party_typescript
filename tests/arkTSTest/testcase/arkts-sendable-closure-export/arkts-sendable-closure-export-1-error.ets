@@ -63,32 +63,52 @@ function sendableFunction5() {
 
 };
 
+export class ExportClassA {
+
+}
+
+export interface ExportInterfaceA {
+
+}
+
+export function exportFooA {
+
+};
+
+export const exportObj: ExportClassA = new ExportClassA();
+
 @Sendable 
 class SendableClass {
   handle() {
-    new SendableClass1(); // OK
-    sendableFunction1(); // OK
-    new SendableClass2(); // WARING, export decl
-    sendableFunction2(); // WARING, export decl
-    new SendableClass3(); // WARING, export { decl }
-    sendableFunction3(); // WARING, export { decl }
-    new SendableClass4(); // WARING, export { decl as alias }
-    sendableFunction4(); // WARING, export { decl as alias }
-    new SendableClass5(); // WARING, export default decl
+    new SendableClass1();
+    sendableFunction1();
+    new SendableClass2();
+    sendableFunction2();
+    new SendableClass3();
+    sendableFunction3();
+    new SendableClass4();
+    sendableFunction4();
+    new SendableClass5();
+    new ExportClassA();
+    exportFooA();
+    exportObj;
   }
 }
 
 @Sendable
 function sendableFunction() {
-  new SendableClass1(); // OK
-  sendableFunction1(); // OK
-  new SendableClass2(); // WARING, export decl
-  sendableFunction2(); // WARING, export decl
-  new SendableClass3(); // WARING, export { decl }
-  sendableFunction3(); // WARING, export { decl }
-  new SendableClass4(); // WARING, export { decl as alias }
-  sendableFunction4(); // WARING, export { decl as alias }
-  new SendableClass5(); // WARING, export default decl
+  new SendableClass1();
+  sendableFunction1();
+  new SendableClass2();
+  sendableFunction2();
+  new SendableClass3();
+  sendableFunction3();
+  new SendableClass4();
+  sendableFunction4();
+  new SendableClass5();
+  new ExportClassA();
+  exportFooA();
+  exportObj;
 }
 
 export { SendableClass3, 
