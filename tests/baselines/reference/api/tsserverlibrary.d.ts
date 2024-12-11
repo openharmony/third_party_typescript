@@ -13102,13 +13102,13 @@ declare namespace ts {
 }
 declare namespace ts {
     namespace ArkTSLinter_1_1 {
-        import DiagnosticChecker = DiagnosticCheckerNamespace.DiagnosticChecker;
         namespace LibraryTypeCallDiagnosticCheckerNamespace {
             const TYPE_0_IS_NOT_ASSIGNABLE_TO_TYPE_1_ERROR_CODE = 2322;
             const TYPE_UNKNOWN_IS_NOT_ASSIGNABLE_TO_TYPE_1_RE: RegExp;
             const TYPE_NULL_IS_NOT_ASSIGNABLE_TO_TYPE_1_RE: RegExp;
             const TYPE_UNDEFINED_IS_NOT_ASSIGNABLE_TO_TYPE_1_RE: RegExp;
             const ARGUMENT_OF_TYPE_0_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_ERROR_CODE = 2345;
+            const OBJECT_IS_POSSIBLY_UNDEFINED_ERROR_CODE = 2532;
             const ARGUMENT_OF_TYPE_NULL_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_RE: RegExp;
             const ARGUMENT_OF_TYPE_UNDEFINED_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_RE: RegExp;
             const NO_OVERLOAD_MATCHES_THIS_CALL_ERROR_CODE = 2769;
@@ -13120,20 +13120,19 @@ declare namespace ts {
                 NO_ERROR = 0,
                 UNKNOW = 1,
                 NULL = 2,
-                UNDEFINED = 3
+                POSSIBLY_UNDEFINED = 3
             }
-            class LibraryTypeCallDiagnosticChecker implements DiagnosticChecker {
-                inLibCall: boolean;
-                diagnosticMessages: Array<ts.DiagnosticMessageChain> | undefined;
-                filteredDiagnosticMessages: DiagnosticMessageChain[];
-                constructor(filteredDiagnosticMessages: DiagnosticMessageChain[]);
-                configure(inLibCall: boolean, diagnosticMessages: Array<ts.DiagnosticMessageChain>): void;
-                checkMessageText(msg: string): boolean;
-                static checkMessageChain(chain: ts.DiagnosticMessageChain, inLibCall: boolean): ErrorType;
-                checkFilteredDiagnosticMessages(msgText: ts.DiagnosticMessageChain | string): boolean;
-                checkDiagnosticMessage(msgText: string | ts.DiagnosticMessageChain): boolean;
-                static rebuildTscDiagnostics(tscStrictDiagnostics: Map<Diagnostic[]>): void;
-                static collectDiagnosticMessage(diagnosticMessageChain: DiagnosticMessageChain, textSet: Set<string>): void;
+            class LibraryTypeCallDiagnosticChecker {
+                private static _instance;
+                static get instance(): LibraryTypeCallDiagnosticChecker;
+                private _diagnosticErrorTypeMap;
+                private constructor();
+                clear(): void;
+                rebuildTscDiagnostics(tscStrictDiagnostics: ESMap<string, ts.Diagnostic[]>): void;
+                filterDiagnostics(tscDiagnostics: readonly ts.Diagnostic[], expr: ts.CallExpression | ts.NewExpression, isLibCall: boolean, filterHandle: (diagnositc: ts.Diagnostic, errorType: ErrorType) => void): void;
+                private getErrorType;
+                private static isValidErrorType;
+                private static isValidDiagnosticRange;
             }
         }
     }
@@ -13277,6 +13276,7 @@ declare namespace ts {
             const ALLOWED_STD_SYMBOL_API: string[];
             const ARKTS_IGNORE_DIRS: string[];
             const ARKTS_IGNORE_FILES: string[];
+            const ARKTS_IGNORE_DIRS_OH_MODULES = "oh_modules";
             const SENDABLE_DECORATOR = "Sendable";
             const SENDABLE_INTERFACE = "ISendable";
             const SENDABLE_DECORATOR_NODES: SyntaxKind[];
@@ -13421,6 +13421,7 @@ declare namespace ts {
             function isStdLibraryType(type: Type): boolean;
             function isStdLibrarySymbol(sym: Symbol | undefined): boolean;
             function isIntrinsicObjectType(type: Type): boolean;
+            function isOhModulesEtsSymbol(sym: ts.Symbol | undefined): boolean;
             function isDynamicType(type: Type | undefined): boolean | undefined;
             function isObjectType(type: ts.Type): type is ts.ObjectType;
             function isAnonymous(type: ts.Type): boolean;
@@ -13513,7 +13514,6 @@ declare namespace ts {
 declare namespace ts {
     namespace ArkTSLinter_1_1 {
         import Autofix = Autofixer.Autofix;
-        import LibraryTypeCallDiagnosticChecker = LibraryTypeCallDiagnosticCheckerNamespace.LibraryTypeCallDiagnosticChecker;
         interface ProblemInfo {
             line: number;
             column: number;
@@ -13555,7 +13555,6 @@ declare namespace ts {
             currentErrorLine: number;
             currentWarningLine: number;
             staticBlocks: Set<string>;
-            libraryTypeCallDiagnosticChecker: LibraryTypeCallDiagnosticChecker;
             skipArkTSStaticBlocksCheck: boolean;
             private fileExportDeclCaches?;
             private compatibleSdkVersionStage;
@@ -13594,8 +13593,6 @@ declare namespace ts {
             private handlePropertySignature;
             private handleSendableInterfaceProperty;
             private filterOutDecoratorsDiagnostics;
-            private checkInRange;
-            private filterStrictDiagnostics;
             private static isClassLikeOrIface;
             private handleFunctionExpression;
             private handleArrowFunction;
@@ -13649,7 +13646,6 @@ declare namespace ts {
             private handleStructIdentAndUndefinedInArgs;
             private static LimitedApis;
             private handleStdlibAPICall;
-            private findNonFilteringRangesFunctionCalls;
             private handleLibraryTypeCall;
             private handleNewExpression;
             private handleSendableGenericTypes;
