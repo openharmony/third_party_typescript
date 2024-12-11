@@ -1,0 +1,195 @@
+{
+  "arktsVersion_1_0": [
+    {
+      "messageText": "Declaring fields in \"constructor\" is not supported (arkts-no-ctor-prop-decls)",
+      "expectLineAndCharacter": {
+        "line": 18,
+        "character": 5
+      }
+    },
+    {
+      "messageText": "Declaring fields in \"constructor\" is not supported (arkts-no-ctor-prop-decls)",
+      "expectLineAndCharacter": {
+        "line": 19,
+        "character": 5
+      }
+    },
+    {
+      "messageText": "Interfaces cannot extend classes (arkts-extends-only-class)",
+      "expectLineAndCharacter": {
+        "line": 30,
+        "character": 1
+      }
+    },
+    {
+      "messageText": "Destructuring parameter declarations are not supported (arkts-no-destruct-params)",
+      "expectLineAndCharacter": {
+        "line": 39,
+        "character": 29
+      }
+    },
+    {
+      "messageText": "Object literals cannot be used as type declarations (arkts-no-obj-literals-as-types)",
+      "expectLineAndCharacter": {
+        "line": 40,
+        "character": 32
+      }
+    },
+    {
+      "messageText": "Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)",
+      "expectLineAndCharacter": {
+        "line": 42,
+        "character": 26
+      }
+    },
+    {
+      "messageText": "Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)",
+      "expectLineAndCharacter": {
+        "line": 43,
+        "character": 26
+      }
+    },
+    {
+      "messageText": "Use inheritance instead of intersection types (arkts-no-intersection-types)",
+      "expectLineAndCharacter": {
+        "line": 46,
+        "character": 8
+      }
+    },
+    {
+      "messageText": "Object literals cannot be used as type declarations (arkts-no-obj-literals-as-types)",
+      "expectLineAndCharacter": {
+        "line": 46,
+        "character": 12
+      }
+    },
+    {
+      "messageText": "Indexed signatures are not supported (arkts-no-indexed-signatures)",
+      "expectLineAndCharacter": {
+        "line": 47,
+        "character": 5
+      }
+    },
+    {
+      "messageText": "Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)",
+      "expectLineAndCharacter": {
+        "line": 51,
+        "character": 50
+      }
+    },
+    {
+      "messageText": "Argument of type 'null' is not assignable to parameter of type 'A'.",
+      "expectLineAndCharacter": {
+        "line": 20,
+        "character": 16
+      }
+    },
+    {
+      "messageText": "Argument of type 'null' is not assignable to parameter of type 'A'.",
+      "expectLineAndCharacter": {
+        "line": 21,
+        "character": 20
+      }
+    }
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Declaring fields in \"constructor\" is not supported (arkts-no-ctor-prop-decls)",
+      "expectLineAndCharacter": {
+        "line": 18,
+        "character": 5
+      }
+    },
+    {
+      "messageText": "Declaring fields in \"constructor\" is not supported (arkts-no-ctor-prop-decls)",
+      "expectLineAndCharacter": {
+        "line": 19,
+        "character": 5
+      }
+    },
+    {
+      "messageText": "Interfaces cannot extend classes (arkts-extends-only-class)",
+      "expectLineAndCharacter": {
+        "line": 30,
+        "character": 36
+      }
+    },
+    {
+      "messageText": "Destructuring parameter declarations are not supported (arkts-no-destruct-params)",
+      "expectLineAndCharacter": {
+        "line": 39,
+        "character": 29
+      }
+    },
+    {
+      "messageText": "Object literals cannot be used as type declarations (arkts-no-obj-literals-as-types)",
+      "expectLineAndCharacter": {
+        "line": 40,
+        "character": 32
+      }
+    },
+    {
+      "messageText": "Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)",
+      "expectLineAndCharacter": {
+        "line": 42,
+        "character": 26
+      }
+    },
+    {
+      "messageText": "Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)",
+      "expectLineAndCharacter": {
+        "line": 43,
+        "character": 26
+      }
+    },
+    {
+      "messageText": "Use inheritance instead of intersection types (arkts-no-intersection-types)",
+      "expectLineAndCharacter": {
+        "line": 46,
+        "character": 8
+      }
+    },
+    {
+      "messageText": "Object literals cannot be used as type declarations (arkts-no-obj-literals-as-types)",
+      "expectLineAndCharacter": {
+        "line": 46,
+        "character": 12
+      }
+    },
+    {
+      "messageText": "Indexed signatures are not supported (arkts-no-indexed-signatures)",
+      "expectLineAndCharacter": {
+        "line": 47,
+        "character": 5
+      }
+    },
+    {
+      "messageText": "Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)",
+      "expectLineAndCharacter": {
+        "line": 51,
+        "character": 50
+      }
+    },
+    {
+      "messageText": "Argument of type 'null' is not assignable to parameter of type 'A'.",
+      "expectLineAndCharacter": {
+        "line": 19,
+        "character": 8
+      }
+    },
+    {
+      "messageText": "Argument of type 'null' is not assignable to parameter of type 'A'.",
+      "expectLineAndCharacter": {
+        "line": 20,
+        "character": 16
+      }
+    },
+    {
+      "messageText": "Argument of type 'null' is not assignable to parameter of type 'A'.",
+      "expectLineAndCharacter": {
+        "line": 21,
+        "character": 20
+      }
+    }
+  ]
+}

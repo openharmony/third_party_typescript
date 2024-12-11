@@ -1,0 +1,531 @@
+{
+  "arktsVersion_1_0": [
+    {
+      "messageText": "Declaring fields in \"constructor\" is not supported (arkts-no-ctor-prop-decls)",
+      "expectLineAndCharacter": {
+        "line": 18,
+        "character": 5
+      }
+    },
+    {
+      "messageText": "Declaring fields in \"constructor\" is not supported (arkts-no-ctor-prop-decls)",
+      "expectLineAndCharacter": {
+        "line": 19,
+        "character": 5
+      }
+    },
+    {
+      "messageText": "Interfaces cannot extend classes (arkts-extends-only-class)",
+      "expectLineAndCharacter": {
+        "line": 30,
+        "character": 1
+      }
+    },
+    {
+      "messageText": "Destructuring parameter declarations are not supported (arkts-no-destruct-params)",
+      "expectLineAndCharacter": {
+        "line": 39,
+        "character": 29
+      }
+    },
+    {
+      "messageText": "Object literals cannot be used as type declarations (arkts-no-obj-literals-as-types)",
+      "expectLineAndCharacter": {
+        "line": 40,
+        "character": 32
+      }
+    },
+    {
+      "messageText": "Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)",
+      "expectLineAndCharacter": {
+        "line": 42,
+        "character": 26
+      }
+    },
+    {
+      "messageText": "Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)",
+      "expectLineAndCharacter": {
+        "line": 43,
+        "character": 26
+      }
+    },
+    {
+      "messageText": "Use inheritance instead of intersection types (arkts-no-intersection-types)",
+      "expectLineAndCharacter": {
+        "line": 46,
+        "character": 8
+      }
+    },
+    {
+      "messageText": "Object literals cannot be used as type declarations (arkts-no-obj-literals-as-types)",
+      "expectLineAndCharacter": {
+        "line": 46,
+        "character": 12
+      }
+    },
+    {
+      "messageText": "Indexed signatures are not supported (arkts-no-indexed-signatures)",
+      "expectLineAndCharacter": {
+        "line": 47,
+        "character": 5
+      }
+    },
+    {
+      "messageText": "Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)",
+      "expectLineAndCharacter": {
+        "line": 51,
+        "character": 50
+      }
+    },
+    {
+      "messageText": "Argument of type 'null' is not assignable to parameter of type 'string'.",
+      "expectLineAndCharacter": {
+        "line": 29,
+        "character": 18
+      }
+    },
+    {
+      "messageText": "Argument of type 'null' is not assignable to parameter of type '() => void'.",
+      "expectLineAndCharacter": {
+        "line": 30,
+        "character": 16
+      }
+    },
+    {
+      "messageText": "Argument of type 'null' is not assignable to parameter of type 'string'.",
+      "expectLineAndCharacter": {
+        "line": 32,
+        "character": 5
+      }
+    },
+    {
+      "messageText": "Argument of type 'null' is not assignable to parameter of type 'string'.",
+      "expectLineAndCharacter": {
+        "line": 35,
+        "character": 22
+      }
+    },
+    {
+      "messageText": "Argument of type 'null' is not assignable to parameter of type '() => void'.",
+      "expectLineAndCharacter": {
+        "line": 36,
+        "character": 20
+      }
+    },
+    {
+      "messageText": "Argument of type 'null' is not assignable to parameter of type 'string'.",
+      "expectLineAndCharacter": {
+        "line": 38,
+        "character": 5
+      }
+    },
+    {
+      "messageText": "Argument of type 'null' is not assignable to parameter of type 'string'.",
+      "expectLineAndCharacter": {
+        "line": 51,
+        "character": 5
+      }
+    },
+    {
+      "messageText": "Argument of type 'null' is not assignable to parameter of type 'number'.",
+      "expectLineAndCharacter": {
+        "line": 52,
+        "character": 4
+      }
+    },
+    {
+      "messageText": "Argument of type 'null' is not assignable to parameter of type 'string'.",
+      "expectLineAndCharacter": {
+        "line": 52,
+        "character": 12
+      }
+    },
+    {
+      "messageText": "Argument of type 'null' is not assignable to parameter of type 'string'.",
+      "expectLineAndCharacter": {
+        "line": 55,
+        "character": 7
+      }
+    },
+    {
+      "messageText": "Argument of type 'null' is not assignable to parameter of type 'number'.",
+      "expectLineAndCharacter": {
+        "line": 56,
+        "character": 6
+      }
+    },
+    {
+      "messageText": "Argument of type 'null' is not assignable to parameter of type 'string'.",
+      "expectLineAndCharacter": {
+        "line": 56,
+        "character": 14
+      }
+    },
+    {
+      "messageText": "Argument of type 'null' is not assignable to parameter of type 'number'.",
+      "expectLineAndCharacter": {
+        "line": 57,
+        "character": 4
+      }
+    },
+    {
+      "messageText": "Argument of type 'null' is not assignable to parameter of type 'string'.",
+      "expectLineAndCharacter": {
+        "line": 60,
+        "character": 5
+      }
+    },
+    {
+      "messageText": "Argument of type 'null' is not assignable to parameter of type 'number'.",
+      "expectLineAndCharacter": {
+        "line": 61,
+        "character": 4
+      }
+    },
+    {
+      "messageText": "Argument of type 'null' is not assignable to parameter of type 'string'.",
+      "expectLineAndCharacter": {
+        "line": 61,
+        "character": 12
+      }
+    },
+    {
+      "messageText": "Argument of type 'null' is not assignable to parameter of type 'string'.",
+      "expectLineAndCharacter": {
+        "line": 64,
+        "character": 7
+      }
+    },
+    {
+      "messageText": "Argument of type 'null' is not assignable to parameter of type 'number'.",
+      "expectLineAndCharacter": {
+        "line": 65,
+        "character": 6
+      }
+    },
+    {
+      "messageText": "Argument of type 'null' is not assignable to parameter of type 'string'.",
+      "expectLineAndCharacter": {
+        "line": 65,
+        "character": 14
+      }
+    },
+    {
+      "messageText": "Argument of type 'null' is not assignable to parameter of type 'number'.",
+      "expectLineAndCharacter": {
+        "line": 66,
+        "character": 4
+      }
+    }
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Declaring fields in \"constructor\" is not supported (arkts-no-ctor-prop-decls)",
+      "expectLineAndCharacter": {
+        "line": 18,
+        "character": 5
+      }
+    },
+    {
+      "messageText": "Declaring fields in \"constructor\" is not supported (arkts-no-ctor-prop-decls)",
+      "expectLineAndCharacter": {
+        "line": 19,
+        "character": 5
+      }
+    },
+    {
+      "messageText": "Interfaces cannot extend classes (arkts-extends-only-class)",
+      "expectLineAndCharacter": {
+        "line": 30,
+        "character": 36
+      }
+    },
+    {
+      "messageText": "Destructuring parameter declarations are not supported (arkts-no-destruct-params)",
+      "expectLineAndCharacter": {
+        "line": 39,
+        "character": 29
+      }
+    },
+    {
+      "messageText": "Object literals cannot be used as type declarations (arkts-no-obj-literals-as-types)",
+      "expectLineAndCharacter": {
+        "line": 40,
+        "character": 32
+      }
+    },
+    {
+      "messageText": "Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)",
+      "expectLineAndCharacter": {
+        "line": 42,
+        "character": 26
+      }
+    },
+    {
+      "messageText": "Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)",
+      "expectLineAndCharacter": {
+        "line": 43,
+        "character": 26
+      }
+    },
+    {
+      "messageText": "Use inheritance instead of intersection types (arkts-no-intersection-types)",
+      "expectLineAndCharacter": {
+        "line": 46,
+        "character": 8
+      }
+    },
+    {
+      "messageText": "Object literals cannot be used as type declarations (arkts-no-obj-literals-as-types)",
+      "expectLineAndCharacter": {
+        "line": 46,
+        "character": 12
+      }
+    },
+    {
+      "messageText": "Indexed signatures are not supported (arkts-no-indexed-signatures)",
+      "expectLineAndCharacter": {
+        "line": 47,
+        "character": 5
+      }
+    },
+    {
+      "messageText": "Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)",
+      "expectLineAndCharacter": {
+        "line": 51,
+        "character": 50
+      }
+    },
+    {
+      "messageText": "Argument of type 'null' is not assignable to parameter of type 'string'.",
+      "expectLineAndCharacter": {
+        "line": 23,
+        "character": 11
+      }
+    },
+    {
+      "messageText": "Argument of type 'null' is not assignable to parameter of type '() => void'.",
+      "expectLineAndCharacter": {
+        "line": 24,
+        "character": 9
+      }
+    },
+    {
+      "messageText": "Argument of type 'null' is not assignable to parameter of type 'string'.",
+      "expectLineAndCharacter": {
+        "line": 26,
+        "character": 5
+      }
+    },
+    {
+      "messageText": "Argument of type 'null' is not assignable to parameter of type 'string'.",
+      "expectLineAndCharacter": {
+        "line": 29,
+        "character": 18
+      }
+    },
+    {
+      "messageText": "Argument of type 'null' is not assignable to parameter of type '() => void'.",
+      "expectLineAndCharacter": {
+        "line": 30,
+        "character": 16
+      }
+    },
+    {
+      "messageText": "Argument of type 'null' is not assignable to parameter of type 'string'.",
+      "expectLineAndCharacter": {
+        "line": 32,
+        "character": 5
+      }
+    },
+    {
+      "messageText": "Argument of type 'null' is not assignable to parameter of type 'string'.",
+      "expectLineAndCharacter": {
+        "line": 35,
+        "character": 22
+      }
+    },
+    {
+      "messageText": "Argument of type 'null' is not assignable to parameter of type '() => void'.",
+      "expectLineAndCharacter": {
+        "line": 36,
+        "character": 20
+      }
+    },
+    {
+      "messageText": "Argument of type 'null' is not assignable to parameter of type 'string'.",
+      "expectLineAndCharacter": {
+        "line": 38,
+        "character": 5
+      }
+    },
+    {
+      "messageText": "Argument of type 'null' is not assignable to parameter of type 'string'.",
+      "expectLineAndCharacter": {
+        "line": 42,
+        "character": 5
+      }
+    },
+    {
+      "messageText": "Argument of type 'null' is not assignable to parameter of type 'number'.",
+      "expectLineAndCharacter": {
+        "line": 43,
+        "character": 4
+      }
+    },
+    {
+      "messageText": "Argument of type 'null' is not assignable to parameter of type 'string'.",
+      "expectLineAndCharacter": {
+        "line": 43,
+        "character": 12
+      }
+    },
+    {
+      "messageText": "Argument of type 'null' is not assignable to parameter of type 'string'.",
+      "expectLineAndCharacter": {
+        "line": 46,
+        "character": 7
+      }
+    },
+    {
+      "messageText": "Argument of type 'null' is not assignable to parameter of type 'number'.",
+      "expectLineAndCharacter": {
+        "line": 47,
+        "character": 6
+      }
+    },
+    {
+      "messageText": "Argument of type 'null' is not assignable to parameter of type 'string'.",
+      "expectLineAndCharacter": {
+        "line": 47,
+        "character": 14
+      }
+    },
+    {
+      "messageText": "Argument of type 'null' is not assignable to parameter of type 'number'.",
+      "expectLineAndCharacter": {
+        "line": 48,
+        "character": 4
+      }
+    },
+    {
+      "messageText": "Argument of type 'null' is not assignable to parameter of type 'string'.",
+      "expectLineAndCharacter": {
+        "line": 48,
+        "character": 20
+      }
+    },
+    {
+      "messageText": "Argument of type 'null' is not assignable to parameter of type 'string'.",
+      "expectLineAndCharacter": {
+        "line": 51,
+        "character": 5
+      }
+    },
+    {
+      "messageText": "Argument of type 'null' is not assignable to parameter of type 'number'.",
+      "expectLineAndCharacter": {
+        "line": 52,
+        "character": 4
+      }
+    },
+    {
+      "messageText": "Argument of type 'null' is not assignable to parameter of type 'string'.",
+      "expectLineAndCharacter": {
+        "line": 52,
+        "character": 12
+      }
+    },
+    {
+      "messageText": "Argument of type 'null' is not assignable to parameter of type 'string'.",
+      "expectLineAndCharacter": {
+        "line": 55,
+        "character": 7
+      }
+    },
+    {
+      "messageText": "Argument of type 'null' is not assignable to parameter of type 'number'.",
+      "expectLineAndCharacter": {
+        "line": 56,
+        "character": 6
+      }
+    },
+    {
+      "messageText": "Argument of type 'null' is not assignable to parameter of type 'string'.",
+      "expectLineAndCharacter": {
+        "line": 56,
+        "character": 14
+      }
+    },
+    {
+      "messageText": "Argument of type 'null' is not assignable to parameter of type 'number'.",
+      "expectLineAndCharacter": {
+        "line": 57,
+        "character": 4
+      }
+    },
+    {
+      "messageText": "Argument of type 'null' is not assignable to parameter of type 'string'.",
+      "expectLineAndCharacter": {
+        "line": 57,
+        "character": 16
+      }
+    },
+    {
+      "messageText": "Argument of type 'null' is not assignable to parameter of type 'string'.",
+      "expectLineAndCharacter": {
+        "line": 60,
+        "character": 5
+      }
+    },
+    {
+      "messageText": "Argument of type 'null' is not assignable to parameter of type 'number'.",
+      "expectLineAndCharacter": {
+        "line": 61,
+        "character": 4
+      }
+    },
+    {
+      "messageText": "Argument of type 'null' is not assignable to parameter of type 'string'.",
+      "expectLineAndCharacter": {
+        "line": 61,
+        "character": 12
+      }
+    },
+    {
+      "messageText": "Argument of type 'null' is not assignable to parameter of type 'string'.",
+      "expectLineAndCharacter": {
+        "line": 64,
+        "character": 7
+      }
+    },
+    {
+      "messageText": "Argument of type 'null' is not assignable to parameter of type 'number'.",
+      "expectLineAndCharacter": {
+        "line": 65,
+        "character": 6
+      }
+    },
+    {
+      "messageText": "Argument of type 'null' is not assignable to parameter of type 'string'.",
+      "expectLineAndCharacter": {
+        "line": 65,
+        "character": 14
+      }
+    },
+    {
+      "messageText": "Argument of type 'null' is not assignable to parameter of type 'number'.",
+      "expectLineAndCharacter": {
+        "line": 66,
+        "character": 4
+      }
+    },
+    {
+      "messageText": "Argument of type 'null' is not assignable to parameter of type 'string'.",
+      "expectLineAndCharacter": {
+        "line": 66,
+        "character": 20
+      }
+    }
+  ]
+}
