@@ -1597,7 +1597,7 @@ export function isOhModulesEtsSymbol(sym: ts.Symbol | undefined): boolean {
   const sourceFile = sym?.declarations?.[0]?.getSourceFile();
   return (
     !!sourceFile &&
-    sourceFile.scriptKind === ScriptKind.ETS  &&
+    sourceFile.scriptKind === ScriptKind.ETS &&
     srcFilePathContainsDirectory(sourceFile, ARKTS_IGNORE_DIRS_OH_MODULES)
   );
 }

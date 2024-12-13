@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-import { foo, bar, TestClassJ, TestClassK } from "./oh_modules/ohos_lib"
-import { foo as foo_ets, bar as bar_ets, TestClassJ as TestClassJ_ets, TestClassK as TestClassK_ets } from "./oh_modules/ohos_lib_ets"
+import { foo, bar, TestClassJ, TestClassK } from './oh_modules/ohos_lib'
+import { foo as foo_ets, bar as bar_ets, TestClassJ as TestClassJ_ets, TestClassK as TestClassK_ets } from './oh_modules/ohos_lib_ets'
 
 function f(a: string): number {
   return 42;

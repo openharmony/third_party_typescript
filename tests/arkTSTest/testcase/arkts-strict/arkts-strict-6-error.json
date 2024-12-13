@@ -80,14 +80,14 @@
     {
       "messageText": "Argument of type 'null' is not assignable to parameter of type 'A'.",
       "expectLineAndCharacter": {
-        "line": 5,
+        "line": 20,
         "character": 16
       }
     },
     {
       "messageText": "Argument of type 'null' is not assignable to parameter of type 'A'.",
       "expectLineAndCharacter": {
-        "line": 6,
+        "line": 21,
         "character": 20
       }
     }
@@ -173,21 +173,21 @@
     {
       "messageText": "Argument of type 'null' is not assignable to parameter of type 'A'.",
       "expectLineAndCharacter": {
-        "line": 4,
+        "line": 19,
         "character": 8
       }
     },
     {
       "messageText": "Argument of type 'null' is not assignable to parameter of type 'A'.",
       "expectLineAndCharacter": {
-        "line": 5,
+        "line": 20,
         "character": 16
       }
     },
     {
       "messageText": "Argument of type 'null' is not assignable to parameter of type 'A'.",
       "expectLineAndCharacter": {
-        "line": 6,
+        "line": 21,
         "character": 20
       }
     }
