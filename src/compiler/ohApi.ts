@@ -1331,4 +1331,85 @@ namespace ts {
         // The value of maxFlowDepth ranges from 2000 to 65535.
         return compilerOptions.maxFlowDepth || maxFlowDepthDefaultValue;
     }
+
+    export interface MoreInfo {
+        cn: string,
+        en: string
+    }
+
+    export class ErrorInfo {
+        code: string = '';
+        description: string = 'ArkTS Compiler Error'; // The description of type errors for TSC
+        cause: string = '';
+        position: string = '';
+        solutions: string[] = [];
+        moreInfo?: MoreInfo;
+
+        getCode(): string {
+            return this.code;
+        }
+
+        getDescription(): string {
+            return this.description;
+        }
+
+        getCause(): string {
+            return this.cause;
+        }
+
+        getPosition(): string {
+            return this.position;
+        }
+
+        getSolutions(): string[] {
+            return this.solutions;
+        }
+
+        getMoreInfo(): MoreInfo | undefined {
+            return this.moreInfo;
+        }
+    }
+
+    export enum ErrorCodeArea {
+        TSC = 0,
+        LINTER = 1,
+        UI = 2
+    }
+
+    const SUBSYSTEM_CODE = '105'; // Subsystem coding
+    const ERROR_TYPE_CODE = '05'; // Error type code
+    const EXTENSION_CODE = '001'; // Extended codes defined by various subsystems
+    const codeCollectionUI = new Set([28000, 28001, 28002, 28003, 28004, 28005, 28006, 28007, 28015]); // UI code error collection
+    const codeCollectionLinter = new Set([28016, 28017]); // Linter code error collection
+    const newTscCodeMap = new Map([
+        [28014, '10505114']
+    ]); // New tsc code error collection
+
+    // Currently, only the tsc error reporting triggers this function.
+    export function getErrorCode(diagnostic: Diagnostic): ErrorInfo {
+        let errorInfo: ErrorInfo = new ErrorInfo();
+        errorInfo.cause = flattenDiagnosticMessageText(diagnostic.messageText, '\n');
+
+        if (diagnostic.file) {
+            const { line, character }: LineAndCharacter = getLineAndCharacterOfPosition(diagnostic.file, diagnostic.start!);
+            errorInfo.position = `File: ${diagnostic.file.fileName}:${line + 1}:${character + 1}`;
+        }
+
+        if (newTscCodeMap.has(diagnostic.code)) {
+            errorInfo.code = newTscCodeMap.get(diagnostic.code) as string;
+        } else {
+            errorInfo.code = SUBSYSTEM_CODE + ERROR_TYPE_CODE + EXTENSION_CODE;
+        }
+        return errorInfo;
+    }
+
+    export function getErrorCodeArea(code: number): ErrorCodeArea {
+        if (codeCollectionLinter.has(code)) {
+            return ErrorCodeArea.LINTER;
+        } else if (codeCollectionUI.has(code)) {
+            return ErrorCodeArea.UI;
+        } else {
+            return ErrorCodeArea.TSC;
+        }
+    }
 }
