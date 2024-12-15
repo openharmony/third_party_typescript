@@ -21,9 +21,8 @@ function makeDiag(category: DiagnosticCategory, code: number, file: SourceFile, 
 }
 
 export function translateDiag(srcFile: SourceFile, problemInfo: ProblemInfo): Diagnostic {
-  const LINTER_MSG_CODE_START = -1;
   const severity = (problemInfo.severity === Common.ProblemSeverity.ERROR ? DiagnosticCategory.Error : DiagnosticCategory.Warning);
-  return makeDiag(severity, LINTER_MSG_CODE_START /*+ problemInfo.ruleTag */, srcFile, problemInfo.start, (problemInfo.end - problemInfo.start + 1), problemInfo.rule);
+  return makeDiag(severity, problemInfo.ruleTag /*+ problemInfo.ruleTag */, srcFile, problemInfo.start, (problemInfo.end - problemInfo.start + 1), problemInfo.rule);
 }
 
 export function runArkTSLinter(tsBuilderProgram: BuilderProgram, srcFile?: SourceFile,
