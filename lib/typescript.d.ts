@@ -4601,6 +4601,24 @@ declare namespace ts {
     export {};
 }
 declare namespace ts {
+    namespace MemoryDotting {
+        interface RecordInfo {
+            recordStage: string;
+            recordIndex: number;
+        }
+        const BINDE_SOURCE_FILE = 'binder(bindSourceFile: Bind)';
+        const CHECK_SOURCE_FILE = 'checker(checkSourceFile: Check)';
+        const EMIT_FILES = 'emitter(emitFiles: EmitEachOutputFile)';
+        const CREATE_SORUCE_FILE_PARSE = 'parser(createSourceFile: Parse)';
+        const BEFORE_PROGRAM = 'program(createProgram: beforeProgram)';
+        const TRANSFORM = 'transformer(transformNodes: Transform)';
+        function recordStage(stage: string): RecordInfo | null;
+        function stopRecordStage(recordInfo: RecordInfo | null): void;
+        function setMemoryDottingCallBack(recordCallback: (stage: string) => RecordInfo, stopCallback: (recordInfo: RecordInfo) => void): void;
+        function clearCallBack(): void;
+    }
+}
+declare namespace ts {
     type ErrorCallback = (message: DiagnosticMessage, length: number) => void;
     interface Scanner {
         getStartPos(): number;

@@ -222,6 +222,7 @@ namespace ts {
             disposeEmitNodes(getSourceFileOfNode(getParseTreeNode(node)));
         }
 
+        const recordInfo = MemoryDotting.recordStage(MemoryDotting.TRANSFORM);
         performance.mark("beforeTransform");
 
         // Chain together and initialize each transformer.
@@ -248,6 +249,7 @@ namespace ts {
         state = TransformationState.Completed;
 
         performance.mark("afterTransform");
+        MemoryDotting.stopRecordStage(recordInfo);
         performance.measure("transformTime", "beforeTransform", "afterTransform");
 
         return {
