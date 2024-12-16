@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-import { ff, TestClassH } from "./oh_modules/ohos_lib";
-import { ff as ff_ets, TestClassH as TestClassH_ets } from "./oh_modules/ohos_lib_ets";
+import { ff, TestClassH } from './oh_modules/ohos_lib';
+import { ff as ff_ets, TestClassH as TestClassH_ets } from './oh_modules/ohos_lib_ets';
 
 ff_ets(null);
 new TestClassH(null);

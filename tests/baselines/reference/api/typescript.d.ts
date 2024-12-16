@@ -5491,6 +5491,7 @@ declare namespace ts {
     function transformTypeExportImportAndConstEnumInTypeScript(context: TransformationContext): (node: SourceFile) => SourceFile;
     function hasTsNoCheckOrTsIgnoreFlag(node: SourceFile): boolean;
     function createObfTextSingleLineWriter(): EmitTextWriter;
+    const REQUIRE_DECORATOR = "Require";
     function cleanKitJsonCache(): void;
     function getMaxFlowDepth(compilerOptions: CompilerOptions): number;
     interface MoreInfo {
