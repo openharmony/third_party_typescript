@@ -2,6 +2,7 @@ namespace ts {
     /* @internal */
     // Required for distinguishing annotations and decorators in other code analysis tools
     export const annotationMagicNamePrefix = "__$$ETS_ANNOTATION$$__";
+    const maxFlowDepthDefaultValue: number = 2000;
 
     /* @internal */
     export function isInEtsFile(node: Node |undefined): boolean {
@@ -1263,5 +1264,10 @@ namespace ts {
             }
         );
         return list;
+    }
+
+    export function getMaxFlowDepth(compilerOptions: CompilerOptions): number {
+        // The value of maxFlowDepth ranges from 2000 to 65535.
+        return compilerOptions.maxFlowDepth || maxFlowDepthDefaultValue;
     }
 }
