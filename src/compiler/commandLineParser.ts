@@ -1391,6 +1391,7 @@ namespace ts {
             type: "boolean",
             affectsSemanticDiagnostics: true,
             affectsEmit: true,
+            affectsMultiFileEmitBuildInfo: true,
             category: Diagnostics.Language_and_Environment,
             description: Diagnostics.Enable_support_of_ETS_annotations,
             defaultValueDescription: false,
