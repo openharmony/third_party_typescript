@@ -29,13 +29,6 @@ import Autofix = Autofixer.Autofix;
 
 import Logger = ts.perfLogger;
 
-import DiagnosticChecker = DiagnosticCheckerNamespace.DiagnosticChecker;
-import ARGUMENT_OF_TYPE_0_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_ERROR_CODE =
-      LibraryTypeCallDiagnosticCheckerNamespace.ARGUMENT_OF_TYPE_0_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_ERROR_CODE;
-import TYPE_0_IS_NOT_ASSIGNABLE_TO_TYPE_1_ERROR_CODE =
-      LibraryTypeCallDiagnosticCheckerNamespace.TYPE_0_IS_NOT_ASSIGNABLE_TO_TYPE_1_ERROR_CODE;
-import NO_OVERLOAD_MATCHES_THIS_CALL_ERROR_CODE =
-      LibraryTypeCallDiagnosticCheckerNamespace.NO_OVERLOAD_MATCHES_THIS_CALL_ERROR_CODE;
 import LibraryTypeCallDiagnosticChecker =
       LibraryTypeCallDiagnosticCheckerNamespace.LibraryTypeCallDiagnosticChecker;
 
@@ -140,7 +133,6 @@ export class TypeScriptLinter {
   currentErrorLine: number;
   currentWarningLine: number;
   staticBlocks: Set<string>;
-  libraryTypeCallDiagnosticChecker: LibraryTypeCallDiagnosticChecker;
   skipArkTSStaticBlocksCheck: boolean;
   private fileExportSendableDeclCaches?: Set<ts.Node>;
   private compatibleSdkVersionStage: string = 'beta1';
@@ -153,7 +145,6 @@ export class TypeScriptLinter {
     this.currentErrorLine = 0;
     this.currentWarningLine = 0;
     this.staticBlocks = new Set<string>();
-    this.libraryTypeCallDiagnosticChecker = new LibraryTypeCallDiagnosticChecker(TypeScriptLinter.filteredDiagnosticMessages);
 
     const options = tsProgram.getCompilerOptions();
     this.skipArkTSStaticBlocksCheck = false;
@@ -903,60 +894,6 @@ export class TypeScriptLinter {
         }
       }
     }
-  }
-
-  private checkInRange(rangesToFilter: { begin: number, end: number }[], pos: number): boolean {
-    for (let i = 0; i < rangesToFilter.length; i++) {
-      if (pos >= rangesToFilter[i].begin && pos < rangesToFilter[i].end) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  private filterStrictDiagnostics(filters: { [code: number]: (pos: number, length?: number) => boolean },
-    diagnosticChecker: DiagnosticChecker, inLibCall: boolean): boolean {
-    if (!this.tscStrictDiagnostics || !this.sourceFile) {
-      return false;
-    }
-    const file = normalizePath(this.sourceFile.fileName);
-    const tscDiagnostics = this.tscStrictDiagnostics.get(file);
-    if (!tscDiagnostics) {
-      return false;
-    }
-
-    const checkDiagnostic = (val: Diagnostic): boolean => {
-      const checkInRange = filters[val.code];
-      if (!checkInRange) {
-        return true;
-      }
-      if (val.start === undefined || checkInRange(val.start, val.length)) {
-        return true;
-      }
-      if (TypeScriptLinter.unknowDiagnosticCache.has(val)) {
-        TypeScriptLinter.filteredDiagnosticMessages.push(val.messageText as DiagnosticMessageChain);
-        return false;
-      }
-
-      /**
-       * When a fault is DiagnosticMessageChain, a filter error is reported when the node source is ts or a tripartite database.
-       * When a fault does not match TypeScriptLinter.strictDiagnosticCache and error type is not string，just return true directly.
-       */
-      if (TypeScriptLinter.strictDiagnosticCache.has(val)) {
-        if (inLibCall) {
-          TypeScriptLinter.filteredDiagnosticMessages.push(val.messageText as DiagnosticMessageChain);
-          return false;
-        }
-        return true;
-      }
-      return diagnosticChecker.checkDiagnosticMessage(val.messageText);
-    };
-
-    if (tscDiagnostics.every(checkDiagnostic)) {
-      return false;
-    }
-    this.tscStrictDiagnostics.set(file, tscDiagnostics.filter(checkDiagnostic));
-    return true;
   }
 
   private static isClassLikeOrIface(node: ts.Node): boolean {
@@ -2074,59 +2011,48 @@ export class TypeScriptLinter {
     };
   }
 
-  private findNonFilteringRangesFunctionCalls(callExpr: ts.CallExpression): { begin: number, end: number }[] {
-    let args = callExpr.arguments;
-    let result: { begin: number, end: number }[] = [];
-    for (const arg of args) {
-      if (ts.isArrowFunction(arg)) {
-        let arrowFuncExpr = arg as ts.ArrowFunction;
-        result.push({begin: arrowFuncExpr.body.pos, end: arrowFuncExpr.body.end});
-      } else if (ts.isCallExpression(arg)) {
-        result.push({begin: arg.arguments.pos, end: arg.arguments.end});
-      }
-      // there may be other cases
-    }
-    return result;
-  }
 
-  private handleLibraryTypeCall(callExpr: ts.CallExpression) {
-    const calleeType = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(callExpr.expression);
-    const inLibCall = Utils.isLibraryType(calleeType);
-    const diagnosticMessages: Array<ts.DiagnosticMessageChain> = []
-    this.libraryTypeCallDiagnosticChecker.configure(inLibCall, diagnosticMessages);
-
-    let nonFilteringRanges = this.findNonFilteringRangesFunctionCalls(callExpr);
-    let rangesToFilter: { begin: number, end: number }[] = [];
-    if (nonFilteringRanges.length !== 0) {
-      let rangesSize = nonFilteringRanges.length;
-      rangesToFilter.push({ begin: callExpr.arguments.pos, end: nonFilteringRanges[0].begin });
-      rangesToFilter.push({ begin: nonFilteringRanges[rangesSize - 1].end, end: callExpr.arguments.end });
-      for (let i = 0; i < rangesSize - 1; i++) {
-        rangesToFilter.push({ begin: nonFilteringRanges[i].end, end: nonFilteringRanges[i + 1].begin });
-      }
-    } else {
-      rangesToFilter.push({ begin: callExpr.arguments.pos, end: callExpr.arguments.end })
+  private handleLibraryTypeCall(expr: ts.CallExpression | ts.NewExpression): void {
+    if (!expr.arguments || !this.tscStrictDiagnostics || !this.sourceFile) {
+      return;
     }
 
-    this.filterStrictDiagnostics({
-        [ARGUMENT_OF_TYPE_0_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_ERROR_CODE]: (pos: number) => {
-          return this.checkInRange(rangesToFilter, pos);
-        },
-        [NO_OVERLOAD_MATCHES_THIS_CALL_ERROR_CODE]: (pos: number, length?: number) => {
-          // The 'No-overload...' error is in some cases mounted on the callExpression node rather than a argument node
-          return this.checkInRange(rangesToFilter, pos) && !(length && callExpr.end === pos + length);
-        },
-        [TYPE_0_IS_NOT_ASSIGNABLE_TO_TYPE_1_ERROR_CODE]: (pos: number) => {
-          return this.checkInRange(rangesToFilter, pos);
+    const file = normalizePath(this.sourceFile.fileName);
+    const tscDiagnostics: readonly ts.Diagnostic[] | undefined = this.tscStrictDiagnostics.get(file);
+    if (!tscDiagnostics?.length) {
+      return;
+    }
+
+    const isOhModulesEts = Utils.isOhModulesEtsSymbol(Utils.trueSymbolAtLocation(expr.expression));
+    const deleteDiagnostics: Set<ts.Diagnostic> = new Set();
+    LibraryTypeCallDiagnosticChecker.instance.filterDiagnostics(
+      tscDiagnostics,
+      expr,
+      Utils.isLibraryType(TypeScriptLinter.tsTypeChecker.getTypeAtLocation(expr.expression)),
+      (diagnostic, errorType) => {
+
+        /*
+         * When a diagnostic meets the filter criteria, If it happens in an ets file in the 'oh_modules' directory.
+         * the diagnostic is downgraded to warning. For other files, downgraded to nothing.
+         */
+        if (isOhModulesEts && errorType !== LibraryTypeCallDiagnosticCheckerNamespace.ErrorType.UNKNOW) {
+          diagnostic.category = ts.DiagnosticCategory.Warning;
+        } else {
+          deleteDiagnostics.add(diagnostic);
         }
-      },
-      this.libraryTypeCallDiagnosticChecker,
-      inLibCall
+      }
     );
 
-    diagnosticMessages.forEach(msgChain => {
-      TypeScriptLinter.filteredDiagnosticMessages.push(msgChain);
-    });
+    if (!deleteDiagnostics.size) {
+      return;
+    }
+
+    this.tscStrictDiagnostics.set(
+      file,
+      tscDiagnostics.filter((item) => {
+        return !deleteDiagnostics.has(item);
+      })
+    );
   }
 
   private handleNewExpression(node: Node): void {

@@ -42,6 +42,8 @@ export const ALLOWED_STD_SYMBOL_API = ["iterator"]
 export const ARKTS_IGNORE_DIRS = ['node_modules', 'oh_modules', 'build', '.preview'];
 export const ARKTS_IGNORE_FILES = ['hvigorfile.ts'];
 
+export const ARKTS_IGNORE_DIRS_OH_MODULES = 'oh_modules';
+
 export const SENDABLE_DECORATOR = 'Sendable';
 
 export const SENDABLE_INTERFACE = 'ISendable';
@@ -1628,6 +1630,15 @@ export function isStdLibrarySymbol(sym: Symbol | undefined) {
 
 export function isIntrinsicObjectType(type: Type): boolean {
   return !!(type.flags & TypeFlags.NonPrimitive);
+}
+
+export function isOhModulesEtsSymbol(sym: ts.Symbol | undefined): boolean {
+  const sourceFile = sym?.declarations?.[0]?.getSourceFile();
+  return (
+    !!sourceFile &&
+    sourceFile.scriptKind === ScriptKind.ETS &&
+    srcFilePathContainsDirectory(sourceFile, ARKTS_IGNORE_DIRS_OH_MODULES)
+  );
 }
 
 export function isDynamicType(type: Type | undefined): boolean | undefined {
