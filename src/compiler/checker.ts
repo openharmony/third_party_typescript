@@ -29994,6 +29994,7 @@ namespace ts {
                 && !(isMethodDeclaration(valueDeclaration) && getCombinedModifierFlags(valueDeclaration) & ModifierFlags.Static)
                 && (compilerOptions.useDefineForClassFields || !isPropertyDeclaredInAncestorClass(prop))) {
                 let needInitialization: boolean | undefined = false;
+                let hasRequireDecorator: boolean = false;
                 const decorators = getAllDecorators(prop?.valueDeclaration)
                 if (decorators) {
                     needInitialization = host.getCompilerOptions().ets?.propertyDecorators.some(property => {
@@ -30008,8 +30009,18 @@ namespace ts {
                             }
                         });
                     });
+                    hasRequireDecorator = decorators.some(decorator => {
+                        return isIdentifier(decorator.expression) &&
+                            decorator.expression.escapedText.toString() === REQUIRE_DECORATOR;
+                    });
                 }
-                if (!needInitialization) {
+                // In the following cases, property can be uninitialized:
+                // 1. Property is decorated with property decorators which allow no initialization, such as `@Link`, `@Prop`, `@ObjectLink` and `@Consume`.
+                // 2. Property is decorated with `@Require` and satisfied the following conditions:
+                //     a. Property has been declared before used.
+                //     b. Property is declared and used in the same struct.
+                if (!needInitialization && 
+                    !(hasRequireDecorator && checkStructPropertyPosition(valueDeclaration, node))) {
                     diagnosticMessage = error(right, Diagnostics.Property_0_is_used_before_its_initialization, declarationName);
                 }
             }
