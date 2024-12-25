@@ -134,7 +134,7 @@ export class TypeScriptLinter {
   currentWarningLine: number;
   staticBlocks: Set<string>;
   skipArkTSStaticBlocksCheck: boolean;
-  private fileExportSendableDeclCaches?: Set<ts.Node>;
+  private fileExportDeclCaches?: Set<ts.Node>;
   private compatibleSdkVersionStage: string = 'beta1';
   private compatibleSdkVersion: number = 12;
 
@@ -1362,10 +1362,11 @@ export class TypeScriptLinter {
         declPosition !== undefined && declPosition >= scope.getStart() && declPosition < scope.getEnd()) {
       return;
     }
-    if (this.isFileExportSendableDecl(decl)) {
-      // This part of the check is removed when the relevant functionality is implemented at runtime
-      this.incrementCounters(node, FaultID.SendableClosureExport);
+    
+    if (this.isFileExportDecl(decl)) {
+      return;
     }
+
     if (this.checkIsTopClosure(decl)) {
       return;
     }
@@ -1409,17 +1410,12 @@ export class TypeScriptLinter {
     return false;
   }
 
-  isFileExportSendableDecl(decl: ts.Declaration): boolean {
-    if (
-      !ts.isSourceFile(decl.parent) ||
-      (!ts.isClassDeclaration(decl) && !ts.isFunctionDeclaration(decl))
-    ) {
-      return false;
+  isFileExportDecl(decl: ts.Declaration): boolean {
+    const sourceFile = decl.getSourceFile();
+    if (!this.fileExportDeclCaches) {
+      this.fileExportDeclCaches = Utils.searchFileExportDecl(sourceFile);
     }
-    if (!this.fileExportSendableDeclCaches) {
-      this.fileExportSendableDeclCaches = Utils.searchFileExportDecl(decl.parent, Utils.SENDABLE_CLOSURE_DECLS);
-    }
-    return this.fileExportSendableDeclCaches.has(decl);
+    return this.fileExportDeclCaches.has(decl);
   }
 
   private checkClassDeclarationHeritageClause(hClause: ts.HeritageClause, isSendableClass: boolean): void {
