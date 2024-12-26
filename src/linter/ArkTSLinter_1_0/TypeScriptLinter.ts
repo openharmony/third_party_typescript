@@ -1913,12 +1913,12 @@ export class TypeScriptLinter {
         node.kind === ts.SyntaxKind.UnknownKeyword) {
       return true;
     }
-    for (let child of node.getChildren()) {
+    const isAnyOrUnknown = forEachChild(node, (child) => {
       if (this.checkAnyOrUnknownChildNode(child)) {
         return true;
       }
-    }
-    return false;
+    })
+    return !!isAnyOrUnknown;
   }
 
   private handleInferredObjectreference(
