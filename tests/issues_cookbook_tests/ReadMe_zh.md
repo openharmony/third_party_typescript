@@ -1,10 +1,21 @@
-1. 请新建一个DevEco工程，然后将pages目录复制到DevEco工程所在目录的`DevEco工程\entry\src\main\ets\pages`（工程建议命名：MyApplication），替换。
+测试步骤：
+1. 新建一个DevEco工程（工程建议命名：MyApplication），然后用pages目录替换DevEco工程中的`DevEco工程\entry\src\main\ets\pages`目录。
 2. 打开MyApplication工程根目录下的oh-package.json5文件，`dependencies`添加字段`"js-md5": "^0.7.3"`,形如下：
 ```json
 "dependencies": {
     "js-md5": "^0.7.3"
   },
 ```
+3. 参考下方环境设置，修改相关设置。
+4. 替换需要测试的SDK到工程配置的SDK路径中。
+5. 执行`python main.py`，将输出执行结果。
 
-2. 替换需要测试的SDK到工程配置的SDK路径中。
-3. 执行`python ./main.py --mode=sdk --project_path="C:\Users\xxx\third_party_typescript\tests\issues_cookbook_tests\MyApplication" --expected_path="C:\Users\xxx\third_party_typescript\tests\issues_cookbook_tests\expected" --verify`，将输出执行结果。
+环境设置（根据测试环境修改config.json）：
+1. 使用IDE客户端
+  1. 修改 `ide_enabled` 为 `true`
+  2. 修改 `ide_path`、`project_path`、`expected_path`
+  3. 根据需要修改 `tsimportsendable`
+2. 使用command line tools
+  1. 修改 `ide_enabled` 为 `false`
+  2. 修改 `command_line_tools_path`、`java_home`、`project_path`、`expected_path`
+  3. 根据需要修改 `tsimportsendable`

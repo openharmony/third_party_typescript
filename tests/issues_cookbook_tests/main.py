@@ -15,7 +15,8 @@
 # limitations under the License.
 
 
-import argparse
+import os
+import json
 import autotest_sdk
 
 
@@ -23,35 +24,75 @@ class MainClass:
     path = ''
     work_path = ''
 
-    def __init__(self, path, expected_path='') -> None:
+    def __init__(self, path, expected_path='', tsimportsendable=False) -> None:
         self.path = path
-        self.sdklinter = autotest_sdk.SDKLinterTest(path, expected_path)
+        self.sdklinter = autotest_sdk.SDKLinterTest(path, expected_path, tsimportsendable)
 
     def diff(self):
         data_sdk = self.sdklinter.data_sdk
 
 
-def run():
-    parser = argparse.ArgumentParser(description='test for ArkTS')
-    parser.add_argument('--project_path', help='project path.')
-    parser.add_argument('--expected_path', default='',
-                        help='expected files dir')
-    parser.add_argument(
-        '--mode', help='set object to sdk or codelinter. TODO future RT.')
-    parser.add_argument('--verify', action='store_true', help='verify')
-    parser.add_argument('--update', action='store_true', help='update')
-
-    args = parser.parse_args()
-    print(args.project_path, args.expected_path)
-    m = MainClass(args.project_path, expected_path=args.expected_path)
-    if args.mode == 'sdk':
+def run(configs):
+    print(configs["project_path"], configs["expected_path"])
+    m = MainClass(
+        configs["project_path"], expected_path=configs["expected_path"], tsimportsendable=configs["tsimportsendable"]
+    )
+    if configs["mode"] == "sdk":
         obj = m.sdklinter
     obj.open_output()
-    if args.verify:
+    if configs["verify"]:
         obj.verify()
-    if args.update:
+    if configs["update"]:
         obj.update()
 
 
+def set_environment_variables(configs):
+    if configs["ide_enabled"]:
+        ide_path = configs["ide_path"]
+        deveco_sdk_home = os.path.join(ide_path, "sdk")
+        current_path = os.environ.get("PATH", "")
+        new_path = (
+            os.path.join(ide_path, "tools", "ohpm", "bin")
+            + os.pathsep
+            + os.path.join(ide_path, "tools", "hvigor", "bin")
+            + os.pathsep
+            + os.path.join(ide_path, "tools", "node")
+            + os.pathsep
+            + current_path
+        )
+        os.environ["IDE_HOME"] = ide_path
+        os.environ["DEVECO_SDK_HOME"] = deveco_sdk_home
+    else:
+        tools_path = configs["command_line_tools_path"]
+        java_home = configs["java_home"]
+        current_path = os.environ.get("PATH", "")
+        new_path = (
+            os.path.join(java_home, "bin")
+            + os.pathsep
+            + os.path.join(tools_path, "tool", "node", "bin")
+            + os.pathsep
+            + os.path.join(tools_path, "bin")
+            + os.pathsep
+            + current_path
+        )
+        os.environ["JAVA_HOME"] = java_home
+
+    os.environ["PATH"] = new_path
+
+
+def process_config():
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    config_path = os.path.join(script_dir, 'config.json')
+    with open(config_path, 'r') as f:
+        config = json.load(f)
+    return config
+
+
+def main():
+    configs = process_config()
+    set_environment_variables(configs)
+    run(configs)
+
+
 if __name__ == '__main__':
-    run()
+    main()
