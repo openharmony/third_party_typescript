@@ -2448,6 +2448,12 @@ export class TypeScriptLinter {
 
     switch (parentNode.kind) {
       case ts.SyntaxKind.EnumDeclaration:
+        if (Utils.isConstEnum(parentNode.symbol)) {
+          break;
+        } else {
+          this.incrementCounters((parentNode as ts.NamedDeclaration).name ?? parentNode, FaultID.SharedModuleExports);
+        }
+        return;
       case ts.SyntaxKind.InterfaceDeclaration:
       case ts.SyntaxKind.FunctionDeclaration:
       case ts.SyntaxKind.ClassDeclaration:
