@@ -1023,6 +1023,7 @@ namespace ts {
      */
     export function createProgram(rootNames: readonly string[], options: CompilerOptions, host?: CompilerHost, oldProgram?: Program, configFileParsingDiagnostics?: readonly Diagnostic[]): Program;
     export function createProgram(rootNamesOrOptions: readonly string[] | CreateProgramOptions, _options?: CompilerOptions, _host?: CompilerHost, _oldProgram?: Program, _configFileParsingDiagnostics?: readonly Diagnostic[]): Program {
+        PerformanceDotting.start("createProgram");
         const createProgramOptions = isArray(rootNamesOrOptions) ? createCreateProgramOptions(rootNamesOrOptions, _options!, _host, _oldProgram, _configFileParsingDiagnostics) : rootNamesOrOptions; // TODO: GH#18217
         const { rootNames, options, configFileParsingDiagnostics, projectReferences } = createProgramOptions;
         let { oldProgram } = createProgramOptions;
@@ -1163,13 +1164,17 @@ namespace ts {
         const readFile = host.readFile.bind(host) as typeof host.readFile;
 
         tracing?.push(tracing.Phase.Program, "shouldProgramCreateNewSourceFiles", { hasOldProgram: !!oldProgram });
+        PerformanceDotting.start("shouldProgramCreateNewSourceFiles");
         const shouldCreateNewSourceFile = shouldProgramCreateNewSourceFiles(oldProgram, options);
+        PerformanceDotting.stop("shouldProgramCreateNewSourceFiles");
         tracing?.pop();
         // We set `structuralIsReused` to `undefined` because `tryReuseStructureFromOldProgram` calls `tryReuseStructureFromOldProgram` which checks
         // `structuralIsReused`, which would be a TDZ violation if it was not set in advance to `undefined`.
         let structureIsReused: StructureIsReused;
         tracing?.push(tracing.Phase.Program, "tryReuseStructureFromOldProgram", {});
+        PerformanceDotting.start("tryReuseStructureFromOldProgram");
         structureIsReused = tryReuseStructureFromOldProgram(); // eslint-disable-line prefer-const
+        PerformanceDotting.stop("tryReuseStructureFromOldProgram");
         tracing?.pop();
         if (structureIsReused !== StructureIsReused.Completely) {
             processingDefaultLibFiles = [];
@@ -1208,7 +1213,9 @@ namespace ts {
             }
 
             tracing?.push(tracing.Phase.Program, "processRootFiles", { count: rootNames.length });
+            PerformanceDotting.start("processRootFiles");
             forEach(rootNames, (name, index) => processRootFile(name, /*isDefaultLib*/ false, /*ignoreNoDefaultLib*/ false, { kind: FileIncludeKind.RootFile, index }));
+            PerformanceDotting.stop("processRootFiles");
             tracing?.pop();
 
             // load type declarations specified via 'types' argument or implicitly from types/ and node_modules/@types folders
@@ -1216,6 +1223,7 @@ namespace ts {
 
             if (typeReferences.length) {
                 tracing?.push(tracing.Phase.Program, "processTypeReferences", { count: typeReferences.length });
+                PerformanceDotting.start("processTypeReferences");
                 // This containingFilename needs to match with the one used in managed-side
                 const containingDirectory = options.configFilePath ? getDirectoryPath(options.configFilePath) : host.getCurrentDirectory();
                 const containingFilename = combinePaths(containingDirectory, inferredTypesContainingFile);
@@ -1224,6 +1232,7 @@ namespace ts {
                     // under node16/nodenext module resolution, load `types`/ata include names as cjs resolution results by passing an `undefined` mode
                     processTypeReferenceDirective(typeReferences[i], /*mode*/ undefined, resolutions[i], { kind: FileIncludeKind.AutomaticTypeDirectiveFile, typeReference: typeReferences[i], packageId: resolutions[i]?.packageId });
                 }
+                PerformanceDotting.stop("processTypeReferences");
                 tracing?.pop();
             }
 
@@ -1231,6 +1240,7 @@ namespace ts {
             //  - The '--noLib' flag is used.
             //  - A 'no-default-lib' reference comment is encountered in
             //      processing the root files.
+            PerformanceDotting.start("processDefaultLib");
             if (rootNames.length && !skipDefaultLib) {
                 // If '--lib' is not specified, include default library file according to '--target'
                 // otherwise, using options specified in '--lib' instead of '--target' default library file
@@ -1251,6 +1261,7 @@ namespace ts {
                     }
                 }
             }
+            PerformanceDotting.stop("processDefaultLib");
 
             missingFilePaths = arrayFrom(mapDefinedIterator(filesByName.entries(), ([path, file]) => file === undefined ? path as Path : undefined));
             files = stableSort(processingDefaultLibFiles, compareDefaultLibFiles).concat(processingOtherFiles);
@@ -1395,6 +1406,7 @@ namespace ts {
         MemoryDotting.stopRecordStage(recordInfo);
         performance.measure("Program", "beforeProgram", "afterProgram");
         tracing?.pop();
+        PerformanceDotting.stop("createProgram");
 
         return program;
 
@@ -1433,10 +1445,12 @@ namespace ts {
             const containingFileName = getNormalizedAbsolutePath(containingFile.originalFileName, currentDirectory);
             const redirectedReference = getRedirectReferenceForResolution(containingFile);
             tracing?.push(tracing.Phase.Program, "resolveModuleNamesWorker", { containingFileName });
+            PerformanceDotting.start("resolveModuleNamesWorker");
             performance.mark("beforeResolveModule");
             const result = actualResolveModuleNamesWorker(moduleNames, containingFile, containingFileName, reusedNames, redirectedReference);
             performance.mark("afterResolveModule");
             performance.measure("ResolveModule", "beforeResolveModule", "afterResolveModule");
+            PerformanceDotting.stop("resolveModuleNamesWorker");
             tracing?.pop();
             pullDiagnosticsFromCache(moduleNames, containingFile);
             return result;
@@ -1448,10 +1462,12 @@ namespace ts {
             const redirectedReference = !isString(containingFile) ? getRedirectReferenceForResolution(containingFile) : undefined;
             const containingFileMode = !isString(containingFile) ? containingFile.impliedNodeFormat : undefined;
             tracing?.push(tracing.Phase.Program, "resolveTypeReferenceDirectiveNamesWorker", { containingFileName });
+            PerformanceDotting.start("resolveTypeReferenceDirectiveNamesWorker");
             performance.mark("beforeResolveTypeReference");
             const result = actualResolveTypeReferenceDirectiveNamesWorker(typeDirectiveNames, containingFileName, redirectedReference, containingFileMode);
             performance.mark("afterResolveTypeReference");
             performance.measure("ResolveTypeReference", "beforeResolveTypeReference", "afterResolveTypeReference");
+            PerformanceDotting.stop("resolveTypeReferenceDirectiveNamesWorker");
             tracing?.pop();
             return result;
         }
@@ -2130,7 +2146,9 @@ namespace ts {
 
         function emit(sourceFile?: SourceFile, writeFileCallback?: WriteFileCallback, cancellationToken?: CancellationToken, emitOnlyDtsFiles?: boolean, transformers?: CustomTransformers, forceDtsEmit?: boolean): EmitResult {
             tracing?.push(tracing.Phase.Emit, "emit", { path: sourceFile?.path }, /*separateBeginAndEnd*/ true);
+            PerformanceDotting.start("emit");
             const result = runWithCancellationToken(() => emitWorker(program, sourceFile, writeFileCallback, cancellationToken, emitOnlyDtsFiles, transformers, forceDtsEmit));
+            PerformanceDotting.stop("emit");
             tracing?.pop();
             return result;
         }
@@ -2153,10 +2171,13 @@ namespace ts {
             // This is because in the -out scenario all files need to be emitted, and therefore all
             // files need to be type checked. And the way to specify that all files need to be type
             // checked is to not pass the file to getEmitResolver.
+            PerformanceDotting.start("getEmitResolver");
             const emitResolver = getTypeChecker().getEmitResolver(outFile(options) ? undefined : sourceFile, cancellationToken);
+            PerformanceDotting.stop("getEmitResolver");
 
             performance.mark("beforeEmit");
 
+            PerformanceDotting.start("emitFiles");
             const emitResult = emitFiles(
                 emitResolver,
                 getEmitHost(writeFileCallback),
@@ -2166,6 +2187,7 @@ namespace ts {
                 /*onlyBuildInfo*/ false,
                 forceDtsEmit
             );
+            PerformanceDotting.stop("emitFiles");
 
             performance.mark("afterEmit");
             performance.measure("Emit", "beforeEmit", "afterEmit");
@@ -3105,6 +3127,7 @@ namespace ts {
 
             // We haven't looked for this file, do so now and cache result
             const sourceFileOptions = getCreateSourceFileOptions(fileName, moduleResolutionCache, host, options);
+            PerformanceDotting.start("getSourceFile");
             const file = host.getSourceFile(
                 fileName,
                 sourceFileOptions,
@@ -3112,6 +3135,7 @@ namespace ts {
                 shouldCreateNewSourceFile || (oldProgram?.getSourceFileByPath(toPath(fileName))?.impliedNodeFormat !== sourceFileOptions.impliedNodeFormat),
                 options
             );
+            PerformanceDotting.stop("getSourceFile");
 
             if (packageId) {
                 const packageIdKey = packageIdToString(packageId);
@@ -3321,7 +3345,9 @@ namespace ts {
             reason: FileIncludeReason
         ): void {
             tracing?.push(tracing.Phase.Program, "processTypeReferenceDirective", { directive: typeReferenceDirective, hasResolved: !!resolvedTypeReferenceDirective, refKind: reason.kind, refPath: isReferencedFile(reason) ? reason.file : undefined });
+            PerformanceDotting.start("processTypeReferenceDirective");
             processTypeReferenceDirectiveWorker(typeReferenceDirective, mode, resolvedTypeReferenceDirective, reason);
+            PerformanceDotting.stop("processTypeReferenceDirective");
             tracing?.pop();
         }
 

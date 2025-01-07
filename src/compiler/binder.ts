@@ -254,7 +254,9 @@ namespace ts {
 
             if (!file.locals) {
                 tracing?.push(tracing.Phase.Bind, "bindSourceFile", { path: file.path }, /*separateBeginAndEnd*/ true);
+                PerformanceDotting.start("bindSourceFile", file.fileName);
                 bind(file);
+                PerformanceDotting.stop("bindSourceFile");
                 tracing?.pop();
                 file.symbolCount = symbolCount;
                 file.classifiableNames = classifiableNames;
