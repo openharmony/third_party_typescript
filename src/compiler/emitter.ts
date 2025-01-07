@@ -325,15 +325,21 @@ namespace ts {
                 };
             }
             tracing?.push(tracing.Phase.Emit, "emitJsFileOrBundle", { jsFilePath });
+            PerformanceDotting.start("emitJsFileOrBundle");
             emitJsFileOrBundle(sourceFileOrBundle, jsFilePath, sourceMapFilePath, relativeToBuildInfo);
+            PerformanceDotting.stop("emitJsFileOrBundle");
             tracing?.pop();
 
             tracing?.push(tracing.Phase.Emit, "emitDeclarationFileOrBundle", { declarationFilePath });
+            PerformanceDotting.start("emitDeclarationFileOrBundle");
             emitDeclarationFileOrBundle(sourceFileOrBundle, declarationFilePath, declarationMapPath, relativeToBuildInfo);
+            PerformanceDotting.stop("emitDeclarationFileOrBundle");
             tracing?.pop();
 
             tracing?.push(tracing.Phase.Emit, "emitBuildInfo", { buildInfoPath });
+            PerformanceDotting.start("emitBuildInfo");
             emitBuildInfo(bundleBuildInfo, buildInfoPath);
+            PerformanceDotting.stop("emitBuildInfo");
             tracing?.pop();
 
             if (!emitSkipped && emittedFilesList) {
@@ -398,7 +404,9 @@ namespace ts {
                 return;
             }
             // Transform the source files
+            PerformanceDotting.start("transformNodes");
             const transform = transformNodes(resolver, host, factory, compilerOptions, [sourceFileOrBundle], scriptTransformers, /*allowDtsFiles*/ false);
+            PerformanceDotting.stop("transformNodes");
 
             const printerOptions: PrinterOptions = {
                 removeComments: compilerOptions.removeComments,
@@ -415,6 +423,7 @@ namespace ts {
             };
 
             // Create a printer to print the nodes
+            PerformanceDotting.start("printSourceFileOrBundle");
             const printer = createPrinter(printerOptions, {
                 // resolver hooks
                 hasGlobalName: resolver.hasGlobalName,
@@ -427,9 +436,12 @@ namespace ts {
 
             Debug.assert(transform.transformed.length === 1, "Should only see one output from the transform");
             printSourceFileOrBundle(jsFilePath, sourceMapFilePath, transform, printer, compilerOptions);
+            PerformanceDotting.stop("printSourceFileOrBundle");
 
             // Clean up emit nodes on parse tree
+            PerformanceDotting.start("transformDispose");
             transform.dispose();
+            PerformanceDotting.stop("transformDispose");
             if (bundleBuildInfo) bundleBuildInfo.js = printer.bundleFileInfo;
         }
 
@@ -452,13 +464,16 @@ namespace ts {
                 // Do that here when emitting only dts files
                 filesForEmit.forEach(collectLinkedAliases);
             }
+            PerformanceDotting.start("transformNodes");
             const declarationTransform = transformNodes(resolver, host, factory, compilerOptions, inputListOrBundle, declarationTransformers, /*allowDtsFiles*/ false);
+            PerformanceDotting.stop("transformNodes");
             if (length(declarationTransform.diagnostics)) {
                 for (const diagnostic of declarationTransform.diagnostics!) {
                     emitterDiagnostics.add(diagnostic);
                 }
             }
 
+            PerformanceDotting.start("printSourceFileOrBundle");
             const printerOptions: PrinterOptions = {
                 removeComments: compilerOptions.removeComments,
                 newLine: compilerOptions.newLine,
@@ -501,7 +516,10 @@ namespace ts {
                     }
                 );
             }
+            PerformanceDotting.stop("printSourceFileOrBundle");
+            PerformanceDotting.start("declarationTransformDispose");
             declarationTransform.dispose();
+            PerformanceDotting.stop("declarationTransformDispose");
             if (bundleBuildInfo) bundleBuildInfo.dts = declarationPrinter.bundleFileInfo;
         }
 

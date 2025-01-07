@@ -17,6 +17,7 @@
         "performance.ts",
         "perfLogger.ts",
         "tracing.ts",
+        "performanceDotting.ts",
 
         "types.ts",
         "sys.ts",

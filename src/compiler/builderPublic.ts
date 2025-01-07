@@ -179,21 +179,29 @@ namespace ts {
         configFileParsingDiagnosticsOrOldProgram?: readonly Diagnostic[] | EmitAndSemanticDiagnosticsBuilderProgram,
         configFileParsingDiagnostics?: readonly Diagnostic[],
         projectReferences?: readonly ProjectReference[]) : EmitAndSemanticDiagnosticsBuilderProgram {
+        PerformanceDotting.start("createEmitAndSemanticDiagnosticsBuilderProgramForArkTs");
+        PerformanceDotting.start("getBuilderCreationParameters");
         let builderCreatetionParameters: BuilderCreationParameters =
             getBuilderCreationParameters(newProgramOrRootNames, hostOrOptions, oldProgramOrHost,
                 configFileParsingDiagnosticsOrOldProgram, configFileParsingDiagnostics, projectReferences);
+        PerformanceDotting.stop("getBuilderCreationParameters");
         let newProgram = builderCreatetionParameters.newProgram;
+        PerformanceDotting.start("createBuilderProgram");
         let builderProgram: EmitAndSemanticDiagnosticsBuilderProgram = createBuilderProgram(
             BuilderProgramKind.EmitAndSemanticDiagnosticsBuilderProgram, builderCreatetionParameters);
+        PerformanceDotting.stop("createBuilderProgram");
 
         let oldProgramForLinter =
             readBuilderProgram(hostOrOptions as CompilerOptions, oldProgramOrHost as CompilerHost, true);
         builderCreatetionParameters.oldProgram = oldProgramForLinter;
         builderCreatetionParameters.newProgram = newProgram;
+        PerformanceDotting.start("createBuilderProgramForLinter");
         let builderProgramForLinter: EmitAndSemanticDiagnosticsBuilderProgram = createBuilderProgram(
             BuilderProgramKind.EmitAndSemanticDiagnosticsBuilderProgram, builderCreatetionParameters, true);
+        PerformanceDotting.stop("createBuilderProgramForLinter");
 
         builderProgram.builderProgramForLinter = builderProgramForLinter;
+        PerformanceDotting.stop("createEmitAndSemanticDiagnosticsBuilderProgramForArkTs");
         return builderProgram;
     }
 
