@@ -1,0 +1,19 @@
+{
+    "arktsVersion_1_0": [],
+    "arktsVersion_1_1": [
+        {
+            "messageText": "Only \"Sendable\" entities can be exported in shared module (arkts-shared-module-exports)",
+            "expectLineAndCharacter": {
+                "line": 26,
+                "character": 13
+            }
+        },
+        {
+            "messageText": "Only \"Sendable\" entities can be exported in shared module (arkts-shared-module-exports)",
+            "expectLineAndCharacter": {
+                "line": 30,
+                "character": 13
+            }
+        }
+    ]
+}
