@@ -1896,23 +1896,16 @@ export class TypeScriptLinter {
   }
 
   private handleGenericCallWithNoTypeArgs(callLikeExpr: ts.CallExpression | ts.NewExpression, callSignature: ts.Signature) {
-
-    const tsSyntaxKind = isNewExpression(callLikeExpr) ? SyntaxKind.Constructor : SyntaxKind.FunctionDeclaration;
-    const signDecl = TypeScriptLinter.tsTypeChecker.signatureToSignatureDeclaration(callSignature, tsSyntaxKind,
-        undefined, NodeBuilderFlags.WriteTypeArgumentsOfSignature | NodeBuilderFlags.IgnoreErrors);
-
-    if (signDecl?.typeArguments) {
-      const resolvedTypeArgs = signDecl.typeArguments;
-
+    const typeArguments = TypeScriptLinter.tsTypeChecker.getTypeArgumentsForResolvedSignature(callSignature);
+    if (typeArguments && typeArguments.length > 0) {
       const startTypeArg = callLikeExpr.typeArguments?.length ?? 0;
-      for (let i = startTypeArg; i < resolvedTypeArgs.length; ++i) {
-        const typeNode = resolvedTypeArgs[i];
+      for (let i = startTypeArg; i < typeArguments.length; ++i) {
         // if compiler infers 'unknown' type there are 2 possible cases:
         //   1. Compiler unable to infer type from arguments and use 'unknown'
         //   2. Compiler infer 'unknown' from arguments
         // We report error in both cases. It is ok because we cannot use 'unknown'
         // in ArkTS and already have separate check for it.
-        if (typeNode.kind == ts.SyntaxKind.UnknownKeyword) {
+        if (typeArguments[i].flags & 2 /* TypeFlags.Unknown */) {
           this.incrementCounters(callLikeExpr, FaultID.GenericCallNoTypeArgs);
           break;
         }
