@@ -2354,6 +2354,12 @@ declare namespace ts {
          */
         releaseTypeChecker(): void;
         getEmitHost(writeFileCallback?: WriteFileCallback): EmitHost;
+        refreshTypeChecker(): void;
+        setProgramSourceFiles(file: SourceFile): void;
+        initProcessingFiles(): void;
+        processImportedModules(file: SourceFile): void;
+        getProcessingFiles(): SourceFile[] | undefined;
+        deleteProgramSourceFiles(fileNames: string[]): void;
     }
     export type RedirectTargetsMap = ReadonlyESMap<Path, readonly string[]>;
     export interface ResolvedProjectReference {
