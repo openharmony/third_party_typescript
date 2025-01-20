@@ -8461,13 +8461,7 @@ namespace ts {
                 isTypeOnly = true;
                 identifier = isIdentifier() ? parseIdentifier() : undefined;
             }
-            // 1. import lazy { export } from "mod";
-            // 2. import lazy defaultExport from "mod";
-            // 3. import lazy defaultExport, { export, /* ... */ } from "mod";
-            else if (identifier?.escapedText === 'lazy' &&
-                (token() === SyntaxKind.OpenBraceToken ||
-                (isIdentifier() && lookAhead(() => nextToken() === SyntaxKind.FromKeyword)) ||
-                (isIdentifier() && lookAhead(() => nextToken() === SyntaxKind.CommaToken && nextToken() === SyntaxKind.OpenBraceToken)))) {
+            else if (isSetLazy(identifier)) {
                 isLazy = true;
                 identifier = isIdentifier() ? parseIdentifier() : undefined;
             }
@@ -8499,6 +8493,16 @@ namespace ts {
             const node = factory.createImportDeclaration(modifiers, importClause, moduleSpecifier, assertClause);
             (node as Mutable<ImportDeclaration>).illegalDecorators = decorators;
             return withJSDoc(finishNode(node, pos), hasJSDoc);
+        }
+
+        function isSetLazy(identifier: Identifier | undefined): boolean {
+            // 1. import lazy { export } from "mod";  
+            // 2. import lazy defaultExport from "mod";
+            // 3. import lazy defaultExport, { export, /* ... */ } from "mod";
+            return identifier?.escapedText === 'lazy' &&
+                (token() === SyntaxKind.OpenBraceToken ||
+                (isIdentifier() && lookAhead(() => nextToken() === SyntaxKind.FromKeyword)) ||
+                (isIdentifier() && lookAhead(() => nextToken() === SyntaxKind.CommaToken && nextToken() === SyntaxKind.OpenBraceToken)));
         }
 
         function parseAssertEntry() {
