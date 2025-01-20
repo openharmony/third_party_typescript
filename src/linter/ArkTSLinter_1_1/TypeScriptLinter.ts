@@ -398,12 +398,12 @@ export class TypeScriptLinter {
         return false;
       }
 
-      for (const child of tsNode.getChildren()) {
+      const isContain = forEachChild(tsNode, (child) => {
         if (scopeContainsThisVisitor(child)) {
           return true;
         }
-      }
-      return false;
+      })
+      return !!isContain;
     }
 
     return scopeContainsThisVisitor(tsNode);
@@ -2295,12 +2295,12 @@ export class TypeScriptLinter {
         node.kind === ts.SyntaxKind.UnknownKeyword) {
       return true;
     }
-    for (let child of node.getChildren()) {
+    const isAnyOrUnknown = forEachChild(node, (child) => {
       if (this.checkAnyOrUnknownChildNode(child)) {
         return true;
       }
-    }
-    return false;
+    })
+    return !!isAnyOrUnknown;
   }
 
   private handleInferredObjectreference(
