@@ -2471,7 +2471,7 @@ namespace ts {
     export function nodeToDisplayParts(node: Node, enclosingDeclaration: Node): SymbolDisplayPart[] {
         const file = enclosingDeclaration.getSourceFile();
         return mapToDisplayParts(writer => {
-            const printer = createPrinter({ removeComments: true, omitTrailingSemicolon: true });
+            const printer = createPrinterWithRemoveCommentsOmitTrailingSemicolon();
             printer.writeNode(EmitHint.Unspecified, node, file, writer);
         });
     }
