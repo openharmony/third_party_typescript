@@ -408,6 +408,8 @@ namespace ts {
 
         let constEnumRelate: ESMap<string, ESMap<string, string>> = new Map();
         let performanceFileName: string;
+        // Used only for linter, in non-strict typeChecker, it is always empty.
+        let qualifiedNameCache: ESMap<Symbol, string> = new Map();
 
         // for public members that accept a Node or one of its subtypes, we must guard against
         // synthetic nodes created during transformations by calling `getParseTreeNode`.
@@ -763,6 +765,7 @@ namespace ts {
             getConstEnumRelate: () => constEnumRelate,
             clearConstEnumRelate: () => {constEnumRelate && constEnumRelate.clear()},
             deleteConstEnumRelate: (path: string) => {constEnumRelate && constEnumRelate.delete(path)},
+            clearQualifiedNameCache: () => {qualifiedNameCache && qualifiedNameCache.clear()},
         };
 
         function runWithInferenceBlockedFromSourceNode<T>(node: Node | undefined, fn: () => T): T {
@@ -3503,7 +3506,23 @@ namespace ts {
         }
 
         function getFullyQualifiedName(symbol: Symbol, containingLocation?: Node): string {
-            return symbol.parent ? getFullyQualifiedName(symbol.parent, containingLocation) + "." + symbolToString(symbol) : symbolToString(symbol, containingLocation, /*meaning*/ undefined, SymbolFormatFlags.DoNotIncludeSymbolChain | SymbolFormatFlags.AllowAnyNodeKind);
+            if (isTypeCheckerForLinter && containingLocation === undefined) {
+                const cachedQualifiedName: string | undefined = qualifiedNameCache.get(symbol);
+                if (cachedQualifiedName) {
+                    return cachedQualifiedName;
+                }
+            }
+            let qualifiedName: string = getFullyQualifiedNameNoCache(symbol, containingLocation);
+            if (isTypeCheckerForLinter && containingLocation === undefined) {
+                qualifiedNameCache.set(symbol, qualifiedName);
+            }
+            return qualifiedName;
+        }
+
+        function getFullyQualifiedNameNoCache(symbol: Symbol, containingLocation?: Node): string {
+            return symbol.parent ? getFullyQualifiedNameNoCache(symbol.parent, containingLocation) + "." + symbolToString(symbol) :
+                symbolToString(symbol, containingLocation, /*meaning*/ undefined, 
+                    SymbolFormatFlags.DoNotIncludeSymbolChain | SymbolFormatFlags.AllowAnyNodeKind);
         }
 
         function getContainingQualifiedNameNode(node: QualifiedName) {

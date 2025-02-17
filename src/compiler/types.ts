@@ -4984,6 +4984,7 @@ namespace ts {
         getConstEnumRelate?(): ESMap<string, ESMap<string, string>>;
         clearConstEnumRelate?(): void;
         deleteConstEnumRelate?(path: string): void;
+        clearQualifiedNameCache?(): void;
     }
 
     /* @internal */

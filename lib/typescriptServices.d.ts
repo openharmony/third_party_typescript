@@ -2543,6 +2543,7 @@ declare namespace ts {
         getConstEnumRelate?(): ESMap<string, ESMap<string, string>>;
         clearConstEnumRelate?(): void;
         deleteConstEnumRelate?(path: string): void;
+        clearQualifiedNameCache?(): void;
     }
     export enum NodeBuilderFlags {
         None = 0,
@@ -9068,6 +9069,7 @@ declare namespace ts {
             skipArkTSStaticBlocksCheck: boolean;
             constructor(sourceFile: SourceFile, tsProgram: Program, tscStrictDiagnostics?: Map<Diagnostic[]> | undefined);
             static clearTsTypeChecker(): void;
+            static clearQualifiedNameCache(): void;
             readonly handlersMap: ESMap<SyntaxKind, (node: Node) => void>;
             incrementCounters(node: Node | CommentRange, faultId: number, autofixable?: boolean, autofix?: Autofix[]): void;
             visitTSNode(node: Node): void;
@@ -9686,6 +9688,7 @@ declare namespace ts {
             private compatibleSdkVersion;
             constructor(sourceFile: SourceFile, tsProgram: Program, tscStrictDiagnostics?: Map<Diagnostic[]> | undefined);
             static clearTsTypeChecker(): void;
+            static clearQualifiedNameCache(): void;
             readonly handlersMap: ESMap<SyntaxKind, {
                 handler: (node: Node) => void;
                 name: string;
