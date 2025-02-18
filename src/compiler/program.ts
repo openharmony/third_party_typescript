@@ -1365,7 +1365,13 @@ namespace ts {
             getJsDocNodeConditionCheckedResult: host. getJsDocNodeConditionCheckedResult,
             getFileCheckedModuleInfo: host.getFileCheckedModuleInfo,
             releaseTypeChecker: () => { typeChecker = undefined; linterTypeChecker = undefined; },
-            getEmitHost
+            getEmitHost,
+            refreshTypeChecker,
+            setProgramSourceFiles,
+            initProcessingFiles,
+            processImportedModules,
+            getProcessingFiles,
+            deleteProgramSourceFiles
         };
 
         onProgramCreateComplete();
@@ -2063,6 +2069,65 @@ namespace ts {
 
         function getLinterTypeChecker() {
             return linterTypeChecker || (linterTypeChecker = createTypeChecker(program, true));
+        }
+
+        function refreshTypeChecker(): void {
+            typeChecker = createTypeChecker(program);
+            linterTypeChecker = createTypeChecker(program, true);
+        }
+
+        function setProgramSourceFiles(providedFile: SourceFile): void {
+            // If there is not provided file, add it
+            const index: number = files.findIndex(file => file.fileName === providedFile.fileName);
+            if (index === -1) {
+                files.push(providedFile);
+                filesByName.set(toPath(providedFile.fileName), providedFile);
+                filesByNameIgnoreCase?.set(toFileNameLowerCase(providedFile.fileName), providedFile);
+            }
+        }
+
+        function deleteProgramSourceFiles(fileNames: string[]): void {
+            // The new sourcefile is added at the end of the program's sourcefiles, so it is deleted in reverse order.
+            let indexToRemove: number[] = [];
+            forEachRight(fileNames, fileName => {
+                const index: number | undefined = forEachRight(files, (file, i) => {
+                    if (file.fileName === fileName) {
+                        return i;
+                    }
+                    return undefined;
+                });
+                if (index !== undefined) {
+                    indexToRemove.push(index);
+                    filesByName.delete(toPath(fileName));
+                    filesByNameIgnoreCase?.delete(toFileNameLowerCase(fileName));
+                }
+            });
+            files = files.filter((_, index) => !indexToRemove.includes(index));
+        }
+
+        function initProcessingFiles(): void {
+            // ProcessingDefaultLibFiles and processingOtherFiles are either all undefined or none of them are undefined.
+            // After creating program, both processingDefaultLibFiles and processingOtherFiles will be set to undefined.
+            if (!processingDefaultLibFiles) {
+                processingDefaultLibFiles = [];
+            }
+            if (!processingOtherFiles) {
+                processingOtherFiles = [];
+            }
+        }
+
+        function getProcessingFiles(): SourceFile[] | undefined {
+            if (!processingDefaultLibFiles && !processingOtherFiles) {
+                return undefined;
+            }
+            let res: SourceFile[] = [];
+            if (processingDefaultLibFiles) {
+                res = res.concat(processingDefaultLibFiles);
+            }
+            if (processingOtherFiles) {
+                res = res.concat(processingOtherFiles);
+            }
+            return res;
         }
 
         function emit(sourceFile?: SourceFile, writeFileCallback?: WriteFileCallback, cancellationToken?: CancellationToken, emitOnlyDtsFiles?: boolean, transformers?: CustomTransformers, forceDtsEmit?: boolean): EmitResult {
