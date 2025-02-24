@@ -4,7 +4,7 @@
       "messageText": "Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)",
       "expectLineAndCharacter": {
         "line": 7,
-        "character": 32
+        "character": 40
       }
     },
     {
@@ -39,21 +39,21 @@
       "messageText": "Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)",
       "expectLineAndCharacter": {
         "line": 20,
-        "character": 27
+        "character": 34
       }
     },
     {
       "messageText": "Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)",
       "expectLineAndCharacter": {
         "line": 20,
-        "character": 75
+        "character": 82
       }
     },
     {
       "messageText": "Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)",
       "expectLineAndCharacter": {
         "line": 20,
-        "character": 88
+        "character": 95
       }
     }
   ],
@@ -62,7 +62,7 @@
       "messageText": "Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)",
       "expectLineAndCharacter": {
         "line": 7,
-        "character": 32
+        "character": 40
       }
     },
     {
@@ -90,14 +90,14 @@
       "messageText": "Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)",
       "expectLineAndCharacter": {
         "line": 20,
-        "character": 75
+        "character": 82
       }
     },
     {
       "messageText": "Use explicit types instead of \"any\", \"unknown\" (arkts-no-any-unknown)",
       "expectLineAndCharacter": {
         "line": 20,
-        "character": 88
+        "character": 95
       }
     }
   ]

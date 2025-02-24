@@ -402,7 +402,8 @@ export class TypeScriptLinter {
         if (scopeContainsThisVisitor(child)) {
           return true;
         }
-      })
+        return undefined;
+      });
       return !!isContain;
     }
 
@@ -2299,7 +2300,8 @@ export class TypeScriptLinter {
       if (this.checkAnyOrUnknownChildNode(child)) {
         return true;
       }
-    })
+      return undefined;
+    });
     return !!isAnyOrUnknown;
   }
 
