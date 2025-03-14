@@ -1,0 +1,12 @@
+{
+  "ide_enabled": false,
+  "ide_path": "D:\\DevEco Studio",
+  "command_line_tools_path": "/path/to/command-line-tools",
+  "java_home": "/path/to/jdk-17.0.2",
+  "project_path": "/path/to/deveco/MyApplication",
+  "expected_path": "/path/to/third_party_typescript/tests/issues_cookbook_tests/expected",
+  "mode": "sdk",
+  "verify": true,
+  "update": false,
+  "tsimportsendable": false
+}

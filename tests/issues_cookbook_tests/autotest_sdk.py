@@ -17,6 +17,7 @@
 
 import re
 import json
+import json5
 import os
 import subprocess
 
@@ -34,50 +35,75 @@ class Utils:
             return result.stderr.decode('gbk')
 
     def remove_ansi_colors(self, text):
-        code_pattern = r'\x1b\[[0-9;]*[A-Za-z]'
+        code_pattern = r"\x1b\[[0-9;]*[A-Za-z]"
         return re.sub(code_pattern, '', text)
+
+    def remove_numbering(self, text):
+        numbering_list = re.findall(r"(\d+ )(\S+):", text)
+        for match in numbering_list:
+            text = text.replace(match[0], '', 1)
+        return text
+    
+    def split_log(self, log):
+        log_parts = re.split(r"\n\x1b\[33m|\n\x1b\[31m", log)
+        build_info = []
+        for part in log_parts:
+            clean_part = self.remove_ansi_colors(part)
+            build_info.append(clean_part)
+    
+        return build_info
 
 
 class SDKLinterTest:
     project_path = ''
     expected_path = 'tmp'
+    tsimportsendable = False
+    old_tsimportsendable = False
     data = []
     utils = Utils()
     build_info = []
 
-    def __init__(self, project_path='', expected_path='') -> None:
+    def __init__(self, project_path='', expected_path='', tsimportsendable=False) -> None:
         self.project_path = project_path.replace('\\', '/')
         self.expected_path = expected_path.replace('\\', '/')
+        self.tsimportsendable = tsimportsendable
 
     def get_sdk_result(self):
         log = ''
-        install_cmd = 'ohpm install --all'
+        install_tool = "ohpm.bat" if os.name == "nt" else "ohpm"
+        hvigorw_tool = "hvigorw.bat" if os.name == "nt" else "hvigorw"
+        clean_cmd = f"{hvigorw_tool} -p product=default clean --analyze=normal --parallel --incremental --daemon;"
+        self.utils.run_command(clean_cmd, self.project_path)
+        install_cmd = f"{install_tool} install --all --registry https://repo.harmonyos.com/ohpm/ --strict_ssl true"
         print(install_cmd)
         result = self.utils.run_command(install_cmd, self.project_path)
         log = result.stdout.decode() + self.utils.get_stderr(result)
         install_cmd = 'cd ' + self.project_path + '; ' + install_cmd
         print(log)
 
-        hvigorw_tool = ".\hvigorw.bat" if os.name == "nt" else "./hvigorw"
-        sync_cmd = f"{hvigorw_tool} --sync -p product=default --parallel;"
+        sync_cmd = f"{hvigorw_tool} --sync -p product=default --analyze=normal --parallel --incremental --daemon;"
         print(sync_cmd)
         result = self.utils.run_command(sync_cmd, self.project_path)
         log = result.stdout.decode() + self.utils.get_stderr(result)
         print(log)
 
-        clean_cmd = f"{hvigorw_tool} -p product=default clean --info --verbose-analyze --parallel --incremental --daemon;"
         print(clean_cmd)
         clean_result = self.utils.run_command(clean_cmd, self.project_path)
-        build_cmd = f"{hvigorw_tool} clean --mode module -p product=default assembleHap --parallel --incremental --daemon;"
+        build_cmd = f"{hvigorw_tool} clean --mode module -p product=default assembleHap --analyze=normal --parallel --incremental --daemon;"
         build_result = self.utils.run_command(build_cmd, self.project_path)
         log = build_result.stdout.decode() + self.utils.get_stderr(build_result)
         print(log)
 
         print('=' * 60)
-        self.build_info = self.utils.remove_ansi_colors(log).split('\r\n')
+        if os.name == "nt":
+            self.build_info = self.utils.remove_ansi_colors(log).split('\r\n')
+        else:
+            self.build_info = self.utils.split_log(log)
 
     def open_output(self):
+        self.set_tsimportsendable(self.tsimportsendable)
         self.get_sdk_result()
+        self.set_tsimportsendable(self.old_tsimportsendable)
         errors = self._split_errors_list()
         self.data = []
         hash_index_map = dict()
@@ -87,12 +113,12 @@ class SDKLinterTest:
             if not filepath:
                 print('Report info filepath is not in DevEcoProject:\n', error)
                 continue
-            row_col_info = re.findall('.[ts|ets]:(\d+:\d+)', error)
+            row_col_info = re.findall(r".[ts|ets]:(\d+:\d+)", error)
             row, col = (row_col_info[0].split(
                 ':')) if filepath and row_col_info else (-1, -1)
 
-            error_info = re.findall('\n.*', error, re.DOTALL)
-            error_level = re.findall('^([^:]+):', error)
+            error_info = re.findall(r"\n.*", error, re.DOTALL)
+            error_level = re.findall(r"^\d+ (\S+):", error)
             if error_level:
                 if error_level[0] == 'WARN':
                     error_level = 1
@@ -106,13 +132,27 @@ class SDKLinterTest:
                 group_i['defects'] = []
                 hash_index_map[filepath] = len(self.data)
                 self.data.append(group_i)
-            group_i['defects'].append({
-                'origin': error.replace(self.project_path, ''),
-                'severity': error_level,
-                'reportLine': int(row),
-                'reportColumn': int(col),
-                'description': error_info[0].strip().replace(self.project_path, '') if error_info else ''
-            })
+            origin_error = self.utils.remove_numbering(error)
+            if error_info:
+                description = error_info[0]
+                description = self.utils.remove_numbering(description)
+            group_i["defects"].append(
+                {
+                    "origin": self._remove_more_info(origin_error)
+                    .strip()
+                    .replace(self.project_path, ""),
+                    "severity": error_level,
+                    "reportLine": int(row),
+                    "reportColumn": int(col),
+                    "description": (
+                        self._remove_more_info(description)
+                        .strip()
+                        .replace(self.project_path, "")
+                        if error_info
+                        else ""
+                    ),
+                }
+            )
         d = self.empty_report(hash_index_map)
         self.data.extend(d)
 
@@ -170,6 +210,18 @@ class SDKLinterTest:
                 once = True
             print(*i)
 
+    def set_tsimportsendable(self, tsimportsendable=False):
+        hvigor_config = os.path.join(self.project_path, "hvigor", "hvigor-config.json5")
+        if not os.path.exists(hvigor_config):
+            return
+        with open(hvigor_config) as f:
+            config_data = json5.load(f)
+        properties = config_data.setdefault("properties", {})
+        self.old_tsimportsendable = properties.get("ark.tsImportSendable", False)
+        properties["ark.tsImportSendable"] = tsimportsendable
+        with open(hvigor_config, "w") as f:
+            json5.dump(config_data, f, indent=4)
+
     def _split_errors_list(self):
         lines = self.build_info
         idx_list = []
@@ -195,13 +247,22 @@ class SDKLinterTest:
             file_path = file_path[0] if file_path else ''
         return file_path
 
+    def _remove_more_info(self, error_msg):
+        if "> More Info" in error_msg:
+            error_msg = error_msg.split("> More Info")[0]
+        return error_msg
+
     def _load_expected_files(self):
         expected_dicts = []
         for root, dirs, files in os.walk(self.expected_path):
             for file in files:
                 with open(os.path.join(root, file), 'r') as f:
                     expected_dict = json.load(f)
-                    expected_dicts.append(expected_dict['sdklinter'])
+                    sdklinter = expected_dict['sdklinter']
+                    for defect in sdklinter['defects']:
+                        defect['origin'] = defect['origin'].strip()
+                        defect['description'] = defect['description'].strip()
+                    expected_dicts.append(sdklinter)
         return expected_dicts
 
     def _data_sort(self):
