@@ -1,28 +1,6 @@
 {
     "sdklinter": {
         "filePath": "entry/src/main/ets/pages/cases/#14030.ets",
-        "defects": [
-            {
-                "origin": "WARN: ArkTS:WARN File: /entry/src/main/ets/pages/cases/#14030.ets:1:5\n Usage of 'ESObject' type is restricted (arkts-limited-esobj)\n\n",
-                "severity": 1,
-                "reportLine": 1,
-                "reportColumn": 5,
-                "description": "Usage of 'ESObject' type is restricted (arkts-limited-esobj)"
-            },
-            {
-                "origin": "WARN: ArkTS:WARN File: /entry/src/main/ets/pages/cases/#14030.ets:2:5\n Usage of 'ESObject' type is restricted (arkts-limited-esobj)\n\n",
-                "severity": 1,
-                "reportLine": 2,
-                "reportColumn": 5,
-                "description": "Usage of 'ESObject' type is restricted (arkts-limited-esobj)"
-            },
-            {
-                "origin": "WARN: ArkTS:WARN File: /entry/src/main/ets/pages/cases/#14030.ets:4:9\n Usage of 'ESObject' type is restricted (arkts-limited-esobj)\n\n",
-                "severity": 1,
-                "reportLine": 4,
-                "reportColumn": 9,
-                "description": "Usage of 'ESObject' type is restricted (arkts-limited-esobj)"
-            }
-        ]
+        "defects": []
     }
 }

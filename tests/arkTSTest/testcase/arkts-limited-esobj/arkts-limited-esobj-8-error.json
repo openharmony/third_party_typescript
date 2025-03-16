@@ -1,0 +1,34 @@
+{
+  "arktsVersion_1_0": [
+    {
+      "messageText": "Use unique names for types and namespaces. (arkts-unique-names)",
+      "expectLineAndCharacter": {
+        "line": 18,
+        "character": 1
+      }
+    },
+    {
+      "messageText": "Usage of \"ESObject\" type is restricted (arkts-limited-esobj)",
+      "expectLineAndCharacter": {
+        "line": 19,
+        "character": 12
+      }
+    }
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Use unique names for types and namespaces. (arkts-unique-names)",
+      "expectLineAndCharacter": {
+        "line": 18,
+        "character": 10
+      }
+    },
+    {
+      "messageText": "Usage of 'ESObject' type is restricted (arkts-limited-esobj)",
+      "expectLineAndCharacter": {
+        "line": 19,
+        "character": 12
+      }
+    }
+  ]
+}

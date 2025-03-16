@@ -1,0 +1,41 @@
+{
+  "arktsVersion_1_0": [
+    {
+      "messageText": "Property 'objA' has no initializer and is not definitely assigned in the constructor.",
+      "expectLineAndCharacter": {
+        "line": 17,
+        "character": 13
+      }
+    },
+    {
+      "messageText": "Usage of \"ESObject\" type is restricted (arkts-limited-esobj)",
+      "expectLineAndCharacter": {
+        "line": 17,
+        "character": 27
+      }
+    },
+    {
+      "messageText": "Usage of \"ESObject\" type is restricted (arkts-limited-esobj)",
+      "expectLineAndCharacter": {
+        "line": 18,
+        "character": 23
+      }
+    },
+    {
+      "messageText": "Usage of \"ESObject\" type is restricted (arkts-limited-esobj)",
+      "expectLineAndCharacter": {
+        "line": 18,
+        "character": 61
+      }
+    }
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Property 'objA' has no initializer and is not definitely assigned in the constructor.",
+      "expectLineAndCharacter": {
+        "line": 17,
+        "character": 13
+      }
+    }
+  ]
+}

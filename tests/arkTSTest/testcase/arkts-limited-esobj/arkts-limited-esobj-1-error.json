@@ -8,13 +8,5 @@
       }
     }
   ],
-  "arktsVersion_1_1": [
-    {
-      "messageText": "Usage of 'ESObject' type is restricted (arkts-limited-esobj)",
-      "expectLineAndCharacter": {
-        "line": 18,
-        "character": 5
-      }
-    }
-  ]
+  "arktsVersion_1_1": []
 }

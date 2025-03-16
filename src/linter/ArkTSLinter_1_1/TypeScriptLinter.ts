@@ -735,6 +735,7 @@ export class TypeScriptLinter {
       {begin: propName.getStart(), end: propName.getStart()}, Utils.PROPERTY_HAS_NO_INITIALIZER_ERROR_CODE, propType);
     if (node.type && node.initializer) {
       this.checkAssignmentMatching(node, TypeScriptLinter.tsTypeChecker.getTypeAtLocation(node.type), node.initializer, true);
+      this.handleEsObjectAssignment(node, node.type, node.initializer, true);
     }
     this.handleDeclarationInferredType(node);
     this.handleDefiniteAssignmentAssertion(node);
@@ -1020,35 +1021,38 @@ export class TypeScriptLinter {
 
   private hasLimitedTypeInferenceFromReturnExpr(funBody: ConciseBody): boolean {
     let hasLimitedTypeInference = false;
-    const callback = (node: ts.Node): void => {
-      if (hasLimitedTypeInference) {
-        return;
-      }
-
-      if (
-        ts.isReturnStatement(node) && node.expression &&
-        Utils.isCallToFunctionWithOmittedReturnType(Utils.unwrapParenthesized(node.expression))
-      ) {
-        hasLimitedTypeInference = true;
-      }
-
-    };
-    // Don't traverse other nested function-like declarations.
-    const stopCondition = (node: ts.Node): boolean => {
-      return ts.isFunctionDeclaration(node) ||
-        ts.isFunctionExpression(node) ||
-        ts.isMethodDeclaration(node) ||
-        ts.isAccessor(node) ||
-        ts.isArrowFunction(node);
-    };
     if (isBlock(funBody)) {
-      this.forEachNodeInSubtree(funBody, callback, stopCondition);
+      hasLimitedTypeInference = this.checkReturnExpression(funBody, (expr) => 
+        ts.isReturnStatement(expr) && !!expr.expression &&
+        Utils.isCallToFunctionWithOmittedReturnType(Utils.unwrapParenthesized(expr.expression))
+      );
     }
     else {
       const tsExpr = Utils.unwrapParenthesized(funBody);
       hasLimitedTypeInference = Utils.isCallToFunctionWithOmittedReturnType(tsExpr);
     }
+    return hasLimitedTypeInference;
+  }
 
+  private checkReturnExpression(funBody: ts.ConciseBody, callback: (expr: ts.Node) => boolean): boolean {
+    let hasLimitedTypeInference = false;
+    const traverseCallback = (node: ts.Node): void => {
+      if (hasLimitedTypeInference) {
+        return;
+      }
+
+      hasLimitedTypeInference = callback(node);
+    };
+    // Don't traverse other nested function-like declarations.
+    const stopCondition = (node: ts.Node): boolean => {
+      return hasLimitedTypeInference ||
+        ts.isFunctionDeclaration(node) ||
+        ts.isFunctionExpression(node) ||
+        ts.isMethodDeclaration(node) ||
+        ts.isAccessor(node) ||
+        ts.isArrowFunction(node);
+    };
+    this.forEachNodeInSubtree(funBody, traverseCallback, stopCondition);
     return hasLimitedTypeInference;
   }
 
@@ -1214,42 +1218,34 @@ export class TypeScriptLinter {
       );
     }
 
-    this.handleEsObjectDelaration(tsVarDecl);
     this.handleDeclarationInferredType(tsVarDecl);
     this.handleDefiniteAssignmentAssertion(tsVarDecl);
-  }
-
-  private handleEsObjectDelaration(node: ts.VariableDeclaration) {
-    const isDeclaredESObject = !!node.type && Utils.isEsObjectType(node.type);
-    const initalizerTypeNode = node.initializer && Utils.getVariableDeclarationTypeNode(node.initializer);
-    const isInitializedWithESObject = !!initalizerTypeNode && Utils.isEsObjectType(initalizerTypeNode);
-    const isLocal = Utils.isInsideBlock(node)
-    if ((isDeclaredESObject || isInitializedWithESObject) && !isLocal) {
-      this.incrementCounters(node, FaultID.EsObjectType);
-      return;
-    }
-
-    if (node.initializer) {
-      this.handleEsObjectAssignment(node, node.type, node.initializer);
-      return;
+    if (tsVarDecl.initializer) {
+      this.handleEsObjectAssignment(tsVarDecl, tsVarDecl.type, tsVarDecl.initializer);
     }
   }
 
-  private handleEsObjectAssignment(node: ts.Node, nodeDeclType: ts.TypeNode | undefined, initializer: ts.Node) {
-    const isTypeAnnotated = !!nodeDeclType;
-    const isDeclaredESObject = !!nodeDeclType && Utils.isEsObjectType(nodeDeclType);
-    const initalizerTypeNode = Utils.getVariableDeclarationTypeNode(initializer);
-    const isInitializedWithESObject = !!initalizerTypeNode && Utils.isEsObjectType(initalizerTypeNode);
-    if (isTypeAnnotated && !isDeclaredESObject && isInitializedWithESObject) {
-      this.incrementCounters(node, FaultID.EsObjectType);
+  private handleEsObjectAssignment(node: ts.Node, nodeDeclType: ts.TypeNode | undefined, initializer: ts.Node, isPropertyDeclaration: boolean = false): void {
+    if (!nodeDeclType) {
       return;
     }
 
-    if (isDeclaredESObject && !Utils.isValueAssignableToESObject(initializer)) {
-      this.incrementCounters(node, FaultID.EsObjectType);
+    if (Utils.isEsObjectType(nodeDeclType)) {
+      if (ts.isObjectLiteralExpression(initializer)) {
+        this.incrementCounters(node, FaultID.EsObjectType);
+      }
+    } else {
+      if (isPropertyDeclaration) {
+        return;
+      }
+
+      const initalizerTypeNode = Utils.getVariableDeclarationTypeNode(initializer);
+      const isInitializedWithESObject = !!initalizerTypeNode && Utils.isEsObjectType(initalizerTypeNode);
+      if (isInitializedWithESObject) {
+        this.incrementCounters(node, FaultID.EsObjectType);
+      }
     }
   }
-
 
   private handleCatchClause(node: Node): void {
     const tsCatch = node as CatchClause;
@@ -2095,15 +2091,64 @@ export class TypeScriptLinter {
     }
   }
 
+  isEsObjectPossiblyAllowed(typeRef: ts.TypeReferenceNode): boolean {
+    switch (typeRef.parent.kind) {
+      case ts.SyntaxKind.VariableDeclaration:
+      case ts.SyntaxKind.PropertyDeclaration:
+      case ts.SyntaxKind.Parameter:
+      case ts.SyntaxKind.FunctionType:
+      case ts.SyntaxKind.PropertySignature:
+      case ts.SyntaxKind.ArrayType:
+      case ts.SyntaxKind.NewExpression:
+        return true;
+      case ts.SyntaxKind.ArrowFunction:
+      case ts.SyntaxKind.FunctionDeclaration:
+      case ts.SyntaxKind.MethodDeclaration:
+        return this.isObjectLiteralFromFunc(typeRef.parent);
+      case ts.SyntaxKind.TypeReference:
+        const promiseType = typeRef.parent as ts.TypeReferenceNode;
+        if (promiseType.typeName.getText() === Utils.PROMISE) {
+          return this.isObjectLiteralFromFunc(typeRef.parent.parent, true);
+        }
+        return true;
+      case ts.SyntaxKind.AsExpression:
+        return !ts.isObjectLiteralExpression((typeRef.parent as ts.AsExpression).expression);
+      default:
+        return false;
+    }
+  }
+  
+  isObjectLiteralFromFunc(node: ts.Node, isPromise: boolean = false): boolean {
+    if (
+      (ts.isFunctionDeclaration(node) ||
+      ts.isMethodDeclaration(node) ||
+      ts.isArrowFunction(node)) &&
+      !!node.body && ts.isBlock(node.body)
+    ) {
+      if (isPromise) {
+        const tsModifier = ts.getModifiers(node);
+        const hasAsyncKeyword = Utils.hasModifier(tsModifier, ts.SyntaxKind.AsyncKeyword);
+        if (!hasAsyncKeyword) {
+          return true;
+        }
+      }
+      return !this.checkReturnExpression(node.body, (expr) => 
+        ts.isReturnStatement(expr) && !!expr.expression &&
+        ts.isObjectLiteralExpression(expr.expression)
+      );
+    }
+    return true;
+  }
+
   private handleTypeReference(node: Node): void {
     const typeRef = node as TypeReferenceNode;
-
-    const isESObject = Utils.isEsObjectType(typeRef);
-    const isPossiblyValidContext = Utils.isEsObjectPossiblyAllowed(typeRef);
-    if (isESObject && !isPossiblyValidContext) {
-      this.incrementCounters(node, FaultID.EsObjectType);
+    if (Utils.isEsObjectType(typeRef)) {
+      if (!this.isEsObjectPossiblyAllowed(typeRef)) {
+        this.incrementCounters(node, FaultID.EsObjectType);
+      }
       return;
     }
+    
     const typeName = Utils.entityNameToString(typeRef.typeName);
     const isStdUtilityType = Utils.LIMITED_STANDARD_UTILITY_TYPES.includes(typeName);
     if (isStdUtilityType) {

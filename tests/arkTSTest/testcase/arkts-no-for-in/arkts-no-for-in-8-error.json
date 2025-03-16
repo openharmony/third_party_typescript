@@ -24,13 +24,6 @@
   ],
   "arktsVersion_1_1": [
     {
-      "messageText": "Usage of 'ESObject' type is restricted (arkts-limited-esobj)",
-      "expectLineAndCharacter": {
-        "line": 20,
-        "character": 7
-      }
-    },
-    {
       "messageText": "\"for .. in\" is not supported (arkts-no-for-in)",
       "expectLineAndCharacter": {
         "line": 36,
