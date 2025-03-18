@@ -164,54 +164,60 @@ export class TypeScriptLinter {
   }
 
   readonly handlersMap = new Map([
-    [SyntaxKind.ObjectLiteralExpression, this.handleObjectLiteralExpression],
-    [SyntaxKind.ArrayLiteralExpression, this.handleArrayLiteralExpression],
-    [SyntaxKind.Parameter, this.handleParameter],
-    [SyntaxKind.EnumDeclaration, this.handleEnumDeclaration],
-    [SyntaxKind.InterfaceDeclaration, this.handleInterfaceDeclaration],
-    [SyntaxKind.ThrowStatement, this.handleThrowStatement], [SyntaxKind.ImportClause, this.handleImportClause],
-    [SyntaxKind.ForStatement, this.handleForStatement],
-    [SyntaxKind.ForInStatement, this.handleForInStatement],
-    [SyntaxKind.ForOfStatement, this.handleForOfStatement],
-    [SyntaxKind.ImportDeclaration, this.handleImportDeclaration],
-    [SyntaxKind.PropertyAccessExpression, this.handlePropertyAccessExpression],
-    [SyntaxKind.PropertyDeclaration, this.handlePropertyDeclaration],
-    [SyntaxKind.PropertyAssignment, this.handlePropertyAssignment],
-    [SyntaxKind.PropertySignature, this.handlePropertySignature],
-    [SyntaxKind.FunctionExpression, this.handleFunctionExpression],
-    [SyntaxKind.ArrowFunction, this.handleArrowFunction],
-    [SyntaxKind.CatchClause, this.handleCatchClause],
-    [SyntaxKind.FunctionDeclaration, this.handleFunctionDeclaration],
-    [SyntaxKind.PrefixUnaryExpression, this.handlePrefixUnaryExpression],
-    [SyntaxKind.BinaryExpression, this.handleBinaryExpression],
-    [SyntaxKind.VariableDeclarationList, this.handleVariableDeclarationList],
-    [SyntaxKind.VariableDeclaration, this.handleVariableDeclaration],
-    [SyntaxKind.ClassDeclaration, this.handleClassDeclaration],
-    [SyntaxKind.ModuleDeclaration, this.handleModuleDeclaration],
-    [SyntaxKind.TypeAliasDeclaration, this.handleTypeAliasDeclaration],
-    [SyntaxKind.ImportSpecifier, this.handleImportSpecifier],
-    [SyntaxKind.NamespaceImport, this.handleNamespaceImport],
-    [SyntaxKind.TypeAssertionExpression, this.handleTypeAssertionExpression],
-    [SyntaxKind.MethodDeclaration, this.handleMethodDeclaration],
-    [SyntaxKind.MethodSignature, this.handleMethodSignature],
-    [SyntaxKind.Identifier, this.handleIdentifier],
-    [SyntaxKind.ElementAccessExpression, this.handleElementAccessExpression],
-    [SyntaxKind.EnumMember, this.handleEnumMember], [SyntaxKind.TypeReference, this.handleTypeReference],
-    [SyntaxKind.ExportAssignment, this.handleExportAssignment],
-    [SyntaxKind.CallExpression, this.handleCallExpression], [SyntaxKind.MetaProperty, this.handleMetaProperty],
-    [SyntaxKind.NewExpression, this.handleNewExpression], [SyntaxKind.AsExpression, this.handleAsExpression],
-    [SyntaxKind.SpreadElement, this.handleSpreadOp], [SyntaxKind.SpreadAssignment, this.handleSpreadOp],
-    [SyntaxKind.GetAccessor, this.handleGetAccessor], [SyntaxKind.SetAccessor, this.handleSetAccessor],
-    [SyntaxKind.ConstructSignature, this.handleConstructSignature],
-    [SyntaxKind.ExpressionWithTypeArguments, this.handleExpressionWithTypeArguments],
-    [SyntaxKind.ComputedPropertyName, this.handleComputedPropertyName],
-    [SyntaxKind.EtsComponentExpression, this.handleEtsComponentExpression],
-    [SyntaxKind.ClassStaticBlockDeclaration, this.handleClassStaticBlockDeclaration],
-    [ts.SyntaxKind.IndexSignature, this.handleIndexSignature],
-    [ts.SyntaxKind.ExportKeyword, this.handleExportKeyword],
-    [ts.SyntaxKind.ExportDeclaration, this.handleExportDeclaration],
-    [ts.SyntaxKind.ReturnStatement, this.handleReturnStatement],
-    [ts.SyntaxKind.Decorator, this.handleDecorator]
+    [SyntaxKind.ObjectLiteralExpression, {handler: this.handleObjectLiteralExpression, name: 'handleObjectLiteralExpression'}],
+    [SyntaxKind.ArrayLiteralExpression, {handler: this.handleArrayLiteralExpression, name: 'handleArrayLiteralExpression'}],
+    [SyntaxKind.Parameter, {handler: this.handleParameter, name: 'handleParameter'}],
+    [SyntaxKind.EnumDeclaration, {handler: this.handleEnumDeclaration, name: 'handleEnumDeclaration'}],
+    [SyntaxKind.InterfaceDeclaration, {handler: this.handleInterfaceDeclaration, name: 'handleInterfaceDeclaration'}],
+    [SyntaxKind.ThrowStatement, {handler: this.handleThrowStatement, name: 'handleThrowStatement'}],
+    [SyntaxKind.ImportClause, {handler: this.handleImportClause, name: 'handleImportClause'}],
+    [SyntaxKind.ForStatement, {handler: this.handleForStatement, name: 'handleForStatement'}],
+    [SyntaxKind.ForInStatement, {handler: this.handleForInStatement, name: 'handleForInStatement'}],
+    [SyntaxKind.ForOfStatement, {handler: this.handleForOfStatement, name: 'handleForOfStatement'}],
+    [SyntaxKind.ImportDeclaration, {handler: this.handleImportDeclaration, name: 'handleImportDeclaration'}],
+    [SyntaxKind.PropertyAccessExpression, {handler: this.handlePropertyAccessExpression, name: 'handlePropertyAccessExpression'}],
+    [SyntaxKind.PropertyDeclaration, {handler: this.handlePropertyDeclaration, name: 'handlePropertyDeclaration'}],
+    [SyntaxKind.PropertyAssignment, {handler: this.handlePropertyAssignment, name: 'handlePropertyAssignment'}],
+    [SyntaxKind.PropertySignature, {handler: this.handlePropertySignature, name: 'handlePropertySignature'}],
+    [SyntaxKind.FunctionExpression, {handler: this.handleFunctionExpression, name: 'handleFunctionExpression'}],
+    [SyntaxKind.ArrowFunction, {handler: this.handleArrowFunction, name: 'handleArrowFunction'}],
+    [SyntaxKind.CatchClause, {handler: this.handleCatchClause, name: 'handleCatchClause'}],
+    [SyntaxKind.FunctionDeclaration, {handler: this.handleFunctionDeclaration, name: 'handleFunctionDeclaration'}],
+    [SyntaxKind.PrefixUnaryExpression, {handler: this.handlePrefixUnaryExpression, name: 'handlePrefixUnaryExpression'}],
+    [SyntaxKind.BinaryExpression, {handler: this.handleBinaryExpression, name: 'handleBinaryExpression'}],
+    [SyntaxKind.VariableDeclarationList, {handler: this.handleVariableDeclarationList, name: 'handleVariableDeclarationList'}],
+    [SyntaxKind.VariableDeclaration, {handler: this.handleVariableDeclaration, name: 'handleVariableDeclaration'}],
+    [SyntaxKind.ClassDeclaration, {handler: this.handleClassDeclaration, name: 'handleClassDeclaration'}],
+    [SyntaxKind.ModuleDeclaration, {handler: this.handleModuleDeclaration, name: 'handleModuleDeclaration'}],
+    [SyntaxKind.TypeAliasDeclaration, {handler: this.handleTypeAliasDeclaration, name: 'handleTypeAliasDeclaration'}],
+    [SyntaxKind.ImportSpecifier, {handler: this.handleImportSpecifier, name: 'handleImportSpecifier'}],
+    [SyntaxKind.NamespaceImport, {handler: this.handleNamespaceImport, name: 'handleNamespaceImport'}],
+    [SyntaxKind.TypeAssertionExpression, {handler: this.handleTypeAssertionExpression, name: 'handleTypeAssertionExpression'}],
+    [SyntaxKind.MethodDeclaration, {handler: this.handleMethodDeclaration, name: 'handleMethodDeclaration'}],
+    [SyntaxKind.MethodSignature, {handler: this.handleMethodSignature, name: 'handleMethodSignature'}],
+    [SyntaxKind.Identifier, {handler: this.handleIdentifier, name: 'handleIdentifier'}],
+    [SyntaxKind.ElementAccessExpression, {handler: this.handleElementAccessExpression, name: 'handleElementAccessExpression'}],
+    [SyntaxKind.EnumMember, {handler: this.handleEnumMember, name: 'handleEnumMember'}],
+    [SyntaxKind.TypeReference, {handler: this.handleTypeReference, name: 'handleTypeReference'}],
+    [SyntaxKind.ExportAssignment, {handler: this.handleExportAssignment, name: 'handleExportAssignment'}],
+    [SyntaxKind.CallExpression, {handler: this.handleCallExpression, name: 'handleCallExpression'}],
+    [SyntaxKind.MetaProperty, {handler: this.handleMetaProperty, name: 'handleMetaProperty'}],
+    [SyntaxKind.NewExpression, {handler: this.handleNewExpression, name: 'handleNewExpression'}],
+    [SyntaxKind.AsExpression, {handler: this.handleAsExpression, name: 'handleAsExpression'}],
+    [SyntaxKind.SpreadElement, {handler: this.handleSpreadOp, name: 'handleSpreadOp'}],
+    [SyntaxKind.SpreadAssignment, {handler: this.handleSpreadOp, name: 'handleSpreadOp'}],
+    [SyntaxKind.GetAccessor, {handler: this.handleGetAccessor, name: 'handleGetAccessor'}],
+    [SyntaxKind.SetAccessor, {handler: this.handleSetAccessor, name: 'handleSetAccessor'}],
+    [SyntaxKind.ConstructSignature, {handler: this.handleConstructSignature, name: 'handleConstructSignature'}],
+    [SyntaxKind.ExpressionWithTypeArguments, {handler: this.handleExpressionWithTypeArguments, name: 'handleExpressionWithTypeArguments'}],
+    [SyntaxKind.ComputedPropertyName, {handler: this.handleComputedPropertyName, name: 'handleComputedPropertyName'}],
+    [SyntaxKind.EtsComponentExpression, {handler: this.handleEtsComponentExpression, name: 'handleEtsComponentExpression'}],
+    [SyntaxKind.ClassStaticBlockDeclaration, {handler: this.handleClassStaticBlockDeclaration, name: 'handleClassStaticBlockDeclaration'}],
+    [ts.SyntaxKind.IndexSignature, {handler: this.handleIndexSignature, name: 'handleIndexSignature'}],
+    [ts.SyntaxKind.ExportKeyword, {handler: this.handleExportKeyword, name: 'handleExportKeyword'}],
+    [ts.SyntaxKind.ExportDeclaration, {handler: this.handleExportDeclaration, name: 'handleExportDeclaration'}],
+    [ts.SyntaxKind.ReturnStatement, {handler: this.handleReturnStatement, name: 'handleReturnStatement'}],
+    [ts.SyntaxKind.Decorator, {handler: this.handleDecorator, name: 'handleDecorator'}]
   ]);
 
   public incrementCounters(node: Node | CommentRange, faultId: number, autofixable = false, autofix?: Autofix[]): void {
@@ -286,6 +292,7 @@ export class TypeScriptLinter {
   }
 
   private visitSourceFile(sf: ts.SourceFile): void {
+    const fileName = sf.fileName;
     const callback = (node: ts.Node): void => {
       TypeScriptLinter.totalVisitedNodes++;
       const incrementedType = LinterConfig.incrementOnlyTokens.get(node.kind);
@@ -295,7 +302,9 @@ export class TypeScriptLinter {
       else {
         const handler = this.handlersMap.get(node.kind);
         if (handler !== undefined) {
-          handler.call(this, node);
+          PerformanceDotting.start(handler.name, fileName);
+          handler.handler.call(this, node);
+          PerformanceDotting.stop(handler.name);
         }
       }
     };
