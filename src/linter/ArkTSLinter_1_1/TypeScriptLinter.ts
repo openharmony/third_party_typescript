@@ -709,9 +709,6 @@ export class TypeScriptLinter {
     if (!!exprSym && Utils.isSymbolAPI(exprSym) && !Utils.ALLOWED_STD_SYMBOL_API.includes(exprSym.getName())) {
       this.incrementCounters(propertyAccessNode, FaultID.SymbolType);
     }
-    if (!!baseExprSym && Utils.symbolHasEsObjectType(baseExprSym)) {
-      this.incrementCounters(propertyAccessNode, FaultID.EsObjectType);
-    }
     if (Utils.isSendableFunction(baseExprType) || Utils.hasSendableTypeAlias(baseExprType)) {
       this.incrementCounters(propertyAccessNode, FaultID.SendableFunctionProperty);
     }
@@ -1788,9 +1785,6 @@ export class TypeScriptLinter {
       }
       this.incrementCounters(node, FaultID.PropertyAccessByIndex, autofixable, autofix);
     }
-    if (Utils.hasEsObjectType(tsElementAccessExpr.expression)) {
-      this.incrementCounters(node, FaultID.EsObjectType);
-    }
   }
 
   private handleEnumMember(node: Node): void {
@@ -1850,19 +1844,12 @@ export class TypeScriptLinter {
     if (calleeSym !== undefined) {
       this.handleStdlibAPICall(tsCallExpr, calleeSym);
       this.handleFunctionApplyBindPropCall(tsCallExpr, calleeSym);
-      if (Utils.symbolHasEsObjectType(calleeSym)) {
-        this.incrementCounters(tsCallExpr, FaultID.EsObjectType);
-      }
     }
     if (callSignature !== undefined && !Utils.isLibrarySymbol(calleeSym)) {
       this.handleGenericCallWithNoTypeArgs(tsCallExpr, callSignature);
       this.handleStructIdentAndUndefinedInArgs(tsCallExpr, callSignature);
     }
     this.handleLibraryTypeCall(tsCallExpr);
-
-    if (ts.isPropertyAccessExpression(tsCallExpr.expression) && Utils.hasEsObjectType(tsCallExpr.expression.expression)) {
-      this.incrementCounters(node, FaultID.EsObjectType);
-    }
   }
 
   private handleEtsComponentExpression(node: ts.Node): void {
