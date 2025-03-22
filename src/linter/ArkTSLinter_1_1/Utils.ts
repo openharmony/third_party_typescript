@@ -48,6 +48,8 @@ export const SENDABLE_DECORATOR = 'Sendable';
 
 export const SENDABLE_INTERFACE = 'ISendable';
 
+export const PROMISE = 'Promise';
+
 export const SENDABLE_DECORATOR_NODES = [
   ts.SyntaxKind.ClassDeclaration,
   ts.SyntaxKind.FunctionDeclaration,
@@ -1768,11 +1770,7 @@ export function isInsideBlock(node: ts.Node): boolean {
   return false;
 }
 
-export function  isEsObjectPossiblyAllowed(typeRef: ts.TypeReferenceNode): boolean {
-  return ts.isVariableDeclaration(typeRef.parent);
-}
-
-export function  isValueAssignableToESObject(node: ts.Node): boolean {
+export function isValueAssignableToESObject(node: ts.Node): boolean {
   if (ts.isArrayLiteralExpression(node) || ts.isObjectLiteralExpression(node)) {
     return false;
   }

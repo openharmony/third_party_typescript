@@ -6,6 +6,90 @@
         "line": 19,
         "character": 7
       }
+    },
+    {
+      "messageText": "Usage of \"ESObject\" type is restricted (arkts-limited-esobj)",
+      "expectLineAndCharacter": {
+        "line": 23,
+        "character": 15
+      }
+    },
+    {
+      "messageText": "Usage of \"ESObject\" type is restricted (arkts-limited-esobj)",
+      "expectLineAndCharacter": {
+        "line": 29,
+        "character": 17
+      }
+    },
+    {
+      "messageText": "Usage of \"ESObject\" type is restricted (arkts-limited-esobj)",
+      "expectLineAndCharacter": {
+        "line": 33,
+        "character": 17
+      }
+    },
+    {
+      "messageText": "Usage of \"ESObject\" type is restricted (arkts-limited-esobj)",
+      "expectLineAndCharacter": {
+        "line": 38,
+        "character": 17
+      }
+    },
+    {
+      "messageText": "Usage of \"ESObject\" type is restricted (arkts-limited-esobj)",
+      "expectLineAndCharacter": {
+        "line": 42,
+        "character": 31
+      }
+    },
+    {
+      "messageText": "Usage of \"ESObject\" type is restricted (arkts-limited-esobj)",
+      "expectLineAndCharacter": {
+        "line": 46,
+        "character": 31
+      }
+    },
+    {
+      "messageText": "Usage of \"ESObject\" type is restricted (arkts-limited-esobj)",
+      "expectLineAndCharacter": {
+        "line": 51,
+        "character": 31
+      }
+    },
+    {
+      "messageText": "Usage of \"ESObject\" type is restricted (arkts-limited-esobj)",
+      "expectLineAndCharacter": {
+        "line": 55,
+        "character": 25
+      }
+    },
+    {
+      "messageText": "Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)",
+      "expectLineAndCharacter": {
+        "line": 56,
+        "character": 10
+      }
+    },
+    {
+      "messageText": "Usage of \"ESObject\" type is restricted (arkts-limited-esobj)",
+      "expectLineAndCharacter": {
+        "line": 59,
+        "character": 25
+      }
+    },
+    {
+      "messageText": "Usage of \"ESObject\" type is restricted (arkts-limited-esobj)",
+      "expectLineAndCharacter": {
+        "line": 64,
+        "character": 25
+      }
+    },
+    {
+      "messageText": "Usage of \"ESObject\" type is restricted (arkts-limited-esobj)",
+      "expectLineAndCharacter": {
+        "line": 68,
+        "character": 28
+      }
     }
   ],
   "arktsVersion_1_1": [
@@ -14,6 +98,41 @@
       "expectLineAndCharacter": {
         "line": 19,
         "character": 7
+      }
+    },
+    {
+      "messageText": "Usage of 'ESObject' type is restricted (arkts-limited-esobj)",
+      "expectLineAndCharacter": {
+        "line": 23,
+        "character": 3
+      }
+    },
+    {
+      "messageText": "Usage of 'ESObject' type is restricted (arkts-limited-esobj)",
+      "expectLineAndCharacter": {
+        "line": 29,
+        "character": 17
+      }
+    },
+    {
+      "messageText": "Usage of 'ESObject' type is restricted (arkts-limited-esobj)",
+      "expectLineAndCharacter": {
+        "line": 42,
+        "character": 31
+      }
+    },
+    {
+      "messageText": "Object literal must correspond to some explicitly declared class or interface (arkts-no-untyped-obj-literals)",
+      "expectLineAndCharacter": {
+        "line": 56,
+        "character": 10
+      }
+    },
+    {
+      "messageText": "Usage of 'ESObject' type is restricted (arkts-limited-esobj)",
+      "expectLineAndCharacter": {
+        "line": 68,
+        "character": 28
       }
     }
   ]

@@ -1,0 +1,62 @@
+{
+  "arktsVersion_1_0": [
+    {
+      "messageText": "Usage of \"ESObject\" type is restricted (arkts-limited-esobj)",
+      "expectLineAndCharacter": {
+        "line": 17,
+        "character": 11
+      }
+    },
+    {
+      "messageText": "Usage of \"ESObject\" type is restricted (arkts-limited-esobj)",
+      "expectLineAndCharacter": {
+        "line": 18,
+        "character": 20
+      }
+    },
+    {
+      "messageText": "Usage of \"ESObject\" type is restricted (arkts-limited-esobj)",
+      "expectLineAndCharacter": {
+        "line": 24,
+        "character": 22
+      }
+    },
+    {
+      "messageText": "Usage of \"ESObject\" type is restricted (arkts-limited-esobj)",
+      "expectLineAndCharacter": {
+        "line": 28,
+        "character": 22
+      }
+    },
+    {
+      "messageText": "Usage of \"ESObject\" type is restricted (arkts-limited-esobj)",
+      "expectLineAndCharacter": {
+        "line": 32,
+        "character": 28
+      }
+    },
+    {
+      "messageText": "Usage of \"ESObject\" type is restricted (arkts-limited-esobj)",
+      "expectLineAndCharacter": {
+        "line": 36,
+        "character": 28
+      }
+    },
+    {
+      "messageText": "Usage of \"ESObject\" type is restricted (arkts-limited-esobj)",
+      "expectLineAndCharacter": {
+        "line": 40,
+        "character": 28
+      }
+    }
+  ],
+  "arktsVersion_1_1": [
+    {
+      "messageText": "Usage of 'ESObject' type is restricted (arkts-limited-esobj)",
+      "expectLineAndCharacter": {
+        "line": 40,
+        "character": 28
+      }
+    }
+  ]
+}

@@ -9370,6 +9370,7 @@ declare namespace ts {
             const ARKTS_IGNORE_DIRS_OH_MODULES = "oh_modules";
             const SENDABLE_DECORATOR = "Sendable";
             const SENDABLE_INTERFACE = "ISendable";
+            const PROMISE = "Promise";
             const SENDABLE_DECORATOR_NODES: SyntaxKind[];
             const SENDABLE_CLOSURE_DECLS: SyntaxKind[];
             const ARKTS_COLLECTIONS_D_ETS = "@arkts.collections.d.ets";
@@ -9524,7 +9525,6 @@ declare namespace ts {
             function isDynamicLiteralInitializer(expr: Expression): boolean;
             function isEsObjectType(typeNode: ts.TypeNode | undefined): boolean;
             function isInsideBlock(node: ts.Node): boolean;
-            function isEsObjectPossiblyAllowed(typeRef: ts.TypeReferenceNode): boolean;
             function isValueAssignableToESObject(node: ts.Node): boolean;
             function getVariableDeclarationTypeNode(node: Node): TypeNode | undefined;
             function getSymbolDeclarationTypeNode(sym: ts.Symbol): ts.TypeNode | undefined;
@@ -9695,12 +9695,12 @@ declare namespace ts {
             private handleFunctionDeclaration;
             private handleMissingReturnType;
             private hasLimitedTypeInferenceFromReturnExpr;
+            private checkReturnExpression;
             private isValidTypeForUnaryArithmeticOperator;
             private handlePrefixUnaryExpression;
             private handleBinaryExpression;
             private handleVariableDeclarationList;
             private handleVariableDeclaration;
-            private handleEsObjectDelaration;
             private handleEsObjectAssignment;
             private handleCatchClause;
             private handleClassDeclaration;
@@ -9746,6 +9746,8 @@ declare namespace ts {
             private handleNewExpression;
             private handleSendableGenericTypes;
             private handleAsExpression;
+            isEsObjectPossiblyAllowed(typeRef: ts.TypeReferenceNode): boolean;
+            isObjectLiteralFromFunc(node: ts.Node, isPromise?: boolean): boolean;
             private handleTypeReference;
             private checkSendableTypeArguments;
             private handleMetaProperty;

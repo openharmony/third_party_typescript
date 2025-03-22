@@ -16,5 +16,7 @@
  
 // Counterexample: Initializing ESObject type variables with arrays.
 function Fn() {
-  let f2: ESObject = []
+  let f2: ESObject = [];
+  f2.push(1); // OK
+  f2.push({}); // OK
 }

@@ -18,3 +18,56 @@
 function Fn() {
   let f2: ESObject = {}
 }
+
+class MyClass {
+  public obj: ESObject = {}; // ERROR
+  method(): void {
+    this.obj = {}; // OK
+  }
+}
+
+function fnA(): ESObject { // ERROR
+  return {};
+}
+
+function fnB(): ESObject { // OK
+  const a: number = 1;
+  return a;
+}
+
+function fnC(): ESObject { // OK
+  
+}
+
+async function fnD(): Promise<ESObject> { // ERROR
+  return {};
+}
+
+async function fnE(): Promise<ESObject> { // OK
+  const a: number = 1;
+  return a;
+}
+
+async function fnF(): Promise<ESObject> { // OK
+  
+}
+
+function fnG(): Promise<ESObject> { // OK
+  return {};
+}
+
+function fnH(): Promise<ESObject> { // OK
+  const a: number = 1;
+  return a;
+}
+
+function fnI(): Promise<ESObject> { //ERROR
+  
+}
+
+function fnJ(num: number): ESObject { // ERROR
+  if (num === 1) {
+    return {};
+  }
+  return num;
+}
