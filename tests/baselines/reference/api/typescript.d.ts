@@ -557,7 +557,9 @@ declare namespace ts {
         EtsComponentsContext = 128,
         EtsNewExpressionContext = 256,
         UICallbackContext = 512,
-        SyntaxComponentContext = 1024
+        SyntaxComponentContext = 1024,
+        SyntaxDataSourceContext = 2048,
+        NoEtsComponentContext = 4096
     }
     export enum ModifierFlags {
         None = 0,
