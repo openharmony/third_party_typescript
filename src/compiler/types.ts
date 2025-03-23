@@ -835,6 +835,8 @@ namespace ts {
         EtsNewExpressionContext =    1 << 8,  // If context was parsed as a new expression
         UICallbackContext =          1 << 9,  // If context was parsed in build/builder/Syntax ui ArrowFunction
         SyntaxComponentContext =     1 << 10, // If context was parsed in ForEach/LazyForEach/Repeat.each/Repeat.template
+        SyntaxDataSourceContext =    1 << 11, // If context was parsed in the first argument of ForEach
+        NoEtsComponentContext =      1 << 12, // If context was parsed when not allowed to create Ets Components
     }
 
     export const enum ModifierFlags {
