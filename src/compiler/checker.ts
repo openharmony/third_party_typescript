@@ -6605,6 +6605,18 @@ namespace ts {
                             }
                         }
                     }
+                    // Only for Resource type in openharmony SDK
+                    if (specifier.endsWith('/openharmony/ets/ets1.1/api/global/resource')) {
+                      const lastSymbol = chain[chain.length - 1];
+                      // Create typeReferenceNode if is Resource type
+                      if (lastSymbol.escapedName === 'Resource') {
+                        const entityName = createAccessFromSymbolChain([lastSymbol], 0, 0);
+                        if (isIndexedAccessTypeNode(entityName)) {
+                          return entityName; // Indexed accesses can never be `typeof`
+                        }
+                        return factory.createTypeReferenceNode(entityName);
+                      }
+                    }
                     const lit = factory.createLiteralTypeNode(factory.createStringLiteral(specifier));
                     if (context.tracker.trackExternalModuleSymbolOfImportTypeNode) context.tracker.trackExternalModuleSymbolOfImportTypeNode(chain[0]);
                     context.approximateLength += specifier.length + 10; // specifier + import("")
