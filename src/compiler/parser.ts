@@ -1682,6 +1682,14 @@ namespace ts {
             setEtsFlag(val, EtsFlags.SyntaxComponentContext);
         }
 
+        function setSyntaxDataSourceContext(val: boolean) {
+            setEtsFlag(val, EtsFlags.SyntaxDataSourceContext);
+        }
+
+        function setNoEtsComponentContext(val: boolean) {
+            setEtsFlag(val, EtsFlags.NoEtsComponentContext);
+        }
+
         function doOutsideOfContext<T>(context: NodeFlags, func: () => T): T {
             // contextFlagsToClear will contain only the context flags that are
             // currently set that we need to temporarily clear
@@ -1848,6 +1856,14 @@ namespace ts {
 
         function inSyntaxComponentContext() {
             return inEtsContext() && (inBuildContext() || inBuilderContext()) && inEtsFlagsContext(EtsFlags.SyntaxComponentContext);
+        }
+
+        function inSyntaxDataSourseContext() {
+            return inEtsContext() && (inBuildContext() || inBuilderContext()) && inEtsFlagsContext(EtsFlags.SyntaxDataSourceContext);
+        }
+
+        function inNoEtsComponentContext() {
+            return inEtsContext() && (inBuildContext() || inBuilderContext()) && inEtsFlagsContext(EtsFlags.NoEtsComponentContext);
         }
 
         function inEtsAnnotationContext() {
@@ -4941,8 +4957,17 @@ namespace ts {
 
             const parameters = createNodeArray<ParameterDeclaration>([parameter], parameter.pos, parameter.end);
             const equalsGreaterThanToken = parseExpectedToken(SyntaxKind.EqualsGreaterThanToken);
+            let originUIContextFlag = inUICallbackContext();
+            let originNoEtsComponentContextFlag = inNoEtsComponentContext();
+            setUICallbackContext(inSyntaxComponentContext() && !inSyntaxDataSourseContext());
+            if (inSyntaxComponentContext() && !inSyntaxDataSourseContext()) {
+                setSyntaxComponentContext(false);
+            }
+            setNoEtsComponentContext(!inUICallbackContext());
             const body = parseArrowFunctionExpressionBody(/*isAsync*/ !!asyncModifier, allowReturnTypeInArrowFunction);
             const node = factory.createArrowFunction(asyncModifier, /*typeParameters*/ undefined, parameters, /*type*/ undefined, equalsGreaterThanToken, body);
+            setUICallbackContext(originUIContextFlag);
+            setNoEtsComponentContext(originNoEtsComponentContextFlag);
             return addJSDocComment(finishNode(node, pos));
         }
 
@@ -5226,13 +5251,18 @@ namespace ts {
             // have an opening brace, just in case we're in an error state.
             const lastToken = token();
             const equalsGreaterThanToken = parseExpectedToken(SyntaxKind.EqualsGreaterThanToken);
-            let originUIContextFlag = inUICallbackContext()
-            setUICallbackContext(inSyntaxComponentContext() ? true : false);
-            setSyntaxComponentContext(false);
+            let originUIContextFlag = inUICallbackContext();
+            let originNoEtsComponentContextFlag = inNoEtsComponentContext();
+            setUICallbackContext(inSyntaxComponentContext() && !inSyntaxDataSourseContext());
+            if (inSyntaxComponentContext() && !inSyntaxDataSourseContext()) {
+                setSyntaxComponentContext(false);
+            }
+            setNoEtsComponentContext(!inUICallbackContext());
             const body = (lastToken === SyntaxKind.EqualsGreaterThanToken || lastToken === SyntaxKind.OpenBraceToken)
                 ? parseArrowFunctionExpressionBody(some(modifiers, isAsyncModifier), allowReturnTypeInArrowFunction)
                 : parseIdentifier();
             setUICallbackContext(originUIContextFlag);
+            setNoEtsComponentContext(originNoEtsComponentContextFlag);
             // Given:
             //     x ? y => ({ y }) : z => ({ z })
             // We try to parse the body of the first arrow function by looking at:
@@ -6213,6 +6243,11 @@ namespace ts {
 
         function parseCallExpressionRest(pos: number, expression: LeftHandSideExpression): LeftHandSideExpression {
             let currentNodeName: string | undefined;
+            let resetSyntaxDataSourceContextFlag: Boolean = false;
+            if (inSyntaxComponentContext() && !inSyntaxDataSourseContext()) {
+                setSyntaxDataSourceContext(true);
+                resetSyntaxDataSourceContextFlag = true;
+            }
             while (true) {
                 expression = parseMemberExpressionRest(pos, expression, /*allowOptionalChain*/ true);
                 let typeArguments: NodeArray<TypeNode> | undefined;
@@ -6296,6 +6331,9 @@ namespace ts {
                 setEtsStateStylesContext(false);
                 stateStylesRootNode = undefined;
             }
+            if (resetSyntaxDataSourceContextFlag) {
+                setSyntaxDataSourceContext(false);
+            }
             return expression;
         }
 
@@ -6357,7 +6395,7 @@ namespace ts {
         }
 
         function isCurrentTokenAnEtsComponentExpression(): boolean {
-            if (!inEtsComponentsContext()) {
+            if (!inEtsComponentsContext() || inNoEtsComponentContext()) {
                 return false;
             }
             const components = sourceFileCompilerOptions.ets?.components ?? [];
