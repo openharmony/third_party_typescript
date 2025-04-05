@@ -9686,7 +9686,10 @@ declare namespace ts {
             private compatibleSdkVersion;
             constructor(sourceFile: SourceFile, tsProgram: Program, tscStrictDiagnostics?: Map<Diagnostic[]> | undefined);
             static clearTsTypeChecker(): void;
-            readonly handlersMap: ESMap<SyntaxKind, (node: Node) => void>;
+            readonly handlersMap: ESMap<SyntaxKind, {
+                handler: (node: Node) => void;
+                name: string;
+            }>;
             incrementCounters(node: Node | CommentRange, faultId: number, autofixable?: boolean, autofix?: Autofix[]): void;
             private forEachNodeInSubtree;
             private visitSourceFile;
