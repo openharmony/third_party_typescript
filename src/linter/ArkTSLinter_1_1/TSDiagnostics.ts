@@ -36,7 +36,9 @@ export class TSCCompiledProgram {
   }
 
   public doAllGetDiagnostics(): void {
+    PerformanceDotting.start("doAllGetDiagnostics");
     this.diagnosticsExtractor.doAllGetDiagnostics();
+    PerformanceDotting.stop("doAllGetDiagnostics");
   }
 }
 
@@ -70,12 +72,18 @@ class TypeScriptDiagnosticsExtractor {
 
   public doAllGetDiagnostics(): void {
     const timePrinterInstance = ts.ArkTSLinterTimePrinter.getInstance();
+    PerformanceDotting.startAdvanced(ts.TimePhase.NON_STRICT_PROGRAM_GET_SEMANTIC_DIAGNOSTICS);
     this.nonStrictProgram.getSemanticDiagnostics();
     timePrinterInstance.appendTime(ts.TimePhase.NON_STRICT_PROGRAM_GET_SEMANTIC_DIAGNOSTICS);
+    PerformanceDotting.stopAdvanced(ts.TimePhase.NON_STRICT_PROGRAM_GET_SEMANTIC_DIAGNOSTICS);
+    PerformanceDotting.startAdvanced(ts.TimePhase.NON_STRICT_PROGRAM_GET_SYNTACTIC_DIAGNOSTICS);
     this.nonStrictProgram.getSyntacticDiagnostics();
     timePrinterInstance.appendTime(ts.TimePhase.NON_STRICT_PROGRAM_GET_SYNTACTIC_DIAGNOSTICS);
+    PerformanceDotting.stopAdvanced(ts.TimePhase.NON_STRICT_PROGRAM_GET_SYNTACTIC_DIAGNOSTICS);
+    PerformanceDotting.startAdvanced(ts.TimePhase.STRICT_PROGRAM_GET_SEMANTIC_DIAGNOSTICS);
     this.nonStrictProgram.builderProgramForLinter?.getSemanticDiagnostics();
     timePrinterInstance.appendTime(ts.TimePhase.STRICT_PROGRAM_GET_SEMANTIC_DIAGNOSTICS);
+    PerformanceDotting.stopAdvanced(ts.TimePhase.STRICT_PROGRAM_GET_SEMANTIC_DIAGNOSTICS);
   }
 }
 

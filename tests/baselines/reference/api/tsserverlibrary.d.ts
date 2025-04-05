@@ -91,6 +91,35 @@ declare namespace ts {
     }
 }
 declare namespace ts {
+    namespace PerformanceDotting {
+        export enum AnalyzeMode {
+            DEFAULT = 0,
+            VERBOSE = 1,
+            TRACE = 3
+        }
+        interface PerformanceData {
+            startTime: number;
+            endTime: number;
+            duration: number;
+            name: string;
+            parentEvent: string;
+            tier: number;
+            fullPath: string;
+            id: string;
+            parentId: string;
+            fileName: string;
+        }
+        export function setPerformanceSwitch(projectConfigPerf: AnalyzeMode): void;
+        export function startAdvanced(eventName: string, fileName?: string): void;
+        export function stopAdvanced(eventName: string): void;
+        export function start(eventName: string, fileName?: string): void;
+        export function stop(eventName: string): void;
+        export function getEventData(): Array<PerformanceData>;
+        export function clearEvent(): void;
+        export {};
+    }
+}
+declare namespace ts {
     export type Path = string & {
         __pathBrand: any;
     };

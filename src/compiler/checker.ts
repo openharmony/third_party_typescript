@@ -407,6 +407,7 @@ namespace ts {
         let apparentArgumentCount: number | undefined;
 
         let constEnumRelate: ESMap<string, ESMap<string, string>> = new Map();
+        let performanceFileName: string;
 
         // for public members that accept a Node or one of its subtypes, we must guard against
         // synthetic nodes created during transformations by calling `getParseTreeNode`.
@@ -19763,7 +19764,9 @@ namespace ts {
                 }
                 else {
                     tracing?.push(tracing.Phase.CheckTypes, "structuredTypeRelatedTo", { sourceId: source.id, targetId: target.id });
+                    PerformanceDotting.start("structuredTypeRelatedTo");
                     result = structuredTypeRelatedTo(source, target, reportErrors, intersectionState);
+                    PerformanceDotting.stop("structuredTypeRelatedTo");
                     tracing?.pop();
                 }
 
@@ -21259,6 +21262,7 @@ namespace ts {
             const links = getSymbolLinks(symbol);
             if (!links.variances) {
                 tracing?.push(tracing.Phase.CheckTypes, "getVariancesWorker", { arity: typeParameters.length, id: getTypeId(getDeclaredTypeOfSymbol(symbol)) });
+                PerformanceDotting.start("getVariancesWorker");
                 links.variances = emptyArray;
                 const variances = [];
                 for (const tp of typeParameters) {
@@ -21298,6 +21302,7 @@ namespace ts {
                     variances.push(variance);
                 }
                 links.variances = variances;
+                PerformanceDotting.stop("getVariancesWorker");
                 tracing?.pop({ variances: variances.map(Debug.formatVariance) });
             }
             return links.variances;
@@ -36093,6 +36098,7 @@ namespace ts {
 
         function checkExpression(node: Expression | QualifiedName, checkMode?: CheckMode, forceTuple?: boolean): Type {
             tracing?.push(tracing.Phase.Check, "checkExpression", { kind: node.kind, pos: node.pos, end: node.end, path: (node as TracingNode).tracingPath });
+            PerformanceDotting.start("checkExpression", performanceFileName);
             const saveCurrentNode = currentNode;
             currentNode = node;
             instantiationCount = 0;
@@ -36102,6 +36108,7 @@ namespace ts {
                 checkConstEnumAccess(node, type);
             }
             currentNode = saveCurrentNode;
+            PerformanceDotting.stop("checkExpression");
             tracing?.pop();
             return type;
         }
@@ -36327,6 +36334,7 @@ namespace ts {
         }
 
         function checkTypeParameterDeferred(node: TypeParameterDeclaration) {
+            PerformanceDotting.start("checkTypeParameterDeferred", performanceFileName);
             if (isInterfaceDeclaration(node.parent) || isClassLike(node.parent) || isTypeAliasDeclaration(node.parent)) {
                 const typeParameter = getDeclaredTypeOfTypeParameter(getSymbolOfNode(node));
                 const modifiers = getVarianceModifiers(typeParameter);
@@ -36347,6 +36355,7 @@ namespace ts {
                     }
                 }
             }
+            PerformanceDotting.stop("checkTypeParameterDeferred");
         }
 
         function checkParameter(node: ParameterDeclaration) {
@@ -39859,8 +39868,10 @@ namespace ts {
 
         function checkVariableDeclaration(node: VariableDeclaration) {
             tracing?.push(tracing.Phase.Check, "checkVariableDeclaration", { kind: node.kind, pos: node.pos, end: node.end, path: (node as TracingNode).tracingPath });
+            PerformanceDotting.start("checkVariableDeclaration", performanceFileName);
             checkGrammarVariableDeclaration(node);
             checkVariableLikeDeclaration(node);
+            PerformanceDotting.stop("checkVariableDeclaration");
             tracing?.pop();
         }
 
@@ -43681,6 +43692,7 @@ namespace ts {
 
         function checkDeferredNode(node: Node) {
             tracing?.push(tracing.Phase.Check, "checkDeferredNode", { kind: node.kind, pos: node.pos, end: node.end, path: (node as TracingNode).tracingPath });
+            PerformanceDotting.start("checkDeferredNode", performanceFileName);
             const saveCurrentNode = currentNode;
             currentNode = node;
             instantiationCount = 0;
@@ -43719,11 +43731,14 @@ namespace ts {
                     break;
             }
             currentNode = saveCurrentNode;
+            PerformanceDotting.stop("checkDeferredNode");
             tracing?.pop();
         }
 
         function checkSourceFile(node: SourceFile) {
+            performanceFileName = node.fileName;
             tracing?.push(tracing.Phase.Check, "checkSourceFile", { path: node.path }, /*separateBeginAndEnd*/ true);
+            PerformanceDotting.start("checkSourceFile", performanceFileName);
             const recordInfo = MemoryDotting.recordStage(MemoryDotting.CHECK_SOURCE_FILE);
             performance.mark("beforeCheck");
             if (host.getFileCheckedModuleInfo) {
@@ -43732,6 +43747,7 @@ namespace ts {
             }
             checkSourceFileWorker(node);
             performance.mark("afterCheck");
+            PerformanceDotting.stop("checkSourceFile");
             MemoryDotting.stopRecordStage(recordInfo);
             performance.measure("Check", "beforeCheck", "afterCheck");
             tracing?.pop();

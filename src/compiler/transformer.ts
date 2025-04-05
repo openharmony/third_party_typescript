@@ -241,7 +241,9 @@ namespace ts {
         const transformed: T[] = [];
         for (const node of nodes) {
             tracing?.push(tracing.Phase.Emit, "transformNodes", node.kind === SyntaxKind.SourceFile ? { path: (node as any as SourceFile).path } : { kind: node.kind, pos: node.pos, end: node.end });
+            PerformanceDotting.start("transformRoot");
             transformed.push((allowDtsFiles ? transformation : transformRoot)(node));
+            PerformanceDotting.stop("transformRoot");
             tracing?.pop();
         }
 
