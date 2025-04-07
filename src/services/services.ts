@@ -1392,6 +1392,9 @@ namespace ts {
             PerformanceDotting.start("isProgramUptoDate");
             if (isProgramUptoDate(program, rootFileNames, newSettings, (_path, fileName) => host.getScriptVersion(fileName), fileName => compilerHost!.fileExists(fileName), hasInvalidatedResolutions, hasChangedAutomaticTypeDirectiveNames, getParsedCommandLine, projectReferences)) {
                 PerformanceDotting.stop("isProgramUptoDate");
+                // During incremental compilation, executing isProgramUptoDate to check for program updates generates file caches; 
+                // clear these caches to avoid affecting future compilations.
+                host.clearFileCache && host.clearFileCache();
                 return;
             }
             PerformanceDotting.stop("isProgramUptoDate");
@@ -1441,6 +1444,7 @@ namespace ts {
             // Make sure all the nodes in the program are both bound, and have their parent
             // pointers set property.
             program.getTypeChecker();
+            host.clearFileCache && host.clearFileCache();
             return;
 
             function getParsedCommandLine(fileName: string): ParsedCommandLine | undefined {
