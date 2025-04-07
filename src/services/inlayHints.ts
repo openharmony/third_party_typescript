@@ -313,8 +313,7 @@ namespace ts.InlayHints {
 
         function printTypeInSingleLine(type: Type) {
             const flags = NodeBuilderFlags.IgnoreErrors | TypeFormatFlags.AllowUniqueESSymbolType | TypeFormatFlags.UseAliasDefinedOutsideCurrentScope;
-            const options: PrinterOptions = { removeComments: true };
-            const printer = createPrinter(options);
+            const printer = createPrinterWithRemoveComments();
 
             return usingSingleLineStringWriter(writer => {
                 const typeNode = checker.typeToTypeNode(type, /*enclosingDeclaration*/ undefined, flags, writer);
