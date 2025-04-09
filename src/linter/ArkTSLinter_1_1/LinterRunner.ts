@@ -47,12 +47,6 @@ export function runArkTSLinter(tsBuilderProgram: BuilderProgram, srcFile?: Sourc
   const tscDiagnosticsLinter = new TSCCompiledProgram(tsBuilderProgram);
   const program = tscDiagnosticsLinter.getProgram();
   const compilerOptions = program.getCompilerOptions();
-  const changedFiles = collectChangedFilesFromProgramState(
-    programState,
-    arkTSVersion,
-    compilerOptions.compatibleSdkVersion,
-    compilerOptions.compatibleSdkVersionStage
-  );
   // Set arkTSVersion info for file .tsbuildinfo.
   // File .tsbuildinfo.linter dosen't need to set arkTSVersion because it dosen't contain linter diagnostics.
   programState.arkTSVersion = arkTSVersion;
@@ -66,6 +60,13 @@ export function runArkTSLinter(tsBuilderProgram: BuilderProgram, srcFile?: Sourc
   PerformanceDotting.stopAdvanced(ts.TimePhase.INIT);
 
   tscDiagnosticsLinter.doAllGetDiagnostics();
+  const changedFiles = collectChangedFilesFromProgramState(
+    programState,
+    program.getLinterTypeChecker(),
+    arkTSVersion,
+    compilerOptions.compatibleSdkVersion,
+    compilerOptions.compatibleSdkVersionStage
+  );
 
   let srcFiles: SourceFile[] = [];
   if (!!srcFile) {
@@ -159,12 +160,11 @@ function releaseReferences(): void {
 
 function collectChangedFilesFromProgramState(
   state: ReusableBuilderProgramState,
+  tsTypeChecker: TypeChecker,
   arkTSVersion?: string,
   compatibleSdkVersion?: number,
   compatibleSdkVersionStage?: string
 ): Set<Path> {
-  const changedFiles = new Set<Path>(state.changedFilesSet);
-
   // If old arkTSVersion from last run is not same current arkTSVersion from ets_loader,
   // the process all files in project.
   // The compatibleSdkVersion and compatibleSdkVersionStage is the same as arkTSVersion
@@ -175,32 +175,11 @@ function collectChangedFilesFromProgramState(
   ) {
     return new Set<Path>(arrayFrom(state.fileInfos.keys()));
   }
-
-  // If any source file that affects global scope has been changed,
-  // then process all files in project.
-  for (const changedFile of arrayFrom(changedFiles.keys())) {
-    const fileInfo = state.fileInfos.get(changedFile);
-    if (fileInfo?.affectsGlobalScope) {
-      return new Set<Path>(arrayFrom(state.fileInfos.keys()));
-    }
-  }
-
-  if (!state.referencedMap) {
-    return changedFiles;
-  }
-
-  const seenPaths = new Set<Path>();
-  const queue = arrayFrom(changedFiles.keys());
-  while (queue.length) {
-    const path = queue.pop()!;
-    if (!seenPaths.has(path)) {
-      seenPaths.add(path);
-
-      // Collect all files that import this file
-      queue.push(...BuilderState.getReferencedByPaths(state, path));
-    }
-  }
-  return seenPaths;
+  
+  const changeSources = tsTypeChecker.getCheckedSourceFiles();
+  const targetSet = new Set<Path>();
+  changeSources.forEach(x => targetSet.add(x.path));
+  return targetSet;
 }
 
 /**
