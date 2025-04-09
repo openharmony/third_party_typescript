@@ -46,8 +46,14 @@ export function runArkTSLinter(tsBuilderProgram: BuilderProgram, srcFile?: Sourc
   const tscDiagnosticsLinter = new TSCCompiledProgram(tsBuilderProgram);
   const program = tscDiagnosticsLinter.getProgram();
   const compilerOptions = program.getCompilerOptions();
+
+  const timePrinterInstance = ts.ArkTSLinterTimePrinter.getInstance();
+  timePrinterInstance.appendTime(ts.TimePhase.INIT);
+
+  tscDiagnosticsLinter.doAllGetDiagnostics();
   const changedFiles = collectChangedFilesFromProgramState(
     programState,
+    program.getLinterTypeChecker(),
     arkTSVersion,
     compilerOptions.compatibleSdkVersion,
     compilerOptions.compatibleSdkVersionStage
@@ -59,11 +65,6 @@ export function runArkTSLinter(tsBuilderProgram: BuilderProgram, srcFile?: Sourc
   // so that incremental compilation needs to recheck all files when the configuration changes.
   programState.compatibleSdkVersion = compilerOptions.compatibleSdkVersion;
   programState.compatibleSdkVersionStage = compilerOptions.compatibleSdkVersionStage;
-
-  const timePrinterInstance = ts.ArkTSLinterTimePrinter.getInstance();
-  timePrinterInstance.appendTime(ts.TimePhase.INIT);
-
-  tscDiagnosticsLinter.doAllGetDiagnostics();
 
   let srcFiles: SourceFile[] = [];
   if (!!srcFile) {
@@ -146,6 +147,7 @@ function releaseReferences(): void {
 
 function collectChangedFilesFromProgramState(
   state: ReusableBuilderProgramState,
+  tsTypeChecker: TypeChecker,
   arkTSVersion?: string,
   compatibleSdkVersion?: number,
   compatibleSdkVersionStage?: string
@@ -176,18 +178,10 @@ function collectChangedFilesFromProgramState(
     return changedFiles;
   }
 
-  const seenPaths = new Set<Path>();
-  const queue = arrayFrom(changedFiles.keys());
-  while (queue.length) {
-    const path = queue.pop()!;
-    if (!seenPaths.has(path)) {
-      seenPaths.add(path);
-
-      // Collect all files that import this file
-      queue.push(...BuilderState.getReferencedByPaths(state, path));
-    }
-  }
-  return seenPaths;
+  const changeSources = tsTypeChecker.getCheckedSourceFiles();
+  const targetSet = new Set<Path>();
+  changeSources.forEach(x => targetSet.add(x.path));
+  return targetSet;
 }
 
 /**
