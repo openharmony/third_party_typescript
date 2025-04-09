@@ -4985,6 +4985,7 @@ namespace ts {
         clearConstEnumRelate?(): void;
         deleteConstEnumRelate?(path: string): void;
         clearQualifiedNameCache?(): void;
+        getCheckedSourceFiles(): Set<SourceFile>;
     }
 
     /* @internal */

@@ -410,6 +410,8 @@ namespace ts {
         let performanceFileName: string;
         // Used only for linter, in non-strict typeChecker, it is always empty.
         let qualifiedNameCache: ESMap<Symbol, string> = new Map();
+        // collecting incremental affected files
+        let checkedSourceFiles: Set<SourceFile> = new Set();
 
         // for public members that accept a Node or one of its subtypes, we must guard against
         // synthetic nodes created during transformations by calling `getParseTreeNode`.
@@ -766,6 +768,7 @@ namespace ts {
             clearConstEnumRelate: () => {constEnumRelate && constEnumRelate.clear()},
             deleteConstEnumRelate: (path: string) => {constEnumRelate && constEnumRelate.delete(path)},
             clearQualifiedNameCache: () => {qualifiedNameCache && qualifiedNameCache.clear()},
+            getCheckedSourceFiles: () => checkedSourceFiles,
         };
 
         function runWithInferenceBlockedFromSourceNode<T>(node: Node | undefined, fn: () => T): T {
@@ -43880,6 +43883,10 @@ namespace ts {
                     clear(potentialReflectCollisions);
                 }
 
+                // collecting incremental affected files when the isTypeCheckerForLinter is true
+                if (isTypeCheckerForLinter) {
+                    checkedSourceFiles.add(node);
+                }
                 links.flags |= NodeCheckFlags.TypeChecked;
             }
         }

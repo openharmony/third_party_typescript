@@ -2544,6 +2544,7 @@ declare namespace ts {
         clearConstEnumRelate?(): void;
         deleteConstEnumRelate?(path: string): void;
         clearQualifiedNameCache?(): void;
+        getCheckedSourceFiles(): Set<SourceFile>;
     }
     export enum NodeBuilderFlags {
         None = 0,
