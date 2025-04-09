@@ -2343,6 +2343,13 @@ namespace ts {
                 const includeBindAndCheckDiagnostics = !isTsNoCheck && (sourceFile.scriptKind === ScriptKind.TS || sourceFile.scriptKind === ScriptKind.TSX
                         || sourceFile.scriptKind === ScriptKind.External || isPlainJs || isCheckJs || sourceFile.scriptKind === ScriptKind.Deferred || sourceFile.scriptKind === ScriptKind.ETS);
                 let bindDiagnostics: readonly Diagnostic[] = includeBindAndCheckDiagnostics ? sourceFile.bindDiagnostics : emptyArray;
+                if (!includeBindAndCheckDiagnostics) {
+                    // Record that this file has @ts-nocheck directive for ArkTS linter check
+                    typeChecker.collectHaveTsNoCheckFilesForLinter(sourceFile);
+                }
+                // Get the type checking diagnostics for this file:
+                // - If diagnostics are enabled: get all type checking errors/warnings
+                // - If disabled (due to @ts-nocheck or other reasons): return empty array
                 let checkDiagnostics = includeBindAndCheckDiagnostics ? typeChecker.getDiagnostics(sourceFile, cancellationToken) : emptyArray;
                 if (isPlainJs) {
                     bindDiagnostics = filter(bindDiagnostics, d => plainJSErrors.has(d.code));
