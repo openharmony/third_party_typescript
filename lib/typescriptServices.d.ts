@@ -6378,6 +6378,7 @@ declare namespace ts {
         shouldCompletionSortCustom?: boolean;
         uiProps?: string[];
         clearProps?(): void;
+        clearFileCache?(): void;
     }
     type WithMetadata<T> = T & {
         metadata?: unknown;
