@@ -91,6 +91,10 @@ export function runArkTSLinter(tsBuilderProgram: BuilderProgram, srcFile?: Sourc
 
     let currentDiagnostics: Diagnostic[];
     if (changedFiles.has(fileToLint.resolvedPath)) {
+      if (compilerOptions.skipOhModulesLint && isOHModules(fileToLint.fileName)) {
+        continue;
+      }
+      
       if (fileToLint.scriptKind === ScriptKind.ETS) {
         TypeScriptLinter.initStatic();
         const linter = new TypeScriptLinter(fileToLint, program, tscStrictDiagnostics);
