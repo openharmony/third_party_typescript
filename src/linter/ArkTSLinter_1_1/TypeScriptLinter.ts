@@ -1109,40 +1109,11 @@ export class TypeScriptLinter {
         }
       }
     }
-
-    const leftOperandType = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(tsLhsExpr);
-    const rightOperandType = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(tsRhsExpr);
-
-    if (tsBinaryExpr.operatorToken.kind === SyntaxKind.PlusToken) {
-      if (Utils.isEnumMemberType(leftOperandType) && Utils.isEnumMemberType(rightOperandType)) {
-        if (
-            ((leftOperandType.flags & (TypeFlags.NumberLike)) && (rightOperandType.getFlags() & (TypeFlags.NumberLike))) ||
-            ((leftOperandType.flags & (TypeFlags.StringLike)) && (rightOperandType.getFlags() & (TypeFlags.StringLike)))
-          ) {
-          return;
-        }
-      }
-      else if (Utils.isNumberLikeType(leftOperandType) && Utils.isNumberLikeType(rightOperandType)) {
-        return;
-      }
-      else if (Utils.isStringLikeType(leftOperandType) || Utils.isStringLikeType(rightOperandType)) {
-        return;
-      }
-    }
-    else if (
-      tsBinaryExpr.operatorToken.kind === SyntaxKind.AmpersandToken ||
-      tsBinaryExpr.operatorToken.kind === SyntaxKind.BarToken ||
-      tsBinaryExpr.operatorToken.kind === SyntaxKind.CaretToken ||
-      tsBinaryExpr.operatorToken.kind === SyntaxKind.LessThanLessThanToken ||
-      tsBinaryExpr.operatorToken.kind === SyntaxKind.GreaterThanGreaterThanToken ||
-      tsBinaryExpr.operatorToken.kind === SyntaxKind.GreaterThanGreaterThanGreaterThanToken
-    ) {
-      if (!(Utils.isNumberLikeType(leftOperandType) && Utils.isNumberLikeType(rightOperandType))||
-            (tsLhsExpr.kind === SyntaxKind.NumericLiteral && !Utils.isIntegerConstantValue(tsLhsExpr as NumericLiteral)) ||
-            (tsRhsExpr.kind === SyntaxKind.NumericLiteral && !Utils.isIntegerConstantValue(tsRhsExpr as NumericLiteral))
-          ) {
-        return; //this.incrementCounters(node, FaultID.BitOpWithWrongType);
-      }
+    if (tsBinaryExpr.operatorToken.kind === SyntaxKind.EqualsToken) {
+      const leftOperandType = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(tsLhsExpr);
+      this.checkAssignmentMatching(tsBinaryExpr, leftOperandType, tsRhsExpr);
+      const typeNode = Utils.getVariableDeclarationTypeNode(tsLhsExpr);
+      this.handleEsObjectAssignment(tsBinaryExpr, typeNode, tsRhsExpr);
     }
     else if (tsBinaryExpr.operatorToken.kind === SyntaxKind.CommaToken) {
       // CommaOpertor is allowed in 'for' statement initalizer and incrementor
@@ -1167,15 +1138,12 @@ export class TypeScriptLinter {
       if (tsLhsExpr.kind === SyntaxKind.ThisKeyword) {
         return;
       }
+      const leftOperandType = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(tsLhsExpr);
       if (Utils.isPrimitiveType(leftOperandType) || isTypeNode(leftExpr) || Utils.isTypeSymbol(leftSymbol)) {
         this.incrementCounters(node, FaultID.InstanceofUnsupported);
       }
     } else if (tsBinaryExpr.operatorToken.kind === SyntaxKind.InKeyword) {
       this.incrementCounters(tsBinaryExpr.operatorToken, FaultID.InOperator);
-    } else if (tsBinaryExpr.operatorToken.kind === SyntaxKind.EqualsToken) {
-      this.checkAssignmentMatching(tsBinaryExpr, leftOperandType, tsRhsExpr);
-      const typeNode = Utils.getVariableDeclarationTypeNode(tsLhsExpr);
-      this.handleEsObjectAssignment(tsBinaryExpr, typeNode, tsRhsExpr);
     }
   }
 
