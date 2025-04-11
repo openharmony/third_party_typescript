@@ -159,6 +159,12 @@ export class TypeScriptLinter {
     TypeScriptLinter.tsTypeChecker = {} as TypeChecker;
   }
 
+  public static clearQualifiedNameCache(): void {
+    if (TypeScriptLinter.tsTypeChecker) {
+      TypeScriptLinter.tsTypeChecker.clearQualifiedNameCache && TypeScriptLinter.tsTypeChecker.clearQualifiedNameCache();
+    }
+  }
+  
   readonly handlersMap = new Map([
     [SyntaxKind.ObjectLiteralExpression, this.handleObjectLiteralExpression],
     [SyntaxKind.ArrayLiteralExpression, this.handleArrayLiteralExpression],
