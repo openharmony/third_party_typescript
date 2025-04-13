@@ -3242,6 +3242,7 @@ declare namespace ts {
         [option: string]: CompilerOptionsValue | TsConfigSourceFile | undefined;
         etsAnnotationsEnable?: boolean;
         maxFlowDepth?: number;
+        skipOhModulesLint?: boolean;
     }
     export interface EtsOptions {
         render: {
