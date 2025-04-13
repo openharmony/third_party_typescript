@@ -769,7 +769,15 @@ namespace ts {
             deleteConstEnumRelate: (path: string) => {constEnumRelate && constEnumRelate.delete(path)},
             clearQualifiedNameCache: () => {qualifiedNameCache && qualifiedNameCache.clear()},
             getCheckedSourceFiles: () => checkedSourceFiles,
+            getTypeArgumentsForResolvedSignature,
         };
+
+        function getTypeArgumentsForResolvedSignature(signature: Signature): readonly Type[] | undefined {
+            if (signature.mapper === undefined) {
+                return undefined;
+            }
+            return instantiateTypes((signature.target || signature).typeParameters, signature.mapper);
+        }
 
         function runWithInferenceBlockedFromSourceNode<T>(node: Node | undefined, fn: () => T): T {
             const containingCall = findAncestor(node, isCallLikeExpression);

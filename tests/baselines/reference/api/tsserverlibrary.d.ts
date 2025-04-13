@@ -2543,6 +2543,7 @@ declare namespace ts {
         getConstEnumRelate?(): ESMap<string, ESMap<string, string>>;
         clearConstEnumRelate?(): void;
         deleteConstEnumRelate?(path: string): void;
+        getTypeArgumentsForResolvedSignature(signature: Signature): readonly Type[] | undefined;
         clearQualifiedNameCache?(): void;
         getCheckedSourceFiles(): Set<SourceFile>;
     }
