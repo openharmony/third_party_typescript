@@ -2110,12 +2110,8 @@ namespace ts {
         function initProcessingFiles(): void {
             // ProcessingDefaultLibFiles and processingOtherFiles are either all undefined or none of them are undefined.
             // After creating program, both processingDefaultLibFiles and processingOtherFiles will be set to undefined.
-            if (!processingDefaultLibFiles) {
-                processingDefaultLibFiles = [];
-            }
-            if (!processingOtherFiles) {
-                processingOtherFiles = [];
-            }
+            processingDefaultLibFiles = [];
+            processingOtherFiles = [];
         }
 
         function getProcessingFiles(): SourceFile[] | undefined {
