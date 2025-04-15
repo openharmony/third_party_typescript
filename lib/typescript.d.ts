@@ -2546,6 +2546,7 @@ declare namespace ts {
         getTypeArgumentsForResolvedSignature(signature: Signature): readonly Type[] | undefined;
         clearQualifiedNameCache?(): void;
         getCheckedSourceFiles(): Set<SourceFile>;
+        collectHaveTsNoCheckFilesForLinter(sourceFile: SourceFile): void;
     }
     export enum NodeBuilderFlags {
         None = 0,

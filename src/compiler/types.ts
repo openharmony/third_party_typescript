@@ -4987,6 +4987,7 @@ namespace ts {
         getTypeArgumentsForResolvedSignature(signature: Signature): readonly Type[] | undefined;
         clearQualifiedNameCache?(): void;
         getCheckedSourceFiles(): Set<SourceFile>;
+        collectHaveTsNoCheckFilesForLinter(sourceFile: SourceFile): void;
     }
 
     /* @internal */
