@@ -769,6 +769,7 @@ namespace ts {
             deleteConstEnumRelate: (path: string) => {constEnumRelate && constEnumRelate.delete(path)},
             clearQualifiedNameCache: () => {qualifiedNameCache && qualifiedNameCache.clear()},
             getCheckedSourceFiles: () => checkedSourceFiles,
+            collectHaveTsNoCheckFilesForLinter: (sourceFile: SourceFile) => {isTypeCheckerForLinter && checkedSourceFiles.add(sourceFile)},
             getTypeArgumentsForResolvedSignature,
         };
 
