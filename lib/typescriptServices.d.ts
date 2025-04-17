@@ -6381,7 +6381,7 @@ declare namespace ts {
         getJsDocNodeConditionCheckedResult?(jsDocFileCheckedInfo: FileCheckModuleInfo, jsDocs: JsDocTagInfo[]): ConditionCheckResult;
         getFileCheckedModuleInfo?(containFilePath: string): FileCheckModuleInfo;
         shouldCompletionSortCustom?: boolean;
-        uiProps?: string[];
+        uiProps?: Set<string>;
         clearProps?(): void;
         clearFileCache?(): void;
     }
@@ -6555,7 +6555,7 @@ declare namespace ts {
         uncommentSelection(fileName: string, textRange: TextRange): TextChange[];
         dispose(): void;
         updateRootFiles?(rootFiles: string[]): void;
-        getProps?(): string[];
+        getProps?(): Set<string>;
     }
     interface JsxClosingTagInfo {
         readonly newText: string;
