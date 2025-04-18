@@ -4704,6 +4704,7 @@ namespace ts {
         getJsDocNodeCheckedConfig?(fileCheckedInfo: FileCheckModuleInfo, symbolSourceFilePath: string): JsDocNodeCheckConfig;
         getJsDocNodeConditionCheckedResult?(fileCheckedInfo: FileCheckModuleInfo, jsDocs: JsDocTagInfo[]): ConditionCheckResult;
         getFileCheckedModuleInfo?(containFilePath: string): FileCheckModuleInfo;
+        isStaticSourceFile?(filePath: string): boolean;
     }
 
     export interface TypeChecker {
@@ -4984,6 +4985,7 @@ namespace ts {
         getConstEnumRelate?(): ESMap<string, ESMap<string, string>>;
         clearConstEnumRelate?(): void;
         deleteConstEnumRelate?(path: string): void;
+        isStaticRecord?(type: Type): boolean;
     }
 
     /* @internal */
@@ -5550,6 +5552,7 @@ namespace ts {
         tupleLabelDeclaration?: NamedTupleMember | ParameterDeclaration; // Declaration associated with the tuple's label
         accessibleChainCache?: ESMap<string, Symbol[] | undefined>;
         filteredIndexSymbolCache?: ESMap<string, Symbol> //Symbol with applicable declarations
+        isStaticRecord?: boolean;                   // Returns true if Record is from ArkTs1.2
     }
 
     /* @internal */
@@ -7474,6 +7477,9 @@ namespace ts {
 
         // For ark incremental build
         getLastCompiledProgram?(): Program;
+
+        // Verify whether the file belongs to ArkTS 1.2
+        isStaticSourceFile?(filePath: string): boolean;
     }
 
     /** true if --out otherwise source file name */

@@ -329,6 +329,7 @@ namespace ts {
         shouldCompletionSortCustom?: boolean;
         uiProps?: string[];
         clearProps?(): void;
+        isStaticSourceFile?(fileName: string): boolean;
     }
 
     /* @internal */
