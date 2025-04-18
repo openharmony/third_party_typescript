@@ -165,6 +165,8 @@ function collectChangedFilesFromProgramState(
   compatibleSdkVersion?: number,
   compatibleSdkVersionStage?: string
 ): Set<Path> {
+  const changedFiles = new Set<Path>(state.changedFilesSet);
+
   // If old arkTSVersion from last run is not same current arkTSVersion from ets_loader,
   // the process all files in project.
   // The compatibleSdkVersion and compatibleSdkVersionStage is the same as arkTSVersion
@@ -175,7 +177,20 @@ function collectChangedFilesFromProgramState(
   ) {
     return new Set<Path>(arrayFrom(state.fileInfos.keys()));
   }
-  
+
+  // If any source file that affects global scope has been changed,
+  // then process all files in project.
+  for (const changedFile of arrayFrom(changedFiles.keys())) {
+    const fileInfo = state.fileInfos.get(changedFile);
+    if (fileInfo?.affectsGlobalScope) {
+      return new Set<Path>(arrayFrom(state.fileInfos.keys()));
+    }
+  }
+
+  if (!state.referencedMap) {
+    return changedFiles;
+  }
+
   const changeSources = tsTypeChecker.getCheckedSourceFiles();
   const targetSet = new Set<Path>();
   changeSources.forEach(x => targetSet.add(x.path));
