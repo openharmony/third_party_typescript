@@ -363,7 +363,7 @@ namespace ts {
         }
 
         function modifierVisitor(node: Node): VisitResult<Node> {
-            if (isDecorator(node)) return undefined;
+            if (isDecoratorOrAnnotation(node)) return undefined;
             if (modifierToFlag(node.kind) & ModifierFlags.TypeScriptModifier) {
                 return undefined;
             }

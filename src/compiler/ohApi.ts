@@ -415,7 +415,7 @@ namespace ts {
             // Firstly, visit declarations
             const updatedSource = factory.updateSourceFile(node,
                 visitLexicalEnvironment(node.statements, visitAnnotationsDeclarations, context));
-            // Secondly, visit usage of annotations
+            // Secondly, visit import and usage of annotations
             return factory.updateSourceFile(
                 node,
                 visitLexicalEnvironment(updatedSource.statements, visitAnnotations, context));
@@ -432,6 +432,8 @@ namespace ts {
 
         function visitAnnotations(node: Node): VisitResult<Node> {
             switch (node.kind) {
+                case SyntaxKind.ImportSpecifier:
+                    return visitImportSpecifier(<ImportSpecifier>node);
                 case SyntaxKind.Decorator:
                     return visitAnnotation(<Annotation>node);
                 default:
@@ -439,7 +441,23 @@ namespace ts {
             }
         }
 
+        function visitImportSpecifier(node: ImportSpecifier): VisitResult<ImportSpecifier> {
+            // Return if the import has type or not refered to Annotation
+            if (node.isTypeOnly || !resolver.isReferredToAnnotation(node)) {
+                return node;
+            }
+            const magicPrefixName = addMagicPrefixToAnnotationNameIdentifier(node.name);
+            Debug.assert(isIdentifier(magicPrefixName));
+            // Add magic prefix for import Annotation. For example,
+            // import {Anno} from "xxx" ---> import {__$$ETS_ANNOTATION$$__Anno} from "xxx"
+            return factory.updateImportSpecifier(node, node.isTypeOnly, node.propertyName, magicPrefixName);
+        }
+
         function visitAnnotationDeclaration(node: AnnotationDeclaration): VisitResult<AnnotationDeclaration> {
+            // Add magic prefix for AnnotationDeclaration. For example,
+            // @interface Anno {} ---> @interface __$$ETS_ANNOTATION$$__Anno {}
+            const magicPrefixName = addMagicPrefixToAnnotationNameIdentifier(node.name);
+            Debug.assert(isIdentifier(magicPrefixName));
             // Add explicit type annotation and initializer. For example,
             // @interface Anno {
             //     a = 10 + 5
@@ -447,7 +465,7 @@ namespace ts {
             //
             // will be transformed to
             //
-            // @interface Anno {
+            // @interface __$$ETS_ANNOTATION$$__Anno {
             //     a: number = 15
             // }
             const members = node.members.map((node: AnnotationPropertyDeclaration) => {
@@ -456,7 +474,7 @@ namespace ts {
                 return factory.updateAnnotationPropertyDeclaration(node, node.name, type, initializer);
             });
 
-            return factory.updateAnnotationDeclaration(node, node.modifiers, node.name, members);
+            return factory.updateAnnotationDeclaration(node, node.modifiers, magicPrefixName , members);
         }
 
         function visitAnnotation(node: Annotation): VisitResult<Annotation> {
@@ -475,7 +493,7 @@ namespace ts {
             // and
             //
             // Add the magic prefix for annotation name. For example,
-            // @myModule.Anno({a: 10, b: "abc"}) --- > @#myModule.Anno({a: 10, b: "abc"})
+            // @myModule.Anno({a: 10, b: "abc"}) --- > @myModule.__$$ETS_ANNOTATION$$__Anno({a: 10, b: "abc"})
             return factory.updateDecorator(
                 node,
                 addMagicPrefixToAnnotationNameIdentifier(
@@ -493,9 +511,8 @@ namespace ts {
                     const propAccessExpr = expr as PropertyAccessExpression;
                     return factory.updatePropertyAccessExpression(
                         propAccessExpr,
-                        addMagicPrefixToAnnotationNameIdentifier(propAccessExpr.expression),
-                        propAccessExpr.name
-
+                        propAccessExpr.expression,
+                        addMagicPrefixToAnnotationNameIdentifier(propAccessExpr.name) as Identifier
                     );
                 case SyntaxKind.CallExpression:
                     const callExpr = expr as CallExpression;
@@ -518,6 +535,7 @@ namespace ts {
                 for (let i = 0; i < members.length; ++i) {
                     const member = members[i] as AnnotationPropertyDeclaration;
                     const initializer = resolver.getAnnotationPropertyEvaluatedInitializer(member);
+                    Debug.assert(initializer !== undefined);
                     defaultValues[i] = factory.createPropertyAssignment(member.name, initializer!);
                 }
                 const newCallExpr = factory.createCallExpression(

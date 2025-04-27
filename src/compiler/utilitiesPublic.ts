@@ -651,6 +651,12 @@ namespace ts {
         }
     }
 
+    export function getAnnotations(node: HasDecorators): readonly Decorator[] | undefined {
+        if (hasAnnotations(node)) {
+            return filter(node.modifiers, isAnnotation);
+        }
+    }
+
     export function getModifiers(node: HasModifiers): readonly Modifier[] | undefined {
         if (hasSyntacticModifier(node, ModifierFlags.Modifier)) {
             return filter(node.modifiers, isModifier);
@@ -1421,7 +1427,7 @@ namespace ts {
     // Type members
 
     export function isModifierLike(node: Node): node is ModifierLike {
-        return isModifier(node) || isDecorator(node);
+        return isModifier(node) || isDecoratorOrAnnotation(node);
     }
 
     export function isTypeElement(node: Node): node is TypeElement {
