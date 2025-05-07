@@ -953,12 +953,14 @@ namespace ts {
     }
 
     let sourceFileCompilerOptions: CompilerOptions;
-    export function createSourceFile(fileName: string, sourceText: string, languageVersionOrOptions: ScriptTarget | CreateSourceFileOptions, setParentNodes = false, scriptKind?: ScriptKind, options?: CompilerOptions): SourceFile {
+    let isArkguardInputSourceFile: boolean = false;
+    export function createSourceFile(fileName: string, sourceText: string, languageVersionOrOptions: ScriptTarget | CreateSourceFileOptions, setParentNodes = false, scriptKind?: ScriptKind, options?: CompilerOptions, isArkguardInput?: boolean): SourceFile {
         tracing?.push(tracing.Phase.Parse, "createSourceFile", { path: fileName }, /*separateBeginAndEnd*/ true);
         const recordInfo = MemoryDotting.recordStage(MemoryDotting.CREATE_SORUCE_FILE_PARSE);
         performance.mark("beforeParse");
         let result: SourceFile;
         sourceFileCompilerOptions = options ?? defaultInitCompilerOptions;
+        isArkguardInputSourceFile = isArkguardInput ?? false;
         perfLogger.logStartParseSourceFile(fileName);
         const {
             languageVersion,
@@ -1866,8 +1868,8 @@ namespace ts {
             return inEtsContext() && (inBuildContext() || inBuilderContext()) && inEtsFlagsContext(EtsFlags.NoEtsComponentContext);
         }
 
-        function inEtsAnnotationContext() {
-            return inEtsContext() && sourceFileCompilerOptions?.etsAnnotationsEnable === true;
+        function inAllowAnnotationContext() {
+            return (inEtsContext() || isArkguardInputSourceFile) && sourceFileCompilerOptions?.etsAnnotationsEnable === true;
         }
 
         function parseErrorAtPosition(start: number, length: number, message: DiagnosticMessage, arg0?: any): DiagnosticWithDetachedLocation | undefined {
@@ -2519,7 +2521,7 @@ namespace ts {
                     if (token() === SyntaxKind.TypeKeyword) {
                         return lookAhead(nextTokenCanFollowExportModifier);
                     }
-                    if (inEtsAnnotationContext() && token() === SyntaxKind.AtToken) {
+                    if (inAllowAnnotationContext() && token() === SyntaxKind.AtToken) {
                         return lookAhead(() => nextToken() === SyntaxKind.InterfaceKeyword);
                     }
                     return canFollowExportModifier();
@@ -2557,7 +2559,7 @@ namespace ts {
                 || token() === SyntaxKind.OpenBraceToken
                 || token() === SyntaxKind.AsteriskToken
                 || token() === SyntaxKind.DotDotDotToken
-                || token() === SyntaxKind.AtToken && inEtsAnnotationContext() && lookAhead(() => nextToken() === SyntaxKind.InterfaceKeyword)
+                || token() === SyntaxKind.AtToken && inAllowAnnotationContext() && lookAhead(() => nextToken() === SyntaxKind.InterfaceKeyword)
                 || isLiteralPropertyName();
         }
 
@@ -6982,7 +6984,7 @@ namespace ts {
                     case SyntaxKind.StructKeyword:
                         return inEtsContext();
                     case SyntaxKind.AtToken:
-                        return inEtsAnnotationContext() && nextToken() === SyntaxKind.InterfaceKeyword;
+                        return inAllowAnnotationContext() && nextToken() === SyntaxKind.InterfaceKeyword;
                     // 'declare', 'module', 'namespace', 'interface'* and 'type' are all legal JavaScript identifiers;
                     // however, an identifier cannot be followed by another identifier on the same line. This is what we
                     // count on to parse out the respective declarations. For instance, we exploit this to say that
@@ -7313,11 +7315,11 @@ namespace ts {
                     }
                     return parseDeclarationDefault(pos,decorators, modifiers);
                 case SyntaxKind.AtToken:
-                    if (inEtsAnnotationContext() &&
+                    if (inAllowAnnotationContext() &&
                         lookAhead(() => nextToken() === SyntaxKind.InterfaceKeyword)) {
                         return parseAnnotationDeclaration(pos, hasJSDoc, decorators, modifiers);
                     }
-                    return parseDeclarationDefault(pos,decorators, modifiers);
+                    return parseDeclarationDefault(pos, decorators, modifiers);
                 case SyntaxKind.InterfaceKeyword:
                     return parseInterfaceDeclaration(pos, hasJSDoc, decorators, modifiers);
                 case SyntaxKind.TypeKeyword:
@@ -7819,7 +7821,7 @@ namespace ts {
             let idToken: SyntaxKind | undefined;
 
             if (token() === SyntaxKind.AtToken) {
-                if (inEtsAnnotationContext() && lookAhead(() => nextToken() === SyntaxKind.InterfaceKeyword)) {
+                if (inAllowAnnotationContext() && lookAhead(() => nextToken() === SyntaxKind.InterfaceKeyword)) {
                     return false;
                 }
                 return true;
@@ -7925,7 +7927,7 @@ namespace ts {
 
         function tryParseDecorator(): Decorator | undefined {
             const pos = getNodePos();
-            if (inEtsAnnotationContext() && token() === SyntaxKind.AtToken
+            if (inAllowAnnotationContext() && token() === SyntaxKind.AtToken
                 && lookAhead(() => nextToken() === SyntaxKind.InterfaceKeyword)) {
                     return undefined;
             }
