@@ -32907,21 +32907,21 @@ namespace ts {
             return sourceSymbol;
         }
 
-        function conditionCheck(node: Identifier, jsDocs: readonly JSDocTag[], sourceFile: SourceFile, checkConfig: JsDocNodeCheckConfigItem) {
-            const specifyJsDocTagValue = getSpecifyJsDocTagValue(jsDocs, checkConfig.tagName);
+        function conditionCheck(node: Identifier, jsDocTags: readonly JSDocTag[], sourceFile: SourceFile, checkConfig: JsDocNodeCheckConfigItem, jsDocs?: JSDoc[]) {
+            const specifyJsDocTagValue = getSpecifyJsDocTagValue(jsDocTags, checkConfig.tagName);
             if (specifyJsDocTagValue === undefined) {
                 return;
             }
-            const hasIfChecked = hasConditionChecked(node, specifyJsDocTagValue, checkConfig.specifyCheckConditionFuncName);
+            const hasIfChecked = hasConditionChecked(node, specifyJsDocTagValue, checkConfig, jsDocs);
             if (!hasIfChecked && host.getJsDocNodeConditionCheckedResult) {
                 const jsDocTagInfos: JsDocTagInfo[] = [];
-                jsDocs.forEach(item => {
+                jsDocTags.forEach(item => {
                     jsDocTagInfos.push({
                         name: item.tagName.escapedText.toString(),
                         text: getTextOfJSDocComment(item.comment),
                     });
                 });
-                const conditionCheckResult = host.getJsDocNodeConditionCheckedResult(jsDocFileCheckInfo, jsDocTagInfos);
+                const conditionCheckResult = host.getJsDocNodeConditionCheckedResult(jsDocFileCheckInfo, jsDocTagInfos, jsDocs);
                 if (conditionCheckResult.valid) {
                     return;
                 } else {
@@ -32944,7 +32944,8 @@ namespace ts {
                 }
                 let tagNameExisted = false;
                 if (!config.tagNameShouldExisted && config.needConditionCheck) {
-                    conditionCheck(node, jsDocTags, sourceFile, config);
+                    jsDocFileCheckInfo.tagName = config.tagName;
+                    conditionCheck(node, jsDocTags, sourceFile, config, (declaration as JSDocContainer).jsDoc);
                 }
                 jsDocTags.forEach(item => {
                     if (config.tagName.includes(item.tagName.escapedText.toString())) {
@@ -32986,32 +32987,37 @@ namespace ts {
             return specifyJsDocTagValue;
         }
 
-        function hasConditionChecked(expression: Identifier, importSymbol: string, funcSpecify: string): boolean {
+        function hasConditionChecked(expression: Identifier, importSymbol: string,
+            checkConfig: JsDocNodeCheckConfigItem, jsDocs?: JSDoc[]): boolean {
             const result = { hasIfChecked: false };
             const container = findAncestor(expression, isSourceFile);
             if (!container) {
                 return result.hasIfChecked;
             }
-            traversalNode(expression, importSymbol, container, result, funcSpecify);
+            traversalNode(expression, importSymbol, container, result, checkConfig, jsDocs);
             return result.hasIfChecked;
         }
 
-        function traversalNode(node: Node, importSymbol: string, parent: Node, result: { hasIfChecked: boolean }, specifyFuncName: string): void {
+        function traversalNode(node: Node, importSymbol: string, parent: Node, result: { hasIfChecked: boolean },
+            checkConfig: JsDocNodeCheckConfigItem, jsDocs?: JSDoc[]): void {
+            const specifyFuncName: string = checkConfig.specifyCheckConditionFuncName;
             if (result.hasIfChecked) {
                 return;
             }
 
             if (node.parent !== parent) {
                 if (isIfStatement(node.parent)) {
-                    if (isCallExpression(node.parent.expression) && isTargetCallExpression(node.parent.expression, specifyFuncName, importSymbol)) {
+                    if (isCallExpression(node.parent.expression) && (checkConfig.checkConditionValidCallback?
+                        checkConfig.checkConditionValidCallback(node.parent.expression, specifyFuncName, importSymbol, jsDocs) :
+                        isTargetCallExpression(node.parent.expression, specifyFuncName, importSymbol))) {
                         result.hasIfChecked = true;
                         return;
                     }
                     else {
-                        traversalNode(node.parent, importSymbol, parent, result, specifyFuncName);
+                        traversalNode(node.parent, importSymbol, parent, result, checkConfig, jsDocs);
                     }
                 }
-                traversalNode(node.parent, importSymbol, parent, result, specifyFuncName);
+                traversalNode(node.parent, importSymbol, parent, result, checkConfig, jsDocs);
             }
             else {
                 return;
