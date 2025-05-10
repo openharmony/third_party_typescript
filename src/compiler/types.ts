@@ -4578,7 +4578,7 @@ namespace ts {
         /** Call compilerHost.writeFile on host program was created with */
         /*@internal*/ writeFile: WriteFileCallback;
         getJsDocNodeCheckedConfig?(jsDocFileCheckInfo: FileCheckModuleInfo, symbolSourceFilePath: string): JsDocNodeCheckConfig;
-        getJsDocNodeConditionCheckedResult?(jsDocFileCheckedInfo: FileCheckModuleInfo, jsDocs: JsDocTagInfo[]): ConditionCheckResult;
+        getJsDocNodeConditionCheckedResult?(jsDocFileCheckedInfo: FileCheckModuleInfo, jsDocTagInfos: JsDocTagInfo[], jsDocs?: JSDoc[]): ConditionCheckResult;
         getFileCheckedModuleInfo?(containFilePath: string): FileCheckModuleInfo;
 
         /*@internal*/ getProgramBuildInfoForLinter?(): ProgramBuildInfo | undefined;
@@ -4702,7 +4702,7 @@ namespace ts {
         readonly redirectTargetsMap: RedirectTargetsMap;
 
         getJsDocNodeCheckedConfig?(fileCheckedInfo: FileCheckModuleInfo, symbolSourceFilePath: string): JsDocNodeCheckConfig;
-        getJsDocNodeConditionCheckedResult?(fileCheckedInfo: FileCheckModuleInfo, jsDocs: JsDocTagInfo[]): ConditionCheckResult;
+        getJsDocNodeConditionCheckedResult?(fileCheckedInfo: FileCheckModuleInfo, jsDocTagInfos: JsDocTagInfo[], jsDocs?: JSDoc[]): ConditionCheckResult;
         getFileCheckedModuleInfo?(containFilePath: string): FileCheckModuleInfo;
     }
 
@@ -7259,7 +7259,7 @@ namespace ts {
         getDirectories?(path: string): string[];
         useCaseSensitiveFileNames?: boolean | (() => boolean) | undefined;
         getJsDocNodeCheckedConfig?(jsDocFileCheckInfo: FileCheckModuleInfo, symbolSourceFilePath: string): JsDocNodeCheckConfig;
-        getJsDocNodeConditionCheckedResult?(jsDocFileCheckedInfo: FileCheckModuleInfo, jsDocs: JsDocTagInfo[]): ConditionCheckResult;
+        getJsDocNodeConditionCheckedResult?(jsDocFileCheckedInfo: FileCheckModuleInfo, jsDocTagInfos: JsDocTagInfo[], jsDocs?: JSDoc[]): ConditionCheckResult;
         getFileCheckedModuleInfo?(containFilePath: string): FileCheckModuleInfo;
     }
 
@@ -7384,6 +7384,7 @@ namespace ts {
         fileNeedCheck: boolean;
         checkPayload: any;
         currentFileName: string;
+        tagName?: string[];
     }
 
     export interface JsDocNodeCheckConfig {
@@ -7400,6 +7401,7 @@ namespace ts {
         tagNameShouldExisted: boolean;
         checkValidCallback?: (jsDocTag: JSDocTag, config: JsDocNodeCheckConfigItem) => boolean;
         checkJsDocSpecialValidCallback?: (jsDocTags: readonly JSDocTag[], config: JsDocNodeCheckConfigItem) => boolean;
+        checkConditionValidCallback?: (node: CallExpression, specifyFuncName: string, importSymbol: string, jsDocs?: JSDoc[]) => boolean;
     }
 
     export interface TagCheckParam {
@@ -7474,7 +7476,7 @@ namespace ts {
          * @param jsDocFileCheckedInfo
          * @param jsDocs
          */
-        getJsDocNodeConditionCheckedResult?(jsDocFileCheckedInfo: FileCheckModuleInfo, jsDocs: JsDocTagInfo[]): ConditionCheckResult;
+        getJsDocNodeConditionCheckedResult?(jsDocFileCheckedInfo: FileCheckModuleInfo, jsDocTagInfos: JsDocTagInfo[], jsDocs?: JSDoc[]): ConditionCheckResult;
         getFileCheckedModuleInfo?(containFilePath: string): FileCheckModuleInfo;
 
         // For ark incremental build
