@@ -4329,7 +4329,7 @@ namespace ts {
                     return emitModifiers(node, modifiers as NodeArray<Modifier>);
                 }
 
-                if (every(modifiers, isDecorator)) {
+                if (every(modifiers, isDecoratorOrAnnotation)) {
                     // if all modifier-likes are `Decorator`, simply emit the array as decorators.
                     return emitDecorators(node, modifiers as NodeArray<Decorator>);
                 }
@@ -4344,7 +4344,7 @@ namespace ts {
                 while (start < modifiers.length) {
                     while (pos < modifiers.length) {
                         const modifier = modifiers[pos];
-                        mode = isDecorator(modifier) ? "decorators" : "modifiers";
+                        mode = isDecoratorOrAnnotation(modifier) ? "decorators" : "modifiers";
                         if (lastMode === undefined) {
                             lastMode = mode;
                         }

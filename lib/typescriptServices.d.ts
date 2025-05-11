@@ -4818,6 +4818,7 @@ declare namespace ts {
     function getNameOfJSDocTypedef(declaration: JSDocTypedefTag): Identifier | PrivateIdentifier | undefined;
     function getNameOfDeclaration(declaration: Declaration | Expression | undefined): DeclarationName | undefined;
     function getDecorators(node: HasDecorators): readonly Decorator[] | undefined;
+    function getAnnotations(node: HasDecorators): readonly Decorator[] | undefined;
     function getModifiers(node: HasModifiers): readonly Modifier[] | undefined;
     function getAllDecorators(node: Node | undefined): readonly Decorator[];
     function getIllegalDecorators(node: HasIllegalDecorators): readonly Decorator[] | undefined;
@@ -5111,6 +5112,7 @@ declare namespace ts {
     function isComputedPropertyName(node: Node): node is ComputedPropertyName;
     function isTypeParameterDeclaration(node: Node): node is TypeParameterDeclaration;
     function isParameter(node: Node): node is ParameterDeclaration;
+    function isDecoratorOrAnnotation(node: Node): node is Decorator;
     function isDecorator(node: Node): node is Decorator;
     function isAnnotation(node: Node): node is Annotation;
     function isPropertySignature(node: Node): node is PropertySignature;

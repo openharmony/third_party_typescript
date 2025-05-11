@@ -606,6 +606,7 @@ namespace ts {
                 case SyntaxKind.StructDeclaration:
                 case SyntaxKind.TypeAliasDeclaration:
                 case SyntaxKind.EnumDeclaration:
+                case SyntaxKind.AnnotationDeclaration:
                     return !resolver.isDeclarationVisible(node);
                 // The following should be doing their own visibility checks based on filtering their members
                 case SyntaxKind.VariableDeclaration:
@@ -881,6 +882,21 @@ namespace ts {
             }
         }
 
+        function checkAnnotationVisibilityByDecorator(input: readonly Decorator[]): void {
+            forEach(input, (decorator) => {
+                if (!isAnnotation(decorator)) {
+                    return;
+                }
+                if (isCallExpression(decorator.expression)) {
+                    // @Anno({})
+                    checkEntityNameVisibility((decorator.expression.expression) as Identifier, enclosingDeclaration);
+                } else if (isIdentifier(decorator.expression)) {
+                    // @Anno
+                    checkEntityNameVisibility((decorator.expression) as Identifier, enclosingDeclaration);
+                }
+            });
+        }
+
         function visitDeclarationSubtree(input: Node): VisitResult<Node> {
             if (shouldStripInternal(input)) return;
             if (isDeclaration(input)) {
@@ -964,8 +980,8 @@ namespace ts {
                         if (isPrivateIdentifier(input.name)) {
                             return cleanup(/*returnValue*/ undefined);
                         }
-                        let reservedDecorators = getReservedDecoratorsOfStructDeclaration(input, host);
-
+                        let reservedDecorators = concatenate(getReservedDecoratorsOfStructDeclaration(input, host), getAnnotations(input));
+                        checkAnnotationVisibilityByDecorator(reservedDecorators);
                         const sig = factory.createMethodDeclaration(
                             concatenateDecoratorsAndModifiers(reservedDecorators, ensureModifiers(input)),
                             /*asteriskToken*/ undefined,
@@ -1540,7 +1556,8 @@ namespace ts {
                             }
                             return factory.updateHeritageClause(clause, visitNodes(factory.createNodeArray(filter(clause.types, t => isEntityNameExpression(t.expression) || t.expression.kind === SyntaxKind.NullKeyword)), visitDeclarationSubtree));
                         }));
-                        let reservedDecorators = getReservedDecoratorsOfEtsFile(input, host);
+                        let reservedDecorators = concatenate(getReservedDecoratorsOfEtsFile(input, host), getAnnotations(input));
+                        checkAnnotationVisibilityByDecorator(reservedDecorators);
 
                         return [statement, cleanup(factory.updateClassDeclaration(
                             input,
@@ -1553,8 +1570,8 @@ namespace ts {
                     }
                     else {
                         const heritageClauses = transformHeritageClauses(input.heritageClauses);
-                        let reservedDecorators = getReservedDecoratorsOfEtsFile(input, host);;
-
+                        let reservedDecorators = concatenate(getReservedDecoratorsOfEtsFile(input, host), getAnnotations(input));
+                        checkAnnotationVisibilityByDecorator(reservedDecorators);
                         return cleanup(factory.updateClassDeclaration(
                             input,
                             concatenateDecoratorsAndModifiers(reservedDecorators, modifiers),

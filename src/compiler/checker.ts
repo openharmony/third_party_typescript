@@ -8773,6 +8773,7 @@ namespace ts {
                     case SyntaxKind.FunctionDeclaration:
                     case SyntaxKind.EnumDeclaration:
                     case SyntaxKind.ImportEqualsDeclaration:
+                    case SyntaxKind.AnnotationDeclaration:
                         // external module augmentation is always visible
                         if (isExternalModuleAugmentation(node)) {
                             return true;
@@ -45427,16 +45428,134 @@ namespace ts {
                 },
                 isImportRequiredByAugmentation,
                 getAnnotationObjectLiteralEvaluatedProps: (node: Annotation): ESMap<__String, Expression> | undefined => {
-                    return getNodeLinks(node).annotationObjectLiteralEvaluatedProps;
+                    let links: NodeLinks = getNodeLinks(node);
+                    if (!links.annotationObjectLiteralEvaluatedProps) {
+                        if (!isCallExpression(node.expression)) {
+                            return undefined;
+                        }
+                        // let d = {}
+                        // @Anno(d)
+                        // class C {}
+                        if (!node.expression.arguments ||
+                            node.expression.arguments.length !== 1 ||
+                            !isObjectLiteralExpression(node.expression.arguments[0])) {
+                            return undefined;
+                        }
+            
+                        // let bar = goo()
+                        // @Anno({foo: bar})
+                        // class C {}
+                        const funcType = checkExpression(node.expression);
+                        const apparentType = getApparentType(funcType);
+                        if (isErrorType(apparentType)) {
+                            return undefined;
+                        }
+
+                        const arg: ObjectLiteralExpression = node.expression.arguments[0];
+                        const evaluatedProps: ESMap<__String, AnnotationConstantExpressionType> = new Map<__String, AnnotationConstantExpressionType>();
+                        for (const prop of arg.properties) {
+                            if (!isPropertyAssignment(prop)) {
+                                return undefined;
+                            }
+                            const evaluated: AnnotationConstantExpressionType | undefined = evaluateAnnotationPropertyConstantExpression(prop.initializer);
+                            if (evaluated === undefined) {
+                                return undefined;
+                            }
+                            evaluatedProps.set(tryGetTextOfPropertyName(prop.name)!, evaluated);
+                        }
+            
+                        const members: NodeArray<AnnotationElement> = node.annotationDeclaration!.members;
+                        for (const m of members) {
+                            const memberName: __String | undefined = tryGetTextOfPropertyName(m.name)!;
+                            if (evaluatedProps.has(memberName)) {
+                                const propValue: Expression = annotationEvaluatedValueToExpr(evaluatedProps.get(memberName)!, getTypeOfNode(m))!;
+                                if (links.annotationObjectLiteralEvaluatedProps === undefined) {
+                                    links.annotationObjectLiteralEvaluatedProps = new Map<__String, Expression>();
+                                }
+                                links.annotationObjectLiteralEvaluatedProps!.set(memberName, propValue);
+                            }
+                        }
+                    }
+                    return links.annotationObjectLiteralEvaluatedProps;
                 },
                 getAnnotationPropertyEvaluatedInitializer: (node: AnnotationPropertyDeclaration): Expression | undefined => {
-                    return getNodeLinks(node).annotationPropertyEvaluatedInitializer;
+                    let links: NodeLinks = getNodeLinks(node);
+                    if (!links.annotationPropertyEvaluatedInitializer) {
+                        const propType: Type = getTypeOfNode(node);
+                        if (!isAllowedAnnotationPropertyType(propType)) {
+                            return undefined;
+                        }
+                        if (node.initializer) {
+                            const evaluated: AnnotationConstantExpressionType | undefined = evaluateAnnotationPropertyConstantExpression(node.initializer);
+                            if (evaluated === undefined) {
+                                return undefined;
+                            } else {
+                                const evaluatedExpr: Expression | undefined = annotationEvaluatedValueToExpr(evaluated, getTypeOfNode(node));
+                                links.annotationPropertyEvaluatedInitializer = evaluatedExpr;
+                            }
+                        }
+
+                        // Special cases for enums
+                        if (!node.initializer) {
+                            const initializer: Expression | undefined = addAnnotationPropertyEnumInitalizer(propType);
+                            if (initializer) {
+                                links.annotationPropertyEvaluatedInitializer = initializer;
+                            }
+                        }
+                    }
+                    return links.annotationPropertyEvaluatedInitializer;
                 },
                 getAnnotationPropertyInferredType: (node: AnnotationPropertyDeclaration): TypeNode | undefined => {
-                    return getNodeLinks(node).annotationPropertyInferredType;
+                    let links: NodeLinks = getNodeLinks(node);
+                    if (!links.annotationPropertyInferredType) {
+                        const propType: Type = getTypeOfNode(node);
+                        if (!isAllowedAnnotationPropertyType(propType)) {
+                            return undefined;
+                        }
+                        links.annotationPropertyInferredType = nodeBuilder.typeToTypeNode(propType);
+                    }
+                    return links.annotationPropertyInferredType;
                 },
                 isReferredToAnnotation: (node: ImportSpecifier | ExportSpecifier | ExportAssignment): boolean | undefined => {
-                    return getNodeLinks(node).exportOrImportRefersToAnnotation;
+                    let links: NodeLinks = getNodeLinks(node);
+                    if (!links.exportOrImportRefersToAnnotation) {
+                        let ident: Identifier | PropertyAccessExpression | undefined = undefined;
+                        if ((isExportAssignment(node))) {
+                            switch (node.expression.kind) {
+                                case SyntaxKind.Identifier:
+                                    ident = node.expression as Identifier;
+                                    break;
+                                case SyntaxKind.PropertyAccessExpression:
+                                    ident = node.expression as PropertyAccessExpression;
+                                    break;
+                                default:
+                                    return undefined;
+                            }
+                            if (!ident) {
+                                return undefined;
+                            }
+                            const symbol: Symbol | undefined = getSymbolOfNameOrPropertyAccessExpression(ident);
+                            if (!symbol) {
+                                return undefined;
+                            }
+                            if (getAllSymbolFlags(symbol) & SymbolFlags.Annotation) {
+                                links.exportOrImportRefersToAnnotation = true;
+                            }
+                        }
+
+                        if ((isImportSpecifier(node) || isExportSpecifier(node))) {
+                            let symbol: Symbol | undefined = getSymbolOfNode(node);
+                            if (!symbol) {
+                                return undefined;
+                            }
+                            const target: Symbol = resolveAlias(symbol);
+                            const targetFlags: SymbolFlags = getAllSymbolFlags(target);
+                            if (targetFlags & SymbolFlags.Annotation) {
+                                links.exportOrImportRefersToAnnotation = true;
+                            }
+                        }
+                    }
+                    return links.exportOrImportRefersToAnnotation;
                 }
             };
 
@@ -45841,7 +45960,9 @@ namespace ts {
             let lastStatic: Node | undefined, lastDeclare: Node | undefined, lastAsync: Node | undefined, lastOverride: Node | undefined;
             let flags = ModifierFlags.None;
             for (const modifier of node.modifiers!) {
-                if (isDecorator(modifier)) continue;
+                if (isDecoratorOrAnnotation(modifier)) {
+                    continue;
+                }
                 if (modifier.kind !== SyntaxKind.ReadonlyKeyword) {
                     if (node.kind === SyntaxKind.PropertySignature || node.kind === SyntaxKind.MethodSignature) {
                         return grammarErrorOnNode(modifier, Diagnostics._0_modifier_cannot_appear_on_a_type_member, tokenToString(modifier.kind));
@@ -46203,7 +46324,9 @@ namespace ts {
 
         function nodeHasAnyModifiersExcept(node: HasModifiers, allowedModifier: SyntaxKind): boolean {
             for (const modifier of node.modifiers!) {
-                if (isDecorator(modifier)) continue;
+                if (isDecoratorOrAnnotation(modifier)) {
+                    continue;
+                }
                 return modifier.kind !== allowedModifier;
             }
             return false;

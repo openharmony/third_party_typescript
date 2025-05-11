@@ -175,6 +175,10 @@ namespace ts {
         return node.kind === SyntaxKind.Parameter;
     }
 
+    export function isDecoratorOrAnnotation(node: Node): node is Decorator {
+        return node.kind === SyntaxKind.Decorator;
+    }
+
     export function isDecorator(node: Node): node is Decorator {
         return node.kind === SyntaxKind.Decorator && (node as Decorator).annotationDeclaration === undefined;
     }
