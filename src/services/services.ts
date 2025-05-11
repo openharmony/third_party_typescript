@@ -1389,9 +1389,12 @@ namespace ts {
             const documentRegistryBucketKey = documentRegistry.getKeyForCompilationSettings(newSettings);
 
             // If the program is already up-to-date, we can reuse it
+            PerformanceDotting.start("isProgramUptoDate");
             if (isProgramUptoDate(program, rootFileNames, newSettings, (_path, fileName) => host.getScriptVersion(fileName), fileName => compilerHost!.fileExists(fileName), hasInvalidatedResolutions, hasChangedAutomaticTypeDirectiveNames, getParsedCommandLine, projectReferences)) {
+                PerformanceDotting.stop("isProgramUptoDate");
                 return;
             }
+            PerformanceDotting.stop("isProgramUptoDate");
 
             // clear ArkUI collected properties
             host.clearProps && host.clearProps();
@@ -1414,7 +1417,9 @@ namespace ts {
 
             if (isCreateIncrementalProgramMode) {
                 if (withLinterProgram) {
+                    PerformanceDotting.start("createIncrementalProgramForArkTs");
                     builderProgram = createIncrementalProgramForArkTs(options);
+                    PerformanceDotting.stop("createIncrementalProgramForArkTs");
                 } else {
                     builderProgram = createIncrementalProgram(options);
                 }

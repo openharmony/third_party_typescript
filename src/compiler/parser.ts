@@ -8534,7 +8534,7 @@ namespace ts {
         }
 
         function isSetLazy(identifier: Identifier | undefined): boolean {
-            // 1. import lazy { export } from "mod";  
+            // 1. import lazy { export } from "mod";
             // 2. import lazy defaultExport from "mod";
             // 3. import lazy defaultExport, { export, /* ... */ } from "mod";
             return identifier?.escapedText === 'lazy' &&

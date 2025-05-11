@@ -27,6 +27,7 @@ export function translateDiag(srcFile: SourceFile, problemInfo: ProblemInfo): Di
 
 export function runArkTSLinter(tsBuilderProgram: BuilderProgram, srcFile?: SourceFile,
   buildInfoWriteFile?: WriteFileCallback, arkTSVersion?: string): Diagnostic[] {
+  PerformanceDotting.startAdvanced(ts.TimePhase.INIT);
   TypeScriptLinter.errorLineNumbersString = "";
   TypeScriptLinter.warningLineNumbersString = "";
   InteropTypescriptLinter.errorLineNumbersString = '';
@@ -62,6 +63,7 @@ export function runArkTSLinter(tsBuilderProgram: BuilderProgram, srcFile?: Sourc
 
   const timePrinterInstance = ts.ArkTSLinterTimePrinter.getInstance();
   timePrinterInstance.appendTime(ts.TimePhase.INIT);
+  PerformanceDotting.stopAdvanced(ts.TimePhase.INIT);
 
   tscDiagnosticsLinter.doAllGetDiagnostics();
 
@@ -72,9 +74,12 @@ export function runArkTSLinter(tsBuilderProgram: BuilderProgram, srcFile?: Sourc
     srcFiles = program.getSourceFiles() as SourceFile[];
   }
 
+  PerformanceDotting.startAdvanced(ts.TimePhase.GET_TSC_DIAGNOSTICS);
   const tscStrictDiagnostics = getTscDiagnostics(tscDiagnosticsLinter, srcFiles.filter(file => changedFiles.has(file.resolvedPath)));
   timePrinterInstance.appendTime(ts.TimePhase.GET_TSC_DIAGNOSTICS);
+  PerformanceDotting.stopAdvanced(ts.TimePhase.GET_TSC_DIAGNOSTICS);
 
+  PerformanceDotting.startAdvanced(ts.TimePhase.LINT);
   TypeScriptLinter.initGlobals();
   InteropTypescriptLinter.initGlobals();
   LibraryTypeCallDiagnosticCheckerNamespace.LibraryTypeCallDiagnosticChecker.instance.rebuildTscDiagnostics(tscStrictDiagnostics);
@@ -122,12 +127,15 @@ export function runArkTSLinter(tsBuilderProgram: BuilderProgram, srcFile?: Sourc
     programState.arktsLinterDiagnosticsPerFile.set(fileToLint.resolvedPath, currentDiagnostics);
   }
   timePrinterInstance.appendTime(ts.TimePhase.LINT);
+  PerformanceDotting.stopAdvanced(ts.TimePhase.LINT);
 
   // Write tsbuildinfo file only after we cached the linter diagnostics.
+  PerformanceDotting.startAdvanced(ts.TimePhase.EMIT_BUILD_INFO);
   if (!!buildInfoWriteFile) {
     tscDiagnosticsLinter.getBuilderProgram().emitBuildInfo(buildInfoWriteFile);
     timePrinterInstance.appendTime(ts.TimePhase.EMIT_BUILD_INFO);
   }
+  PerformanceDotting.stopAdvanced(ts.TimePhase.EMIT_BUILD_INFO);
 
   releaseReferences();
 
