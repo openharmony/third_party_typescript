@@ -38744,7 +38744,8 @@ namespace ts {
             if (!ident) {
                 return undefined;
             }
-            const symbol = getSymbolOfNameOrPropertyAccessExpression(ident, /*ignoreErrors*/ true);
+            //The default value of ignoreErrors in getSymbolOfNameOrPropertyAccessExpression is already true.
+            const symbol = getSymbolOfNameOrPropertyAccessExpression(ident);
             if (!symbol) {
                 return undefined;
             }
@@ -43231,7 +43232,8 @@ namespace ts {
             if (!ident) {
                 return;
             }
-            const symbol = getSymbolOfNameOrPropertyAccessExpression(ident, /*ignoreErrors*/ true);
+            //The default value of ignoreErrors in getSymbolOfNameOrPropertyAccessExpression is already true.
+            const symbol = getSymbolOfNameOrPropertyAccessExpression(ident);
             if (!symbol) {
                 return;
             }
@@ -44133,7 +44135,7 @@ namespace ts {
             return undefined;
         }
 
-        function getSymbolOfNameOrPropertyAccessExpression(name: EntityName | PrivateIdentifier | PropertyAccessExpression | JSDocMemberName, ignoreErrors?: boolean): Symbol | undefined {
+        function getSymbolOfNameOrPropertyAccessExpression(name: EntityName | PrivateIdentifier | PropertyAccessExpression | JSDocMemberName): Symbol | undefined {
             if (isDeclarationName(name)) {
                 return getSymbolOfNode(name.parent);
             }
@@ -44223,11 +44225,11 @@ namespace ts {
                         const symbol = getIntrinsicTagSymbol(name.parent as JsxOpeningLikeElement);
                         return symbol === unknownSymbol ? undefined : symbol;
                     }
-                    const result = resolveEntityName(name, meaning, /*ignoreErrors*/ ignoreErrors, /* dontResolveAlias */ true, getHostSignatureFromJSDoc(name));
+                    const result = resolveEntityName(name, meaning, /*ignoreErrors*/ true, /* dontResolveAlias */ true, getHostSignatureFromJSDoc(name));
                     if (!result && isJSDoc) {
                         const container = findAncestor(name, or(isClassLike, isInterfaceDeclaration));
                         if (container) {
-                            return resolveJSDocMemberName(name, /*ignoreErrors*/ false, getSymbolOfNode(container));
+                            return resolveJSDocMemberName(name, /*ignoreErrors*/ true, getSymbolOfNode(container));
                         }
                     }
                     if (result && isJSDoc) {
@@ -44293,11 +44295,11 @@ namespace ts {
             }
             else if (isTypeReferenceIdentifier(name as EntityName)) {
                 const meaning = name.parent.kind === SyntaxKind.TypeReference ? SymbolFlags.Type : SymbolFlags.Namespace;
-                const symbol = resolveEntityName(name as EntityName, meaning, /*ignoreErrors*/ false, /*dontResolveAlias*/ true);
+                const symbol = resolveEntityName(name as EntityName, meaning, /*ignoreErrors*/ true, /*dontResolveAlias*/ true);
                 return symbol && symbol !== unknownSymbol ? symbol : getUnresolvedSymbolForEntityName(name as EntityName);
             }
             if (name.parent.kind === SyntaxKind.TypePredicate) {
-                return resolveEntityName(name as Identifier, /*meaning*/ SymbolFlags.FunctionScopedVariable);
+                return resolveEntityName(name as Identifier, /*meaning*/ SymbolFlags.FunctionScopedVariable, /*ignoreErrors*/ true);
             }
 
             return undefined;
@@ -44484,7 +44486,7 @@ namespace ts {
 
         function getShorthandAssignmentValueSymbol(location: Node | undefined): Symbol | undefined {
             if (location && location.kind === SyntaxKind.ShorthandPropertyAssignment) {
-                return resolveEntityName((location as ShorthandPropertyAssignment).name, SymbolFlags.Value | SymbolFlags.Alias);
+                return resolveEntityName((location as ShorthandPropertyAssignment).name, SymbolFlags.Value | SymbolFlags.Alias, /*ignoreErrors*/ true);
             }
             return undefined;
         }
@@ -44494,10 +44496,10 @@ namespace ts {
             if (isExportSpecifier(node)) {
                 return node.parent.parent.moduleSpecifier ?
                     getExternalModuleMember(node.parent.parent, node) :
-                    resolveEntityName(node.propertyName || node.name, SymbolFlags.Value | SymbolFlags.Type | SymbolFlags.Namespace | SymbolFlags.Alias);
+                    resolveEntityName(node.propertyName || node.name, SymbolFlags.Value | SymbolFlags.Type | SymbolFlags.Namespace | SymbolFlags.Alias, /*ignoreErrors*/ true);
             }
             else {
-                return resolveEntityName(node, SymbolFlags.Value | SymbolFlags.Type | SymbolFlags.Namespace | SymbolFlags.Alias);
+                return resolveEntityName(node, SymbolFlags.Value | SymbolFlags.Type | SymbolFlags.Namespace | SymbolFlags.Alias, /*ignoreErrors*/ true);
             }
         }
 
