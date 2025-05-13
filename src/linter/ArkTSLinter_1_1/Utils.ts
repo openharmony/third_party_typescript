@@ -1006,7 +1006,7 @@ export function isObject(tsType: Type): boolean {
   if (tsType.symbol && (tsType.isClassOrInterface() && tsType.symbol.name === "Object")) {
     return true;
   }
-  const node = typeChecker.typeToTypeNode(tsType, undefined, undefined);
+  const node = typeChecker.typeToTypeNode(tsType, undefined, NodeBuilderFlags.AllowEmptyTuple);
   return node !== undefined && node.kind === SyntaxKind.ObjectKeyword;
 }
 
