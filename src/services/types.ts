@@ -329,6 +329,7 @@ namespace ts {
         shouldCompletionSortCustom?: boolean;
         uiProps?: Set<string>;
         clearProps?(): void;
+        clearFileCache?(): void;
     }
 
     /* @internal */

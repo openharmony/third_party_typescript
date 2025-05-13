@@ -106,6 +106,7 @@ export function runArkTSLinter(tsBuilderProgram: BuilderProgram, srcFile?: Sourc
 
 // reclaiming memory for Hvigor with "no-parallel" and "daemon", .
 function releaseReferences(): void {
+  TypeScriptLinter.clearQualifiedNameCache();
   TypeScriptLinter.clearTsTypeChecker();
   Utils.clearTypeChecker();
   Utils.clearTrueSymbolAtLocationCache();

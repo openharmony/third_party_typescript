@@ -4989,6 +4989,7 @@ namespace ts {
         getTypeArgumentsForResolvedSignature(signature: Signature): readonly Type[] | undefined;
         getCheckedSourceFiles(): Set<SourceFile>;
         collectHaveTsNoCheckFilesForLinter(sourceFile: SourceFile): void;
+        clearQualifiedNameCache?(): void;
     }
 
     /* @internal */
@@ -5810,7 +5811,7 @@ namespace ts {
         /* @internal */
         IncludesInstantiable = Substitution,
         /* @internal */
-        NotPrimitiveUnion = Any | Unknown | Enum | Void | Never | Object | Intersection | IncludesInstantiable,
+        NotPrimitiveUnion = Any | Unknown | Void | Never | Object | Intersection | IncludesInstantiable,
     }
 
     export type DestructuringPattern = BindingPattern | ObjectLiteralExpression | ArrayLiteralExpression;

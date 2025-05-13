@@ -2548,6 +2548,7 @@ declare namespace ts {
         getTypeArgumentsForResolvedSignature(signature: Signature): readonly Type[] | undefined;
         getCheckedSourceFiles(): Set<SourceFile>;
         collectHaveTsNoCheckFilesForLinter(sourceFile: SourceFile): void;
+        clearQualifiedNameCache?(): void;
     }
     export enum NodeBuilderFlags {
         None = 0,
@@ -6385,6 +6386,7 @@ declare namespace ts {
         shouldCompletionSortCustom?: boolean;
         uiProps?: Set<string>;
         clearProps?(): void;
+        clearFileCache?(): void;
     }
     type WithMetadata<T> = T & {
         metadata?: unknown;
@@ -9075,6 +9077,7 @@ declare namespace ts {
             skipArkTSStaticBlocksCheck: boolean;
             constructor(sourceFile: SourceFile, tsProgram: Program, tscStrictDiagnostics?: Map<Diagnostic[]> | undefined);
             static clearTsTypeChecker(): void;
+            static clearQualifiedNameCache(): void;
             readonly handlersMap: ESMap<SyntaxKind, (node: Node) => void>;
             incrementCounters(node: Node | CommentRange, faultId: number, autofixable?: boolean, autofix?: Autofix[]): void;
             visitTSNode(node: Node): void;
@@ -9693,6 +9696,7 @@ declare namespace ts {
             private compatibleSdkVersion;
             constructor(sourceFile: SourceFile, tsProgram: Program, tscStrictDiagnostics?: Map<Diagnostic[]> | undefined);
             static clearTsTypeChecker(): void;
+            static clearQualifiedNameCache(): void;
             readonly handlersMap: ESMap<SyntaxKind, {
                 handler: (node: Node) => void;
                 name: string;

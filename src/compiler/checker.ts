@@ -410,6 +410,8 @@ namespace ts {
         let performanceFileName: string;
         // collecting incremental affected files
         let checkedSourceFiles: Set<SourceFile> = new Set();
+        // Used only for linter, in non-strict typeChecker, it is always empty.
+        let qualifiedNameCache: ESMap<Symbol, string> = new Map();
 
         // for public members that accept a Node or one of its subtypes, we must guard against
         // synthetic nodes created during transformations by calling `getParseTreeNode`.
@@ -768,6 +770,7 @@ namespace ts {
             getTypeArgumentsForResolvedSignature,
             getCheckedSourceFiles: () => checkedSourceFiles,
             collectHaveTsNoCheckFilesForLinter: (sourceFile: SourceFile) => {isTypeCheckerForLinter && checkedSourceFiles.add(sourceFile)},
+            clearQualifiedNameCache: () => {qualifiedNameCache && qualifiedNameCache.clear()},
         };
 
         function getTypeArgumentsForResolvedSignature(signature: Signature): readonly Type[] | undefined {
@@ -3515,7 +3518,23 @@ namespace ts {
         }
 
         function getFullyQualifiedName(symbol: Symbol, containingLocation?: Node): string {
-            return symbol.parent ? getFullyQualifiedName(symbol.parent, containingLocation) + "." + symbolToString(symbol) : symbolToString(symbol, containingLocation, /*meaning*/ undefined, SymbolFormatFlags.DoNotIncludeSymbolChain | SymbolFormatFlags.AllowAnyNodeKind);
+            if (isTypeCheckerForLinter && containingLocation === undefined) {
+                const cachedQualifiedName: string | undefined = qualifiedNameCache.get(symbol);
+                if (cachedQualifiedName) {
+                    return cachedQualifiedName;
+                }
+            }
+            let qualifiedName: string = getFullyQualifiedNameNoCache(symbol, containingLocation);
+            if (isTypeCheckerForLinter && containingLocation === undefined) {
+                qualifiedNameCache.set(symbol, qualifiedName);
+            }
+            return qualifiedName;
+        }
+
+        function getFullyQualifiedNameNoCache(symbol: Symbol, containingLocation?: Node): string {
+            return symbol.parent ? getFullyQualifiedNameNoCache(symbol.parent, containingLocation) + "." + symbolToString(symbol) :
+                symbolToString(symbol, containingLocation, /*meaning*/ undefined, 
+                    SymbolFormatFlags.DoNotIncludeSymbolChain | SymbolFormatFlags.AllowAnyNodeKind);
         }
 
         function getContainingQualifiedNameNode(node: QualifiedName) {
@@ -5038,7 +5057,9 @@ namespace ts {
             function symbolToStringWorker(writer: EmitTextWriter) {
                 const entity = builder(symbol, meaning!, enclosingDeclaration, nodeFlags)!; // TODO: GH#18217
                 // add neverAsciiEscape for GH#39027
-                const printer = enclosingDeclaration?.kind === SyntaxKind.SourceFile ? createPrinter({ removeComments: true, neverAsciiEscape: true }) : createPrinter({ removeComments: true });
+                const printer = enclosingDeclaration?.kind === SyntaxKind.SourceFile
+                    ? createPrinterWithRemoveCommentsNeverAsciiEscape()
+                    : createPrinterWithRemoveComments();
                 const sourceFile = enclosingDeclaration && getSourceFileOfNode(enclosingDeclaration);
                 printer.writeNode(EmitHint.Unspecified, entity, /*sourceFile*/ sourceFile, writer);
                 return writer;
@@ -5057,7 +5078,7 @@ namespace ts {
                     sigOutput = kind === SignatureKind.Construct ? SyntaxKind.ConstructSignature : SyntaxKind.CallSignature;
                 }
                 const sig = nodeBuilder.signatureToSignatureDeclaration(signature, sigOutput, enclosingDeclaration, toNodeBuilderFlags(flags) | NodeBuilderFlags.IgnoreErrors | NodeBuilderFlags.WriteTypeParametersInQualifiedName);
-                const printer = createPrinter({ removeComments: true, omitTrailingSemicolon: true });
+                const printer = createPrinterWithRemoveCommentsOmitTrailingSemicolon();
                 const sourceFile = enclosingDeclaration && getSourceFileOfNode(enclosingDeclaration);
                 printer.writeNode(EmitHint.Unspecified, sig!, /*sourceFile*/ sourceFile, getTrailingSemicolonDeferringWriter(writer)); // TODO: GH#18217
                 return writer;
@@ -5070,8 +5091,7 @@ namespace ts {
             if (typeNode === undefined) return Debug.fail("should always get typenode");
             // The unresolved type gets a synthesized comment on `any` to hint to users that it's not a plain `any`.
             // Otherwise, we always strip comments out.
-            const options = { removeComments: type !== unresolvedType };
-            const printer = createPrinter(options);
+            const printer = type !== unresolvedType ? createPrinterWithRemoveComments() : createPrinterWithDefaults();
             const sourceFile = enclosingDeclaration && getSourceFileOfNode(enclosingDeclaration);
             printer.writeNode(EmitHint.Unspecified, typeNode, /*sourceFile*/ sourceFile, writer);
             const result = writer.getText();
@@ -8589,7 +8609,7 @@ namespace ts {
                     typePredicate.kind === TypePredicateKind.Identifier || typePredicate.kind === TypePredicateKind.AssertsIdentifier ? factory.createIdentifier(typePredicate.parameterName) : factory.createThisTypeNode(),
                     typePredicate.type && nodeBuilder.typeToTypeNode(typePredicate.type, enclosingDeclaration, toNodeBuilderFlags(flags) | NodeBuilderFlags.IgnoreErrors | NodeBuilderFlags.WriteTypeParametersInQualifiedName)! // TODO: GH#18217
                 );
-                const printer = createPrinter({ removeComments: true });
+                const printer = createPrinterWithRemoveComments();
                 const sourceFile = enclosingDeclaration && getSourceFileOfNode(enclosingDeclaration);
                 printer.writeNode(EmitHint.Unspecified, predicate, /*sourceFile*/ sourceFile, writer);
                 return writer;
@@ -15324,7 +15344,7 @@ namespace ts {
             for (const u of unionTypes) {
                 if (!containsType(u.types, type)) {
                     const primitive = type.flags & TypeFlags.StringLiteral ? stringType :
-                        type.flags & TypeFlags.NumberLiteral ? numberType :
+                        type.flags & (TypeFlags.Enum | TypeFlags.NumberLiteral) ? numberType :
                         type.flags & TypeFlags.BigIntLiteral ? bigintType :
                         type.flags & TypeFlags.UniqueESSymbol ? esSymbolType :
                         undefined;
@@ -15358,10 +15378,6 @@ namespace ts {
                 }
             }
             return false;
-        }
-
-        function eachIsUnionContaining(types: Type[], flag: TypeFlags) {
-            return every(types, t => !!(t.flags & TypeFlags.Union) && some((t as UnionType).types, tt => !!(tt.flags & flag)));
         }
 
         function removeFromEach(types: Type[], flag: TypeFlags) {
@@ -15495,12 +15511,12 @@ namespace ts {
                         // reduced we'll never reduce again, so this occurs at most once.
                         result = getIntersectionType(typeSet, aliasSymbol, aliasTypeArguments);
                     }
-                    else if (eachIsUnionContaining(typeSet, TypeFlags.Undefined)) {
+                    else if (every(typeSet, t => !!(t.flags & TypeFlags.Union && (t as UnionType).types[0].flags & TypeFlags.Undefined))) {
                         const undefinedOrMissingType = exactOptionalPropertyTypes && some(typeSet, t => containsType((t as UnionType).types, missingType)) ? missingType : undefinedType;
                         removeFromEach(typeSet, TypeFlags.Undefined);
                         result = getUnionType([getIntersectionType(typeSet), undefinedOrMissingType], UnionReduction.Literal, aliasSymbol, aliasTypeArguments);
                     }
-                    else if (eachIsUnionContaining(typeSet, TypeFlags.Null)) {
+                    else if (every(typeSet, t => !!(t.flags & TypeFlags.Union && ((t as UnionType).types[0].flags & TypeFlags.Null || (t as UnionType).types[1].flags & TypeFlags.Null)))) {
                         removeFromEach(typeSet, TypeFlags.Null);
                         result = getUnionType([getIntersectionType(typeSet), nullType], UnionReduction.Literal, aliasSymbol, aliasTypeArguments);
                     }
@@ -19539,6 +19555,21 @@ namespace ts {
                 if (target.flags & TypeFlags.Union) {
                     if (containsType(targetTypes, source)) {
                         return Ternary.True;
+                    }
+                    if (getObjectFlags(target) & ObjectFlags.PrimitiveUnion && !(source.flags & TypeFlags.EnumLiteral) && (
+                        source.flags & (TypeFlags.StringLiteral | TypeFlags.BooleanLiteral | TypeFlags.BigIntLiteral) ||
+                        (relation === subtypeRelation || relation === strictSubtypeRelation) && source.flags & TypeFlags.NumberLiteral)) {
+                        // When relating a literal type to a union of primitive types, we know the relation is false unless
+                        // the union contains the base primitive type or the literal type in one of its fresh/regular forms.
+                        // We exclude numeric literals for non-subtype relations because numeric literals are assignable to
+                        // numeric enum literals with the same value. Similarly, we exclude enum literal types because
+                        // identically named enum types are related (see isEmumTypeRelatedTo).
+                        const alternateForm = source === (source as StringLiteralType).regularType ? (source as StringLiteralType).freshType : (source as StringLiteralType).regularType;
+                        const primitive = source.flags & TypeFlags.StringLiteral ? stringType :
+                            source.flags & TypeFlags.NumberLiteral ? numberType :
+                            source.flags & TypeFlags.BigIntLiteral ? bigintType :
+                            undefined;
+                        return primitive && containsType(targetTypes, primitive) || alternateForm && containsType(targetTypes, alternateForm) ? Ternary.True : Ternary.False;
                     }
                     const match = getMatchingUnionConstituentForType(target as UnionType, source);
                     if (match) {

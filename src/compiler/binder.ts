@@ -207,6 +207,7 @@ namespace ts {
         let preSwitchCaseFlow: FlowNode | undefined;
         let activeLabelList: ActiveLabel | undefined;
         let hasExplicitReturn: boolean;
+        var hasFlowEffects: boolean;
 
         // state used for emit helpers
         let emitFlags: NodeFlags;
@@ -282,6 +283,7 @@ namespace ts {
             currentExceptionTarget = undefined;
             activeLabelList = undefined;
             hasExplicitReturn = false;
+            hasFlowEffects = false;
             inAssignmentPattern = false;
             emitFlags = NodeFlags.None;
         }
@@ -875,8 +877,8 @@ namespace ts {
         function isNarrowingExpression(expr: Expression): boolean {
             switch (expr.kind) {
                 case SyntaxKind.Identifier:
-                case SyntaxKind.PrivateIdentifier:
                 case SyntaxKind.ThisKeyword:
+                    return true;
                 case SyntaxKind.PropertyAccessExpression:
                 case SyntaxKind.ElementAccessExpression:
                     return containsNarrowableReference(expr);
@@ -896,11 +898,24 @@ namespace ts {
         }
 
         function isNarrowableReference(expr: Expression): boolean {
-            return isDottedName(expr)
-                || (isPropertyAccessExpression(expr) || isNonNullExpression(expr) || isParenthesizedExpression(expr)) && isNarrowableReference(expr.expression)
-                || isBinaryExpression(expr) && expr.operatorToken.kind === SyntaxKind.CommaToken && isNarrowableReference(expr.right)
-                || isElementAccessExpression(expr) && (isStringOrNumericLiteralLike(expr.argumentExpression) || isEntityNameExpression(expr.argumentExpression)) && isNarrowableReference(expr.expression)
-                || isAssignmentExpression(expr) && isNarrowableReference(expr.left);
+            switch (expr.kind) {
+                case SyntaxKind.Identifier:
+                case SyntaxKind.ThisKeyword:
+                case SyntaxKind.SuperKeyword:
+                case SyntaxKind.MetaProperty:
+                    return true;
+                case SyntaxKind.PropertyAccessExpression:
+                case SyntaxKind.ParenthesizedExpression:
+                case SyntaxKind.NonNullExpression:
+                    return isNarrowableReference((expr as PropertyAccessExpression | ParenthesizedExpression | NonNullExpression).expression);
+                case SyntaxKind.ElementAccessExpression:
+                    return (isStringOrNumericLiteralLike((expr as ElementAccessExpression).argumentExpression) || isEntityNameExpression((expr as ElementAccessExpression).argumentExpression)) &&
+                        isNarrowableReference((expr as ElementAccessExpression).expression);
+                case SyntaxKind.BinaryExpression:
+                    return (expr as BinaryExpression).operatorToken.kind === SyntaxKind.CommaToken && isNarrowableReference((expr as BinaryExpression).right) ||
+                        isAssignmentOperator((expr as BinaryExpression).operatorToken.kind) && isLeftHandSideExpression((expr as BinaryExpression).left);
+            }
+            return false;
         }
 
         function containsNarrowableReference(expr: Expression): boolean {
@@ -1014,6 +1029,7 @@ namespace ts {
 
         function createFlowMutation(flags: FlowFlags, antecedent: FlowNode, node: Expression | VariableDeclaration | ArrayBindingElement): FlowNode {
             setFlowNodeReferenced(antecedent);
+            hasFlowEffects = true;
             const result = initFlowNode({ flags, antecedent, node });
             if (currentExceptionTarget) {
                 addAntecedent(currentExceptionTarget, result);
@@ -1023,6 +1039,7 @@ namespace ts {
 
         function createFlowCall(antecedent: FlowNode, node: CallExpression): FlowNode {
             setFlowNodeReferenced(antecedent);
+            hasFlowEffects = true;
             return initFlowNode({ flags: FlowFlags.Call, antecedent, node });
         }
 
@@ -1204,6 +1221,7 @@ namespace ts {
                 }
             }
             currentFlow = unreachableFlow;
+            hasFlowEffects = true;
         }
 
         function findActiveLabel(name: __String) {
@@ -1220,6 +1238,7 @@ namespace ts {
             if (flowLabel) {
                 addAntecedent(flowLabel, currentFlow);
                 currentFlow = unreachableFlow;
+                hasFlowEffects = true;
             }
         }
 
@@ -1548,8 +1567,12 @@ namespace ts {
                     isLogicalOrCoalescingAssignmentOperator(operator)) {
                     if (isTopLevelLogicalExpression(node)) {
                         const postExpressionLabel = createBranchLabel();
+                        const saveCurrentFlow = currentFlow;
+                        const saveHasFlowEffects = hasFlowEffects;
+                        hasFlowEffects = false;
                         bindLogicalLikeExpression(node, postExpressionLabel, postExpressionLabel);
-                        currentFlow = finishFlowLabel(postExpressionLabel);
+                        currentFlow = hasFlowEffects ? finishFlowLabel(postExpressionLabel) : saveCurrentFlow;
+                        hasFlowEffects ||= saveHasFlowEffects;
                     }
                     else {
                         bindLogicalLikeExpression(node, currentTrueTarget!, currentFalseTarget!);
@@ -1629,6 +1652,9 @@ namespace ts {
             const trueLabel = createBranchLabel();
             const falseLabel = createBranchLabel();
             const postExpressionLabel = createBranchLabel();
+            const saveCurrentFlow = currentFlow;
+            const saveHasFlowEffects = hasFlowEffects;
+            hasFlowEffects = false;
             bindCondition(node.condition, trueLabel, falseLabel);
             currentFlow = finishFlowLabel(trueLabel);
             bind(node.questionToken);
@@ -1638,7 +1664,8 @@ namespace ts {
             bind(node.colonToken);
             bind(node.whenFalse);
             addAntecedent(postExpressionLabel, currentFlow);
-            currentFlow = finishFlowLabel(postExpressionLabel);
+            currentFlow = hasFlowEffects ? finishFlowLabel(postExpressionLabel) : saveCurrentFlow;
+            hasFlowEffects ||= saveHasFlowEffects;
         }
 
         function bindInitializedVariableFlow(node: VariableDeclaration | ArrayBindingElement) {
@@ -1770,8 +1797,11 @@ namespace ts {
         function bindOptionalChainFlow(node: OptionalChain) {
             if (isTopLevelLogicalExpression(node)) {
                 const postExpressionLabel = createBranchLabel();
+                const saveCurrentFlow = currentFlow;
+                const saveHasFlowEffects = hasFlowEffects;
                 bindOptionalChain(node, postExpressionLabel, postExpressionLabel);
-                currentFlow = finishFlowLabel(postExpressionLabel);
+                currentFlow = hasFlowEffects ? finishFlowLabel(postExpressionLabel) : saveCurrentFlow;
+                hasFlowEffects ||= saveHasFlowEffects;
             }
             else {
                 bindOptionalChain(node, currentTrueTarget!, currentFalseTarget!);
