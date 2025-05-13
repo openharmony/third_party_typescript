@@ -2545,6 +2545,8 @@ declare namespace ts {
         getConstEnumRelate?(): ESMap<string, ESMap<string, string>>;
         clearConstEnumRelate?(): void;
         deleteConstEnumRelate?(path: string): void;
+        getCheckedSourceFiles(): Set<SourceFile>;
+        collectHaveTsNoCheckFilesForLinter(sourceFile: SourceFile): void;
     }
     export enum NodeBuilderFlags {
         None = 0,

@@ -408,6 +408,8 @@ namespace ts {
 
         let constEnumRelate: ESMap<string, ESMap<string, string>> = new Map();
         let performanceFileName: string;
+        // collecting incremental affected files
+        let checkedSourceFiles: Set<SourceFile> = new Set();
 
         // for public members that accept a Node or one of its subtypes, we must guard against
         // synthetic nodes created during transformations by calling `getParseTreeNode`.
@@ -763,6 +765,8 @@ namespace ts {
             getConstEnumRelate: () => constEnumRelate,
             clearConstEnumRelate: () => {constEnumRelate && constEnumRelate.clear()},
             deleteConstEnumRelate: (path: string) => {constEnumRelate && constEnumRelate.delete(path)},
+            getCheckedSourceFiles: () => checkedSourceFiles,
+            collectHaveTsNoCheckFilesForLinter: (sourceFile: SourceFile) => {isTypeCheckerForLinter && checkedSourceFiles.add(sourceFile)},
         };
 
         function runWithInferenceBlockedFromSourceNode<T>(node: Node | undefined, fn: () => T): T {
@@ -43852,6 +43856,10 @@ namespace ts {
                     clear(potentialReflectCollisions);
                 }
 
+                // collecting incremental affected files when the isTypeCheckerForLinter is true
+                if (isTypeCheckerForLinter) {
+                    checkedSourceFiles.add(node);
+                }
                 links.flags |= NodeCheckFlags.TypeChecked;
             }
         }
