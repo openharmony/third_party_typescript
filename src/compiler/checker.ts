@@ -765,9 +765,17 @@ namespace ts {
             getConstEnumRelate: () => constEnumRelate,
             clearConstEnumRelate: () => {constEnumRelate && constEnumRelate.clear()},
             deleteConstEnumRelate: (path: string) => {constEnumRelate && constEnumRelate.delete(path)},
+            getTypeArgumentsForResolvedSignature,
             getCheckedSourceFiles: () => checkedSourceFiles,
             collectHaveTsNoCheckFilesForLinter: (sourceFile: SourceFile) => {isTypeCheckerForLinter && checkedSourceFiles.add(sourceFile)},
         };
+
+        function getTypeArgumentsForResolvedSignature(signature: Signature): readonly Type[] | undefined {
+            if (signature.mapper === undefined) {
+                return undefined;
+            }
+            return instantiateTypes((signature.target || signature).typeParameters, signature.mapper);
+        }
 
         function runWithInferenceBlockedFromSourceNode<T>(node: Node | undefined, fn: () => T): T {
             const containingCall = findAncestor(node, isCallLikeExpression);
