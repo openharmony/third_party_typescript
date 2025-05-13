@@ -327,7 +327,7 @@ namespace ts {
         getJsDocNodeConditionCheckedResult?(jsDocFileCheckedInfo: FileCheckModuleInfo, jsDocs: JsDocTagInfo[]): ConditionCheckResult;
         getFileCheckedModuleInfo?(containFilePath: string): FileCheckModuleInfo;
         shouldCompletionSortCustom?: boolean;
-        uiProps?: string[];
+        uiProps?: Set<string>;
         clearProps?(): void;
     }
 
@@ -576,7 +576,7 @@ namespace ts {
         dispose(): void;
         updateRootFiles?(rootFiles: string[]): void;
         // Returns arkui's collection of props
-        getProps?(): string[];
+        getProps?(): Set<string>;
     }
 
     export interface JsxClosingTagInfo {

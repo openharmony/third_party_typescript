@@ -2708,8 +2708,8 @@ namespace ts {
             host.getScriptFileNames = () => rootFiles
         }
 
-        function getProps(): string[] {
-            return host.uiProps ? host.uiProps : [];
+        function getProps(): Set<string> {
+            return host.uiProps ? host.uiProps : new Set<string>();
         }
 
         const ls: LanguageService = {
