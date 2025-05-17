@@ -5342,7 +5342,7 @@ declare namespace ts {
          */
         setExternalModuleIndicator?: (file: SourceFile) => void;
     }
-    export function createSourceFile(fileName: string, sourceText: string, languageVersionOrOptions: ScriptTarget | CreateSourceFileOptions, setParentNodes?: boolean, scriptKind?: ScriptKind, options?: CompilerOptions): SourceFile;
+    export function createSourceFile(fileName: string, sourceText: string, languageVersionOrOptions: ScriptTarget | CreateSourceFileOptions, setParentNodes?: boolean, scriptKind?: ScriptKind, options?: CompilerOptions, isArkguardInput?: boolean): SourceFile;
     export function parseIsolatedEntityName(text: string, languageVersion: ScriptTarget): EntityName | undefined;
     /**
      * Parse json text into SyntaxTree and return node and parse errors if any
