@@ -456,7 +456,7 @@ export class TypeScriptLinter {
     // chain (as the 'Prototype' property should be 'Any' type):
     //      X.prototype.prototype.prototype = ...
     const baseExprTypeNode = TypeScriptLinter.tsTypeChecker.typeToTypeNode(
-      baseExprType, undefined, NodeBuilderFlags.None
+      baseExprType, undefined, NodeBuilderFlags.AllowEmptyTuple
     );
 
     return ((baseExprTypeNode && isFunctionTypeNode(baseExprTypeNode)) || Utils.isAnyType(baseExprType));
@@ -1017,7 +1017,7 @@ export class TypeScriptLinter {
         hasLimitedRetTypeInference = true;
       }
       else if (hasLimitedRetTypeInference) {
-        newRetTypeNode = TypeScriptLinter.tsTypeChecker.typeToTypeNode(tsRetType, funcLikeDecl, NodeBuilderFlags.None);
+        newRetTypeNode = TypeScriptLinter.tsTypeChecker.typeToTypeNode(tsRetType, funcLikeDecl, NodeBuilderFlags.AllowEmptyTuple);
         autofixable = !!newRetTypeNode;
 
         if (!isFuncExpr && newRetTypeNode && Autofixer.shouldAutofix(funcLikeDecl, FaultID.LimitedReturnTypeInference)) {
@@ -1724,7 +1724,7 @@ export class TypeScriptLinter {
       return true;
     }
 
-    const typeNode = TypeScriptLinter.tsTypeChecker.typeToTypeNode(type, undefined, ts.NodeBuilderFlags.None);
+    const typeNode = TypeScriptLinter.tsTypeChecker.typeToTypeNode(type, undefined, NodeBuilderFlags.AllowEmptyTuple);
 
     if (Utils.isArkTSCollectionsArrayLikeType(type)) {
       return Utils.isNumberLikeType(argType);
