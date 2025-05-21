@@ -12,13 +12,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-namespace ts {
-export namespace ArkTSLinter_1_1 {
 export const cookBookMsg: string[] = [];
 export const cookBookTag: string[] = [];
 
 for (let i = 0; i <= 182; i++) {
-  cookBookMsg[ i ] = "";
+    cookBookMsg[ i ] = "";
 }
 
 cookBookTag[1] = "Objects with property names that are not identifiers are not supported (arkts-identifiers-as-prop-names)";
@@ -204,6 +202,4 @@ cookBookTag[180] =
   'The "@Sendable" decorator can only be used on "class", "function" and "typeAlias" (arkts-sendable-decorator-limited)';
 cookBookTag[181] = '';
 cookBookTag[182] =
-  'Sendable functions and sendable typealias are not available when compatibleSdkVersionStage is lowering than beta3 of API12 (arkts-sendable-beta-compatible)';
-}
-}
+'Sendable functions and sendable typealias are not available when compatibleSdkVersionStage is lowering than beta3 of API12 (arkts-sendable-beta-compatible)';

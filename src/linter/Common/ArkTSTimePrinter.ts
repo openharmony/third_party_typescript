@@ -1,4 +1,4 @@
-namespace ts {
+import { Map } from "../_namespaces/ts";
 
 export enum TimePhase {
     START = 'start',
@@ -82,6 +82,4 @@ export class ArkTSLinterTimePrinter {
             console.log(formattedMap);
         }
     }
-}
-
 }

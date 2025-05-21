@@ -12,39 +12,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-namespace ts {
-export namespace ArkTSLinter_1_0 {
-export namespace Problems {
 
 export enum FaultID {
-  AnyType, SymbolType, ObjectLiteralNoContextType, ArrayLiteralNoContextType,
-  ComputedPropertyName, LiteralAsPropertyName, TypeQuery, RegexLiteral, IsOperator,
-  DestructuringParameter, YieldExpression, InterfaceMerging, EnumMerging, InterfaceExtendsClass, IndexMember, WithStatement,
-  ThrowStatement, IndexedAccessType, UnknownType, ForInStatement, InOperator,
-  ImportFromPath, FunctionExpression, IntersectionType,
-  ObjectTypeLiteral, CommaOperator, LimitedReturnTypeInference,
-  LambdaWithTypeParameters, ClassExpression, DestructuringAssignment,
-  DestructuringDeclaration, VarDeclaration, CatchWithUnsupportedType, DeleteOperator,
-  DeclWithDuplicateName, UnaryArithmNotNumber, ConstructorType, ConstructorIface, ConstructorFuncs, CallSignature,
-  TypeAssertion, PrivateIdentifier, LocalFunction,
-  ConditionalType, MappedType, NamespaceAsObject, ClassAsObject,
-  NonDeclarationInNamespace, GeneratorFunction, FunctionContainsThis, PropertyAccessByIndex, JsxElement,
-  EnumMemberNonConstInit, ImplementsClass, NoUndefinedPropAccess, MultipleStaticBlocks, ThisType,
-  IntefaceExtendDifProps, StructuralIdentity, DefaultImport,
-  ExportAssignment, ImportAssignment,
-  GenericCallNoTypeArgs, ParameterProperties,
-  InstanceofUnsupported, ShorthandAmbientModuleDecl, WildcardsInModuleName, UMDModuleDefinition,
-  NewTarget, DefiniteAssignment, Prototype, GlobalThis,
-  UtilityType, PropertyDeclOnFunction, FunctionApplyBindCall, ConstAssertion, ImportAssertion,
-  SpreadOperator, LimitedStdLibApi, ErrorSuppression, StrictDiagnostic, UnsupportedDecorators, ImportAfterStatement,
-  EsObjectType,
-  LAST_ID, // this should always be last enum`
+    AnyType, SymbolType, ObjectLiteralNoContextType, ArrayLiteralNoContextType,
+    ComputedPropertyName, LiteralAsPropertyName, TypeQuery, RegexLiteral, IsOperator,
+    DestructuringParameter, YieldExpression, InterfaceMerging, EnumMerging, InterfaceExtendsClass, IndexMember, WithStatement,
+    ThrowStatement, IndexedAccessType, UnknownType, ForInStatement, InOperator,
+    ImportFromPath, FunctionExpression, IntersectionType,
+    ObjectTypeLiteral, CommaOperator, LimitedReturnTypeInference,
+    LambdaWithTypeParameters, ClassExpression, DestructuringAssignment,
+    DestructuringDeclaration, VarDeclaration, CatchWithUnsupportedType, DeleteOperator,
+    DeclWithDuplicateName, UnaryArithmNotNumber, ConstructorType, ConstructorIface, ConstructorFuncs, CallSignature,
+    TypeAssertion, PrivateIdentifier, LocalFunction,
+    ConditionalType, MappedType, NamespaceAsObject, ClassAsObject,
+    NonDeclarationInNamespace, GeneratorFunction, FunctionContainsThis, PropertyAccessByIndex, JsxElement,
+    EnumMemberNonConstInit, ImplementsClass, NoUndefinedPropAccess, MultipleStaticBlocks, ThisType,
+    IntefaceExtendDifProps, StructuralIdentity, DefaultImport,
+    ExportAssignment, ImportAssignment,
+    GenericCallNoTypeArgs, ParameterProperties,
+    InstanceofUnsupported, ShorthandAmbientModuleDecl, WildcardsInModuleName, UMDModuleDefinition,
+    NewTarget, DefiniteAssignment, Prototype, GlobalThis,
+    UtilityType, PropertyDeclOnFunction, FunctionApplyBindCall, ConstAssertion, ImportAssertion,
+    SpreadOperator, LimitedStdLibApi, ErrorSuppression, StrictDiagnostic, UnsupportedDecorators, ImportAfterStatement,
+    EsObjectType,
+    LAST_ID, // this should always be last enum`
 }
 
 export class FaultAttributs {
-  migratable?: boolean;
-  warning?: boolean;
-  cookBookRef = "-1";
+    migratable?: boolean;
+    warning?: boolean;
+    cookBookRef = "-1";
 }
 
 export const faultsAttrs: FaultAttributs[] = [];
@@ -133,6 +130,3 @@ faultsAttrs[FaultID.UnsupportedDecorators] = { warning: true, cookBookRef: "148"
 faultsAttrs[FaultID.ClassAsObject] = { cookBookRef: "149", };
 faultsAttrs[FaultID.ImportAfterStatement] = { cookBookRef: "150", };
 faultsAttrs[FaultID.EsObjectType] = { warning: true, cookBookRef: "151" };
-}
-}
-}

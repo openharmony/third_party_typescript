@@ -1398,7 +1398,7 @@
                   "target": {
                     "fileName": "lib.d.ts",
                     "textSpan": {
-                      "start": 18880,
+                      "start": 18451,
                       "length": 28
                     }
                   }
@@ -1421,7 +1421,7 @@
                   "target": {
                     "fileName": "lib.d.ts",
                     "textSpan": {
-                      "start": 18880,
+                      "start": 18451,
                       "length": 28
                     }
                   }
@@ -1605,7 +1605,7 @@
                   "kind": "space"
                 },
                 {
-                  "text": "The index to the end of the specified portion of stringObj. The substring includes the characters up to, but not including, the character indicated by end.\r\nIf this value is not specified, the substring continues to the end of stringObj.",
+                  "text": "The index to the end of the specified portion of stringObj. The substring includes the characters up to, but not including, the character indicated by end.\nIf this value is not specified, the substring continues to the end of stringObj.",
                   "kind": "text"
                 }
               ]
@@ -1745,7 +1745,7 @@
                   "kind": "space"
                 },
                 {
-                  "text": "The index to the end of the specified portion of stringObj. The substring includes the characters up to, but not including, the character indicated by end.\r\nIf this value is not specified, the substring continues to the end of stringObj.",
+                  "text": "The index to the end of the specified portion of stringObj. The substring includes the characters up to, but not including, the character indicated by end.\nIf this value is not specified, the substring continues to the end of stringObj.",
                   "kind": "text"
                 }
               ]
@@ -1989,7 +1989,7 @@
                   "kind": "space"
                 },
                 {
-                  "text": "Zero-based index number indicating the end of the substring. The substring includes the characters up to, but not including, the character indicated by end.\r\nIf end is omitted, the characters from start through the end of the original string are returned.",
+                  "text": "Zero-based index number indicating the end of the substring. The substring includes the characters up to, but not including, the character indicated by end.\nIf end is omitted, the characters from start through the end of the original string are returned.",
                   "kind": "text"
                 }
               ]
@@ -2125,7 +2125,7 @@
                   "kind": "space"
                 },
                 {
-                  "text": "Zero-based index number indicating the end of the substring. The substring includes the characters up to, but not including, the character indicated by end.\r\nIf end is omitted, the characters from start through the end of the original string are returned.",
+                  "text": "Zero-based index number indicating the end of the substring. The substring includes the characters up to, but not including, the character indicated by end.\nIf end is omitted, the characters from start through the end of the original string are returned.",
                   "kind": "text"
                 }
               ]

@@ -12,12 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-namespace ts {
-export namespace ArkTSLinter_1_1 {
-export namespace Problems {
 
-import ProblemSeverity = Common.ProblemSeverity;
-
+import { ProblemSeverity } from "../_namespaces/ts.ArkTSLinter_1_1";
 export enum FaultID {
   AnyType, SymbolType, ObjectLiteralNoContextType, ArrayLiteralNoContextType,
   ComputedPropertyName, LiteralAsPropertyName, TypeQuery, IsOperator,
@@ -51,11 +47,11 @@ export enum FaultID {
 }
 
 export class FaultAttributes {
-  constructor(
-    public cookBookRef: number,
-    public migratable: boolean = false,
-    public severity: ProblemSeverity = ProblemSeverity.ERROR
-  ) {}
+    constructor(
+        public cookBookRef: number,
+        public migratable: boolean = false,
+        public severity: ProblemSeverity = ProblemSeverity.ERROR
+    ) {}
 }
 
 export const faultsAttrs: FaultAttributes[] = [];
@@ -171,6 +167,3 @@ faultsAttrs[FaultID.SendableDecoratorLimited] = new FaultAttributes(180);
 faultsAttrs[FaultID.SharedModuleExportsWarning] = new FaultAttributes(163, false, ProblemSeverity.WARNING);
 faultsAttrs[FaultID.SendableBetaCompatible] = new FaultAttributes(182);
 faultsAttrs[FaultID.SendablePropTypeWarning] = new FaultAttributes(154, false, ProblemSeverity.WARNING);
-}
-}
-}

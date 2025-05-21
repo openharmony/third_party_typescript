@@ -14,33 +14,27 @@
  */
 
 //import * as ts from 'ts';
-namespace ts {
-export namespace ArkTSLinter_1_0 {
-export namespace Common {
+import { ParsedCommandLine, Program } from "../_namespaces/ts";
 
 export interface AutofixInfo {
-  problemID: string;
-  start: number;
-  end: number;
+    problemID: string;
+    start: number;
+    end: number;
 }
 
 export interface CommandLineOptions {
-  strictMode?: boolean;
-  ideMode?: boolean;
-  logTscErrors?: boolean;
-  warningsAsErrors: boolean;
-  parsedConfigFile?: ParsedCommandLine;
-  inputFiles: string[];
-  autofixInfo?: AutofixInfo[];
+    strictMode?: boolean;
+    ideMode?: boolean;
+    logTscErrors?: boolean;
+    warningsAsErrors: boolean;
+    parsedConfigFile?: ParsedCommandLine;
+    inputFiles: string[];
+    autofixInfo?: AutofixInfo[];
 }
 
 // common options interface, additional fields may be useds by plugins
 export interface LintOptions {
-  cmdOptions: CommandLineOptions;
-  tsProgram?: Program;
-  [key: string]: any;
-}
-
-}
-}
+    cmdOptions: CommandLineOptions;
+    tsProgram?: Program;
+    [key: string]: any;
 }

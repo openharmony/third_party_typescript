@@ -1,9 +1,6 @@
 {
     "extends": "../tsconfig-base",
     "compilerOptions": {
-        "removeComments": false,
-        "outFile": "../../built/local/linter.js",
-        "preserveConstEnums": true,
         "types": [
             "node"
         ]
@@ -13,30 +10,5 @@
         { "path": "../jsTyping" },
         { "path": "../services" }
     ],
-    "files": [
-        "./ArkTSLinter_1_0/Common.ts",
-        "./ArkTSLinter_1_0/CookBookMsg.ts",
-        "./ArkTSLinter_1_0/DiagnosticChecker.ts",
-        "./ArkTSLinter_1_0/LibraryTypeCallDiagnosticChecker.ts",
-        "./ArkTSLinter_1_0/Utils.ts",
-        "./ArkTSLinter_1_0/Problems.ts",
-        "./ArkTSLinter_1_0/Autofixer.ts",
-        "./ArkTSLinter_1_0/TypeScriptLinterConfig.ts",
-        "./ArkTSLinter_1_0/TypeScriptLinter.ts",
-        "./ArkTSLinter_1_0/TSDiagnostics.ts",
-        "./ArkTSLinter_1_0/LinterRunner.ts",
-        "./ArkTSLinter_1_1/Common.ts",
-        "./ArkTSLinter_1_1/CookBookMsg.ts",
-        "./ArkTSLinter_1_1/DiagnosticChecker.ts",
-        "./ArkTSLinter_1_1/LibraryTypeCallDiagnosticChecker.ts",
-        "./ArkTSLinter_1_1/Problems.ts",
-        "./ArkTSLinter_1_1/Utils.ts",
-        "./ArkTSLinter_1_1/Autofixer.ts",
-        "./ArkTSLinter_1_1/TypeScriptLinterConfig.ts",
-        "./ArkTSLinter_1_1/TypeScriptLinter.ts",
-        "./ArkTSLinter_1_1/InteropTypescriptLinter.ts",
-        "./ArkTSLinter_1_1/TSDiagnostics.ts",
-        "./ArkTSLinter_1_1/LinterRunner.ts",
-        "./Common/ArkTSTimePrinter.ts"
-    ]
+    "include": ["**/*"]
 }

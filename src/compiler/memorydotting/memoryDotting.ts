@@ -13,51 +13,49 @@
  * limitations under the License.
  */
 
-namespace ts {
-    export namespace MemoryDotting {
-        export interface RecordInfo {
-            recordStage: string,
-            recordIndex: number
+export namespace MemoryDotting {
+    export interface RecordInfo {
+        recordStage: string,
+        recordIndex: number
+    }
+    export const BINDE_SOURCE_FILE = 'binder(bindSourceFile: Bind)';
+    export const CHECK_SOURCE_FILE = 'checker(checkSourceFile: Check)';
+    export const EMIT_FILES = 'emitter(emitFiles: EmitEachOutputFile)';
+    export const CREATE_SORUCE_FILE_PARSE = 'parser(createSourceFile: Parse)';
+    export const BEFORE_PROGRAM = 'program(createProgram: beforeProgram)';
+    export const TRANSFORM = 'transformer(transformNodes: Transform)';
+
+    let memoryDottingCallback: ((stage: string) => RecordInfo) | undefined;
+    let memoryDottingStopCallback: ((recordInfo: RecordInfo) => void) | undefined;
+
+    export function recordStage(stage: string): RecordInfo | null {
+        if (memoryDottingCallback !== undefined) {
+            return memoryDottingCallback(stage);
         }
-        export const BINDE_SOURCE_FILE = 'binder(bindSourceFile: Bind)';
-        export const CHECK_SOURCE_FILE = 'checker(checkSourceFile: Check)';
-        export const EMIT_FILES = 'emitter(emitFiles: EmitEachOutputFile)';
-        export const CREATE_SORUCE_FILE_PARSE = 'parser(createSourceFile: Parse)';
-        export const BEFORE_PROGRAM = 'program(createProgram: beforeProgram)';
-        export const TRANSFORM = 'transformer(transformNodes: Transform)';
-    
-        let memoryDottingCallback: ((stage: string) => RecordInfo) | undefined;
-        let memoryDottingStopCallback: ((recordInfo: RecordInfo) => void) | undefined;
-    
-        export function recordStage(stage: string): RecordInfo | null {
-            if (memoryDottingCallback !== undefined) {
-                return memoryDottingCallback(stage);
-            }
-            return null;
+        return null;
+    }
+
+    export function stopRecordStage(recordInfo: RecordInfo | null): void {
+        if (memoryDottingStopCallback !== undefined && recordInfo !== null) {
+            memoryDottingStopCallback(recordInfo);
         }
-    
-        export function stopRecordStage(recordInfo: RecordInfo | null): void {
-            if (memoryDottingStopCallback !== undefined && recordInfo !== null) {
-                memoryDottingStopCallback(recordInfo);
-            }
+    }
+
+    export function setMemoryDottingCallBack(recordCallback: (stage: string) => RecordInfo, stopCallback: (recordInfo: RecordInfo) => void): void {
+        if (recordCallback) {
+            memoryDottingCallback = recordCallback;
         }
-    
-        export function setMemoryDottingCallBack(recordCallback: (stage: string) => RecordInfo, stopCallback: (recordInfo: RecordInfo) => void): void {
-            if (recordCallback) {
-                memoryDottingCallback = recordCallback;
-            }
-            if (stopCallback) {
-                memoryDottingStopCallback = stopCallback;
-            }
+        if (stopCallback) {
+            memoryDottingStopCallback = stopCallback;
         }
-    
-        export function clearCallBack(): void {
-            if (memoryDottingCallback !== undefined) {
-                memoryDottingCallback = undefined;
-            }
-            if (memoryDottingStopCallback !== undefined) {
-                memoryDottingStopCallback = undefined;
-            }
+    }
+
+    export function clearCallBack(): void {
+        if (memoryDottingCallback !== undefined) {
+            memoryDottingCallback = undefined;
+        }
+        if (memoryDottingStopCallback !== undefined) {
+            memoryDottingStopCallback = undefined;
         }
     }
 }

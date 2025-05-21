@@ -12,15 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { DiagnosticMessageChain } from "../_namespaces/ts";
 
-namespace ts {
-export namespace ArkTSLinter_1_1 {
-
-export namespace DiagnosticCheckerNamespace {
 export interface DiagnosticChecker {
-  checkDiagnosticMessage(msgText: string | ts.DiagnosticMessageChain): boolean;
-}
-}
-
-}
+    checkDiagnosticMessage(msgText: string | DiagnosticMessageChain): boolean;
 }

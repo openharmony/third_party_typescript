@@ -13,21 +13,28 @@
  * limitations under the License.
  */
 
-namespace ts {
-export namespace ArkTSLinter_1_1 {
+import {
+  ArkTSLinterTimePrinter, arrayFrom, BuilderProgram, Diagnostic, DiagnosticCategory, getBaseFileName,
+  isOHModules, Map, normalizePath, Path, PerformanceDotting, resolvePath, ReusableBuilderProgramState, ScriptKind, Set, SourceFile,
+  TimePhase, TypeChecker, WriteFileCallback, MemoryUtils
+} from "../_namespaces/ts";
+import { 
+  LibraryTypeCallDiagnosticChecker, TypeScriptLinter, InteropTypescriptLinter, ProblemSeverity, ProblemInfo, setTypeChecker, clearTypeChecker,
+  clearTrueSymbolAtLocationCache, LinterConfig, TSCCompiledProgram, clearUtilsGlobalvariables
+} from "../_namespaces/ts.ArkTSLinter_1_1";
 
 function makeDiag(category: DiagnosticCategory, code: number, file: SourceFile, start: number, length: number, messageText: string): Diagnostic {
   return { category, code, file, start, length, messageText };
 }
 
 export function translateDiag(srcFile: SourceFile, problemInfo: ProblemInfo): Diagnostic {
-  const severity = (problemInfo.severity === Common.ProblemSeverity.ERROR ? DiagnosticCategory.Error : DiagnosticCategory.Warning);
+  const severity = (problemInfo.severity === ProblemSeverity.ERROR ? DiagnosticCategory.Error : DiagnosticCategory.Warning);
   return makeDiag(severity, problemInfo.ruleTag, srcFile, problemInfo.start, (problemInfo.end - problemInfo.start + 1), problemInfo.rule);
 }
 
 export function runArkTSLinter(tsBuilderProgram: BuilderProgram, srcFile?: SourceFile,
-  buildInfoWriteFile?: WriteFileCallback, arkTSVersion?: string): Diagnostic[] {
-  PerformanceDotting.startAdvanced(ts.TimePhase.INIT);
+buildInfoWriteFile?: WriteFileCallback, arkTSVersion?: string): Diagnostic[] {
+  PerformanceDotting.startAdvanced(TimePhase.INIT);
   TypeScriptLinter.errorLineNumbersString = "";
   TypeScriptLinter.warningLineNumbersString = "";
   InteropTypescriptLinter.errorLineNumbersString = '';
@@ -48,9 +55,9 @@ export function runArkTSLinter(tsBuilderProgram: BuilderProgram, srcFile?: Sourc
   const program = tscDiagnosticsLinter.getProgram();
   const compilerOptions = program.getCompilerOptions();
 
-  const timePrinterInstance = ts.ArkTSLinterTimePrinter.getInstance();
-  timePrinterInstance.appendTime(ts.TimePhase.INIT);
-  PerformanceDotting.stopAdvanced(ts.TimePhase.INIT);
+  const timePrinterInstance = ArkTSLinterTimePrinter.getInstance();
+  timePrinterInstance.appendTime(TimePhase.INIT);
+  PerformanceDotting.stopAdvanced(TimePhase.INIT);
 
   tscDiagnosticsLinter.doAllGetDiagnostics();
   const changedFiles = collectChangedFilesFromProgramState(
@@ -75,32 +82,32 @@ export function runArkTSLinter(tsBuilderProgram: BuilderProgram, srcFile?: Sourc
     srcFiles = program.getSourceFiles() as SourceFile[];
   }
 
-  PerformanceDotting.startAdvanced(ts.TimePhase.GET_TSC_DIAGNOSTICS);
+  PerformanceDotting.startAdvanced(TimePhase.GET_TSC_DIAGNOSTICS);
   const tscStrictDiagnostics = getTscDiagnostics(tscDiagnosticsLinter, srcFiles.filter(file => changedFiles.has(file.resolvedPath)));
-  timePrinterInstance.appendTime(ts.TimePhase.GET_TSC_DIAGNOSTICS);
-  PerformanceDotting.stopAdvanced(ts.TimePhase.GET_TSC_DIAGNOSTICS);
+  timePrinterInstance.appendTime(TimePhase.GET_TSC_DIAGNOSTICS);
+  PerformanceDotting.stopAdvanced(TimePhase.GET_TSC_DIAGNOSTICS);
 
-  PerformanceDotting.startAdvanced(ts.TimePhase.LINT);
+  PerformanceDotting.startAdvanced(TimePhase.LINT);
   TypeScriptLinter.initGlobals();
   InteropTypescriptLinter.initGlobals();
-  LibraryTypeCallDiagnosticCheckerNamespace.LibraryTypeCallDiagnosticChecker.instance.rebuildTscDiagnostics(tscStrictDiagnostics);
+  LibraryTypeCallDiagnosticChecker.instance.rebuildTscDiagnostics(tscStrictDiagnostics);
 
-  for (const fileToLint of srcFiles) {
+  var lintLoop = function(fileToLint: SourceFile) {
     if (fileToLint.scriptKind !== ScriptKind.ETS && fileToLint.scriptKind !== ScriptKind.TS) {
-      continue;
+      return "continue";
     }
 
     let currentDiagnostics: Diagnostic[];
     if (changedFiles.has(fileToLint.resolvedPath)) {
       const skipOhModulesLint = compilerOptions.skipOhModulesLint && isOHModules(fileToLint.fileName);
       if (skipOhModulesLint) {
-        continue;
+        return "continue";
       }
-      
+    
       if (fileToLint.scriptKind === ScriptKind.ETS) {
         TypeScriptLinter.initStatic();
         const linter = new TypeScriptLinter(fileToLint, program, tscStrictDiagnostics);
-        Utils.setTypeChecker(TypeScriptLinter.tsTypeChecker);
+        setTypeChecker(TypeScriptLinter.tsTypeChecker);
         linter.lint();
 
         // Get list of bad nodes from the current run.
@@ -108,16 +115,16 @@ export function runArkTSLinter(tsBuilderProgram: BuilderProgram, srcFile?: Sourc
         TypeScriptLinter.problemsInfos.forEach((x) => currentDiagnostics.push(translateDiag(fileToLint, x)));
       } else {
         InteropTypescriptLinter.initStatic();
-        const isKit = ts.getBaseFileName(fileToLint.fileName).indexOf('@kit.') === 0;
+        const isKit = getBaseFileName(fileToLint.fileName).indexOf('@kit.') === 0;
         const etsLoaderPath = program.getCompilerOptions().etsLoaderPath;
         const isInSdk = etsLoaderPath ? normalizePath(fileToLint.fileName).indexOf(resolvePath(etsLoaderPath, '../..')) === 0 : false;
         const isInOhModules = isOHModules(fileToLint.fileName);
         const tsImportSendableEnable = program.getCompilerOptions().tsImportSendableEnable;
         if (isKit || isInOhModules || (!tsImportSendableEnable && !isInSdk)) {
-          continue;
+          return "continue";
         }
         const InteropLinter = new InteropTypescriptLinter(fileToLint, program, isInSdk);
-        Utils.setTypeChecker(InteropTypescriptLinter.tsTypeChecker);
+        setTypeChecker(InteropTypescriptLinter.tsTypeChecker);
         InteropLinter.lint();
 
         currentDiagnostics = [];
@@ -130,18 +137,25 @@ export function runArkTSLinter(tsBuilderProgram: BuilderProgram, srcFile?: Sourc
     diagnostics.push(...currentDiagnostics);
 
     // Add linter diagnostics to new cache.
-    programState.arktsLinterDiagnosticsPerFile.set(fileToLint.resolvedPath, currentDiagnostics);
+    programState.arktsLinterDiagnosticsPerFile?.set(fileToLint.resolvedPath, currentDiagnostics);
   }
-  timePrinterInstance.appendTime(ts.TimePhase.LINT);
-  PerformanceDotting.stopAdvanced(ts.TimePhase.LINT);
+
+  MemoryUtils.initializeBaseMemory();
+  for (const fileToLint of srcFiles) {
+    lintLoop(fileToLint);
+    MemoryUtils.tryGC();
+  }
+
+  timePrinterInstance.appendTime(TimePhase.LINT);
+  PerformanceDotting.stopAdvanced(TimePhase.LINT);
 
   // Write tsbuildinfo file only after we cached the linter diagnostics.
-  PerformanceDotting.startAdvanced(ts.TimePhase.EMIT_BUILD_INFO);
+  PerformanceDotting.startAdvanced(TimePhase.EMIT_BUILD_INFO);
   if (!!buildInfoWriteFile) {
     tscDiagnosticsLinter.getBuilderProgram().emitBuildInfo(buildInfoWriteFile);
-    timePrinterInstance.appendTime(ts.TimePhase.EMIT_BUILD_INFO);
+    timePrinterInstance.appendTime(TimePhase.EMIT_BUILD_INFO);
   }
-  PerformanceDotting.stopAdvanced(ts.TimePhase.EMIT_BUILD_INFO);
+  PerformanceDotting.stopAdvanced(TimePhase.EMIT_BUILD_INFO);
 
   releaseReferences();
 
@@ -153,10 +167,10 @@ function releaseReferences(): void {
   TypeScriptLinter.clearQualifiedNameCache();
   TypeScriptLinter.clearTsTypeChecker();
   InteropTypescriptLinter.clearTsTypeChecker();
-  Utils.clearTypeChecker();
-  Utils.clearTrueSymbolAtLocationCache();
-  Utils.clearUtilsGlobalvariables();
-  LibraryTypeCallDiagnosticCheckerNamespace.LibraryTypeCallDiagnosticChecker.instance.clear();
+  clearTypeChecker();
+  clearTrueSymbolAtLocationCache();
+  clearUtilsGlobalvariables();
+  LibraryTypeCallDiagnosticChecker.instance.clear();
 }
 
 function collectChangedFilesFromProgramState(
@@ -166,7 +180,7 @@ function collectChangedFilesFromProgramState(
   compatibleSdkVersion?: number,
   compatibleSdkVersionStage?: string
 ): Set<Path> {
-  const changedFiles = new Set<Path>(state.changedFilesSet);
+const changedFiles = new Set<Path>(state.changedFilesSet);
 
   // If old arkTSVersion from last run is not same current arkTSVersion from ets_loader,
   // the process all files in project.
@@ -199,16 +213,16 @@ function collectChangedFilesFromProgramState(
 }
 
 /**
- * Extracts TSC diagnostics emitted by strict checks.
- * Function might be time-consuming, as it runs second compilation.
- * @param sourceFiles AST of the processed files
- * @param tscDiagnosticsLinter linter initialized with the processed program
- * @returns problems found by TSC, mapped by `SourceFile.fileName` field
- */
+* Extracts TSC diagnostics emitted by strict checks.
+* Function might be time-consuming, as it runs second compilation.
+* @param sourceFiles AST of the processed files
+* @param tscDiagnosticsLinter linter initialized with the processed program
+* @returns problems found by TSC, mapped by `SourceFile.fileName` field
+*/
 function getTscDiagnostics(
   tscDiagnosticsLinter: TSCCompiledProgram,
   sourceFiles: SourceFile[],
-): Map<Diagnostic[]> {
+  ): Map<Diagnostic[]> {
   const strictDiagnostics = new Map<string, Diagnostic[]>();
   sourceFiles.forEach(file => {
     const diagnostics = tscDiagnosticsLinter.getStrictDiagnostics(file);
@@ -217,6 +231,4 @@ function getTscDiagnostics(
     }
   });
   return strictDiagnostics;
-}
-}
 }

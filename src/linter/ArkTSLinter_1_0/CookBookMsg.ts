@@ -12,14 +12,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-namespace ts {
-export namespace ArkTSLinter_1_0 {
 
 export const cookBookMsg: string[] = [];
 export const cookBookTag: string[] = [];
 
 for(let i = 0; i <= 151; i++) {
-  cookBookMsg[ i ] = "";
+    cookBookMsg[ i ] = "";
 }
 
 cookBookTag[1] = "Objects with property names that are not identifiers are not supported (arkts-identifiers-as-prop-names)";
@@ -173,5 +171,3 @@ cookBookTag[148] = "No decorators except ArkUI decorators are currently allowed 
 cookBookTag[149] = "Classes cannot be used as objects (arkts-no-classes-as-obj)";
 cookBookTag[150] = "\"import\" statements after other statements are not allowed (arkts-no-misplaced-imports)";
 cookBookTag[151] = 'Usage of "ESObject" type is restricted (arkts-limited-esobj)';
-}
-}

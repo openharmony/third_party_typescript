@@ -12,13 +12,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-namespace ts {
-export namespace ArkTSLinter_1_1 {
+import * as ts from "../_namespaces/ts";
+import { Diagnostic, Map, Set, ESMap } from "../_namespaces/ts";
 
 // Current approach relates on error code and error message matching and it is quite fragile,
 // so this place should be checked thoroughly in the case of typescript upgrade
-export namespace LibraryTypeCallDiagnosticCheckerNamespace {
 export const TYPE_0_IS_NOT_ASSIGNABLE_TO_TYPE_1_ERROR_CODE = 2322;
 export const TYPE_UNKNOWN_IS_NOT_ASSIGNABLE_TO_TYPE_1_RE = /^Type '(.*)\bunknown\b(.*)' is not assignable to type '.*'\.$/;
 export const TYPE_NULL_IS_NOT_ASSIGNABLE_TO_TYPE_1_RE = /^Type '(.*)\bnull\b(.*)' is not assignable to type '.*'\.$/;
@@ -72,8 +70,8 @@ export class LibraryTypeCallDiagnosticChecker {
       return;
     }
 
-    const diagnosticMessageChainArr: ts.Diagnostic[] = [];
-    const strictArr: ts.Diagnostic[] = [];
+    const diagnosticMessageChainArr: Diagnostic[] = [];
+    const strictArr: Diagnostic[] = [];
     tscStrictDiagnostics.forEach((strict) => {
       if (strict.length === 0) {
         return;
@@ -347,7 +345,4 @@ class ArrayUtils {
       callbackfn.call(thisArg, list[index], index, list);
     });
   }
-}
-}
-}
 }

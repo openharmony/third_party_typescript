@@ -13,10 +13,9 @@
  * limitations under the License.
  */
 
-namespace ts {
-export namespace ArkTSLinter_1_1 {
+import { ESMap, Map, Set, SyntaxKind } from "../_namespaces/ts";
 //import * as ts from 'typescript';
-import FaultID = Problems.FaultID;
+import { FaultID } from "../_namespaces/ts.ArkTSLinter_1_1";
 
 export class LinterConfig {
   static nodeDesc: string[] = [];
@@ -120,7 +119,7 @@ export class LinterConfig {
     LinterConfig.nodeDesc[FaultID.SendableGenericTypes] = 'Sendable generic types';
     LinterConfig.nodeDesc[FaultID.SendableClassDecorator] = 'Sendable class decorator';
     LinterConfig.nodeDesc[FaultID.SendableObjectInitialization] = 'Object literal or array literal is not allowed to \
-                                                                      initialize a "Sendable" object';
+                                                                          initialize a "Sendable" object';
     LinterConfig.nodeDesc[FaultID.SendableComputedPropName] = 'Sendable computed property name';
     LinterConfig.nodeDesc[FaultID.SendableAsExpr] = 'Sendable as expr';
     LinterConfig.nodeDesc[FaultID.SharedNoSideEffectImport] = 'Shared no side effect import';
@@ -137,18 +136,18 @@ export class LinterConfig {
 
   /*
   private static initTsSyntaxKindNames(): void {
-    const keys = Object.keys(SyntaxKind);
-    const values = Object.values(SyntaxKind);
+  const keys = Object.keys(SyntaxKind);
+  const values = Object.values(SyntaxKind);
 
-    for (let i = 0; i < values.length; i++) {
-      const val = values[i];
-      const kindNum = typeof val === "string" ? parseInt(val) : val;
-      if (kindNum && !LinterConfig.tsSyntaxKindNames[kindNum]) {
-        LinterConfig.tsSyntaxKindNames[kindNum] = keys[i];
-      }
+  for (let i = 0; i < values.length; i++) {
+    const val = values[i];
+    const kindNum = typeof val === "string" ? parseInt(val) : val;
+    if (kindNum && !LinterConfig.tsSyntaxKindNames[kindNum]) {
+      LinterConfig.tsSyntaxKindNames[kindNum] = keys[i];
     }
   }
-*/
+  }
+  */
   // must detect terminals during parsing
   static terminalTokens: Set<SyntaxKind> = new Set([
     SyntaxKind.OpenBraceToken, SyntaxKind.CloseBraceToken, SyntaxKind.OpenParenToken,
@@ -194,7 +193,4 @@ export class LinterConfig {
     [SyntaxKind.NamespaceExportDeclaration, FaultID.UMDModuleDefinition],
     [SyntaxKind.ClassExpression, FaultID.ClassExpression],
   ]);
-}
-
-}
 }

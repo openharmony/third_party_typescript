@@ -80,6 +80,7 @@
         "simple-indent": "error",
         "debug-assert": "error",
         "no-keywords": "error",
+        "jsdoc-format": "error",
         "one-namespace-per-file": "error",
 
         // eslint-plugin-import

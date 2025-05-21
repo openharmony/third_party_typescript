@@ -1,0 +1,13 @@
+{
+    "extends": "../tsconfig-base",
+    "compilerOptions": {
+    },
+    "references": [
+        { "path": "../compiler" },
+        { "path": "../jsTyping" },
+        { "path": "../services" },
+        { "path": "../deprecatedCompat" },
+        { "path": "../linter" }
+    ],
+    "include": ["**/*"]
+}
