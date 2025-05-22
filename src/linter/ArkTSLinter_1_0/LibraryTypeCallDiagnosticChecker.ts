@@ -13,13 +13,10 @@
  * limitations under the License.
  */
 
-namespace ts {
-export namespace ArkTSLinter_1_0 {
-
-import DiagnosticChecker = DiagnosticCheckerNamespace.DiagnosticChecker
+import { DiagnosticMessageChain } from "../_namespaces/ts";
+import { DiagnosticChecker } from "../_namespaces/ts.ArkTSLinter_1_0";
 // Current approach relates on error code and error message matching and it is quite fragile,
 // so this place should be checked thoroughly in the case of typescript upgrade
-export namespace LibraryTypeCallDiagnosticCheckerNamespace {
 export const TYPE_0_IS_NOT_ASSIGNABLE_TO_TYPE_1_ERROR_CODE = 2322;
 export const TYPE_UNKNOWN_IS_NOT_ASSIGNABLE_TO_TYPE_1_RE = /^Type '(.*)\bunknown\b(.*)' is not assignable to type '.*'\.$/;
 export const TYPE_NULL_IS_NOT_ASSIGNABLE_TO_TYPE_1_RE = /^Type 'null' is not assignable to type '.*'\.$/;
@@ -33,14 +30,14 @@ export const NO_OVERLOAD_MATCHES_THIS_CALL_ERROR_CODE = 2769;
 
 export class LibraryTypeCallDiagnosticChecker implements DiagnosticChecker {
   inLibCall: boolean = false;
-  diagnosticMessages: Array<ts.DiagnosticMessageChain> | undefined;
+  diagnosticMessages: Array<DiagnosticMessageChain> | undefined;
   filteredDiagnosticMessages: DiagnosticMessageChain[] = [];
 
   constructor(filteredDiagnosticMessages: DiagnosticMessageChain[]) {
     this.filteredDiagnosticMessages = filteredDiagnosticMessages;
   }
 
-  configure(inLibCall: boolean, diagnosticMessages: Array<ts.DiagnosticMessageChain>) {
+  configure(inLibCall: boolean, diagnosticMessages: Array<DiagnosticMessageChain>) {
     this.inLibCall = inLibCall;
     this.diagnosticMessages = diagnosticMessages;
   }
@@ -56,7 +53,7 @@ export class LibraryTypeCallDiagnosticChecker implements DiagnosticChecker {
     return true;
   }
 
-  checkMessageChain(chain: ts.DiagnosticMessageChain): boolean {
+  checkMessageChain(chain: DiagnosticMessageChain): boolean {
     if (chain.code == TYPE_0_IS_NOT_ASSIGNABLE_TO_TYPE_1_ERROR_CODE) {
       if (chain.messageText.match(TYPE_UNKNOWN_IS_NOT_ASSIGNABLE_TO_TYPE_1_RE)) {
         return false;
@@ -79,7 +76,7 @@ export class LibraryTypeCallDiagnosticChecker implements DiagnosticChecker {
     return chain.next == undefined ? true : this.checkMessageChain(chain.next[0]);
   };
 
-  checkFilteredDiagnosticMessages(msgText: ts.DiagnosticMessageChain | string) {
+  checkFilteredDiagnosticMessages(msgText: DiagnosticMessageChain | string) {
     if (this.filteredDiagnosticMessages.length == 0) {
       return true;
     }
@@ -96,8 +93,8 @@ export class LibraryTypeCallDiagnosticChecker implements DiagnosticChecker {
         continue;
       }
 
-      let curMsg: ts.DiagnosticMessageChain | undefined = msgText;
-      let curFilteredMsg: ts.DiagnosticMessageChain | undefined = msgChain;
+      let curMsg: DiagnosticMessageChain | undefined = msgText;
+      let curFilteredMsg: DiagnosticMessageChain | undefined = msgChain;
       while (curMsg) {
         if (!curFilteredMsg) {
           return true;
@@ -120,7 +117,7 @@ export class LibraryTypeCallDiagnosticChecker implements DiagnosticChecker {
     return true;
   }
 
-  checkDiagnosticMessage(msgText: string | ts.DiagnosticMessageChain): boolean {
+  checkDiagnosticMessage(msgText: string | DiagnosticMessageChain): boolean {
     if (!this.diagnosticMessages) {
       return false;
     }
@@ -139,7 +136,4 @@ export class LibraryTypeCallDiagnosticChecker implements DiagnosticChecker {
     }
     return true;
   }
-}
-}
-}
 }

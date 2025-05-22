@@ -13,8 +13,9 @@
  * limitations under the License.
  */
 
-namespace ts {
-export namespace ArkTSLinter_1_0 {
+import {
+    ArkTSLinterTimePrinter, BuilderProgram, Diagnostic, DiagnosticWithLocation, Program, Set, TimePhase,
+} from "../_namespaces/ts";
 
 export class TSCCompiledProgram {
   private diagnosticsExtractor: TypeScriptDiagnosticsExtractor;
@@ -45,8 +46,8 @@ class TypeScriptDiagnosticsExtractor {
   }
 
   /**
-   * Returns diagnostics which appear in strict compilation mode only
-   */
+  * Returns diagnostics which appear in strict compilation mode only
+  */
   public getStrictDiagnostics(fileName: string): Diagnostic[] {
     // workaround for a tsc bug
     const strict = getAllDiagnostics(this.nonStrictProgram, fileName, /* isStrict */ true).filter(
@@ -69,13 +70,13 @@ class TypeScriptDiagnosticsExtractor {
   }
 
   public doAllGetDiagnostics(): void {
-    const timePrinterInstance = ts.ArkTSLinterTimePrinter.getInstance();
+    const timePrinterInstance = ArkTSLinterTimePrinter.getInstance();
     this.nonStrictProgram.getSemanticDiagnostics();
-    timePrinterInstance.appendTime(ts.TimePhase.NON_STRICT_PROGRAM_GET_SEMANTIC_DIAGNOSTICS);
+    timePrinterInstance.appendTime(TimePhase.NON_STRICT_PROGRAM_GET_SEMANTIC_DIAGNOSTICS);
     this.nonStrictProgram.getSyntacticDiagnostics();
-    timePrinterInstance.appendTime(ts.TimePhase.NON_STRICT_PROGRAM_GET_SYNTACTIC_DIAGNOSTICS);
+    timePrinterInstance.appendTime(TimePhase.NON_STRICT_PROGRAM_GET_SYNTACTIC_DIAGNOSTICS);
     this.nonStrictProgram.builderProgramForLinter?.getSemanticDiagnostics();
-    timePrinterInstance.appendTime(ts.TimePhase.STRICT_PROGRAM_GET_SEMANTIC_DIAGNOSTICS);
+    timePrinterInstance.appendTime(TimePhase.STRICT_PROGRAM_GET_SEMANTIC_DIAGNOSTICS);
   }
 }
 
@@ -92,8 +93,8 @@ function getAllDiagnostics(builderProgram: BuilderProgram, fileName: string, isS
       .filter(diag => diag.file === sourceFile);
   }
   return builderProgram.getSemanticDiagnostics(sourceFile)
-    .concat(syntacticDiagnostics)
-    .filter(diag => diag.file === sourceFile);
+  .concat(syntacticDiagnostics)
+  .filter(diag => diag.file === sourceFile);
 }
 
 function hashDiagnostic(diagnostic: Diagnostic): string | undefined {
@@ -101,7 +102,4 @@ function hashDiagnostic(diagnostic: Diagnostic): string | undefined {
     return undefined;
   }
   return `${diagnostic.code}%${diagnostic.start}%${diagnostic.length}`;
-}
-
-}
 }

@@ -39,6 +39,7 @@ const parsed = minimist(process.argv.slice(2), {
         dirty: false,
         built: false,
         ci,
+        bundle: true
     }
 });
 
@@ -77,5 +78,7 @@ export default options;
  * @property {boolean} ci
  * @property {string} shards
  * @property {string} shardId
+ * @property {string} break
+ * @property {boolean} bundle
  */
 void 0;

@@ -13,12 +13,13 @@
  * limitations under the License.
  */
 
-namespace ts {
-export namespace ArkTSLinter_1_1 {
-export namespace Autofixer {
-
-import AutofixInfo = Common.AutofixInfo;
-import FaultID = Problems.FaultID;
+import {
+    ConstructorDeclaration, createPrinter, EmitHint, Expression, factory, FunctionExpression, FunctionLikeDeclaration,
+    isArrowFunction, isElementAccessExpression, isIdentifier, isPropertyAssignment, isPropertyDeclaration, Node,
+    NodeArray, NumericLiteral, ParameterDeclaration, Printer, PropertyName, Statement, StringLiteral, SyntaxKind,
+    TypeNode,
+} from "../_namespaces/ts";
+import { AutofixInfo, FaultID, hasAccessModifier } from "../_namespaces/ts.ArkTSLinter_1_1";
 
 //import Utils = Utils;
 
@@ -162,7 +163,7 @@ export function fixCtorParameterProperties(ctorDecl: ConstructorDeclaration, par
       continue;
     }
 
-    if (Utils.hasAccessModifier(param)) {
+    if (hasAccessModifier(param)) {
       const propIdent = factory.createIdentifier(param.name.text);
 
       const newFieldNode = factory.createPropertyDeclaration(
@@ -195,8 +196,4 @@ export function fixCtorParameterProperties(ctorDecl: ConstructorDeclaration, par
   }
 
   return autofixes;
-}
-
-}
-}
 }

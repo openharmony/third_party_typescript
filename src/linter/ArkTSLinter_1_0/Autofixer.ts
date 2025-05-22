@@ -12,13 +12,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-namespace ts {
-export namespace ArkTSLinter_1_0 {
-export namespace Autofixer {
-
-import AutofixInfo = Common.AutofixInfo;
-import FaultID = Problems.FaultID;
+import {
+    ConstructorDeclaration, createPrinter, EmitHint, Expression, factory, FunctionExpression, FunctionLikeDeclaration,
+    isArrowFunction, isElementAccessExpression, isIdentifier, isPropertyAssignment, isPropertyDeclaration, Node,
+    NodeArray, NumericLiteral, ParameterDeclaration, Printer, PropertyName, Statement, StringLiteral, SyntaxKind,
+    TypeNode, 
+} from "../_namespaces/ts";
+import { AutofixInfo, FaultID, hasAccessModifier } from "../_namespaces/ts.ArkTSLinter_1_0";
 
 //import Utils = Utils;
 
@@ -113,12 +113,12 @@ export function fixPropertyAccessByIndex(node: Node): Autofix[] | undefined {
 export function fixFunctionExpression(funcExpr: FunctionExpression,
   params: NodeArray<ParameterDeclaration> = funcExpr.parameters,
   retType: TypeNode | undefined = funcExpr.type): Autofix {
-  const arrowFunc = factory.createArrowFunction(
-    undefined, undefined, params, retType, factory.createToken(SyntaxKind.EqualsGreaterThanToken),
-    funcExpr.body
-  );
-  const text = printer.printNode(EmitHint.Unspecified, arrowFunc, funcExpr.getSourceFile());
-  return { start: funcExpr.getStart(), end: funcExpr.getEnd(), replacementText: text };
+    const arrowFunc = factory.createArrowFunction(
+      undefined, undefined, params, retType, factory.createToken(SyntaxKind.EqualsGreaterThanToken),
+      funcExpr.body
+    );
+    const text = printer.printNode(EmitHint.Unspecified, arrowFunc, funcExpr.getSourceFile());
+    return { start: funcExpr.getStart(), end: funcExpr.getEnd(), replacementText: text };
 }
 
 export function fixReturnType(funcLikeDecl: FunctionLikeDeclaration, typeNode: TypeNode): Autofix {
@@ -129,20 +129,20 @@ export function fixReturnType(funcLikeDecl: FunctionLikeDeclaration, typeNode: T
 
 function getReturnTypePosition(funcLikeDecl: FunctionLikeDeclaration): number {
   if (funcLikeDecl.body) {
-    // Find position of the first node or token that follows parameters.
-    // After that, iterate over child nodes in reverse order, until found
-    // first closing parenthesis.
-    const postParametersPosition = isArrowFunction(funcLikeDecl)
-      ? funcLikeDecl.equalsGreaterThanToken.getStart()
-      : funcLikeDecl.body.getStart();
+  // Find position of the first node or token that follows parameters.
+  // After that, iterate over child nodes in reverse order, until found
+  // first closing parenthesis.
+  const postParametersPosition = isArrowFunction(funcLikeDecl)
+    ? funcLikeDecl.equalsGreaterThanToken.getStart()
+    : funcLikeDecl.body.getStart();
 
-    const children = funcLikeDecl.getChildren();
-    for (let i = children.length - 1; i >= 0; i--) {
-      const child = children[i];
-      if (child.kind === SyntaxKind.CloseParenToken && child.getEnd() < postParametersPosition) {
-        return child.getEnd();
-      }
+  const children = funcLikeDecl.getChildren();
+  for (let i = children.length - 1; i >= 0; i--) {
+    const child = children[i];
+    if (child.kind === SyntaxKind.CloseParenToken && child.getEnd() < postParametersPosition) {
+      return child.getEnd();
     }
+  }
   }
 
   // Shouldn't get here.
@@ -162,7 +162,7 @@ export function fixCtorParameterProperties(ctorDecl: ConstructorDeclaration, par
       continue;
     }
 
-    if (Utils.hasAccessModifier(param)) {
+    if (hasAccessModifier(param)) {
       const propIdent = factory.createIdentifier(param.name.text);
 
       const newFieldNode = factory.createPropertyDeclaration(
@@ -195,8 +195,4 @@ export function fixCtorParameterProperties(ctorDecl: ConstructorDeclaration, par
   }
 
   return autofixes;
-}
-
-}
-}
 }

@@ -12,14 +12,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {
+    ArrayLiteralExpression, AsExpression, BinaryExpression, BinaryOperatorToken, CallExpression, canHaveModifiers,
+    CatchClause, ClassDeclaration, CommentRange, ComputedPropertyName, ConditionalExpression, ConstructorDeclaration,
+    Declaration, Decorator, Diagnostic, ElementAccessExpression, EntityName, EnumMember, ESMap, Expression,
+    ExpressionWithTypeArguments, Extension, flattenDiagnosticMessageText, ForInStatement, FunctionDeclaration,
+    FunctionExpression, getAllDecorators, getAnyExtensionFromPath, getBaseFileName, getCombinedNodeFlags, getDecorators,
+    getLineAndCharacterOfPosition, getModifiers, getPathComponents, HasDecorators, hasIndexSignature, HasModifiers,
+    Identifier, idText, IfStatement, ImportSpecifier, IndexSignatureDeclaration, isArrayLiteralExpression,
+    isArrayTypeNode, isArrowFunction, isAsExpression, isBinaryExpression, isBlock, isCallExpression,
+    isCallLikeExpression, isClassDeclaration, isComputedPropertyName, isConstructorDeclaration, isEnumDeclaration,
+    isExportAssignment, isExportDeclaration, isExpressionStatement, isForInStatement, isForOfStatement, isForStatement,
+    isFunctionDeclaration, isFunctionExpression, isFunctionTypeNode, isGetAccessorDeclaration, isIdentifier,
+    isImportDeclaration, isInterfaceDeclaration, isIntersectionTypeNode, isLiteralTypeNode, isMemberName,
+    isMethodDeclaration, isModuleBlock, isNamedExports, isNamedTupleMember, isNumericLiteral, isObjectLiteralExpression,
+    isParenthesizedExpression, isParenthesizedTypeNode, isPropertyAccessExpression, isPropertyAssignment,
+    isPropertyDeclaration, isSetAccessorDeclaration, isStringLiteral, isStringLiteralLike, isTupleTypeNode,
+    isTypeAliasDeclaration, isTypeLiteralNode, isTypeNode, isTypeQueryNode, isTypeReferenceNode, isUnionTypeNode,
+    isVariableDeclaration, isVariableDeclarationList, isVariableStatement, Map, MethodDeclaration, Modifier,
+    NamedDeclaration, Node, NodeArray, NodeBuilderFlags, NodeFlags, normalizePath, NumericLiteral, ObjectFlags, ObjectLiteralExpression, ObjectType,
+    PrefixUnaryExpression, PrefixUnaryOperator, PropertyAccessExpression, PropertyAssignment, PropertyDeclaration,
+    ResolvedModuleFull, ScriptKind, Set, SourceFile, Statement, Symbol, SymbolFlags, symbolName, SyntaxKind, Type,
+    TypeAliasDeclaration, TypeAssertion, TypeChecker, TypeFlags, TypeNode, TypeReference, UnionType,
+    WithStatement,
+} from "../_namespaces/ts";
+import { AutofixInfo, FaultID, ProblemInfo } from "../_namespaces/ts.ArkTSLinter_1_1";
 
-namespace ts {
-export namespace ArkTSLinter_1_1 {
-
-import FaultID = Problems.FaultID;
-import AutofixInfo = Common.AutofixInfo;
-
-export namespace Utils {
 //import * as path from 'node:path';
 //import * as ts from 'typescript';
 //import ProblemInfo = ts.ProblemInfo;
@@ -51,14 +69,14 @@ export const SENDABLE_INTERFACE = 'ISendable';
 export const PROMISE = 'Promise';
 
 export const SENDABLE_DECORATOR_NODES = [
-  ts.SyntaxKind.ClassDeclaration,
-  ts.SyntaxKind.FunctionDeclaration,
-  ts.SyntaxKind.TypeAliasDeclaration
+  SyntaxKind.ClassDeclaration,
+  SyntaxKind.FunctionDeclaration,
+  SyntaxKind.TypeAliasDeclaration
 ];
 
 export const SENDABLE_CLOSURE_DECLS = [
-  ts.SyntaxKind.ClassDeclaration,
-  ts.SyntaxKind.FunctionDeclaration
+  SyntaxKind.ClassDeclaration,
+  SyntaxKind.FunctionDeclaration
 ];
 
 export const ARKTS_COLLECTIONS_D_ETS = '@arkts.collections.d.ets';
@@ -217,7 +235,7 @@ export function getDeclWithDuplicateNameHighlightRange(
   // in case of private identifier no range update is needed
   const nameNode: Node | undefined = (nodeOrComment as NamedDeclaration).name;
   if (nameNode !== undefined) {
-    return [nameNode.getStart(), nameNode.getEnd()];
+  return [nameNode.getStart(), nameNode.getEnd()];
   }
 
   return undefined;
@@ -233,16 +251,16 @@ export function getClassExpressionHighlightRange(nodeOrComment: Node | CommentRa
   return getKeywordHighlightRange(nodeOrComment, 'class');
 }
 
-export function getMultipleStaticBlocksHighlightRange(nodeOrComment: ts.Node | ts.CommentRange): [number, number] | undefined {
+export function getMultipleStaticBlocksHighlightRange(nodeOrComment: Node | CommentRange): [number, number] | undefined {
   return getKeywordHighlightRange(nodeOrComment, 'static');
 }
 
 // highlight ranges for Sendable rules
 export function getSendableDefiniteAssignmentHighlightRange(
-  nodeOrComment: ts.Node | ts.CommentRange
+  nodeOrComment: Node | CommentRange
 ): [number, number] | undefined {
-  const name = (nodeOrComment as ts.PropertyDeclaration).name;
-  const exclamationToken = (nodeOrComment as ts.PropertyDeclaration).exclamationToken;
+  const name = (nodeOrComment as PropertyDeclaration).name;
+  const exclamationToken = (nodeOrComment as PropertyDeclaration).exclamationToken;
   return [name.getStart(), exclamationToken ? exclamationToken.getEnd() : name.getEnd()];
 }
 
@@ -289,8 +307,8 @@ export function isStringLikeType(tsType: Type): boolean {
   return (tsType.getFlags() & TypeFlags.StringLike) !== 0;
 }
 
-export function isStringType(tsType: ts.Type): boolean {
-  if ((tsType.getFlags() & ts.TypeFlags.String) !== 0) {
+export function isStringType(tsType: Type): boolean {
+  if ((tsType.getFlags() & TypeFlags.String) !== 0) {
     return true;
   }
 
@@ -357,16 +375,16 @@ export function isDestructuringAssignmentLHS(
   return false;
 }
 
-export function isEnumType(tsType: ts.Type): boolean {
+export function isEnumType(tsType: Type): boolean {
   // when type equals `typeof <Enum>`, only symbol contains information about it's type.
   const isEnumSymbol = tsType.symbol && isEnum(tsType.symbol);
   // otherwise, we should analyze flags of the type itself
-  const isEnumType = !!(tsType.flags & ts.TypeFlags.Enum) || !!(tsType.flags & ts.TypeFlags.EnumLiteral);
+  const isEnumType = !!(tsType.flags & TypeFlags.Enum) || !!(tsType.flags & TypeFlags.EnumLiteral);
   return isEnumSymbol || isEnumType;
 }
 
-export function isEnum(tsSymbol: ts.Symbol): boolean {
-  return !!(tsSymbol.flags & ts.SymbolFlags.Enum);
+export function isEnum(tsSymbol: Symbol): boolean {
+  return !!(tsSymbol.flags & SymbolFlags.Enum);
 }
 
 export function isEnumMemberType(tsType: Type): boolean {
@@ -405,7 +423,7 @@ export function followIfAliased(sym: Symbol): Symbol {
   return sym;
 }
 
-let trueSymbolAtLocationCache = new Map<ts.Node, ts.Symbol | null>();
+let trueSymbolAtLocationCache = new Map<Node, Symbol | null>();
 
 export function trueSymbolAtLocation(node: Node): Symbol | undefined {
   let cache = trueSymbolAtLocationCache;
@@ -477,18 +495,18 @@ export function isPrimitiveType(type: Type): boolean {
   );
 }
 
-export function isPrimitiveLiteralType(type: ts.Type): boolean {
+export function isPrimitiveLiteralType(type: Type): boolean {
   return !!(
     type.flags &
-    (ts.TypeFlags.BooleanLiteral |
-      ts.TypeFlags.NumberLiteral |
-      ts.TypeFlags.StringLiteral |
-      ts.TypeFlags.BigIntLiteral)
+    (TypeFlags.BooleanLiteral |
+      TypeFlags.NumberLiteral |
+      TypeFlags.StringLiteral |
+      TypeFlags.BigIntLiteral)
   );
 }
 
-export function isPurePrimitiveLiteralType(type: ts.Type): boolean {
-  return isPrimitiveLiteralType(type) && !(type.flags & ts.TypeFlags.EnumLiteral);
+export function isPurePrimitiveLiteralType(type: Type): boolean {
+  return isPrimitiveLiteralType(type) && !(type.flags & TypeFlags.EnumLiteral);
 }
 
 export function isTypeSymbol(symbol: Symbol | undefined): boolean {
@@ -533,7 +551,7 @@ export function isArrayLikeType(tsType: Type): boolean {
   );
 }
 
-export function isTypedArray(tsType: ts.Type, allowTypeArrays: string[]): boolean {
+export function isTypedArray(tsType: Type, allowTypeArrays: string[]): boolean {
   const symbol = tsType.symbol;
   if (!symbol) {
     return false;
@@ -550,15 +568,15 @@ export function isTypedArray(tsType: ts.Type, allowTypeArrays: string[]): boolea
   );
 }
 
-export function isArray(tsType: ts.Type): boolean {
-  return isGenericArrayType(tsType) || isReadonlyArrayType(tsType) || isTypedArray(tsType, TYPED_ARRAYS);
+export function isArray(tsType: Type): boolean {
+    return isGenericArrayType(tsType) || isReadonlyArrayType(tsType) || isTypedArray(tsType, TYPED_ARRAYS);
 }
 
-export function isCollectionArrayType(tsType: ts.Type): boolean {
+export function isCollectionArrayType(tsType: Type): boolean {
   return isTypedArray(tsType, TYPED_COLLECTIONS);
 }
 
-export function isIndexableArray(tsType: ts.Type): boolean {
+export function isIndexableArray(tsType: Type): boolean {
   return (
     isGenericArrayType(tsType) ||
     isReadonlyArrayType(tsType) ||
@@ -569,12 +587,12 @@ export function isIndexableArray(tsType: ts.Type): boolean {
   );
 }
 
-export function isTuple(tsType: ts.Type): boolean {
-  return isTypeReference(tsType) && !!(tsType.objectFlags & ts.ObjectFlags.Tuple);
+export function isTuple(tsType: Type): boolean {
+  return isTypeReference(tsType) && !!(tsType.objectFlags & ObjectFlags.Tuple);
 }
 
 // does something similar to relatedByInheritanceOrIdentical function
-export function isOrDerivedFrom(tsType: ts.Type, checkType: CheckType, checkedBaseTypes?: Set<ts.Type>): boolean {
+export function isOrDerivedFrom(tsType: Type, checkType: CheckType, checkedBaseTypes?: Set<Type>): boolean {
   if (isTypeReference(tsType) && tsType.target !== tsType) {
     tsType = tsType.target;
   }
@@ -586,10 +604,10 @@ export function isOrDerivedFrom(tsType: ts.Type, checkType: CheckType, checkedBa
   }
 
   // Avoid type recursion in heritage by caching checked types.
-  (checkedBaseTypes ||= new Set<ts.Type>()).add(tsType);
+  (checkedBaseTypes ||= new Set<Type>()).add(tsType);
 
   for (const tsTypeDecl of tsType.symbol.declarations) {
-    const isClassOrInterfaceDecl = ts.isClassDeclaration(tsTypeDecl) || ts.isInterfaceDeclaration(tsTypeDecl);
+    const isClassOrInterfaceDecl = isClassDeclaration(tsTypeDecl) || isInterfaceDeclaration(tsTypeDecl);
     const isDerived = isClassOrInterfaceDecl && !!tsTypeDecl.heritageClauses;
     if (!isDerived) {
       continue;
@@ -658,7 +676,7 @@ export function isUnsupportedUnionType(tsType: Type): boolean {
 
 function isNullableUnionType(tsUnionType: UnionType): boolean {
   for (const t of tsUnionType.types) {
-    if (!!(t.flags & ts.TypeFlags.Undefined) || !!(t.flags & ts.TypeFlags.Null)) {
+    if (!!(t.flags & TypeFlags.Undefined) || !!(t.flags & TypeFlags.Null)) {
       return true;
     }
   }
@@ -690,7 +708,7 @@ export function isMethodAssignment(tsSymbol: Symbol | undefined): boolean {
   );
 }
 
-export function getDeclaration(tsSymbol: ts.Symbol | undefined): ts.Declaration | undefined {
+export function getDeclaration(tsSymbol: Symbol | undefined): Declaration | undefined {
   if (tsSymbol && tsSymbol.declarations && tsSymbol.declarations.length > 0) {
     return tsSymbol.declarations[0];
   }
@@ -772,9 +790,9 @@ function isIdentifierValidEnumMemberInit(tsExpr: Identifier): boolean {
   const tsSymbol = typeChecker.getSymbolAtLocation(tsExpr);
   const tsDecl = getDeclaration(tsSymbol);
   return (!!tsDecl &&
-            ((isVarDeclaration(tsDecl) && isConst(tsDecl.parent)) ||
-              (tsDecl.kind === SyntaxKind.EnumMember)
-            )
+    ((isVarDeclaration(tsDecl) && isConst(tsDecl.parent)) ||
+      (tsDecl.kind === SyntaxKind.EnumMember)
+    )
   );
 }
 
@@ -806,8 +824,8 @@ export function isNumberConstantValue(
 ): boolean {
 
   const tsConstValue = (tsExpr.kind === SyntaxKind.NumericLiteral) ?
-    Number(tsExpr.getText()) :
-    typeChecker.getConstantValue(tsExpr);
+  Number(tsExpr.getText()) :
+  typeChecker.getConstantValue(tsExpr);
 
   return tsConstValue !== undefined && typeof tsConstValue === "number";
 }
@@ -817,8 +835,8 @@ export function isIntegerConstantValue(
 ): boolean {
 
   const tsConstValue = (tsExpr.kind === SyntaxKind.NumericLiteral) ?
-    Number(tsExpr.getText()) :
-    typeChecker.getConstantValue(tsExpr);
+  Number(tsExpr.getText()) :
+  typeChecker.getConstantValue(tsExpr);
   return (
     tsConstValue !== undefined && typeof tsConstValue === "number" &&
     tsConstValue.toFixed(0) === tsConstValue.toString()
@@ -844,7 +862,7 @@ export function relatedByInheritanceOrIdentical(typeA: Type, typeB: Type): boole
 
   const isBISendable = isISendableInterface(typeB);
   for (const typeADecl of typeA.symbol.declarations) {
-    if (isBISendable && ts.isClassDeclaration(typeADecl) && hasSendableDecorator(typeADecl)) {
+    if (isBISendable && isClassDeclaration(typeADecl) && hasSendableDecorator(typeADecl)) {
       return true;
     }
     if (
@@ -860,7 +878,7 @@ export function relatedByInheritanceOrIdentical(typeA: Type, typeB: Type): boole
   return false;
 }
 
-export function reduceReference(t: ts.Type): ts.Type {
+export function reduceReference(t: Type): Type {
   return isTypeReference(t) && t.target !== t ? t.target : t;
 }
 
@@ -917,7 +935,7 @@ export function needToDeduceStructuralIdentity(
   }
   // if isStrict, things like generics need to be checked
   if (isStrict) {
-    if (isTypeReference(rhsType) && !!(rhsType.objectFlags & ts.ObjectFlags.ArrayLiteral)) {
+    if (isTypeReference(rhsType) && !!(rhsType.objectFlags & ObjectFlags.ArrayLiteral)) {
       // The 'arkts-sendable-obj-init' rule already exists. Wait for the new 'strict type' to be modified.
       return false;
     }
@@ -925,11 +943,11 @@ export function needToDeduceStructuralIdentity(
     rhsType = reduceReference(rhsType);
   }
   return lhsType.isClassOrInterface() && rhsType.isClassOrInterface() &&
-    !relatedByInheritanceOrIdentical(rhsType, lhsType);
+  !relatedByInheritanceOrIdentical(rhsType, lhsType);
 }
 
 // Does the 'arkts-no-structure-typing' rule need to be strictly enforced to complete previously missed scenarios
-export function needStrictMatchType(lhsType: ts.Type, rhsType: ts.Type): boolean {
+export function needStrictMatchType(lhsType: Type, rhsType: Type): boolean {
   if (isStrictSendableMatch(lhsType, rhsType)) {
     return true;
   }
@@ -938,7 +956,7 @@ export function needStrictMatchType(lhsType: ts.Type, rhsType: ts.Type): boolean
 }
 
 // For compatibility, left must all ClassOrInterface is sendable, right must has non-sendable ClassorInterface
-function isStrictSendableMatch(lhsType: ts.Type, rhsType: ts.Type): boolean {
+function isStrictSendableMatch(lhsType: Type, rhsType: Type): boolean {
   let isStrictLhs = false;
   if (lhsType.isUnion()) {
     for (let compType of lhsType.types) {
@@ -978,9 +996,9 @@ export function processParentTypes(parentTypes: NodeArray<ExpressionWithTypeArgu
 }
 
 function processParentTypesCheck(
-  parentTypes: ts.NodeArray<ts.Expression>,
+  parentTypes: NodeArray<Expression>,
   checkType: CheckType,
-  checkedBaseTypes: Set<ts.Type>
+  checkedBaseTypes: Set<Type>
 ): boolean {
   for (const baseTypeExpr of parentTypes) {
     let baseType = typeChecker.getTypeAtLocation(baseTypeExpr);
@@ -1055,7 +1073,7 @@ function hasReadonlyFields(type: Type): boolean {
       value.declarations !== undefined && value.declarations.length > 0 &&
       isPropertyDeclaration(value.declarations[0])
     ) {
-      const propmMods = ts.getModifiers(value.declarations[0] as ts.PropertyDeclaration);//value.declarations[0].modifiers; // TSC 4.2 doesn't have 'getModifiers()' method
+      const propmMods = getModifiers(value.declarations[0] as PropertyDeclaration);//value.declarations[0].modifiers; // TSC 4.2 doesn't have 'getModifiers()' method
       if (hasModifier(propmMods, SyntaxKind.ReadonlyKeyword)) {
         result = true;
         return;
@@ -1073,17 +1091,17 @@ function hasDefaultCtor(type: Type): boolean {
   let hasDefaultCtor = false; // has default constructor
 
   type.symbol.members.forEach((value /*, key*/) => {
-    if ((value.flags & SymbolFlags.Constructor) !== 0) {
-      hasCtor = true;
+  if ((value.flags & SymbolFlags.Constructor) !== 0) {
+    hasCtor = true;
 
-      if (value.declarations !== undefined && value.declarations.length > 0) {
-        const declCtor = value.declarations[0] as ConstructorDeclaration;
-        if (declCtor.parameters.length === 0) {
-          hasDefaultCtor = true;
-          return;
-        }
+    if (value.declarations !== undefined && value.declarations.length > 0) {
+      const declCtor = value.declarations[0] as ConstructorDeclaration;
+      if (declCtor.parameters.length === 0) {
+        hasDefaultCtor = true;
+        return;
       }
     }
+  }
   });
 
   return !hasCtor || hasDefaultCtor; // Has no any explicite constructor -> has implicite default constructor.
@@ -1092,7 +1110,7 @@ function hasDefaultCtor(type: Type): boolean {
 function isAbstractClass(type: Type): boolean {
   if (type.isClass() && type.symbol.declarations && type.symbol.declarations.length > 0) {
     const declClass = type.symbol.declarations[0] as ClassDeclaration;
-    const classMods = ts.getModifiers(declClass); //declClass.modifiers; // TSC 4.2 doesn't have 'getModifiers()' method
+    const classMods = getModifiers(declClass); //declClass.modifiers; // TSC 4.2 doesn't have 'getModifiers()' method
     if (hasModifier(classMods, SyntaxKind.AbstractKeyword)) {
       return true;
     }
@@ -1148,7 +1166,7 @@ function findProperty(type: Type, name: string): Symbol | undefined {
   return undefined;
 }
 
-export function checkTypeSet(typeSet: ts.Type, predicate: CheckType): boolean {
+export function checkTypeSet(typeSet: Type, predicate: CheckType): boolean {
   if (!typeSet.isUnionOrIntersection()) {
     return predicate(typeSet);
   }
@@ -1160,14 +1178,14 @@ export function checkTypeSet(typeSet: ts.Type, predicate: CheckType): boolean {
   return false;
 }
 
-export function getNonNullableType(t: ts.Type): ts.Type {
+export function getNonNullableType(t: Type): Type {
   if (t.isUnion()) {
     return t.getNonNullableType();
   }
   return t;
 }
 
-export function isObjectLiteralAssignable(lhsType: ts.Type | undefined, rhsExpr: ts.ObjectLiteralExpression): boolean {
+export function isObjectLiteralAssignable(lhsType: Type | undefined, rhsExpr: ObjectLiteralExpression): boolean {
   if (lhsType === undefined) {
     return false;
   }
@@ -1247,13 +1265,13 @@ export function validateFields(objectType: Type, objectLiteral: ObjectLiteralExp
   return true;
 }
 
-function validateField(type: ts.Type, prop: ts.PropertyAssignment): boolean {
+function validateField(type: Type, prop: PropertyAssignment): boolean {
   // Issue 15497: Use unescaped property name to find correpsponding property.
   const propNameSymbol = typeChecker.getSymbolAtLocation(prop.name);
   const propName = propNameSymbol ?
-    ts.symbolName(propNameSymbol) :
-    ts.isMemberName(prop.name) ?
-      ts.idText(prop.name) :
+    symbolName(propNameSymbol) :
+    isMemberName(prop.name) ?
+      idText(prop.name) :
       prop.name.getText();
   const propSym = findProperty(type, propName);
   if (!propSym || !propSym.declarations?.length) {
@@ -1263,7 +1281,7 @@ function validateField(type: ts.Type, prop: ts.PropertyAssignment): boolean {
   const propType = typeChecker.getTypeOfSymbolAtLocation(propSym, propSym.declarations[0]);
   const initExpr = unwrapParenthesized(prop.initializer);
   const rhsType = typeChecker.getTypeAtLocation(initExpr);
-  if (ts.isObjectLiteralExpression(initExpr)) {
+  if (isObjectLiteralExpression(initExpr)) {
     if (!isObjectLiteralAssignable(propType, initExpr)) {
       return false;
     }
@@ -1291,7 +1309,6 @@ function isSupportedTypeNodeKind(kind: SyntaxKind): boolean {
     kind !== SyntaxKind.SymbolKeyword && kind !== SyntaxKind.IndexedAccessType &&
     kind !== SyntaxKind.ConditionalType && kind !== SyntaxKind.MappedType &&
     kind !== SyntaxKind.InferType;
-
 }
 
 export function isSupportedType(typeNode: TypeNode): boolean {
@@ -1352,9 +1369,9 @@ function validateRecordObjectKeys(objectLiteral: ObjectLiteralExpression): boole
 
 /* Not need in Tsc 4.9
 export function getDecorators(node: Node): readonly Decorator[] | undefined {
-  if (node.decorators) {
-    return filter(node.decorators, isDecorator);
-  }
+if (node.decorators) {
+return filter(node.decorators, isDecorator);
+}
 }
 */
 
@@ -1373,8 +1390,8 @@ export const LIMITED_STD_OBJECT_API = [
   "seal", "setPrototypeOf"
 ];
 export const LIMITED_STD_REFLECT_API = [
- "apply", "construct", "defineProperty", "deleteProperty", "getOwnPropertyDescriptor", "getPrototypeOf",
-    "isExtensible", "preventExtensions", "setPrototypeOf"
+  "apply", "construct", "defineProperty", "deleteProperty", "getOwnPropertyDescriptor", "getPrototypeOf",
+  "isExtensible", "preventExtensions", "setPrototypeOf"
 ];
 export const LIMITED_STD_PROXYHANDLER_API = [
   "apply", "construct", "defineProperty", "deleteProperty", "get", "getOwnPropertyDescriptor", "getPrototypeOf",
@@ -1444,18 +1461,18 @@ export function isSymbolAPI(symbol: Symbol): boolean {
   return name === 'Symbol' || name === "SymbolConstructor";
 }
 
-export function isStdSymbol(symbol: ts.Symbol): boolean {
+export function isStdSymbol(symbol: Symbol): boolean {
   const name = typeChecker.getFullyQualifiedName(symbol);
   return name === 'Symbol' && isGlobalSymbol(symbol);
 }
 
-export function isSymbolIterator(symbol: ts.Symbol): boolean {
+export function isSymbolIterator(symbol: Symbol): boolean {
   const name = symbol.name;
   const parName = getParentSymbolName(symbol);
-  return (parName === 'Symbol' || parName === 'SymbolConstructor') && name === 'iterator'
+  return (parName === 'Symbol' || parName === 'SymbolConstructor') && name === 'iterator';
 }
 
-export function isSymbolIteratorExpression(expr: ts.Expression): boolean {
+export function isSymbolIteratorExpression(expr: Expression): boolean {
   const symbol = trueSymbolAtLocation(expr);
   return !!symbol && isSymbolIterator(symbol);
 }
@@ -1464,7 +1481,7 @@ export function isDefaultImport(importSpec: ImportSpecifier): boolean {
   return importSpec?.propertyName?.text === "default";
 }
 export function hasAccessModifier(decl: Declaration): boolean {
-  const modifiers = ts.getModifiers(decl as HasModifiers); //decl.modifiers; // TSC 4.2 doesn't have 'getModifiers()' method
+  const modifiers = getModifiers(decl as HasModifiers); //decl.modifiers; // TSC 4.2 doesn't have 'getModifiers()' method
   return (
     !!modifiers &&
     (hasModifier(modifiers, SyntaxKind.PublicKeyword) ||
@@ -1504,7 +1521,7 @@ export function isStdMapType(type: Type): boolean {
   return !!sym && sym.getName() === "Map" && isGlobalSymbol(sym);
 }
 
-export function isStdErrorType(type: ts.Type): boolean {
+export function isStdErrorType(type: Type): boolean {
   const symbol = type.symbol;
   if (!symbol) {
     return false;
@@ -1575,17 +1592,17 @@ export function isLibrarySymbol(sym: Symbol | undefined) {
 
 const srcFilePathComponents = new Map<SourceFile, string[]>();
 export function srcFilePathContainsDirectory(srcFile: SourceFile, dir: string): boolean {
-  let pathComps = srcFilePathComponents.get(srcFile);
-  if (!pathComps) {
-    pathComps = getPathComponents(normalizePath(srcFile.fileName));
-    srcFilePathComponents.set(srcFile, pathComps);
-  }
-  for (const subdir of pathComps) {
-    if (subdir === dir) {
-      return true;
+    let pathComps = srcFilePathComponents.get(srcFile);
+    if (!pathComps) {
+        pathComps = getPathComponents(normalizePath(srcFile.fileName));
+        srcFilePathComponents.set(srcFile, pathComps);
     }
-  }
-  return false;
+    for (const subdir of pathComps) {
+        if (subdir === dir) {
+          return true;
+        }
+    }
+    return false;
 }
 
 export function pathContainsDirectory(targetPath: string, dir: string): boolean {
@@ -1634,7 +1651,7 @@ export function isIntrinsicObjectType(type: Type): boolean {
   return !!(type.flags & TypeFlags.NonPrimitive);
 }
 
-export function isOhModulesEtsSymbol(sym: ts.Symbol | undefined): boolean {
+export function isOhModulesEtsSymbol(sym: Symbol | undefined): boolean {
   const sourceFile = sym?.declarations?.[0]?.getSourceFile();
   return (
     !!sourceFile &&
@@ -1678,16 +1695,16 @@ export function isDynamicType(type: Type | undefined): boolean | undefined {
   return undefined;
 }
 
-export function isObjectType(type: ts.Type): type is ts.ObjectType {
-  return !!(type.flags & ts.TypeFlags.Object);
+export function isObjectType(type: Type): type is ObjectType {
+  return !!(type.flags & TypeFlags.Object);
 }
 
-export function isAnonymous(type: ts.Type): boolean {
+export function isAnonymous(type: Type): boolean {
   if (isObjectType(type)) {
-    return !!(type.objectFlags & ts.ObjectFlags.Anonymous);
+    return !!(type.objectFlags & ObjectFlags.Anonymous);
   }
   return false;
-}
+  }
 
 
 export function isDynamicLiteralInitializer(expr: Expression): boolean {
@@ -1754,15 +1771,15 @@ export function isDynamicLiteralInitializer(expr: Expression): boolean {
   return false;
 }
 
-export function isEsObjectType(typeNode: ts.TypeNode | undefined): boolean {
-  return !!typeNode && ts.isTypeReferenceNode(typeNode) && ts.isIdentifier(typeNode.typeName) &&
+export function isEsObjectType(typeNode: TypeNode | undefined): boolean {
+  return !!typeNode && isTypeReferenceNode(typeNode) && isIdentifier(typeNode.typeName) &&
     typeNode.typeName.text === ES_OBJECT;
 }
 
-export function isInsideBlock(node: ts.Node): boolean {
+export function isInsideBlock(node: Node): boolean {
   let par = node.parent
   while (par) {
-    if (ts.isBlock(par)) {
+    if (isBlock(par)) {
       return true;
     }
     par = par.parent;
@@ -1770,8 +1787,8 @@ export function isInsideBlock(node: ts.Node): boolean {
   return false;
 }
 
-export function isValueAssignableToESObject(node: ts.Node): boolean {
-  if (ts.isArrayLiteralExpression(node) || ts.isObjectLiteralExpression(node)) {
+export function isValueAssignableToESObject(node: Node): boolean {
+  if (isArrayLiteralExpression(node) || isObjectLiteralExpression(node)) {
     return false;
   }
   const valueType = typeChecker.getTypeAtLocation(node);
@@ -1780,14 +1797,14 @@ export function isValueAssignableToESObject(node: ts.Node): boolean {
 
 export function getVariableDeclarationTypeNode(node: Node): TypeNode | undefined {
   let sym = trueSymbolAtLocation(node);
-    if (sym === undefined) {
-      return undefined;
-    }
-    return getSymbolDeclarationTypeNode(sym);
+  if (sym === undefined) {
+    return undefined;
   }
+  return getSymbolDeclarationTypeNode(sym);
+}
 
-export function getSymbolDeclarationTypeNode(sym: ts.Symbol): ts.TypeNode | undefined {
-    const decl = getDeclaration(sym);
+export function getSymbolDeclarationTypeNode(sym: Symbol): TypeNode | undefined {
+  const decl = getDeclaration(sym);
   if (!!decl && isVariableDeclaration(decl)) {
     return decl.type;
   }
@@ -1799,7 +1816,7 @@ export function hasEsObjectType(node: Node): boolean {
   return typeNode !== undefined && isEsObjectType(typeNode);
 }
 
-export function symbolHasEsObjectType(sym: ts.Symbol): boolean {
+export function symbolHasEsObjectType(sym: Symbol): boolean {
   const typeNode = getSymbolDeclarationTypeNode(sym);
   return typeNode !== undefined && isEsObjectType(typeNode);
 }
@@ -1864,7 +1881,7 @@ export function typeIsRecursive(topType: Type, type: Type | undefined = undefine
   return false;
 }
 
-export function getTypeOrTypeConstraintAtLocation(expr: ts.Expression): ts.Type {
+export function getTypeOrTypeConstraintAtLocation(expr: Expression): Type {
   let type = typeChecker.getTypeAtLocation(expr);
   if (type.isTypeParameter()) {
     let constraint = type.getConstraint();
@@ -1875,43 +1892,43 @@ export function getTypeOrTypeConstraintAtLocation(expr: ts.Expression): ts.Type 
   return type;
 }
 
-function areCompatibleFunctionals(lhsType: ts.Type, rhsType: ts.Type): boolean {
+function areCompatibleFunctionals(lhsType: Type, rhsType: Type): boolean {
   return (
     (isStdFunctionType(lhsType) || isFunctionalType(lhsType)) &&
     (isStdFunctionType(rhsType) || isFunctionalType(rhsType))
   );
 }
 
-function isFunctionalType(type: ts.Type): boolean {
+function isFunctionalType(type: Type): boolean {
   const callSigns = type.getCallSignatures();
   return callSigns && callSigns.length > 0;
 }
 
-function isStdFunctionType(type: ts.Type): boolean {
+function isStdFunctionType(type: Type): boolean {
   const sym = type.getSymbol();
   return !!sym && sym.getName() === 'Function' && isGlobalSymbol(sym);
 }
 
-export function isStdBigIntType(type: ts.Type): boolean {
+export function isStdBigIntType(type: Type): boolean {
   const sym = type.symbol;
   return !!sym && sym.getName() === 'BigInt' && isGlobalSymbol(sym);
 }
 
-export function isStdNumberType(type: ts.Type): boolean {
+export function isStdNumberType(type: Type): boolean {
   const sym = type.symbol;
   return !!sym && sym.getName() === 'Number' && isGlobalSymbol(sym);
 }
 
-export function isStdBooleanType(type: ts.Type): boolean {
+export function isStdBooleanType(type: Type): boolean {
   const sym = type.symbol;
   return !!sym && sym.getName() === 'Boolean' && isGlobalSymbol(sym);
 }
 
-export function isEnumStringLiteral(expr: ts.Expression): boolean {
+export function isEnumStringLiteral(expr: Expression): boolean {
   const symbol = trueSymbolAtLocation(expr);
-  const isEnumMember = !!symbol && !!(symbol.flags & ts.SymbolFlags.EnumMember);
+  const isEnumMember = !!symbol && !!(symbol.flags & SymbolFlags.EnumMember);
   const type = typeChecker.getTypeAtLocation(expr);
-  const isStringEnumLiteral = isEnumType(type) && !!(type.flags & ts.TypeFlags.StringLiteral);
+  const isStringEnumLiteral = isEnumType(type) && !!(type.flags & TypeFlags.StringLiteral);
   return isEnumMember && isStringEnumLiteral;
 }
 
@@ -1925,26 +1942,26 @@ export function isValidComputedPropertyName(computedProperty: ComputedPropertyNa
   return isStringLiteralLike(expr) || isEnumStringLiteral(computedProperty.expression);
 }
 
-export function isAllowedIndexSignature(node: ts.IndexSignatureDeclaration): boolean {
+export function isAllowedIndexSignature(node: IndexSignatureDeclaration): boolean {
 
   /*
-   * For now, relax index signature only for specific array-like types
-   * with the following signature: 'collections.Array<T>.[_: number]: T'.
-   */
+  * For now, relax index signature only for specific array-like types
+  * with the following signature: 'collections.Array<T>.[_: number]: T'.
+  */
 
   if (node.parameters.length !== 1) {
     return false;
   }
 
   const paramType = typeChecker.getTypeAtLocation(node.parameters[0]);
-  if ((paramType.flags & ts.TypeFlags.Number) === 0) {
+  if ((paramType.flags & TypeFlags.Number) === 0) {
     return false;
   }
 
   return isArkTSCollectionsArrayLikeDeclaration(node.parent);
 }
 
-export function isArkTSCollectionsArrayLikeType(type: ts.Type): boolean {
+export function isArkTSCollectionsArrayLikeType(type: Type): boolean {
   const symbol = type.aliasSymbol ?? type.getSymbol();
   if (symbol?.declarations === undefined || symbol.declarations.length < 1) {
     return false;
@@ -1953,21 +1970,21 @@ export function isArkTSCollectionsArrayLikeType(type: ts.Type): boolean {
   return isArkTSCollectionsArrayLikeDeclaration(symbol.declarations[0]);
 }
 
-function isArkTSCollectionsArrayLikeDeclaration(decl: ts.Declaration): boolean {
+function isArkTSCollectionsArrayLikeDeclaration(decl: Declaration): boolean {
   if (!isArkTSCollectionsClassOrInterfaceDeclaration(decl)) {
     return false;
   }
-  if (!ts.hasIndexSignature(typeChecker.getTypeAtLocation(decl))) {
+  if (!hasIndexSignature(typeChecker.getTypeAtLocation(decl))) {
     return false;
   } 
   return true;
 }
 
-export function isArkTSCollectionsClassOrInterfaceDeclaration(decl: ts.Node): boolean {
-  if (!ts.isClassDeclaration(decl) && !ts.isInterfaceDeclaration(decl) || !decl.name) {
+export function isArkTSCollectionsClassOrInterfaceDeclaration(decl: Node): boolean {
+  if (!isClassDeclaration(decl) && !isInterfaceDeclaration(decl) || !decl.name) {
     return false;
   }
-  if (!ts.isModuleBlock(decl.parent) || decl.parent.parent.name.text !== COLLECTIONS_NAMESPACE) {
+  if (!isModuleBlock(decl.parent) || decl.parent.parent.name.text !== COLLECTIONS_NAMESPACE) {
     return false;
   }
   if (getBaseFileName(decl.getSourceFile().fileName).toLowerCase() !== ARKTS_COLLECTIONS_D_ETS) {
@@ -1976,49 +1993,49 @@ export function isArkTSCollectionsClassOrInterfaceDeclaration(decl: ts.Node): bo
   return true;
 }
 
-export function getDecoratorName(decorator: ts.Decorator): string {
+export function getDecoratorName(decorator: Decorator): string {
   let decoratorName = '';
-  if (ts.isIdentifier(decorator.expression)) {
+  if (isIdentifier(decorator.expression)) {
     decoratorName = decorator.expression.text;
-  } else if (ts.isCallExpression(decorator.expression) && ts.isIdentifier(decorator.expression.expression)) {
+  } else if (isCallExpression(decorator.expression) && isIdentifier(decorator.expression.expression)) {
     decoratorName = decorator.expression.expression.text;
   }
   return decoratorName;
 }
 
-export function unwrapParenthesizedTypeNode(typeNode: ts.TypeNode): ts.TypeNode {
+export function unwrapParenthesizedTypeNode(typeNode: TypeNode): TypeNode {
   let unwrappedTypeNode = typeNode;
-  while (ts.isParenthesizedTypeNode(unwrappedTypeNode)) {
+  while (isParenthesizedTypeNode(unwrappedTypeNode)) {
     unwrappedTypeNode = unwrappedTypeNode.type;
   }
   return unwrappedTypeNode;
 }
 
-export function isSendableTypeNode(typeNode: ts.TypeNode, isShared: boolean = false): boolean {
+export function isSendableTypeNode(typeNode: TypeNode, isShared: boolean = false): boolean {
 
   /*
-   * In order to correctly identify the usage of the enum member or
-   * const enum in type annotation, we need to handle union type and
-   * type alias cases by processing the type node and checking the
-   * symbol in case of type reference node.
-   */
+  * In order to correctly identify the usage of the enum member or
+  * const enum in type annotation, we need to handle union type and
+  * type alias cases by processing the type node and checking the
+  * symbol in case of type reference node.
+  */
 
   typeNode = unwrapParenthesizedTypeNode(typeNode);
 
   // Only a sendable union type is supported
-  if (ts.isUnionTypeNode(typeNode)) {
+  if (isUnionTypeNode(typeNode)) {
     return typeNode.types.every((elemType) => {
       return isSendableTypeNode(elemType, isShared);
     });
   }
 
-  const sym = ts.isTypeReferenceNode(typeNode) ?
+  const sym = isTypeReferenceNode(typeNode) ?
     trueSymbolAtLocation(typeNode.typeName) :
     undefined;
 
-  if (sym && sym.getFlags() & ts.SymbolFlags.TypeAlias) {
+  if (sym && sym.getFlags() & SymbolFlags.TypeAlias) {
     const typeDecl = getDeclaration(sym);
-    if (typeDecl && ts.isTypeAliasDeclaration(typeDecl)) {
+    if (typeDecl && isTypeAliasDeclaration(typeDecl)) {
       return isSendableTypeNode(typeDecl.type, isShared);
     }
   }
@@ -2027,7 +2044,7 @@ export function isSendableTypeNode(typeNode: ts.TypeNode, isShared: boolean = fa
   if (isConstEnum(sym)) {
     return true;
   }
-  const type: ts.Type = typeChecker.getTypeFromTypeNode(typeNode);
+  const type: Type = typeChecker.getTypeFromTypeNode(typeNode);
 
   // In shared module, literal forms of primitive data types can be exported
   if (isShared && isPurePrimitiveLiteralType(type)) {
@@ -2037,10 +2054,10 @@ export function isSendableTypeNode(typeNode: ts.TypeNode, isShared: boolean = fa
   return isSendableType(type);
 }
 
-export function isSendableType(type: ts.Type): boolean {
-  if ((type.flags & (ts.TypeFlags.Boolean | ts.TypeFlags.Number | ts.TypeFlags.String |
-    ts.TypeFlags.BigInt | ts.TypeFlags.Null | ts.TypeFlags.Undefined |
-    ts.TypeFlags.TypeParameter)) !== 0) {
+export function isSendableType(type: Type): boolean {
+  if ((type.flags & (TypeFlags.Boolean | TypeFlags.Number | TypeFlags.String |
+    TypeFlags.BigInt | TypeFlags.Null | TypeFlags.Undefined |
+    TypeFlags.TypeParameter)) !== 0) {
     return true;
   }
   if (isSendableTypeAlias(type)) {
@@ -2053,7 +2070,7 @@ export function isSendableType(type: ts.Type): boolean {
   return isSendableClassOrInterface(type);
 }
 
-export function isShareableType(tsType: ts.Type): boolean {
+export function isShareableType(tsType: Type): boolean {
   const sym = tsType.getSymbol();
   if (isConstEnum(sym)) {
     return true;
@@ -2072,7 +2089,7 @@ export function isShareableType(tsType: ts.Type): boolean {
   return isSendableType(tsType);
 }
 
-export function isSendableClassOrInterface(type: ts.Type): boolean {
+export function isSendableClassOrInterface(type: Type): boolean {
   const sym = type.getSymbol();
   if (!sym) {
     return false;
@@ -2084,7 +2101,7 @@ export function isSendableClassOrInterface(type: ts.Type): boolean {
   if (targetType.isClass()) {
     if (sym.declarations?.length) {
       const decl = sym.declarations[0];
-      if (ts.isClassDeclaration(decl)) {
+      if (isClassDeclaration(decl)) {
         return hasSendableDecorator(decl);
       }
     }
@@ -2093,10 +2110,10 @@ export function isSendableClassOrInterface(type: ts.Type): boolean {
   return isOrDerivedFrom(type, isISendableInterface);
 }
 
-export function typeContainsSendableClassOrInterface(type: ts.Type): boolean {
+export function typeContainsSendableClassOrInterface(type: Type): boolean {
   // Only check type contains sendable class / interface
-  if ((type.flags & ts.TypeFlags.Union) !== 0) {
-    return !!(type as ts.UnionType)?.types?.some((type) => {
+  if ((type.flags & TypeFlags.Union) !== 0) {
+    return !!(type as UnionType)?.types?.some((type) => {
       return typeContainsSendableClassOrInterface(type);
     });
   }
@@ -2104,7 +2121,7 @@ export function typeContainsSendableClassOrInterface(type: ts.Type): boolean {
   return isSendableClassOrInterface(type);
 }
 
-export function typeContainsNonSendableClassOrInterface(type: ts.Type): boolean {
+export function typeContainsNonSendableClassOrInterface(type: Type): boolean {
   if (type.isUnion()) {
     return type.types.some((compType) => {
       return typeContainsNonSendableClassOrInterface(compType);
@@ -2114,11 +2131,11 @@ export function typeContainsNonSendableClassOrInterface(type: ts.Type): boolean 
   return type.isClassOrInterface() && !isSendableClassOrInterface(type);
 }
 
-export function isConstEnum(sym: ts.Symbol | undefined): boolean {
-  return !!sym && sym.flags === ts.SymbolFlags.ConstEnum;
+export function isConstEnum(sym: Symbol | undefined): boolean {
+  return !!sym && sym.flags === SymbolFlags.ConstEnum;
 }
 
-export function isSendableUnionType(type: ts.UnionType): boolean {
+export function isSendableUnionType(type: UnionType): boolean {
   const types = type?.types;
   if (!types) {
     return false;
@@ -2129,43 +2146,43 @@ export function isSendableUnionType(type: ts.UnionType): boolean {
   });
 }
 
-export function hasSendableDecorator(decl: ts.ClassDeclaration | ts.FunctionDeclaration | ts.TypeAliasDeclaration): boolean {
-  const decorators = ts.getAllDecorators(decl);
+export function hasSendableDecorator(decl: ClassDeclaration | FunctionDeclaration | TypeAliasDeclaration): boolean {
+  const decorators = getAllDecorators(decl);
   return decorators !== undefined && decorators.some((x) => {
     return getDecoratorName(x) === SENDABLE_DECORATOR;
   });
 }
 
-export function getNonSendableDecorators(decl: ts.ClassDeclaration | ts.FunctionDeclaration | ts.TypeAliasDeclaration): ts.Decorator[] | undefined {
-  const decorators = ts.getAllDecorators(decl);
+export function getNonSendableDecorators(decl: ClassDeclaration | FunctionDeclaration | TypeAliasDeclaration): Decorator[] | undefined {
+  const decorators = getAllDecorators(decl);
   return decorators?.filter((x) => {
     return getDecoratorName(x) !== SENDABLE_DECORATOR;
   });
 }
 
-export function getSendableDecorator(decl: ts.ClassDeclaration | ts.FunctionDeclaration | ts.TypeAliasDeclaration): ts.Decorator | undefined {
-  const decorators = ts.getAllDecorators(decl);
+export function getSendableDecorator(decl: ClassDeclaration | FunctionDeclaration | TypeAliasDeclaration): Decorator | undefined {
+  const decorators = getAllDecorators(decl);
   return decorators?.find((x) => {
     return getDecoratorName(x) === SENDABLE_DECORATOR;
   });
 }
 
-export function getDecoratorsIfInSendableClass(declaration: ts.HasDecorators): readonly ts.Decorator[] | undefined {
+export function getDecoratorsIfInSendableClass(declaration: HasDecorators): readonly Decorator[] | undefined {
   const classNode = getClassNodeFromDeclaration(declaration);
   if (classNode === undefined || !hasSendableDecorator(classNode)) {
     return undefined;
   }
-  return ts.getDecorators(declaration);
+  return getDecorators(declaration);
 }
 
-function getClassNodeFromDeclaration(declaration: ts.HasDecorators): ts.ClassDeclaration | undefined {
-  if (declaration.kind === ts.SyntaxKind.Parameter) {
-    return ts.isClassDeclaration(declaration.parent.parent) ? declaration.parent.parent : undefined;
+function getClassNodeFromDeclaration(declaration: HasDecorators): ClassDeclaration | undefined {
+  if (declaration.kind === SyntaxKind.Parameter) {
+    return isClassDeclaration(declaration.parent.parent) ? declaration.parent.parent : undefined;
   }
-  return ts.isClassDeclaration(declaration.parent) ? declaration.parent : undefined;
+  return isClassDeclaration(declaration.parent) ? declaration.parent : undefined;
 }
 
-export function isISendableInterface(type: ts.Type): boolean {
+export function isISendableInterface(type: Type): boolean {
   const symbol = type.aliasSymbol ?? type.getSymbol();
   if (symbol?.declarations === undefined || symbol.declarations.length < 1) {
     return false;
@@ -2174,32 +2191,32 @@ export function isISendableInterface(type: ts.Type): boolean {
   return isArkTSISendableDeclaration(symbol.declarations[0]);
 }
 
-function isArkTSISendableDeclaration(decl: ts.Declaration): boolean {
-    if (!ts.isInterfaceDeclaration(decl) || !decl.name || decl.name.text !== ISENDABLE_TYPE) {
-      return false;
-    }
+function isArkTSISendableDeclaration(decl: Declaration): boolean {
+  if (!isInterfaceDeclaration(decl) || !decl.name || decl.name.text !== ISENDABLE_TYPE) {
+    return false;
+  }
 
-    if (!ts.isModuleBlock(decl.parent) || decl.parent.parent.name.text !== LANG_NAMESPACE) {
-      return false;
-    }
+  if (!isModuleBlock(decl.parent) || decl.parent.parent.name.text !== LANG_NAMESPACE) {
+    return false;
+  }
 
-    if (getBaseFileName(decl.getSourceFile().fileName).toLowerCase() !== ARKTS_LANG_D_ETS) {
-      return false;
-    }
+  if (getBaseFileName(decl.getSourceFile().fileName).toLowerCase() !== ARKTS_LANG_D_ETS) {
+    return false;
+  }
 
-    return true;
+  return true;
 }
 
-export function isSharedModule(sourceFile: ts.SourceFile): boolean {
+export function isSharedModule(sourceFile: SourceFile): boolean {
   const statements = sourceFile.statements;
   for (let statement of statements) {
-    if (ts.isImportDeclaration(statement)) {
+    if (isImportDeclaration(statement)) {
       continue;
     }
 
     return (
-      ts.isExpressionStatement(statement) &&
-      ts.isStringLiteral(statement.expression) &&
+      isExpressionStatement(statement) &&
+      isStringLiteral(statement.expression) &&
       statement.expression.text === USE_SHARED
     );
   }
@@ -2207,18 +2224,18 @@ export function isSharedModule(sourceFile: ts.SourceFile): boolean {
   return false;
 }
 
-export function getDeclarationNode(node: ts.Node): ts.Declaration | undefined {
+export function getDeclarationNode(node: Node): Declaration | undefined {
   const sym = trueSymbolAtLocation(node);
   return getDeclaration(sym);
 }
 
-function isFunctionLikeDeclaration(node: ts.Declaration): boolean {
-  return ts.isFunctionDeclaration(node) || ts.isMethodDeclaration(node) ||
-    ts.isGetAccessorDeclaration(node) || ts.isSetAccessorDeclaration(node) || ts.isConstructorDeclaration(node) || 
-    ts.isFunctionExpression(node) || ts.isArrowFunction(node);
+function isFunctionLikeDeclaration(node: Declaration): boolean {
+  return isFunctionDeclaration(node) || isMethodDeclaration(node) ||
+    isGetAccessorDeclaration(node) || isSetAccessorDeclaration(node) || isConstructorDeclaration(node) || 
+    isFunctionExpression(node) || isArrowFunction(node);
 }
 
-export function isShareableEntity(node: ts.Node): boolean {
+export function isShareableEntity(node: Node): boolean {
   const decl = getDeclarationNode(node);
   const typeNode = (decl as any)?.type;
   return (typeNode && !isFunctionLikeDeclaration(decl!)) ?
@@ -2226,17 +2243,17 @@ export function isShareableEntity(node: ts.Node): boolean {
     isShareableType(typeChecker.getTypeAtLocation(decl ? decl : node));
 }
 
-export function isSendableClassOrInterfaceEntity(node: ts.Node): boolean {
+export function isSendableClassOrInterfaceEntity(node: Node): boolean {
   const decl = getDeclarationNode(node);
   if (!decl) {
     return false;
   }
 
-  if (ts.isClassDeclaration(decl)) {
+  if (isClassDeclaration(decl)) {
     return hasSendableDecorator(decl);
   }
 
-  if (ts.isInterfaceDeclaration(decl)) {
+  if (isInterfaceDeclaration(decl)) {
     return isOrDerivedFrom(typeChecker.getTypeAtLocation(decl), isISendableInterface);
   }
   return false;
@@ -2245,33 +2262,33 @@ export function isSendableClassOrInterfaceEntity(node: ts.Node): boolean {
 export function isInImportWhiteList(resolvedModule: ResolvedModuleFull): boolean {
   if (
     !resolvedModule.resolvedFileName ||
-    ts.getBaseFileName(resolvedModule.resolvedFileName) !== ARKTS_LANG_D_ETS &&
-    ts.getBaseFileName(resolvedModule.resolvedFileName) !== ARKTS_COLLECTIONS_D_ETS
+    getBaseFileName(resolvedModule.resolvedFileName) !== ARKTS_LANG_D_ETS &&
+    getBaseFileName(resolvedModule.resolvedFileName) !== ARKTS_COLLECTIONS_D_ETS
   ) {
-    return false;
+  return false;
   }
   return true;
 }
 
 // If it is an overloaded function, all declarations for that function are found
-export function hasSendableDecoratorFunctionOverload(decl: ts.FunctionDeclaration): boolean {
+export function hasSendableDecoratorFunctionOverload(decl: FunctionDeclaration): boolean {
   const decorators = getFunctionOverloadDecorators(decl);
   return !!decorators?.some((x) => {
     return getDecoratorName(x) === SENDABLE_DECORATOR;
   });
 }
 
-function getFunctionOverloadDecorators(funcDecl: ts.FunctionDeclaration): readonly ts.Decorator[] | undefined {
+function getFunctionOverloadDecorators(funcDecl: FunctionDeclaration): readonly Decorator[] | undefined {
   const decls = funcDecl.symbol.getDeclarations();
   if (!decls?.length) {
     return undefined;
   }
-  let result: ts.Decorator[] = [];
+  let result: Decorator[] = [];
   decls.forEach((decl) => {
-    if (!ts.isFunctionDeclaration(decl)) {
+    if (!isFunctionDeclaration(decl)) {
       return;
     }
-    const decorators = ts.getAllDecorators(decl);
+    const decorators = getAllDecorators(decl);
     if (decorators) {
       result = result.concat(decorators);
     }
@@ -2279,25 +2296,25 @@ function getFunctionOverloadDecorators(funcDecl: ts.FunctionDeclaration): readon
   return result.length ? result : undefined;
 }
 
-export function isSendableFunction(type: ts.Type): boolean {
+export function isSendableFunction(type: Type): boolean {
   const callSigns = type.getCallSignatures();
   if (!callSigns?.length) {
     return false;
   }
   const decl = callSigns[0].declaration;
-  if (!decl || !ts.isFunctionDeclaration(decl)) {
+  if (!decl || !isFunctionDeclaration(decl)) {
     return false;
   }
   return hasSendableDecoratorFunctionOverload(decl);
 }
 
 
-export function isSendableTypeAlias(type: ts.Type): boolean {
+export function isSendableTypeAlias(type: Type): boolean {
   const decl = getTypsAliasOriginalDecl(type);
   return !!decl && hasSendableDecorator(decl);
 }
 
-export function hasSendableTypeAlias(type: ts.Type) :boolean {
+export function hasSendableTypeAlias(type: Type) :boolean {
   if (type.isUnion()) {
     return type.types.some((compType) => {
       return hasSendableTypeAlias(compType);
@@ -2306,23 +2323,23 @@ export function hasSendableTypeAlias(type: ts.Type) :boolean {
   return isSendableTypeAlias(type);
 }
 
-export function isNonSendableFunctionTypeAlias(type: ts.Type): boolean {
+export function isNonSendableFunctionTypeAlias(type: Type): boolean {
   const decl = getTypsAliasOriginalDecl(type);
-  return !!decl && ts.isFunctionTypeNode(decl.type) && !hasSendableDecorator(decl);
+  return !!decl && isFunctionTypeNode(decl.type) && !hasSendableDecorator(decl);
 }
 
 // If the alias refers to another alias, the search continues
-function getTypsAliasOriginalDecl(type: ts.Type): ts.TypeAliasDeclaration | undefined {
+function getTypsAliasOriginalDecl(type: Type): TypeAliasDeclaration | undefined {
   if (!type.aliasSymbol) {
     return undefined;
   }
   const decl = getDeclaration(type.aliasSymbol);
-  if (!decl || !ts.isTypeAliasDeclaration(decl)) {
+  if (!decl || !isTypeAliasDeclaration(decl)) {
     return undefined;
   }
-  if (ts.isTypeReferenceNode(decl.type)) {
-    const targetType = typeChecker.getTypeAtLocation(decl.type.typeName);
-    if (targetType.aliasSymbol && (targetType.aliasSymbol.getFlags() & ts.SymbolFlags.TypeAlias)) {
+  if (isTypeReferenceNode(decl.type)) {
+  const targetType = typeChecker.getTypeAtLocation(decl.type.typeName);
+    if (targetType.aliasSymbol && (targetType.aliasSymbol.getFlags() & SymbolFlags.TypeAlias)) {
       return getTypsAliasOriginalDecl(targetType);
     }
   }
@@ -2331,24 +2348,24 @@ function getTypsAliasOriginalDecl(type: ts.Type): ts.TypeAliasDeclaration | unde
 
 // not allow 'lhsType' contains 'sendable typeAlias' && 'rhsType' contains 'non-sendable function/non-sendable function typeAlias'
 export function isWrongSendableFunctionAssignment(
-  lhsType: ts.Type,
-  rhsType: ts.Type
+  lhsType: Type,
+  rhsType: Type
 ): boolean {
   lhsType = getNonNullableType(lhsType);
   rhsType = getNonNullableType(rhsType);
   if (!hasSendableTypeAlias(lhsType)) {
-    return false;
+  return false;
   }
 
   if (rhsType.isUnion()) {
-    return rhsType.types.some((compType) => {
-      return isInvalidSendableFunctionAssignmentType(compType);
-    });
+  return rhsType.types.some((compType) => {
+    return isInvalidSendableFunctionAssignmentType(compType);
+  });
   } 
   return isInvalidSendableFunctionAssignmentType(rhsType);
 }
 
-function isInvalidSendableFunctionAssignmentType(type: ts.Type): boolean {
+function isInvalidSendableFunctionAssignmentType(type: Type): boolean {
   if (type.aliasSymbol) {
     return isNonSendableFunctionTypeAlias(type);
   }
@@ -2359,39 +2376,39 @@ function isInvalidSendableFunctionAssignmentType(type: ts.Type): boolean {
 }
 
 // Search for and save the exported declaration in the specified file, re-exporting another module will not be included.
-export function searchFileExportDecl(sourceFile: ts.SourceFile, targetDecls?: ts.SyntaxKind[]): Set<ts.Node> {
-  const exportDeclSet = new Set<ts.Node>();
-  const appendDecl = (decl: ts.Node | undefined): void => {
+export function searchFileExportDecl(sourceFile: SourceFile, targetDecls?: SyntaxKind[]): Set<Node> {
+  const exportDeclSet = new Set<Node>();
+  const appendDecl = (decl: Node | undefined): void => {
     if (
       !decl ||
-       targetDecls && !targetDecls.includes(decl.kind)
+      targetDecls && !targetDecls.includes(decl.kind)
     ) {
       return;
     }
     exportDeclSet.add(decl);
   };
 
-  sourceFile.statements.forEach((statement: ts.Statement) => {
-    if (ts.isExportAssignment(statement)) {
+  sourceFile.statements.forEach((statement: Statement) => {
+    if (isExportAssignment(statement)) {
       // handle the case:"export default declName;"
       if (statement.isExportEquals) {
         return;
       }
       appendDecl(getDeclarationNode(statement.expression));
-    } else if (ts.isExportDeclaration(statement)) {
+    } else if (isExportDeclaration(statement)) {
       // handle the case:"export { declName1, declName2 };"
-      if (!statement.exportClause || !ts.isNamedExports(statement.exportClause)) {
+      if (!statement.exportClause || !isNamedExports(statement.exportClause)) {
         return;
       }
       statement.exportClause.elements.forEach((specifier) => {
         appendDecl(getDeclarationNode(specifier.propertyName ?? specifier.name));
       });
-    } else if (ts.canHaveModifiers(statement)) {
+    } else if (canHaveModifiers(statement)) {
       // handle the case:"export const/class/function... decalName;"
-      if (!hasModifier(ts.getModifiers(statement), ts.SyntaxKind.ExportKeyword)) {
+      if (!hasModifier(getModifiers(statement), SyntaxKind.ExportKeyword)) {
         return;
       }
-      if (!ts.isVariableStatement(statement)) {
+      if (!isVariableStatement(statement)) {
         appendDecl(statement);
         return;
       }
@@ -2406,7 +2423,4 @@ export function searchFileExportDecl(sourceFile: ts.SourceFile, targetDecls?: ts
 export function clearUtilsGlobalvariables(): void {
   parentSymbolCache?.clear();
   parentSymbolCache = undefined;
-}
-}
-}
 }

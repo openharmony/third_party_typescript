@@ -13,11 +13,9 @@
  * limitations under the License.
  */
 
-namespace ts {
-export namespace ArkTSLinter_1_0 {
 //import * as ts from 'typescript';
-import FaultID = Problems.FaultID;
-
+import { ESMap, Map, Set, SyntaxKind } from "../_namespaces/ts";
+import { FaultID } from "../_namespaces/ts.ArkTSLinter_1_0";
 export class LinterConfig {
   static nodeDesc: string[] = [];
 
@@ -122,18 +120,18 @@ export class LinterConfig {
 
   /*
   private static initTsSyntaxKindNames(): void {
-    const keys = Object.keys(SyntaxKind);
-    const values = Object.values(SyntaxKind);
+  const keys = Object.keys(SyntaxKind);
+  const values = Object.values(SyntaxKind);
 
-    for (let i = 0; i < values.length; i++) {
-      const val = values[i];
-      const kindNum = typeof val === "string" ? parseInt(val) : val;
-      if (kindNum && !LinterConfig.tsSyntaxKindNames[kindNum]) {
-        LinterConfig.tsSyntaxKindNames[kindNum] = keys[i];
-      }
+  for (let i = 0; i < values.length; i++) {
+    const val = values[i];
+    const kindNum = typeof val === "string" ? parseInt(val) : val;
+    if (kindNum && !LinterConfig.tsSyntaxKindNames[kindNum]) {
+      LinterConfig.tsSyntaxKindNames[kindNum] = keys[i];
     }
   }
-*/
+  }
+  */
   // must detect terminals during parsing
   static terminalTokens: Set<SyntaxKind> = new Set([
     SyntaxKind.OpenBraceToken, SyntaxKind.CloseBraceToken, SyntaxKind.OpenParenToken,
@@ -179,7 +177,4 @@ export class LinterConfig {
     [SyntaxKind.ImportEqualsDeclaration, FaultID.ImportAssignment],
     [SyntaxKind.NamespaceExportDeclaration, FaultID.UMDModuleDefinition],
   ]);
-}
-
-}
 }

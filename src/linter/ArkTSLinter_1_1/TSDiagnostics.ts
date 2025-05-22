@@ -12,9 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-namespace ts {
-export namespace ArkTSLinter_1_1 {
+import {
+    ArkTSLinterTimePrinter, BuilderProgram, Diagnostic, Program, PerformanceDotting, Set, SourceFile, TimePhase,
+} from "../_namespaces/ts";
 
 export class TSCCompiledProgram {
   private diagnosticsExtractor: TypeScriptDiagnosticsExtractor;
@@ -47,8 +47,8 @@ class TypeScriptDiagnosticsExtractor {
   }
 
   /**
-   * Returns diagnostics which appear in strict compilation mode only
-   */
+  * Returns diagnostics which appear in strict compilation mode only
+  */
   public getStrictDiagnostics(sourceFile: SourceFile): Diagnostic[] {
     // workaround for a tsc bug
     const strict = getAllDiagnostics(this.nonStrictProgram, sourceFile, /* isStrict */ true).filter(
@@ -71,26 +71,26 @@ class TypeScriptDiagnosticsExtractor {
   }
 
   public doAllGetDiagnostics(): void {
-    const timePrinterInstance = ts.ArkTSLinterTimePrinter.getInstance();
-    PerformanceDotting.startAdvanced(ts.TimePhase.NON_STRICT_PROGRAM_GET_SEMANTIC_DIAGNOSTICS);
+    const timePrinterInstance = ArkTSLinterTimePrinter.getInstance();
+    PerformanceDotting.startAdvanced(TimePhase.NON_STRICT_PROGRAM_GET_SEMANTIC_DIAGNOSTICS);
     this.nonStrictProgram.getSemanticDiagnostics();
-    timePrinterInstance.appendTime(ts.TimePhase.NON_STRICT_PROGRAM_GET_SEMANTIC_DIAGNOSTICS);
-    PerformanceDotting.stopAdvanced(ts.TimePhase.NON_STRICT_PROGRAM_GET_SEMANTIC_DIAGNOSTICS);
-    PerformanceDotting.startAdvanced(ts.TimePhase.NON_STRICT_PROGRAM_GET_SYNTACTIC_DIAGNOSTICS);
+    timePrinterInstance.appendTime(TimePhase.NON_STRICT_PROGRAM_GET_SEMANTIC_DIAGNOSTICS);
+    PerformanceDotting.stopAdvanced(TimePhase.NON_STRICT_PROGRAM_GET_SEMANTIC_DIAGNOSTICS);
+    PerformanceDotting.startAdvanced(TimePhase.NON_STRICT_PROGRAM_GET_SYNTACTIC_DIAGNOSTICS);
     this.nonStrictProgram.getSyntacticDiagnostics();
-    timePrinterInstance.appendTime(ts.TimePhase.NON_STRICT_PROGRAM_GET_SYNTACTIC_DIAGNOSTICS);
-    PerformanceDotting.stopAdvanced(ts.TimePhase.NON_STRICT_PROGRAM_GET_SYNTACTIC_DIAGNOSTICS);
-    PerformanceDotting.startAdvanced(ts.TimePhase.STRICT_PROGRAM_GET_SEMANTIC_DIAGNOSTICS);
+    timePrinterInstance.appendTime(TimePhase.NON_STRICT_PROGRAM_GET_SYNTACTIC_DIAGNOSTICS);
+    PerformanceDotting.stopAdvanced(TimePhase.NON_STRICT_PROGRAM_GET_SYNTACTIC_DIAGNOSTICS);
+    PerformanceDotting.startAdvanced(TimePhase.STRICT_PROGRAM_GET_SEMANTIC_DIAGNOSTICS);
     this.nonStrictProgram.builderProgramForLinter?.getSemanticDiagnostics();
-    timePrinterInstance.appendTime(ts.TimePhase.STRICT_PROGRAM_GET_SEMANTIC_DIAGNOSTICS);
-    PerformanceDotting.stopAdvanced(ts.TimePhase.STRICT_PROGRAM_GET_SEMANTIC_DIAGNOSTICS);
+    timePrinterInstance.appendTime(TimePhase.STRICT_PROGRAM_GET_SEMANTIC_DIAGNOSTICS);
+    PerformanceDotting.stopAdvanced(TimePhase.STRICT_PROGRAM_GET_SEMANTIC_DIAGNOSTICS);
   }
 }
 
 /**
- * Actually, we only run `getSemanticDiagnostics`, 
- * because the linter care only about strict errors, which do not include syntactic diagnostics.
- */
+* Actually, we only run `getSemanticDiagnostics`, 
+* because the linter care only about strict errors, which do not include syntactic diagnostics.
+*/
 function getAllDiagnostics(builderProgram: BuilderProgram, sourceFile: SourceFile, isStrict: boolean = false): Diagnostic[] {
   if (isStrict) {
     if (!builderProgram.builderProgramForLinter) {
@@ -100,7 +100,7 @@ function getAllDiagnostics(builderProgram: BuilderProgram, sourceFile: SourceFil
       .filter(diag => diag.file === sourceFile);
   }
   return builderProgram.getSemanticDiagnostics(sourceFile)
-    .filter(diag => diag.file === sourceFile);
+  .filter(diag => diag.file === sourceFile);
 }
 
 function hashDiagnostic(diagnostic: Diagnostic): string | undefined {
@@ -108,7 +108,4 @@ function hashDiagnostic(diagnostic: Diagnostic): string | undefined {
     return undefined;
   }
   return `${diagnostic.code}%${diagnostic.start}%${diagnostic.length}`;
-}
-
-}
 }

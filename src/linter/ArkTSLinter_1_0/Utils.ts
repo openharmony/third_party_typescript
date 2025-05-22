@@ -13,15 +13,28 @@
  * limitations under the License.
  */
 
-namespace ts {
-export namespace ArkTSLinter_1_0 {
-export namespace Utils {
 //import * as path from 'node:path';
 //import * as ts from 'typescript';
 //import ProblemInfo = ts.ProblemInfo;
 //import TypeScriptLinter = TypeScriptLinter;
-import AutofixInfo = Common.AutofixInfo;
-
+import {
+    ArrayLiteralExpression, AsExpression, BinaryExpression, BinaryOperatorToken, CallExpression, ClassDeclaration,
+    CommentRange, ConditionalExpression, ConstructorDeclaration, Declaration, Diagnostic, ElementAccessExpression,
+    EntityName, EnumMember, Expression, ExpressionWithTypeArguments, Extension, flattenDiagnosticMessageText,
+    getAnyExtensionFromPath, getBaseFileName, getCombinedNodeFlags, getLineAndCharacterOfPosition, getModifiers,
+    getPathComponents, HasModifiers, Identifier, IfStatement, ImportSpecifier, isArrayLiteralExpression,
+    isArrayTypeNode, isAsExpression, isBinaryExpression, isBlock, isCallExpression, isCallLikeExpression,
+    isClassDeclaration, isConstructorDeclaration, isEnumDeclaration, isForInStatement, isForOfStatement, isForStatement,
+    isIdentifier, isInterfaceDeclaration, isIntersectionTypeNode, isLiteralTypeNode, isNamedTupleMember,
+    isNumericLiteral, isObjectLiteralExpression, isParenthesizedExpression, isParenthesizedTypeNode,
+    isPropertyAccessExpression, isPropertyAssignment, isPropertyDeclaration, isStringLiteral, isTupleTypeNode,
+    isTypeAliasDeclaration, isTypeLiteralNode, isTypeNode, isTypeQueryNode, isTypeReferenceNode, isUnionTypeNode,
+    isVariableDeclaration, isVariableDeclarationList, Map, Modifier, Node, NodeArray, NodeBuilderFlags, NodeFlags,
+    normalizePath, NumericLiteral, ObjectFlags, ObjectLiteralExpression, ObjectType, PrefixUnaryExpression,
+    PrefixUnaryOperator, PropertyAccessExpression, PropertyDeclaration, ScriptKind, SourceFile, Symbol, SymbolFlags,
+    SyntaxKind, Type, TypeChecker, TypeFlags, TypeNode, TypeReference, TypeReferenceNode, UnionType
+} from "../_namespaces/ts";
+import { AutofixInfo, ProblemInfo, TypeScriptLinter } from "../_namespaces/ts.ArkTSLinter_1_0";
 export const PROPERTY_HAS_NO_INITIALIZER_ERROR_CODE = 2564;
 
 export const NON_INITIALIZABLE_PROPERTY_DECORATORS = ["Link", "Consume", "ObjectLink", "Prop", "BuilderParam"];
@@ -164,7 +177,7 @@ export function findParentIf(asExpr: AsExpression): IfStatement | null {
 
 export function isDestructuringAssignmentLHS(
   tsExpr: ArrayLiteralExpression | ObjectLiteralExpression
-): boolean {
+  ): boolean {
   // Check whether given expression is the LHS part of the destructuring
   // assignment (or is a nested element of destructuring pattern).
   let tsParent = tsExpr.parent;
@@ -196,10 +209,10 @@ export function isEnumType(tsType: Type): boolean {
 }
 
 export function isEnumMemberType(tsType: Type): boolean {
-    // Note: For some reason, test (tsType.flags & TypeFlags.Enum) != 0 doesn't work here.
-    // Must use SymbolFlags to figure out if this is an enum type.
-    return tsType.symbol && (tsType.symbol.flags & SymbolFlags.EnumMember) !== 0;
-  }
+  // Note: For some reason, test (tsType.flags & TypeFlags.Enum) != 0 doesn't work here.
+  // Must use SymbolFlags to figure out if this is an enum type.
+  return tsType.symbol && (tsType.symbol.flags & SymbolFlags.EnumMember) !== 0;
+}
 
 export function isObjectLiteralType(tsType: Type): boolean {
   return tsType.symbol && (tsType.symbol.flags & SymbolFlags.ObjectLiteral) !== 0;
@@ -235,7 +248,7 @@ export function followIfAliased(sym: Symbol): Symbol {
   return sym;
 }
 
-let trueSymbolAtLocationCache = new Map<ts.Node, ts.Symbol | null>();
+let trueSymbolAtLocationCache = new Map<Node, Symbol | null>();
 
 export function trueSymbolAtLocation(node: Node): Symbol | undefined {
   let cache = trueSymbolAtLocationCache;
@@ -429,7 +442,7 @@ export function isMethodAssignment(tsSymbol: Symbol | undefined): boolean {
   );
 }
 
-export function getDeclaration(tsSymbol: ts.Symbol | undefined): ts.Declaration | undefined {
+export function getDeclaration(tsSymbol: Symbol | undefined): Declaration | undefined {
   if (tsSymbol && tsSymbol.declarations && tsSymbol.declarations.length > 0) {
     return tsSymbol.declarations[0];
   }
@@ -511,9 +524,9 @@ function isIdentifierValidEnumMemberInit(tsExpr: Identifier): boolean {
   const tsSymbol = typeChecker.getSymbolAtLocation(tsExpr);
   const tsDecl = getDeclaration(tsSymbol);
   return (!!tsDecl &&
-            ((isVarDeclaration(tsDecl) && isConst(tsDecl.parent)) ||
-              (tsDecl.kind === SyntaxKind.EnumMember)
-            )
+    ((isVarDeclaration(tsDecl) && isConst(tsDecl.parent)) ||
+      (tsDecl.kind === SyntaxKind.EnumMember)
+    )
   );
 }
 
@@ -542,11 +555,11 @@ export function isConst(tsNode: Node): boolean {
 
 export function isNumberConstantValue(
   tsExpr: EnumMember | PropertyAccessExpression | ElementAccessExpression | NumericLiteral
-): boolean {
+  ): boolean {
 
   const tsConstValue = (tsExpr.kind === SyntaxKind.NumericLiteral) ?
-    Number(tsExpr.getText()) :
-    typeChecker.getConstantValue(tsExpr);
+  Number(tsExpr.getText()) :
+  typeChecker.getConstantValue(tsExpr);
 
   return tsConstValue !== undefined && typeof tsConstValue === "number";
 }
@@ -556,8 +569,8 @@ export function isIntegerConstantValue(
 ): boolean {
 
   const tsConstValue = (tsExpr.kind === SyntaxKind.NumericLiteral) ?
-    Number(tsExpr.getText()) :
-    typeChecker.getConstantValue(tsExpr);
+  Number(tsExpr.getText()) :
+  typeChecker.getConstantValue(tsExpr);
   return (
     tsConstValue !== undefined && typeof tsConstValue === "number" &&
     tsConstValue.toFixed(0) === tsConstValue.toString()
@@ -653,14 +666,14 @@ export function isObjectType(tsType: Type): boolean {
 
 export function logTscDiagnostic(diagnostics: readonly Diagnostic[], log: (message: any, ...args: any[]) => void): void {
   diagnostics.forEach((diagnostic) => {
-    let message = flattenDiagnosticMessageText(diagnostic.messageText, "\n");
+  let message = flattenDiagnosticMessageText(diagnostic.messageText, "\n");
 
-    if (diagnostic.file && diagnostic.start) {
-      const { line, character } = getLineAndCharacterOfPosition(diagnostic.file, diagnostic.start);
-      message = `${diagnostic.file.fileName} (${line + 1}, ${character + 1}): ${message}`;
-    }
+  if (diagnostic.file && diagnostic.start) {
+    const { line, character } = getLineAndCharacterOfPosition(diagnostic.file, diagnostic.start);
+    message = `${diagnostic.file.fileName} (${line + 1}, ${character + 1}): ${message}`;
+  }
 
-    log(message);
+  log(message);
   });
 }
 
@@ -692,16 +705,16 @@ function hasReadonlyFields(type: Type): boolean {
   let result = false;
 
   type.symbol.members.forEach((value /*, key*/) => {
-    if (
-      value.declarations !== undefined && value.declarations.length > 0 &&
-      isPropertyDeclaration(value.declarations[0])
-    ) {
-      const propmMods = ts.getModifiers(value.declarations[0] as ts.PropertyDeclaration);//value.declarations[0].modifiers; // TSC 4.2 doesn't have 'getModifiers()' method
-      if (hasModifier(propmMods, SyntaxKind.ReadonlyKeyword)) {
-        result = true;
-        return;
-      }
+  if (
+    value.declarations !== undefined && value.declarations.length > 0 &&
+    isPropertyDeclaration(value.declarations[0])
+  ) {
+    const propmMods = getModifiers(value.declarations[0] as PropertyDeclaration);//value.declarations[0].modifiers; // TSC 4.2 doesn't have 'getModifiers()' method
+    if (hasModifier(propmMods, SyntaxKind.ReadonlyKeyword)) {
+      result = true;
+      return;
     }
+  }
   });
 
   return result;
@@ -714,17 +727,17 @@ function hasDefaultCtor(type: Type): boolean {
   let hasDefaultCtor = false; // has default constructor
 
   type.symbol.members.forEach((value /*, key*/) => {
-    if ((value.flags & SymbolFlags.Constructor) !== 0) {
-      hasCtor = true;
+  if ((value.flags & SymbolFlags.Constructor) !== 0) {
+    hasCtor = true;
 
-      if (value.declarations !== undefined && value.declarations.length > 0) {
-        const declCtor = value.declarations[0] as ConstructorDeclaration;
-        if (declCtor.parameters.length === 0) {
-          hasDefaultCtor = true;
-          return;
-        }
+    if (value.declarations !== undefined && value.declarations.length > 0) {
+      const declCtor = value.declarations[0] as ConstructorDeclaration;
+      if (declCtor.parameters.length === 0) {
+        hasDefaultCtor = true;
+        return;
       }
     }
+  }
   });
 
   return !hasCtor || hasDefaultCtor; // Has no any explicite constructor -> has implicite default constructor.
@@ -733,7 +746,7 @@ function hasDefaultCtor(type: Type): boolean {
 function isAbstractClass(type: Type): boolean {
   if (type.isClass() && type.symbol.declarations && type.symbol.declarations.length > 0) {
     const declClass = type.symbol.declarations[0] as ClassDeclaration;
-    const classMods = ts.getModifiers(declClass); //declClass.modifiers; // TSC 4.2 doesn't have 'getModifiers()' method
+    const classMods = getModifiers(declClass); //declClass.modifiers; // TSC 4.2 doesn't have 'getModifiers()' method
     if (hasModifier(classMods, SyntaxKind.AbstractKeyword)) {
       return true;
     }
@@ -750,7 +763,7 @@ export function validateObjectLiteralType(type: Type | undefined): boolean {
     type !== undefined && type.isClassOrInterface() && hasDefaultCtor(type) &&
     !hasReadonlyFields(type) && !isAbstractClass(type)
   );
-}
+  }
 
 export function isStructDeclarationKind(kind: SyntaxKind) {
   return kind === SyntaxKind.StructDeclaration;
@@ -790,14 +803,14 @@ function findProperty(type: Type, name: string): Symbol | undefined {
 }
 
 
-function getNonNullableType(t: ts.Type): ts.Type {
+function getNonNullableType(t: Type): Type {
   if (t.isUnion()) {
     return t.getNonNullableType();
   }
   return t;
 }
 
-export function isExpressionAssignableToType(lhsType: ts.Type | undefined, rhsExpr: ts.Expression): boolean {
+export function isExpressionAssignableToType(lhsType: Type | undefined, rhsExpr: Expression): boolean {
   if (lhsType === undefined) {
     return false;
   }
@@ -820,7 +833,7 @@ export function isExpressionAssignableToType(lhsType: ts.Type | undefined, rhsEx
   // Allow initializing Record objects with object initializer.
   // Record supports any type for a its value, but the key value
   // must be either a string or number literal.
-  if (isStdRecordType(nonNullableLhs) && ts.isObjectLiteralExpression(rhsExpr)) {
+  if (isStdRecordType(nonNullableLhs) && isObjectLiteralExpression(rhsExpr)) {
     return validateRecordObjectKeys(rhsExpr);
   }
 
@@ -851,14 +864,14 @@ export function isExpressionAssignableToType(lhsType: ts.Type | undefined, rhsEx
     }
   }
 
-  if (ts.isObjectLiteralExpression(rhsExpr)) {
+  if (isObjectLiteralExpression(rhsExpr)) {
     return isObjectLiteralAssignable(nonNullableLhs, rhsExpr);
   }
 
   return areTypesAssignable(lhsType, rhsType)
 }
 
-function areTypesAssignable(lhsType: ts.Type, rhsType: ts.Type): boolean {
+function areTypesAssignable(lhsType: Type, rhsType: Type): boolean {
   if (rhsType.isUnion()) {
     let res = true;
     for (const compType of rhsType.types) {
@@ -878,8 +891,8 @@ function areTypesAssignable(lhsType: ts.Type, rhsType: ts.Type): boolean {
   // we pretend to be non strict mode to avoid incompatibilities with IDE/RT linter,
   // where execution environments differ. in IDE this error will be reported anyways by 
   // StrictModeError
-  const isRhsUndefined: boolean = !!(rhsType.flags & ts.TypeFlags.Undefined);
-  const isRhsNull: boolean = !!(rhsType.flags & ts.TypeFlags.Null);
+  const isRhsUndefined: boolean = !!(rhsType.flags & TypeFlags.Undefined);
+  const isRhsNull: boolean = !!(rhsType.flags & TypeFlags.Null);
   if (isRhsUndefined || isRhsNull) {
     return true;
   }
@@ -933,15 +946,15 @@ function isObjectLiteralAssignable(lhsType: Type, rhsExpr: Expression): boolean 
 
 function isEnumAssignment(lhsType: Type, rhsType: Type) {
   const isNumberEnum = isPrimitiveEnumType(rhsType, TypeFlags.NumberLiteral) ||
-                         isPrimitiveEnumMemberType(rhsType, TypeFlags.NumberLiteral);
+                      isPrimitiveEnumMemberType(rhsType, TypeFlags.NumberLiteral);
   const isStringEnum = isPrimitiveEnumType(rhsType, TypeFlags.StringLiteral) ||
-                         isPrimitiveEnumMemberType(rhsType, TypeFlags.StringLiteral);
+                      isPrimitiveEnumMemberType(rhsType, TypeFlags.StringLiteral);
   return (isNumberType(lhsType) && isNumberEnum) || (isStringType(lhsType) && isStringEnum);
 }
 
 function areCompatibleFunctionals(lhsType: Type, rhsType: Type) {
   return (isStdFunctionType(lhsType) || isFunctionalType(lhsType)) &&
-          (isStdFunctionType(rhsType) || isFunctionalType(rhsType));
+        (isStdFunctionType(rhsType) || isFunctionalType(rhsType));
 }
 
 function isFunctionalType(type: Type): boolean {
@@ -1041,9 +1054,9 @@ function validateRecordObjectKeys(objectLiteral: ObjectLiteralExpression): boole
 
 /* Not need in Tsc 4.9
 export function getDecorators(node: Node): readonly Decorator[] | undefined {
-  if (node.decorators) {
-    return filter(node.decorators, isDecorator);
-  }
+if (node.decorators) {
+return filter(node.decorators, isDecorator);
+}
 }
 */
 
@@ -1068,39 +1081,39 @@ export const LIMITED_STD_OBJECT_API = [
   "seal", "setPrototypeOf"
 ];
 export const LIMITED_STD_REFLECT_API = [
- "apply", "construct", "defineProperty", "deleteProperty", "getOwnPropertyDescriptor", "getPrototypeOf",
-    "isExtensible", "preventExtensions", "setPrototypeOf"
+  "apply", "construct", "defineProperty", "deleteProperty", "getOwnPropertyDescriptor", "getPrototypeOf",
+  "isExtensible", "preventExtensions", "setPrototypeOf"
 ];
 export const LIMITED_STD_PROXYHANDLER_API = [
   "apply", "construct", "defineProperty", "deleteProperty", "get", "getOwnPropertyDescriptor", "getPrototypeOf",
   "has", "isExtensible", "ownKeys", "preventExtensions", "set", "setPrototypeOf"
 ];
 export const ARKUI_DECORATORS = [
-    "AnimatableExtend",
-    "Builder",
-    "BuilderParam",
-    "Component",
-    "Concurrent",
-    "Consume",
-    "CustomDialog",
-    "Entry",
-    "Extend",
-    "Link",
-    "LocalStorageLink",
-    "LocalStorageProp",
-    "ObjectLink",
-    "Observed",
-    "Preview",
-    "Prop",
-    "Provide",
-    "Reusable",
-    "State",
-    "StorageLink",
-    "StorageProp",
-    "Styles",
-    "Watch",
-    "Require",
-    "Track",
+  "AnimatableExtend",
+  "Builder",
+  "BuilderParam",
+  "Component",
+  "Concurrent",
+  "Consume",
+  "CustomDialog",
+  "Entry",
+  "Extend",
+  "Link",
+  "LocalStorageLink",
+  "LocalStorageProp",
+  "ObjectLink",
+  "Observed",
+  "Preview",
+  "Prop",
+  "Provide",
+  "Reusable",
+  "State",
+  "StorageLink",
+  "StorageProp",
+  "Styles",
+  "Watch",
+  "Require",
+  "Track",
 ];
 
 export const FUNCTION_HAS_NO_RETURN_ERROR_CODE = 2366;
@@ -1135,7 +1148,7 @@ export const TYPED_ARRAYS = [
   "Float64Array",
   "BigInt64Array",
   "BigUint64Array",
-  ];
+];
 
 export function getParentSymbolName(symbol: Symbol): string | undefined {
   const name = typeChecker.getFullyQualifiedName(symbol);
@@ -1154,12 +1167,12 @@ export function isSymbolAPI(symbol: Symbol): boolean {
   return name === 'Symbol' || name === "SymbolConstructor";
 }
 
-export function isStdSymbol(symbol: ts.Symbol): boolean {
+export function isStdSymbol(symbol: Symbol): boolean {
   const name = TypeScriptLinter.tsTypeChecker.getFullyQualifiedName(symbol)
   return name === 'Symbol' && isGlobalSymbol(symbol);
 }
 
-export function isSymbolIterator(symbol: ts.Symbol): boolean {
+export function isSymbolIterator(symbol: Symbol): boolean {
   const name = symbol.name;
   const parName = getParentSymbolName(symbol);
   return (parName === 'Symbol' || parName === 'SymbolConstructor') && name === 'iterator'
@@ -1169,12 +1182,12 @@ export function isDefaultImport(importSpec: ImportSpecifier): boolean {
   return importSpec?.propertyName?.text === "default";
 }
 export function hasAccessModifier(decl: Declaration): boolean {
-  const modifiers = ts.getModifiers(decl as HasModifiers); //decl.modifiers; // TSC 4.2 doesn't have 'getModifiers()' method
+  const modifiers = getModifiers(decl as HasModifiers); //decl.modifiers; // TSC 4.2 doesn't have 'getModifiers()' method
   return (
-    !!modifiers &&
-    (hasModifier(modifiers, SyntaxKind.PublicKeyword) ||
-      hasModifier(modifiers, SyntaxKind.ProtectedKeyword) ||
-      hasModifier(modifiers, SyntaxKind.PrivateKeyword))
+  !!modifiers &&
+  (hasModifier(modifiers, SyntaxKind.PublicKeyword) ||
+    hasModifier(modifiers, SyntaxKind.ProtectedKeyword) ||
+    hasModifier(modifiers, SyntaxKind.PrivateKeyword))
   );
 }
 
@@ -1222,12 +1235,12 @@ export function isStdReadonlyType(type: Type): boolean {
 export function isLibraryType(type: Type): boolean {
   const nonNullableType = type.getNonNullableType();
   if (nonNullableType.isUnion()) {
-    for (const componentType of nonNullableType.types) {
-      if (!isLibraryType(componentType)) {
-        return false;
-      }
+  for (const componentType of nonNullableType.types) {
+    if (!isLibraryType(componentType)) {
+      return false;
     }
-    return true;
+  }
+  return true;
   }
   return isLibrarySymbol(nonNullableType.aliasSymbol ?? nonNullableType.getSymbol());
 }
@@ -1238,27 +1251,27 @@ export function hasLibraryType(node: Node): boolean {
 
 export function isLibrarySymbol(sym: Symbol | undefined) {
   if (sym && sym.declarations && sym.declarations.length > 0) {
-    const srcFile = sym.declarations[0].getSourceFile();
-    if (!srcFile) {
-      return false;
-    }
-    const fileName = srcFile.fileName;
+  const srcFile = sym.declarations[0].getSourceFile();
+  if (!srcFile) {
+    return false;
+  }
+  const fileName = srcFile.fileName;
 
-    // Symbols from both *.ts and *.d.ts files should obey interop rules.
-    // We disable such behavior for *.ts files in the test mode due to lack of 'ets'
-    // extension support.
-    const ext = getAnyExtensionFromPath(fileName);
-    const isThirdPartyCode =
-      ARKTS_IGNORE_DIRS.some(ignore => pathContainsDirectory(normalizePath(fileName), ignore)) ||
-      ARKTS_IGNORE_FILES.some(ignore => getBaseFileName(fileName) === ignore);
-    const isEts = (ext === '.ets');
-    const isTs = (ext === '.ts' && !srcFile.isDeclarationFile);
-    const isStatic = (isEts || (isTs && testMode)) && !isThirdPartyCode;
-    // We still need to confirm support for certain API from the
-    // TypeScript standard library in ArkTS. Thus, for now do not
-    // count standard library modules.
-    return !isStatic &&
-      !STANDARD_LIBRARIES.includes(getBaseFileName(srcFile.fileName).toLowerCase());
+  // Symbols from both *.ts and *.d.ts files should obey interop rules.
+  // We disable such behavior for *.ts files in the test mode due to lack of 'ets'
+  // extension support.
+  const ext = getAnyExtensionFromPath(fileName);
+  const isThirdPartyCode =
+    ARKTS_IGNORE_DIRS.some(ignore => pathContainsDirectory(normalizePath(fileName), ignore)) ||
+    ARKTS_IGNORE_FILES.some(ignore => getBaseFileName(fileName) === ignore);
+  const isEts = (ext === '.ets');
+  const isTs = (ext === '.ts' && !srcFile.isDeclarationFile);
+  const isStatic = (isEts || (isTs && testMode)) && !isThirdPartyCode;
+  // We still need to confirm support for certain API from the
+  // TypeScript standard library in ArkTS. Thus, for now do not
+  // count standard library modules.
+  return !isStatic &&
+    !STANDARD_LIBRARIES.includes(getBaseFileName(srcFile.fileName).toLowerCase());
   }
 
   return false;
@@ -1277,18 +1290,18 @@ export function getScriptKind(srcFile: SourceFile): ScriptKind {
   const fileName = srcFile.fileName;
   const ext = getAnyExtensionFromPath(fileName);
   switch (ext.toLowerCase()) {
-    case Extension.Js:
-      return ScriptKind.JS;
-    case Extension.Jsx:
-      return ScriptKind.JSX;
-    case Extension.Ts:
-      return ScriptKind.TS;
-    case Extension.Tsx:
-      return ScriptKind.TSX;
-    case Extension.Json:
-      return ScriptKind.JSON;
-    default:
-      return ScriptKind.Unknown;
+  case Extension.Js:
+    return ScriptKind.JS;
+  case Extension.Jsx:
+    return ScriptKind.JSX;
+  case Extension.Ts:
+    return ScriptKind.TS;
+  case Extension.Tsx:
+    return ScriptKind.TSX;
+  case Extension.Json:
+    return ScriptKind.JSON;
+  default:
+    return ScriptKind.Unknown;
   }
 }
 
@@ -1298,9 +1311,9 @@ export function isStdLibraryType(type: Type): boolean {
 
 export function isStdLibrarySymbol(sym: Symbol | undefined) {
   if (sym && sym.declarations && sym.declarations.length > 0) {
-    const srcFile = sym.declarations[0].getSourceFile();
-    return srcFile &&
-      STANDARD_LIBRARIES.includes(getBaseFileName(srcFile.fileName).toLowerCase());
+  const srcFile = sym.declarations[0].getSourceFile();
+  return srcFile &&
+    STANDARD_LIBRARIES.includes(getBaseFileName(srcFile.fileName).toLowerCase());
   }
 
   return false;
@@ -1411,13 +1424,13 @@ export function isDynamicLiteralInitializer(expr: Expression): boolean {
 
 export function isEsObjectType(typeNode: TypeNode): boolean {
   return isTypeReferenceNode(typeNode) && isIdentifier(typeNode.typeName) &&
-    typeNode.typeName.text === ES_OBJECT;
+  typeNode.typeName.text === ES_OBJECT;
 }
 
-export function isInsideBlock(node: ts.Node): boolean {
+export function isInsideBlock(node: Node): boolean {
   let par = node.parent
   while (par) {
-    if (ts.isBlock(par)) {
+    if (isBlock(par)) {
       return true;
     }
     par = par.parent;
@@ -1425,28 +1438,28 @@ export function isInsideBlock(node: ts.Node): boolean {
   return false;
 }
 
-export function  isEsObjectPossiblyAllowed(typeRef: ts.TypeReferenceNode): boolean {
-  return ts.isVariableDeclaration(typeRef.parent);
+export function  isEsObjectPossiblyAllowed(typeRef: TypeReferenceNode): boolean {
+  return isVariableDeclaration(typeRef.parent);
 }
 
-export function  isValueAssignableToESObject(node: ts.Node): boolean {
-  if (ts.isArrayLiteralExpression(node) || ts.isObjectLiteralExpression(node)) {
+export function  isValueAssignableToESObject(node: Node): boolean {
+  if (isArrayLiteralExpression(node) || isObjectLiteralExpression(node)) {
     return false;
   }
   const valueType = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(node);
-  return isUnsupportedType(valueType) || isAnonymousType(valueType)
+  return isUnsupportedType(valueType) || isAnonymousType(valueType);
 }
 
 export function getVariableDeclarationTypeNode(node: Node): TypeNode | undefined {
   let sym = trueSymbolAtLocation(node);
-    if (sym === undefined) {
-      return undefined;
-    }
-    return getSymbolDeclarationTypeNode(sym);
+  if (sym === undefined) {
+    return undefined;
   }
+  return getSymbolDeclarationTypeNode(sym);
+}
 
-export function getSymbolDeclarationTypeNode(sym: ts.Symbol): ts.TypeNode | undefined {
-    const decl = getDeclaration(sym);
+export function getSymbolDeclarationTypeNode(sym: Symbol): TypeNode | undefined {
+  const decl = getDeclaration(sym);
   if (!!decl && isVariableDeclaration(decl)) {
     return decl.type;
   }
@@ -1458,7 +1471,7 @@ export function hasEsObjectType(node: Node): boolean {
   return typeNode !== undefined && isEsObjectType(typeNode);
 }
 
-export function symbolHasEsObjectType(sym: ts.Symbol): boolean {
+export function symbolHasEsObjectType(sym: Symbol): boolean {
   const typeNode = getSymbolDeclarationTypeNode(sym);
   return typeNode !== undefined && isEsObjectType(typeNode);
 }
@@ -1480,7 +1493,7 @@ export function isAnonymousType(type: Type): boolean {
   }
 
   return (type.flags & TypeFlags.Object) !== 0 &&
-    ((type as ObjectType).objectFlags & ObjectFlags.Anonymous) !== 0;
+  ((type as ObjectType).objectFlags & ObjectFlags.Anonymous) !== 0;
 }
 
 export function getSymbolOfCallExpression(callExpr: CallExpression): Symbol | undefined {
@@ -1504,11 +1517,11 @@ export function typeIsRecursive(topType: Type, type: Type | undefined = undefine
   }
 
   if (type.isUnion()) {
-    for (const unionElem of type.types) {
-      if (typeIsRecursive(topType, unionElem)) {
-        return true;
-      }
+  for (const unionElem of type.types) {
+    if (typeIsRecursive(topType, unionElem)) {
+      return true;
     }
+  }
   }
   if (type.flags & TypeFlags.Object && (type as ObjectType).objectFlags & ObjectFlags.Reference) {
     const typeArgs = typeChecker.getTypeArguments(type as TypeReference);
@@ -1521,9 +1534,4 @@ export function typeIsRecursive(topType: Type, type: Type | undefined = undefine
     }
   }
   return false;
-}
-
-
-}
-}
 }
