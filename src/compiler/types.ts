@@ -5353,6 +5353,7 @@ namespace ts {
         isLateBound(node: Declaration): node is LateBoundDeclaration;
         collectLinkedAliases(node: Identifier, setVisibility?: boolean): Node[] | undefined;
         isImplementationOfOverload(node: SignatureDeclaration): boolean | undefined;
+        requiresAddingImplicitUndefined(node: ParameterDeclaration): boolean;
         isRequiredInitializedParameter(node: ParameterDeclaration): boolean;
         isOptionalUninitializedParameterProperty(node: ParameterDeclaration): boolean;
         isExpandoFunctionDeclaration(node: FunctionDeclaration): boolean;
@@ -6725,6 +6726,7 @@ namespace ts {
         inlineSourceMap?: boolean;
         inlineSources?: boolean;
         isolatedModules?: boolean;
+        isolatedDeclarations?: boolean;
         jsx?: JsxEmit;
         keyofStringsOnly?: boolean;
         lib?: string[];

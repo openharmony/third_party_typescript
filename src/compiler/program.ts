@@ -3585,6 +3585,15 @@ namespace ts {
                 }
             }
 
+            if (options.isolatedDeclarations) {
+                if (getAllowJSCompilerOption(options)) {
+                    createDiagnosticForOptionName(Diagnostics.Option_0_cannot_be_specified_with_option_1, "allowJs", "isolatedDeclarations");
+                }
+                if (!getEmitDeclarations(options)) {
+                    createDiagnosticForOptionName(Diagnostics.Option_0_cannot_be_specified_without_specifying_option_1_or_option_2, "isolatedDeclarations", "declaration", "composite");
+                }
+            }
+
             if (options.inlineSourceMap) {
                 if (options.sourceMap) {
                     createDiagnosticForOptionName(Diagnostics.Option_0_cannot_be_specified_with_option_1, "sourceMap", "inlineSourceMap");
