@@ -2391,6 +2391,10 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
                 return emptyArray;
             }
 
+            if (isForLinter && sourceFile.scriptKind !== ScriptKind.ETS) {
+                return emptyArray;
+            }
+
             const typeChecker = isForLinter ? getLinterTypeChecker() : getTypeChecker();
 
             Debug.assert(!!sourceFile.bindDiagnostics);
