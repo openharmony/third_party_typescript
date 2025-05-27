@@ -1,0 +1,16 @@
+tests/cases/conformance/annotations/B.ets(1,9): error TS28039: Annotation can only be exported in declaration statement.
+
+
+==== tests/cases/conformance/annotations/A.ets (0 errors) ====
+    export @interface Anno {
+        a: number
+    }
+    
+==== tests/cases/conformance/annotations/B.ets (1 errors) ====
+    export {Anno} from "./A";
+            ~~~~
+!!! error TS28039: Annotation can only be exported in declaration statement.
+    
+    
+==== tests/cases/conformance/annotations/C.ets (0 errors) ====
+    import {Anno} from "./B";

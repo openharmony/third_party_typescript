@@ -38977,7 +38977,7 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
                 Debug.fail();
         }
 
-        // Check duplication
+        // Check for duplicate annotation usage scenarios
 
         Debug.assert(annotation.annotationDeclaration);
         const typeName = typeToString(getTypeOfSymbol(getSymbolOfNode(annotation.annotationDeclaration)), /*enclosingDeclaration*/ undefined, TypeFormatFlags.UseFullyQualifiedType);
@@ -43452,6 +43452,9 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
 
     function checkExportSpecifier(node: ExportSpecifier) {
         checkAliasSymbol(node);
+        if (isReferredToAnnotation(node)) {
+            error(node, Diagnostics.Annotation_can_only_be_exported_in_declaration_statement);
+        }
         if (getEmitDeclarations(compilerOptions)) {
             collectLinkedAliases(node.propertyName || node.name, /*setVisibility*/ true);
         }
@@ -45586,6 +45589,48 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
         }
     }
 
+    function isReferredToAnnotation(node: ImportSpecifier | ExportSpecifier | ExportAssignment): boolean | undefined {
+        let links: NodeLinks = getNodeLinks(node);
+        if (!links.exportOrImportRefersToAnnotation) {
+            let ident: Identifier | PropertyAccessExpression | undefined = undefined;
+            if (isExportAssignment(node)) {
+                switch (node.expression.kind) {
+                    case SyntaxKind.Identifier:
+                        ident = node.expression as Identifier;
+                        break;
+                    case SyntaxKind.PropertyAccessExpression:
+                        ident = node.expression as PropertyAccessExpression;
+                        break;
+                    default:
+                        return undefined;
+                }
+                if (!ident) {
+                    return undefined;
+                }
+                const symbol: Symbol | undefined = getSymbolOfNameOrPropertyAccessExpression(ident);
+                if (!symbol) {
+                    return undefined;
+                }
+                if (getAllSymbolFlags(symbol) & SymbolFlags.Annotation) {
+                    links.exportOrImportRefersToAnnotation = true;
+                }
+            }
+
+            if (isImportSpecifier(node) || isExportSpecifier(node)) {
+                let symbol: Symbol | undefined = getSymbolOfNode(node);
+                if (!symbol) {
+                    return undefined;
+                }
+                const target: Symbol = resolveAlias(symbol);
+                const targetFlags: SymbolFlags = getAllSymbolFlags(target);
+                if (targetFlags & SymbolFlags.Annotation) {
+                    links.exportOrImportRefersToAnnotation = true;
+                }
+            }
+        }
+        return links.exportOrImportRefersToAnnotation;
+    }
+
     function createResolver(): EmitResolver {
         // this variable and functions that use it are deliberately moved here from the outer scope
         // to avoid scope pollution
@@ -45788,47 +45833,7 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
                 }
                 return links.annotationPropertyInferredType;
             },
-            isReferredToAnnotation: (node: ImportSpecifier | ExportSpecifier | ExportAssignment): boolean | undefined => {
-                let links: NodeLinks = getNodeLinks(node);
-                if (!links.exportOrImportRefersToAnnotation) {
-                    let ident: Identifier | PropertyAccessExpression | undefined = undefined;
-                    if ((isExportAssignment(node))) {
-                        switch (node.expression.kind) {
-                            case SyntaxKind.Identifier:
-                                ident = node.expression as Identifier;
-                                break;
-                            case SyntaxKind.PropertyAccessExpression:
-                                ident = node.expression as PropertyAccessExpression;
-                                break;
-                            default:
-                                return undefined;
-                        }
-                        if (!ident) {
-                            return undefined;
-                        }
-                        const symbol: Symbol | undefined = getSymbolOfNameOrPropertyAccessExpression(ident);
-                        if (!symbol) {
-                            return undefined;
-                        }
-                        if (getAllSymbolFlags(symbol) & SymbolFlags.Annotation) {
-                            links.exportOrImportRefersToAnnotation = true;
-                        }
-                    }
-
-                    if ((isImportSpecifier(node) || isExportSpecifier(node))) {
-                        let symbol: Symbol | undefined = getSymbolOfNode(node);
-                        if (!symbol) {
-                            return undefined;
-                        }
-                        const target: Symbol = resolveAlias(symbol);
-                        const targetFlags: SymbolFlags = getAllSymbolFlags(target);
-                        if (targetFlags & SymbolFlags.Annotation) {
-                            links.exportOrImportRefersToAnnotation = true;
-                        }
-                    }
-                }
-                return links.exportOrImportRefersToAnnotation;
-            }
+            isReferredToAnnotation: isReferredToAnnotation,
         };
 
         function isImportRequiredByAugmentation(node: ImportDeclaration) {
@@ -46204,8 +46209,20 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
             // }
         }
 
+        if (isMethodDeclaration(node) && hasSyntacticModifier(node, ModifierFlags.Abstract)) {
+            for (const decorator of decorators) {
+                const annotatedDecl = decorator.parent;
+                if (getAnnotationDeclaration(decorator)) {
+                    const nodeStr = getTextOfNode(annotatedDecl, /*includeTrivia*/ false);
+                    error(decorator, Diagnostics.Annotation_have_to_be_applied_only_for_non_abstract_class_declarations_and_method_declarations_in_non_abstract_classes_got_Colon_0, nodeStr);
+                    continue;
+                }
+            }
+            return true;
+        }
+
         if (!nodeCanBeDecorated(node, node.parent, node.parent.parent, compilerOptions)) {
-            const isMethodDeclarationAndNodeIsNotPresent = node.kind === SyntaxKind.MethodDeclaration && ! nodeIsPresent(node.body);
+            const isMethodDeclarationAndNodeIsNotPresent = node.kind === SyntaxKind.MethodDeclaration && !nodeIsPresent(node.body);
             const message = isMethodDeclarationAndNodeIsNotPresent ? Diagnostics.A_decorator_can_only_decorate_a_method_implementation_not_an_overload : Diagnostics.Decorators_are_not_valid_here;
             for (const decorator of decorators) {
                 if (!grammarErrorOnNode(decorator, message)) {

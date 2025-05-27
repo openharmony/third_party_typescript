@@ -1,0 +1,20 @@
+=== tests/cases/conformance/annotations/annotationApplicationError17.ets ===
+@interface Anno {
+    a: number = 10
+>a : number
+
+    b: string[] = []
+>b : string[]
+>[] : undefined[]
+}
+
+@Anno
+>Anno : typeof Anno
+
+abstract class C {
+>C : C
+
+    abstract foo();
+>foo : () => any
+}
+

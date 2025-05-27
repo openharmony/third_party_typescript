@@ -1,0 +1,36 @@
+tests/cases/conformance/annotations/annotationApplicationError18.ets(6,1): error TS28021: Annotation have to be applied only for non-abstract class declarations and method declarations in non-abstract classes, got: '@Anno
+@Anno
+abstract class C {
+    abstract foo();
+}'.
+tests/cases/conformance/annotations/annotationApplicationError18.ets(7,1): error TS28021: Annotation have to be applied only for non-abstract class declarations and method declarations in non-abstract classes, got: '@Anno
+@Anno
+abstract class C {
+    abstract foo();
+}'.
+
+
+==== tests/cases/conformance/annotations/annotationApplicationError18.ets (2 errors) ====
+    @interface Anno {
+        a: number = 10
+        b: string[] = []
+    }
+    
+    @Anno
+    ~~~~~
+!!! error TS28021: Annotation have to be applied only for non-abstract class declarations and method declarations in non-abstract classes, got: '@Anno
+!!! error TS28021: @Anno
+!!! error TS28021: abstract class C {
+!!! error TS28021:     abstract foo();
+!!! error TS28021: }'.
+    @Anno
+    ~~~~~
+!!! error TS28021: Annotation have to be applied only for non-abstract class declarations and method declarations in non-abstract classes, got: '@Anno
+!!! error TS28021: @Anno
+!!! error TS28021: abstract class C {
+!!! error TS28021:     abstract foo();
+!!! error TS28021: }'.
+    abstract class C {
+        abstract foo();
+    }
+    
