@@ -1,0 +1,24 @@
+=== tests/cases/conformance/annotations/annotationApplicationError19.ets ===
+@interface Anno {
+>Anno : Symbol(Anno, Decl(annotationApplicationError19.ets, 0, 0))
+
+    a: number = 10
+>a : Symbol(Anno.a, Decl(annotationApplicationError19.ets, 0, 17))
+
+    b: string[] = []
+>b : Symbol(Anno.b, Decl(annotationApplicationError19.ets, 1, 18))
+}
+
+abstract class C {
+>C : Symbol(C, Decl(annotationApplicationError19.ets, 3, 1))
+
+    @Anno
+>Anno : Symbol(Anno, Decl(annotationApplicationError19.ets, 0, 0))
+
+    @Anno
+>Anno : Symbol(Anno, Decl(annotationApplicationError19.ets, 0, 0))
+
+    abstract foo();
+>foo : Symbol(C.foo, Decl(annotationApplicationError19.ets, 5, 18))
+}
+

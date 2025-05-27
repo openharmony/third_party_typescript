@@ -7704,5 +7704,9 @@
     "Enable support of ETS annotations": {
         "category": "Message",
         "code": 28038
+    },
+    "Annotation can only be exported in declaration statement.": {
+        "category": "Error",
+        "code": 28039
     }
 }

@@ -1,4 +1,5 @@
 tests/cases/conformance/annotations/B.ets(1,9): error TS28030: Annotation cannot be renamed in import or export.
+tests/cases/conformance/annotations/B.ets(1,9): error TS28039: Annotation can only be exported in declaration statement.
 
 
 ==== tests/cases/conformance/annotations/A.ets (0 errors) ====
@@ -6,7 +7,9 @@ tests/cases/conformance/annotations/B.ets(1,9): error TS28030: Annotation cannot
         a: number
     }
     
-==== tests/cases/conformance/annotations/B.ets (1 errors) ====
+==== tests/cases/conformance/annotations/B.ets (2 errors) ====
     export {Anno as B} from "./A";
             ~~~~~~~~~
 !!! error TS28030: Annotation cannot be renamed in import or export.
+            ~~~~~~~~~
+!!! error TS28039: Annotation can only be exported in declaration statement.
