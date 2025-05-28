@@ -4380,7 +4380,7 @@ export class OperationCanceledException { }
 export interface CancellationToken {
     isCancellationRequested(): boolean;
 
-    /** @throws OperationCanceledException if isCancellationRequested is true */
+    /** OperationCanceledException if isCancellationRequested is true */
     throwIfCancellationRequested(): void;
 }
 

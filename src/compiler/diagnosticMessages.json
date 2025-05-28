@@ -7708,5 +7708,9 @@
     "Annotation can only be exported in declaration statement.": {
         "category": "Error",
         "code": 28039
+    },
+    "Function may throw error, caller should handle it with 'try-catch' or declare '@throws'.": {
+        "category": "Warning",
+        "code": 28040
     }
 }

@@ -1060,6 +1060,10 @@ const DEFAULT_KEYWORD = 'default';
 const ETS_DECLARATION = '.d.ets';
 const OHOS_KIT_CONFIG_PATH = './openharmony/ets/build-tools/ets-loader/kit_configs';
 const HMS_KIT_CONFIG_PATH = './hms/ets/build-tools/ets-loader/kit_configs';
+export const THROWS_TAG = 'throws'
+export const THROWS_CATCH = 'catch'
+export const THROWS_ASYNC_CALLBACK = 'AsyncCallback'
+export const THROWS_ERROR_CALLBACK = 'ErrorCallback'
 
 interface KitSymbolInfo {
     source: string,
