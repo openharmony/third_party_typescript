@@ -45023,6 +45023,16 @@ namespace ts {
             return false;
         }
 
+        function declaredParameterTypeContainsUndefined(parameter: ParameterDeclaration | JSDocParameterTag) {
+            const typeNode = getNonlocalEffectiveTypeAnnotationNode(parameter);
+            if (!typeNode) return false;
+            const type = getTypeFromTypeNode(typeNode);
+            return containsUndefinedType(type);
+        }
+        function requiresAddingImplicitUndefined(parameter: ParameterDeclaration | JSDocParameterTag) {
+            return (isRequiredInitializedParameter(parameter) || isOptionalUninitializedParameterProperty(parameter)) && !declaredParameterTypeContainsUndefined(parameter);
+        }
+
         function isRequiredInitializedParameter(parameter: ParameterDeclaration | JSDocParameterTag): boolean {
             return !!strictNullChecks &&
                 !isOptionalParameter(parameter) &&
@@ -45031,10 +45041,10 @@ namespace ts {
                 !hasSyntacticModifier(parameter, ModifierFlags.ParameterPropertyModifier);
         }
 
-        function isOptionalUninitializedParameterProperty(parameter: ParameterDeclaration) {
+        function isOptionalUninitializedParameterProperty(parameter: ParameterDeclaration | JSDocParameterTag) {
             return strictNullChecks &&
                 isOptionalParameter(parameter) &&
-                !parameter.initializer &&
+                 (isJSDocParameterTag(parameter) || !parameter.initializer) &&
                 hasSyntacticModifier(parameter, ModifierFlags.ParameterPropertyModifier);
         }
 
@@ -45198,6 +45208,22 @@ namespace ts {
             return nodeBuilder.typeToTypeNode(type, enclosingDeclaration, flags | NodeBuilderFlags.MultilineObjectLiterals, tracker);
         }
 
+        function getAllAccessorDeclarationsForDeclaration(accessor: AccessorDeclaration): AllAccessorDeclarations {
+            accessor = getParseTreeNode(accessor, isGetOrSetAccessorDeclaration)!; // TODO: GH#18217
+            const otherKind = accessor.kind === SyntaxKind.SetAccessor ? SyntaxKind.GetAccessor : SyntaxKind.SetAccessor;
+            const otherAccessor = getDeclarationOfKind<AccessorDeclaration>(getSymbolOfNode(accessor), otherKind);
+            const firstAccessor = otherAccessor && (otherAccessor.pos < accessor.pos) ? otherAccessor : accessor;
+            const secondAccessor = otherAccessor && (otherAccessor.pos < accessor.pos) ? accessor : otherAccessor;
+            const setAccessor = accessor.kind === SyntaxKind.SetAccessor ? accessor : otherAccessor as SetAccessorDeclaration;
+            const getAccessor = accessor.kind === SyntaxKind.GetAccessor ? accessor : otherAccessor as GetAccessorDeclaration;
+            return {
+                firstAccessor,
+                secondAccessor,
+                setAccessor,
+                getAccessor,
+            };
+        }
+
         function createReturnTypeOfSignatureDeclaration(signatureDeclarationIn: SignatureDeclaration, enclosingDeclaration: Node, flags: NodeBuilderFlags, tracker: SymbolTracker) {
             const signatureDeclaration = getParseTreeNode(signatureDeclarationIn, isFunctionLike);
             if (!signatureDeclaration) {
@@ -45324,6 +45350,20 @@ namespace ts {
             }
         }
 
+        function getNonlocalEffectiveTypeAnnotationNode(node: Node) {
+            const direct = getEffectiveTypeAnnotationNode(node);
+            if (direct) {
+                return direct;
+            }
+            if (node.kind === SyntaxKind.Parameter && node.parent.kind === SyntaxKind.SetAccessor) {
+                const other = getAllAccessorDeclarationsForDeclaration(node.parent as SetAccessorDeclaration).getAccessor;
+                if (other) {
+                    return getEffectiveReturnTypeNode(other);
+                }
+            }
+            return undefined;
+        }
+
         function createResolver(): EmitResolver {
             // this variable and functions that use it are deliberately moved here from the outer scope
             // to avoid scope pollution
@@ -45372,6 +45412,7 @@ namespace ts {
                 isTopLevelValueImportEqualsWithEntityName,
                 isDeclarationVisible,
                 isImplementationOfOverload,
+                requiresAddingImplicitUndefined,
                 isRequiredInitializedParameter,
                 isOptionalUninitializedParameterProperty,
                 isExpandoFunctionDeclaration,
