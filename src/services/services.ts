@@ -1252,6 +1252,9 @@ namespace ts {
 
         const currentDirectory = host.getCurrentDirectory();
 
+        // Get the callback to determine languageVersion by filePath (will used in parsing)
+        getLanguageVersionByFilePath(host.isStaticSourceFile);
+
         // Checks if the localized messages json is set, and if not, query the host for it
         maybeSetLocalizedDiagnosticMessages(host.getLocalizedDiagnosticMessages?.bind(host));
 

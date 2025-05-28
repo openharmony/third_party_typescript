@@ -1022,8 +1022,8 @@ namespace ts {
     const KIT_PREFIX = '@kit.';
     const DEFAULT_KEYWORD = 'default';
     const ETS_DECLARATION = '.d.ets';
-    const OHOS_KIT_CONFIG_PATH = './openharmony/ets/build-tools/ets-loader/kit_configs';
-    const HMS_KIT_CONFIG_PATH = './hms/ets/build-tools/ets-loader/kit_configs';
+    const OHOS_KIT_CONFIG_PATH = './openharmony/ets/ets1.1/build-tools/ets-loader/kit_configs';
+    const HMS_KIT_CONFIG_PATH = './hms/ets/ets1.1/build-tools/ets-loader/kit_configs';
 
     interface KitSymbolInfo {
         source: string,
@@ -1040,7 +1040,7 @@ namespace ts {
 
     /* @internal */
     export function getSdkPath(compilerOptions: CompilerOptions): string | undefined {
-        return compilerOptions.etsLoaderPath ? resolvePath(compilerOptions.etsLoaderPath, '../../../..') : undefined;
+        return compilerOptions.etsLoaderPath ? resolvePath(compilerOptions.etsLoaderPath, '../../../../..') : undefined;
     }
 
     function getKitJsonObject(name: string, sdkPath: string): KitJsonInfo | undefined {
