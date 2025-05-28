@@ -2514,6 +2514,7 @@ declare namespace ts {
         getConstEnumRelate?(): ESMap<string, ESMap<string, string>>;
         clearConstEnumRelate?(): void;
         deleteConstEnumRelate?(path: string): void;
+        isStaticRecord?(type: Type): boolean;
     }
     export enum NodeBuilderFlags {
         None = 0,
@@ -3544,6 +3545,7 @@ declare namespace ts {
         getJsDocNodeConditionCheckedResult?(jsDocFileCheckedInfo: FileCheckModuleInfo, jsDocs: JsDocTagInfo[]): ConditionCheckResult;
         getFileCheckedModuleInfo?(containFilePath: string): FileCheckModuleInfo;
         getLastCompiledProgram?(): Program;
+        isStaticSourceFile?(filePath: string): boolean;
     }
     export interface SourceMapRange extends TextRange {
         source?: SourceMapSource;
@@ -6349,6 +6351,7 @@ declare namespace ts {
         shouldCompletionSortCustom?: boolean;
         uiProps?: string[];
         clearProps?(): void;
+        isStaticSourceFile?(fileName: string): boolean;
     }
     type WithMetadata<T> = T & {
         metadata?: unknown;

@@ -1372,7 +1372,8 @@ namespace ts {
             initProcessingFiles,
             processImportedModules,
             getProcessingFiles,
-            deleteProgramSourceFiles
+            deleteProgramSourceFiles,
+            isStaticSourceFile: host.isStaticSourceFile
         };
 
         onProgramCreateComplete();
