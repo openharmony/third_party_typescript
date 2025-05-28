@@ -1060,8 +1060,8 @@ const JSON_SUFFIX = '.json';
 const KIT_PREFIX = '@kit.';
 const DEFAULT_KEYWORD = 'default';
 const ETS_DECLARATION = '.d.ets';
-const OHOS_KIT_CONFIG_PATH = './openharmony/ets/build-tools/ets-loader/kit_configs';
-const HMS_KIT_CONFIG_PATH = './hms/ets/build-tools/ets-loader/kit_configs';
+const OHOS_KIT_CONFIG_PATH = './openharmony/ets/ets1.1/build-tools/ets-loader/kit_configs';
+const HMS_KIT_CONFIG_PATH = './hms/ets/ets1.1/build-tools/ets-loader/kit_configs';
 export const THROWS_TAG = 'throws'
 export const THROWS_CATCH = 'catch'
 export const THROWS_ASYNC_CALLBACK = 'AsyncCallback'
@@ -1082,7 +1082,7 @@ const kitJsonCache = new Map<string, KitJsonInfo | undefined>();
 
 /** @internal */
 export function getSdkPath(compilerOptions: CompilerOptions): string | undefined {
-    return compilerOptions.etsLoaderPath ? resolvePath(compilerOptions.etsLoaderPath, '../../../..') : undefined;
+    return compilerOptions.etsLoaderPath ? resolvePath(compilerOptions.etsLoaderPath, '../../../../..') : undefined;
 }
 
 function getKitJsonObject(name: string, sdkPath: string): KitJsonInfo | undefined {

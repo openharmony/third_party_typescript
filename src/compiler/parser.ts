@@ -1115,6 +1115,12 @@ export function parseJSDocTypeExpressionForTests(content: string, start?: number
     return Parser.JSDocParser.parseJSDocTypeExpressionForTests(content, start, length);
 }
 
+// Get language version: ArkTS 1.1、1.2
+let languageVersionCallBack: ((filePath: string) => boolean) | undefined;
+export function getLanguageVersionByFilePath(getLanguageVersion: ((filePath: string) => boolean) | undefined): void {
+    languageVersionCallBack = getLanguageVersion;
+}
+
 // Implement the parser as a singleton module.  We do this for perf reasons because creating
 // parser instances can actually be expensive enough to impact us on projects with many source
 // files.
@@ -1482,7 +1488,8 @@ namespace Parser {
         let statements = parseList(ParsingContext.SourceElements, parseStatement);
         const markedkitImportRanges = new Array<TextRange>();
         const sdkPath = getSdkPath(sourceFileCompilerOptions);
-        statements = (!!sourceFileCompilerOptions.noTransformedKitInParser || !sdkPath || parseDiagnostics.length) ?
+        // When the language version is 1.2, skip processKit
+        statements = (!!sourceFileCompilerOptions.noTransformedKitInParser || !sdkPath || parseDiagnostics.length || languageVersionCallBack?.(fileName)) ?
             statements :
             createNodeArray(processKit(factory, statements, sdkPath, markedkitImportRanges, inEtsContext()), statements.pos);
         Debug.assert(token() === SyntaxKind.EndOfFileToken);
