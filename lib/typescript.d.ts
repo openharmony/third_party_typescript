@@ -5315,6 +5315,7 @@ declare namespace ts {
     export function parseJsonText(fileName: string, sourceText: string): JsonSourceFile;
     export function isExternalModule(file: SourceFile): boolean;
     export function updateSourceFile(sourceFile: SourceFile, newText: string, textChangeRange: TextChangeRange, aggressiveChecks?: boolean, option?: CompilerOptions): SourceFile;
+    export function getLanguageVersionByFilePath(getLanguageVersion: ((filePath: string) => boolean) | undefined): void;
     export {};
 }
 declare namespace ts {
