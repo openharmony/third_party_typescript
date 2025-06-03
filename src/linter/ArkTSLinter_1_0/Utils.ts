@@ -1438,11 +1438,11 @@ export function isInsideBlock(node: Node): boolean {
   return false;
 }
 
-export function  isEsObjectPossiblyAllowed(typeRef: TypeReferenceNode): boolean {
+export function isEsObjectPossiblyAllowed(typeRef: TypeReferenceNode): boolean {
   return isVariableDeclaration(typeRef.parent);
 }
 
-export function  isValueAssignableToESObject(node: Node): boolean {
+export function isValueAssignableToESObject(node: Node): boolean {
   if (isArrayLiteralExpression(node) || isObjectLiteralExpression(node)) {
     return false;
   }

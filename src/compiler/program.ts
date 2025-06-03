@@ -1549,7 +1549,10 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         // but the resolved real path may be the .d.ts from project reference
         // Note:: Currently we try the real path only if the
         // file is from node_modules to avoid having to run real path on all file paths
-        if (!host.realpath || !options.preserveSymlinks || (!stringContains(file.originalFileName, nodeModulesPathPart) && !stringContains(file.originalFileName, ohModulesPathPart))) return undefined;
+        if (!host.realpath || !options.preserveSymlinks ||
+            (!stringContains(file.originalFileName, nodeModulesPathPart) && !stringContains(file.originalFileName, ohModulesPathPart))) {
+                return undefined;
+        }
         const realDeclarationPath = toPath(host.realpath(file.originalFileName));
         return realDeclarationPath === file.path ? undefined : getRedirectReferenceForResolutionFromSourceOfProject(realDeclarationPath);
     }

@@ -2616,6 +2616,7 @@ declare namespace ts {
         isUndefinedSymbol(symbol: Symbol): boolean;
         isArgumentsSymbol(symbol: Symbol): boolean;
         isUnknownSymbol(symbol: Symbol): boolean;
+        getMergedSymbol(symbol: Symbol): Symbol;
         getConstantValue(node: EnumMember | PropertyAccessExpression | ElementAccessExpression): string | number | undefined;
         isValidPropertyAccess(node: PropertyAccessExpression | QualifiedName | ImportTypeNode, propertyName: string): boolean;
         /** Follow all aliases to get the original symbol. */
@@ -5289,6 +5290,7 @@ declare namespace ts {
     function isAssertionExpression(node: Node): node is AssertionExpression;
     function isIterationStatement(node: Node, lookInLabeledStatements: false): node is IterationStatement;
     function isIterationStatement(node: Node, lookInLabeledStatements: boolean): node is IterationStatement | LabeledStatement;
+    function isDeclarationStatement(node: Node): node is DeclarationStatement;
     function isJsxOpeningLikeElement(node: Node): node is JsxOpeningLikeElement;
     function isCaseOrDefaultClause(node: Node): node is CaseOrDefaultClause;
     /** True if node is of a kind that may contain comment text. */
@@ -5320,6 +5322,7 @@ declare namespace ts {
         static initializeBaseMemory(baseMemorySize?: number): void;
         static updateBaseMemory(MemoryBeforeGC: number): void;
     }
+    function isPartOfTypeNode(node: Node): boolean;
     function getJSDocCommentsAndTags(hostNode: Node, noCache?: boolean): readonly (JSDoc | JSDocTag)[];
     function getLeadingCommentRangesOfNode(node: Node, sourceFileOfNode: SourceFile): ts.CommentRange[] | undefined;
     function createTextWriter(newLine: string): EmitTextWriter;
@@ -5967,6 +5970,8 @@ declare namespace ts {
     interface SourceMapGeneratorOptions {
         extendedDiagnostics?: boolean;
     }
+    function isInternalDeclaration(node: Node, currentSourceFile: SourceFile): boolean | 0 | undefined;
+    const nullTransformationContext: TransformationContext;
     function getTsBuildInfoEmitOutputFilePath(options: CompilerOptions): string | undefined;
     function getTsBuildInfoEmitOutputFilePathForLinter(tsBuildInfoPath: string): string;
     function getOutputFileNames(commandLine: ParsedCommandLine, inputFileName: string, ignoreCase: boolean): readonly string[];

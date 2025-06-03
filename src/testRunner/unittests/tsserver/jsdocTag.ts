@@ -775,7 +775,7 @@ static test2(): void {
                 }]
             };
         };
-        host.getJsDocNodeConditionCheckedResult = (jsDocFileCheckInfo: ts.FileCheckModuleInfo,  jsDocs: ts.JSDocTagInfo[]) => {
+        host.getJsDocNodeConditionCheckedResult = (jsDocFileCheckInfo: ts.FileCheckModuleInfo, jsDocs: ts.JSDocTagInfo[]) => {
             ts.Debug.log(jsDocFileCheckInfo.fileNeedCheck.toString());
             ts.Debug.log(jsDocs.toString());
             return {

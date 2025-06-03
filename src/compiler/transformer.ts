@@ -595,7 +595,6 @@ export function transformNodes<T extends Node>(resolver: EmitResolver | undefine
     }
 }
 
-/** @internal */
 export const nullTransformationContext: TransformationContext = {
     factory: factory, // eslint-disable-line object-shorthand
     getCompilerOptions: () => ({}),

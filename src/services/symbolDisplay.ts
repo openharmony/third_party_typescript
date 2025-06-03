@@ -183,7 +183,7 @@ export function getSymbolDisplayPartsDocumentationAndSymbolKind(typeChecker: Typ
         if (symbolKind === ScriptElementKind.memberGetAccessorElement || symbolKind === ScriptElementKind.memberSetAccessorElement) {
             const declaration = find(symbol.declarations as ((GetAccessorDeclaration | SetAccessorDeclaration | PropertyDeclaration)[]), declaration => declaration.name === location);
             if (declaration) {
-                switch(declaration.kind){
+                switch(declaration.kind) {
                     case SyntaxKind.GetAccessor:
                         symbolKind = ScriptElementKind.memberGetAccessorElement;
                         break;

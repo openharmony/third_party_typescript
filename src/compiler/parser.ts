@@ -6537,7 +6537,7 @@ namespace Parser {
                 return parsePrivateIdentifier();
         }
 
-        if(isCurrentTokenAnEtsComponentExpression() && !inEtsNewExpressionContext()){
+        if(isCurrentTokenAnEtsComponentExpression() && !inEtsNewExpressionContext()) {
             return parseEtsComponentExpression();
         }
 
@@ -6651,10 +6651,10 @@ namespace Parser {
 
     function parseFunctionExpression(): FunctionExpression {
         // GeneratorExpression:
-        //      function* BindingIdentifier [Yield][opt](FormalParameters[Yield]){ GeneratorBody }
+        //      function* BindingIdentifier [Yield][opt](FormalParameters[Yield]) { GeneratorBody }
         //
         // FunctionExpression:
-        //      function BindingIdentifier[opt](FormalParameters){ FunctionBody }
+        //      function BindingIdentifier[opt](FormalParameters) { FunctionBody }
         const savedDecoratorContext = inDecoratorContext();
         setDecoratorContext(/*val*/ false);
 

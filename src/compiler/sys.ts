@@ -1499,7 +1499,7 @@ export let sys: System = (() => {
             write(s: string): void {
                 process.stdout.write(s);
             },
-            getWidthOfTerminal(){
+            getWidthOfTerminal() {
                 return process.stdout.columns;
             },
             writeOutputIsTTY() {

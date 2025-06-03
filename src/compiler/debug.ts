@@ -1005,7 +1005,9 @@ m2: ${(this.mapper2 as unknown as DebugTypeMapper).__debugToString().split("\n")
                 node.endLane = lane;
                 const children = getChildren(node);
                 for (let i = 0; i < children.length; i++) {
-                    if (i > 0) lane++;
+                    if (i > 0) {
+                        lane++;
+                    }
                     const child = children[i];
                     computeLanes(child, lane);
                     if (child.endLane > node.endLane) {

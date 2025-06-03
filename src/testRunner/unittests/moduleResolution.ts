@@ -936,7 +936,7 @@ describe("unittests:: moduleResolution:: baseUrl augmented module resolution", (
             const file2: File = { name: "/root/folder2/file2.ts" };
             const file3: File = { name: "/root/folder2/file3.ts" };
             const host = createModuleResolutionHost(hasDirectoryExists, file1, file2, file3);
-            for (const moduleResolution of [ ts.ModuleResolutionKind.NodeJs, ts.ModuleResolutionKind.Classic ]) {
+            for (const moduleResolution of [ts.ModuleResolutionKind.NodeJs, ts.ModuleResolutionKind.Classic]) {
                 const options: ts.CompilerOptions = { moduleResolution, baseUrl: "/root" };
                 {
                     const result = ts.resolveModuleName("folder2/file2", file1.name, options, host);

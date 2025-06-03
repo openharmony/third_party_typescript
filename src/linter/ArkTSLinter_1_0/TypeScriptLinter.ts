@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as ts from "../_namespaces/ts"
+import * as ts from "../_namespaces/ts";
 import {
     ArrayLiteralExpression, ArrowFunction, AsExpression, BinaryExpression, BindingName, CallExpression, CatchClause,
     ClassDeclaration, ClassStaticBlockDeclaration, CommentRange, ComputedPropertyName, ConciseBody, Declaration,
@@ -446,7 +446,9 @@ export class TypeScriptLinter {
       }
     }
     // Check if property symbol is "Prototype"
-    if (isPrototypeSymbol(propAccessSym)) return true;
+    if (isPrototypeSymbol(propAccessSym)) {
+      return true;
+    }
 
     // Check if symbol of LHS-expression is Class or Function.
     if (isTypeSymbol(baseExprSym) || isFunctionSymbol(baseExprSym)) {
@@ -532,7 +534,9 @@ export class TypeScriptLinter {
   private handleArrayLiteralExpression(node: Node): void {
     // If array literal is a part of destructuring assignment, then
     // don't process it further.
-    if (isDestructuringAssignmentLHS(node as ArrayLiteralExpression)) return;
+    if (isDestructuringAssignmentLHS(node as ArrayLiteralExpression)) {
+      return;
+    }
 
     const arrayLitNode = node as ArrayLiteralExpression;
     let noContextTypeForArrayLiteral = false;
@@ -671,7 +675,7 @@ export class TypeScriptLinter {
   }
 
   private handlePropertyAccessExpression(node: Node): void {
-    if (isCallExpression(node.parent) && node == node.parent.expression) {
+    if (isCallExpression(node.parent) && node === node.parent.expression) {
       return;
     }
 
@@ -685,7 +689,7 @@ export class TypeScriptLinter {
     if (!!exprSym && isSymbolAPI(exprSym) && !ALLOWED_STD_SYMBOL_API.includes(exprSym.getName())) {
       this.incrementCounters(propertyAccessNode, FaultID.SymbolType);
     }
-    if (!!baseExprSym  && symbolHasEsObjectType(baseExprSym)) {
+    if (!!baseExprSym && symbolHasEsObjectType(baseExprSym)) {
       this.incrementCounters(propertyAccessNode, FaultID.EsObjectType);
     }
   }
@@ -825,7 +829,7 @@ export class TypeScriptLinter {
 
     let autofix: Autofix[] | undefined;
     if (autofixable && shouldAutofix(node, FaultID.FunctionExpression)) {
-      autofix = [ fixFunctionExpression(funcExpr, funcExpr.parameters, newRetTypeNode) ];
+      autofix = [fixFunctionExpression(funcExpr, funcExpr.parameters, newRetTypeNode)];
     }
 
     this.incrementCounters(node, FaultID.FunctionExpression, autofixable, autofix);
@@ -1033,7 +1037,7 @@ export class TypeScriptLinter {
       tsBinaryExpr.operatorToken.kind === SyntaxKind.GreaterThanGreaterThanToken ||
       tsBinaryExpr.operatorToken.kind === SyntaxKind.GreaterThanGreaterThanGreaterThanToken
     ) {
-      if (!(isNumberType(leftOperandType) && isNumberType(rightOperandType))||
+      if (!(isNumberType(leftOperandType) && isNumberType(rightOperandType)) ||
             (tsLhsExpr.kind === SyntaxKind.NumericLiteral && !isIntegerConstantValue(tsLhsExpr as NumericLiteral)) ||
             (tsRhsExpr.kind === SyntaxKind.NumericLiteral && !isIntegerConstantValue(tsRhsExpr as NumericLiteral))
           ) {
@@ -1125,7 +1129,7 @@ export class TypeScriptLinter {
     const isDeclaredESObject = !!node.type && isEsObjectType(node.type);
     const initalizerTypeNode = node.initializer && getVariableDeclarationTypeNode(node.initializer);
     const isInitializedWithESObject = !!initalizerTypeNode && isEsObjectType(initalizerTypeNode);
-    const isLocal = isInsideBlock(node)
+    const isLocal = isInsideBlock(node);
     if ((isDeclaredESObject || isInitializedWithESObject) && !isLocal) {
       this.incrementCounters(node, FaultID.EsObjectType);
       return;
@@ -1262,7 +1266,9 @@ export class TypeScriptLinter {
       const nonDefaultSpecs: ImportSpecifier[] = [];
       let defaultSpec: ImportSpecifier | undefined;
       for (const importSpec of tsImportClause.namedBindings.elements) {
-        if (isDefaultImport(importSpec)) defaultSpec = importSpec;
+        if (isDefaultImport(importSpec)) {
+          defaultSpec = importSpec;
+        }
         else nonDefaultSpecs.push(importSpec);
       }
       if (defaultSpec) {
@@ -1434,7 +1440,7 @@ export class TypeScriptLinter {
   private isEnumPropAccess(ident: Identifier, tsSym: Symbol, context: Node): boolean {
     return isElementAccessExpression(context) && !!(tsSym.flags & SymbolFlags.Enum) &&
       (context.expression == ident ||
-        (isPropertyAccessExpression(context.expression) && context.expression.name == ident));
+        (isPropertyAccessExpression(context.expression) && context.expression.name === ident));
   }
 
   private handleElementAccessExpression(node: Node): void {
@@ -1589,7 +1595,7 @@ export class TypeScriptLinter {
         //   2. Compiler infer 'unknown' from arguments
         // We report error in both cases. It is ok because we cannot use 'unknown'
         // in ArkTS and already have separate check for it.
-        if (typeNode.kind == SyntaxKind.UnknownKeyword) {
+        if (typeNode.kind === SyntaxKind.UnknownKeyword) {
           this.incrementCounters(callLikeExpr, FaultID.GenericCallNoTypeArgs);
           break;
         }
@@ -1634,7 +1640,7 @@ export class TypeScriptLinter {
         }
         if (!tsParamType) continue;
 
-        if (needToDeduceStructuralIdentity(tsArgType, tsParamType)){
+        if (needToDeduceStructuralIdentity(tsArgType, tsParamType)) {
           this.incrementCounters(tsArg, FaultID.StructuralIdentity);
         }
       }
@@ -1689,7 +1695,7 @@ export class TypeScriptLinter {
 
   private handleLibraryTypeCall(callExpr: CallExpression, calleeType: Type) {
     let inLibCall = isLibraryType(calleeType);
-    const diagnosticMessages: Array<DiagnosticMessageChain> = []
+    const diagnosticMessages: Array<DiagnosticMessageChain> = [];
     this.libraryTypeCallDiagnosticChecker.configure(inLibCall, diagnosticMessages);
 
     let nonFilteringRanges = this.findNonFilteringRangesFunctionCalls(callExpr);

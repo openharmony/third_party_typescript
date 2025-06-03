@@ -7,3 +7,4 @@ export {Anno as A}
 
 //// [annotationDeclarationError9.js]
 "use strict";
+exports.__esModule = true;

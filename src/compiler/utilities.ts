@@ -500,7 +500,7 @@ export function nodeIsMissing(node: Node | undefined): boolean {
     }
 
     // if node type is virtual, do not judge position
-    if(node.virtual){
+    if(node.virtual) {
         return false;
     }
 
@@ -1582,7 +1582,6 @@ const fullTripleSlashReferenceTypeReferenceDirectiveRegEx = /^(\/\/\/\s*<referen
 export const fullTripleSlashAMDReferencePathRegEx = /^(\/\/\/\s*<amd-dependency\s+path\s*=\s*)(('[^']*')|("[^"]*")).*?\/>/;
 const defaultLibReferenceRegEx = /^(\/\/\/\s*<reference\s+no-default-lib\s*=\s*)(('[^']*')|("[^"]*"))\s*\/>/;
 
-/** @internal */
 export function isPartOfTypeNode(node: Node): boolean {
     if (SyntaxKind.FirstTypeNode <= node.kind && node.kind <= SyntaxKind.LastTypeNode) {
         return true;

@@ -941,7 +941,7 @@ function getFunctionOrClassName(node: FunctionExpression | FunctionDeclaration |
     else if (isVariableDeclaration(parent)) {
         return cleanText(declarationNameToString(parent.name));
     }
-    // See if it is of the form "<expr> = function(){...}". If so, use the text from the left-hand side.
+    // See if it is of the form "<expr> = function() {...}". If so, use the text from the left-hand side.
     else if (isBinaryExpression(parent) && parent.operatorToken.kind === SyntaxKind.EqualsToken) {
         return nodeText(parent.left).replace(whiteSpaceRegex, "");
     }

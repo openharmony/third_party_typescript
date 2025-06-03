@@ -15,7 +15,7 @@ import {
     insertStatementsAfterStandardPrologue, isAccessExpression, isArray, isAssertionExpression, isBindingName,
     isBindingPattern, isClassElement, isClassLike, isComputedPropertyName, isDecorator, isDecoratorOrAnnotation, isElementAccessExpression,
     isEnumConst, isExportSpecifier, isExpression, isExternalModule, isExternalModuleImportEqualsDeclaration,
-    isGeneratedIdentifier, isHeritageClause, isIdentifier, isImportClause, isImportSpecifier, isInJSFile,
+    isGeneratedIdentifier, isHeritageClause, isIdentifier, isImportClause, isImportDeclaration, isImportSpecifier, isInJSFile,
     isInstantiatedModule, isJsonSourceFile, isJsxAttributes, isJsxTagNameExpression, isLeftHandSideExpression,
     isLocalName, isModifier, isModifierLike, isModuleDeclaration, isNamedExportBindings, isNamedImportBindings,
     isNamespaceExport, isObjectLiteralElement, isParameterPropertyDeclaration, isPrivateIdentifier,
@@ -270,6 +270,10 @@ export function transformTypeScript(context: TransformationContext) {
             if (node.transformFlags & TransformFlags.ContainsTypeScript) {
                 // This node contains TypeScript, so we should visit its children.
                 return visitEachChild(node, visitor, context);
+            }
+            // If node is importDeclaration, elide the importSpecifier referred to annotation
+            if (isImportDeclaration(node)) {
+                return visitImportDeclaration(node);
             }
             // Otherwise, we can just return the node
             return node;
@@ -2074,7 +2078,10 @@ export function transformTypeScript(context: TransformationContext) {
      * @param node The import specifier node.
      */
     function visitImportSpecifier(node: ImportSpecifier): VisitResult<ImportSpecifier> {
-        return !node.isTypeOnly && shouldEmitAliasDeclaration(node) ? node : undefined;
+        // Elide an import specifier if it is referred to annotation.
+        const original = getOriginalNode(node);
+        return !node.isTypeOnly && shouldEmitAliasDeclaration(node) &&
+            !(original && isImportSpecifier(original) && resolver.isReferredToAnnotation(original)) ? node : undefined;
     }
 
     /**
@@ -2153,8 +2160,10 @@ export function transformTypeScript(context: TransformationContext) {
      * @param node The export specifier node.
      */
     function visitExportSpecifier(node: ExportSpecifier): VisitResult<ExportSpecifier> {
-        // Elide an export specifier if it does not reference a value.
-        return !node.isTypeOnly && resolver.isValueAliasDeclaration(node) ? node : undefined;
+        // Elide an export specifier if it does not reference a value or it is referred to annotation.
+        const original = getOriginalNode(node);
+        return !node.isTypeOnly && resolver.isValueAliasDeclaration(node) &&
+            !(original && isExportSpecifier(original) && resolver.isReferredToAnnotation(original)) ? node : undefined;
     }
 
     /**

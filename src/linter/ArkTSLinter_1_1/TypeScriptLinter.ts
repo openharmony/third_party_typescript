@@ -483,7 +483,9 @@ readonly handlersMap = new Map([
       }
     }
     // Check if property symbol is "Prototype"
-    if (isPrototypeSymbol(propAccessSym)) return true;
+    if (isPrototypeSymbol(propAccessSym)) {
+      return true;
+    }
 
     // Check if symbol of LHS-expression is Class or Function.
     if (isTypeSymbol(baseExprSym) || isFunctionSymbol(baseExprSym)) {
@@ -571,7 +573,9 @@ readonly handlersMap = new Map([
   private handleArrayLiteralExpression(node: Node): void {
     // If array literal is a part of destructuring assignment, then
     // don't process it further.
-    if (isDestructuringAssignmentLHS(node as ArrayLiteralExpression)) return;
+    if (isDestructuringAssignmentLHS(node as ArrayLiteralExpression)) {
+      return;
+    }
 
     const arrayLitNode = node as ArrayLiteralExpression;
     let noContextTypeForArrayLiteral = false;
@@ -748,7 +752,7 @@ readonly handlersMap = new Map([
   }
 
   private handlePropertyAccessExpression(node: Node): void {
-    if (isCallExpression(node.parent) && node == node.parent.expression) {
+    if (isCallExpression(node.parent) && node === node.parent.expression) {
       return;
     }
 
@@ -962,7 +966,7 @@ readonly handlersMap = new Map([
 
     let autofix: Autofix[] | undefined;
     if (autofixable && shouldAutofix(node, FaultID.FunctionExpression)) {
-      autofix = [ fixFunctionExpression(funcExpr, funcExpr.parameters, newRetTypeNode) ];
+      autofix = [fixFunctionExpression(funcExpr, funcExpr.parameters, newRetTypeNode)];
     }
 
     this.incrementCounters(node, FaultID.FunctionExpression, autofixable, autofix);
@@ -1749,7 +1753,7 @@ readonly handlersMap = new Map([
   private isEnumPropAccess(ident: Identifier, tsSym: Symbol, context: Node): boolean {
     return isElementAccessExpression(context) && !!(tsSym.flags & SymbolFlags.Enum) &&
       (context.expression == ident ||
-        (isPropertyAccessExpression(context.expression) && context.expression.name == ident));
+        (isPropertyAccessExpression(context.expression) && context.expression.name === ident));
   }
 
   private isElementAcessAllowed(type: Type, argType: Type): boolean {

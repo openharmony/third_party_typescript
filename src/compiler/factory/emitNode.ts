@@ -1,6 +1,6 @@
 import {
     AccessExpression, append, appendIfUnique, Debug, EmitFlags, EmitHelper, EmitNode, getParseTreeNode,
-    getSourceFileOfNode,  isParseTreeNode, Node, orderedRemoveItem, SnippetElement, some, SourceFile, SourceMapRange,
+    getSourceFileOfNode, isParseTreeNode, Node, orderedRemoveItem, SnippetElement, some, SourceFile, SourceMapRange,
     SyntaxKind, SynthesizedComment, TextRange, TypeNode
 } from "../_namespaces/ts";
 

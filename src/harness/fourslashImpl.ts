@@ -2637,7 +2637,7 @@ export class TestState {
         Harness.IO.log(this.spanInfoToString(this.getNameOrDottedNameSpan(pos)!, "**"));
     }
 
-    private classificationToIdentifier(classification: number){
+    private classificationToIdentifier(classification: number) {
 
         const tokenTypes: string[] = [];
         tokenTypes[ts.classifier.v2020.TokenType.class] = "class";

@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as ts from "../_namespaces/ts"
+import * as ts from "../_namespaces/ts";
 import {
     ArrayLiteralExpression, AsExpression, ClassDeclaration, CommentRange, ExportAssignment, ExportDeclaration,
     forEachChild, getBaseFileName, getModeForUsageLocation, getResolvedModule, getSourceFileOfNode, HeritageClause,
