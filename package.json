@@ -69,7 +69,7 @@
         "eslint-plugin-jsdoc": "39.3.6",
         "eslint-plugin-local": "1.0.0",
         "eslint-plugin-no-null": "1.0.2",
-        "fast-xml-parser": "^4.0.11",
+        "fast-xml-parser": "^4.3.3",
         "fs-extra": "9.1.0",
         "glob": "8.1.0",
         "hereby": "^1.6.4",

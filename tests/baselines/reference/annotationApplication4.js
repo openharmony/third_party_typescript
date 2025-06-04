@@ -15,7 +15,6 @@ class C {}
 "use strict";
 //// [B.js]
 "use strict";
-var A_1 = require("./A");
 var C = /** @class */ (function () {
     function C() {
     }

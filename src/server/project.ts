@@ -1641,7 +1641,7 @@ export abstract class Project implements LanguageServiceHost, ModuleResolutionHo
                 if (!lastReportedFileNames.has(fileName)) {
                     added.set(fileName, isSourceOfProjectReferenceRedirect);
                 }
-                else if (includeProjectReferenceRedirectInfo && isSourceOfProjectReferenceRedirect !== lastReportedFileNames.get(fileName)){
+                else if (includeProjectReferenceRedirectInfo && isSourceOfProjectReferenceRedirect !== lastReportedFileNames.get(fileName)) {
                     updatedRedirects.push({
                         fileName,
                         isSourceOfProjectReferenceRedirect

@@ -1095,7 +1095,7 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
     var keyofConstraintType = keyofStringsOnly ? stringType : stringNumberSymbolType;
     var numberOrBigIntType = getUnionType([numberType, bigintType]);
     var templateConstraintType = getUnionType([stringType, numberType, booleanType, bigintType, nullType, undefinedType]) as UnionType;
-    var numericStringType = getTemplateLiteralType(["", ""], [numberType]);  // The `${number}` type
+    var numericStringType = getTemplateLiteralType(["", ""], [numberType]); // The `${number}` type
 
     var restrictiveMapper: TypeMapper = makeFunctionTypeMapper(t => t.flags & TypeFlags.TypeParameter ? getRestrictiveTypeParameter(t as TypeParameter) : t, () => "(restrictive mapper)");
     var permissiveMapper: TypeMapper = makeFunctionTypeMapper(t => t.flags & TypeFlags.TypeParameter ? wildcardType : t, () => "(permissive mapper)");
@@ -2860,7 +2860,7 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
     function isExtendedByInterface(node: Node): boolean {
         const grandparent = node.parent.parent;
         const parentOfGrandparent = grandparent.parent;
-        if(grandparent && parentOfGrandparent){
+        if (grandparent && parentOfGrandparent) {
             const isExtending = isHeritageClause(grandparent) && grandparent.token === SyntaxKind.ExtendsKeyword;
             const isInterface = isInterfaceDeclaration(parentOfGrandparent);
             return isExtending && isInterface;
@@ -4592,7 +4592,7 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
             return res;
         }
         const candidates = mapDefined(symbol.declarations, d => {
-            if (!isAmbientModule(d) && d.parent){
+            if (!isAmbientModule(d) && d.parent) {
                 // direct children of a module
                 if (hasNonGlobalAugmentationExternalModuleSymbol(d.parent)) {
                     return getSymbolOfNode(d.parent);
@@ -15875,7 +15875,7 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
         // we had to pick apart the constraintType to potentially map/filter it - compare the final resulting list with the original constraintType,
         // so we can return the union that preserves aliases/origin data if possible
         const result = noIndexSignatures ? filterType(getUnionType(keyTypes), t => !(t.flags & (TypeFlags.Any | TypeFlags.String))) : getUnionType(keyTypes);
-        if (result.flags & TypeFlags.Union && constraintType.flags & TypeFlags.Union && getTypeListId((result as UnionType).types) === getTypeListId((constraintType as UnionType).types)){
+        if (result.flags & TypeFlags.Union && constraintType.flags & TypeFlags.Union && getTypeListId((result as UnionType).types) === getTypeListId((constraintType as UnionType).types)) {
             return constraintType;
         }
         return result;
@@ -20080,7 +20080,8 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
                 // the type param can be compared with itself in the target (with the influence of its constraint to match other parts)
                 // For example, if `T extends 1 | 2` and `U extends 2 | 3` and we compare `T & U` to `T & U & (1 | 2 | 3)`
                 if (!result && (source.flags & TypeFlags.Intersection || source.flags & TypeFlags.TypeParameter && target.flags & TypeFlags.Union)) {
-                    const constraint = getEffectiveConstraintOfIntersection(source.flags & TypeFlags.Intersection ? (source as IntersectionType).types: [source], !!(target.flags & TypeFlags.Union));
+                    const constraint = getEffectiveConstraintOfIntersection(source.flags & TypeFlags.Intersection ?
+                        (source as IntersectionType).types : [source], !!(target.flags & TypeFlags.Union));
                     if (constraint && everyType(constraint, c => c !== source)) { // Skip comparison if expansion contains the source itself
                         // TODO: Stack errors so we get a pyramid for the "normal" comparison above, _and_ a second for this
                         result = isRelatedTo(constraint, target, RecursionFlags.Source, /*reportErrors*/ false, /*headMessage*/ undefined, intersectionState);
@@ -37118,7 +37119,7 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
             const result = new Array<Expression>(initVal.length);
             for (let i = 0; i < initVal.length; ++i) {
                 result[i] = annotationEvaluatedValueToExpr(initVal[i], elemType)!;
-                if (result[i] === undefined){
+                if (result[i] === undefined) {
                     return undefined;
                 }
             }
@@ -38965,7 +38966,7 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
 
                 /* abstract class C {
                     *    @goo
-                    *    puiblic foo(){}
+                    *    puiblic foo() {}
                     * }
                     */
                 if (hasSyntacticModifier(enclosingDecl, ModifierFlags.Abstract)) {

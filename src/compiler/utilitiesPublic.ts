@@ -2029,7 +2029,6 @@ export function isDeclaration(node: Node): node is NamedDeclaration {
     return isDeclarationKind(node.kind);
 }
 
-/** @internal */
 export function isDeclarationStatement(node: Node): node is DeclarationStatement {
     return isDeclarationStatementKind(node.kind);
 }
@@ -2282,7 +2281,7 @@ export class MemoryUtils {
 
     public static initializeBaseMemory(baseMemorySize?: number): void {
         const currentMemory = process.memoryUsage().heapUsed;
-        MemoryUtils.baseMemorySize = baseMemorySize? baseMemorySize : currentMemory;
+        MemoryUtils.baseMemorySize = baseMemorySize ? baseMemorySize : currentMemory;
         MemoryUtils.MemoryAfterGC = currentMemory;
     }
 

@@ -30,7 +30,10 @@ export const AUTOFIX_ALL: AutofixInfo = { problemID: "", start: -1, end: -1 };
 // Temporary solution is to disable all risky autofixes, until the
 // algorithm is improved to guarantee that fixes can be applied
 // safely and won't break program code.
-const UNSAFE_FIXES: FaultID[] = [ FaultID.LiteralAsPropertyName, FaultID.PropertyAccessByIndex ];
+const UNSAFE_FIXES: FaultID[] = [
+  FaultID.LiteralAsPropertyName,
+  FaultID.PropertyAccessByIndex
+];
 
 export const autofixInfo: AutofixInfo[] = [];
 

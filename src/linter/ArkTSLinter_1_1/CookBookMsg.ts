@@ -16,7 +16,7 @@ export const cookBookMsg: string[] = [];
 export const cookBookTag: string[] = [];
 
 for (let i = 0; i <= 182; i++) {
-    cookBookMsg[ i ] = "";
+    cookBookMsg[i] = "";
 }
 
 cookBookTag[1] = "Objects with property names that are not identifiers are not supported (arkts-identifiers-as-prop-names)";

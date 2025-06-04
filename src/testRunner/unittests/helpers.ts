@@ -191,14 +191,23 @@ function checkCache<T>(caption: string, program: ts.Program, fileName: string, e
 
 /** True if the maps have the same keys and values. */
 function mapEqualToCache<T>(left: ts.ESMap<string, T>, right: ts.ModeAwareCache<T>, valuesAreEqual?: (left: T, right: T) => boolean): boolean {
-    if (left as any === right) return true; // given the type mismatch (the tests never pass a cache), this'll never be true
-    if (!left || !right) return false;
+    // given the type mismatch (the tests never pass a cache), this'll never be true
+    if (left as any === right) {
+        return true;
+    }
+    if (!left || !right) {
+        return false;
+    }
     const someInLeftHasNoMatch = ts.forEachEntry(left, (leftValue, leftKey) => {
-        if (!right.has(leftKey, /*mode*/ undefined)) return true;
+        if (!right.has(leftKey, /*mode*/ undefined)) {
+            return true;
+        }
         const rightValue = right.get(leftKey, /*mode*/ undefined)!;
         return !(valuesAreEqual ? valuesAreEqual(leftValue, rightValue) : leftValue === rightValue);
     });
-    if (someInLeftHasNoMatch) return false;
+    if (someInLeftHasNoMatch) {
+        return false;
+    }
     let someInRightHasNoMatch = false;
     right.forEach((_, rightKey) => someInRightHasNoMatch = someInRightHasNoMatch || !left.has(rightKey));
     return !someInRightHasNoMatch;

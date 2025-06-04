@@ -138,7 +138,7 @@ buildInfoWriteFile?: WriteFileCallback, arkTSVersion?: string): Diagnostic[] {
 
     // Add linter diagnostics to new cache.
     programState.arktsLinterDiagnosticsPerFile?.set(fileToLint.resolvedPath, currentDiagnostics);
-  }
+  };
 
   MemoryUtils.initializeBaseMemory();
   for (const fileToLint of srcFiles) {

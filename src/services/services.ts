@@ -237,7 +237,7 @@ function createChildren(node: Node, sourceFile: SourceFileLike | undefined): Nod
 
 function addSyntheticNodes(nodes: Push<Node>, pos: number, end: number, parent: Node): void {
     // position start === end mean the node is virtual
-    if(parent.virtual){
+    if(parent.virtual) {
         return;
     }
     scanner.setTextPos(pos);

@@ -514,8 +514,8 @@ export function transformAnnotation(context: TransformationContext): (node: Sour
         // @myModule.Anno({a: 10, b: "abc"}) --- > @myModule.__$$ETS_ANNOTATION$$__Anno({a: 10, b: "abc"})
         return factory.updateDecorator(
             node,
-            addMagicPrefixToAnnotationNameIdentifier(
-                addDefaultValuesIntoAnnotationObjectLiteral(node))
+            addMagicPrefixToAnnotationNameIdentifier(addDefaultValuesIntoAnnotationObjectLiteral(node)),
+            node.annotationDeclaration
         );
     }
 
