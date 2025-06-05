@@ -1,15 +1,15 @@
 === tests/cases/compiler/usage.js ===
 const { Thing, useThing, cbThing } = require("./index");
 >Thing : Readonly<{ a: "thing"; b: "chill"; }>
->useThing : (x: string) => void
->cbThing : (x: (x: string) => void) => void
+>useThing : (x: Thing) => void
+>cbThing : (x: (x: Thing) => void) => void
 >require("./index") : typeof import("tests/cases/compiler/index")
 >require : any
 >"./index" : "./index"
 
 useThing(Thing.a);
 >useThing(Thing.a) : void
->useThing : (x: string) => void
+>useThing : (x: Thing) => void
 >Thing.a : "thing"
 >Thing : Readonly<{ a: "thing"; b: "chill"; }>
 >a : "thing"
@@ -22,7 +22,7 @@ useThing(Thing.a);
 
 cbThing(type => {
 >cbThing(type => {    /** @type {LogEntry} */    const logEntry = {        time: Date.now(),        type,    };}) : void
->cbThing : (x: (x: string) => void) => void
+>cbThing : (x: (x: Thing) => void) => void
 >type => {    /** @type {LogEntry} */    const logEntry = {        time: Date.now(),        type,    };} : (type: string) => void
 >type : string
 
@@ -79,23 +79,23 @@ function useThing(x) {}
 >x : string
 
 exports.useThing = useThing;
->exports.useThing = useThing : (x: string) => void
->exports.useThing : (x: string) => void
+>exports.useThing = useThing : (x: Thing) => void
+>exports.useThing : (x: Thing) => void
 >exports : typeof import("tests/cases/compiler/index")
->useThing : (x: string) => void
->useThing : (x: string) => void
+>useThing : (x: Thing) => void
+>useThing : (x: Thing) => void
 
 /**
  * @param {(x: Thing) => void} x
  */
 function cbThing(x) {}
 >cbThing : (x: (x: Thing) => void) => void
->x : (x: string) => void
+>x : (x: Thing) => void
 
 exports.cbThing = cbThing;
->exports.cbThing = cbThing : (x: (x: string) => void) => void
->exports.cbThing : (x: (x: string) => void) => void
+>exports.cbThing = cbThing : (x: (x: Thing) => void) => void
+>exports.cbThing : (x: (x: Thing) => void) => void
 >exports : typeof import("tests/cases/compiler/index")
->cbThing : (x: (x: string) => void) => void
->cbThing : (x: (x: string) => void) => void
+>cbThing : (x: (x: Thing) => void) => void
+>cbThing : (x: (x: Thing) => void) => void
 

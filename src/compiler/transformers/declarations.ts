@@ -1,46 +1,244 @@
 import {
-    AccessorDeclaration, addRelatedInfo, AllAccessorDeclarations, AnnotationPropertyDeclaration, AnyImportSyntax, append, ArrayBindingElement,
-    arrayFrom, AssertClause, BindingElement, BindingName, BindingPattern, Bundle, CallSignatureDeclaration,
-    canHaveModifiers, canProduceDiagnostics, ClassDeclaration, CommentRange, compact, concatenate,
-    concatenateDecoratorsAndModifiers, ConditionalTypeNode, ConstructorDeclaration, ConstructorTypeNode,
-    ConstructSignatureDeclaration, contains, createDiagnosticForNode, createEmptyExports,
-    createGetSymbolAccessibilityDiagnosticForNode, createGetSymbolAccessibilityDiagnosticForNodeName, createSymbolTable,
-    createUnparsedSourceFile, Debug, Declaration, DeclarationDiagnosticProducing, DeclarationName,
-    declarationNameToString, Decorator, Diagnostics, DiagnosticWithLocation, EmitFlags, EmitHost, EmitResolver, emptyArray,
-    ensureEtsDecorators, EntityNameOrEntityNameExpression, EnumDeclaration, ESMap, ExportAssignment, ExportDeclaration,
-    ExpressionWithTypeArguments, factory, FileReference, filter, flatMap, flatten, forEach, FunctionDeclaration,
-    FunctionTypeNode, GeneratedIdentifierFlags, GetAccessorDeclaration, getAnnotations, getCommentRange, getDirectoryPath,
-    getEffectiveBaseTypeNode, getEffectiveDecorators, getEffectiveModifierFlags,
-    getExternalModuleImportEqualsDeclarationExpression, getExternalModuleNameFromDeclaration,
-    getFirstConstructorWithBody, getLeadingCommentRanges, getLeadingCommentRangesOfNode, getLineAndCharacterOfPosition,
-    getNameOfDeclaration, getOriginalNodeId, getOutputPathsFor, getParseTreeNode, getRelativePathToDirectoryOrUrl,
-    getReservedDecoratorsOfEtsFile, getReservedDecoratorsOfStructDeclaration, getResolutionModeOverrideForClause,
-    getResolvedExternalModuleName, getSetAccessorValueParameter, getSourceFileOfNode, GetSymbolAccessibilityDiagnostic,
-    getTextOfNode, getThisParameter, getTrailingCommentRanges, hasDynamicName, hasEffectiveModifier, hasExtension,
-    hasJSDocNodes, HasModifiers, hasSyntacticModifier, HeritageClause, Identifier, ImportDeclaration,
-    ImportEqualsDeclaration, ImportTypeNode, IndexSignatureDeclaration, inEtsStylesContext, InterfaceDeclaration, isAnnotation, isAnnotationDeclaration,
-    isAnyImportSyntax, isArray, isBindingPattern, isCallExpression, isClassDeclaration, isDeclaration, isEntityName,
-    isEntityNameExpression, isExportAssignment, isExportDeclaration, isExternalModule, isExternalModuleAugmentation,
-    isExternalModuleIndicator, isExternalModuleReference, isExternalOrCommonJsModule, isFunctionDeclaration,
-    isFunctionLike, isGlobalScopeAugmentation, isIdentifier, isImportDeclaration, isImportEqualsDeclaration,
-    isIndexSignatureDeclaration, isInEtsFile, isInterfaceDeclaration, isJsonSourceFile,
-    isLateVisibilityPaintedStatement, isLiteralImportTypeNode, isMappedTypeNode, isMethodDeclaration, isMethodSignature,
-    isModifier, isModuleDeclaration, isNightly, isOHModulesReference, isOhpm, isOmittedExpression, isPrivateIdentifier,
-    isPropertyAccessExpression, isPropertySignature, isSemicolonClassElement, isSendableFunctionOrType,
-    isSetAccessorDeclaration, isSourceFile, isSourceFileJS, isSourceFileNotJson, isStringANonContextualKeyword,
-    isStringLiteral, isStringLiteralLike, isStructDeclaration, isTupleTypeNode, isTypeAliasDeclaration, isTypeNode,
-    isTypeParameterDeclaration, isTypeQueryNode, isTypeReferenceNode, isUnparsedSource, last, LateBoundDeclaration,
-    LateVisibilityPaintedStatement, length, map, Map, mapDefined, MethodDeclaration, MethodSignature, Modifier,
-    ModifierFlags, ModuleBody, ModuleDeclaration, Mutable, NamedDeclaration, NamespaceDeclaration,
-    needsScopeMarker, Node, NodeArray, NodeBuilderFlags, NodeFlags, NodeId, normalizeSlashes, OmittedExpression,
-    orderedRemoveItem, ParameterDeclaration, parseNodeFactory, pathContainsNodeModules, pathIsRelative,
-    PropertyDeclaration, PropertySignature, pushIfUnique, removeAllComments, Set, SetAccessorDeclaration,
-    setCommentRange, setEmitFlags, setOriginalNode, setParent, setTextRange, SignatureDeclaration, skipTrivia, some,
-    SourceFile, startsWith, Statement, stringContains, StringLiteral, Symbol, SymbolAccessibility,
-    SymbolAccessibilityResult, SymbolFlags, SymbolTracker, SyntaxKind, toFileNameLowerCase, toPath,
-    TransformationContext, transformNodes, tryCast, TypeAliasDeclaration, TypeNode, TypeParameterDeclaration,
-    TypeReferenceNode, unescapeLeadingUnderscores, UnparsedSource, VariableDeclaration, VariableStatement, visitArray,
-    visitEachChild, visitNode, visitNodes, VisitResult,
+    AccessorDeclaration,
+    addRelatedInfo,
+    AllAccessorDeclarations,
+    AnnotationPropertyDeclaration,
+    AnyImportSyntax,
+    append,
+    ArrayBindingElement,
+    arrayFrom,
+    AssertClause,
+    BindingElement,
+    BindingName,
+    BindingPattern,
+    Bundle,
+    CallSignatureDeclaration,
+    canHaveModifiers,
+    canProduceDiagnostics,
+    ClassDeclaration,
+    CommentRange,
+    compact,
+    concatenate,
+    concatenateDecoratorsAndModifiers,
+    ConditionalTypeNode,
+    ConstructorDeclaration,
+    ConstructorTypeNode,
+    ConstructSignatureDeclaration,
+    contains,
+    createDiagnosticForNode,
+    createEmptyExports,
+    createGetSymbolAccessibilityDiagnosticForNode,
+    createGetSymbolAccessibilityDiagnosticForNodeName,
+    createGetIsolatedDeclarationErrors,
+    createSymbolTable,
+    createUnparsedSourceFile,
+    Debug,
+    Declaration,
+    DeclarationDiagnosticProducing,
+    DeclarationName,
+    declarationNameToString,
+    Decorator,
+    Diagnostics,
+    DiagnosticWithLocation,
+    EmitFlags,
+    EmitHost,
+    EmitResolver,
+    emptyArray,
+    ensureEtsDecorators,
+    EntityNameOrEntityNameExpression,
+    EnumDeclaration,
+    ESMap,
+    ExportAssignment,
+    ExportDeclaration,
+    Expression,
+    ExpressionWithTypeArguments,
+    factory,
+    FileReference,
+    filter,
+    flatMap,
+    flatten,
+    forEach,
+    FunctionDeclaration,
+    FunctionTypeNode,
+    GeneratedIdentifierFlags,
+    GetAccessorDeclaration,
+    getAnnotations,
+    getCommentRange,
+    getDirectoryPath,
+    getEffectiveBaseTypeNode,
+    getEffectiveDecorators,
+    getEffectiveModifierFlags,
+    getExternalModuleImportEqualsDeclarationExpression,
+    getExternalModuleNameFromDeclaration,
+    getFirstConstructorWithBody,
+    getLeadingCommentRanges,
+    getLeadingCommentRangesOfNode,
+    getLineAndCharacterOfPosition,
+    getNameOfDeclaration,
+    getOriginalNodeId,
+    getOutputPathsFor,
+    getParseTreeNode,
+    getRelativePathToDirectoryOrUrl,
+    getReservedDecoratorsOfEtsFile,
+    getReservedDecoratorsOfStructDeclaration,
+    getResolutionModeOverrideForClause,
+    getResolvedExternalModuleName,
+    getSetAccessorValueParameter,
+    getSourceFileOfNode,
+    GetSymbolAccessibilityDiagnostic,
+    getTextOfNode,
+    getThisParameter,
+    getTrailingCommentRanges,
+    hasDynamicName,
+    hasEffectiveModifier,
+    hasExtension,
+    hasJSDocNodes,
+    HasModifiers,
+    hasSyntacticModifier,
+    HeritageClause,
+    Identifier,
+    ImportDeclaration,
+    ImportEqualsDeclaration,
+    ImportTypeNode,
+    IndexSignatureDeclaration,
+    inEtsStylesContext,
+    InterfaceDeclaration,
+    isAnnotation,
+    isAnnotationDeclaration,
+    isAnyImportSyntax,
+    isArray,
+    isBinaryExpression,
+    isBindingPattern,
+    isCallExpression,
+    isClassDeclaration,
+    isComputedPropertyName,
+    isDeclaration,
+    isEntityName,
+    isEntityNameExpression,
+    isExpandoPropertyDeclaration,
+    isExportAssignment,
+    isExportDeclaration,
+    isExternalModule,
+    isExternalModuleAugmentation,
+    isExternalModuleIndicator,
+    isExternalModuleReference,
+    isExternalOrCommonJsModule,
+    isFunctionDeclaration,
+    isFunctionLike,
+    isGlobalScopeAugmentation,
+    isIdentifier,
+    isImportDeclaration,
+    isImportEqualsDeclaration,
+    isIndexSignatureDeclaration,
+    isInEtsFile,
+    isInterfaceDeclaration,
+    isJsonSourceFile,
+    isLateVisibilityPaintedStatement,
+    isLiteralImportTypeNode,
+    isMappedTypeNode,
+    isMethodDeclaration,
+    isMethodSignature,
+    isModifier,
+    isModuleDeclaration,
+    isNightly,
+    isOHModulesReference,
+    isOhpm,
+    isOmittedExpression,
+    isPrimitiveLiteralValue,
+    isPrivateIdentifier,
+    isPropertyAccessExpression,
+    isPropertySignature,
+    isSemicolonClassElement,
+    isSendableFunctionOrType,
+    isSetAccessorDeclaration,
+    isSourceFile,
+    isSourceFileJS,
+    isSourceFileNotJson,
+    isStringANonContextualKeyword,
+    isStringLiteral,
+    isStringLiteralLike,
+    isStructDeclaration,
+    isTupleTypeNode,
+    isTypeAliasDeclaration,
+    isTypeNode,
+    isTypeParameterDeclaration,
+    isTypeQueryNode,
+    isTypeReferenceNode,
+    isUnparsedSource,
+    isVariableDeclaration,
+    last,
+    LateBoundDeclaration,
+    LateVisibilityPaintedStatement,
+    length,
+    map,
+    Map,
+    mapDefined,
+    MethodDeclaration,
+    MethodSignature,
+    Modifier,
+    ModifierFlags,
+    ModuleBody,
+    ModuleDeclaration,
+    Mutable,
+    NamedDeclaration,
+    NamespaceDeclaration,
+    needsScopeMarker,
+    Node,
+    NodeArray,
+    NodeBuilderFlags,
+    NodeFlags,
+    NodeId,
+    normalizeSlashes,
+    OmittedExpression,
+    orderedRemoveItem,
+    ParameterDeclaration,
+    parseNodeFactory,
+    pathContainsNodeModules,
+    pathIsRelative,
+    PropertyDeclaration,
+    PropertySignature,
+    pushIfUnique,
+    removeAllComments,
+    Set,
+    SetAccessorDeclaration,
+    setCommentRange,
+    setEmitFlags,
+    setOriginalNode,
+    setParent,
+    setTextRange,
+    SignatureDeclaration,
+    skipTrivia,
+    some,
+    SourceFile,
+    startsWith,
+    Statement,
+    stringContains,
+    StringLiteral,
+    Symbol,
+    SymbolAccessibility,
+    SymbolAccessibilityResult,
+    SymbolFlags,
+    SymbolTracker,
+    SyntaxKind,
+    toFileNameLowerCase,
+    toPath,
+    TransformationContext,
+    transformNodes,
+    tryCast,
+    TypeAliasDeclaration,
+    TypeNode,
+    TypeParameterDeclaration,
+    TypeReferenceNode,
+    unescapeLeadingUnderscores,
+    UnparsedSource,
+    unwrapParenthesizedExpression,
+    VariableDeclaration,
+    VariableStatement,
+    visitArray,
+    visitEachChild,
+    visitNode,
+    visitNodes,
+    VisitResult,
 } from "../_namespaces/ts";
 import * as moduleSpecifiers from "../_namespaces/ts.moduleSpecifiers";
 
@@ -85,6 +283,7 @@ const declarationEmitNodeBuilderFlags =
     NodeBuilderFlags.UseTypeOfFunction |
     NodeBuilderFlags.UseStructuralFallback |
     NodeBuilderFlags.AllowEmptyTuple |
+    NodeBuilderFlags.AllowUnresolvedComputedNames |
     NodeBuilderFlags.GenerateNamesForShadowedTypeParams |
     NodeBuilderFlags.NoTruncation;
 
@@ -128,6 +327,7 @@ export function transformDeclarations(context: TransformationContext) {
         reportNonlocalAugmentation,
         reportNonSerializableProperty,
         reportImportTypeNodeResolutionModeOverride,
+        reportInferenceFallback,
     };
     let errorNameNode: DeclarationName | undefined;
     let errorFallbackNode: Declaration | undefined;
@@ -138,8 +338,36 @@ export function transformDeclarations(context: TransformationContext) {
     let emittedImports: readonly AnyImportSyntax[] | undefined; // must be declared in container so it can be `undefined` while transformer's first pass
     const resolver = context.getEmitResolver();
     const options = context.getCompilerOptions();
+    const getIsolatedDeclarationError = createGetIsolatedDeclarationErrors(resolver);
     const { noResolve, stripInternal, isolatedDeclarations } = options;
     return transformRoot;
+
+    function reportExpandoFunctionErrors(node: FunctionDeclaration | VariableDeclaration): void {
+        resolver.getPropertiesOfContainerFunction(node).forEach(p => {
+            if (isExpandoPropertyDeclaration(p.valueDeclaration)) {
+                const errorTarget = isBinaryExpression(p.valueDeclaration) ?
+                    p.valueDeclaration.left :
+                    p.valueDeclaration;
+
+                context.addDiagnostic(createDiagnosticForNode(
+                    errorTarget,
+                    Diagnostics.Assigning_properties_to_functions_without_declaring_them_is_not_supported_with_isolatedDeclarations_Add_an_explicit_declaration_for_the_properties_assigned_to_this_function,
+                ));
+            }
+        });
+    }
+
+    function reportInferenceFallback(node: Node): void {
+        if (!isolatedDeclarations || isSourceFileJS(currentSourceFile)) {
+            return;
+        }
+        if (isVariableDeclaration(node) && resolver.isExpandoFunctionDeclaration(node)) {
+            reportExpandoFunctionErrors(node);
+        }
+        else {
+            context.addDiagnostic(getIsolatedDeclarationError(node));
+        }
+    }
 
     function recordTypeReferenceDirectivesIfNecessary(typeReferenceDirectives: readonly [specifier: string, mode: SourceFile["impliedNodeFormat"] | undefined][] | undefined): void {
         if (!typeReferenceDirectives) {
@@ -530,7 +758,7 @@ export function transformDeclarations(context: TransformationContext) {
                     elem.dotDotDotToken,
                     /* propertyName */ undefined,
                     elem.propertyName,
-                    shouldPrintWithInitializer(elem) ? elem.initializer : undefined
+                    /* initializer */ undefined
                 );
             }
             return factory.updateBindingElement(
@@ -538,7 +766,7 @@ export function transformDeclarations(context: TransformationContext) {
                 elem.dotDotDotToken,
                 elem.propertyName,
                 filterBindingPatternInitializersAndRenamings(elem.name),
-                shouldPrintWithInitializer(elem) ? elem.initializer : undefined
+                /* initializer */ undefined,
             );
         }
     }
@@ -564,13 +792,19 @@ export function transformDeclarations(context: TransformationContext) {
         return newParam;
     }
 
-    function shouldPrintWithInitializer(node: Node) {
-        return canHaveLiteralInitializer(node) && resolver.isLiteralConstDeclaration(getParseTreeNode(node) as CanHaveLiteralInitializer); // TODO: Make safe
+    function shouldPrintWithInitializer(node: Node): node is CanHaveLiteralInitializer & { initializer: Expression; } {
+        return canHaveLiteralInitializer(node) &&
+            !!node.initializer &&
+            resolver.isLiteralConstDeclaration(getParseTreeNode(node) as CanHaveLiteralInitializer); // TODO: Make safea
     }
 
     function ensureNoInitializer(node: CanHaveLiteralInitializer) {
         if (shouldPrintWithInitializer(node)) {
-            return resolver.createLiteralConstValue(getParseTreeNode(node) as CanHaveLiteralInitializer, symbolTracker); // TODO: Make safe
+            const unwrappedInitializer = unwrapParenthesizedExpression(node.initializer);
+            if (!isPrimitiveLiteralValue(unwrappedInitializer)) {
+                reportInferenceFallback(node);
+            }
+            return resolver.createLiteralConstValue(getParseTreeNode(node, canHaveLiteralInitializer)!, symbolTracker);
         }
         return undefined;
     }
@@ -629,8 +863,8 @@ export function transformDeclarations(context: TransformationContext) {
             || node.kind === SyntaxKind.PropertyDeclaration
             || node.kind === SyntaxKind.PropertySignature
             || node.kind === SyntaxKind.AnnotationPropertyDeclaration) {
-            if (isPropertySignature(node) || !node.initializer) return cleanup(resolver.createTypeOfDeclaration(node, enclosingDeclaration, declarationEmitNodeBuilderFlags, symbolTracker, shouldUseResolverType));
-            return cleanup(resolver.createTypeOfDeclaration(node, enclosingDeclaration, declarationEmitNodeBuilderFlags, symbolTracker, shouldUseResolverType) || resolver.createTypeOfExpression(node.initializer, enclosingDeclaration, declarationEmitNodeBuilderFlags, symbolTracker));
+            if (isPropertySignature(node) || !node.initializer) return cleanup(resolver.createTypeOfDeclaration(node, enclosingDeclaration, declarationEmitNodeBuilderFlags, symbolTracker));
+            return cleanup(resolver.createTypeOfDeclaration(node, enclosingDeclaration, declarationEmitNodeBuilderFlags, symbolTracker) || resolver.createTypeOfExpression(node.initializer, enclosingDeclaration, declarationEmitNodeBuilderFlags, symbolTracker));
         }
         return cleanup(resolver.createReturnTypeOfSignatureDeclaration(node, enclosingDeclaration, declarationEmitNodeBuilderFlags, symbolTracker));
 
@@ -952,7 +1186,27 @@ export function transformDeclarations(context: TransformationContext) {
         if (isDeclaration(input)) {
             if (isDeclarationAndNotVisible(input)) return;
             if (hasDynamicName(input) && !resolver.isLateBound(getParseTreeNode(input) as Declaration)) {
+                if (
+                    isolatedDeclarations &&
+                    // Classes usually elide properties with computed names that are not of a literal type
+                    // In isolated declarations TSC needs to error on these as we don't know the type in a DTE.
+                    isClassDeclaration(input.parent) &&
+                    isEntityNameExpression(input.name.expression) &&
+                    // If the symbol is not accessible we get another TS error no need to add to that
+                    resolver.isEntityNameVisible(input.name.expression, input.parent).accessibility === SymbolAccessibility.Accessible &&
+                    !resolver.isNonNarrowedBindableName(input.name)
+                ) {
+                    context.addDiagnostic(
+                        createDiagnosticForNode(
+                            input,
+                            Diagnostics.Computed_properties_must_be_number_or_string_literals_variables_or_dotted_expressions_with_isolatedDeclarations
+                        )
+                    );
+                }
                 return;
+                // A.B.C that is not late bound - usually this means the expression did not resolve.
+                // Check the entity name, and copy the declaration, rather than elide it (there's
+                // probably a checker error in the input, but this is most likely the desired output).
             }
         }
 
@@ -1354,6 +1608,9 @@ export function transformDeclarations(context: TransformationContext) {
                 }
                 if (clean && resolver.isExpandoFunctionDeclaration(input) && shouldEmitFunctionProperties(input)) {
                     const props = resolver.getPropertiesOfContainerFunction(input);
+                    if (isolatedDeclarations) {
+                        reportExpandoFunctionErrors(input);
+                    }
                     // Use parseNodeFactory so it is usable as an enclosing declaration
                     const fakespace = parseNodeFactory.createModuleDeclaration(/*modifiers*/ undefined, clean.name || factory.createIdentifier("_default"), factory.createModuleBlock([]), NodeFlags.Namespace);
                     setParent(fakespace, enclosingDeclaration as SourceFile | NamespaceDeclaration);
@@ -1365,7 +1622,9 @@ export function transformDeclarations(context: TransformationContext) {
                             return undefined; // TODO GH#33569: Handle element access expressions that created late bound names (rather than silently omitting them)
                         }
                         getSymbolAccessibilityDiagnostic = createGetSymbolAccessibilityDiagnosticForNode(p.valueDeclaration);
-                        const type = resolver.createTypeOfDeclaration(p.valueDeclaration, fakespace, declarationEmitNodeBuilderFlags, symbolTracker);
+                        const type = resolver.createTypeOfDeclaration(
+                            p.valueDeclaration, fakespace, declarationEmitNodeBuilderFlags | NodeBuilderFlags.NoSyntacticPrinter, symbolTracker
+                        );
                         getSymbolAccessibilityDiagnostic = oldDiag;
                         const nameStr = unescapeLeadingUnderscores(p.escapedName);
                         const isNonContextualKeywordName = isStringANonContextualKeyword(nameStr);
@@ -1622,6 +1881,7 @@ export function transformDeclarations(context: TransformationContext) {
                     const heritageClauses = transformHeritageClauses(input.heritageClauses);
                     let reservedDecorators = concatenate(getReservedDecoratorsOfEtsFile(input, host), getAnnotations(input));
                     checkAnnotationVisibilityByDecorator(reservedDecorators);
+
                     return cleanup(factory.updateClassDeclaration(
                         input,
                         concatenateDecoratorsAndModifiers(reservedDecorators, modifiers),
@@ -1636,10 +1896,27 @@ export function transformDeclarations(context: TransformationContext) {
                 return cleanup(transformVariableStatement(input));
             }
             case SyntaxKind.EnumDeclaration: {
-                return cleanup(factory.updateEnumDeclaration(input, factory.createNodeArray(ensureModifiers(input)), input.name, factory.createNodeArray(mapDefined(input.members, m => {
-                    if (shouldStripInternal(m)) return;
-                    // Rewrite enum values to their constants, if available
-                    const constValue = resolver.getConstantValue(m);
+                return cleanup(factory.updateEnumDeclaration(
+                    input,
+                    factory.createNodeArray(ensureModifiers(input)),
+                    input.name,
+                    factory.createNodeArray(mapDefined(input.members, m => {
+                        if (shouldStripInternal(m)) return;
+                        // Rewrite enum values to their constants, if available
+                        const enumValue = resolver.getEnumMemberValue(m);
+                        const constValue = enumValue?.value;
+                        if (
+                            isolatedDeclarations && m.initializer && enumValue?.hasExternalReferences &&
+                            // This will be its own compiler error instead, so don't report.
+                            !isComputedPropertyName(m.name)
+                        ) {
+                            context.addDiagnostic(
+                                createDiagnosticForNode(
+                                    m,
+                                    Diagnostics.Enum_member_initializers_must_be_computable_without_references_to_external_symbols_with_isolatedDeclarations
+                                )
+                            );
+                        }
                     return preserveJsDoc(factory.updateEnumMember(m, m.name, constValue !== undefined ? typeof constValue === "string" ? factory.createStringLiteral(constValue) : factory.createNumericLiteral(constValue) : undefined), m);
                 }))));
             }
@@ -1697,7 +1974,7 @@ export function transformDeclarations(context: TransformationContext) {
             getSymbolAccessibilityDiagnostic = createGetSymbolAccessibilityDiagnosticForNodeName(node);
         }
         errorNameNode = (node as NamedDeclaration).name;
-        Debug.assert(resolver.isLateBound(getParseTreeNode(node) as Declaration)); // Should only be called with dynamic names
+        Debug.assert(hasDynamicName(node as NamedDeclaration)); // Should only be called with dynamic names
         const decl = node as NamedDeclaration as LateBoundDeclaration;
         const entityName = decl.name.expression;
         checkEntityNameVisibility(entityName, enclosingDeclaration);
@@ -1797,7 +2074,7 @@ function getTypeAnnotationFromAccessor(accessor: AccessorDeclaration): TypeNode 
 }
 
 type CanHaveLiteralInitializer = VariableDeclaration | PropertyDeclaration | PropertySignature | ParameterDeclaration;
-function canHaveLiteralInitializer(node: Node): boolean {
+function canHaveLiteralInitializer(node: Node): node is CanHaveLiteralInitializer {
     switch (node.kind) {
         case SyntaxKind.PropertyDeclaration:
         case SyntaxKind.PropertySignature:

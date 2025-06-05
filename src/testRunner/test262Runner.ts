@@ -107,7 +107,7 @@ export class Test262BaselineRunner extends RunnerBase {
             });
         }
         else {
-            this.tests.forEach(test => this.runTest(typeof test === "string" ? test : test.file));
+            this.tests.forEach(file => this.runTest(file));
         }
     }
 }

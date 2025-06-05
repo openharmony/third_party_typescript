@@ -298,11 +298,11 @@ function func2(inst: Instance) {
 >Num : Types.Num
 
                 inst.value.toExponential;
->inst.value.toExponential : (fractionDigits?: number | undefined) => string
+>inst.value.toExponential : (fractionDigits?: number) => string
 >inst.value : number
 >inst : NumType
 >value : number
->toExponential : (fractionDigits?: number | undefined) => string
+>toExponential : (fractionDigits?: number) => string
 
                 break;
             }
@@ -424,7 +424,7 @@ export function foo(obj: Obj) {
 }
 
 function onlyPlus(arg: '+') {
->onlyPlus : (arg: '+') => "+"
+>onlyPlus : (arg: "+") => "+"
 >arg : "+"
 
   return arg;
@@ -573,7 +573,7 @@ function DoesNotWork(data: unknown) {
 // Repro from #36777
 
 type TestA = {
->TestA : { type: 'testA'; bananas: 3; }
+>TestA : { type: "testA"; bananas: 3; }
 
     type: 'testA';
 >type : "testA"
@@ -583,7 +583,7 @@ type TestA = {
 }
   
 type TestB = {
->TestB : { type: 'testB'; apples: 5; }
+>TestB : { type: "testB"; apples: 5; }
 
     type: 'testB';
 >type : "testB"

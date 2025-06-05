@@ -434,7 +434,7 @@ c.setState({ c: true });  // Error
 >true : true
 
 type T2 = { a?: number, [key: string]: any };
->T2 : { [key: string]: any; a?: number | undefined; }
+>T2 : { [key: string]: any; a?: number; }
 >a : number | undefined
 >key : string
 

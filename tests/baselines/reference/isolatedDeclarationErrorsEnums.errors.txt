@@ -1,0 +1,82 @@
+tests/cases/compiler/isolatedDeclarationErrorsEnums.ts(12,5): error TS9020: Enum member initializers must be computable without references to external symbols with --isolatedDeclarations.
+tests/cases/compiler/isolatedDeclarationErrorsEnums.ts(12,9): error TS2322: Type 'E' is not assignable to type 'F'.
+tests/cases/compiler/isolatedDeclarationErrorsEnums.ts(13,5): error TS9020: Enum member initializers must be computable without references to external symbols with --isolatedDeclarations.
+tests/cases/compiler/isolatedDeclarationErrorsEnums.ts(29,5): error TS9020: Enum member initializers must be computable without references to external symbols with --isolatedDeclarations.
+tests/cases/compiler/isolatedDeclarationErrorsEnums.ts(30,5): error TS9020: Enum member initializers must be computable without references to external symbols with --isolatedDeclarations.
+tests/cases/compiler/isolatedDeclarationErrorsEnums.ts(31,5): error TS9020: Enum member initializers must be computable without references to external symbols with --isolatedDeclarations.
+tests/cases/compiler/isolatedDeclarationErrorsEnums.ts(38,10): error TS2553: Computed values are not permitted in an enum with string valued members.
+tests/cases/compiler/isolatedDeclarationErrorsEnums.ts(44,5): error TS9020: Enum member initializers must be computable without references to external symbols with --isolatedDeclarations.
+tests/cases/compiler/isolatedDeclarationErrorsEnums.ts(44,11): error TS2553: Computed values are not permitted in an enum with string valued members.
+tests/cases/compiler/isolatedDeclarationErrorsEnums.ts(45,5): error TS9020: Enum member initializers must be computable without references to external symbols with --isolatedDeclarations.
+tests/cases/compiler/isolatedDeclarationErrorsEnums.ts(45,10): error TS2553: Computed values are not permitted in an enum with string valued members.
+
+
+==== tests/cases/compiler/isolatedDeclarationErrorsEnums.ts (11 errors) ====
+    declare function computed(x: number): number;
+    
+    enum E {
+        A = computed(0),
+        B = computed(1),
+        C = computed(2),
+        D = computed(3),
+    }
+    
+    
+    enum F {
+        A = E.A,
+        ~
+!!! error TS9020: Enum member initializers must be computable without references to external symbols with --isolatedDeclarations.
+            ~~~
+!!! error TS2322: Type 'E' is not assignable to type 'F'.
+        B = A,
+        ~
+!!! error TS9020: Enum member initializers must be computable without references to external symbols with --isolatedDeclarations.
+    }
+    
+    
+    enum Flag {
+        A = 1 >> 1,
+        B = 2 >> 2,
+        C = 3 >> 2,
+        AB = A | B,
+        ABC = Flag.AB | C,
+        AC = Flag["A"] | C,
+    }
+    
+    const EV = 1;
+    enum ExtFlags {
+        D = 4 >> 1,
+        E = EV,
+        ~
+!!! error TS9020: Enum member initializers must be computable without references to external symbols with --isolatedDeclarations.
+        ABCD = Flag.ABC | D,
+        ~~~~
+!!! error TS9020: Enum member initializers must be computable without references to external symbols with --isolatedDeclarations.
+        AC = Flag["A"] | D,
+        ~~
+!!! error TS9020: Enum member initializers must be computable without references to external symbols with --isolatedDeclarations.
+    }
+    
+    
+    enum Str {
+        A = "A",
+        B = "B",
+        AB = A + B
+             ~~~~~
+!!! error TS2553: Computed values are not permitted in an enum with string valued members.
+    }
+    
+    
+    enum StrExt {
+        D = "D",
+        ABD = Str.AB + D,
+        ~~~
+!!! error TS9020: Enum member initializers must be computable without references to external symbols with --isolatedDeclarations.
+              ~~~~~~~~~~
+!!! error TS2553: Computed values are not permitted in an enum with string valued members.
+        AD = Str["A"] + D,
+        ~~
+!!! error TS9020: Enum member initializers must be computable without references to external symbols with --isolatedDeclarations.
+             ~~~~~~~~~~~~
+!!! error TS2553: Computed values are not permitted in an enum with string valued members.
+    }

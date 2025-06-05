@@ -15,11 +15,11 @@ declare function f(p: typeof isString | typeof isNumber): void;
 
 f(isString);
 >f(isString) : void
->f : (p: ((x: any) => x is string) | ((x: any) => x is number)) => void
+>f : (p: typeof isString | typeof isNumber) => void
 >isString : (x: any) => x is string
 
 f(isNumber);
 >f(isNumber) : void
->f : (p: ((x: any) => x is string) | ((x: any) => x is number)) => void
+>f : (p: typeof isString | typeof isNumber) => void
 >isNumber : (x: any) => x is number
 

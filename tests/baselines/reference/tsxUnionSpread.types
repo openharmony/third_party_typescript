@@ -4,12 +4,12 @@ namespace JSX {
 }
 
 export type CatInfo = { type: 'Cat'; subType: string; };
->CatInfo : { type: 'Cat'; subType: string; }
+>CatInfo : { type: "Cat"; subType: string; }
 >type : "Cat"
 >subType : string
 
 export type DogInfo = { type: 'Dog'; };
->DogInfo : { type: 'Dog'; }
+>DogInfo : { type: "Dog"; }
 >type : "Dog"
 
 export type AnimalInfo = CatInfo | DogInfo;

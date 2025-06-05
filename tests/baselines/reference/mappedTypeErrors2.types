@@ -2,7 +2,7 @@
 // Repros from #17238
 
 type AB = {
->AB : { a: 'a'; b: 'a'; }
+>AB : { a: "a"; b: "a"; }
 
     a: 'a'
 >a : "a"

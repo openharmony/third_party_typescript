@@ -305,7 +305,7 @@ function isSuccess<T>(result: Result<T>): result is T {
 }
 
 function isFailure<T>(result: Result<T>): result is FAILURE {
->isFailure : <T>(result: Result<T>) => result is "FAILURE"
+>isFailure : <T>(result: Result<T>) => result is FAILURE
 >result : Result<T>
 
   return result === FAILURE;

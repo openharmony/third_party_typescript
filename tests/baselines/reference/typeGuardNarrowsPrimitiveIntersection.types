@@ -4,7 +4,7 @@ type Tag = {__tag: any};
 >__tag : any
 
 declare function isNonBlank(value: string) : value is (string & Tag);
->isNonBlank : (value: string) => value is string & Tag
+>isNonBlank : (value: string) => value is (string & Tag)
 >value : string
 
 declare function doThis(value: string & Tag): void;
@@ -40,7 +40,7 @@ const enum Tag2 {}
 >Tag2 : Tag2
 
 declare function isNonBlank2(value: string) : value is (string & Tag2);
->isNonBlank2 : (value: string) => value is never
+>isNonBlank2 : (value: string) => value is (string & Tag2)
 >value : string
 
 declare function doThis2(value: string & Tag2): void;
@@ -58,7 +58,7 @@ if (isNonBlank2(value)) {
 
     doThis2(value);
 >doThis2(value) : void
->doThis2 : (value: never) => void
+>doThis2 : (value: string & Tag2) => void
 >value : never
 
 } else {

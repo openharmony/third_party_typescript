@@ -58,7 +58,7 @@ declare function isA(obj: unknown): obj is { a: false } | { b: 0 };
 >b : 0
 
 function fx4(obj: { b: number }) {
->fx4 : (obj: {    b: number;}) => void
+>fx4 : (obj: { b: number; }) => void
 >obj : { b: number; }
 >b : number
 
@@ -390,7 +390,7 @@ let test: string | null | undefined;
 
 if (isEmpty(test)) {
 >isEmpty(test) : boolean
->isEmpty : (value: string | null | undefined) => value is EmptyString
+>isEmpty : (value: string | EmptyString) => value is EmptyString
 >test : string | null | undefined
 
     test;  // EmptyString
@@ -419,7 +419,7 @@ function test1(foo: number | string | boolean) {
 // Repro from #46909
 
 function check1(x: unknown): x is (string | 0) {
->check1 : (x: unknown) => x is string | 0
+>check1 : (x: unknown) => x is (string | 0)
 >x : unknown
 
 	return typeof x === "string" || x === 0;
@@ -434,7 +434,7 @@ function check1(x: unknown): x is (string | 0) {
 }
 
 function check2(x: unknown): x is ("hello" | 0) {
->check2 : (x: unknown) => x is 0 | "hello"
+>check2 : (x: unknown) => x is ("hello" | 0)
 >x : unknown
 
 	return x === "hello" || x === 0;

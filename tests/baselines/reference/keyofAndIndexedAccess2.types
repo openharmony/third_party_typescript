@@ -1,6 +1,6 @@
 === tests/cases/conformance/types/keyof/keyofAndIndexedAccess2.ts ===
 function f1(obj: { a: number, b: 0 | 1, c: string }, k0: 'a', k1: 'a' | 'b', k2: 'a' | 'b' | 'c') {
->f1 : (obj: {    a: number;    b: 0 | 1;    c: string;}, k0: 'a', k1: 'a' | 'b', k2: 'a' | 'b' | 'c') => void
+>f1 : (obj: { a: number; b: 0 | 1; c: string; }, k0: "a", k1: "a" | "b", k2: "a" | "b" | "c") => void
 >obj : { a: number; b: 0 | 1; c: string; }
 >a : number
 >b : 0 | 1
@@ -74,7 +74,7 @@ function f1(obj: { a: number, b: 0 | 1, c: string }, k0: 'a', k1: 'a' | 'b', k2:
 }
 
 function f2<T extends { [key: string]: number }>(a: { x: number, y: number }, b: { [key: string]: number }, c: T, k: keyof T) {
->f2 : <T extends { [key: string]: number; }>(a: {    x: number;    y: number;}, b: { [key: string]: number; }, c: T, k: keyof T) => void
+>f2 : <T extends { [key: string]: number; }>(a: { x: number; y: number; }, b: { [key: string]: number; }, c: T, k: keyof T) => void
 >key : string
 >a : { x: number; y: number; }
 >x : number
@@ -194,7 +194,7 @@ function f3<K extends string>(a: { [P in K]: number }, b: { [key: string]: numbe
 }
 
 function f3b<K extends string>(a: { [P in K]: number }, b: { [P in string]: number }, k: K) {
->f3b : <K extends string>(a: { [P in K]: number; }, b: { [x: string]: number; }, k: K) => void
+>f3b : <K extends string>(a: { [P in K]: number; }, b: { [P in string]: number; }, k: K) => void
 >a : { [P in K]: number; }
 >b : { [x: string]: number; }
 >k : K
@@ -211,7 +211,7 @@ function f3b<K extends string>(a: { [P in K]: number }, b: { [P in string]: numb
 }
 
 function f4<K extends string>(a: { [key: string]: number }[K], b: number) {
->f4 : <K extends string>(a: number, b: number) => void
+>f4 : <K extends string>(a: { [key: string]: number; }[K], b: number) => void
 >a : number
 >key : string
 >b : number
@@ -391,9 +391,9 @@ export function getEntity<E extends Entity>(id: IdOf<E>, state: EntityState<E>):
     if (!ids.includes(id)) {
 >!ids.includes(id) : boolean
 >ids.includes(id) : boolean
->ids.includes : (searchElement: IdOf<E>, fromIndex?: number | undefined) => boolean
+>ids.includes : (searchElement: IdOf<E>, fromIndex?: number) => boolean
 >ids : IdOf<E>[]
->includes : (searchElement: IdOf<E>, fromIndex?: number | undefined) => boolean
+>includes : (searchElement: IdOf<E>, fromIndex?: number) => boolean
 >id : IdOf<E>
 
         return undefined;
@@ -440,11 +440,11 @@ type B<T, V> = A<{ [Q in keyof T]: StrictExclude<B<T[Q], V>, {}>; }>;
 // Repros from #30938
 
 function fn<T extends {elements: Array<string>} | {elements: Array<number>}>(param: T, cb: (element: T['elements'][number]) => void) {
->fn : <T extends { elements: Array<string>; } | { elements: Array<number>; }>(param: T, cb: (element: T['elements'][number]) => void) => void
+>fn : <T extends { elements: Array<string>; } | { elements: Array<number>; }>(param: T, cb: (element: T["elements"][number]) => void) => void
 >elements : string[]
 >elements : number[]
 >param : T
->cb : (element: T['elements'][number]) => void
+>cb : (element: T["elements"][number]) => void
 >element : T["elements"][number]
 
     cb(param.elements[0]);

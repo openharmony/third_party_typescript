@@ -1,6 +1,6 @@
 === tests/cases/compiler/controlFlowInitializedDestructuringVariables.ts ===
 declare const obj: { a?: string, b?: number };
->obj : { a?: string | undefined; b?: number | undefined; }
+>obj : { a?: string; b?: number; }
 >a : string | undefined
 >b : number | undefined
 

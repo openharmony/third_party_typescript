@@ -14,7 +14,7 @@
 ////         }./*3*/flexGrow(132)./*4*/height(11)
 ////     }
 //// }
-verify.quickInfoAt("1", "(method) TextAttribute.fontColor(value: string | number): TextAttribute");
-verify.quickInfoAt("2", "(method) CommonMethod<TextAttribute>.height(value: string | number): TextAttribute");
+verify.quickInfoAt("1", "(method) TextAttribute.fontColor(value: number | string): TextAttribute");
+verify.quickInfoAt("2", "(method) CommonMethod<TextAttribute>.height(value: number | string): TextAttribute");
 verify.quickInfoAt("3", "(method) CommonMethod<FlexAttribute>.flexGrow(value: number): FlexAttribute");
-verify.quickInfoAt("4", "(method) CommonMethod<FlexAttribute>.height(value: string | number): FlexAttribute");
+verify.quickInfoAt("4", "(method) CommonMethod<FlexAttribute>.height(value: number | string): FlexAttribute");

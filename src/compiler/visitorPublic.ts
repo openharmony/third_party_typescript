@@ -1,21 +1,108 @@
 import {
-    ConciseBody, Debug, EmitFlags, Expression, factory, FunctionBody, getEmitFlags, getEmitScriptTarget, Identifier,
-    isAnnotationElement, isArray, isArrayBindingElement, isAssertClause, isAssertEntry, isAssertionKey, isAssertsKeyword, isAsteriskToken,
-    isAwaitKeyword, isBinaryOperatorToken, isBindingElement, isBindingName, isBindingPattern, isBlock, isCallChain,
-    isCaseBlock, isCaseOrDefaultClause, isCatchClause, isClassElement, isColonToken, isConciseBody, isDotDotDotToken,
-    isElementAccessChain, isEntityName, isEnumMember, isEqualsGreaterThanToken, isExclamationToken, isExportSpecifier,
-    isExpression, isExpressionWithTypeArguments, isForInitializer, isHeritageClause, isIdentifier,
-    isIdentifierOrThisTypeNode, isImportClause, isImportSpecifier, isImportTypeAssertionContainer, isJsxAttributeLike,
-    isJsxAttributes, isJsxChild, isJsxClosingElement, isJsxClosingFragment, isJsxOpeningElement, isJsxOpeningFragment,
-    isJsxTagNameExpression, isMemberName, isModifier, isModifierLike, isModuleBody, isModuleName, isModuleReference,
-    isNamedExportBindings, isNamedImportBindings, isObjectLiteralElementLike, isOptionalChain, isParameterDeclaration,
-    isPropertyAccessChain, isPropertyName, isQuestionDotToken, isQuestionOrExclamationToken,
-    isQuestionOrPlusOrMinusToken, isQuestionToken, isReadonlyKeywordOrPlusOrMinusToken, isStatement,
-    isStringLiteralOrJsxExpression, isTemplateHead, isTemplateLiteral, isTemplateLiteralTypeSpan,
-    isTemplateMiddleOrTemplateTail, isTemplateSpan, isToken, isTypeElement, isTypeNode, isTypeNodeOrTypeParameterDeclaration, isTypeParameterDeclaration, isVariableDeclaration, 
-    isVariableDeclarationList, LexicalEnvironmentFlags, Node, NodeArray, NodesVisitor, NodeVisitor, ParameterDeclaration, ScriptTarget,
-    setEmitFlags, setTextRange, setTextRangePosEnd, singleOrUndefined, some, Statement, SyntaxKind,
-    TransformationContext, Visitor, VisitEachChildNodes
+    ConciseBody,
+    Debug,
+    EmitFlags,
+    Expression,
+    factory,
+    FunctionBody,
+    getEmitFlags,
+    getEmitScriptTarget,
+    Identifier,
+    isAnnotationElement,
+    isArray,
+    isArrayBindingElement,
+    isAssertClause,
+    isAssertEntry,
+    isAssertionKey,
+    isAssertsKeyword,
+    isAsteriskToken,
+    isAwaitKeyword,
+    isBinaryOperatorToken,
+    isBindingElement,
+    isBindingName,
+    isBindingPattern,
+    isBlock,
+    isCallChain,
+    isCaseBlock,
+    isCaseOrDefaultClause,
+    isCatchClause,
+    isClassElement,
+    isColonToken,
+    isConciseBody,
+    isDotDotDotToken,
+    isElementAccessChain,
+    isEntityName,
+    isEnumMember,
+    isEqualsGreaterThanToken,
+    isExclamationToken,
+    isExportSpecifier,
+    isExpression,
+    isExpressionWithTypeArguments,
+    isForInitializer,
+    isHeritageClause,
+    isIdentifier,
+    isIdentifierOrThisTypeNode,
+    isImportClause,
+    isImportSpecifier,
+    isImportTypeAssertionContainer,
+    isJsxAttributeLike,
+    isJsxAttributes,
+    isJsxChild,
+    isJsxClosingElement,
+    isJsxClosingFragment,
+    isJsxOpeningElement,
+    isJsxOpeningFragment,
+    isJsxTagNameExpression,
+    isMemberName,
+    isModifier,
+    isModifierLike,
+    isModuleBody,
+    isModuleName,
+    isModuleReference,
+    isNamedExportBindings,
+    isNamedImportBindings,
+    isObjectLiteralElementLike,
+    isOptionalChain,
+    isParameterDeclaration,
+    isPropertyAccessChain,
+    isPropertyName,
+    isQuestionDotToken,
+    isQuestionOrExclamationToken,
+    isQuestionOrPlusOrMinusToken,
+    isQuestionToken,
+    isReadonlyKeywordOrPlusOrMinusToken,
+    isStatement,
+    isStringLiteralOrJsxExpression,
+    isTemplateHead,
+    isTemplateLiteral,
+    isTemplateLiteralTypeSpan,
+    isTemplateMiddleOrTemplateTail,
+    isTemplateSpan,
+    isToken,
+    isTypeElement,
+    isTypeNode,
+    isTypeNodeOrTypeParameterDeclaration,
+    isTypeParameterDeclaration,
+    isVariableDeclaration, 
+    isVariableDeclarationList,
+    LexicalEnvironmentFlags,
+    Node,
+    NodeArray,
+    NodesVisitor,
+    NodeVisitor,
+    nullTransformationContext,
+    ParameterDeclaration,
+    ScriptTarget,
+    setEmitFlags,
+    setTextRange,
+    setTextRangePosEnd,
+    singleOrUndefined,
+    some,
+    Statement,
+    SyntaxKind,
+    TransformationContext,
+    Visitor,
+    VisitEachChildNodes
 } from "./_namespaces/ts";
 
 /**
@@ -400,9 +487,9 @@ export function visitIterationBody(body: Statement, visitor: Visitor, context: T
  * @param visitor The callback used to visit each child.
  * @param context A lexical environment context for the visitor.
  */
-export function visitEachChild<T extends Node>(node: T, visitor: Visitor, context: TransformationContext): T;
+export function visitEachChild<T extends Node>(node: T, visitor: Visitor, context: TransformationContext | undefined): T;
 /** @internal */
-export function visitEachChild<T extends Node>(node: T, visitor: Visitor, context: TransformationContext, nodesVisitor?: NodesVisitor, tokenVisitor?: Visitor, nodeVisitor?: NodeVisitor): T; // eslint-disable-line @typescript-eslint/unified-signatures
+export function visitEachChild<T extends Node>(node: T, visitor: Visitor, context: TransformationContext | undefined, nodesVisitor?: NodesVisitor, tokenVisitor?: Visitor, nodeVisitor?: NodeVisitor): T; // eslint-disable-line @typescript-eslint/unified-signatures
 /**
  * Visits each child of a Node using the supplied visitor, possibly returning a new Node of the same kind in its place.
  *
@@ -410,10 +497,10 @@ export function visitEachChild<T extends Node>(node: T, visitor: Visitor, contex
  * @param visitor The callback used to visit each child.
  * @param context A lexical environment context for the visitor.
  */
-export function visitEachChild<T extends Node>(node: T | undefined, visitor: Visitor, context: TransformationContext, nodesVisitor?: typeof visitNodes, tokenVisitor?: Visitor): T | undefined;
+export function visitEachChild<T extends Node>(node: T | undefined, visitor: Visitor, context: TransformationContext | undefined, nodesVisitor?: typeof visitNodes, tokenVisitor?: Visitor): T | undefined;
 /** @internal */
-export function visitEachChild<T extends Node>(node: T | undefined, visitor: Visitor, context: TransformationContext, nodesVisitor?: NodesVisitor, tokenVisitor?: Visitor, nodeVisitor?: NodeVisitor): T | undefined; // eslint-disable-line @typescript-eslint/unified-signatures
-export function visitEachChild<T extends Node>(node: T | undefined, visitor: Visitor, context: TransformationContext, nodesVisitor = visitNodes, tokenVisitor?: Visitor, nodeVisitor: NodeVisitor = visitNode): T | undefined {
+export function visitEachChild<T extends Node>(node: T | undefined, visitor: Visitor, context: TransformationContext | undefined, nodesVisitor?: NodesVisitor, tokenVisitor?: Visitor, nodeVisitor?: NodeVisitor): T | undefined; // eslint-disable-line @typescript-eslint/unified-signatures
+export function visitEachChild<T extends Node>(node: T | undefined, visitor: Visitor, context = nullTransformationContext, nodesVisitor = visitNodes, tokenVisitor?: Visitor, nodeVisitor: NodeVisitor = visitNode): T | undefined {
     if (node === undefined) {
         return undefined;
     }

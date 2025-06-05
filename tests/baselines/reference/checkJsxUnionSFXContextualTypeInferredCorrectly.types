@@ -49,7 +49,7 @@ export function HereIsTheError() {
 
         <ComponentWithUnion
 ><ComponentWithUnion            multi={false}            value={'s'}            onChange={val => console.log(val)} // <- this throws an error        /> : JSX.Element
->ComponentWithUnion : (props: PS | PM) => JSX.Element
+>ComponentWithUnion : (props: PM | PS) => JSX.Element
 
             multi={false}
 >multi : false
@@ -76,7 +76,7 @@ export function HereIsTheError() {
 // Usage with pure TypeScript
 ComponentWithUnion({
 >ComponentWithUnion({    multi: false,    value: 's',    onChange: val => console.log(val) // <- this works fine}) : JSX.Element
->ComponentWithUnion : (props: PS | PM) => JSX.Element
+>ComponentWithUnion : (props: PM | PS) => JSX.Element
 >{    multi: false,    value: 's',    onChange: val => console.log(val) // <- this works fine} : { multi: false; value: string; onChange: (val: string | undefined) => void; }
 
     multi: false,

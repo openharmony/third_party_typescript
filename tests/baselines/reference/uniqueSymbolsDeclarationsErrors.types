@@ -60,7 +60,7 @@ export function funcInferredReturnType(obj: { method(p: typeof s): void }) {
 >s : unique symbol
 
     return obj;
->obj : { method(p: unique symbol): void; }
+>obj : { method(p: typeof s): void; }
 }
 
 export interface InterfaceWithPrivateNamedProperties {

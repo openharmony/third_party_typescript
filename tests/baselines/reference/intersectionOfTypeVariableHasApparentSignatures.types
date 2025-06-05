@@ -1,13 +1,13 @@
 === tests/cases/compiler/intersectionOfTypeVariableHasApparentSignatures.ts ===
 interface Component<P> {
     props: Readonly<P> & Readonly<{ children?: {} }>;
->props : Readonly<P> & Readonly<{ children?: {} | undefined; }>
+>props : Readonly<P> & Readonly<{ children?: {}; }>
 >children : {} | undefined
 }
 
 interface Props {
     children?: (items: {x: number}) => void
->children : ((items: {    x: number;}) => void) | undefined
+>children : ((items: { x: number; }) => void) | undefined
 >items : { x: number; }
 >x : number
 }

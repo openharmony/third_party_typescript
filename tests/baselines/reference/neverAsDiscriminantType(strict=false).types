@@ -1,6 +1,6 @@
 === tests/cases/compiler/neverAsDiscriminantType.ts ===
 type Foo1 = { kind: 'a', a: number } | { kind: 'b' } | { kind: never };
->Foo1 : { kind: 'a'; a: number; } | { kind: 'b'; } | { kind: never; }
+>Foo1 : { kind: "a"; a: number; } | { kind: "b"; } | { kind: never; }
 >kind : "a"
 >a : number
 >kind : "b"
@@ -25,7 +25,7 @@ function f1(foo: Foo1) {
 }
 
 type Foo2 = { kind?: 'a', a: number } | { kind?: 'b' } | { kind?: never };
->Foo2 : { kind?: 'a'; a: number; } | { kind?: 'b'; } | { kind?: never; }
+>Foo2 : { kind?: "a"; a: number; } | { kind?: "b"; } | { kind?: never; }
 >kind : "a"
 >a : number
 >kind : "b"
@@ -151,7 +151,7 @@ export interface GatewayEvents {
 }
 
 function assertMessage(event: { a: 1 }) { }
->assertMessage : (event: {    a: 1;}) => void
+>assertMessage : (event: { a: 1; }) => void
 >event : { a: 1; }
 >a : 1
 

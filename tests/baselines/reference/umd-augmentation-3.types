@@ -15,9 +15,9 @@ let v = new m.Vector(3, 2);
 let magnitude = m.getLength(v);
 >magnitude : number
 >m.getLength(v) : number
->m.getLength : (p: m.Vector) => number
+>m.getLength : (p: Vector) => number
 >m : typeof m
->getLength : (p: m.Vector) => number
+>getLength : (p: Vector) => number
 >v : m.Vector
 
 let p: m.Point = v.translate(5, 5);

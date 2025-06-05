@@ -64,9 +64,9 @@ processRecord({ kind: 'n', v: 42, f: v => v.toExponential() });
 >v => v.toExponential() : (v: number) => string
 >v : number
 >v.toExponential() : string
->v.toExponential : (fractionDigits?: number | undefined) => string
+>v.toExponential : (fractionDigits?: number) => string
 >v : number
->toExponential : (fractionDigits?: number | undefined) => string
+>toExponential : (fractionDigits?: number) => string
 
 // --------
 
@@ -180,9 +180,9 @@ const handlers: HandlerMap = {
 >n => n.toFixed(2) : (n: number) => string
 >n : number
 >n.toFixed(2) : string
->n.toFixed : (fractionDigits?: number | undefined) => string
+>n.toFixed : (fractionDigits?: number) => string
 >n : number
->toFixed : (fractionDigits?: number | undefined) => string
+>toFixed : (fractionDigits?: number) => string
 >2 : 2
 
 };
@@ -352,9 +352,9 @@ function processEvents<K extends keyof DocumentEventMap>(events: Ev<K>[]) {
 
         document.addEventListener(event.name, (ev) => event.callback(ev), { once: event.once });
 >document.addEventListener(event.name, (ev) => event.callback(ev), { once: event.once }) : void
->document.addEventListener : { <K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions | undefined): void; (type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions | undefined): void; }
+>document.addEventListener : { <K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void; (type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void; }
 >document : Document
->addEventListener : { <K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions | undefined): void; (type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions | undefined): void; }
+>addEventListener : { <K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void; (type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void; }
 >event.name : K
 >event : Ev<K>
 >name : K
@@ -660,7 +660,7 @@ const ref: MyObj = {
 };
 
 function func<K extends keyof MyObj>(k: K): MyObj[K]['name'] | undefined {
->func : <K extends keyof MyObj>(k: K) => MyObj[K]['name'] | undefined
+>func : <K extends keyof MyObj>(k: K) => MyObj[K]["name"] | undefined
 >k : K
 
     const myObj: Partial<MyObj>[K] = ref[k];

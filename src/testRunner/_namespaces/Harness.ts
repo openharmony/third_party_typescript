@@ -8,6 +8,7 @@ export * from "../fourslashRunner";
 export * from "../compilerRunner";
 export * from "../externalCompileRunner";
 export * from "../test262Runner";
+export * from "../transpileRunner";
 export * from "../runner";
 
 // If running bundled, we want this to be here so that esbuild places the tests after runner.ts.

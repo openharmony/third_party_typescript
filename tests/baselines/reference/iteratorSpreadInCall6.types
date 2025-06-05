@@ -68,7 +68,7 @@ class _StringIterator {
 
 foo(...new SymbolIterator, ...new _StringIterator);
 >foo(...new SymbolIterator, ...new _StringIterator) : void
->foo : (...s: (number | symbol)[]) => void
+>foo : (...s: (symbol | number)[]) => void
 >...new SymbolIterator : symbol
 >new SymbolIterator : SymbolIterator
 >SymbolIterator : typeof SymbolIterator

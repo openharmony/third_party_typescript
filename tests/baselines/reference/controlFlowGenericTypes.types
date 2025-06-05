@@ -1,6 +1,6 @@
 === tests/cases/conformance/controlFlow/controlFlowGenericTypes.ts ===
 function f1<T extends string | undefined>(x: T, y: { a: T }, z: [T]): string {
->f1 : <T extends string | undefined>(x: T, y: {    a: T;}, z: [T]) => string
+>f1 : <T extends string | undefined>(x: T, y: { a: T; }, z: [T]) => string
 >x : T
 >y : { a: T; }
 >a : T
@@ -167,7 +167,7 @@ function g4<T extends Box<T> | undefined>(x: T) {
 // Repro from #13995
 
 declare function takeA(val: 'A'): void;
->takeA : (val: 'A') => void
+>takeA : (val: "A") => void
 >val : "A"
 
 export function bounceAndTakeIfA<AB extends 'A' | 'B'>(value: AB): AB {
@@ -200,12 +200,12 @@ type Common = { id: number };
 >id : number
 
 type AA = { tag: 'A', id: number };
->AA : { tag: 'A'; id: number; }
+>AA : { tag: "A"; id: number; }
 >tag : "A"
 >id : number
 
 type BB = { tag: 'B', id: number, foo: number };
->BB : { tag: 'B'; id: number; foo: number; }
+>BB : { tag: "B"; id: number; foo: number; }
 >tag : "B"
 >id : number
 >foo : number

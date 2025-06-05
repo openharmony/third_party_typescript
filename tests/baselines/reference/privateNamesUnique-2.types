@@ -44,8 +44,8 @@ const b = new B();
 
 a.copy(b); // error
 >a.copy(b) : void
->a.copy : (other: B) => void
+>a.copy : (other: import("tests/cases/conformance/classes/members/privateNames/b").Foo) => void
 >a : A
->copy : (other: B) => void
+>copy : (other: import("tests/cases/conformance/classes/members/privateNames/b").Foo) => void
 >b : B
 

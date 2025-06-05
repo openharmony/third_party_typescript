@@ -18,7 +18,7 @@ namespace jsx {
         export interface IntrinsicAttributes {}
         export interface IntrinsicClassAttributes<T> {}
         export type IntrinsicElements = {
->IntrinsicElements : { div: {    className: string;}; }
+>IntrinsicElements : { div: { className: string; }; }
 
             div: { className: string }
 >div : { className: string; }
@@ -39,7 +39,7 @@ namespace jsx {
 }
 
 declare const Comp: (p: { className?: string }) => null
->Comp : (p: {    className?: string;}) => null
+>Comp : (p: { className?: string; }) => null
 >p : { className?: string; }
 >className : string
 >null : null

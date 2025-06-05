@@ -5447,7 +5447,7 @@ declare namespace ts {
         readonly expression: EntityNameExpression;
         readonly name: Identifier;
     }
-    interface ElementAccessExpression extends MemberExpression {
+    interface ElementAccessExpression extends MemberExpression, Declaration {
         readonly kind: SyntaxKind.ElementAccessExpression;
         readonly expression: LeftHandSideExpression;
         readonly questionDotToken?: QuestionDotToken;
@@ -6236,7 +6236,7 @@ declare namespace ts {
     }
     type FlowType = Type | IncompleteType;
     interface IncompleteType {
-        flags: TypeFlags;
+        flags: TypeFlags | 0;
         type: Type;
     }
     interface AmdDependency {
@@ -6253,6 +6253,7 @@ declare namespace ts {
     interface SourceFileLike {
         getLineAndCharacterOfPosition(pos: number): LineAndCharacter;
     }
+    type ResolutionMode = ModuleKind.ESNext | ModuleKind.CommonJS | undefined;
     interface SourceFile extends Declaration {
         readonly kind: SyntaxKind.SourceFile;
         readonly statements: NodeArray<Statement>;
@@ -6921,6 +6922,7 @@ declare namespace ts {
         StringMapping = 268435456,
         Literal = 2944,
         Unit = 109440,
+        Freshable = 2976,
         StringOrNumberLiteral = 384,
         PossiblyFalsy = 117724,
         StringLike = 402653316,
@@ -6972,10 +6974,12 @@ declare namespace ts {
         isClass(): this is InterfaceType;
         isIndexType(): this is IndexType;
     }
-    interface LiteralType extends Type {
+    interface FreshableType extends Type {
+        freshType: FreshableType;
+        regularType: FreshableType;
+    }
+    interface LiteralType extends FreshableType {
         value: string | number | PseudoBigInt;
-        freshType: LiteralType;
-        regularType: LiteralType;
     }
     interface UniqueESSymbolType extends Type {
         symbol: Symbol;
@@ -6990,7 +6994,7 @@ declare namespace ts {
     interface BigIntLiteralType extends LiteralType {
         value: PseudoBigInt;
     }
-    interface EnumType extends Type {
+    interface EnumType extends FreshableType {
     }
     enum ObjectFlags {
         Class = 1,
@@ -7325,6 +7329,7 @@ declare namespace ts {
         moduleDetection?: ModuleDetectionKind;
         newLine?: NewLineKind;
         noEmit?: boolean;
+        noCheck?: boolean;
         noEmitHelpers?: boolean;
         noEmitOnError?: boolean;
         noErrorTruncation?: boolean;
@@ -8751,6 +8756,7 @@ declare namespace ts {
         readonly redirectTargetsMap: RedirectTargetsMap;
         getProjectReferenceRedirect(fileName: string): string | undefined;
         isSourceOfProjectReferenceRedirect(fileName: string): boolean;
+        getCommonSourceDirectory(): string;
     }
     interface ModulePath {
         path: string;
@@ -8789,6 +8795,7 @@ declare namespace ts {
         reportNonlocalAugmentation?(containingFile: SourceFile, parentSymbol: Symbol, augmentingSymbol: Symbol): void;
         reportNonSerializableProperty?(propertyName: string): void;
         reportImportTypeNodeResolutionModeOverride?(): void;
+        reportInferenceFallback?(node: Node): void;
     }
     interface TextSpan {
         start: number;
@@ -9968,7 +9975,7 @@ declare namespace ts {
      * @param visitor The callback used to visit each child.
      * @param context A lexical environment context for the visitor.
      */
-    function visitEachChild<T extends Node>(node: T, visitor: Visitor, context: TransformationContext): T;
+    function visitEachChild<T extends Node>(node: T, visitor: Visitor, context: TransformationContext | undefined): T;
     /**
      * Visits each child of a Node using the supplied visitor, possibly returning a new Node of the same kind in its place.
      *
@@ -9976,7 +9983,7 @@ declare namespace ts {
      * @param visitor The callback used to visit each child.
      * @param context A lexical environment context for the visitor.
      */
-    function visitEachChild<T extends Node>(node: T | undefined, visitor: Visitor, context: TransformationContext, nodesVisitor?: typeof visitNodes, tokenVisitor?: Visitor): T | undefined;
+    function visitEachChild<T extends Node>(node: T | undefined, visitor: Visitor, context: TransformationContext | undefined, nodesVisitor?: typeof visitNodes, tokenVisitor?: Visitor): T | undefined;
     function createSourceMapGenerator(host: EmitHost, file: string, sourceRoot: string, sourcesDirectoryPath: string, generatorOptions: SourceMapGeneratorOptions): SourceMapGenerator;
     interface SourceMapGeneratorOptions {
         extendedDiagnostics?: boolean;
@@ -11680,6 +11687,7 @@ declare namespace ts {
     };
     function preProcessFile(sourceText: string, readImportFiles?: boolean, detectJavaScriptImports?: boolean): PreProcessedFileInfo;
     function transpileModule(input: string, transpileOptions: TranspileOptions): TranspileOutput;
+    function transpileDeclaration(input: string, transpileOptions: TranspileOptions): TranspileOutput;
     function transpile(input: string, compilerOptions?: CompilerOptions, fileName?: string, diagnostics?: Diagnostic[], moduleName?: string): string;
     interface TranspileOptions {
         compilerOptions?: CompilerOptions;
@@ -12782,7 +12790,7 @@ declare namespace ts {
             staticBlocks: Set<string>;
             libraryTypeCallDiagnosticChecker: LibraryTypeCallDiagnosticChecker;
             skipArkTSStaticBlocksCheck: boolean;
-            constructor(sourceFile: SourceFile, tsProgram: Program, tscStrictDiagnostics?: ts.Map<ts.Diagnostic[]> | undefined);
+            constructor(sourceFile: SourceFile, tsProgram: Program, tscStrictDiagnostics?: Map<Diagnostic[]> | undefined);
             static clearTsTypeChecker(): void;
             static clearQualifiedNameCache(): void;
             readonly handlersMap: ts.ESMap<SyntaxKind, (node: Node) => void>;
@@ -13395,7 +13403,7 @@ declare namespace ts {
             private fileExportDeclCaches?;
             private compatibleSdkVersionStage;
             private compatibleSdkVersion;
-            constructor(sourceFile: SourceFile, tsProgram: Program, tscStrictDiagnostics?: ts.Map<ts.Diagnostic[]> | undefined);
+            constructor(sourceFile: SourceFile, tsProgram: Program, tscStrictDiagnostics?: Map<Diagnostic[]> | undefined);
             static clearTsTypeChecker(): void;
             static clearQualifiedNameCache(): void;
             readonly handlersMap: ts.ESMap<ts.SyntaxKind, {

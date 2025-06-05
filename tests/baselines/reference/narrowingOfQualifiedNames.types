@@ -56,10 +56,10 @@ function init(properties: IProperties) {
 
 interface DeepOptional {
     a?: {
->a : { b?: { c?: string | undefined; } | undefined; } | undefined
+>a : { b?: { c?: string; }; } | undefined
 
         b?: {
->b : { c?: string | undefined; } | undefined
+>b : { c?: string; } | undefined
 
             c?: string
 >c : string | undefined
@@ -261,13 +261,13 @@ function init2(foo: DeepOptional) {
 // Repro from #48289
 
 type Fish = { type: 'fish', hasFins: true }
->Fish : { type: 'fish'; hasFins: true; }
+>Fish : { type: "fish"; hasFins: true; }
 >type : "fish"
 >hasFins : true
 >true : true
 
 type Dog = { type: 'dog', saysWoof: true }
->Dog : { type: 'dog'; saysWoof: true; }
+>Dog : { type: "dog"; saysWoof: true; }
 >type : "dog"
 >saysWoof : true
 >true : true

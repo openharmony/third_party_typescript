@@ -22,7 +22,7 @@ type PartialUser = Partial<User>;
 // };
 
 function isUser(obj: Obj): obj is PartialUser {
->isUser : (obj: Obj) => obj is Partial<User>
+>isUser : (obj: Obj) => obj is PartialUser
 >obj : Obj
 
     return true;

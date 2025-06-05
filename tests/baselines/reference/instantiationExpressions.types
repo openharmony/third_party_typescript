@@ -149,7 +149,7 @@ function f12(f: { <T>(a: T): T, x: string }) {
 }
 
 function f13(f: { x: string, y: string }) {
->f13 : (f: {    x: string;    y: string;}) => void
+>f13 : (f: { x: string; y: string; }) => void
 >f : { x: string; y: string; }
 >x : string
 >y : string
@@ -174,7 +174,7 @@ function f14(f: { new <T>(a: T): T, new <U>(a: U, b: number): U[] }) {
 }
 
 function f15(f: { new <T>(a: T): T, <U>(a: U, b: number): U[] }) {
->f15 : (f: { <U>(a: U, b: number): U[]; new <T>(a: T): T; }) => void
+>f15 : (f: { new <T>(a: T): T; <U>(a: U, b: number): U[]; }) => void
 >f : { <U>(a: U, b: number): U[]; new <T>(a: T): T; }
 >a : T
 >a : U
@@ -187,7 +187,7 @@ function f15(f: { new <T>(a: T): T, <U>(a: U, b: number): U[] }) {
 }
 
 function f16(f: { new <T>(a: T): T, (a: string, b: number): string[] }) {
->f16 : (f: { (a: string, b: number): string[]; new <T>(a: T): T; }) => void
+>f16 : (f: { new <T>(a: T): T; (a: string, b: number): string[]; }) => void
 >f : { (a: string, b: number): string[]; new <T>(a: T): T; }
 >a : T
 >a : string
@@ -251,7 +251,7 @@ function f22(f: (<T>(a: T) => T) & { x: string }) {
 }
 
 function f23(f: { x: string } & { y: string }) {
->f23 : (f: {    x: string;} & {    y: string;}) => void
+>f23 : (f: { x: string; } & { y: string; }) => void
 >f : { x: string; } & { y: string; }
 >x : string
 >y : string
@@ -341,7 +341,7 @@ function f31(f: (<T>(a: T) => T) | ((a: string, b: number) => string[])) {
 }
 
 function f32(f: (<T>(a: T) => T) | { x: string }) {
->f32 : (f: { x: string; } | (<T>(a: T) => T)) => void
+>f32 : (f: (<T>(a: T) => T) | { x: string; }) => void
 >f : { x: string; } | (<T>(a: T) => T)
 >a : T
 >x : string
@@ -353,7 +353,7 @@ function f32(f: (<T>(a: T) => T) | { x: string }) {
 }
 
 function f33(f: { x: string } | { y: string }) {
->f33 : (f: {    x: string;} | {    y: string;}) => void
+>f33 : (f: { x: string; } | { y: string; }) => void
 >f : { x: string; } | { y: string; }
 >x : string
 >y : string

@@ -1,6 +1,6 @@
 === tests/cases/conformance/types/spread/spreadUnion3.ts ===
 function f(x: { y: string } | undefined): { y: string } {
->f : (x: {    y: string;} | undefined) => {    y: string;}
+>f : (x: { y: string; } | undefined) => { y: string; }
 >x : { y: string; } | undefined
 >y : string
 >y : string
@@ -18,7 +18,7 @@ f(undefined)
 
 
 function g(t?: { a: number } | null): void {
->g : (t?: {    a: number;} | null) => void
+>g : (t?: { a: number; } | null) => void
 >t : { a: number; } | null | undefined
 >a : number
 >null : null
@@ -36,16 +36,16 @@ function g(t?: { a: number } | null): void {
 }
 g()
 >g() : void
->g : (t?: { a: number; } | null | undefined) => void
+>g : (t?: { a: number; } | null) => void
 
 g(undefined)
 >g(undefined) : void
->g : (t?: { a: number; } | null | undefined) => void
+>g : (t?: { a: number; } | null) => void
 >undefined : undefined
 
 g(null)
 >g(null) : void
->g : (t?: { a: number; } | null | undefined) => void
+>g : (t?: { a: number; } | null) => void
 >null : null
 
 // spreading nothing but null and undefined is not allowed

@@ -28,7 +28,7 @@ declare function list<T>(a: T): T[];
 >a : T
 
 declare function box<V>(x: V): { value: V };
->box : <V>(x: V) => {    value: V;}
+>box : <V>(x: V) => { value: V; }
 >x : V
 >value : V
 
@@ -621,7 +621,7 @@ var z = identityM(x);
 // #3038
 
 export function keyOf<a>(value: { key: a; }): a {
->keyOf : <a>(value: {    key: a;}) => a
+>keyOf : <a>(value: { key: a; }) => a
 >value : { key: a; }
 >key : a
 
@@ -975,17 +975,17 @@ declare function foo2<T, U = T>(fn: T, a?: U, b?: U): [T, U];
 
 foo2(() => {});
 >foo2(() => {}) : [() => void, () => void]
->foo2 : <T, U = T>(fn: T, a?: U | undefined, b?: U | undefined) => [T, U]
+>foo2 : <T, U = T>(fn: T, a?: U, b?: U) => [T, U]
 >() => {} : () => void
 
 foo2(identity);
 >foo2(identity) : [<T>(value: T) => T, <T>(value: T) => T]
->foo2 : <T, U = T>(fn: T, a?: U | undefined, b?: U | undefined) => [T, U]
+>foo2 : <T, U = T>(fn: T, a?: U, b?: U) => [T, U]
 >identity : <T>(value: T) => T
 
 foo2(identity, 1);
 >foo2(identity, 1) : [<T>(value: T) => T, number]
->foo2 : <T, U = T>(fn: T, a?: U | undefined, b?: U | undefined) => [T, U]
+>foo2 : <T, U = T>(fn: T, a?: U, b?: U) => [T, U]
 >identity : <T>(value: T) => T
 >1 : 1
 

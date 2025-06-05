@@ -213,18 +213,18 @@ function checksConsole() {
 >window : Window & typeof globalThis
 >console : Console
 >firebug : any
->(window.console.error && window.console.table) : (tabularData?: any, properties?: string[] | undefined) => void
->window.console.error && window.console.table : (tabularData?: any, properties?: string[] | undefined) => void
+>(window.console.error && window.console.table) : (tabularData?: any, properties?: string[]) => void
+>window.console.error && window.console.table : (tabularData?: any, properties?: string[]) => void
 >window.console.error : (...data: any[]) => void
 >window.console : Console
 >window : Window & typeof globalThis
 >console : Console
 >error : (...data: any[]) => void
->window.console.table : (tabularData?: any, properties?: string[] | undefined) => void
+>window.console.table : (tabularData?: any, properties?: string[]) => void
 >window.console : Console
 >window : Window & typeof globalThis
 >console : Console
->table : (tabularData?: any, properties?: string[] | undefined) => void
+>table : (tabularData?: any, properties?: string[]) => void
 }
 
 function checksPropertyAccess() {

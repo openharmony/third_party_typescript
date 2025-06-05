@@ -15,7 +15,7 @@ declare const x2: { a: string, b: number | undefined };
 >b : number | undefined
 
 declare const x3: { a: string, b?: number };
->x3 : { a: string; b?: number | undefined; }
+>x3 : { a: string; b?: number; }
 >a : string
 >b : number | undefined
 
@@ -83,7 +83,7 @@ const obj = {
 const query = Object.entries(obj).map(
 >query : string
 >Object.entries(obj).map(    ([k, v]) => `${k}=${encodeURIComponent(v)}`).join('&') : string
->Object.entries(obj).map(    ([k, v]) => `${k}=${encodeURIComponent(v)}`).join : (separator?: string | undefined) => string
+>Object.entries(obj).map(    ([k, v]) => `${k}=${encodeURIComponent(v)}`).join : (separator?: string) => string
 >Object.entries(obj).map(    ([k, v]) => `${k}=${encodeURIComponent(v)}`) : string[]
 >Object.entries(obj).map : <U>(callbackfn: (value: [string, string], index: number, array: [string, string][]) => U, thisArg?: any) => U[]
 >Object.entries(obj) : [string, string][]
@@ -104,6 +104,6 @@ const query = Object.entries(obj).map(
 >v : string
 
 ).join('&');
->join : (separator?: string | undefined) => string
+>join : (separator?: string) => string
 >'&' : "&"
 

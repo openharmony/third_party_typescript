@@ -226,20 +226,20 @@ f11(42, "hello", true, ...t4, false, ...t3);
 
 f12(42, "hello");
 >f12(42, "hello") : void
->f12 : (a: number, b: string, ...x: boolean[]) => void
+>f12 : (a: number, b: string, ...x: [...boolean[]]) => void
 >42 : 42
 >"hello" : "hello"
 
 f12(42, "hello", true);
 >f12(42, "hello", true) : void
->f12 : (a: number, b: string, ...x: boolean[]) => void
+>f12 : (a: number, b: string, ...x: [...boolean[]]) => void
 >42 : 42
 >"hello" : "hello"
 >true : true
 
 f12(42, "hello", true, false);
 >f12(42, "hello", true, false) : void
->f12 : (a: number, b: string, ...x: boolean[]) => void
+>f12 : (a: number, b: string, ...x: [...boolean[]]) => void
 >42 : 42
 >"hello" : "hello"
 >true : true
@@ -247,7 +247,7 @@ f12(42, "hello", true, false);
 
 f12(t1[0], t1[1], t1[2], t1[3]);
 >f12(t1[0], t1[1], t1[2], t1[3]) : void
->f12 : (a: number, b: string, ...x: boolean[]) => void
+>f12 : (a: number, b: string, ...x: [...boolean[]]) => void
 >t1[0] : number
 >t1 : [number, string, ...boolean[]]
 >0 : 0
@@ -263,20 +263,20 @@ f12(t1[0], t1[1], t1[2], t1[3]);
 
 f12(...t1);
 >f12(...t1) : void
->f12 : (a: number, b: string, ...x: boolean[]) => void
+>f12 : (a: number, b: string, ...x: [...boolean[]]) => void
 >...t1 : string | number | boolean
 >t1 : [number, string, ...boolean[]]
 
 f12(42, ...t2);
 >f12(42, ...t2) : void
->f12 : (a: number, b: string, ...x: boolean[]) => void
+>f12 : (a: number, b: string, ...x: [...boolean[]]) => void
 >42 : 42
 >...t2 : string | boolean
 >t2 : [string, ...boolean[]]
 
 f12(42, "hello", ...t3);
 >f12(42, "hello", ...t3) : void
->f12 : (a: number, b: string, ...x: boolean[]) => void
+>f12 : (a: number, b: string, ...x: [...boolean[]]) => void
 >42 : 42
 >"hello" : "hello"
 >...t3 : boolean
@@ -284,7 +284,7 @@ f12(42, "hello", ...t3);
 
 f12(42, "hello", true, ...t4);
 >f12(42, "hello", true, ...t4) : void
->f12 : (a: number, b: string, ...x: boolean[]) => void
+>f12 : (a: number, b: string, ...x: [...boolean[]]) => void
 >42 : 42
 >"hello" : "hello"
 >true : true
@@ -293,7 +293,7 @@ f12(42, "hello", true, ...t4);
 
 f12(42, "hello", true, ...t4, false, ...t3);
 >f12(42, "hello", true, ...t4, false, ...t3) : void
->f12 : (a: number, b: string, ...x: boolean[]) => void
+>f12 : (a: number, b: string, ...x: [...boolean[]]) => void
 >42 : 42
 >"hello" : "hello"
 >true : true

@@ -78,7 +78,7 @@ a2([...array]);
 
 a1(...array);
 >a1(...array) : void
->a1 : (...x: (string | number)[]) => void
+>a1 : (...x: (number | string)[]) => void
 >...array : number
 >array : number[]
 

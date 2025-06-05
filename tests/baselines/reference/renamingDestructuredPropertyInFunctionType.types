@@ -36,13 +36,13 @@ type F5 = ({ a: string, b, c }: O) => any; // Error
 >c : number
 
 type F6 = ({ a: string }) => typeof string; // OK
->F6 : ({ a: string }: { a: any; }) => any
+>F6 : ({ a: string }: { a: any; }) => typeof string
 >a : any
 >string : any
 >string : any
 
 type F7 = ({ a: string, b: number }) => typeof number; // Error
->F7 : ({ a: string, b: number }: { a: any; b: any; }) => any
+>F7 : ({ a: string, b: number }: { a: any; b: any; }) => typeof number
 >a : any
 >string : any
 >b : any
@@ -50,7 +50,7 @@ type F7 = ({ a: string, b: number }) => typeof number; // Error
 >number : any
 
 type F8 = ({ a, b: number }) => typeof number; // OK
->F8 : ({ a, b: number }: { a: any; b: any; }) => any
+>F8 : ({ a, b: number }: { a: any; b: any; }) => typeof number
 >a : any
 >b : any
 >number : any
@@ -91,13 +91,13 @@ type G5 = new ({ a: string, b, c }: O) => any; // Error
 >c : number
 
 type G6 = new ({ a: string }) => typeof string; // OK
->G6 : new ({ a: string }: { a: any; }) => any
+>G6 : new ({ a: string }: { a: any; }) => typeof string
 >a : any
 >string : any
 >string : any
 
 type G7 = new ({ a: string, b: number }) => typeof number; // Error
->G7 : new ({ a: string, b: number }: { a: any; b: any; }) => any
+>G7 : new ({ a: string, b: number }: { a: any; b: any; }) => typeof number
 >a : any
 >string : any
 >b : any
@@ -105,7 +105,7 @@ type G7 = new ({ a: string, b: number }) => typeof number; // Error
 >number : any
 
 type G8 = new ({ a, b: number }) => typeof number; // OK
->G8 : new ({ a, b: number }: { a: any; b: any; }) => any
+>G8 : new ({ a, b: number }: { a: any; b: any; }) => typeof number
 >a : any
 >b : any
 >number : any
@@ -201,16 +201,16 @@ const f3 = ({ a: string, b, c }: O) => { };
 >c : number
 
 const f4 = function({ a: string }: O): typeof string { return string; };
->f4 : ({ a: string }: O) => string
->function({ a: string }: O): typeof string { return string; } : ({ a: string }: O) => string
+>f4 : ({ a: string }: O) => typeof string
+>function({ a: string }: O): typeof string { return string; } : ({ a: string }: O) => typeof string
 >a : any
 >string : string
 >string : string
 >string : string
 
 const f5 = ({ a: string, b, c }: O): typeof string => '';
->f5 : ({ a: string, b, c }: O) => string
->({ a: string, b, c }: O): typeof string => '' : ({ a: string, b, c }: O) => string
+>f5 : ({ a: string, b, c }: O) => typeof string
+>({ a: string, b, c }: O): typeof string => '' : ({ a: string, b, c }: O) => typeof string
 >a : any
 >string : string
 >b : number
@@ -229,11 +229,11 @@ const obj1 = {
 
 };
 const obj2 = {
->obj2 : { method({ a: string }: O): string; }
->{  method({ a: string }: O): typeof string { return string; }} : { method({ a: string }: O): string; }
+>obj2 : { method({ a: string }: O): typeof string; }
+>{  method({ a: string }: O): typeof string { return string; }} : { method({ a: string }: O): typeof string; }
 
   method({ a: string }: O): typeof string { return string; }
->method : ({ a: string }: O) => string
+>method : ({ a: string }: O) => typeof string
 >a : any
 >string : string
 >string : string

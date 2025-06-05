@@ -3,7 +3,7 @@
 
 interface Promise<T> {
     then<U>(success?: (value: T) => U, error?: (error: any) => U, progress?: (progress: any) => void): Promise<U>;
->then : { <TResult1 = T, TResult2 = never>(onfulfilled?: (value: T) => TResult1 | PromiseLike<TResult1>, onrejected?: (reason: any) => TResult2 | PromiseLike<TResult2>): Promise<TResult1 | TResult2>; <U>(success?: (value: T) => U, error?: (error: any) => U, progress?: (progress: any) => void): Promise<U>; }
+>then : { <TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): Promise<TResult1 | TResult2>; <U>(success?: (value: T) => U, error?: (error: any) => U, progress?: (progress: any) => void): Promise<U>; }
 >success : (value: T) => U
 >value : T
 >error : (error: any) => U
@@ -75,11 +75,11 @@ declare function testFunctionP(): Promise<number>;
 >testFunctionP : () => Promise<number>
 
 declare function testFunction2(): IPromise<{ x: number }>;
->testFunction2 : () => IPromise<{    x: number;}>
+>testFunction2 : () => IPromise<{ x: number; }>
 >x : number
 
 declare function testFunction2P(): Promise<{ x: number }>;
->testFunction2P : () => Promise<{    x: number;}>
+>testFunction2P : () => Promise<{ x: number; }>
 >x : number
 
 declare function testFunction3(x: number): IPromise<number>;

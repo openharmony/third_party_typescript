@@ -548,7 +548,7 @@ function getBuildInfoForIncrementalCorrectnessCheck(text: string | undefined): {
                 fileNamesList: undefined,
                 fileInfos: sanitizedFileInfos,
                 // Ignore noEmit since that shouldnt be reason to emit the tsbuild info and presence of it in the buildinfo file does not matter
-                options: { ...readableBuildInfo.program.options, noEmit: undefined },
+                options: readableBuildInfo.program.options ? { ...readableBuildInfo.program.options, noEmit: undefined } : undefined,
                 exportedModulesMap: undefined,
                 affectedFilesPendingEmit: undefined,
                 latestChangedDtsFile: readableBuildInfo.program.latestChangedDtsFile ? "FakeFileName" : undefined,

@@ -20,7 +20,7 @@ function fn2a() {
 
 }
 function fn2b(n: number[]);
->fn2b : { (n: number[]): any; (n: number[]): any; }
+>fn2b : { (n: number[]): any; (n: Array<number>): any; }
 >n : number[]
 
 function fn2b(n: Array<number>);
@@ -28,7 +28,7 @@ function fn2b(n: Array<number>);
 >n : number[]
 
 function fn2b() {
->fn2b : { (n: number[]): any; (n: number[]): any; }
+>fn2b : { (n: number[]): any; (n: Array<number>): any; }
 }
 
 //Multiple function overload signatures that differ only by return type

@@ -32,9 +32,9 @@ function f1() {
 >null : null
 >a.toFixed(0) == "123" : boolean
 >a.toFixed(0) : string
->a.toFixed : (fractionDigits?: number | undefined) => string
+>a.toFixed : (fractionDigits?: number) => string
 >a : number
->toFixed : (fractionDigits?: number | undefined) => string
+>toFixed : (fractionDigits?: number) => string
 >0 : 0
 >"123" : "123"
         }

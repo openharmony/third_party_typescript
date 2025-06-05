@@ -39,11 +39,11 @@ let sn: number = o2.x; // error, x is private
 >x : any
 
 declare let optionalString: { sn?: string };
->optionalString : { sn?: string | undefined; }
+>optionalString : { sn?: string; }
 >sn : string | undefined
 
 declare let optionalNumber: { sn?: number };
->optionalNumber : { sn?: number | undefined; }
+>optionalNumber : { sn?: number; }
 >sn : number | undefined
 
 let allOptional: { sn: string | number } = { ...optionalString, ...optionalNumber };

@@ -17,7 +17,7 @@ type DiscriminatorTrue = {
 }
 
 type DiscriminatorFalse = {
->DiscriminatorFalse : { disc?: false | undefined; cb: (x: number) => void; }
+>DiscriminatorFalse : { disc?: false; cb: (x: number) => void; }
 
     disc?: false;
 >disc : false | undefined
@@ -47,7 +47,7 @@ void (<Comp disc cb={s => parseInt(s)} />);
 >s => parseInt(s) : (s: string) => number
 >s : string
 >parseInt(s) : number
->parseInt : (string: string, radix?: number | undefined) => number
+>parseInt : (string: string, radix?: number) => number
 >s : string
 
 // simple inference
@@ -62,9 +62,9 @@ void (<Comp disc={false} cb={n => n.toFixed()} />);
 >n => n.toFixed() : (n: number) => string
 >n : number
 >n.toFixed() : string
->n.toFixed : (fractionDigits?: number | undefined) => string
+>n.toFixed : (fractionDigits?: number) => string
 >n : number
->toFixed : (fractionDigits?: number | undefined) => string
+>toFixed : (fractionDigits?: number) => string
 
 // simple inference when strict-null-checks are enabled
 void (<Comp disc={undefined} cb={n => n.toFixed()} />);
@@ -78,9 +78,9 @@ void (<Comp disc={undefined} cb={n => n.toFixed()} />);
 >n => n.toFixed() : (n: number) => string
 >n : number
 >n.toFixed() : string
->n.toFixed : (fractionDigits?: number | undefined) => string
+>n.toFixed : (fractionDigits?: number) => string
 >n : number
->toFixed : (fractionDigits?: number | undefined) => string
+>toFixed : (fractionDigits?: number) => string
 
 // requires checking type information since discriminator is missing from object
 void (<Comp cb={n => n.toFixed()} />);
@@ -92,7 +92,7 @@ void (<Comp cb={n => n.toFixed()} />);
 >n => n.toFixed() : (n: number) => string
 >n : number
 >n.toFixed() : string
->n.toFixed : (fractionDigits?: number | undefined) => string
+>n.toFixed : (fractionDigits?: number) => string
 >n : number
->toFixed : (fractionDigits?: number | undefined) => string
+>toFixed : (fractionDigits?: number) => string
 

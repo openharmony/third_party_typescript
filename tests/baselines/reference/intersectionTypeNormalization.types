@@ -96,7 +96,7 @@ type ToString = {
 }
 
 type BoxedValue = { kind: 'int',    num: number }
->BoxedValue : { kind: 'int'; num: number; } | { kind: 'string'; str: string; }
+>BoxedValue : { kind: "int"; num: number; } | { kind: "string"; str: string; }
 >kind : "int"
 >num : number
 
@@ -108,7 +108,7 @@ type IntersectionFail = BoxedValue & ToString
 >IntersectionFail : BoxedValue & ToString
 
 type IntersectionInline = { kind: 'int',    num: number } & ToString
->IntersectionInline : ({ kind: 'int'; num: number; } & ToString) | ({ kind: 'string'; str: string; } & ToString)
+>IntersectionInline : ({ kind: "int"; num: number; } & ToString) | ({ kind: "string"; str: string; } & ToString)
 >kind : "int"
 >num : number
 

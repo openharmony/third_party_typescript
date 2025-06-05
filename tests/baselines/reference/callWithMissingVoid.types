@@ -197,7 +197,7 @@ function c(x: number | void, y: void, z: void | string | number): void  {
 
 c(3, void 0, void 0); // ok
 >c(3, void 0, void 0) : void
->c : (x: number | void, y: void, z: string | number | void) => void
+>c : (x: number | void, y: void, z: void | string | number) => void
 >3 : 3
 >void 0 : undefined
 >0 : 0
@@ -206,19 +206,19 @@ c(3, void 0, void 0); // ok
 
 c(3, void 0); // ok
 >c(3, void 0) : void
->c : (x: number | void, y: void, z: string | number | void) => void
+>c : (x: number | void, y: void, z: void | string | number) => void
 >3 : 3
 >void 0 : undefined
 >0 : 0
 
 c(3); // ok
 >c(3) : void
->c : (x: number | void, y: void, z: string | number | void) => void
+>c : (x: number | void, y: void, z: void | string | number) => void
 >3 : 3
 
 c(); // ok
 >c() : void
->c : (x: number | void, y: void, z: string | number | void) => void
+>c : (x: number | void, y: void, z: void | string | number) => void
 
 
 // Spread Parameters

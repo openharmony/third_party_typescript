@@ -7,7 +7,7 @@ interface ITreeItem {
 }
 
 type NodeWithId = ITreeItem & { Id?: number };
->NodeWithId : ITreeItem & { Id?: number | undefined; }
+>NodeWithId : ITreeItem & { Id?: number; }
 >Id : number | undefined
 
 function getMaxId(items: NodeWithId[]) {

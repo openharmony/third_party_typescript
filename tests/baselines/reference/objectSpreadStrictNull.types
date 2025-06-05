@@ -1,6 +1,6 @@
 === tests/cases/conformance/types/spread/objectSpreadStrictNull.ts ===
 function f(
->f : (definiteBoolean: {    sn: boolean;}, definiteString: {    sn: string;}, optionalString: {    sn?: string;}, optionalNumber: {    sn?: number;}, undefinedString: {    sn: string | undefined;}, undefinedNumber: {    sn: number | undefined;}) => void
+>f : (definiteBoolean: { sn: boolean; }, definiteString: { sn: string; }, optionalString: { sn?: string; }, optionalNumber: { sn?: number; }, undefinedString: { sn: string | undefined; }, undefinedNumber: { sn: number | undefined; }) => void
 
     definiteBoolean: { sn: boolean },
 >definiteBoolean : { sn: boolean; }
@@ -11,11 +11,11 @@ function f(
 >sn : string
 
     optionalString: { sn?: string },
->optionalString : { sn?: string | undefined; }
+>optionalString : { sn?: string; }
 >sn : string | undefined
 
     optionalNumber: { sn?: number },
->optionalNumber : { sn?: number | undefined; }
+>optionalNumber : { sn?: number; }
 >sn : number | undefined
 
     undefinedString: { sn: string | undefined },
@@ -45,7 +45,7 @@ function f(
 >optionalNumber : { sn?: number | undefined; }
 
     let allOptional: { sn?: string | number } = { ...optionalString, ...optionalNumber };
->allOptional : { sn?: string | number | undefined; }
+>allOptional : { sn?: string | number; }
 >sn : string | number | undefined
 >{ ...optionalString, ...optionalNumber } : { sn?: string | number | undefined; }
 >optionalString : { sn?: string | undefined; }

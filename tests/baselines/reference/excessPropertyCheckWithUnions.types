@@ -280,12 +280,12 @@ const abac: AB = {
 
 // Excess property checks must match all discriminable properties
 type Button = { tag: 'button'; type?: 'submit'; };
->Button : { tag: 'button'; type?: "submit" | undefined; }
+>Button : { tag: "button"; type?: "submit"; }
 >tag : "button"
 >type : "submit" | undefined
 
 type Anchor = { tag: 'a'; type?: string; href: string };
->Anchor : { tag: 'a'; type?: string | undefined; href: string; }
+>Anchor : { tag: "a"; type?: string; href: string; }
 >tag : "a"
 >type : string | undefined
 >href : string
@@ -399,7 +399,7 @@ declare const prop2: string | undefined;
 >prop2 : string | undefined
 
 function F1(_arg: { props: Properties }) { }
->F1 : (_arg: {    props: Properties;}) => void
+>F1 : (_arg: { props: Properties; }) => void
 >_arg : { props: Properties; }
 >props : Properties
 

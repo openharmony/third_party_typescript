@@ -14,7 +14,7 @@ type DiscriminatorTrue = {
 }
 
 type DiscriminatorFalse = {
->DiscriminatorFalse : { disc?: false | undefined; cb: (x: number) => void; }
+>DiscriminatorFalse : { disc?: false; cb: (x: number) => void; }
 
     disc?: false;
 >disc : false | undefined
@@ -47,7 +47,7 @@ f({
 >s => parseInt(s) : (s: string) => number
 >s : string
 >parseInt(s) : number
->parseInt : (string: string, radix?: number | undefined) => number
+>parseInt : (string: string, radix?: number) => number
 >s : string
 
 });
@@ -67,9 +67,9 @@ f({
 >n => n.toFixed() : (n: number) => string
 >n : number
 >n.toFixed() : string
->n.toFixed : (fractionDigits?: number | undefined) => string
+>n.toFixed : (fractionDigits?: number) => string
 >n : number
->toFixed : (fractionDigits?: number | undefined) => string
+>toFixed : (fractionDigits?: number) => string
 
 });
 
@@ -88,9 +88,9 @@ f({
 >n => n.toFixed() : (n: number) => string
 >n : number
 >n.toFixed() : string
->n.toFixed : (fractionDigits?: number | undefined) => string
+>n.toFixed : (fractionDigits?: number) => string
 >n : number
->toFixed : (fractionDigits?: number | undefined) => string
+>toFixed : (fractionDigits?: number) => string
 
 });
 
@@ -105,9 +105,9 @@ f({
 >n => n.toFixed() : (n: number) => string
 >n : number
 >n.toFixed() : string
->n.toFixed : (fractionDigits?: number | undefined) => string
+>n.toFixed : (fractionDigits?: number) => string
 >n : number
->toFixed : (fractionDigits?: number | undefined) => string
+>toFixed : (fractionDigits?: number) => string
 
 });
 

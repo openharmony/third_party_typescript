@@ -1,6 +1,6 @@
 === tests/cases/conformance/types/typeRelationships/comparable/weakTypesAndLiterals01.ts ===
 type WeakTypes =
->WeakTypes : { optional?: true | undefined; } | { toLowerCase?(): string; } | { toUpperCase?(): string; otherOptionalProp?: number | undefined; }
+>WeakTypes : { optional?: true; } | { toLowerCase?(): string; } | { toUpperCase?(): string; otherOptionalProp?: number; }
 
     | { optional?: true; }
 >optional : true | undefined

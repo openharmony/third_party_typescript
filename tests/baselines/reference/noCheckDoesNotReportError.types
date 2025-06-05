@@ -1,0 +1,5 @@
+=== tests/cases/compiler/noCheckDoesNotReportError.ts ===
+export const a: number = "not ok";
+>a : number
+>"not ok" : "not ok"
+

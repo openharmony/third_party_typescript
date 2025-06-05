@@ -1,16 +1,16 @@
 === tests/cases/compiler/nestedExcessPropertyChecking.ts ===
 type A1 = { x: { a?: string } };
->A1 : { x: {    a?: string;}; }
->x : { a?: string | undefined; }
+>A1 : { x: { a?: string; }; }
+>x : { a?: string; }
 >a : string | undefined
 
 type B1 = { x: { b?: string } };
->B1 : { x: {    b?: string;}; }
->x : { b?: string | undefined; }
+>B1 : { x: { b?: string; }; }
+>x : { b?: string; }
 >b : string | undefined
 
 type C1 = { x: { c: string } };
->C1 : { x: {    c: string;}; }
+>C1 : { x: { c: string; }; }
 >x : { c: string; }
 >c : string
 
@@ -20,11 +20,11 @@ const ab1: A1 & B1 = {} as C1;  // Error
 >{} : {}
 
 type A2 = { a?: string };
->A2 : { a?: string | undefined; }
+>A2 : { a?: string; }
 >a : string | undefined
 
 type B2 = { b?: string };
->B2 : { b?: string | undefined; }
+>B2 : { b?: string; }
 >b : string | undefined
 
 type C2 = { c: string };
@@ -56,16 +56,16 @@ let y: { nope?: any } = "A";  // Error
 // Repros from #51043
 
 type OverridesInput = {
->OverridesInput : { someProp?: "A" | "B" | undefined; }
+>OverridesInput : { someProp?: "A" | "B"; }
 
     someProp?: 'A' | 'B'
 >someProp : "A" | "B" | undefined
 }
 
 const foo1: Partial<{ something: any }> & { variables: {
->foo1 : Partial<{ something: any; }> & { variables: {    overrides?: OverridesInput;} & Partial<{    overrides?: OverridesInput;}>; }
+>foo1 : Partial<{ something: any; }> & { variables: { overrides?: OverridesInput; } & Partial<{ overrides?: OverridesInput; }>; }
 >something : any
->variables : { overrides?: OverridesInput | undefined; } & Partial<{ overrides?: OverridesInput | undefined; }>
+>variables : { overrides?: OverridesInput; } & Partial<{ overrides?: OverridesInput; }>
 
     overrides?: OverridesInput;
 >overrides : OverridesInput | undefined

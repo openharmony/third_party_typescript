@@ -5,14 +5,14 @@ type ElementRef = (element: HTMLElement | null) => void;
 >null : null
 
 type ThumbProps = {
->ThumbProps : { elementRef?: ElementRef | undefined; }
+>ThumbProps : { elementRef?: ElementRef; }
 
     elementRef?: ElementRef;
 >elementRef : ElementRef | undefined
 }
 
 type ComponentProps = {
->ComponentProps : { thumbYProps?: ThumbProps | undefined; thumbXProps: ThumbProps; }
+>ComponentProps : { thumbYProps?: ThumbProps; thumbXProps: ThumbProps; }
 
     thumbYProps?: ThumbProps;
 >thumbYProps : ThumbProps | undefined

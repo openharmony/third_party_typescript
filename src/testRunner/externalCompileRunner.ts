@@ -37,7 +37,7 @@ abstract class ExternalCompileRunnerBase extends RunnerBase {
         describe(`${this.kind()} code samples`, function (this: Mocha.Suite) {
             this.timeout(600_000); // 10 minutes
             for (const test of testList) {
-                cls.runTest(typeof test === "string" ? test : test.file);
+                cls.runTest(test);
             }
         });
     }
@@ -142,7 +142,7 @@ export class DockerfileRunner extends ExternalCompileRunnerBase {
                 cls.exec("docker", ["build", ".", "-t", "typescript/typescript"], { cwd: IO.getWorkspaceRoot() }); // cached because workspace is hashed to determine cacheability
             });
             for (const test of testList) {
-                const directory = typeof test === "string" ? test : test.file;
+                const directory = test;
                 const cwd = path.join(IO.getWorkspaceRoot(), cls.testDir, directory);
                 it(`should build ${directory} successfully`, () => {
                     const imageName = `tstest/${directory}`;

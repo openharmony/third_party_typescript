@@ -51,14 +51,14 @@ declare const t1: [number, boolean, string];
 >t1 : [number, boolean, string]
 
 declare function f1(cb: (...args: typeof t1) => void): void;
->f1 : (cb: (args_0: number, args_1: boolean, args_2: string) => void) => void
+>f1 : (cb: (...args: typeof t1) => void) => void
 >cb : (args_0: number, args_1: boolean, args_2: string) => void
 >args : [number, boolean, string]
 >t1 : [number, boolean, string]
 
 f1((a, b, c) => {})
 >f1((a, b, c) => {}) : void
->f1 : (cb: (args_0: number, args_1: boolean, args_2: string) => void) => void
+>f1 : (cb: (...args: typeof t1) => void) => void
 >(a, b, c) => {} : (a: number, b: boolean, c: string) => void
 >a : number
 >b : boolean
@@ -66,20 +66,20 @@ f1((a, b, c) => {})
 
 f1((...x) => {})
 >f1((...x) => {}) : void
->f1 : (cb: (args_0: number, args_1: boolean, args_2: string) => void) => void
+>f1 : (cb: (...args: typeof t1) => void) => void
 >(...x) => {} : (x_0: number, x_1: boolean, x_2: string) => void
 >x : [number, boolean, string]
 
 f1((a, ...x) => {})
 >f1((a, ...x) => {}) : void
->f1 : (cb: (args_0: number, args_1: boolean, args_2: string) => void) => void
+>f1 : (cb: (...args: typeof t1) => void) => void
 >(a, ...x) => {} : (a: number, x_0: boolean, x_1: string) => void
 >a : number
 >x : [boolean, string]
 
 f1((a, b, ...x) => {})
 >f1((a, b, ...x) => {}) : void
->f1 : (cb: (args_0: number, args_1: boolean, args_2: string) => void) => void
+>f1 : (cb: (...args: typeof t1) => void) => void
 >(a, b, ...x) => {} : (a: number, b: boolean, x_0: string) => void
 >a : number
 >b : boolean
@@ -87,7 +87,7 @@ f1((a, b, ...x) => {})
 
 f1((a, b, c, ...x) => {})
 >f1((a, b, c, ...x) => {}) : void
->f1 : (cb: (args_0: number, args_1: boolean, args_2: string) => void) => void
+>f1 : (cb: (...args: typeof t1) => void) => void
 >(a, b, c, ...x) => {} : (a: number, b: boolean, c: string) => void
 >a : number
 >b : boolean
@@ -146,14 +146,14 @@ declare const t2: [number, boolean, ...string[]];
 >t2 : [number, boolean, ...string[]]
 
 declare function f2(cb: (...args: typeof t2) => void): void;
->f2 : (cb: (args_0: number, args_1: boolean, ...args_2: string[]) => void) => void
+>f2 : (cb: (...args: typeof t2) => void) => void
 >cb : (args_0: number, args_1: boolean, ...args_2: string[]) => void
 >args : [number, boolean, ...string[]]
 >t2 : [number, boolean, ...string[]]
 
 f2((a, b, c) => {})
 >f2((a, b, c) => {}) : void
->f2 : (cb: (args_0: number, args_1: boolean, ...args_2: string[]) => void) => void
+>f2 : (cb: (...args: typeof t2) => void) => void
 >(a, b, c) => {} : (a: number, b: boolean, c: string) => void
 >a : number
 >b : boolean
@@ -161,20 +161,20 @@ f2((a, b, c) => {})
 
 f2((...x) => {})
 >f2((...x) => {}) : void
->f2 : (cb: (args_0: number, args_1: boolean, ...args_2: string[]) => void) => void
+>f2 : (cb: (...args: typeof t2) => void) => void
 >(...x) => {} : (x_0: number, x_1: boolean, ...x_2: string[]) => void
 >x : [number, boolean, ...string[]]
 
 f2((a, ...x) => {})
 >f2((a, ...x) => {}) : void
->f2 : (cb: (args_0: number, args_1: boolean, ...args_2: string[]) => void) => void
+>f2 : (cb: (...args: typeof t2) => void) => void
 >(a, ...x) => {} : (a: number, x_0: boolean, ...x_1: string[]) => void
 >a : number
 >x : [boolean, ...string[]]
 
 f2((a, b, ...x) => {})
 >f2((a, b, ...x) => {}) : void
->f2 : (cb: (args_0: number, args_1: boolean, ...args_2: string[]) => void) => void
+>f2 : (cb: (...args: typeof t2) => void) => void
 >(a, b, ...x) => {} : (a: number, b: boolean, ...x: string[]) => void
 >a : number
 >b : boolean
@@ -182,7 +182,7 @@ f2((a, b, ...x) => {})
 
 f2((a, b, c, ...x) => {})
 >f2((a, b, c, ...x) => {}) : void
->f2 : (cb: (args_0: number, args_1: boolean, ...args_2: string[]) => void) => void
+>f2 : (cb: (...args: typeof t2) => void) => void
 >(a, b, c, ...x) => {} : (a: number, b: boolean, c: string, ...x: string[]) => void
 >a : number
 >b : boolean
@@ -246,7 +246,7 @@ declare const t3: [boolean, ...string[]];
 >t3 : [boolean, ...string[]]
 
 declare function f3(cb: (x: number, ...args: typeof t3) => void): void;
->f3 : (cb: (x: number, args_0: boolean, ...args_1: string[]) => void) => void
+>f3 : (cb: (x: number, ...args: typeof t3) => void) => void
 >cb : (x: number, args_0: boolean, ...args_1: string[]) => void
 >x : number
 >args : [boolean, ...string[]]
@@ -254,7 +254,7 @@ declare function f3(cb: (x: number, ...args: typeof t3) => void): void;
 
 f3((a, b, c) => {})
 >f3((a, b, c) => {}) : void
->f3 : (cb: (x: number, args_0: boolean, ...args_1: string[]) => void) => void
+>f3 : (cb: (x: number, ...args: typeof t3) => void) => void
 >(a, b, c) => {} : (a: number, b: boolean, c: string) => void
 >a : number
 >b : boolean
@@ -262,20 +262,20 @@ f3((a, b, c) => {})
 
 f3((...x) => {})
 >f3((...x) => {}) : void
->f3 : (cb: (x: number, args_0: boolean, ...args_1: string[]) => void) => void
+>f3 : (cb: (x: number, ...args: typeof t3) => void) => void
 >(...x) => {} : (x_0: number, x_1: boolean, ...x_2: string[]) => void
 >x : [number, boolean, ...string[]]
 
 f3((a, ...x) => {})
 >f3((a, ...x) => {}) : void
->f3 : (cb: (x: number, args_0: boolean, ...args_1: string[]) => void) => void
+>f3 : (cb: (x: number, ...args: typeof t3) => void) => void
 >(a, ...x) => {} : (a: number, x_0: boolean, ...x_1: string[]) => void
 >a : number
 >x : [boolean, ...string[]]
 
 f3((a, b, ...x) => {})
 >f3((a, b, ...x) => {}) : void
->f3 : (cb: (x: number, args_0: boolean, ...args_1: string[]) => void) => void
+>f3 : (cb: (x: number, ...args: typeof t3) => void) => void
 >(a, b, ...x) => {} : (a: number, b: boolean, ...x: string[]) => void
 >a : number
 >b : boolean
@@ -283,7 +283,7 @@ f3((a, b, ...x) => {})
 
 f3((a, b, c, ...x) => {})
 >f3((a, b, c, ...x) => {}) : void
->f3 : (cb: (x: number, args_0: boolean, ...args_1: string[]) => void) => void
+>f3 : (cb: (x: number, ...args: typeof t3) => void) => void
 >(a, b, c, ...x) => {} : (a: number, b: boolean, c: string, ...x: string[]) => void
 >a : number
 >b : boolean

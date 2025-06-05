@@ -97,11 +97,11 @@ class Foo<T extends string> {
 
             this.data.toLocaleLowerCase();
 >this.data.toLocaleLowerCase() : string
->this.data.toLocaleLowerCase : (locales?: string | string[] | undefined) => string
+>this.data.toLocaleLowerCase : (locales?: string | string[]) => string
 >this.data : T | (undefined & T)
 >this : this & DatafulFoo<T>
 >data : T | (undefined & T)
->toLocaleLowerCase : (locales?: string | string[] | undefined) => string
+>toLocaleLowerCase : (locales?: string | string[]) => string
         }
     }
     hasData(): this is DatafulFoo<T> {

@@ -1,6 +1,6 @@
 === tests/cases/compiler/weakTypeAndPrimitiveNarrowing.ts ===
 type LiteralsAndWeakTypes = 
->LiteralsAndWeakTypes : { optional?: true | undefined; } | { toLowerCase?(): string; } | { toUpperCase?(): string; otherOptionalProp?: number | undefined; } | "A" | "B"
+>LiteralsAndWeakTypes : { optional?: true; } | { toLowerCase?(): string; } | { toUpperCase?(): string; otherOptionalProp?: number; } | "A" | "B"
 
   | 'A'
   | 'B'
@@ -35,7 +35,7 @@ const g = (arg: LiteralsAndWeakTypes) => {
 }
 
 type PrimitivesAndWeakTypes =
->PrimitivesAndWeakTypes : string | number | { optional?: true | undefined; } | { toLowerCase?(): string; } | { toUpperCase?(): string; otherOptionalProp?: number | undefined; }
+>PrimitivesAndWeakTypes : string | number | { optional?: true; } | { toLowerCase?(): string; } | { toUpperCase?(): string; otherOptionalProp?: number; }
 
   | string
   | number

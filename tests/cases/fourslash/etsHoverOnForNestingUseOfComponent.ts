@@ -25,4 +25,4 @@
 verify.quickInfoAt("1", "const Text: TextInterface");
 verify.quickInfoAt("2", "struct MyComponent1");
 verify.quickInfoAt("3", "(method) MyComponent1.test(color: string): void");
-verify.quickInfoAt("4", "(method) TextAttribute.fontColor(value: string | number): TextAttribute");
+verify.quickInfoAt("4", "(method) TextAttribute.fontColor(value: number | string): TextAttribute");

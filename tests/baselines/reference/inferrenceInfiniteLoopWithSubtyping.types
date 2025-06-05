@@ -27,7 +27,7 @@ export class ObjectTypeComposer<TSource, TContext> {
 >fields : Readonly<{ [key: string]: Readonly<Resolver>; }>
 
   public addResolver<TResolverSource>(opts: { type?: Thunk<ComposeOutputTypeDefinition> }): this;
->addResolver : <TResolverSource>(opts: {    type?: Thunk<ComposeOutputTypeDefinition>;}) => this
+>addResolver : <TResolverSource>(opts: { type?: Thunk<ComposeOutputTypeDefinition>; }) => this
 >opts : { type?: Thunk<ComposeOutputTypeDefinition>; }
 >type : Thunk<ComposeOutputTypeDefinition>
 }
@@ -61,9 +61,9 @@ declare const User: ObjectTypeComposer<any, any>;
 
 User.addResolver({
 >User.addResolver({  type: User, // `User as any` fix the problem}) : ObjectTypeComposer<any, any>
->User.addResolver : <TResolverSource>(opts: { type?: import("tests/cases/compiler/graphql-compose").Thunk<import("tests/cases/compiler/graphql-compose").ComposeOutputTypeDefinition>; }) => ObjectTypeComposer<any, any>
+>User.addResolver : <TResolverSource>(opts: { type?: Thunk<ComposeOutputTypeDefinition>; }) => ObjectTypeComposer<any, any>
 >User : ObjectTypeComposer<any, any>
->addResolver : <TResolverSource>(opts: { type?: import("tests/cases/compiler/graphql-compose").Thunk<import("tests/cases/compiler/graphql-compose").ComposeOutputTypeDefinition>; }) => ObjectTypeComposer<any, any>
+>addResolver : <TResolverSource>(opts: { type?: Thunk<ComposeOutputTypeDefinition>; }) => ObjectTypeComposer<any, any>
 >{  type: User, // `User as any` fix the problem} : { type: ObjectTypeComposer<any, any>; }
 
   type: User, // `User as any` fix the problem

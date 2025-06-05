@@ -11,4 +11,4 @@
 ////     ./*check1*/flexGrow(12)./*check2*/fontColor(color)
 //// }
 verify.quickInfoAt("check1", "(method) CommonMethod<TextAttribute>.flexGrow(value: number): TextAttribute");
-verify.quickInfoAt("check2", "(method) TextAttribute.fontColor(value: string | number): TextAttribute");
+verify.quickInfoAt("check2", "(method) TextAttribute.fontColor(value: number | string): TextAttribute");
