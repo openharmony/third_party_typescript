@@ -209,6 +209,7 @@ import {
 } from "./_namespaces/ts";
 import * as performance from "./_namespaces/ts.performance";
 import * as moduleSpecifiers from "./_namespaces/ts.moduleSpecifiers";
+import { THROWS_TAG, THROWS_CATCH, THROWS_ASYNC_CALLBACK, THROWS_ERROR_CALLBACK } from "./ohApi"
 
 const ambientModuleSymbolRegex = /^".+"$/;
 const anon = "(anonymous)" as __String & string;
@@ -33050,7 +33051,148 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
             error(node.expression, Diagnostics.UI_component_0_cannot_be_used_in_this_place, diagnosticName(node.expression));
         }
 
+        const signatureDeclaration = signature.declaration;
+        // Check MethodDeclaration, MethodSignature, and FunctionDeclaration nodes with @throws annotations for proper exception handling,
+        // issuing warnings for unhandled cases.
+        if (node.kind === SyntaxKind.CallExpression && signatureDeclaration && !isJSDocSignature(signatureDeclaration) &&
+            (isMethodDeclaration(signatureDeclaration) || isMethodSignature(signatureDeclaration) || isFunctionDeclaration(signatureDeclaration))) {
+            if (shouldCheckThrows(signatureDeclaration) && !hasAsyncErrorCallbacks(signatureDeclaration)) {
+                checkThrowableFunction(node);
+            }
+        }
+
         return returnType;
+    }
+
+    function checkThrowableFunction(node: CallExpression) {
+        if (isThrowsHandled(node)) {
+            return;
+        }
+
+        const currentDecl = findAncestor(
+            node,
+            node => isFunctionLikeDeclaration(node)
+        );
+        if (!currentDecl || !(isFunctionDeclaration(currentDecl) || isMethodDeclaration(currentDecl))) {
+            return;
+        }
+        if (hasThrowsTag(currentDecl)) {
+            return;
+        }
+        error(getThrowsErrorNode(node), Diagnostics.Function_may_throw_error_caller_should_handle_it_with_try_catch_or_declare_throws);
+    }
+
+    // Check if calls to @throws-annotated functions have AsyncCallback or ErrorCallback parameters - suppress warnings when present,
+    // issue warnings when absent.
+    function hasAsyncErrorCallbacks(declaration: SignatureDeclaration): boolean {
+        let parameters = declaration.parameters;
+        for (const parameter of parameters) {
+            if (parameter.type && isTypeReferenceNode(parameter.type) && isIdentifier(parameter.type.typeName) &&
+                (parameter.type.typeName.escapedText === THROWS_ASYNC_CALLBACK || parameter.type.typeName.escapedText === THROWS_ERROR_CALLBACK)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    // Determine whether to validate @throws annotations on function declarations, skipping checks for:
+    // Paths containing '/node_modules/', '/oh_modules/', or '/js_util_module/' and only @throws tags marked with '401' in SDK paths.
+    function shouldCheckThrows(declaration: SignatureDeclaration): boolean {
+        const sourceFileNamePath = getSourceFileOfNode(declaration).fileName.replace(/\\/g, '/');
+        const SKIPPED_PATHS = ['/node_modules/', '/oh_modules/', '/js_util_module/'];
+        const skipSdkPathReg: RegExp = /\/sdk\/default\/(openharmony|hms)\/ets\//;
+        if (SKIPPED_PATHS.some(path => sourceFileNamePath.includes(path))) {
+            return false;
+        }
+
+        const isSDKPath = skipSdkPathReg.test(sourceFileNamePath);
+        const tags = getJSDocTags(declaration);
+        for (const tag of tags) {
+            if (tag.tagName.escapedText === THROWS_TAG && !shouldSkipTag(tag, isSDKPath)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    // Check whether the outer FunctionDeclaration or MethodDeclaration nodes of called functions have @throws annotations.
+    function hasThrowsTag(declaration: SignatureDeclaration): boolean {
+        const tags = getJSDocTags(declaration);
+        for (const tag of tags) {
+            if (tag.tagName.escapedText === THROWS_TAG) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    function getJSDocTagComment(tag: ts.JSDocTag): string | undefined {
+        if (!tag.comment) {
+            return undefined;
+        }
+
+        if (typeof tag.comment === 'string') {
+            return tag.comment;
+        }
+
+        if (ts.isNodeArray(tag.comment)) {
+            return tag.comment.map(c => c.text).join('\n');
+        }
+    }
+
+    // Ignore only 401 @throws errors from the SDK.
+    function shouldSkipTag(tag: JSDocTag, isSDKPath: boolean): boolean {
+        const comment = getJSDocTagComment(tag);
+        if (!comment) {
+            return false;
+        }
+
+        const skippedErrorReg: RegExp = /\{ BusinessError \} 401 -.*/;
+        if (comment.match(skippedErrorReg) && isSDKPath) {
+            return true;
+        }
+
+        return false;
+    }
+
+    function isThrowsHandled(node: Node): boolean {
+        let current = node.parent;
+
+        while (current) {
+            if (isMethodDeclaration(current) || isFunctionDeclaration(current)) {
+                return false;
+            }
+            // Verify whether the function call is within a try block that has a catch clause to handle errors.
+            if (ts.isTryStatement(current)) {
+                const tryBlock = current.tryBlock;
+                const catchClause = current.catchClause;
+                if (tryBlock && catchClause && node.pos >= tryBlock.pos && node.end <= tryBlock.end) {
+                    return true;
+                }
+            }
+            // Verify whether the Promise function at the call site has a catch for error handling.
+            if (isPropertyAccessExpression(current) && current.name.escapedText === THROWS_CATCH && isCallExpression(current.parent)) {
+                return true;
+            }
+            current = current.parent;
+        }
+        return false;
+    }
+
+    function getThrowsErrorNode(node: CallExpression): Node | undefined {
+        const expression = node.expression;
+
+        if (isIdentifier(expression)) {
+            return expression;
+        }
+        if (isPropertyAccessExpression(expression)) {
+            return expression.expression;
+        }
+
+        return node;
     }
 
     function isSystemEtsComponent(node: Identifier, compilerOptions: CompilerOptions): boolean {

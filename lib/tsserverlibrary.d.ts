@@ -6406,7 +6406,7 @@ declare namespace ts {
     }
     interface CancellationToken {
         isCancellationRequested(): boolean;
-        /** @throws OperationCanceledException if isCancellationRequested is true */
+        /** OperationCanceledException if isCancellationRequested is true */
         throwIfCancellationRequested(): void;
     }
     interface SymbolDisplayPart {
@@ -9851,6 +9851,10 @@ declare namespace ts {
     function getErrorCodeArea(code: number): ErrorCodeArea;
     const ohModulesPathPart: string;
     const REQUIRE_DECORATOR = "Require";
+    const THROWS_TAG = "throws";
+    const THROWS_CATCH = "catch";
+    const THROWS_ASYNC_CALLBACK = "AsyncCallback";
+    const THROWS_ERROR_CALLBACK = "ErrorCallback";
     interface MoreInfo {
         cn: string;
         en: string;
