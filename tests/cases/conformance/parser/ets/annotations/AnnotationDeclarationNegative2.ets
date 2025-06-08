@@ -1,2 +1,2 @@
-//@etsAnnotationsEnable: true
+// @etsAnnotationsEnable: true
 public @interface Anno {}

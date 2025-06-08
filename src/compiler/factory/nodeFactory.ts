@@ -845,7 +845,8 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         return node;
     }
 
-    function createBaseBindingLikeDeclaration<T extends PropertyDeclaration | VariableDeclaration | ParameterDeclaration | BindingElement | AnnotationPropertyDeclaration>(
+    function createBaseBindingLikeDeclaration<T extends PropertyDeclaration | VariableDeclaration | ParameterDeclaration |
+        BindingElement | AnnotationPropertyDeclaration>(
         kind: T["kind"],
         modifiers: readonly ModifierLike[] | undefined,
         name: string | T["name"] | undefined,

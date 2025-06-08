@@ -1841,20 +1841,28 @@ export function isExternalModuleIndicator(result: Statement) {
  * as importing or exporting entity.
  * @internal
  */
-export function isOnlyAnnotationsAreExportedOrImported(s: SourceFile, resolver: EmitResolver) {
+export function isOnlyAnnotationsAreExportedOrImported(s: SourceFile, resolver: EmitResolver): boolean {
     // Ingnore any files except ets
     if (!isInEtsFile(s)) {
         return false;
     }
     // SourceFile exports or imports contains only annotation declarations
-    const exports = mapDefined(s.statements, (s: Statement) => {
-        const os = getOriginalNode(s) as Statement;
-        return isExternalModuleIndicator(os) ? os : undefined;
-    });
+    const exports = getExportStatements(s);
     const imports = s.imports;
     if (exports.length === 0 && imports.length === 0) {
         return false;
     }
+    return allExportsAreAnnotations(exports, resolver) && allImportsAreAnnotations(imports, resolver);
+}
+
+function getExportStatements(s: SourceFile): Statement[] {
+    return mapDefined(s.statements, (s: Statement) => {
+        const os = getOriginalNode(s) as Statement;
+        return isExternalModuleIndicator(os) ? os : undefined;
+    });
+}
+
+function allExportsAreAnnotations(exports: Statement[], resolver: EmitResolver): boolean {
     return every(exports, e => {
         if (isAnnotationDeclaration(e)) {
             return true;
@@ -1866,12 +1874,19 @@ export function isOnlyAnnotationsAreExportedOrImported(s: SourceFile, resolver: 
             return true;
         }
         else if (isImportDeclaration(e) && e.importClause && e.importClause.namedBindings && isNamedImports(e.importClause.namedBindings)) {
-            return e.importClause.namedBindings.elements.length > 0 && every(e.importClause.namedBindings.elements, e => resolver.isReferredToAnnotation(e) === true);
+            return e.importClause.namedBindings.elements.length > 0 &&
+                every(e.importClause.namedBindings.elements, e => resolver.isReferredToAnnotation(e) === true);
         }
         return false;
-    }) && every(imports, i => {
-        if (isImportDeclaration(i.parent) && i.parent.importClause && i.parent.importClause.namedBindings && isNamedImports(i.parent.importClause.namedBindings)) {
-            return i.parent.importClause.namedBindings.elements.length > 0 && every(i.parent.importClause.namedBindings.elements, e => resolver.isReferredToAnnotation(e) === true);
+    });
+}
+
+function allImportsAreAnnotations(imports: readonly StringLiteralLike[], resolver: EmitResolver): boolean {
+    return every(imports, i => {
+        if (isImportDeclaration(i.parent) && i.parent.importClause && i.parent.importClause.namedBindings &&
+            isNamedImports(i.parent.importClause.namedBindings)) {
+            return i.parent.importClause.namedBindings.elements.length > 0 &&
+                every(i.parent.importClause.namedBindings.elements, e => resolver.isReferredToAnnotation(e) === true);
         }
         else if (isExportDeclaration(i.parent) && i.parent.exportClause && isNamedExports(i.parent.exportClause)) {
             return i.parent.exportClause.elements.length > 0 && every(i.parent.exportClause.elements, e => resolver.isReferredToAnnotation(e) === true);

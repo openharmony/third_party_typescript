@@ -1,4 +1,4 @@
-//@etsAnnotationsEnable: true
+// @etsAnnotationsEnable: true
 namespace X {
     @interface Anno {}
 }

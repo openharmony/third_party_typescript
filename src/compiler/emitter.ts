@@ -2267,7 +2267,7 @@ export function createPrinter(printerOptions: PrinterOptions = {}, handlers: Pri
         writeTrailingSemicolon();
     }
 
-    function emitAnnotationPropertyDeclaration(node: AnnotationPropertyDeclaration) {
+    function emitAnnotationPropertyDeclaration(node: AnnotationPropertyDeclaration): void {
         emit(node.name);
         emitTypeAnnotation(node.type);
         emitInitializer(node.initializer, node.type ? node.type.end : node.name.end, node);
@@ -3517,7 +3517,7 @@ export function createPrinter(printerOptions: PrinterOptions = {}, handlers: Pri
         writePunctuation("}");
     }
 
-    function emitAnnotationDeclaration(node: AnnotationDeclaration) {
+    function emitAnnotationDeclaration(node: AnnotationDeclaration): void {
         emitDecoratorsAndModifiers(node, node.modifiers);
         writeKeyword("@interface");
 

@@ -499,7 +499,8 @@ const visitEachChildTable: VisitEachChildTable = {
             nodeVisitor(node.initializer, visitor, isExpression));
     },
 
-    [SyntaxKind.AnnotationPropertyDeclaration]: function visitEachChildOfAnnotationPropertyDeclaration(node, visitor, context, _nodesVisitor, nodeVisitor, _tokenVisitor) {
+    [SyntaxKind.AnnotationPropertyDeclaration]: function visitEachChildOfAnnotationPropertyDeclaration(node, visitor, context,
+        _nodesVisitor, nodeVisitor, _tokenVisitor) {
         return context.factory.updateAnnotationPropertyDeclaration(node,
             nodeVisitor(node.name, visitor, isPropertyName),
             nodeVisitor(node.type, visitor, isTypeNode),

@@ -105,7 +105,8 @@ export function transformModule(context: TransformationContext): (x: SourceFile 
 
 
     function shouldEmitUnderscoreUnderscoreESModule() {
-        if (!currentModuleInfo.exportEquals && isExternalModule(currentSourceFile) && !isOnlyAnnotationsAreExportedOrImported(currentSourceFile, resolver)) {
+        if (!currentModuleInfo.exportEquals && isExternalModule(currentSourceFile) &&
+            !isOnlyAnnotationsAreExportedOrImported(currentSourceFile, resolver)) {
             return true;
         }
         return false;

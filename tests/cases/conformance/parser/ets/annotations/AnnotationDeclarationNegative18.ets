@@ -1,4 +1,4 @@
-//@etsAnnotationsEnable: true
+// @etsAnnotationsEnable: true
 // @experimentalDecorators: true
 function foo(d: Function){}
 
