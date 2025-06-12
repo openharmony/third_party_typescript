@@ -1,0 +1,52 @@
+=== tests/cases/conformance/annotations/annotationApplication13.ets ===
+@interface Anno1 {}
+
+@interface Anno2 {
+    a: number = 10
+>a : number
+}
+
+@Anno1()
+>Anno1() : void
+>Anno1 : typeof Anno1
+
+class C1 {
+>C1 : C1
+
+	@Anno1()
+>Anno1() : void
+>Anno1 : typeof Anno1
+
+	foo() {}
+>foo : () => void
+
+	@Anno1()
+>Anno1() : void
+>Anno1 : typeof Anno1
+
+	static bar() {}
+>bar : () => void
+}
+
+@Anno2()
+>Anno2() : void
+>Anno2 : typeof Anno2
+
+class C2 {
+>C2 : C2
+
+	@Anno2()
+>Anno2() : void
+>Anno2 : typeof Anno2
+
+	foo() {}
+>foo : () => void
+
+	@Anno2()
+>Anno2() : void
+>Anno2 : typeof Anno2
+
+	static bar() {}
+>bar : () => void
+}
+

@@ -1,0 +1,49 @@
+=== tests/cases/conformance/annotations/annotationApplication13.ets ===
+@interface Anno1 {}
+>Anno1 : Symbol(Anno1, Decl(annotationApplication13.ets, 0, 0))
+
+@interface Anno2 {
+>Anno2 : Symbol(Anno2, Decl(annotationApplication13.ets, 0, 19))
+
+    a: number = 10
+>a : Symbol(Anno2.a, Decl(annotationApplication13.ets, 2, 18))
+}
+
+@Anno1()
+>Anno1 : Symbol(Anno1, Decl(annotationApplication13.ets, 0, 0))
+
+class C1 {
+>C1 : Symbol(C1, Decl(annotationApplication13.ets, 4, 1))
+
+	@Anno1()
+>Anno1 : Symbol(Anno1, Decl(annotationApplication13.ets, 0, 0))
+
+	foo() {}
+>foo : Symbol(C1.foo, Decl(annotationApplication13.ets, 7, 10))
+
+	@Anno1()
+>Anno1 : Symbol(Anno1, Decl(annotationApplication13.ets, 0, 0))
+
+	static bar() {}
+>bar : Symbol(C1.bar, Decl(annotationApplication13.ets, 9, 9))
+}
+
+@Anno2()
+>Anno2 : Symbol(Anno2, Decl(annotationApplication13.ets, 0, 19))
+
+class C2 {
+>C2 : Symbol(C2, Decl(annotationApplication13.ets, 12, 1))
+
+	@Anno2()
+>Anno2 : Symbol(Anno2, Decl(annotationApplication13.ets, 0, 19))
+
+	foo() {}
+>foo : Symbol(C2.foo, Decl(annotationApplication13.ets, 15, 10))
+
+	@Anno2()
+>Anno2 : Symbol(Anno2, Decl(annotationApplication13.ets, 0, 19))
+
+	static bar() {}
+>bar : Symbol(C2.bar, Decl(annotationApplication13.ets, 17, 9))
+}
+

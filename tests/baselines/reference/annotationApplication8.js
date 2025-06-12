@@ -16,7 +16,6 @@ class C {}
 //// [B.js]
 "use strict";
 exports.__esModule = true;
-var AA = require("./A");
 var C = /** @class */ (function () {
     function C() {
     }

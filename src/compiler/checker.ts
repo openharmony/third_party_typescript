@@ -32620,6 +32620,15 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
         return every(members, (elem) => (elem as AnnotationPropertyDeclaration).initializer !== undefined);
     }
 
+    function setAnnotationDefaultSignature(node: Annotation, annotationDefaultSignature: Signature): Signature {
+        if (!annotationHasDefaultValue(node)) {
+            const nodeStr = getTextOfNode(node.expression, /*includeTrivia*/ false);
+            error(node, Diagnostics.When_annotation_0_is_applied_all_fields_without_default_values_must_be_provided, nodeStr);
+            return resolveErrorCall(node);
+        }
+        return annotationDefaultSignature;
+    }
+
     /**
      * Resolves an annotation as if it were a call expression.
      */
@@ -32634,16 +32643,18 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
         if (isIdentifier(node.expression) || isPropertyAccessExpression(node.expression)) {
             const identType = checkExpression(node.expression);
             Debug.assert(identType.symbol.flags & SymbolFlags.Annotation);
-
-            if (!annotationHasDefaultValue(node)) {
-                const nodeStr = getTextOfNode(node.expression, /*includeTrivia*/ false);
-                error(node, Diagnostics.When_annotation_0_is_applied_all_fields_without_default_values_must_be_provided, nodeStr);
-                return resolveErrorCall(node);
-            }
-            return annotationDefaultSignature;
+            return setAnnotationDefaultSignature(node, annotationDefaultSignature);
         }
 
         Debug.assert(isCallExpression(node.expression));
+        // @Anno()
+        // class C {}
+        if (node.expression.arguments && !node.expression.arguments.length) {
+            const identType = checkExpression(node.expression.expression);
+            Debug.assert(identType.symbol.flags & SymbolFlags.Annotation);
+            return setAnnotationDefaultSignature(node, annotationDefaultSignature);
+        }
+
         // let d = {}
         // @Anno(d)
         // class C {}
@@ -32660,6 +32671,9 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
         // class C {}
         const arg = node.expression.arguments[0];
         const evaluatedProps = new Map<__String, AnnotationConstantExpressionType>();
+        if (!arg.properties.length) {
+            return setAnnotationDefaultSignature(node, annotationDefaultSignature);
+        }
         for (const prop of arg.properties) {
             if (!isPropertyAssignment(prop)) {
                 const nodeStr = getTextOfNode(arg, /*includeTrivia*/ false);
@@ -32675,11 +32689,6 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
             evaluatedProps.set(tryGetTextOfPropertyName(prop.name)!, evaluated);
         }
 
-        // @Anno()
-        // class C {}
-        //
-        // or
-        //
         // @Anno({...})
         // class C {}
         const funcType = checkExpression(node.expression);
