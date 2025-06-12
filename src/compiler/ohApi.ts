@@ -548,7 +548,9 @@ export function transformAnnotation(context: TransformationContext): (node: Sour
     function addDefaultValuesIntoAnnotationObjectLiteral(annotation: Annotation): CallExpression {
         Debug.assert(annotation.annotationDeclaration);
         const members = annotation.annotationDeclaration.members;
-        if (isIdentifier(annotation.expression) || isPropertyAccessExpression(annotation.expression)) {
+        if (isIdentifier(annotation.expression) ||
+            isPropertyAccessExpression(annotation.expression) ||
+            (isCallExpression(annotation.expression) && annotation.expression.arguments.length === 0)) {
             const defaultValues = new Array<PropertyAssignment>(members.length);
             for (let i = 0; i < members.length; ++i) {
                 const member = members[i] as AnnotationPropertyDeclaration;

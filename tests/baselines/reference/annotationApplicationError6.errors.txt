@@ -1,4 +1,4 @@
-tests/cases/conformance/annotations/annotationApplicationError6.ets(6,1): error TS28020: Only an object literal have to be provided as annotation parameters list, got: 'Anno()'.
+tests/cases/conformance/annotations/annotationApplicationError6.ets(6,1): error TS28019: When annotation 'Anno()' is applied, all fields without default values must be provided.
 
 
 ==== tests/cases/conformance/annotations/annotationApplicationError6.ets (1 errors) ====
@@ -9,6 +9,6 @@ tests/cases/conformance/annotations/annotationApplicationError6.ets(6,1): error 
     
     @Anno()
     ~~~~~~~
-!!! error TS28020: Only an object literal have to be provided as annotation parameters list, got: 'Anno()'.
+!!! error TS28019: When annotation 'Anno()' is applied, all fields without default values must be provided.
     class C {}
     
