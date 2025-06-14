@@ -763,6 +763,7 @@ namespace ts {
             clearConstEnumRelate: () => {constEnumRelate && constEnumRelate.clear()},
             deleteConstEnumRelate: (path: string) => {constEnumRelate && constEnumRelate.delete(path)},
             isStaticRecord: isStaticRecord,
+            isStaticSourceFile: isStaticSourceFile,
         };
 
         function runWithInferenceBlockedFromSourceNode<T>(node: Node | undefined, fn: () => T): T {

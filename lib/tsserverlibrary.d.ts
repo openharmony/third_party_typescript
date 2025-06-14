@@ -2515,6 +2515,7 @@ declare namespace ts {
         clearConstEnumRelate?(): void;
         deleteConstEnumRelate?(path: string): void;
         isStaticRecord?(type: Type): boolean;
+        isStaticSourceFile(sourceFile: SourceFile | undefined): boolean;
     }
     export enum NodeBuilderFlags {
         None = 0,
@@ -13295,7 +13296,8 @@ declare namespace ts {
                 SharedModuleExportsWarning = 108,
                 SendableBetaCompatible = 109,
                 SendablePropTypeWarning = 110,
-                LAST_ID = 111
+                ObjectLiteralAmbiguity = 111,
+                LAST_ID = 112
             }
             class FaultAttributes {
                 cookBookRef: number;
@@ -13620,6 +13622,8 @@ declare namespace ts {
             private interfaceInheritanceLint;
             private lintForInterfaceExtendsDifferentPorpertyTypes;
             private handleObjectLiteralExpression;
+            private handleUnionTypeObjectLiteral;
+            private getSourceFileFromType;
             private handleArrayLiteralExpression;
             private handleParameter;
             private handleEnumDeclaration;
