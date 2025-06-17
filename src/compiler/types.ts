@@ -892,11 +892,10 @@ export const enum JsxFlags {
 export const enum RelationComparisonResult {
     Succeeded           = 1 << 0, // Should be truthy
     Failed              = 1 << 1,
-    Reported            = 1 << 2,
 
     ReportsUnmeasurable = 1 << 3,
     ReportsUnreliable   = 1 << 4,
-    ReportsMask         = ReportsUnmeasurable | ReportsUnreliable
+    ReportsMask         = ReportsUnmeasurable | ReportsUnreliable,
 }
 
 /** @internal */

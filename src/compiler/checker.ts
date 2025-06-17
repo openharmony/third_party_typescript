@@ -18945,11 +18945,11 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
         }
         const id = getSymbolId(sourceSymbol) + "," + getSymbolId(targetSymbol);
         const entry = enumRelation.get(id);
-        if (entry !== undefined && !(!(entry & RelationComparisonResult.Reported) && entry & RelationComparisonResult.Failed && errorReporter)) {
+        if (entry !== undefined && !(entry & RelationComparisonResult.Failed && errorReporter)) {
             return !!(entry & RelationComparisonResult.Succeeded);
         }
         if (sourceSymbol.escapedName !== targetSymbol.escapedName || !(sourceSymbol.flags & SymbolFlags.RegularEnum) || !(targetSymbol.flags & SymbolFlags.RegularEnum)) {
-            enumRelation.set(id, RelationComparisonResult.Failed | RelationComparisonResult.Reported);
+            enumRelation.set(id, RelationComparisonResult.Failed);
             return false;
         }
         const targetEnumType = getTypeOfSymbol(targetSymbol);
@@ -18960,11 +18960,8 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
                     if (errorReporter) {
                         errorReporter(Diagnostics.Property_0_is_missing_in_type_1, symbolName(property),
                             typeToString(getDeclaredTypeOfSymbol(targetSymbol), /*enclosingDeclaration*/ undefined, TypeFormatFlags.UseFullyQualifiedType));
-                        enumRelation.set(id, RelationComparisonResult.Failed | RelationComparisonResult.Reported);
                     }
-                    else {
-                        enumRelation.set(id, RelationComparisonResult.Failed);
-                    }
+                    enumRelation.set(id, RelationComparisonResult.Failed);
                     return false;
                 }
             }
@@ -19951,7 +19948,7 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
             const id = getRelationKey(source, target, intersectionState, relation, /*ingnoreConstraints*/ false);
             const entry = relation.get(id);
             if (entry !== undefined) {
-                if (reportErrors && entry & RelationComparisonResult.Failed && !(entry & RelationComparisonResult.Reported)) {
+                if (reportErrors && entry & RelationComparisonResult.Failed) {
                     // We are elaborating errors and the cached result is an unreported failure. The result will be reported
                     // as a failure, and should be updated as a reported failure by the bottom of this function.
                 }
@@ -20059,7 +20056,7 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
             else {
                 // A false result goes straight into global cache (when something is false under
                 // assumptions it will also be false without assumptions)
-                relation.set(id, (reportErrors ? RelationComparisonResult.Reported : 0) | RelationComparisonResult.Failed | propagatingVarianceFlags);
+                relation.set(id, RelationComparisonResult.Failed | propagatingVarianceFlags);
                 maybeCount = maybeStart;
             }
             return result;

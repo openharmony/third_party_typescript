@@ -1,4 +1,5 @@
 tests/cases/compiler/file1.js(2,7): error TS2322: Type 'C' is not assignable to type 'ClassComponent<any>'.
+  Index signature for type 'number' is missing in type 'C'.
 tests/cases/compiler/tile1.ts(2,30): error TS2344: Type 'State' does not satisfy the constraint 'Lifecycle<Attrs, State>'.
 tests/cases/compiler/tile1.ts(6,81): error TS2744: Type parameter defaults can only reference previously declared type parameters.
 tests/cases/compiler/tile1.ts(11,40): error TS2344: Type 'State' does not satisfy the constraint 'Lifecycle<Attrs, State>'.
@@ -62,4 +63,5 @@ tests/cases/compiler/tile1.ts(24,7): error TS2322: Type 'C' is not assignable to
     const test9 = new C();
           ~~~~~
 !!! error TS2322: Type 'C' is not assignable to type 'ClassComponent<any>'.
+!!! error TS2322:   Index signature for type 'number' is missing in type 'C'.
     
