@@ -1174,6 +1174,7 @@ namespace ts {
     const whiteListForTsFile: Set<string> = new Set([
         '@kit.AccountKit', '@kit.MapKit', '@kit.Penkit', '@kit.ScenarioFusionKit',
         '@kit.ServiceCollaborationKit', '@kit.SpeechKit', '@kit.VisionKit',
+        '@kit.PDFKit', '@kit.ReaderKit',
     ]);
 
     function inWhiteList(moduleSpecifierText: string, importName: string, inEtsContext: boolean): boolean {
