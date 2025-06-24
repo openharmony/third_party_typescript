@@ -4986,6 +4986,7 @@ namespace ts {
         clearConstEnumRelate?(): void;
         deleteConstEnumRelate?(path: string): void;
         isStaticRecord?(type: Type): boolean;
+        isStaticSourceFile(sourceFile: SourceFile | undefined): boolean;
     }
 
     /* @internal */
