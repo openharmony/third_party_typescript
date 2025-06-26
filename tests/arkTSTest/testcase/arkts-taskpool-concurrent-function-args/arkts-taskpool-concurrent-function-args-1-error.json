@@ -1,0 +1,89 @@
+{
+    "arktsVersion_1_0": [],
+    "arktsVersion_1_1": [
+        {
+            "messageText": "The function passed to taskpool must be an ordinary function decorated with \"@Concurrent\" (arkts-taskpool-concurrent-function-args)",
+            "expectLineAndCharacter": {
+                "line": 26,
+                "character": 59
+            }
+        },
+        {
+            "messageText": "The function passed to taskpool must be an ordinary function decorated with \"@Concurrent\" (arkts-taskpool-concurrent-function-args)",
+            "expectLineAndCharacter": {
+                "line": 28,
+                "character": 47
+            }
+        },
+        {
+            "messageText": "The function passed to taskpool must be an ordinary function decorated with \"@Concurrent\" (arkts-taskpool-concurrent-function-args)",
+            "expectLineAndCharacter": {
+                "line": 30,
+                "character": 67
+            }
+        },
+        {
+            "messageText": "The function passed to taskpool must be an ordinary function decorated with \"@Concurrent\" (arkts-taskpool-concurrent-function-args)",
+            "expectLineAndCharacter": {
+                "line": 32,
+                "character": 55
+            }
+        },
+        {
+            "messageText": "The function passed to taskpool must be an ordinary function decorated with \"@Concurrent\" (arkts-taskpool-concurrent-function-args)",
+            "expectLineAndCharacter": {
+                "line": 34,
+                "character": 55
+            }
+        },
+        {
+            "messageText": "The function passed to taskpool must be an ordinary function decorated with \"@Concurrent\" (arkts-taskpool-concurrent-function-args)",
+            "expectLineAndCharacter": {
+                "line": 36,
+                "character": 67
+            }
+        },
+        {
+            "messageText": "The function passed to taskpool must be an ordinary function decorated with \"@Concurrent\" (arkts-taskpool-concurrent-function-args)",
+            "expectLineAndCharacter": {
+                "line": 38,
+                "character": 59
+            }
+        },
+        {
+            "messageText": "The function passed to taskpool must be an ordinary function decorated with \"@Concurrent\" (arkts-taskpool-concurrent-function-args)",
+            "expectLineAndCharacter": {
+                "line": 40,
+                "character": 47
+            }
+        },
+        {
+            "messageText": "The function passed to taskpool must be an ordinary function decorated with \"@Concurrent\" (arkts-taskpool-concurrent-function-args)",
+            "expectLineAndCharacter": {
+                "line": 42,
+                "character": 67
+            }
+        },
+        {
+            "messageText": "The function passed to taskpool must be an ordinary function decorated with \"@Concurrent\" (arkts-taskpool-concurrent-function-args)",
+            "expectLineAndCharacter": {
+                "line": 44,
+                "character": 55
+            }
+        },
+        {
+            "messageText": "The function passed to taskpool must be an ordinary function decorated with \"@Concurrent\" (arkts-taskpool-concurrent-function-args)",
+            "expectLineAndCharacter": {
+                "line": 46,
+                "character": 55
+            }
+        },
+        {
+            "messageText": "The function passed to taskpool must be an ordinary function decorated with \"@Concurrent\" (arkts-taskpool-concurrent-function-args)",
+            "expectLineAndCharacter": {
+                "line": 48,
+                "character": 62
+            }
+        }
+    ]
+}
