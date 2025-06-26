@@ -60,7 +60,8 @@ import {
   isIndexableArray, isIntrinsicObjectType, isEnumType, isStringType, isStdMapType, getNonNullableType, getTypeOrTypeConstraintAtLocation,
   isShareableEntity, isBooleanLikeType, isStdBooleanType, isObject, isWrongSendableFunctionAssignment, isSymbolIteratorExpression,
   isArkTSCollectionsClassOrInterfaceDeclaration, isValidComputedPropertyName, isShareableType, needStrictMatchType, SENDABLE_DECORATOR,
-  SENDABLE_DECORATOR_NODES, getSendableDecorator, isAllowedIndexSignature, PROMISE, isCollectionArrayType
+  SENDABLE_DECORATOR_NODES, getSendableDecorator, isAllowedIndexSignature, PROMISE, isCollectionArrayType, isTaskPoolApi, isConcurrentFunction,
+  isDeclarationSymbol,
 } from "../_namespaces/ts.ArkTSLinter_1_1";
 import * as ArkTSLinter_1_1 from "../_namespaces/ts.ArkTSLinter_1_1";
 import { perfLogger as Logger } from "../_namespaces/ts";
@@ -768,6 +769,27 @@ readonly handlersMap = new Map([
     }
     if (isSendableFunction(baseExprType) || hasSendableTypeAlias(baseExprType)) {
       this.incrementCounters(propertyAccessNode, FaultID.SendableFunctionProperty);
+    }if (isDeclarationSymbol(exprSym) && isTaskPoolApi(exprSym, node)) {
+      this.handleTaskpooApiForNewExpression(node.parent);
+    }
+  }
+
+  private handleTaskpooApiForNewExpression(node: Node) {
+    const tsNewExpr = node as NewExpression;
+    const args = tsNewExpr.arguments || [];
+    for (let i = 0; i < Math.min(args.length, 2); i++) {
+      const arg = args[i];
+      const argType = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(arg);
+      if (argType.isStringLiteral()) {
+        continue;
+      }
+      const argSym = argType.getSymbol();
+      if (isFunctionSymbol(argSym)) {
+        if ((isArrowFunction(arg) || !isConcurrentFunction(argType))) {
+          this.incrementCounters(arg, FaultID.TaskpoolFunctionArg);
+        }
+        return;
+      }
     }
   }
 
@@ -1870,7 +1892,24 @@ readonly handlersMap = new Map([
       this.handleGenericCallWithNoTypeArgs(tsCallExpr, callSignature);
       this.handleStructIdentAndUndefinedInArgs(tsCallExpr, callSignature);
     }
+    if (isDeclarationSymbol(calleeSym) && isTaskPoolApi(calleeSym, tsCallExpr.expression)) {
+      this.handleTaskpoolApiForCallExpression(tsCallExpr);
+    }
     this.handleLibraryTypeCall(tsCallExpr);
+  }
+
+  private handleTaskpoolApiForCallExpression(node: Node) {
+    const tsCallExpr = node as CallExpression;
+    const args = tsCallExpr.arguments || [];
+    if (args.length === 0) {
+      return;
+    }
+    const arg = args[0];
+    const argType = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(arg);
+    const argSym = argType.getSymbol();
+    if (isFunctionSymbol(argSym) && (isArrowFunction(arg) || !isConcurrentFunction(argType))) {
+      this.incrementCounters(arg, FaultID.TaskpoolFunctionArg);
+    }
   }
 
   private handleEtsComponentExpression(node: Node): void {
