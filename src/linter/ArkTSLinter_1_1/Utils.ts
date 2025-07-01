@@ -2076,6 +2076,12 @@ export function isShareableType(tsType: Type): boolean {
     return true;
   }
 
+  if (!!sym && sym.flags === SymbolFlags.EnumMember) {
+    if (isConstEnum(sym.parent)) {
+      return true;
+    }
+  }
+
   if (tsType.isUnion()) {
     return tsType.types.every((elemType) => {
       return isShareableType(elemType);

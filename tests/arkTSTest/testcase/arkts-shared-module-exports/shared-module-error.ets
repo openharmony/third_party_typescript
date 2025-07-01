@@ -31,3 +31,14 @@ export enum Enum4 {
     prop1 = 1,
     prop2 = 2
 }  // ERROR
+
+const enum Enum5 {
+    prop1 = 1
+}
+
+const enum Enum6 {
+    prop1 = 1,
+    prop2 = 2
+}
+
+export{Enum5, Enum6} // OK
