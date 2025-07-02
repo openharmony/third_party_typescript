@@ -15,7 +15,7 @@
 export const cookBookMsg: string[] = [];
 export const cookBookTag: string[] = [];
 
-for (let i = 0; i <= 183; i++) {
+for (let i = 0; i <= 182; i++) {
     cookBookMsg[i] = "";
 }
 
@@ -203,4 +203,3 @@ cookBookTag[180] =
 cookBookTag[181] = '';
 cookBookTag[182] =
 'Sendable functions and sendable typealias are not available when compatibleSdkVersionStage is lowering than beta3 of API12 (arkts-sendable-beta-compatible)';
-cookBookTag[183] = 'The function passed to taskpool must be an ordinary function decorated with "@Concurrent" (arkts-taskpool-concurrent-function-args)';

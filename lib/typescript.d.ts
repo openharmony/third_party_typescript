@@ -9121,8 +9121,7 @@ declare namespace ts {
             SharedModuleExportsWarning = 108,
             SendableBetaCompatible = 109,
             SendablePropTypeWarning = 110,
-            TaskpoolFunctionArg = 111,
-            LAST_ID = 112
+            LAST_ID = 111
         }
         class FaultAttributes {
             cookBookRef: number;
@@ -9365,11 +9364,6 @@ declare namespace ts {
         function isWrongSendableFunctionAssignment(lhsType: Type, rhsType: Type): boolean;
         function searchFileExportDecl(sourceFile: SourceFile, targetDecls?: SyntaxKind[]): Set<Node>;
         function clearUtilsGlobalvariables(): void;
-        function isTaskPoolApi(exprSym: Symbol | undefined, node: Node): boolean;
-        function isConcurrentFunction(type: Type): boolean;
-        function hasConcurrentDecoratorFunctionOverload(decl: FunctionDeclaration): boolean;
-        function hasUseConcurrentDirective(decl: FunctionDeclaration): boolean;
-        function isDeclarationSymbol(sym: Symbol | undefined): boolean;
         const PROPERTY_HAS_NO_INITIALIZER_ERROR_CODE = 2564;
         const NON_INITIALIZABLE_PROPERTY_DECORATORS: string[];
         const NON_INITIALIZABLE_PROPERTY_CLASS_DECORATORS: string[];
@@ -9390,11 +9384,6 @@ declare namespace ts {
         const ISENDABLE_TYPE = "ISendable";
         const USE_SHARED = "use shared";
         const D_TS = ".d.ts";
-        const TASKPOOL = "taskpool";
-        const TASKGROUP = "taskGroup";
-        const TASKPOOL_API: string[];
-        const CONCURRENT_DECORATOR = "Concurrent";
-        const USE_CONCURRENT = "use concurrent";
         type CheckType = ((t: Type) => boolean);
         const ES_OBJECT = "ESObject";
         const LIMITED_STD_GLOBAL_FUNC: string[];
@@ -9501,7 +9490,6 @@ declare namespace ts {
             private handleSharedModuleNoSideEffectImport;
             private static inSharedModule;
             private handlePropertyAccessExpression;
-            private handleTaskpooApiForNewExpression;
             private handlePropertyDeclaration;
             private handleSendableClassProperty;
             private checkTypeAliasInSendableScope;
@@ -9553,7 +9541,6 @@ declare namespace ts {
             private handleEnumMember;
             private handleExportAssignment;
             private handleCallExpression;
-            private handleTaskpoolApiForCallExpression;
             private handleEtsComponentExpression;
             private handleImportCall;
             private handleRequireCall;
