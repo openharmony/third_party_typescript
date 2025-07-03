@@ -151,7 +151,8 @@ export function createGetSymbolAccessibilityDiagnosticForNodeName(node: Declarat
 
 /** @internal */
 export function createGetSymbolAccessibilityDiagnosticForNode(node: DeclarationDiagnosticProducing): GetSymbolAccessibilityDiagnostic {
-    if (isVariableDeclaration(node) || isPropertyDeclaration(node) || isPropertySignature(node) || isAnnotationPropertyDeclaration(node) || isPropertyAccessExpression(node) || isBindingElement(node) || isConstructorDeclaration(node)) {
+    if (isVariableDeclaration(node) || isPropertyDeclaration(node) || isPropertySignature(node) || isAnnotationPropertyDeclaration(node) ||
+        isPropertyAccessExpression(node) || isBindingElement(node) || isConstructorDeclaration(node)) {
         return getVariableDeclarationTypeVisibilityError;
     }
     else if (isSetAccessor(node) || isGetAccessor(node)) {

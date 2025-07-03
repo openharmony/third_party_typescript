@@ -1,2 +1,2 @@
-//@etsAnnotationsEnable: true
+// @etsAnnotationsEnable: true
 declare export @interface Anno {}

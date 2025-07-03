@@ -9496,7 +9496,8 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
 
     // Return the inferred type for a variable, parameter, or property declaration
     function getTypeForVariableLikeDeclaration(
-        declaration: ParameterDeclaration | PropertyDeclaration | PropertySignature | AnnotationPropertyDeclaration | VariableDeclaration | BindingElement | JSDocPropertyLikeTag,
+        declaration: ParameterDeclaration | PropertyDeclaration | PropertySignature | AnnotationPropertyDeclaration | VariableDeclaration |
+            BindingElement | JSDocPropertyLikeTag,
         includeOptionality: boolean,
         checkMode: CheckMode,
     ): Type | undefined {
@@ -11014,7 +11015,8 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
         let links = getSymbolLinks(symbol);
         const originalLinks = links;
         if (!links.declaredType) {
-            const kind = (symbol.flags & SymbolFlags.Class ? ObjectFlags.Class : ObjectFlags.Interface) | (symbol.flags & SymbolFlags.Annotation ? ObjectFlags.Annotation : 0);
+            const kind = (symbol.flags & SymbolFlags.Class ? ObjectFlags.Class : ObjectFlags.Interface) |
+                (symbol.flags & SymbolFlags.Annotation ? ObjectFlags.Annotation : 0);
             const merged = mergeJSSymbols(symbol, symbol.valueDeclaration && getAssignedClassSymbol(symbol.valueDeclaration));
             if (merged) {
                 // note:we overwrite links because we just cloned the symbol
@@ -12173,7 +12175,7 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
                 type.callSignatures = [createSignature(
                     /*declaration*/ undefined,
                     /*typeParameters*/ undefined,
-                    /*thisParameter*/  undefined,
+                    /*thisParameter*/ undefined,
                     /*parameters*/ [proto],
                     /*resolvedReturnType*/ voidType,
                     /*resolvedTypePredicate*/ undefined,
@@ -33073,7 +33075,7 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
         return returnType;
     }
 
-    function checkThrowableFunction(node: CallExpression) {
+    function checkThrowableFunction(node: CallExpression): void {
         if (isThrowsHandled(node)) {
             return;
         }
@@ -33150,6 +33152,7 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
         if (ts.isNodeArray(tag.comment)) {
             return tag.comment.map(c => c.text).join('\n');
         }
+        return undefined;
     }
 
     // Ignore only 401 @throws errors from the SDK.
@@ -37002,7 +37005,7 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
         }
     }
 
-    function checkClassForDuplicateDeclarations(node: ClassLikeDeclaration | AnnotationDeclaration) {
+    function checkClassForDuplicateDeclarations(node: ClassLikeDeclaration | AnnotationDeclaration): void {
         const instanceNames = new Map<__String, DeclarationMeaning>();
         const staticNames = new Map<__String, DeclarationMeaning>();
         // instance and static private identifiers share the same scope
@@ -37224,7 +37227,7 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
     }
 
     function annotationEvaluatedValueToExpr(initVal: AnnotationConstantExpressionType, initValType: Type): Expression | undefined {
-        if (initVal === undefined || initValType === errorType)  {
+        if (initVal === undefined || initValType === errorType) {
             return undefined;
         }
         if (isArrayType(initValType) && !Array.isArray(initVal)) {
@@ -37276,6 +37279,7 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
             }
             return factory.createArrayLiteralExpression(result);
         }
+        return undefined;
     }
 
     function evaluateAnnotationPropertyConstantExpression(expr: Expression): AnnotationConstantExpressionType | undefined {
@@ -37309,8 +37313,8 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
                         case SyntaxKind.GreaterThanEqualsToken: return left >= right;
                         case SyntaxKind.EqualsEqualsEqualsToken: return left === right;
                         case SyntaxKind.ExclamationEqualsEqualsToken: return left !== right;
-                        case SyntaxKind.EqualsEqualsToken: return left == right;
-                        case SyntaxKind.ExclamationEqualsToken: return left != right;
+                        case SyntaxKind.EqualsEqualsToken: return left === right;
+                        case SyntaxKind.ExclamationEqualsToken: return left !== right;
                         case SyntaxKind.AmpersandAmpersandToken: return left && right;
                         case SyntaxKind.BarBarToken: return left || right;
                     }
@@ -37396,9 +37400,11 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
         return undefined;
     }
 
-    function checkPropertyDeclaration(node: PropertyDeclaration | PropertySignature | AnnotationPropertyDeclaration) {
+    function checkPropertyDeclaration(node: PropertyDeclaration | PropertySignature | AnnotationPropertyDeclaration): void {
         // Grammar checking
-        if (!isAnnotationPropertyDeclaration(node) && !checkGrammarDecoratorsAndModifiers(node) && !checkGrammarProperty(node)) checkGrammarComputedPropertyName(node.name);
+        if (!isAnnotationPropertyDeclaration(node) && !checkGrammarDecoratorsAndModifiers(node) && !checkGrammarProperty(node)) {
+            checkGrammarComputedPropertyName(node.name);
+        }
         if (isAnnotationPropertyDeclaration(node)) {
             if (!node.type && !node.initializer) {
                 error(node, Diagnostics.An_annotation_property_must_have_a_type_or_Slashand_an_initializer);
@@ -37551,7 +37557,8 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
         setNodeLinksForPrivateIdentifierScope(node);
     }
 
-    function setNodeLinksForPrivateIdentifierScope(node: PropertyDeclaration | PropertySignature | AnnotationPropertyDeclaration | MethodDeclaration | MethodSignature | AccessorDeclaration) {
+    function setNodeLinksForPrivateIdentifierScope(node: PropertyDeclaration | PropertySignature | AnnotationPropertyDeclaration | MethodDeclaration |
+        MethodSignature | AccessorDeclaration) {
         if (isPrivateIdentifier(node.name) && languageVersion < ScriptTarget.ESNext) {
             for (let lexicalScope = getEnclosingBlockScopeContainer(node); !!lexicalScope; lexicalScope = getEnclosingBlockScopeContainer(lexicalScope)) {
                 getNodeLinks(lexicalScope).flags |= NodeCheckFlags.ContainsClassWithPrivateIdentifiers;
@@ -39132,7 +39139,8 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
         // Check for duplicate annotation usage scenarios
 
         Debug.assert(annotation.annotationDeclaration);
-        const typeName = typeToString(getTypeOfSymbol(getSymbolOfNode(annotation.annotationDeclaration)), /*enclosingDeclaration*/ undefined, TypeFormatFlags.UseFullyQualifiedType);
+        const typeName = typeToString(getTypeOfSymbol(getSymbolOfNode(annotation.annotationDeclaration)), /*enclosingDeclaration*/ undefined,
+            TypeFormatFlags.UseFullyQualifiedType);
         if (annotationsSet.size && annotationsSet.has(typeName)) {
             const nodeStr = getTextOfNode(annotation, /*includeTrivia*/ false);
             error(annotation, Diagnostics.Repeatable_annotation_are_not_supported_got_Colon_0, nodeStr);
@@ -39198,7 +39206,8 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
 
         // skip this check for nodes that cannot have decorators. These should have already had an error reported by
         // checkGrammarDecorators.
-        if (!canHaveDecorators(node) || !hasDecorators(node) && !hasAnnotations(node) || !node.modifiers || !nodeCanBeDecorated(node, node.parent, node.parent.parent)) {
+        if (!canHaveDecorators(node) || !hasDecorators(node) && !hasAnnotations(node) || !node.modifiers ||
+            !nodeCanBeDecorated(node, node.parent, node.parent.parent)) {
             return;
         }
 
@@ -40087,7 +40096,8 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
     }
 
     // Check variable, parameter, or property declaration
-    function checkVariableLikeDeclaration(node: ParameterDeclaration | PropertyDeclaration | PropertySignature | AnnotationPropertyDeclaration | VariableDeclaration | BindingElement) {
+    function checkVariableLikeDeclaration(node: ParameterDeclaration | PropertyDeclaration | PropertySignature | AnnotationPropertyDeclaration |
+        VariableDeclaration | BindingElement) {
         checkDecorators(node);
         if (!isBindingElement(node)) {
             checkSourceElement(node.type);
@@ -40235,7 +40245,8 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
                 error(node.name, Diagnostics.All_declarations_of_0_must_have_identical_modifiers, declarationNameToString(node.name));
             }
         }
-        if (node.kind !== SyntaxKind.PropertyDeclaration && node.kind !== SyntaxKind.PropertySignature && node.kind !== SyntaxKind.AnnotationPropertyDeclaration) {
+        if (node.kind !== SyntaxKind.PropertyDeclaration && node.kind !== SyntaxKind.PropertySignature &&
+            node.kind !== SyntaxKind.AnnotationPropertyDeclaration) {
             // We know we don't have a binding pattern or computed name here
             checkExportsOnMergedDeclarations(node);
             if (node.kind === SyntaxKind.VariableDeclaration || node.kind === SyntaxKind.BindingElement) {
@@ -42006,7 +42017,7 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
         forEach(node.members, checkSourceElement);
     }
 
-    function checkGrammarAnnotationDeclaration(node: AnnotationDeclaration) {
+    function checkGrammarAnnotationDeclaration(node: AnnotationDeclaration): void {
         Debug.assert(node.parent);
         if (!isSourceFile(node.parent)) {
             grammarErrorOnNode(node, Diagnostics.Annotation_must_be_defined_at_top_level_only);
@@ -42615,7 +42626,7 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
         return ok;
     }
 
-    function checkPropertyInitialization(node: ClassLikeDeclaration | AnnotationDeclaration) {
+    function checkPropertyInitialization(node: ClassLikeDeclaration | AnnotationDeclaration): void {
         if (!strictNullChecks || !strictPropertyInitialization || node.flags & NodeFlags.Ambient) {
             return;
         }
@@ -43638,7 +43649,7 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
         }
     }
 
-    function checkAnnotationInExportAssignment(node: ExportAssignment) {
+    function checkAnnotationInExportAssignment(node: ExportAssignment): void {
         let ident;
         switch (node.expression.kind) {
             case SyntaxKind.Identifier:
@@ -43653,7 +43664,7 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
         if (!ident) {
             return;
         }
-        //The default value of ignoreErrors in getSymbolOfNameOrPropertyAccessExpression is already true.
+        // The default value of ignoreErrors in getSymbolOfNameOrPropertyAccessExpression is already true.
         const symbol = getSymbolOfNameOrPropertyAccessExpression(ident);
         if (!symbol) {
             return;
@@ -44560,7 +44571,8 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
         return undefined;
     }
 
-    function getSymbolOfNameOrPropertyAccessExpression(name: EntityName | PrivateIdentifier | PropertyAccessExpression | JSDocMemberName): Symbol | undefined {
+    function getSymbolOfNameOrPropertyAccessExpression(name: EntityName | PrivateIdentifier | PropertyAccessExpression |
+        JSDocMemberName): Symbol | undefined {
         if (isDeclarationName(name)) {
             return getSymbolOfNode(name.parent);
         }

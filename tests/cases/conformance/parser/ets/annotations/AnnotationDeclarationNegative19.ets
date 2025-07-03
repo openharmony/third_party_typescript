@@ -1,3 +1,3 @@
-//@etsAnnotationsEnable: true
+// @etsAnnotationsEnable: true
 @Anno
 @interface Anno {}

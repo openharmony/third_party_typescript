@@ -1,21 +1,21 @@
 === tests/cases/conformance/parser/ets/annotations/AnnotationDeclarationNegative22.ets ===
-declare let interface:ClassDecorator
+declare let interface: ClassDecorator
 >interface : ClassDecorator
 
-declare let f:ClassDecorator;
+declare let f: ClassDecorator;
 >f : ClassDecorator
 
 @interface
 @f
 >f : ClassDecorator
 
-class C1{}
+class C1 {}
 >C1 : C1
 
 @f
 >f : ClassDecorator
 
 @interface
-class C2{}
+class C2 {}
 >C2 : C2
 

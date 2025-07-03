@@ -212,7 +212,8 @@ const forEachChildTable: ForEachChildTable = {
             visitNode(cbNode, node.type) ||
             visitNode(cbNode, node.initializer);
     },
-    [SyntaxKind.AnnotationPropertyDeclaration]: function forEachChildInAnnotationPropertyDeclaration<T>(node: AnnotationPropertyDeclaration, cbNode: (node: Node) => T | undefined, _cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+    [SyntaxKind.AnnotationPropertyDeclaration]: function forEachChildInAnnotationPropertyDeclaration<T>(node: AnnotationPropertyDeclaration,
+        cbNode: (node: Node) => T | undefined, _cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
         return visitNode(cbNode, node.name) ||
             visitNode(cbNode, node.type) ||
             visitNode(cbNode, node.initializer);
@@ -869,7 +870,8 @@ function forEachChildInClassDeclarationOrExpression<T>(node: ClassDeclaration | 
         visitNodes(cbNode, cbNodes, node.members);
 }
 
-function forEachChildInAnnotationDeclaration<T>(node: AnnotationDeclaration, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+function forEachChildInAnnotationDeclaration<T>(node: AnnotationDeclaration, cbNode: (node: Node) => T | undefined,
+    cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
     return visitNodes(cbNode, cbNodes, node.modifiers) ||
         visitNode(cbNode, node.name) ||
         visitNodes(cbNode, cbNodes, node.members);
@@ -7294,7 +7296,8 @@ namespace Parser {
         return modifier.kind === SyntaxKind.DeclareKeyword;
     }
 
-    function parseAnnotationDeclaration(pos: number, hasJSDoc: boolean, decorators: NodeArray<Decorator> | undefined, modifiers: NodeArray<Modifier> | undefined): AnnotationDeclaration {
+    function parseAnnotationDeclaration(pos: number, hasJSDoc: boolean, decorators: NodeArray<Decorator> | undefined,
+        modifiers: NodeArray<Modifier> | undefined): AnnotationDeclaration {
         const atTokenPos = scanner.getTokenPos();
         parseExpected(SyntaxKind.AtToken);
         const interfaceTokenPos = scanner.getTokenPos();
@@ -7855,7 +7858,7 @@ namespace Parser {
         }
 
         if (token() === SyntaxKind.AsteriskToken) {
-            return false ;
+            return false;
         }
 
         // Try to get the first property-like token following all modifiers.
@@ -7880,8 +7883,8 @@ namespace Parser {
             // If it *is* a keyword, but not an accessor, check a little farther along
             // to see if it should actually be parsed as a class member.
             switch (token()) {
-                case SyntaxKind.ColonToken:         // Type Annotation for declaration
-                case SyntaxKind.EqualsToken:        // Initializer for declaration
+                case SyntaxKind.ColonToken: // Type Annotation for declaration
+                case SyntaxKind.EqualsToken: // Initializer for declaration
                     return true;
                 default:
                     // Covers
@@ -8005,9 +8008,8 @@ namespace Parser {
 
     function tryParseDecorator(): Decorator | undefined {
         const pos = getNodePos();
-        if (inAllowAnnotationContext() && token() === SyntaxKind.AtToken
-            && lookAhead(() => nextToken() === SyntaxKind.InterfaceKeyword)) {
-                return undefined;
+        if (inAllowAnnotationContext() && token() === SyntaxKind.AtToken && lookAhead(() => nextToken() === SyntaxKind.InterfaceKeyword)) {
+            return undefined;
         }
         if (!parseOptional(SyntaxKind.AtToken)) {
             return undefined;
@@ -8190,23 +8192,28 @@ namespace Parser {
 
         const hasJSDoc = hasPrecedingJSDocComment();
         if (token() === SyntaxKind.StaticKeyword && lookAhead(nextTokenIsOpenBrace)) {
-            return createMissingNode<AnnotationElement>(SyntaxKind.AnnotationPropertyDeclaration, /*reportAtCurrentPosition*/ true, Diagnostics.Unexpected_keyword_or_identifier);
+            return createMissingNode<AnnotationElement>(SyntaxKind.AnnotationPropertyDeclaration, /*reportAtCurrentPosition*/ true,
+                Diagnostics.Unexpected_keyword_or_identifier);
         }
 
         if (parseContextualModifier(SyntaxKind.GetKeyword)) {
-            return createMissingNode<AnnotationElement>(SyntaxKind.AnnotationPropertyDeclaration, /*reportAtCurrentPosition*/ true, Diagnostics.Unexpected_keyword_or_identifier);
+            return createMissingNode<AnnotationElement>(SyntaxKind.AnnotationPropertyDeclaration, /*reportAtCurrentPosition*/ true,
+                Diagnostics.Unexpected_keyword_or_identifier);
         }
 
         if (parseContextualModifier(SyntaxKind.SetKeyword)) {
-            return createMissingNode<AnnotationElement>(SyntaxKind.AnnotationPropertyDeclaration, /*reportAtCurrentPosition*/ true, Diagnostics.Unexpected_keyword_or_identifier);
+            return createMissingNode<AnnotationElement>(SyntaxKind.AnnotationPropertyDeclaration, /*reportAtCurrentPosition*/ true,
+                Diagnostics.Unexpected_keyword_or_identifier);
         }
 
         if (token() === SyntaxKind.ConstructorKeyword || token() === SyntaxKind.StringLiteral) {
-            return createMissingNode<AnnotationElement>(SyntaxKind.AnnotationPropertyDeclaration, /*reportAtCurrentPosition*/ true, Diagnostics.Unexpected_keyword_or_identifier);
+            return createMissingNode<AnnotationElement>(SyntaxKind.AnnotationPropertyDeclaration, /*reportAtCurrentPosition*/ true,
+                Diagnostics.Unexpected_keyword_or_identifier);
         }
 
         if (isIndexSignature()) {
-            return createMissingNode<AnnotationElement>(SyntaxKind.AnnotationPropertyDeclaration, /*reportAtCurrentPosition*/ true, Diagnostics.Unexpected_keyword_or_identifier);
+            return createMissingNode<AnnotationElement>(SyntaxKind.AnnotationPropertyDeclaration, /*reportAtCurrentPosition*/ true,
+                Diagnostics.Unexpected_keyword_or_identifier);
         }
 
         if (tokenIsIdentifierOrKeyword(token())) {
@@ -8929,7 +8936,7 @@ namespace Parser {
         TupleElementTypes,         // Element types in tuple element type list
         HeritageClauses,           // Heritage clauses for a class or interface declaration.
         ImportOrExportSpecifiers,  // Named import clause's import specifier list,
-        AssertEntries,               // Import entries list.
+        AssertEntries,             // Import entries list.
         Count                      // Number of parsing contexts
     }
 

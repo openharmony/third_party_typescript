@@ -1,12 +1,12 @@
 //// [AnnotationDeclarationNegative22.ets]
-declare let interface:ClassDecorator
-declare let f:ClassDecorator;
+declare let interface: ClassDecorator
+declare let f: ClassDecorator;
 @interface
 @f
-class C1{}
+class C1 {}
 @f
 @interface
-class C2{}
+class C2 {}
 
 //// [AnnotationDeclarationNegative22.js]
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {

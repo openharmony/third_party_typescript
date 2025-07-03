@@ -1,16 +1,16 @@
 tests/cases/conformance/parser/ets/annotations/AnnotationDeclarationNegative23.ets(4,5): error TS1068: Unexpected token. A constructor, method, accessor, or property was expected.
 tests/cases/conformance/parser/ets/annotations/AnnotationDeclarationNegative23.ets(5,5): error TS1003: Identifier expected.
 tests/cases/conformance/parser/ets/annotations/AnnotationDeclarationNegative23.ets(5,7): error TS1146: Declaration expected.
-tests/cases/conformance/parser/ets/annotations/AnnotationDeclarationNegative23.ets(6,7): error TS2693: 'number' only refers to a type, but is being used as a value here.
+tests/cases/conformance/parser/ets/annotations/AnnotationDeclarationNegative23.ets(6,8): error TS2693: 'number' only refers to a type, but is being used as a value here.
 tests/cases/conformance/parser/ets/annotations/AnnotationDeclarationNegative23.ets(9,6): error TS1005: '{' expected.
-tests/cases/conformance/parser/ets/annotations/AnnotationDeclarationNegative23.ets(9,7): error TS2693: 'number' only refers to a type, but is being used as a value here.
+tests/cases/conformance/parser/ets/annotations/AnnotationDeclarationNegative23.ets(9,8): error TS2693: 'number' only refers to a type, but is being used as a value here.
 tests/cases/conformance/parser/ets/annotations/AnnotationDeclarationNegative23.ets(10,1): error TS1128: Declaration or statement expected.
 
 
 ==== tests/cases/conformance/parser/ets/annotations/AnnotationDeclarationNegative23.ets (7 errors) ====
-    declare let interface:PropertyDecorator
-    declare let f:PropertyDecorator;
-    class C{
+    declare let interface: PropertyDecorator
+    declare let f: PropertyDecorator;
+    class C {
         @interface
         ~
 !!! error TS1068: Unexpected token. A constructor, method, accessor, or property was expected.
@@ -19,15 +19,15 @@ tests/cases/conformance/parser/ets/annotations/AnnotationDeclarationNegative23.e
 !!! error TS1003: Identifier expected.
           
 !!! error TS1146: Declaration expected.
-        a:number=1;
-          ~~~~~~
+        a: number = 1;
+           ~~~~~~
 !!! error TS2693: 'number' only refers to a type, but is being used as a value here.
         @f
         @interface
-        b:number=1;
+        b: number = 1;
          ~
 !!! error TS1005: '{' expected.
-          ~~~~~~
+           ~~~~~~
 !!! error TS2693: 'number' only refers to a type, but is being used as a value here.
     }
     ~

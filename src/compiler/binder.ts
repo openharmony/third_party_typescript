@@ -2844,7 +2844,8 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
         const includes = isAutoAccessor ? SymbolFlags.Accessor : SymbolFlags.Property;
         const excludes = isAutoAccessor ? SymbolFlags.AccessorExcludes : SymbolFlags.PropertyExcludes;
         const isOptional = (!isAnnotationPropertyDeclaration(node) && node.questionToken ? SymbolFlags.Optional : SymbolFlags.None);
-        const annotationPropHasDefaultValue = (isAnnotationPropertyDeclaration(node) && node.initializer !== undefined) ? SymbolFlags.Optional : SymbolFlags.None;
+        const annotationPropHasDefaultValue = (isAnnotationPropertyDeclaration(node) && node.initializer !== undefined) ?
+            SymbolFlags.Optional : SymbolFlags.None;
         return bindPropertyOrMethodOrAccessor(node, includes | isOptional | annotationPropHasDefaultValue, excludes);
     }
 
@@ -3381,7 +3382,7 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
         prototypeSymbol.parent = symbol;
     }
 
-    function bindAnnotationDeclaration(node: AnnotationDeclaration) {
+    function bindAnnotationDeclaration(node: AnnotationDeclaration): void {
         Debug.assert(node.kind === SyntaxKind.AnnotationDeclaration);
 
         bindBlockScopedDeclaration(node, SymbolFlags.Class | SymbolFlags.Annotation, SymbolFlags.ClassExcludes);
