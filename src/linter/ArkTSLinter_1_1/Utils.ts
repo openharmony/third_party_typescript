@@ -93,6 +93,17 @@ export const USE_SHARED = 'use shared';
 
 export const D_TS = '.d.ts';
 
+export const TASKPOOL = 'taskpool';
+
+export const TASKGROUP = 'TaskGroup';
+
+export const TASKPOOL_API = ['Task', 'LongTask', 'GenericsTask', 'execute', 'addTask'];
+
+export const CONCURRENT_DECORATOR = 'Concurrent';
+
+export const USE_CONCURRENT = 'use concurrent'
+
+
 let typeChecker: TypeChecker;
 export function setTypeChecker(tsTypeChecker: TypeChecker): void {
   typeChecker = tsTypeChecker;
@@ -2429,4 +2440,72 @@ export function searchFileExportDecl(sourceFile: SourceFile, targetDecls?: Synta
 export function clearUtilsGlobalvariables(): void {
   parentSymbolCache?.clear();
   parentSymbolCache = undefined;
+}
+
+
+export function isTaskPoolApi(exprSym: Symbol | undefined, node: Node): boolean {
+  if (!isPropertyAccessExpression(node)) {
+    return false;
+  }
+  const propertyAccessNode = node as PropertyAccessExpression;
+  const baseExprSym = trueSymbolAtLocation(propertyAccessNode.expression);
+  if (!exprSym || !baseExprSym) {
+    return false;
+  }
+  if ((baseExprSym.name === TASKPOOL || baseExprSym.name === TASKGROUP) && TASKPOOL_API.includes(exprSym.name)) {
+    return true;
+  }
+  const baseExprType = typeChecker.getTypeOfSymbol(baseExprSym);
+  if (typeChecker.typeToString(baseExprType) === TASKGROUP && TASKPOOL_API.includes(exprSym.name)) {
+    return true;
+  }
+  return false;
+}
+
+export function isConcurrentFunction(type: Type): boolean {
+  const callSigns = type.getCallSignatures();
+  if (!callSigns?.length) {
+    return false;
+  }
+  const decl = callSigns[0].declaration;
+  if (!decl || !isFunctionDeclaration(decl)) {
+    return false;
+  }
+  return hasConcurrentDecoratorFunctionOverload(decl) || hasUseConcurrentDirective(decl);
+}
+
+export function hasConcurrentDecoratorFunctionOverload(decl: FunctionDeclaration): boolean {
+  const decorators = getFunctionOverloadDecorators(decl);
+  return !!decorators?.some((x) => {
+    return getDecoratorName(x) === CONCURRENT_DECORATOR;
+  });
+}
+
+export function hasUseConcurrentDirective(decl: FunctionDeclaration): boolean {
+  const body = decl.body;
+  if (!body || !isBlock(body)) {
+    return false;
+  }
+  
+  const firstStatement = body.statements[0];
+  if (!firstStatement) {
+    return false;
+  }
+  
+  if (isExpressionStatement(firstStatement) && isStringLiteral(firstStatement.expression)) {
+    return firstStatement.expression.text.trim() === USE_CONCURRENT;
+  }
+  
+  return false;
+}
+
+export function isDeclarationSymbol(sym: Symbol | undefined): boolean {
+  if (sym && sym.declarations && sym.declarations.length > 0) {
+    const srcFile = sym.declarations[0].getSourceFile();
+    if (!srcFile) {
+      return false;
+    }
+    return srcFile.isDeclarationFile;
+  }
+  return false;
 }
