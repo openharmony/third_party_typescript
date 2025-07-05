@@ -9391,7 +9391,7 @@ declare namespace ts {
         const USE_SHARED = "use shared";
         const D_TS = ".d.ts";
         const TASKPOOL = "taskpool";
-        const TASKGROUP = "taskGroup";
+        const TASKGROUP = "TaskGroup";
         const TASKPOOL_API: string[];
         const CONCURRENT_DECORATOR = "Concurrent";
         const USE_CONCURRENT = "use concurrent";
