@@ -2641,6 +2641,7 @@ declare namespace ts {
         getConstEnumRelate?(): ESMap<string, ESMap<string, string>>;
         clearConstEnumRelate?(): void;
         deleteConstEnumRelate?(path: string): void;
+        isStaticRecord?(type: Type): boolean;
         getTypeArgumentsForResolvedSignature(signature: Signature): readonly Type[] | undefined;
         getCheckedSourceFiles(): Set<SourceFile>;
         collectHaveTsNoCheckFilesForLinter(sourceFile: SourceFile): void;
@@ -3724,6 +3725,7 @@ declare namespace ts {
         getJsDocNodeConditionCheckedResult?(jsDocFileCheckedInfo: FileCheckModuleInfo, jsDocTagInfos: JsDocTagInfo[], jsDocs?: JSDoc[]): ConditionCheckResult;
         getFileCheckedModuleInfo?(containFilePath: string): FileCheckModuleInfo;
         getLastCompiledProgram?(): Program;
+        isStaticSourceFile?(filePath: string): boolean;
     }
     interface SourceMapRange extends TextRange {
         source?: SourceMapSource;
@@ -6605,6 +6607,7 @@ declare namespace ts {
         shouldCompletionSortCustom?: boolean;
         uiProps?: Set<string>;
         clearProps?(): void;
+        isStaticSourceFile?(fileName: string): boolean;
         clearFileCache?(): void;
     }
     type WithMetadata<T> = T & {
