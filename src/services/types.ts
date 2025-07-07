@@ -369,6 +369,7 @@ export interface LanguageServiceHost extends GetEffectiveTypeRootsHost, MinimalR
     shouldCompletionSortCustom?: boolean;
     uiProps?: Set<string>;
     clearProps?(): void;
+    isStaticSourceFile?(fileName: string): boolean;
     clearFileCache?(): void;
 }
 
