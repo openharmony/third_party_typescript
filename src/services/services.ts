@@ -19,7 +19,7 @@ import {
     FormatCodeOptions, FormatCodeSettings, formatting, FunctionLikeDeclaration, GeneratedIdentifierFlags,
     getAdjustedRenameLocation, getAllSuperTypeNodes, getAssignmentDeclarationKind, GetCompletionsAtPositionOptions,
     getContainerNode, getDefaultLibFileName, getDirectoryPath, getEmitDeclarations, getEntries,
-    getEscapedTextOfIdentifierOrLiteral, getFileEmitOutput, getImpliedNodeFormatForFile, getJSDocTags,
+    getEscapedTextOfIdentifierOrLiteral, getFileEmitOutput, getImpliedNodeFormatForFile, getJSDocTags, getLanguageVersionByFilePath,
     getLineAndCharacterOfPosition, getLineStarts, getMappedDocumentSpan, getNameFromPropertyName, getNewLineCharacter,
     getNewLineOrDefaultFromHost, getNonAssignedNameOfDeclaration, getNormalizedAbsolutePath, getObjectFlags,
     getScriptKind, getScriptKindFromFileName, getSetExternalModuleIndicator, getSnapshotText, getSourceFileOfNode,
@@ -1314,6 +1314,9 @@ export function createLanguageService(
         : NoopCancellationToken;
 
     const currentDirectory = host.getCurrentDirectory();
+
+    // Get the callback to determine languageVersion by filePath (will used in parsing)
+    getLanguageVersionByFilePath(host.isStaticSourceFile);
 
     // Checks if the localized messages json is set, and if not, query the host for it
     maybeSetLocalizedDiagnosticMessages(host.getLocalizedDiagnosticMessages?.bind(host));
