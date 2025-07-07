@@ -138,7 +138,7 @@ export function transformDeclarations(context: TransformationContext) {
     let emittedImports: readonly AnyImportSyntax[] | undefined; // must be declared in container so it can be `undefined` while transformer's first pass
     const resolver = context.getEmitResolver();
     const options = context.getCompilerOptions();
-    const { noResolve, stripInternal } = options;
+    const { noResolve, stripInternal, isolatedDeclarations } = options;
     return transformRoot;
 
     function recordTypeReferenceDirectivesIfNecessary(typeReferenceDirectives: readonly [specifier: string, mode: SourceFile["impliedNodeFormat"] | undefined][] | undefined): void {
@@ -854,6 +854,9 @@ export function transformDeclarations(context: TransformationContext) {
         }
         // Augmentation of export depends on import
         if (resolver.isImportRequiredByAugmentation(decl)) {
+            if (isolatedDeclarations) {
+                context.addDiagnostic(createDiagnosticForNode(decl, Diagnostics.Declaration_emit_for_this_file_requires_preserving_this_import_for_augmentations_This_is_not_supported_with_isolatedDeclarations));
+            }
             return factory.updateImportDeclaration(
                 decl,
                 decl.modifiers,

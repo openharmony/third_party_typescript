@@ -7311,6 +7311,7 @@ declare namespace ts {
         inlineSourceMap?: boolean;
         inlineSources?: boolean;
         isolatedModules?: boolean;
+        isolatedDeclarations?: boolean;
         jsx?: JsxEmit;
         keyofStringsOnly?: boolean;
         lib?: string[];

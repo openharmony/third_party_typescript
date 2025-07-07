@@ -5428,6 +5428,7 @@ export interface EmitResolver {
     isLateBound(node: Declaration): node is LateBoundDeclaration;
     collectLinkedAliases(node: Identifier, setVisibility?: boolean): Node[] | undefined;
     isImplementationOfOverload(node: SignatureDeclaration): boolean | undefined;
+    requiresAddingImplicitUndefined(node: ParameterDeclaration): boolean;
     isRequiredInitializedParameter(node: ParameterDeclaration): boolean;
     isOptionalUninitializedParameterProperty(node: ParameterDeclaration): boolean;
     isExpandoFunctionDeclaration(node: FunctionDeclaration): boolean;
@@ -5732,6 +5733,7 @@ export interface PatternAmbientModule {
 
 /** @internal */
 export const enum NodeCheckFlags {
+    None                                     = 0,
     TypeChecked                              = 0x00000001,  // Node has been type checked
     LexicalThis                              = 0x00000002,  // Lexical 'this' reference
     CaptureThis                              = 0x00000004,  // Lexical 'this' used in body
@@ -6814,6 +6816,7 @@ export interface CompilerOptions {
     inlineSourceMap?: boolean;
     inlineSources?: boolean;
     isolatedModules?: boolean;
+    isolatedDeclarations?: boolean;
     jsx?: JsxEmit;
     keyofStringsOnly?: boolean;
     lib?: string[];
