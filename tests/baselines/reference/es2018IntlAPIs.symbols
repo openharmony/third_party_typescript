@@ -23,3 +23,64 @@ console.log(Intl.PluralRules.supportedLocalesOf(locales, options).join(', '));
 >options : Symbol(options, Decl(es2018IntlAPIs.ts, 3, 5))
 >join : Symbol(Array.join, Decl(lib.es5.d.ts, --, --))
 
+const nf = new Intl.NumberFormat("en-US", {
+>nf : Symbol(nf, Decl(es2018IntlAPIs.ts, 6, 5))
+>Intl.NumberFormat : Symbol(Intl.NumberFormat, Decl(lib.es5.d.ts, --, --), Decl(lib.es5.d.ts, --, --), Decl(lib.es2018.intl.d.ts, --, --))
+>Intl : Symbol(Intl, Decl(lib.es5.d.ts, --, --), Decl(lib.es2017.intl.d.ts, --, --), Decl(lib.es2018.intl.d.ts, --, --))
+>NumberFormat : Symbol(Intl.NumberFormat, Decl(lib.es5.d.ts, --, --), Decl(lib.es5.d.ts, --, --), Decl(lib.es2018.intl.d.ts, --, --))
+
+    style: "currency",
+>style : Symbol(style, Decl(es2018IntlAPIs.ts, 6, 43))
+
+    currency: "USD",
+>currency : Symbol(currency, Decl(es2018IntlAPIs.ts, 7, 22))
+
+    maximumFractionDigits: 0,
+>maximumFractionDigits : Symbol(maximumFractionDigits, Decl(es2018IntlAPIs.ts, 8, 20))
+
+  });
+console.log(nf.formatRange(3, 5)); // "$3 – $5"
+>console.log : Symbol(Console.log, Decl(lib.dom.d.ts, --, --))
+>console : Symbol(console, Decl(lib.dom.d.ts, --, --))
+>log : Symbol(Console.log, Decl(lib.dom.d.ts, --, --))
+>nf.formatRange : Symbol(Intl.NumberFormat.formatRange, Decl(lib.es2018.intl.d.ts, --, --))
+>nf : Symbol(nf, Decl(es2018IntlAPIs.ts, 6, 5))
+>formatRange : Symbol(Intl.NumberFormat.formatRange, Decl(lib.es2018.intl.d.ts, --, --))
+
+console.log(nf.formatRange(2.9, 3.1)); // "~$3"
+>console.log : Symbol(Console.log, Decl(lib.dom.d.ts, --, --))
+>console : Symbol(console, Decl(lib.dom.d.ts, --, --))
+>log : Symbol(Console.log, Decl(lib.dom.d.ts, --, --))
+>nf.formatRange : Symbol(Intl.NumberFormat.formatRange, Decl(lib.es2018.intl.d.ts, --, --))
+>nf : Symbol(nf, Decl(es2018IntlAPIs.ts, 6, 5))
+>formatRange : Symbol(Intl.NumberFormat.formatRange, Decl(lib.es2018.intl.d.ts, --, --))
+
+const formatter = new Intl.NumberFormat("de-DE", {
+>formatter : Symbol(formatter, Decl(es2018IntlAPIs.ts, 13, 5))
+>Intl.NumberFormat : Symbol(Intl.NumberFormat, Decl(lib.es5.d.ts, --, --), Decl(lib.es5.d.ts, --, --), Decl(lib.es2018.intl.d.ts, --, --))
+>Intl : Symbol(Intl, Decl(lib.es5.d.ts, --, --), Decl(lib.es2017.intl.d.ts, --, --), Decl(lib.es2018.intl.d.ts, --, --))
+>NumberFormat : Symbol(Intl.NumberFormat, Decl(lib.es5.d.ts, --, --), Decl(lib.es5.d.ts, --, --), Decl(lib.es2018.intl.d.ts, --, --))
+
+    style: "currency",
+>style : Symbol(style, Decl(es2018IntlAPIs.ts, 13, 50))
+
+    currency: "EUR",
+>currency : Symbol(currency, Decl(es2018IntlAPIs.ts, 14, 22))
+
+  });
+const startRange = 3500;
+>startRange : Symbol(startRange, Decl(es2018IntlAPIs.ts, 17, 5))
+
+const endRange = 9500;
+>endRange : Symbol(endRange, Decl(es2018IntlAPIs.ts, 18, 5))
+
+console.log(formatter.formatRangeToParts(startRange, endRange));
+>console.log : Symbol(Console.log, Decl(lib.dom.d.ts, --, --))
+>console : Symbol(console, Decl(lib.dom.d.ts, --, --))
+>log : Symbol(Console.log, Decl(lib.dom.d.ts, --, --))
+>formatter.formatRangeToParts : Symbol(Intl.NumberFormat.formatRangeToParts, Decl(lib.es2018.intl.d.ts, --, --))
+>formatter : Symbol(formatter, Decl(es2018IntlAPIs.ts, 13, 5))
+>formatRangeToParts : Symbol(Intl.NumberFormat.formatRangeToParts, Decl(lib.es2018.intl.d.ts, --, --))
+>startRange : Symbol(startRange, Decl(es2018IntlAPIs.ts, 17, 5))
+>endRange : Symbol(endRange, Decl(es2018IntlAPIs.ts, 18, 5))
+
