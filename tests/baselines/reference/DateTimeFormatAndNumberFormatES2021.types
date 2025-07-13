@@ -1,12 +1,12 @@
 === tests/cases/compiler/DateTimeFormatAndNumberFormatES2021.ts ===
 Intl.NumberFormat.prototype.formatRange
->Intl.NumberFormat.prototype.formatRange : any
+>Intl.NumberFormat.prototype.formatRange : (startRange: number, endRange: number) => string
 >Intl.NumberFormat.prototype : Intl.NumberFormat
 >Intl.NumberFormat : { (locales?: string | string[], options?: Intl.NumberFormatOptions): Intl.NumberFormat; new (locales?: string | string[], options?: Intl.NumberFormatOptions): Intl.NumberFormat; supportedLocalesOf(locales: string | string[], options?: Intl.NumberFormatOptions): string[]; readonly prototype: Intl.NumberFormat; }
 >Intl : typeof Intl
 >NumberFormat : { (locales?: string | string[], options?: Intl.NumberFormatOptions): Intl.NumberFormat; new (locales?: string | string[], options?: Intl.NumberFormatOptions): Intl.NumberFormat; supportedLocalesOf(locales: string | string[], options?: Intl.NumberFormatOptions): string[]; readonly prototype: Intl.NumberFormat; }
 >prototype : Intl.NumberFormat
->formatRange : any
+>formatRange : (startRange: number, endRange: number) => string
 
 Intl.DateTimeFormat.prototype.formatRange
 >Intl.DateTimeFormat.prototype.formatRange : (startDate: number | bigint | Date, endDate: number | bigint | Date) => string
@@ -18,20 +18,20 @@ Intl.DateTimeFormat.prototype.formatRange
 >formatRange : (startDate: number | bigint | Date, endDate: number | bigint | Date) => string
 
 new Intl.NumberFormat().formatRange 
->new Intl.NumberFormat().formatRange : any
+>new Intl.NumberFormat().formatRange : (startRange: number, endRange: number) => string
 >new Intl.NumberFormat() : Intl.NumberFormat
 >Intl.NumberFormat : { (locales?: string | string[], options?: Intl.NumberFormatOptions): Intl.NumberFormat; new (locales?: string | string[], options?: Intl.NumberFormatOptions): Intl.NumberFormat; supportedLocalesOf(locales: string | string[], options?: Intl.NumberFormatOptions): string[]; readonly prototype: Intl.NumberFormat; }
 >Intl : typeof Intl
 >NumberFormat : { (locales?: string | string[], options?: Intl.NumberFormatOptions): Intl.NumberFormat; new (locales?: string | string[], options?: Intl.NumberFormatOptions): Intl.NumberFormat; supportedLocalesOf(locales: string | string[], options?: Intl.NumberFormatOptions): string[]; readonly prototype: Intl.NumberFormat; }
->formatRange : any
+>formatRange : (startRange: number, endRange: number) => string
 
 new Intl.NumberFormat().formatRangeToParts
->new Intl.NumberFormat().formatRangeToParts : any
+>new Intl.NumberFormat().formatRangeToParts : (startRange: number, endRange: number) => Intl.NumberFormatPart[]
 >new Intl.NumberFormat() : Intl.NumberFormat
 >Intl.NumberFormat : { (locales?: string | string[], options?: Intl.NumberFormatOptions): Intl.NumberFormat; new (locales?: string | string[], options?: Intl.NumberFormatOptions): Intl.NumberFormat; supportedLocalesOf(locales: string | string[], options?: Intl.NumberFormatOptions): string[]; readonly prototype: Intl.NumberFormat; }
 >Intl : typeof Intl
 >NumberFormat : { (locales?: string | string[], options?: Intl.NumberFormatOptions): Intl.NumberFormat; new (locales?: string | string[], options?: Intl.NumberFormatOptions): Intl.NumberFormat; supportedLocalesOf(locales: string | string[], options?: Intl.NumberFormatOptions): string[]; readonly prototype: Intl.NumberFormat; }
->formatRangeToParts : any
+>formatRangeToParts : (startRange: number, endRange: number) => Intl.NumberFormatPart[]
 
 new Intl.DateTimeFormat().formatRange
 >new Intl.DateTimeFormat().formatRange : (startDate: number | bigint | Date, endDate: number | bigint | Date) => string
