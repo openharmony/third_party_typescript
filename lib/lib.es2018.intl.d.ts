@@ -69,5 +69,7 @@ declare namespace Intl {
 
     interface NumberFormat {
         formatToParts(number?: number | bigint): NumberFormatPart[];
+        formatRange(startRange: number, endRange: number): string;
+        formatRangeToParts(startRange: number, endRange: number): NumberFormatPart[];
     }
 }
