@@ -33,22 +33,22 @@ console.log(Intl.PluralRules.supportedLocalesOf(locales, options).join(', '));
 >join : (separator?: string) => string
 >', ' : ", "
 
-const nf = new Intl.NumberFormat("en-US", {
+const nf = new Intl.NumberFormat('en-US', {
 >nf : Intl.NumberFormat
->new Intl.NumberFormat("en-US", {    style: "currency",    currency: "USD",    maximumFractionDigits: 0,  }) : Intl.NumberFormat
+>new Intl.NumberFormat('en-US', {    style: 'currency',    currency: 'USD',    maximumFractionDigits: 0,  }) : Intl.NumberFormat
 >Intl.NumberFormat : { (locales?: string | string[], options?: Intl.NumberFormatOptions): Intl.NumberFormat; new (locales?: string | string[], options?: Intl.NumberFormatOptions): Intl.NumberFormat; supportedLocalesOf(locales: string | string[], options?: Intl.NumberFormatOptions): string[]; readonly prototype: Intl.NumberFormat; }
 >Intl : typeof Intl
 >NumberFormat : { (locales?: string | string[], options?: Intl.NumberFormatOptions): Intl.NumberFormat; new (locales?: string | string[], options?: Intl.NumberFormatOptions): Intl.NumberFormat; supportedLocalesOf(locales: string | string[], options?: Intl.NumberFormatOptions): string[]; readonly prototype: Intl.NumberFormat; }
->"en-US" : "en-US"
->{    style: "currency",    currency: "USD",    maximumFractionDigits: 0,  } : { style: string; currency: string; maximumFractionDigits: number; }
+>'en-US' : "en-US"
+>{    style: 'currency',    currency: 'USD',    maximumFractionDigits: 0,  } : { style: string; currency: string; maximumFractionDigits: number; }
 
-    style: "currency",
+    style: 'currency',
 >style : string
->"currency" : "currency"
+>'currency' : "currency"
 
-    currency: "USD",
+    currency: 'USD',
 >currency : string
->"USD" : "USD"
+>'USD' : "USD"
 
     maximumFractionDigits: 0,
 >maximumFractionDigits : number
@@ -79,22 +79,22 @@ console.log(nf.formatRange(2.9, 3.1)); // "~$3"
 >2.9 : 2.9
 >3.1 : 3.1
 
-const formatter = new Intl.NumberFormat("de-DE", {
+const formatter = new Intl.NumberFormat('de-DE', {
 >formatter : Intl.NumberFormat
->new Intl.NumberFormat("de-DE", {    style: "currency",    currency: "EUR",  }) : Intl.NumberFormat
+>new Intl.NumberFormat('de-DE', {    style: 'currency',    currency: 'EUR',  }) : Intl.NumberFormat
 >Intl.NumberFormat : { (locales?: string | string[], options?: Intl.NumberFormatOptions): Intl.NumberFormat; new (locales?: string | string[], options?: Intl.NumberFormatOptions): Intl.NumberFormat; supportedLocalesOf(locales: string | string[], options?: Intl.NumberFormatOptions): string[]; readonly prototype: Intl.NumberFormat; }
 >Intl : typeof Intl
 >NumberFormat : { (locales?: string | string[], options?: Intl.NumberFormatOptions): Intl.NumberFormat; new (locales?: string | string[], options?: Intl.NumberFormatOptions): Intl.NumberFormat; supportedLocalesOf(locales: string | string[], options?: Intl.NumberFormatOptions): string[]; readonly prototype: Intl.NumberFormat; }
->"de-DE" : "de-DE"
->{    style: "currency",    currency: "EUR",  } : { style: string; currency: string; }
+>'de-DE' : "de-DE"
+>{    style: 'currency',    currency: 'EUR',  } : { style: string; currency: string; }
 
-    style: "currency",
+    style: 'currency',
 >style : string
->"currency" : "currency"
+>'currency' : "currency"
 
-    currency: "EUR",
+    currency: 'EUR',
 >currency : string
->"EUR" : "EUR"
+>'EUR' : "EUR"
 
   });
 const startRange = 3500;
