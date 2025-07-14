@@ -1772,6 +1772,26 @@ namespace Parser {
         setEtsFlag(val, EtsFlags.NoEtsComponentContext);
     }
 
+    let firstArgumentExpression: boolean = false;
+
+    function setFirstArgumentExpression(val: boolean): void {
+        firstArgumentExpression = val;
+    }
+
+    function getFirstArgumentExpression(): boolean {
+        return firstArgumentExpression;
+    }
+
+    let repeatEachRest: boolean = false;
+
+    function setRepeatEachRest(val: boolean): void {
+        repeatEachRest = val;
+    }
+
+    function getRepeatEachRest(): boolean {
+        return repeatEachRest;
+    }
+
     function doOutsideOfContext<T>(context: NodeFlags, func: () => T): T {
         // contextFlagsToClear will contain only the context flags that are
         // currently set that we need to temporarily clear
@@ -1940,7 +1960,7 @@ namespace Parser {
         return inEtsContext() && (inBuildContext() || inBuilderContext()) && inEtsFlagsContext(EtsFlags.SyntaxComponentContext);
     }
 
-    function inSyntaxDataSourseContext() {
+    function inSyntaxDataSourceContext() {
         return inEtsContext() && (inBuildContext() || inBuilderContext()) && inEtsFlagsContext(EtsFlags.SyntaxDataSourceContext);
     }
 
@@ -5041,8 +5061,8 @@ namespace Parser {
         const equalsGreaterThanToken = parseExpectedToken(SyntaxKind.EqualsGreaterThanToken);
         let originUIContextFlag = inUICallbackContext();
         let originNoEtsComponentContextFlag = inNoEtsComponentContext();
-        setUICallbackContext(inSyntaxComponentContext() && !inSyntaxDataSourseContext());
-        if (inSyntaxComponentContext() && !inSyntaxDataSourseContext()) {
+        setUICallbackContext(inSyntaxComponentContext() && !inSyntaxDataSourceContext());
+        if (inSyntaxComponentContext() && !inSyntaxDataSourceContext()) {
             setSyntaxComponentContext(false);
         }
         setNoEtsComponentContext(!inUICallbackContext());
@@ -5335,8 +5355,8 @@ namespace Parser {
         const equalsGreaterThanToken = parseExpectedToken(SyntaxKind.EqualsGreaterThanToken);
         let originUIContextFlag = inUICallbackContext();
         let originNoEtsComponentContextFlag = inNoEtsComponentContext();
-        setUICallbackContext(inSyntaxComponentContext() && !inSyntaxDataSourseContext());
-        if (inSyntaxComponentContext() && !inSyntaxDataSourseContext()) {
+        setUICallbackContext(inSyntaxComponentContext() && !inSyntaxDataSourceContext());
+        if (inSyntaxComponentContext() && !inSyntaxDataSourceContext()) {
             setSyntaxComponentContext(false);
         }
         setNoEtsComponentContext(!inUICallbackContext());
@@ -6325,11 +6345,6 @@ namespace Parser {
 
     function parseCallExpressionRest(pos: number, expression: LeftHandSideExpression): LeftHandSideExpression {
         let currentNodeName: string | undefined;
-        let resetSyntaxDataSourceContextFlag: Boolean = false;
-        if (inSyntaxComponentContext() && !inSyntaxDataSourseContext()) {
-            setSyntaxDataSourceContext(true);
-            resetSyntaxDataSourceContextFlag = true;
-        }
         while (true) {
             expression = parseMemberExpressionRest(pos, expression, /*allowOptionalChain*/ true);
             let typeArguments: NodeArray<TypeNode> | undefined;
@@ -6371,6 +6386,10 @@ namespace Parser {
                         if (type === 'callExpressionComponentType' && syntaxComponents && syntaxComponents.length &&
                             syntaxComponents[0]?.attributes?.includes(currentNodeName)) {
                             setSyntaxComponentContext(true);
+                            setFirstArgumentExpression(true);
+                            if (currentNodeName === 'each') {
+                                setRepeatEachRest(true);
+                            }
                         } else if (type === 'etsComponentType') {
                             typeArguments = parseEtsTypeArguments(pos, `${rootNodeName}Attribute`);
                         }
@@ -6394,6 +6413,7 @@ namespace Parser {
                 if (isValidVirtualTypeArgumentsContext() && ts.isIdentifier(expression) &&
                     sourceFileCompilerOptions?.ets?.syntaxComponents?.paramsUICallback?.includes(expression.escapedText.toString())) {
                     setSyntaxComponentContext(true);
+                    setFirstArgumentExpression(true);
                 }
                 const argumentList = parseArgumentList();
                 const callExpr = questionDotToken || tryReparseOptionalChain(expression) ?
@@ -6412,9 +6432,6 @@ namespace Parser {
         if (currentNodeName === sourceFileCompilerOptions?.ets?.styles?.property) {
             setEtsStateStylesContext(false);
             stateStylesRootNode = undefined;
-        }
-        if (resetSyntaxDataSourceContextFlag) {
-            setSyntaxDataSourceContext(false);
         }
         return expression;
     }
@@ -6569,7 +6586,28 @@ namespace Parser {
     }
 
     function parseArgumentExpression(): Expression {
-        return doOutsideOfContext(disallowInAndDecoratorContext, parseArgumentOrArrayLiteralElement);
+        let resetSyntaxDataSourceContextFlag: boolean = false;
+        let resetRepeatEachContextFlag: boolean = false;
+        if (inSyntaxComponentContext() && !inSyntaxDataSourceContext() && getFirstArgumentExpression()) {
+            setFirstArgumentExpression(false);
+            if (!getRepeatEachRest()) {
+                setSyntaxDataSourceContext(true);
+                resetSyntaxDataSourceContextFlag = true;
+            } else {
+                resetRepeatEachContextFlag = true;
+            }
+        }
+        const argumentExpressionResult = doOutsideOfContext(disallowInAndDecoratorContext, parseArgumentOrArrayLiteralElement);
+
+        if (resetSyntaxDataSourceContextFlag) {
+            setSyntaxDataSourceContext(false);
+        }
+
+        if (resetRepeatEachContextFlag) {
+            setRepeatEachRest(false);
+        }
+
+        return argumentExpressionResult;
     }
 
     function parseArrayLiteralExpression(): ArrayLiteralExpression {
