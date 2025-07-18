@@ -3,6 +3,8 @@ tests/cases/compiler/lastPropertyInLiteralWins.ts(8,5): error TS2322: Type '(num
     Type 'string' is not assignable to type 'number'.
 tests/cases/compiler/lastPropertyInLiteralWins.ts(9,5): error TS1117: An object literal cannot have multiple properties with the same name.
 tests/cases/compiler/lastPropertyInLiteralWins.ts(9,5): error TS2322: Type '(num: number) => void' is not assignable to type '(str: string) => void'.
+  Types of parameters 'num' and 'str' are incompatible.
+    Type 'string' is not assignable to type 'number'.
 tests/cases/compiler/lastPropertyInLiteralWins.ts(14,5): error TS1117: An object literal cannot have multiple properties with the same name.
 
 
@@ -25,6 +27,8 @@ tests/cases/compiler/lastPropertyInLiteralWins.ts(14,5): error TS1117: An object
 !!! error TS1117: An object literal cannot have multiple properties with the same name.
         ~~~~~
 !!! error TS2322: Type '(num: number) => void' is not assignable to type '(str: string) => void'.
+!!! error TS2322:   Types of parameters 'num' and 'str' are incompatible.
+!!! error TS2322:     Type 'string' is not assignable to type 'number'.
 !!! related TS6500 tests/cases/compiler/lastPropertyInLiteralWins.ts:2:5: The expected type comes from property 'thunk' which is declared here on type 'Thing'
     });
     
