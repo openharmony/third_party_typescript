@@ -370,6 +370,7 @@ export interface LanguageServiceHost extends GetEffectiveTypeRootsHost, MinimalR
     uiProps?: Set<string>;
     clearProps?(): void;
     clearFileCache?(): void;
+    isStaticSourceFile?(fileName: string): boolean;
 }
 
 /** @internal */

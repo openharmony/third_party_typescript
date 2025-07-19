@@ -1423,6 +1423,7 @@ export function createLanguageService(
             getJsDocNodeCheckedConfig: maybeBind(host, host.getJsDocNodeCheckedConfig),
             getJsDocNodeConditionCheckedResult: maybeBind(host, host.getJsDocNodeConditionCheckedResult),
             getFileCheckedModuleInfo: maybeBind(host, host.getFileCheckedModuleInfo),
+            isStaticSourceFile: host.isStaticSourceFile
         };
 
         const originalGetSourceFile = compilerHost.getSourceFile;

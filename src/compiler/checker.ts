@@ -988,6 +988,7 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
         getCheckedSourceFiles: () => checkedSourceFiles,
         collectHaveTsNoCheckFilesForLinter: (sourceFile: SourceFile) => {isTypeCheckerForLinter && checkedSourceFiles.add(sourceFile)},
         clearQualifiedNameCache: () => {qualifiedNameCache && qualifiedNameCache.clear()},
+        isStaticRecord: isStaticRecord,
     };
 
     function getTypeArgumentsForResolvedSignature(signature: Signature): readonly Type[] | undefined {
@@ -14383,6 +14384,32 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
             ignoreErrors ? unknownSymbol : getUnresolvedSymbolForEntityName(name);
     }
 
+    // Returns true if Record is from ArkTs1.2
+    function isStaticRecord(type: Type): boolean {
+        if (type === undefined){
+          return false;
+        }
+        const aliasedSymbol = type.aliasSymbol;
+        if (aliasedSymbol === undefined){
+          return false;
+        }
+        const links = getSymbolLinks(aliasedSymbol);
+        if (links.isStaticRecord === undefined) {
+            links.isStaticRecord = isStaticSourceFile(getSourceFileOfNode(aliasedSymbol?.declarations?.[0]));
+        }
+        return links.isStaticRecord;
+    }
+
+    function isStaticSourceFile(sourceFile: SourceFile | undefined): boolean {
+        if (!sourceFile) {
+                return false;
+            }
+        if (host.isStaticSourceFile) {
+            return host.isStaticSourceFile(sourceFile.fileName);
+        }
+        return false;
+    }
+                    
     function getTypeReferenceType(node: NodeWithTypeArguments, symbol: Symbol): Type {
         if (symbol === unknownSymbol) {
             return errorType;
