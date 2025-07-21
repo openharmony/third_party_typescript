@@ -2645,6 +2645,7 @@ declare namespace ts {
         getCheckedSourceFiles(): Set<SourceFile>;
         collectHaveTsNoCheckFilesForLinter(sourceFile: SourceFile): void;
         clearQualifiedNameCache?(): void;
+        isStaticRecord?(type: Type): boolean;
     }
     enum NodeBuilderFlags {
         None = 0,
@@ -3724,6 +3725,7 @@ declare namespace ts {
         getJsDocNodeConditionCheckedResult?(jsDocFileCheckedInfo: FileCheckModuleInfo, jsDocTagInfos: JsDocTagInfo[], jsDocs?: JSDoc[]): ConditionCheckResult;
         getFileCheckedModuleInfo?(containFilePath: string): FileCheckModuleInfo;
         getLastCompiledProgram?(): Program;
+        isStaticSourceFile?(filePath: string): boolean;
     }
     interface SourceMapRange extends TextRange {
         source?: SourceMapSource;
@@ -6606,6 +6608,7 @@ declare namespace ts {
         uiProps?: Set<string>;
         clearProps?(): void;
         clearFileCache?(): void;
+        isStaticSourceFile?(fileName: string): boolean;
     }
     type WithMetadata<T> = T & {
         metadata?: unknown;

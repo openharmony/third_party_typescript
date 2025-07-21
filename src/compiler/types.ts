@@ -4745,6 +4745,7 @@ export interface TypeCheckerHost extends ModuleSpecifierResolutionHost {
         getJsDocNodeCheckedConfig?(fileCheckedInfo: FileCheckModuleInfo, symbolSourceFilePath: string): JsDocNodeCheckConfig;
         getJsDocNodeConditionCheckedResult?(fileCheckedInfo: FileCheckModuleInfo, jsDocTagInfos: JsDocTagInfo[], jsDocs?: JSDoc[]): ConditionCheckResult;
         getFileCheckedModuleInfo?(containFilePath: string): FileCheckModuleInfo;
+        isStaticSourceFile?(filePath: string): boolean;
     }
 
 export interface TypeChecker {
@@ -5055,6 +5056,7 @@ export interface TypeChecker {
     getCheckedSourceFiles(): Set<SourceFile>;
     collectHaveTsNoCheckFilesForLinter(sourceFile: SourceFile): void;
     clearQualifiedNameCache?(): void;
+    isStaticRecord?(type: Type): boolean;
 }
 
 /** @internal */
@@ -5624,6 +5626,7 @@ export interface SymbolLinks {
     tupleLabelDeclaration?: NamedTupleMember | ParameterDeclaration; // Declaration associated with the tuple's label
     accessibleChainCache?: ESMap<string, Symbol[] | undefined>;
     filteredIndexSymbolCache?: ESMap<string, Symbol> //Symbol with applicable declarations
+    isStaticRecord?: boolean;                   // Returns true if Record is from ArkTs1.2
 }
 
 /** @internal */
@@ -7569,6 +7572,9 @@ export interface CompilerHost extends ModuleResolutionHost {
 
     // For ark incremental build
     getLastCompiledProgram?(): Program;
+
+    // Verify whether the file belongs to ArkTS 1.2
+    isStaticSourceFile?(filePath: string): boolean;
 }
 
 /**
