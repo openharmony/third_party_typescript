@@ -43,6 +43,7 @@ export enum FaultID {
   SendableFunctionImportedVariables, SendableFunctionDecorator, SendableTypeAliasDecorator, SendableTypeAliasDeclaration, 
   SendableFunctionAssignment, SendableFunctionOverloadDecorator, SendableFunctionProperty, SendableFunctionAsExpr,
   SendableDecoratorLimited, SharedModuleExportsWarning, SendableBetaCompatible, SendablePropTypeWarning, TaskpoolFunctionArg,
+  ObjectLiteralAmbiguity,
   LAST_ID, // this should always be last enum
 }
 
@@ -168,3 +169,4 @@ faultsAttrs[FaultID.SharedModuleExportsWarning] = new FaultAttributes(163, false
 faultsAttrs[FaultID.SendableBetaCompatible] = new FaultAttributes(182);
 faultsAttrs[FaultID.SendablePropTypeWarning] = new FaultAttributes(154, false, ProblemSeverity.WARNING);
 faultsAttrs[FaultID.TaskpoolFunctionArg] = new FaultAttributes(183);
+faultsAttrs[FaultID.ObjectLiteralAmbiguity] = new FaultAttributes(184);

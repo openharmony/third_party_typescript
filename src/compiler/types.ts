@@ -5057,6 +5057,7 @@ export interface TypeChecker {
     collectHaveTsNoCheckFilesForLinter(sourceFile: SourceFile): void;
     clearQualifiedNameCache?(): void;
     isStaticRecord?(type: Type): boolean;
+    isStaticSourceFile?(sourceFile: SourceFile | undefined): boolean;
 }
 
 /** @internal */
@@ -6917,6 +6918,7 @@ export interface CompilerOptions {
     etsAnnotationsEnable?: boolean;
     maxFlowDepth?: number; // The value of maxFlowDepth ranges from 2000 to 65535.
     skipOhModulesLint?: boolean;
+    mixCompile?: boolean;
 }
 
 export interface EtsOptions {
