@@ -6649,6 +6649,7 @@ declare namespace ts {
         collectHaveTsNoCheckFilesForLinter(sourceFile: SourceFile): void;
         clearQualifiedNameCache?(): void;
         isStaticRecord?(type: Type): boolean;
+        isStaticSourceFile?(sourceFile: SourceFile | undefined): boolean;
     }
     enum NodeBuilderFlags {
         None = 0,
@@ -7393,6 +7394,7 @@ declare namespace ts {
         etsAnnotationsEnable?: boolean;
         maxFlowDepth?: number;
         skipOhModulesLint?: boolean;
+        mixCompile?: boolean;
     }
     interface EtsOptions {
         render: {
@@ -13055,7 +13057,8 @@ declare namespace ts {
             SendableBetaCompatible = 109,
             SendablePropTypeWarning = 110,
             TaskpoolFunctionArg = 111,
-            LAST_ID = 112
+            ObjectLiteralAmbiguity = 112,
+            LAST_ID = 113
         }
         class FaultAttributes {
             cookBookRef: number;
@@ -13404,6 +13407,7 @@ declare namespace ts {
             private fileExportDeclCaches?;
             private compatibleSdkVersionStage;
             private compatibleSdkVersion;
+            private mixCompile;
             constructor(sourceFile: SourceFile, tsProgram: Program, tscStrictDiagnostics?: ts.Map<ts.Diagnostic[]> | undefined);
             static clearTsTypeChecker(): void;
             static clearQualifiedNameCache(): void;
@@ -13422,6 +13426,8 @@ declare namespace ts {
             private interfaceInheritanceLint;
             private lintForInterfaceExtendsDifferentPorpertyTypes;
             private handleObjectLiteralExpression;
+            private handleUnionTypeObjectLiteral;
+            private getSourceFileFromType;
             private handleArrayLiteralExpression;
             private handleParameter;
             private handleEnumDeclaration;
