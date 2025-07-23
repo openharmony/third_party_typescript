@@ -7709,7 +7709,7 @@
         "category": "Error",
         "code": 28039
     },
-    "Function may throw error, caller should handle it with 'try-catch' or declare '@throws'.": {
+    "Function may throw exceptions. Special handling is required.": {
         "category": "Warning",
         "code": 28040
     }

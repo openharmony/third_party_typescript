@@ -33115,7 +33115,7 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
         if (hasThrowsTag(currentDecl)) {
             return;
         }
-        error(getThrowsErrorNode(node), Diagnostics.Function_may_throw_error_caller_should_handle_it_with_try_catch_or_declare_throws);
+        error(getThrowsErrorNode(node), Diagnostics.Function_may_throw_exceptions_Special_handling_is_required);
     }
 
     // Check if calls to @throws-annotated functions have AsyncCallback or ErrorCallback parameters - suppress warnings when present,
