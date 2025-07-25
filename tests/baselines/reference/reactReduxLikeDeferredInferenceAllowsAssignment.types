@@ -10,7 +10,7 @@ declare class Component<P> {
 >context : any
 
   readonly props: Readonly<P> & Readonly<{ children?: {} }>;
->props : Readonly<P> & Readonly<{ children?: {} | undefined; }>
+>props : Readonly<P> & Readonly<{ children?: {}; }>
 >children : {} | undefined
 }
 interface ComponentClass<P = {}> {
@@ -29,7 +29,7 @@ interface ComponentClass<P = {}> {
 }
 interface FunctionComponent<P = {}> {
   (props: P & { children?: {} }, context?: any): {} | null;
->props : P & { children?: {} | undefined; }
+>props : P & { children?: {}; }
 >children : {} | undefined
 >context : any
 >null : null
@@ -262,10 +262,10 @@ class TestComponent extends Component<TestComponentProps> {}
 >Component : Component<TestComponentProps>
 
 const mapDispatchToProps = { simpleAction, thunkAction };
->mapDispatchToProps : { simpleAction: (payload: boolean) => { type: string; payload: boolean; }; thunkAction: (param1: number, param2: string) => (dispatch: Dispatch<AnyAction>, { foo }: OwnProps) => Promise<string>; }
->{ simpleAction, thunkAction } : { simpleAction: (payload: boolean) => { type: string; payload: boolean; }; thunkAction: (param1: number, param2: string) => (dispatch: Dispatch<AnyAction>, { foo }: OwnProps) => Promise<string>; }
+>mapDispatchToProps : { simpleAction: (payload: boolean) => { type: string; payload: boolean; }; thunkAction: (param1: number, param2: string) => (dispatch: Dispatch, { foo }: OwnProps) => Promise<string>; }
+>{ simpleAction, thunkAction } : { simpleAction: (payload: boolean) => { type: string; payload: boolean; }; thunkAction: (param1: number, param2: string) => (dispatch: Dispatch, { foo }: OwnProps) => Promise<string>; }
 >simpleAction : (payload: boolean) => { type: string; payload: boolean; }
->thunkAction : (param1: number, param2: string) => (dispatch: Dispatch<AnyAction>, { foo }: OwnProps) => Promise<string>
+>thunkAction : (param1: number, param2: string) => (dispatch: Dispatch, { foo }: OwnProps) => Promise<string>
 
 type Q = HandleThunkActionCreator<typeof simpleAction>;
 >Q : (payload: boolean) => { type: string; payload: boolean; }
@@ -281,7 +281,7 @@ const Test1 = connect(
 >null : null
 
   mapDispatchToProps
->mapDispatchToProps : { simpleAction: (payload: boolean) => { type: string; payload: boolean; }; thunkAction: (param1: number, param2: string) => (dispatch: Dispatch<AnyAction>, { foo }: OwnProps) => Promise<string>; }
+>mapDispatchToProps : { simpleAction: (payload: boolean) => { type: string; payload: boolean; }; thunkAction: (param1: number, param2: string) => (dispatch: Dispatch, { foo }: OwnProps) => Promise<string>; }
 
 )(TestComponent);
 >TestComponent : typeof TestComponent

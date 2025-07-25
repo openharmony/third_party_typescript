@@ -46,7 +46,7 @@ interface ResizeObserverCallback { // duplicate for effect
 const resizeObserver = new ResizeObserver(([entry]) => {
 >resizeObserver : ResizeObserver
 >new ResizeObserver(([entry]) => {    entry}) : ResizeObserver
->ResizeObserver : { new (callback: globalThis.ResizeObserverCallback): ResizeObserver; prototype: ResizeObserver; }
+>ResizeObserver : { new (callback: ResizeObserverCallback): ResizeObserver; prototype: ResizeObserver; }
 >([entry]) => {    entry} : ([entry]: ResizeObserverEntry[]) => void
 >entry : ResizeObserverEntry
 
@@ -153,7 +153,7 @@ series([
 >cb => setTimeout(() => cb(null, 1), 300) : (cb: Callback<unknown>) => number
 >cb : Callback<unknown>
 >setTimeout(() => cb(null, 1), 300) : number
->setTimeout : (handler: TimerHandler, timeout?: number | undefined, ...arguments: any[]) => number
+>setTimeout : (handler: TimerHandler, timeout?: number, ...arguments: any[]) => number
 >() => cb(null, 1) : () => unknown
 >cb(null, 1) : unknown
 >cb : Callback<unknown>
@@ -165,7 +165,7 @@ series([
 >cb => setTimeout(() => cb(null, 2), 200) : (cb: Callback<unknown>) => number
 >cb : Callback<unknown>
 >setTimeout(() => cb(null, 2), 200) : number
->setTimeout : (handler: TimerHandler, timeout?: number | undefined, ...arguments: any[]) => number
+>setTimeout : (handler: TimerHandler, timeout?: number, ...arguments: any[]) => number
 >() => cb(null, 2) : () => unknown
 >cb(null, 2) : unknown
 >cb : Callback<unknown>
@@ -177,7 +177,7 @@ series([
 >cb => setTimeout(() => cb(null, 3), 100) : (cb: Callback<unknown>) => number
 >cb : Callback<unknown>
 >setTimeout(() => cb(null, 3), 100) : number
->setTimeout : (handler: TimerHandler, timeout?: number | undefined, ...arguments: any[]) => number
+>setTimeout : (handler: TimerHandler, timeout?: number, ...arguments: any[]) => number
 >() => cb(null, 3) : () => unknown
 >cb(null, 3) : unknown
 >cb : Callback<unknown>

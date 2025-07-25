@@ -3,6 +3,7 @@
 export * from "../corePublic";
 export * from "../core";
 export * from "../debug";
+export * from "../expressionToTypeNode";
 export * from "../semver";
 export * from "../performanceCore";
 export * from "../performanceDotting";

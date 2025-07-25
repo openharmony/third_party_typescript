@@ -60,20 +60,20 @@ function g(a) {
 }
 g()
 >g() : void
->g : (a?: number | null | undefined) => void
+>g : (a?: (((((number | null) | null) | null) | null) | null) | undefined) => void
 
 g(null)
 >g(null) : void
->g : (a?: number | null | undefined) => void
+>g : (a?: (((((number | null) | null) | null) | null) | null) | undefined) => void
 >null : null
 
 g(undefined)
 >g(undefined) : void
->g : (a?: number | null | undefined) => void
+>g : (a?: (((((number | null) | null) | null) | null) | null) | undefined) => void
 >undefined : undefined
 
 g(1)
 >g(1) : void
->g : (a?: number | null | undefined) => void
+>g : (a?: (((((number | null) | null) | null) | null) | null) | undefined) => void
 >1 : 1
 

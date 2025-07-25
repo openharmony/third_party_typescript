@@ -1,0 +1,4 @@
+=== tests/cases/compiler/noCheckDoesNotReportError.ts ===
+export const a: number = "not ok";
+>a : Symbol(a, Decl(noCheckDoesNotReportError.ts, 0, 12))
+

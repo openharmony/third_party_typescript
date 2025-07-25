@@ -181,8 +181,8 @@ declare let b3: InfBox<string>;
 >b3 : InfBox<string>
 
 declare let b4: { value: { value: { value: typeof b4 }}};
->b4 : { value: {    value: {        value: typeof b4;    };}; }
->value : { value: {    value: typeof b4;}; }
+>b4 : { value: { value: { value: typeof b4; }; }; }
+>value : { value: { value: typeof b4; }; }
 >value : { value: typeof b4; }
 >value : { value: { value: { value: typeof b4; }; }; }
 >b4 : { value: { value: { value: any; }; }; }
@@ -385,7 +385,7 @@ type Enumerate<N extends number> = number extends N
     : never;
 
 function foo2<T extends unknown[]>(value: T): Enumerate<T['length']> {
->foo2 : <T extends unknown[]>(value: T) => Enumerate<T['length']>
+>foo2 : <T extends unknown[]>(value: T) => Enumerate<T["length"]>
 >value : T
 
     return value.length;  // Error

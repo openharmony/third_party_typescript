@@ -229,7 +229,7 @@ export class RWCRunner extends Harness.RunnerBase {
     public initializeTests(): void {
         // Read in and evaluate the test list
         for (const test of this.tests && this.tests.length ? this.tests : this.getTestFiles()) {
-            this.runTest(typeof test === "string" ? test : test.file);
+            this.runTest(test);
         }
     }
 

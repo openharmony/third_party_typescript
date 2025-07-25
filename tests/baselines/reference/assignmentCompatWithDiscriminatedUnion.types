@@ -299,7 +299,7 @@ namespace GH30170 {
 >val : Blue | Yellow
 
     function drawWithColor(currentColor: 'blue' | 'yellow' | undefined) {
->drawWithColor : (currentColor: 'blue' | 'yellow' | undefined) => void
+>drawWithColor : (currentColor: "blue" | "yellow" | undefined) => void
 >currentColor : "blue" | "yellow"
 
         return draw({ color: currentColor });
@@ -406,7 +406,7 @@ namespace GH15907 {
 >GH15907 : typeof GH15907
 
     type Action = { type: 'activate' } | { type: 'disactivate' };
->Action : { type: 'activate'; } | { type: 'disactivate'; }
+>Action : { type: "activate"; } | { type: "disactivate"; }
 >type : "activate"
 >type : "disactivate"
 

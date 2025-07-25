@@ -39,18 +39,18 @@ takeTwo(1, 2, 3, 4)
 
 withRest('a', ...n); // no error
 >withRest('a', ...n) : void
->withRest : (a: any, ...args: any[]) => void
+>withRest : (a: any, ...args: Array<any>) => void
 >'a' : "a"
 >...n : number
 >n : number[]
 
 withRest();
 >withRest() : void
->withRest : (a: any, ...args: any[]) => void
+>withRest : (a: any, ...args: Array<any>) => void
 
 withRest(...n); 
 >withRest(...n) : void
->withRest : (a: any, ...args: any[]) => void
+>withRest : (a: any, ...args: Array<any>) => void
 >...n : number
 >n : number[]
 

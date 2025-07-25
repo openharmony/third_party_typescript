@@ -2115,6 +2115,7 @@ export function createModuleSpecifierResolutionHost(program: Program, host: Lang
         isSourceOfProjectReferenceRedirect: fileName => program.isSourceOfProjectReferenceRedirect(fileName),
         getNearestAncestorDirectoryWithPackageJson: maybeBind(host, host.getNearestAncestorDirectoryWithPackageJson),
         getFileIncludeReasons: () => program.getFileIncludeReasons(),
+        getCommonSourceDirectory: () => program.getCommonSourceDirectory(),
     };
 }
 

@@ -1628,9 +1628,9 @@ _.result(object, 'stuff');
 var compiled = _.template("hello: <%= name %>");
 >compiled : (data: any) => string
 >_.template("hello: <%= name %>") : (data: any) => string
->_.template : { (templateString: string): (data: any) => string; (templateString: string, data: any, settings?: Underscore.TemplateSettings): string; }
+>_.template : { (templateString: string): (data: any) => string; (templateString: string, data: any, settings?: TemplateSettings): string; }
 >_ : Underscore.Static
->template : { (templateString: string): (data: any) => string; (templateString: string, data: any, settings?: Underscore.TemplateSettings): string; }
+>template : { (templateString: string): (data: any) => string; (templateString: string, data: any, settings?: TemplateSettings): string; }
 >"hello: <%= name %>" : "hello: <%= name %>"
 
 compiled({ name: 'moe' });
@@ -1646,9 +1646,9 @@ var list2 = "<% _.each(people, function(name) { %> <li><%= name %></li> <% }); %
 
 _.template(list2, { people: ['moe', 'curly', 'larry'] });
 >_.template(list2, { people: ['moe', 'curly', 'larry'] }) : string
->_.template : { (templateString: string): (data: any) => string; (templateString: string, data: any, settings?: Underscore.TemplateSettings): string; }
+>_.template : { (templateString: string): (data: any) => string; (templateString: string, data: any, settings?: TemplateSettings): string; }
 >_ : Underscore.Static
->template : { (templateString: string): (data: any) => string; (templateString: string, data: any, settings?: Underscore.TemplateSettings): string; }
+>template : { (templateString: string): (data: any) => string; (templateString: string, data: any, settings?: TemplateSettings): string; }
 >list2 : string
 >{ people: ['moe', 'curly', 'larry'] } : { people: string[]; }
 >people : string[]
@@ -1660,9 +1660,9 @@ _.template(list2, { people: ['moe', 'curly', 'larry'] });
 var template = _.template("<b><%- value %></b>");
 >template : (data: any) => string
 >_.template("<b><%- value %></b>") : (data: any) => string
->_.template : { (templateString: string): (data: any) => string; (templateString: string, data: any, settings?: Underscore.TemplateSettings): string; }
+>_.template : { (templateString: string): (data: any) => string; (templateString: string, data: any, settings?: TemplateSettings): string; }
 >_ : Underscore.Static
->template : { (templateString: string): (data: any) => string; (templateString: string, data: any, settings?: Underscore.TemplateSettings): string; }
+>template : { (templateString: string): (data: any) => string; (templateString: string, data: any, settings?: TemplateSettings): string; }
 >"<b><%- value %></b>" : "<b><%- value %></b>"
 
 template({ value: '<script>' });
@@ -1675,9 +1675,9 @@ template({ value: '<script>' });
 var compiled2 = _.template("<% print('Hello ' + epithet); %>");
 >compiled2 : (data: any) => string
 >_.template("<% print('Hello ' + epithet); %>") : (data: any) => string
->_.template : { (templateString: string): (data: any) => string; (templateString: string, data: any, settings?: Underscore.TemplateSettings): string; }
+>_.template : { (templateString: string): (data: any) => string; (templateString: string, data: any, settings?: TemplateSettings): string; }
 >_ : Underscore.Static
->template : { (templateString: string): (data: any) => string; (templateString: string, data: any, settings?: Underscore.TemplateSettings): string; }
+>template : { (templateString: string): (data: any) => string; (templateString: string, data: any, settings?: TemplateSettings): string; }
 >"<% print('Hello ' + epithet); %>" : "<% print('Hello ' + epithet); %>"
 
 compiled2({ epithet: "stooge" });
@@ -1702,9 +1702,9 @@ _.templateSettings = {
 var template2 = _.template("Hello {{ name }}!");
 >template2 : (data: any) => string
 >_.template("Hello {{ name }}!") : (data: any) => string
->_.template : { (templateString: string): (data: any) => string; (templateString: string, data: any, settings?: Underscore.TemplateSettings): string; }
+>_.template : { (templateString: string): (data: any) => string; (templateString: string, data: any, settings?: TemplateSettings): string; }
 >_ : Underscore.Static
->template : { (templateString: string): (data: any) => string; (templateString: string, data: any, settings?: Underscore.TemplateSettings): string; }
+>template : { (templateString: string): (data: any) => string; (templateString: string, data: any, settings?: TemplateSettings): string; }
 >"Hello {{ name }}!" : "Hello {{ name }}!"
 
 template2({ name: "Mustache" });
@@ -1716,9 +1716,9 @@ template2({ name: "Mustache" });
 
 _.template("Using 'with': <%= data.answer %>", { answer: 'no' }, { variable: 'data' });
 >_.template("Using 'with': <%= data.answer %>", { answer: 'no' }, { variable: 'data' }) : string
->_.template : { (templateString: string): (data: any) => string; (templateString: string, data: any, settings?: Underscore.TemplateSettings): string; }
+>_.template : { (templateString: string): (data: any) => string; (templateString: string, data: any, settings?: TemplateSettings): string; }
 >_ : Underscore.Static
->template : { (templateString: string): (data: any) => string; (templateString: string, data: any, settings?: Underscore.TemplateSettings): string; }
+>template : { (templateString: string): (data: any) => string; (templateString: string, data: any, settings?: TemplateSettings): string; }
 >"Using 'with': <%= data.answer %>" : "Using 'with': <%= data.answer %>"
 >{ answer: 'no' } : { answer: string; }
 >answer : string

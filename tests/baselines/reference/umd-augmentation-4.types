@@ -13,9 +13,9 @@ let v = new Math2d.Vector(3, 2);
 let magnitude = Math2d.getLength(v);
 >magnitude : number
 >Math2d.getLength(v) : number
->Math2d.getLength : (p: Math2d.Vector) => number
+>Math2d.getLength : (p: Vector) => number
 >Math2d : typeof Math2d
->getLength : (p: Math2d.Vector) => number
+>getLength : (p: Vector) => number
 >v : Math2d.Vector
 
 let p: Math2d.Point = v.translate(5, 5);

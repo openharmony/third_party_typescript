@@ -5,7 +5,7 @@ type T = { a: number, b: string };
 >b : string
 
 type TP = { a?: number, b?: string };
->TP : { a?: number | undefined; b?: string | undefined; }
+>TP : { a?: number; b?: string; }
 >a : number | undefined
 >b : string | undefined
 
@@ -15,7 +15,7 @@ type TR = { readonly a: number, readonly b: string };
 >b : string
 
 type TPR = { readonly a?: number, readonly b?: string };
->TPR : { readonly a?: number | undefined; readonly b?: string | undefined; }
+>TPR : { readonly a?: number; readonly b?: string; }
 >a : number | undefined
 >b : string | undefined
 
@@ -105,28 +105,28 @@ type Boxified<T> = { [P in keyof T]: { x: T[P] } };
 >x : T[P]
 
 type B = { a: { x: number }, b: { x: string } };
->B : { a: {    x: number;}; b: {    x: string;}; }
+>B : { a: { x: number; }; b: { x: string; }; }
 >a : { x: number; }
 >x : number
 >b : { x: string; }
 >x : string
 
 type BP = { a?: { x: number }, b?: { x: string } };
->BP : { a?: { x: number; } | undefined; b?: { x: string; } | undefined; }
+>BP : { a?: { x: number; }; b?: { x: string; }; }
 >a : { x: number; } | undefined
 >x : number
 >b : { x: string; } | undefined
 >x : string
 
 type BR = { readonly a: { x: number }, readonly b: { x: string } };
->BR : { readonly a: {    x: number;}; readonly b: {    x: string;}; }
+>BR : { readonly a: { x: number; }; readonly b: { x: string; }; }
 >a : { x: number; }
 >x : number
 >b : { x: string; }
 >x : string
 
 type BPR = { readonly a?: { x: number }, readonly b?: { x: string } };
->BPR : { readonly a?: { x: number; } | undefined; readonly b?: { x: string; } | undefined; }
+>BPR : { readonly a?: { x: number; }; readonly b?: { x: string; }; }
 >a : { x: number; } | undefined
 >x : number
 >b : { x: string; } | undefined
@@ -229,14 +229,14 @@ function f1(x: Partial<Foo>) {
 
     (x["other"] || 0).toFixed();
 >(x["other"] || 0).toFixed() : string
->(x["other"] || 0).toFixed : (fractionDigits?: number | undefined) => string
+>(x["other"] || 0).toFixed : (fractionDigits?: number) => string
 >(x["other"] || 0) : number
 >x["other"] || 0 : number
 >x["other"] : number | undefined
 >x : Partial<Foo>
 >"other" : "other"
 >0 : 0
->toFixed : (fractionDigits?: number | undefined) => string
+>toFixed : (fractionDigits?: number) => string
 }
 
 function f2(x: Readonly<Foo>) {
@@ -250,11 +250,11 @@ function f2(x: Readonly<Foo>) {
 
     x["other"].toFixed();
 >x["other"].toFixed() : string
->x["other"].toFixed : (fractionDigits?: number | undefined) => string
+>x["other"].toFixed : (fractionDigits?: number) => string
 >x["other"] : number
 >x : Readonly<Foo>
 >"other" : "other"
->toFixed : (fractionDigits?: number | undefined) => string
+>toFixed : (fractionDigits?: number) => string
 }
 
 function f3(x: Boxified<Foo>) {
@@ -268,17 +268,17 @@ function f3(x: Boxified<Foo>) {
 
     x["other"].x.toFixed();
 >x["other"].x.toFixed() : string
->x["other"].x.toFixed : (fractionDigits?: number | undefined) => string
+>x["other"].x.toFixed : (fractionDigits?: number) => string
 >x["other"].x : number
 >x["other"] : { x: number; }
 >x : Boxified<Foo>
 >"other" : "other"
 >x : number
->toFixed : (fractionDigits?: number | undefined) => string
+>toFixed : (fractionDigits?: number) => string
 }
 
 function f4(x: { [P in keyof Foo]: Foo[P] }) {
->f4 : (x: { [x: string]: number; prop: number; }) => void
+>f4 : (x: { [P in keyof Foo]: Foo[P]; }) => void
 >x : { [x: string]: number; prop: number; }
 
     x.prop; // ok
@@ -288,10 +288,10 @@ function f4(x: { [P in keyof Foo]: Foo[P] }) {
 
     x["other"].toFixed();
 >x["other"].toFixed() : string
->x["other"].toFixed : (fractionDigits?: number | undefined) => string
+>x["other"].toFixed : (fractionDigits?: number) => string
 >x["other"] : number
 >x : { [x: string]: number; prop: number; }
 >"other" : "other"
->toFixed : (fractionDigits?: number | undefined) => string
+>toFixed : (fractionDigits?: number) => string
 }
 

@@ -268,13 +268,13 @@ function ff3<A extends unknown[]>(s1: (...args: [x: string, ...rest: A | [number
 >rest : [number] | A
 
     s1 = s2;
->s1 = s2 : (x: string, ...rest: [number] | A) => void
->s1 : (...args: [string, number] | [x: string, ...rest: A]) => void
->s2 : (x: string, ...rest: [number] | A) => void
+>s1 = s2 : (x: string, ...rest: A | [number]) => void
+>s1 : (...args: [x: string, ...rest: A | [number]]) => void
+>s2 : (x: string, ...rest: A | [number]) => void
 
     s2 = s1;
->s2 = s1 : (...args: [string, number] | [x: string, ...rest: A]) => void
->s2 : (x: string, ...rest: [number] | A) => void
->s1 : (...args: [string, number] | [x: string, ...rest: A]) => void
+>s2 = s1 : (...args: [x: string, ...rest: A | [number]]) => void
+>s2 : (x: string, ...rest: A | [number]) => void
+>s1 : (...args: [x: string, ...rest: A | [number]]) => void
 }
 

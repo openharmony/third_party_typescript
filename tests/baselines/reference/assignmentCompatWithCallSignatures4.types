@@ -50,7 +50,7 @@ module Errors {
 >x : Base[]
 
         var a11: (x: { foo: string }, y: { foo: string; bar: string }) => Base;
->a11 : (x: {    foo: string;}, y: {    foo: string;    bar: string;}) => Base
+>a11 : (x: { foo: string; }, y: { foo: string; bar: string; }) => Base
 >x : { foo: string; }
 >foo : string
 >y : { foo: string; bar: string; }
@@ -73,7 +73,7 @@ module Errors {
 
             };
         var a15: (x: { a: string; b: number }) => number;
->a15 : (x: {    a: string;    b: number;}) => number
+>a15 : (x: { a: string; b: number; }) => number
 >x : { a: string; b: number; }
 >a : string
 >b : number
@@ -158,10 +158,10 @@ module Errors {
 >a7 : (x: (arg: Base) => Derived) => (r: Base) => Derived2
 
         var b8: <T extends Base, U extends Derived>(x: (arg: T) => U, y: (arg2: { foo: number; }) => U) => (r: T) => U; 
->b8 : <T extends Base, U extends Derived>(x: (arg: T) => U, y: (arg2: {    foo: number;}) => U) => (r: T) => U
+>b8 : <T extends Base, U extends Derived>(x: (arg: T) => U, y: (arg2: { foo: number; }) => U) => (r: T) => U
 >x : (arg: T) => U
 >arg : T
->y : (arg2: {    foo: number;}) => U
+>y : (arg2: { foo: number; }) => U
 >arg2 : { foo: number; }
 >foo : number
 >r : T
@@ -212,14 +212,14 @@ module Errors {
 >y : Base[]
 
         a12 = b12;
->a12 = b12 : <T extends Derived2[]>(x: Base[], y: Base[]) => T
->a12 : (x: Base[], y: Derived2[]) => Derived[]
->b12 : <T extends Derived2[]>(x: Base[], y: Base[]) => T
+>a12 = b12 : <T extends Derived2[]>(x: Array<Base>, y: Array<Base>) => T
+>a12 : (x: Array<Base>, y: Array<Derived2>) => Derived[]
+>b12 : <T extends Derived2[]>(x: Array<Base>, y: Array<Base>) => T
 
         b12 = a12;
->b12 = a12 : (x: Base[], y: Derived2[]) => Derived[]
->b12 : <T extends Derived2[]>(x: Base[], y: Base[]) => T
->a12 : (x: Base[], y: Derived2[]) => Derived[]
+>b12 = a12 : (x: Array<Base>, y: Array<Derived2>) => Derived[]
+>b12 : <T extends Derived2[]>(x: Array<Base>, y: Array<Base>) => T
+>a12 : (x: Array<Base>, y: Array<Derived2>) => Derived[]
 
         var b15: <T>(x: { a: T; b: T }) => T; 
 >b15 : <T>(x: { a: T; b: T; }) => T

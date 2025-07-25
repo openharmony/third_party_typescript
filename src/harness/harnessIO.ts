@@ -21,7 +21,7 @@ export interface IO {
     fileExists(fileName: string): boolean;
     directoryExists(path: string): boolean;
     deleteFile(fileName: string): void;
-    enumerateTestFiles(runner: RunnerBase): (string | FileBasedTest)[];
+    enumerateTestFiles(runner: RunnerBase): string[];
     listFiles(path: string, filter?: RegExp, options?: { recursive?: boolean }): string[];
     log(text: string): void;
     args(): string[];
@@ -80,53 +80,28 @@ function createNodeIO(): IO {
         return runner.getTestFiles();
     }
 
-    function listFiles(path: string, spec: RegExp, options: { recursive?: boolean } = {}) {
+    function listFiles(path: string, spec: RegExp | undefined, options: { recursive?: boolean; } = {}): string[] {
         function filesInFolder(folder: string): string[] {
+            const { files, directories } = ts.sys.getAccessibleFileSystemEntries!(folder);
             let paths: string[] = [];
 
-            for (const file of fs.readdirSync(folder)) {
+            for (const file of files) {
                 const pathToFile = pathModule.join(folder, file);
-                if (!fs.existsSync(pathToFile)) continue; // ignore invalid symlinks
-                const stat = fs.statSync(pathToFile);
-                if (options.recursive && stat.isDirectory()) {
-                    paths = paths.concat(filesInFolder(pathToFile));
-                }
-                else if (stat.isFile() && (!spec || file.match(spec))) {
+                if (!spec || file.match(spec)) {
                     paths.push(pathToFile);
                 }
             }
 
+            if (options.recursive) {
+                for (const dir of directories) {
+                    const pathToDir = pathModule.join(folder, dir);
+                    paths = paths.concat(filesInFolder(pathToDir));
+                }
+            }
             return paths;
         }
 
         return filesInFolder(path);
-    }
-
-    function getAccessibleFileSystemEntries(dirname: string): ts.FileSystemEntries {
-        try {
-            const entries: string[] = fs.readdirSync(dirname || ".").sort(ts.sys.useCaseSensitiveFileNames ? ts.compareStringsCaseSensitive : ts.compareStringsCaseInsensitive);
-            const files: string[] = [];
-            const directories: string[] = [];
-            for (const entry of entries) {
-                if (entry === "." || entry === "..") continue;
-                const name = vpath.combine(dirname, entry);
-                try {
-                    const stat = fs.statSync(name);
-                    if (!stat) continue;
-                    if (stat.isFile()) {
-                        files.push(entry);
-                    }
-                    else if (stat.isDirectory()) {
-                        directories.push(entry);
-                    }
-                }
-                catch { /*ignore*/ }
-            }
-            return { files, directories };
-        }
-        catch (e) {
-            return { files: [], directories: [] };
-        }
     }
 
     function createDirectory(path: string) {
@@ -166,7 +141,7 @@ function createNodeIO(): IO {
         getWorkspaceRoot: () => workspaceRoot,
         exit: exitCode => ts.sys.exit(exitCode),
         readDirectory: (path, extension, exclude, include, depth) => ts.sys.readDirectory(path, extension, exclude, include, depth),
-        getAccessibleFileSystemEntries,
+        getAccessibleFileSystemEntries: ts.sys.getAccessibleFileSystemEntries!,
         tryEnableSourceMapsForHost: () => ts.sys.tryEnableSourceMapsForHost && ts.sys.tryEnableSourceMapsForHost(),
         getMemoryUsage: () => ts.sys.getMemoryUsage && ts.sys.getMemoryUsage(),
         getEnvironmentVariable: name => ts.sys.getEnvironmentVariable(name),
@@ -325,6 +300,8 @@ export namespace Compiler {
         { name: "noTypesAndSymbols", type: "boolean", defaultValueDescription: false },
         // Emitted js baseline will print full paths for every output file
         { name: "fullEmitPaths", type: "boolean", defaultValueDescription: false },
+        { name: "noCheck", type: "boolean", defaultValueDescription: false },
+        { name: "reportDiagnostics", type: "boolean", defaultValueDescription: false }, // used to enable error collection in `transpile` baselines
     ];
 
     let optionsIndex: ts.ESMap<string, ts.CommandLineOption>;
@@ -400,6 +377,8 @@ export namespace Compiler {
         fileOptions?: any;
     }
 
+    export type CompileFilesResult = compiler.CompilationResult & { repeat(newOptions: TestCaseParser.CompilerSettings): CompileFilesResult; };
+
     export function compileFiles(
         inputFiles: TestFile[],
         otherFiles: TestFile[],
@@ -408,7 +387,8 @@ export namespace Compiler {
         // Current directory is needed for rwcRunner to be able to use currentDirectory defined in json file
         currentDirectory: string | undefined,
         symlinks?: vfs.FileSet
-    ): compiler.CompilationResult {
+    ): CompileFilesResult {
+        const originalCurrentDirectory = currentDirectory;
         const options: ts.CompilerOptions & HarnessOptions = compilerOptions ? ts.cloneCompilerOptions(compilerOptions) : { noResolve: false };
         options.target = ts.getEmitScriptTarget(options);
         options.newLine = options.newLine || ts.NewLineKind.CarriageReturnLineFeed;
@@ -451,7 +431,16 @@ export namespace Compiler {
         const host = new fakes.CompilerHost(fs, options);
         const result = compiler.compileFiles(host, programFileNames, options);
         result.symlinks = symlinks;
-        return result;
+        (result as CompileFilesResult).repeat = 
+            newOptions => compileFiles(
+                inputFiles,
+                otherFiles,
+                { ...harnessSettings, ...newOptions },
+                compilerOptions,
+                originalCurrentDirectory,
+                symlinks
+            );
+        return result as CompileFilesResult;
     }
 
     export interface DeclarationCompilationContext {
@@ -887,7 +876,7 @@ export namespace Compiler {
         return "\n//// https://sokra.github.io/source-map-visualization" + hash + "\n";
     }
 
-    export function doJsEmitBaseline(baselinePath: string, header: string, options: ts.CompilerOptions, result: compiler.CompilationResult, tsConfigFiles: readonly TestFile[], toBeCompiled: readonly TestFile[], otherFiles: readonly TestFile[], harnessSettings: TestCaseParser.CompilerSettings) {
+    export function doJsEmitBaseline(baselinePath: string, header: string, options: ts.CompilerOptions, result: CompileFilesResult, tsConfigFiles: readonly TestFile[], toBeCompiled: readonly TestFile[], otherFiles: readonly TestFile[], harnessSettings: TestCaseParser.CompilerSettings) {
         if (!options.noEmit && !options.emitDeclarationOnly && result.js.size === 0 && result.diagnostics.length === 0) {
             throw new Error("Expected at least one js file to be emitted or at least one error to be created.");
         }
@@ -935,9 +924,33 @@ export namespace Compiler {
             jsCode += "\r\n\r\n";
             jsCode += getErrorBaseline(tsConfigFiles.concat(declFileCompilationResult.declInputFiles, declFileCompilationResult.declOtherFiles), declFileCompilationResult.declResult.diagnostics);
         }
+        else if (!options.noCheck && !options.noEmit && (options.composite || options.declaration || options.emitDeclarationOnly)) {
+            const withoutChecking = result.repeat({ noCheck: "true", emitDeclarationOnly: "true" });
+            compareResultFileSets(withoutChecking.dts, result.dts);
+        }
 
         // eslint-disable-next-line no-null/no-null
         Baseline.runBaseline(baselinePath.replace(/\.(ets|tsx?)/, ts.Extension.Js), jsCode.length > 0 ? tsCode + "\r\n\r\n" + jsCode : null);
+
+        function compareResultFileSets(a: ReadonlyMap<string, documents.TextDocument>, b: ReadonlyMap<string, documents.TextDocument>): void {
+            a.forEach((doc, key) => {
+                const original = b.get(key);
+                if (!original) {
+                    jsCode += `\r\n\r\n!!!! File ${Utils.removeTestPathPrefixes(doc.file)} missing from original emit, but present in noCheck emit\r\n`;
+                    jsCode += fileOutput(doc, harnessSettings);
+                }
+                else if (original.text !== doc.text) {
+                    jsCode += `\r\n\r\n!!!! File ${Utils.removeTestPathPrefixes(doc.file)} differs from original emit in noCheck emit\r\n`;
+                    const Diff = require("diff");
+                    const expected = original.text;
+                    const actual = doc.text;
+                    const patch = Diff.createTwoFilesPatch("Expected", "Actual", expected, actual, "The full check baseline", "with noCheck set");
+                    const fileName = harnessSettings.fullEmitPaths ? Utils.removeTestPathPrefixes(doc.file) : ts.getBaseFileName(doc.file);
+                    jsCode += "//// [" + fileName + "]\r\n";
+                    jsCode += patch;
+                }
+            });
+        }
     }
 
     function fileOutput(file: documents.TextDocument, harnessSettings: TestCaseParser.CompilerSettings): string {

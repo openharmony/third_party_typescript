@@ -7935,8 +7935,8 @@
               "kind": "space"
             },
             {
-              "text": "string",
-              "kind": "keyword"
+              "text": "RegExp",
+              "kind": "localName"
             },
             {
               "text": " ",
@@ -7951,8 +7951,8 @@
               "kind": "space"
             },
             {
-              "text": "RegExp",
-              "kind": "localName"
+              "text": "string",
+              "kind": "keyword"
             },
             {
               "text": ")",
@@ -16849,8 +16849,8 @@
               "kind": "space"
             },
             {
-              "text": "string",
-              "kind": "keyword"
+              "text": "RegExp",
+              "kind": "localName"
             },
             {
               "text": " ",
@@ -16865,8 +16865,8 @@
               "kind": "space"
             },
             {
-              "text": "RegExp",
-              "kind": "localName"
+              "text": "string",
+              "kind": "keyword"
             },
             {
               "text": ")",

@@ -6,7 +6,7 @@ declare function f2<T extends string>(): [T];
 >f2 : <T extends string>() => [T]
 
 declare function f3<T extends string>(): { x: T };
->f3 : <T extends string>() => {    x: T;}
+>f3 : <T extends string>() => { x: T; }
 >x : T
 
 let x1 = f1();         // string
@@ -66,18 +66,18 @@ declare function selectJohn<K = Person>(props?: SelectProps<Person, K>): SelectR
 const [person] = selectJohn();
 >person : Person
 >selectJohn() : SelectResult<Person, Person>
->selectJohn : <K = Person>(props?: SelectProps<Person, K> | undefined) => SelectResult<Person, K>
+>selectJohn : <K = Person>(props?: SelectProps<Person, K>) => SelectResult<Person, K>
 
 const [any, whatever] = selectJohn();
 >any : Person
 >whatever : Person
 >selectJohn() : SelectResult<Person, Person>
->selectJohn : <K = Person>(props?: SelectProps<Person, K> | undefined) => SelectResult<Person, K>
+>selectJohn : <K = Person>(props?: SelectProps<Person, K>) => SelectResult<Person, K>
 
 const john = selectJohn();
 >john : SelectResult<Person, Person>
 >selectJohn() : SelectResult<Person, Person>
->selectJohn : <K = Person>(props?: SelectProps<Person, K> | undefined) => SelectResult<Person, K>
+>selectJohn : <K = Person>(props?: SelectProps<Person, K>) => SelectResult<Person, K>
 
 const [personAgain, nufinspecial] = john;
 >personAgain : Person
@@ -99,12 +99,12 @@ const isStringTuple = makeTuple(stringy());  // [string]
 >makeTuple(stringy()) : [string]
 >makeTuple : <T1>(arg: T1) => [T1]
 >stringy() : string
->stringy : <T = string>(arg?: T | undefined) => T
+>stringy : <T = string>(arg?: T) => T
 
 const [isAny] = makeTuple(stringy());  // [string]
 >isAny : string
 >makeTuple(stringy()) : [string]
 >makeTuple : <T1>(arg: T1) => [T1]
 >stringy() : string
->stringy : <T = string>(arg?: T | undefined) => T
+>stringy : <T = string>(arg?: T) => T
 

@@ -331,7 +331,7 @@ const constInitToIReadonlyTypeWithIndexedAccess: I["readonlyType"] = i.readonlyT
 
 // type literals
 type L = {
->L : { readonly readonlyType: unique symbol; nested: {    readonly readonlyNestedType: unique symbol;}; }
+>L : { readonly readonlyType: unique symbol; nested: { readonly readonlyNestedType: unique symbol; }; }
 
     readonly readonlyType: unique symbol;
 >readonlyType : unique symbol
@@ -432,12 +432,12 @@ declare function f<T>(x: T): T;
 >x : T
 
 declare function g(x: typeof s): void;
->g : { (x: typeof s): void; (x: unique symbol): void; }
+>g : { (x: typeof s): void; (x: typeof N.s): void; }
 >x : unique symbol
 >s : unique symbol
 
 declare function g(x: typeof N.s): void;
->g : { (x: unique symbol): void; (x: typeof N.s): void; }
+>g : { (x: typeof s): void; (x: typeof N.s): void; }
 >x : unique symbol
 >N.s : unique symbol
 >N : typeof N
@@ -673,19 +673,19 @@ f<typeof N.s>(N["s"]);
 
 g(s);
 >g(s) : void
->g : { (x: unique symbol): void; (x: unique symbol): void; }
+>g : { (x: typeof s): void; (x: typeof N.s): void; }
 >s : unique symbol
 
 g(N.s);
 >g(N.s) : void
->g : { (x: unique symbol): void; (x: unique symbol): void; }
+>g : { (x: typeof s): void; (x: typeof N.s): void; }
 >N.s : unique symbol
 >N : typeof N
 >s : unique symbol
 
 g(N["s"]);
 >g(N["s"]) : void
->g : { (x: unique symbol): void; (x: unique symbol): void; }
+>g : { (x: typeof s): void; (x: typeof N.s): void; }
 >N["s"] : unique symbol
 >N : typeof N
 >"s" : "s"
@@ -917,6 +917,6 @@ function funcInferredReturnType(obj: { method(p: typeof s): void }) {
 >s : unique symbol
 
     return obj;
->obj : { method(p: unique symbol): void; }
+>obj : { method(p: typeof s): void; }
 }
 

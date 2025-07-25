@@ -1,6 +1,6 @@
 === tests/cases/compiler/intersectionsAndOptionalProperties.ts ===
 declare let x: { a?: number, b: string };
->x : { a?: number | undefined; b: string; }
+>x : { a?: number; b: string; }
 >a : number | undefined
 >b : string
 

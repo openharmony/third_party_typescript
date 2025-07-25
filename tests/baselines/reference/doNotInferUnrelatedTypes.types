@@ -13,6 +13,6 @@ declare var alt: Array<LiteralType>;
 let foo: LiteralType = dearray(alt);
 >foo : LiteralType
 >dearray(alt) : LiteralType
->dearray : <T>(ara: readonly T[]) => T
+>dearray : <T>(ara: ReadonlyArray<T>) => T
 >alt : LiteralType[]
 

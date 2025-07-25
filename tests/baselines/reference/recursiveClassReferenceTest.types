@@ -95,7 +95,7 @@ module Sample.Thing.Widgets {
 >Thing : any
 >true : true
 >runner(this) : any
->runner : (widget: IWidget) => any
+>runner : (widget: Sample.Thing.IWidget) => any
 >this : this
 			
 		private domNode:any = null;

@@ -23,9 +23,9 @@ function fn(x: number | string) {
 >doSomething : (cb: () => void) => void
 >() => x.toFixed() : () => string
 >x.toFixed() : string
->x.toFixed : (fractionDigits?: number | undefined) => string
+>x.toFixed : (fractionDigits?: number) => string
 >x : number
->toFixed : (fractionDigits?: number | undefined) => string
+>toFixed : (fractionDigits?: number) => string
   }
 }
 

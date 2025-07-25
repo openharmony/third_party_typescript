@@ -38,7 +38,7 @@ function mock<T>(spyName: string, methodNames: Array<keyof T>): SpyObj<T> {
     const spyObj = createSpyObj<T>(spyName, methodNames);
 >spyObj : SpyObj<T>
 >createSpyObj<T>(spyName, methodNames) : SpyObj<T>
->createSpyObj : <T>(name: string, names: (keyof T)[]) => SpyObj<T>
+>createSpyObj : <T>(name: string, names: Array<keyof T>) => SpyObj<T>
 >spyName : string
 >methodNames : (keyof T)[]
 

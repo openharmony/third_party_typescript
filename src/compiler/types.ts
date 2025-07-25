@@ -1332,6 +1332,16 @@ export type HasIllegalModifiers =
     ;
 
 /** @internal */
+export type PrimitiveLiteral =
+    | BooleanLiteral
+    | NumericLiteral
+    | StringLiteral
+    | NoSubstitutionTemplateLiteral
+    | BigIntLiteral
+    | PrefixUnaryExpression & { operator: SyntaxKind.PlusToken; operand: NumericLiteral; }
+    | PrefixUnaryExpression & { operator: SyntaxKind.MinusToken; operand: NumericLiteral | BigIntLiteral; };
+
+/** @internal */
 export interface MutableNodeArray<T extends Node> extends Array<T>, TextRange {
     hasTrailingComma: boolean;
     /** @internal */ transformFlags: TransformFlags;   // Flags for transforms, possibly undefined
@@ -2762,7 +2772,7 @@ export interface PropertyAccessEntityNameExpression extends PropertyAccessExpres
     readonly name: Identifier;
 }
 
-export interface ElementAccessExpression extends MemberExpression {
+export interface ElementAccessExpression extends MemberExpression, Declaration {
     readonly kind: SyntaxKind.ElementAccessExpression;
     readonly expression: LeftHandSideExpression;
     readonly questionDotToken?: QuestionDotToken;
@@ -4014,7 +4024,7 @@ export type FlowType = Type | IncompleteType;
 // is distinguished from a regular type by a flags value of zero. Incomplete type
 // objects are internal to the getFlowTypeOfReference function and never escape it.
 export interface IncompleteType {
-    flags: TypeFlags;  // No flags set
+    flags: TypeFlags | 0;  // No flags set
     type: Type;        // The type marked incomplete
 }
 
@@ -4046,6 +4056,8 @@ export interface RedirectInfo {
      */
     readonly unredirected: SourceFile;
 }
+
+export type ResolutionMode = ModuleKind.ESNext | ModuleKind.CommonJS | undefined;
 
 // Source files are declarations when they are external modules.
 export interface SourceFile extends Declaration {
@@ -5084,6 +5096,7 @@ export const enum ContextFlags {
 }
 
 // NOTE: If modifying this enum, must modify `TypeFormatFlags` too!
+// dprint-ignore
 export const enum NodeBuilderFlags {
     None                                    = 0,
     // Options
@@ -5117,10 +5130,12 @@ export const enum NodeBuilderFlags {
     AllowUniqueESSymbolType                 = 1 << 20,
     AllowEmptyIndexInfoType                 = 1 << 21,
     /** @internal */ WriteComputedProps      = 1 << 30, // { [E.A]: 1 }
+    /** @internal */ NoSyntacticPrinter     = 1 << 31,
 
     // Errors (cont.)
     AllowNodeModulesRelativePaths           = 1 << 26,
     /** @internal */ DoNotIncludeSymbolChain = 1 << 27,    // Skip looking up and printing an accessible symbol chain
+    /** @internal */ AllowUnresolvedComputedNames = 1 << 32,
 
     IgnoreErrors = AllowThisInObjectLiteral | AllowQualifiedNameInPlaceOfIdentifier | AllowAnonymousIdentifier | AllowEmptyUnionOrIntersection | AllowEmptyTuple | AllowEmptyIndexInfoType | AllowNodeModulesRelativePaths,
 
@@ -5416,6 +5431,7 @@ export enum TypeReferenceSerializationKind {
 
 /** @internal */
 export interface EmitResolver {
+    isNonNarrowedBindableName(node: ComputedPropertyName): boolean;
     hasGlobalName(name: string): boolean;
     getReferencedExportContainer(node: Identifier, prefixLocals?: boolean): SourceFile | ModuleDeclaration | EnumDeclaration | undefined;
     getReferencedImportDeclaration(node: Identifier): Declaration | undefined;
@@ -5433,9 +5449,9 @@ export interface EmitResolver {
     requiresAddingImplicitUndefined(node: ParameterDeclaration): boolean;
     isRequiredInitializedParameter(node: ParameterDeclaration): boolean;
     isOptionalUninitializedParameterProperty(node: ParameterDeclaration): boolean;
-    isExpandoFunctionDeclaration(node: FunctionDeclaration): boolean;
+    isExpandoFunctionDeclaration(node: FunctionDeclaration | VariableDeclaration): boolean;
     getPropertiesOfContainerFunction(node: Declaration): Symbol[];
-    createTypeOfDeclaration(declaration: AccessorDeclaration | VariableLikeDeclaration | PropertyAccessExpression, enclosingDeclaration: Node, flags: NodeBuilderFlags, tracker: SymbolTracker, addUndefined?: boolean): TypeNode | undefined;
+    createTypeOfDeclaration(declaration: AccessorDeclaration | VariableLikeDeclaration | PropertyAccessExpression, enclosingDeclaration: Node, flags: NodeBuilderFlags, tracker: SymbolTracker): TypeNode | undefined;
     createReturnTypeOfSignatureDeclaration(signatureDeclaration: SignatureDeclaration, enclosingDeclaration: Node, flags: NodeBuilderFlags, tracker: SymbolTracker): TypeNode | undefined;
     createTypeOfExpression(expr: Expression, enclosingDeclaration: Node, flags: NodeBuilderFlags, tracker: SymbolTracker): TypeNode | undefined;
     createLiteralConstValue(node: VariableDeclaration | PropertyDeclaration | PropertySignature | ParameterDeclaration, tracker: SymbolTracker): Expression;
@@ -5443,6 +5459,7 @@ export interface EmitResolver {
     isEntityNameVisible(entityName: EntityNameOrEntityNameExpression, enclosingDeclaration: Node): SymbolVisibilityResult;
     // Returns the constant value this property access resolves to, or 'undefined' for a non-constant
     getConstantValue(node: EnumMember | PropertyAccessExpression | ElementAccessExpression): string | number | undefined;
+    getEnumMemberValue(node: EnumMember): EvaluatorResult | undefined;
     getReferencedValueDeclaration(reference: Identifier): Declaration | undefined;
     getTypeReferenceSerializationKind(typeName: EntityName, location?: Node): TypeReferenceSerializationKind;
     isOptionalParameter(node: ParameterDeclaration): boolean;
@@ -5765,6 +5782,14 @@ export const enum NodeCheckFlags {
 }
 
 /** @internal */
+export interface EvaluatorResult<T extends string | number | undefined = string | number | undefined> {
+    value: T;
+    isSyntacticallyString: boolean;
+    resolvedOtherFiles: boolean;
+    hasExternalReferences: boolean;
+}
+
+/** @internal */
 export interface NodeLinks {
     flags: NodeCheckFlags;              // Set of flags specific to Node
     resolvedType?: Type;                // Cached type of type node
@@ -5773,7 +5798,7 @@ export interface NodeLinks {
     resolvedSymbol?: Symbol;            // Cached name resolution result
     resolvedIndexInfo?: IndexInfo;      // Cached indexing info resolution result
     effectsSignature?: Signature;       // Signature with possible control flow effects
-    enumMemberValue?: string | number;  // Constant value of enum member
+    enumMemberValue?: EvaluatorResult;  // Constant value of enum member
     isVisible?: boolean;                // Is this node visible
     containsArgumentsReference?: boolean; // Whether a function-like declaration contains an 'arguments' reference
     hasReportedStatementInAmbientContext?: boolean; // Cache boolean if we report statements in ambient context
@@ -5797,6 +5822,17 @@ export interface NodeLinks {
     annotationPropertyInferredType?: TypeNode; // Cached inferred type of AnnotationPropertyDeclaration
     annotationDeclarationUniquePrefix?: string; // Cached a prefix of AnnotationDeclaration name
     exportOrImportRefersToAnnotation?: boolean; // Indicates that ImportSpecifier, ExportSpecifier or ExportAssignment are referred to AnnotationDeclaration.
+    fakeScopeForSignatureDeclaration?: "params" | "typeParams"; // If present, this is a fake scope injected into an enclosing declaration chain.
+}
+
+/** @internal */
+export type TrackedSymbol = [symbol: Symbol, enclosingDeclaration: Node | undefined, meaning: SymbolFlags];
+/** @internal */
+export interface SerializedTypeEntry {
+    node: TypeNode;
+    truncating?: boolean;
+    addedLength: number;
+    trackedSymbols: readonly TrackedSymbol[] | undefined;
 }
 
 export const enum TypeFlags {
@@ -5836,6 +5872,7 @@ export const enum TypeFlags {
     Nullable = Undefined | Null,
     Literal = StringLiteral | NumberLiteral | BigIntLiteral | BooleanLiteral,
     Unit = Literal | UniqueESSymbol | Nullable,
+    Freshable = Enum | Literal,
     StringOrNumberLiteral = StringLiteral | NumberLiteral,
     /** @internal */
     StringOrNumberLiteralOrUnique = StringLiteral | NumberLiteral | UniqueESSymbol,
@@ -5929,22 +5966,20 @@ export interface NullableType extends IntrinsicType {
     objectFlags: ObjectFlags;
 }
 
-/** @internal */
-export interface FreshableIntrinsicType extends IntrinsicType {
-    freshType: IntrinsicType;     // Fresh version of type
-    regularType: IntrinsicType;   // Regular version of type
+export interface FreshableType extends Type {
+    freshType: FreshableType; // Fresh version of type
+    regularType: FreshableType; // Regular version of type
 }
 
-/** @internal */
-export type FreshableType = LiteralType | FreshableIntrinsicType;
+/*** @internal */
+export interface FreshableIntrinsicType extends FreshableType, IntrinsicType {
+}
 
 // String literal types (TypeFlags.StringLiteral)
 // Numeric literal types (TypeFlags.NumberLiteral)
 // BigInt literal types (TypeFlags.BigIntLiteral)
-export interface LiteralType extends Type {
+export interface LiteralType extends FreshableType {
     value: string | number | PseudoBigInt; // Value of literal
-    freshType: LiteralType;                // Fresh version of type
-    regularType: LiteralType;              // Regular version of type
 }
 
 // Unique symbol types (TypeFlags.UniqueESSymbol)
@@ -5966,7 +6001,7 @@ export interface BigIntLiteralType extends LiteralType {
 }
 
 // Enum types (TypeFlags.Enum)
-export interface EnumType extends Type {
+export interface EnumType extends FreshableType {
 }
 
 // Types included in TypeFlags.ObjectFlagsType have an objectFlags property. Some ObjectFlags
@@ -6667,6 +6702,9 @@ export interface Diagnostic extends DiagnosticRelatedInformation {
     /** @internal */ skippedOn?: keyof CompilerOptions;
 }
 
+    /** @internal */
+    export type DiagnosticArguments = (string | number)[];
+
 export interface DiagnosticRelatedInformation {
     category: DiagnosticCategory;
     code: number;
@@ -6836,6 +6874,7 @@ export interface CompilerOptions {
     moduleDetection?: ModuleDetectionKind;
     newLine?: NewLineKind;
     noEmit?: boolean;
+        noCheck?: boolean;
     /** @internal */noEmitForJsFiles?: boolean;
     noEmitHelpers?: boolean;
     noEmitOnError?: boolean;
@@ -9303,6 +9342,7 @@ export interface ModuleSpecifierResolutionHost {
     isSourceOfProjectReferenceRedirect(fileName: string): boolean;
     /** @internal */
     getFileIncludeReasons(): MultiMap<Path, FileIncludeReason>;
+    getCommonSourceDirectory(): string;
 }
 
 export interface ModulePath {
@@ -9348,6 +9388,7 @@ export interface SymbolTracker {
     reportNonlocalAugmentation?(containingFile: SourceFile, parentSymbol: Symbol, augmentingSymbol: Symbol): void;
     reportNonSerializableProperty?(propertyName: string): void;
     reportImportTypeNodeResolutionModeOverride?(): void;
+    reportInferenceFallback?(node: Node): void;
 }
 
 export interface TextSpan {
@@ -9662,4 +9703,36 @@ export interface Queue<T> {
     enqueue(...items: T[]): void;
     dequeue(): T;
     isEmpty(): boolean;
+}
+/** @internal */
+export type HasInferredType =
+    | PropertyAssignment
+    | PropertyAccessExpression
+    | BinaryExpression
+    | ElementAccessExpression
+    | VariableDeclaration
+    | ParameterDeclaration
+    | BindingElement
+    | PropertyDeclaration
+    | PropertySignature
+    | ExportAssignment;
+
+/** @internal */
+export interface SyntacticTypeNodeBuilderContext {
+    tracker: Required<Pick<SymbolTracker, "reportInferenceFallback">>;
+    enclosingDeclaration: Node | undefined;
+}
+
+/** @internal */
+export interface SyntacticTypeNodeBuilderResolver {
+    isUndefinedIdentifierExpression(name: Identifier): boolean;
+    isNonNarrowedBindableName(name: ComputedPropertyName): boolean;
+    isExpandoFunctionDeclaration(name: FunctionDeclaration | VariableDeclaration): boolean;
+    getAllAccessorDeclarations(declaration: AccessorDeclaration): AllAccessorDeclarations;
+    isEntityNameVisible(
+        entityName: EntityNameOrEntityNameExpression,
+        enclosingDeclaration: Node,
+        shouldComputeAliasToMakeVisible?: boolean
+    ): SymbolVisibilityResult;
+    requiresAddingImplicitUndefined(parameter: ParameterDeclaration | JSDocParameterTag): boolean;
 }

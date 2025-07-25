@@ -1381,6 +1381,7 @@ export interface System {
     realpath?(path: string): string;
     /** @internal */ getEnvironmentVariable(name: string): string;
     /** @internal */ tryEnableSourceMapsForHost?(): void;
+        /** @internal */ getAccessibleFileSystemEntries?(path: string): FileSystemEntries;
     /** @internal */ debugMode?: boolean;
     setTimeout?(callback: (...args: any[]) => void, ms: number, ...args: any[]): any;
     clearTimeout?(timeoutId: any): void;
@@ -1512,6 +1513,7 @@ export let sys: System = (() => {
             resolvePath: path => _path.resolve(path),
             fileExists,
             directoryExists,
+            getAccessibleFileSystemEntries,
             createDirectory(directoryName: string) {
                 if (!nodeSystem.directoryExists(directoryName)) {
                     // Wrapped in a try-catch to prevent crashing if we are in a race

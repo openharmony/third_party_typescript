@@ -194,7 +194,7 @@ function getSourceMapFilePath(jsFilePath: string, options: CompilerOptions) {
 }
 
 /** @internal */
-export function getOutputExtension(fileName: string, options: CompilerOptions): Extension {
+export function getOutputExtension(fileName: string, options: Pick<CompilerOptions, "jsx">): Extension {
     return fileExtensionIs(fileName, Extension.Json) ? Extension.Json :
     options.jsx === JsxEmit.Preserve && fileExtensionIsOneOf(fileName, [Extension.Jsx, Extension.Tsx]) ? Extension.Jsx :
     fileExtensionIsOneOf(fileName, [Extension.Mts, Extension.Mjs]) ? Extension.Mjs :
@@ -545,8 +545,8 @@ export function emitFiles(resolver: EmitResolver, host: EmitHost, targetSourceFi
         const filesForEmit = forceDtsEmit ? sourceFiles : filter(sourceFiles, isSourceFileNotJson);
         // Setup and perform the transformation to retrieve declarations from the input files
         const inputListOrBundle = outFile(compilerOptions) ? [factory.createBundle(filesForEmit, !isSourceFile(sourceFileOrBundle) ? sourceFileOrBundle.prepends : undefined)] : filesForEmit;
-        if (emitOnlyDtsFiles && !getEmitDeclarations(compilerOptions)) {
-            // Checker wont collect the linked aliases since thats only done when declaration is enabled.
+        if ((emitOnlyDtsFiles && !getEmitDeclarations(compilerOptions)) || compilerOptions.noCheck) {
+            // Checker wont collect the linked aliases since thats only done when declaration is enabled and checking is performed.
             // Do that here when emitting only dts files
             filesForEmit.forEach(collectLinkedAliases);
         }
@@ -803,6 +803,7 @@ export const notImplementedResolver: EmitResolver = {
     isEntityNameVisible: notImplemented,
     // Returns the constant value this property access resolves to: notImplemented, or 'undefined' for a non-constant
     getConstantValue: notImplemented,
+    getEnumMemberValue: notImplemented,
     getReferencedValueDeclaration: notImplemented,
     getTypeReferenceSerializationKind: notImplemented,
     isOptionalParameter: notImplemented,
@@ -812,6 +813,7 @@ export const notImplementedResolver: EmitResolver = {
     getTypeReferenceDirectivesForEntityName: notImplemented,
     getTypeReferenceDirectivesForSymbol: notImplemented,
     isLiteralConstDeclaration: notImplemented,
+    isNonNarrowedBindableName: notImplemented,
     getJsxFactoryEntity: notImplemented,
     getJsxFragmentFactoryEntity: notImplemented,
     getAllAccessorDeclarations: notImplemented,

@@ -1028,7 +1028,7 @@ function doSomething2(value: unknown): void {
 // Repro from #51009
 
 type TypeA = {
->TypeA : { A: 'A'; B: 'B'; }
+>TypeA : { A: "A"; B: "B"; }
 
     A: 'A',
 >A : "A"
@@ -1038,7 +1038,7 @@ type TypeA = {
 }
 
 type TypeB = {
->TypeB : { A: 'A'; B: 'B'; C: 'C'; }
+>TypeB : { A: "A"; B: "B"; C: "C"; }
 
     A: 'A',
 >A : "A"
@@ -1082,7 +1082,7 @@ type Left = 'left';
 >Left : "left"
 
 type Right = 'right' & { right: 'right' };
->Right : "right" & { right: 'right'; }
+>Right : "right" & { right: "right"; }
 >right : "right"
 
 type Either = Left | Right;

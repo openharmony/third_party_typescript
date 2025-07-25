@@ -278,7 +278,7 @@ function f10<T>(x: Readonly<T>, y: T, z: Readwrite<T>) {
 }
 
 type Foo = {
->Foo : { a: number; b: number | undefined; c?: number | undefined; d?: number | undefined; }
+>Foo : { a: number; b: number | undefined; c?: number; d?: number | undefined; }
 
     a: number;
 >a : number

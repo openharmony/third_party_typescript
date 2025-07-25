@@ -30,9 +30,9 @@ callIt({
 >n => n.toFixed() : (n: number) => string
 >n : number
 >n.toFixed() : string
->n.toFixed : (fractionDigits?: number | undefined) => string
+>n.toFixed : (fractionDigits?: number) => string
 >n : number
->toFixed : (fractionDigits?: number | undefined) => string
+>toFixed : (fractionDigits?: number) => string
 
 });
 
@@ -52,9 +52,9 @@ callIt({
 >n => n.toFixed() : (n: number) => string
 >n : number
 >n.toFixed() : string
->n.toFixed : (fractionDigits?: number | undefined) => string
+>n.toFixed : (fractionDigits?: number) => string
 >n : number
->toFixed : (fractionDigits?: number | undefined) => string
+>toFixed : (fractionDigits?: number) => string
 
 });
 
@@ -75,9 +75,9 @@ callIt({
 >n => n.toFixed() : (n: number) => string
 >n : number
 >n.toFixed() : string
->n.toFixed : (fractionDigits?: number | undefined) => string
+>n.toFixed : (fractionDigits?: number) => string
 >n : number
->toFixed : (fractionDigits?: number | undefined) => string
+>toFixed : (fractionDigits?: number) => string
 
 });
 
@@ -96,9 +96,9 @@ callItT([() => 0, n => n.toFixed()]);
 >n => n.toFixed() : (n: number) => string
 >n : number
 >n.toFixed() : string
->n.toFixed : (fractionDigits?: number | undefined) => string
+>n.toFixed : (fractionDigits?: number) => string
 >n : number
->toFixed : (fractionDigits?: number | undefined) => string
+>toFixed : (fractionDigits?: number) => string
 
 callItT([_a => 0, n => n.toFixed()]);
 >callItT([_a => 0, n => n.toFixed()]) : void
@@ -110,9 +110,9 @@ callItT([_a => 0, n => n.toFixed()]);
 >n => n.toFixed() : (n: number) => string
 >n : number
 >n.toFixed() : string
->n.toFixed : (fractionDigits?: number | undefined) => string
+>n.toFixed : (fractionDigits?: number) => string
 >n : number
->toFixed : (fractionDigits?: number | undefined) => string
+>toFixed : (fractionDigits?: number) => string
 
 // Repro from #25092
 
@@ -149,9 +149,9 @@ const myGeneric = inferTypeFn({
 >generic => generic.toFixed() : (generic: number) => string
 >generic : number
 >generic.toFixed() : string
->generic.toFixed : (fractionDigits?: number | undefined) => string
+>generic.toFixed : (fractionDigits?: number) => string
 >generic : number
->toFixed : (fractionDigits?: number | undefined) => string
+>toFixed : (fractionDigits?: number) => string
 
 });
 
@@ -342,7 +342,7 @@ type MappingComponent<I extends WrappedMap, O extends WrappedMap> = {
 >MappingComponent : MappingComponent<I, O>
 
     setup(): { inputs: I; outputs: O };
->setup : () => {    inputs: I;    outputs: O;}
+>setup : () => { inputs: I; outputs: O; }
 >inputs : I
 >outputs : O
 

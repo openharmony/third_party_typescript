@@ -22,19 +22,19 @@ function download(hostSpec: Protocol<"http" | "https" | "ftp", string>) { }
 // ok, has protocol
 download("http://example.com/protocol");
 >download("http://example.com/protocol") : void
->download : (hostSpec: `http://${string}` | `https://${string}` | `ftp://${string}`) => void
+>download : (hostSpec: Protocol<"http" | "https" | "ftp", string>) => void
 >"http://example.com/protocol" : "http://example.com/protocol"
 
 // issues error - no protocol
 download("example.com/noprotocol");
 >download("example.com/noprotocol") : void
->download : (hostSpec: `http://${string}` | `https://${string}` | `ftp://${string}`) => void
+>download : (hostSpec: Protocol<"http" | "https" | "ftp", string>) => void
 >"example.com/noprotocol" : "example.com/noprotocol"
 
 // issues error, incorrect protocol
 download("gopher://example.com/protocol");
 >download("gopher://example.com/protocol") : void
->download : (hostSpec: `http://${string}` | `https://${string}` | `ftp://${string}`) => void
+>download : (hostSpec: Protocol<"http" | "https" | "ftp", string>) => void
 >"gopher://example.com/protocol" : "gopher://example.com/protocol"
 
 const q: RequiresLeadingSlash extends string ? true : false = true;
@@ -50,18 +50,18 @@ declare function bools(x: `${boolean}`): void;
 // ok
 bools("true");
 >bools("true") : void
->bools : (x: "false" | "true") => void
+>bools : (x: `${boolean}`) => void
 >"true" : "true"
 
 bools("false");
 >bools("false") : void
->bools : (x: "false" | "true") => void
+>bools : (x: `${boolean}`) => void
 >"false" : "false"
 
 // not ok
 bools("other");
 >bools("other") : void
->bools : (x: "false" | "true") => void
+>bools : (x: `${boolean}`) => void
 >"other" : "other"
 
 type Pat<T extends string | null | undefined> = `${T}`
@@ -76,38 +76,38 @@ declare function nullishes(x: Pat<null | undefined>): void;
 // ok
 nullishes("null");
 >nullishes("null") : void
->nullishes : (x: "undefined" | "null") => void
+>nullishes : (x: Pat<null | undefined>) => void
 >"null" : "null"
 
 nullishes("undefined");
 >nullishes("undefined") : void
->nullishes : (x: "undefined" | "null") => void
+>nullishes : (x: Pat<null | undefined>) => void
 >"undefined" : "undefined"
 
 // not ok
 nullishes("0");
 >nullishes("0") : void
->nullishes : (x: "undefined" | "null") => void
+>nullishes : (x: Pat<null | undefined>) => void
 >"0" : "0"
 
 nullishes("false");
 >nullishes("false") : void
->nullishes : (x: "undefined" | "null") => void
+>nullishes : (x: Pat<null | undefined>) => void
 >"false" : "false"
 
 nullishes("NaN");
 >nullishes("NaN") : void
->nullishes : (x: "undefined" | "null") => void
+>nullishes : (x: Pat<null | undefined>) => void
 >"NaN" : "NaN"
 
 nullishes("");
 >nullishes("") : void
->nullishes : (x: "undefined" | "null") => void
+>nullishes : (x: Pat<null | undefined>) => void
 >"" : ""
 
 nullishes("other");
 >nullishes("other") : void
->nullishes : (x: "undefined" | "null") => void
+>nullishes : (x: Pat<null | undefined>) => void
 >"other" : "other"
 
 declare function numbers(x: `${number}`): void;
@@ -629,9 +629,9 @@ export abstract class BB {
 
         this.get(id!);
 >this.get(id!) : void
->this.get : (id: `${string}-${string}`) => void
+>this.get : (id: Id<AA>) => void
 >this : this
->get : (id: `${string}-${string}`) => void
+>get : (id: Id<AA>) => void
 >id! : `${string}-${string}`
 >id : `${string}-${string}`
     }

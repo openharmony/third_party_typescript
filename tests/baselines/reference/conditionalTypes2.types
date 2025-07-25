@@ -149,13 +149,13 @@ type Bar = { bar: string };
 >bar : string
 
 declare function fooBar(x: { foo: string, bar: string }): void;
->fooBar : (x: {    foo: string;    bar: string;}) => void
+>fooBar : (x: { foo: string; bar: string; }) => void
 >x : { foo: string; bar: string; }
 >foo : string
 >bar : string
 
 declare function fooBat(x: { foo: string, bat: string }): void;
->fooBat : (x: {    foo: string;    bat: string;}) => void
+>fooBat : (x: { foo: string; bat: string; }) => void
 >x : { foo: string; bat: string; }
 >foo : string
 >bat : string
@@ -455,7 +455,7 @@ declare function save(_response: IRootResponse<string>): void;
 exportCommand(save);
 >exportCommand(save) : void
 >exportCommand : <TResponse>(functionToCall: IExportCallback<TResponse>) => void
->save : (_response: IResponse<string>) => void
+>save : (_response: IRootResponse<string>) => void
 
 declare function exportCommand<TResponse>(functionToCall: IExportCallback<TResponse>): void;
 >exportCommand : <TResponse>(functionToCall: IExportCallback<TResponse>) => void
@@ -525,7 +525,7 @@ type Foo3<T> = T extends number ? { n: T } : { x: T };
 gg(ff);
 >gg(ff) : void
 >gg : <T>(f: (x: Foo3<T>) => void) => void
->ff : (x: { x: string; }) => void
+>ff : (x: Foo3<string>) => void
 
 // Repro from #41613
 

@@ -450,9 +450,9 @@ function exhaustiveChecks(x: number | string | L | R): string {
         case 'number': return x.toString(2);
 >'number' : "number"
 >x.toString(2) : string
->x.toString : (radix?: number | undefined) => string
+>x.toString : (radix?: number) => string
 >x : number
->toString : (radix?: number | undefined) => string
+>toString : (radix?: number) => string
 >2 : 2
 
         case 'string': return x;
@@ -484,9 +484,9 @@ function exhaustiveChecksGenerics<T extends L | R | number | string>(x: T): stri
         case 'number': return x.toString(2);
 >'number' : "number"
 >x.toString(2) : string
->x.toString : (radix?: number | undefined) => string
+>x.toString : (radix?: number) => string
 >x : number
->toString : (radix?: number | undefined) => string
+>toString : (radix?: number) => string
 >2 : 2
 
         case 'string': return x;
@@ -870,7 +870,7 @@ function narrowingNarrows(x: {} | undefined) {
 }
 
 function narrowingNarrows2(x: true | 3 | 'hello' | undefined) {
->narrowingNarrows2 : (x: true | 3 | 'hello' | undefined) => void
+>narrowingNarrows2 : (x: true | 3 | "hello" | undefined) => void
 >x : true | 3 | "hello" | undefined
 >true : true
 

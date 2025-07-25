@@ -122,7 +122,7 @@ declare module Immutable {
 >Collection : any
 
   export function isAssociative(maybeAssociative: any): maybeAssociative is Collection.Keyed<any, any> | Collection.Indexed<any>;
->isAssociative : (maybeAssociative: any) => maybeAssociative is Collection.Indexed<any> | Collection.Keyed<any, any>
+>isAssociative : (maybeAssociative: any) => maybeAssociative is Collection.Keyed<any, any> | Collection.Indexed<any>
 >maybeAssociative : any
 >Collection : any
 >Collection : any
@@ -416,12 +416,12 @@ declare module Immutable {
 >value : this
 
     merge(...collections: Array<Collection<K, V> | {[key: string]: V}>): this;
->merge : (...collections: (Collection<K, V> | { [key: string]: V; })[]) => this
+>merge : (...collections: Array<Collection<K, V> | { [key: string]: V; }>) => this
 >collections : (Collection<K, V> | { [key: string]: V; })[]
 >key : string
 
     mergeWith(merger: (oldVal: V, newVal: V, key: K) => V, ...collections: Array<Collection<K, V> | {[key: string]: V}>): this;
->mergeWith : (merger: (oldVal: V, newVal: V, key: K) => V, ...collections: (Collection<K, V> | { [key: string]: V; })[]) => this
+>mergeWith : (merger: (oldVal: V, newVal: V, key: K) => V, ...collections: Array<Collection<K, V> | { [key: string]: V; }>) => this
 >merger : (oldVal: V, newVal: V, key: K) => V
 >oldVal : V
 >newVal : V
@@ -430,12 +430,12 @@ declare module Immutable {
 >key : string
 
     mergeDeep(...collections: Array<Collection<K, V> | {[key: string]: V}>): this;
->mergeDeep : (...collections: (Collection<K, V> | { [key: string]: V; })[]) => this
+>mergeDeep : (...collections: Array<Collection<K, V> | { [key: string]: V; }>) => this
 >collections : (Collection<K, V> | { [key: string]: V; })[]
 >key : string
 
     mergeDeepWith(merger: (oldVal: V, newVal: V, key: K) => V, ...collections: Array<Collection<K, V> | {[key: string]: V}>): this;
->mergeDeepWith : (merger: (oldVal: V, newVal: V, key: K) => V, ...collections: (Collection<K, V> | { [key: string]: V; })[]) => this
+>mergeDeepWith : (merger: (oldVal: V, newVal: V, key: K) => V, ...collections: Array<Collection<K, V> | { [key: string]: V; }>) => this
 >merger : (oldVal: V, newVal: V, key: K) => V
 >oldVal : V
 >newVal : V
@@ -494,11 +494,11 @@ declare module Immutable {
 
     // Sequence algorithms
     concat<KC, VC>(...collections: Array<Iterable<[KC, VC]>>): Map<K | KC, V | VC>;
->concat : { <KC, VC>(...collections: Array<Iterable<[KC, VC]>>): Map<K | KC, V | VC>; <C>(...collections: { [key: string]: C; }[]): Map<string | K, V | C>; }
+>concat : { <KC, VC>(...collections: Array<Iterable<[KC, VC]>>): Map<K | KC, V | VC>; <C>(...collections: Array<{ [key: string]: C; }>): Map<string | K, V | C>; }
 >collections : Iterable<[KC, VC]>[]
 
     concat<C>(...collections: Array<{[key: string]: C}>): Map<K | string, V | C>;
->concat : { <KC, VC>(...collections: Iterable<[KC, VC]>[]): Map<K | KC, V | VC>; <C>(...collections: { [key: string]: C; }[]): Map<K | string, V | C>; }
+>concat : { <KC, VC>(...collections: Array<Iterable<[KC, VC]>>): Map<K | KC, V | VC>; <C>(...collections: Array<{ [key: string]: C; }>): Map<K | string, V | C>; }
 >collections : { [key: string]: C; }[]
 >key : string
 
@@ -579,11 +579,11 @@ declare module Immutable {
   export interface OrderedMap<K, V> extends Map<K, V> {
     // Sequence algorithms
     concat<KC, VC>(...collections: Array<Iterable<[KC, VC]>>): OrderedMap<K | KC, V | VC>;
->concat : { <KC, VC>(...collections: Array<Iterable<[KC, VC]>>): OrderedMap<K | KC, V | VC>; <C>(...collections: { [key: string]: C; }[]): OrderedMap<string | K, V | C>; }
+>concat : { <KC, VC>(...collections: Array<Iterable<[KC, VC]>>): OrderedMap<K | KC, V | VC>; <C>(...collections: Array<{ [key: string]: C; }>): OrderedMap<string | K, V | C>; }
 >collections : Iterable<[KC, VC]>[]
 
     concat<C>(...collections: Array<{[key: string]: C}>): OrderedMap<K | string, V | C>;
->concat : { <KC, VC>(...collections: Iterable<[KC, VC]>[]): OrderedMap<K | KC, V | VC>; <C>(...collections: { [key: string]: C; }[]): OrderedMap<K | string, V | C>; }
+>concat : { <KC, VC>(...collections: Array<Iterable<[KC, VC]>>): OrderedMap<K | KC, V | VC>; <C>(...collections: Array<{ [key: string]: C; }>): OrderedMap<K | string, V | C>; }
 >collections : { [key: string]: C; }[]
 >key : string
 
@@ -830,14 +830,14 @@ declare module Immutable {
 >collections : Collection<any, any>[]
 
     zipWith<U, Z>(zipper: (value: T, otherValue: U) => Z, otherCollection: Collection<any, U>): OrderedSet<Z>;
->zipWith : { <U, Z>(zipper: (value: T, otherValue: U) => Z, otherCollection: Collection<any, U>): OrderedSet<Z>; <U, V, Z>(zipper: (value: T, otherValue: U, thirdValue: V) => Z, otherCollection: Collection<any, U>, thirdCollection: Collection<any, V>): OrderedSet<Z>; <Z>(zipper: (...any: any[]) => Z, ...collections: Collection<any, any>[]): OrderedSet<Z>; }
+>zipWith : { <U, Z>(zipper: (value: T, otherValue: U) => Z, otherCollection: Collection<any, U>): OrderedSet<Z>; <U, V, Z>(zipper: (value: T, otherValue: U, thirdValue: V) => Z, otherCollection: Collection<any, U>, thirdCollection: Collection<any, V>): OrderedSet<Z>; <Z>(zipper: (...any: Array<any>) => Z, ...collections: Array<Collection<any, any>>): OrderedSet<Z>; }
 >zipper : (value: T, otherValue: U) => Z
 >value : T
 >otherValue : U
 >otherCollection : Collection<any, U>
 
     zipWith<U, V, Z>(zipper: (value: T, otherValue: U, thirdValue: V) => Z, otherCollection: Collection<any, U>, thirdCollection: Collection<any, V>): OrderedSet<Z>;
->zipWith : { <U, Z>(zipper: (value: T, otherValue: U) => Z, otherCollection: Collection<any, U>): OrderedSet<Z>; <U, V, Z>(zipper: (value: T, otherValue: U, thirdValue: V) => Z, otherCollection: Collection<any, U>, thirdCollection: Collection<any, V>): OrderedSet<Z>; <Z>(zipper: (...any: any[]) => Z, ...collections: Collection<any, any>[]): OrderedSet<Z>; }
+>zipWith : { <U, Z>(zipper: (value: T, otherValue: U) => Z, otherCollection: Collection<any, U>): OrderedSet<Z>; <U, V, Z>(zipper: (value: T, otherValue: U, thirdValue: V) => Z, otherCollection: Collection<any, U>, thirdCollection: Collection<any, V>): OrderedSet<Z>; <Z>(zipper: (...any: Array<any>) => Z, ...collections: Array<Collection<any, any>>): OrderedSet<Z>; }
 >zipper : (value: T, otherValue: U, thirdValue: V) => Z
 >value : T
 >otherValue : U
@@ -971,7 +971,7 @@ declare module Immutable {
 >Record : typeof Record
 
     export function isRecord(maybeRecord: any): maybeRecord is Record.Instance<any>;
->isRecord : (maybeRecord: any) => maybeRecord is Instance<any>
+>isRecord : (maybeRecord: any) => maybeRecord is Record.Instance<any>
 >maybeRecord : any
 >Record : any
 
@@ -1137,7 +1137,7 @@ declare module Immutable {
 >Seq : typeof Seq
 
     function isSeq(maybeSeq: any): maybeSeq is Seq.Indexed<any> | Seq.Keyed<any, any>;
->isSeq : (maybeSeq: any) => maybeSeq is Indexed<any> | Keyed<any, any>
+>isSeq : (maybeSeq: any) => maybeSeq is Seq.Indexed<any> | Seq.Keyed<any, any>
 >maybeSeq : any
 >Seq : any
 >Seq : any
@@ -1181,12 +1181,12 @@ declare module Immutable {
 >toSeq : () => this
 
       concat<KC, VC>(...collections: Array<Iterable<[KC, VC]>>): Seq.Keyed<K | KC, V | VC>;
->concat : { <KC, VC>(...collections: Array<Iterable<[KC, VC]>>): Seq.Keyed<K | KC, V | VC>; <C>(...collections: { [key: string]: C; }[]): Keyed<string | K, V | C>; }
+>concat : { <KC, VC>(...collections: Array<Iterable<[KC, VC]>>): Seq.Keyed<K | KC, V | VC>; <C>(...collections: Array<{ [key: string]: C; }>): Keyed<string | K, V | C>; }
 >collections : Iterable<[KC, VC]>[]
 >Seq : any
 
       concat<C>(...collections: Array<{[key: string]: C}>): Seq.Keyed<K | string, V | C>;
->concat : { <KC, VC>(...collections: Iterable<[KC, VC]>[]): Keyed<K | KC, V | VC>; <C>(...collections: { [key: string]: C; }[]): Seq.Keyed<K | string, V | C>; }
+>concat : { <KC, VC>(...collections: Array<Iterable<[KC, VC]>>): Keyed<K | KC, V | VC>; <C>(...collections: Array<{ [key: string]: C; }>): Seq.Keyed<K | string, V | C>; }
 >collections : { [key: string]: C; }[]
 >key : string
 >Seq : any
@@ -1472,17 +1472,17 @@ declare module Immutable {
 >Collection : typeof Collection
 
     function isKeyed(maybeKeyed: any): maybeKeyed is Collection.Keyed<any, any>;
->isKeyed : (maybeKeyed: any) => maybeKeyed is Keyed<any, any>
+>isKeyed : (maybeKeyed: any) => maybeKeyed is Collection.Keyed<any, any>
 >maybeKeyed : any
 >Collection : any
 
     function isIndexed(maybeIndexed: any): maybeIndexed is Collection.Indexed<any>;
->isIndexed : (maybeIndexed: any) => maybeIndexed is Indexed<any>
+>isIndexed : (maybeIndexed: any) => maybeIndexed is Collection.Indexed<any>
 >maybeIndexed : any
 >Collection : any
 
     function isAssociative(maybeAssociative: any): maybeAssociative is Collection.Keyed<any, any> | Collection.Indexed<any>;
->isAssociative : (maybeAssociative: any) => maybeAssociative is Indexed<any> | Keyed<any, any>
+>isAssociative : (maybeAssociative: any) => maybeAssociative is Collection.Keyed<any, any> | Collection.Indexed<any>
 >maybeAssociative : any
 >Collection : any
 >Collection : any
@@ -1520,12 +1520,12 @@ declare module Immutable {
 >flip : () => this
 
       concat<KC, VC>(...collections: Array<Iterable<[KC, VC]>>): Collection.Keyed<K | KC, V | VC>;
->concat : { <KC, VC>(...collections: Array<Iterable<[KC, VC]>>): Collection.Keyed<K | KC, V | VC>; <C>(...collections: { [key: string]: C; }[]): Keyed<string | K, V | C>; }
+>concat : { <KC, VC>(...collections: Array<Iterable<[KC, VC]>>): Collection.Keyed<K | KC, V | VC>; <C>(...collections: Array<{ [key: string]: C; }>): Keyed<string | K, V | C>; }
 >collections : Iterable<[KC, VC]>[]
 >Collection : any
 
       concat<C>(...collections: Array<{[key: string]: C}>): Collection.Keyed<K | string, V | C>;
->concat : { <KC, VC>(...collections: Iterable<[KC, VC]>[]): Keyed<K | KC, V | VC>; <C>(...collections: { [key: string]: C; }[]): Collection.Keyed<K | string, V | C>; }
+>concat : { <KC, VC>(...collections: Array<Iterable<[KC, VC]>>): Keyed<K | KC, V | VC>; <C>(...collections: Array<{ [key: string]: C; }>): Collection.Keyed<K | string, V | C>; }
 >collections : { [key: string]: C; }[]
 >key : string
 >Collection : any
@@ -1642,7 +1642,7 @@ declare module Immutable {
 >Collection : any
 
       zipWith<U, Z>(zipper: (value: T, otherValue: U) => Z, otherCollection: Collection<any, U>): Collection.Indexed<Z>;
->zipWith : { <U, Z>(zipper: (value: T, otherValue: U) => Z, otherCollection: Collection<any, U>): Collection.Indexed<Z>; <U, V, Z>(zipper: (value: T, otherValue: U, thirdValue: V) => Z, otherCollection: Collection<any, U>, thirdCollection: Collection<any, V>): Indexed<Z>; <Z>(zipper: (...any: any[]) => Z, ...collections: Collection<any, any>[]): Indexed<Z>; }
+>zipWith : { <U, Z>(zipper: (value: T, otherValue: U) => Z, otherCollection: Collection<any, U>): Collection.Indexed<Z>; <U, V, Z>(zipper: (value: T, otherValue: U, thirdValue: V) => Z, otherCollection: Collection<any, U>, thirdCollection: Collection<any, V>): Indexed<Z>; <Z>(zipper: (...any: Array<any>) => Z, ...collections: Array<Collection<any, any>>): Indexed<Z>; }
 >zipper : (value: T, otherValue: U) => Z
 >value : T
 >otherValue : U
@@ -1650,7 +1650,7 @@ declare module Immutable {
 >Collection : any
 
       zipWith<U, V, Z>(zipper: (value: T, otherValue: U, thirdValue: V) => Z, otherCollection: Collection<any, U>, thirdCollection: Collection<any, V>): Collection.Indexed<Z>;
->zipWith : { <U, Z>(zipper: (value: T, otherValue: U) => Z, otherCollection: Collection<any, U>): Indexed<Z>; <U, V, Z>(zipper: (value: T, otherValue: U, thirdValue: V) => Z, otherCollection: Collection<any, U>, thirdCollection: Collection<any, V>): Collection.Indexed<Z>; <Z>(zipper: (...any: any[]) => Z, ...collections: Collection<any, any>[]): Indexed<Z>; }
+>zipWith : { <U, Z>(zipper: (value: T, otherValue: U) => Z, otherCollection: Collection<any, U>): Indexed<Z>; <U, V, Z>(zipper: (value: T, otherValue: U, thirdValue: V) => Z, otherCollection: Collection<any, U>, thirdCollection: Collection<any, V>): Collection.Indexed<Z>; <Z>(zipper: (...any: Array<any>) => Z, ...collections: Array<Collection<any, any>>): Indexed<Z>; }
 >zipper : (value: T, otherValue: U, thirdValue: V) => Z
 >value : T
 >otherValue : U
@@ -1873,11 +1873,11 @@ declare module Immutable {
 
     // Conversion to JavaScript types
     toJS(): Array<any> | { [key: string]: any };
->toJS : () => any[] | { [key: string]: any; }
+>toJS : () => Array<any> | { [key: string]: any; }
 >key : string
 
     toJSON(): Array<V> | { [key: string]: V };
->toJSON : () => V[] | { [key: string]: V; }
+>toJSON : () => Array<V> | { [key: string]: V; }
 >key : string
 
     toArray(): Array<V>;

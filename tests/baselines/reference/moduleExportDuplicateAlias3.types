@@ -8,9 +8,9 @@ const { apply } = require('./moduleExportAliasDuplicateAlias')
 const result = apply.toFixed()
 >result : string
 >apply.toFixed() : string
->apply.toFixed : (fractionDigits?: number | undefined) => string
+>apply.toFixed : (fractionDigits?: number) => string
 >apply : number
->toFixed : (fractionDigits?: number | undefined) => string
+>toFixed : (fractionDigits?: number) => string
 
 === tests/cases/conformance/salsa/moduleExportAliasDuplicateAlias.js ===
 exports.apply = undefined;

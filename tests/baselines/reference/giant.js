@@ -12,6 +12,7 @@
 
     MAX DEPTH 3 LEVELS
 */
+const p = "propName";
 var V;
 function F() { };
 class C {
@@ -698,6 +699,7 @@ define(["require", "exports"], function (require, exports) {
     
         MAX DEPTH 3 LEVELS
     */
+    var p = "propName";
     var V;
     function F() { }
     ;
@@ -1112,6 +1114,7 @@ define(["require", "exports"], function (require, exports) {
 
 
 //// [giant.d.ts]
+declare const p = "propName";
 export declare var eV: any;
 export declare function eF(): void;
 export declare class eC {
@@ -1151,6 +1154,7 @@ export interface eI {
     new (...p3: any[]): any;
     new (p4: string, p5?: string): any;
     new (p6: string, ...p7: any[]): any;
+    [p]: any;
     [p1: string]: any;
     [p2: string, p3: number]: any;
     p: any;
@@ -1203,6 +1207,7 @@ export declare module eM {
         new (...p3: any[]): any;
         new (p4: string, p5?: string): any;
         new (p6: string, ...p7: any[]): any;
+        [p]: any;
         [p1: string]: any;
         [p2: string, p3: number]: any;
         p: any;
@@ -1318,6 +1323,7 @@ export declare module eaM {
         new (...p3: any[]): any;
         new (p4: string, p5?: string): any;
         new (p6: string, ...p7: any[]): any;
+        [p]: any;
         [p1: string]: any;
         [p2: string, p3: number]: any;
         p: any;
@@ -1377,6 +1383,7 @@ export declare module eaM {
         new (...p3: any[]): any;
         new (p4: string, p5?: string): any;
         new (p6: string, ...p7: any[]): any;
+        [p]: any;
         [p1: string]: any;
         [p2: string, p3: number]: any;
         p: any;
@@ -1404,3 +1411,4 @@ export declare module eaM {
         module eM { }
     }
 }
+export {};

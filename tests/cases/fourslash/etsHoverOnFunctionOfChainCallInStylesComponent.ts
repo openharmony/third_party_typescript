@@ -10,5 +10,5 @@
 //// function test2(){
 ////     ./*1*/width(12)./*2*/height(color)
 //// }
-verify.quickInfoAt("1", "(method) CommonMethod<CommonAttribute>.width(value: string | number): CommonAttribute");
-verify.quickInfoAt("2", "(method) CommonMethod<CommonAttribute>.height(value: string | number): CommonAttribute");
+verify.quickInfoAt("1", "(method) CommonMethod<CommonAttribute>.width(value: number | string): CommonAttribute");
+verify.quickInfoAt("2", "(method) CommonMethod<CommonAttribute>.height(value: number | string): CommonAttribute");

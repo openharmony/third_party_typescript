@@ -544,7 +544,6 @@ const commandOptionsWithoutBuild: CommandLineOption[] = [
         affectsEmit: true,
         affectsMultiFileEmitBuildInfo: true,
         showInSimplifiedHelpView: true,
-
         category: Diagnostics.Emit,
         description: Diagnostics.Only_output_d_ts_files_and_not_JavaScript_files,
         transpileOptionValue: undefined,
@@ -634,6 +633,20 @@ const commandOptionsWithoutBuild: CommandLineOption[] = [
         description: Diagnostics.Disable_emitting_comments,
     },
     {
+        name: "noCheck",
+        type: "boolean",
+        showInSimplifiedHelpView: false,
+        category: Diagnostics.Compiler_Diagnostics,
+        description: Diagnostics.Disable_full_type_checking_only_critical_parse_and_emit_errors_will_be_reported,
+        transpileOptionValue: undefined,
+        defaultValueDescription: false,
+        affectsSemanticDiagnostics: true,
+        affectsMultiFileEmitBuildInfo: true,
+        extraValidation() {
+            return [Diagnostics.Unknown_compiler_option_0, "noCheck"];
+        },
+    },
+    {
         name: "noEmit",
         type: "boolean",
         showInSimplifiedHelpView: true,
@@ -681,6 +694,15 @@ const commandOptionsWithoutBuild: CommandLineOption[] = [
         description: Diagnostics.Ensure_that_each_file_can_be_safely_transpiled_without_relying_on_other_imports,
         transpileOptionValue: true,
         defaultValueDescription: false,
+    },
+    {
+        name: "isolatedDeclarations",
+        type: "boolean",
+        category: Diagnostics.Interop_Constraints,
+        description: Diagnostics.Require_sufficient_annotation_on_exports_so_other_tools_can_trivially_generate_declaration_files,
+        defaultValueDescription: false,
+        affectsMultiFileEmitBuildInfo: true,
+        affectsSemanticDiagnostics: true,
     },
 
     // Strict Type Checks

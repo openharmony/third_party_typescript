@@ -26,9 +26,9 @@ o?.[a = 1];
 
 a.toString();
 >a.toString() : string
->a.toString : (radix?: number | undefined) => string
+>a.toString : (radix?: number) => string
 >a : number
->toString : (radix?: number | undefined) => string
+>toString : (radix?: number) => string
 
 let b: number;
 >b : number
@@ -44,9 +44,9 @@ o?.x[b = 1];
 
 b.toString();
 >b.toString() : string
->b.toString : (radix?: number | undefined) => string
+>b.toString : (radix?: number) => string
 >b : number
->toString : (radix?: number | undefined) => string
+>toString : (radix?: number) => string
 
 let c: number;
 >c : number
@@ -60,9 +60,9 @@ o?.(c = 1)
 
 c.toString();
 >c.toString() : string
->c.toString : (radix?: number | undefined) => string
+>c.toString : (radix?: number) => string
 >c : number
->toString : (radix?: number | undefined) => string
+>toString : (radix?: number) => string
 
 let d: number;
 >d : number
@@ -78,9 +78,9 @@ o?.x(d = 1);
 
 d.toString();
 >d.toString() : string
->d.toString : (radix?: number | undefined) => string
+>d.toString : (radix?: number) => string
 >d : number
->toString : (radix?: number | undefined) => string
+>toString : (radix?: number) => string
 
 // type predicates
 declare const f: undefined | ((x: any) => x is number);
@@ -249,7 +249,7 @@ o3.x;
 >x : 1 | 2
 
 declare const o4: { x?: { y: boolean } };
->o4 : { x?: { y: boolean; } | undefined; }
+>o4 : { x?: { y: boolean; }; }
 >x : { y: boolean; } | undefined
 >y : boolean
 
@@ -319,9 +319,9 @@ o4.x.y;
 >y : boolean
 
 declare const o5: { x?: { y: { z?: { w: boolean } } } };
->o5 : { x?: { y: {    z?: {        w: boolean;    };}; } | undefined; }
->x : { y: {    z?: {        w: boolean;    };}; } | undefined
->y : { z?: { w: boolean; } | undefined; }
+>o5 : { x?: { y: { z?: { w: boolean; }; }; }; }
+>x : { y: { z?: { w: boolean; }; }; } | undefined
+>y : { z?: { w: boolean; }; }
 >z : { w: boolean; } | undefined
 >w : boolean
 
@@ -1870,7 +1870,7 @@ function f41(o: Thing | undefined) {
 // Repros from #34570
 
 type Shape =
->Shape : { type: 'rectangle'; width: number; height: number; } | { type: 'circle'; radius: number; }
+>Shape : { type: "rectangle"; width: number; height: number; } | { type: "circle"; radius: number; }
 
     | { type: 'rectangle', width: number, height: number }
 >type : "rectangle"
@@ -1923,7 +1923,7 @@ function getArea(shape?: Shape) {
 }
 
 type Feature = {
->Feature : { id: string; geometry?: { type: string; coordinates: number[]; } | undefined; }
+>Feature : { id: string; geometry?: { type: string; coordinates: number[]; }; }
 
   id: string;
 >id : string

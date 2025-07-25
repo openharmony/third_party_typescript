@@ -103,7 +103,7 @@ declare function foo<T>(a: ReadonlyArray<T>): T;
 let x = foo([]);  // never
 >x : never
 >foo([]) : never
->foo : <T>(a: readonly T[]) => T
+>foo : <T>(a: ReadonlyArray<T>) => T
 >[] : never[]
 
 // Modified repros from #26127
@@ -139,7 +139,7 @@ const t1: A = coAndContra(a, acceptUnion);
 >coAndContra(a, acceptUnion) : A
 >coAndContra : <T>(value: T, func: (t: T) => void) => T
 >a : A
->acceptUnion : (x: number | A) => void
+>acceptUnion : (x: A | number) => void
 
 const t2: B = coAndContra(b, acceptA);
 >t2 : B
@@ -167,7 +167,7 @@ const t4: A[] = coAndContraArray([a], acceptUnion);
 >coAndContraArray : <T>(value: T[], func: (t: T) => void) => T[]
 >[a] : A[]
 >a : A
->acceptUnion : (x: number | A) => void
+>acceptUnion : (x: A | number) => void
 
 const t5: B[] = coAndContraArray([b], acceptA);
 >t5 : B[]

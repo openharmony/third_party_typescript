@@ -139,7 +139,7 @@ function jsvalues(a, b, c, d, e, f, g) {
 
 === tests/cases/conformance/salsa/index.ts ===
 function types(
->types : (a: any, b: any, c: any, d: any, e: any, f: import('./mod').buz, g: any) => any
+>types : (a: any, b: any, c: any, d: any, e: any, f: import("./mod").buz, g: any) => any
 
     a: import('./mod').Thing,
 >a : any
@@ -190,7 +190,7 @@ function types(
 }
 
 function values(
->values : (a: typeof import('./mod').Thing, b: typeof import('./mod').AnotherThing, c: typeof import('./mod').foo, d: typeof import('./mod').qux, e: typeof import('./mod').baz, f: any, g: typeof import('./mod').literal) => any
+>values : (a: typeof import("./mod").Thing, b: typeof import("./mod").AnotherThing, c: typeof import("./mod").foo, d: typeof import("./mod").qux, e: typeof import("./mod").baz, f: any, g: typeof import("./mod").literal) => any
 
     a: typeof import('./mod').Thing,
 >a : typeof Thing

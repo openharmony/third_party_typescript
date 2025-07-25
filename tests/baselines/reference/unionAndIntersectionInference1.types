@@ -54,7 +54,7 @@ var value = Math.random() > 0.5 ? 'hey!' : <Y>undefined;
 var result = destructure(value, text => 'string', y => 'other one'); // text: string, y: Y
 >result : string
 >destructure(value, text => 'string', y => 'other one') : string
->destructure : <a, r>(something: Y | a, haveValue: (value: a) => r, haveY: (value: Y) => r) => r
+>destructure : <a, r>(something: a | Y, haveValue: (value: a) => r, haveY: (value: Y) => r) => r
 >value : string | Y
 >text => 'string' : (text: string) => string
 >text : string
@@ -137,7 +137,7 @@ get(foo).toUpperCase(); // Ok
 >get(foo).toUpperCase() : string
 >get(foo).toUpperCase : () => string
 >get(foo) : string
->get : <U>(x: void | U) => U
+>get : <U>(x: U | void) => U
 >foo : Maybe<string>
 >toUpperCase : () => string
 

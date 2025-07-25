@@ -3,10 +3,10 @@ type props = "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j" | "k" | "
 
 type manyprops = `${props}${props}`;
 
-export const c = null as any as {[K in manyprops]: {[K2 in manyprops]: `${K}.${K2}`}};
+export const c = [null as any as {[K in manyprops]: {[K2 in manyprops]: `${K}.${K2}`}}][0];
 
 //// [hugeDeclarationOutputGetsTruncatedWithError.js]
 "use strict";
 exports.__esModule = true;
 exports.c = void 0;
-exports.c = null;
+exports.c = [null][0];

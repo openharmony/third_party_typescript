@@ -127,18 +127,18 @@ type ExpectType<Exp, Act> = Match<Exp, Act> extends "Match"
   : "Did not match";
 
 type P3 = { a: string; b: number; c?: boolean };
->P3 : { a: string; b: number; c?: boolean | undefined; }
+>P3 : { a: string; b: number; c?: boolean; }
 >a : string
 >b : number
 >c : boolean | undefined
 
 type P2 = { a: string; c?: boolean };
->P2 : { a: string; c?: boolean | undefined; }
+>P2 : { a: string; c?: boolean; }
 >a : string
 >c : boolean | undefined
 
 type P1 = { c?: boolean };
->P1 : { c?: boolean | undefined; }
+>P1 : { c?: boolean; }
 >c : boolean | undefined
 
 type P0 = {};
@@ -196,13 +196,13 @@ declare const p0Test: ExpectType<{}, P0Props>;
 >p0Test : "Match"
 
 type O3 = { a?: string; b?: number; c: boolean };
->O3 : { a?: string | undefined; b?: number | undefined; c: boolean; }
+>O3 : { a?: string; b?: number; c: boolean; }
 >a : string | undefined
 >b : number | undefined
 >c : boolean
 
 type O2 = { a?: string; c: boolean };
->O2 : { a?: string | undefined; c: boolean; }
+>O2 : { a?: string; c: boolean; }
 >a : string | undefined
 >c : boolean
 

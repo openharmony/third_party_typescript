@@ -54,7 +54,7 @@ export class ProjectRunner extends Harness.RunnerBase {
         describe("projects tests", () => {
             const tests = this.tests.length === 0 ? this.enumerateTestFiles() : this.tests;
             for (const test of tests) {
-                this.runProjectTestCase(typeof test === "string" ? test : test.file);
+                this.runProjectTestCase(test);
             }
         });
     }
@@ -178,7 +178,7 @@ class ProjectTestCase {
         };
     }
 
-    private get vfs() {
+    private get vfs(): vfs.FileSystem {
         return this.sys.vfs;
     }
 
@@ -200,15 +200,37 @@ class ProjectTestCase {
             throw assert(false, "Testcase: " + testCaseFileName + " does not contain valid json format: " + e.message);
         }
 
-        const fs = vfs.createFromFileSystem(Harness.IO, /*ignoreCase*/ false);
-        fs.mountSync(vpath.resolve(Harness.IO.getWorkspaceRoot(), "tests"), vpath.combine(vfs.srcFolder, "tests"), vfs.createResolver(Harness.IO));
-        fs.mkdirpSync(vpath.combine(vfs.srcFolder, testCase.projectRoot));
-        fs.chdir(vpath.combine(vfs.srcFolder, testCase.projectRoot));
-        fs.makeReadonly();
+        function makeFileSystem(): vfs.FileSystem {
+            const fs = vfs.createFromFileSystem(Harness.IO, /*ignoreCase*/ false);
+            fs.mountSync(vpath.resolve(Harness.IO.getWorkspaceRoot(), "tests"), vpath.combine(vfs.srcFolder, "tests"), vfs.createResolver(Harness.IO));
+            fs.mkdirpSync(vpath.combine(vfs.srcFolder, testCase.projectRoot));
+            fs.chdir(vpath.combine(vfs.srcFolder, testCase.projectRoot));
+            fs.makeReadonly();
+            return fs;
+        }
+        let fs: vfs.FileSystem | undefined;
 
         return [
-            { name: `@module: commonjs`, payload: { testCase, moduleKind: ts.ModuleKind.CommonJS, vfs: fs } },
-            { name: `@module: amd`, payload: { testCase, moduleKind: ts.ModuleKind.AMD, vfs: fs } }
+            {
+                name: `@module: commonjs`,
+                payload: {
+                    testCase,
+                    moduleKind: ts.ModuleKind.CommonJS,
+                    get vfs(): vfs.FileSystem {
+                        return fs ??= makeFileSystem();
+                    },
+                },
+            },
+            {
+                name: `@module: amd`,
+                payload: {
+                    testCase,
+                    moduleKind: ts.ModuleKind.AMD,
+                    get vfs(): vfs.FileSystem {
+                        return fs ??= makeFileSystem();
+                    },
+                },
+            },
         ];
     }
 
