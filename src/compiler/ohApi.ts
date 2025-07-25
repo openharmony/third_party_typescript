@@ -1,19 +1,110 @@
 import {
-    __String, Annotation, AnnotationDeclaration, AnnotationPropertyDeclaration, CallExpression, ClassDeclaration, CommentDirectiveType, CompilerOptions,
-    computeLineStarts, concatenate, Debug, Decorator, Diagnostic, ElementAccessExpression, EmitHost, EmitTextWriter, endsWith, EnumMember,
-    EtsComponentExpression, ExportDeclaration, ExportSpecifier, Expression, ExpressionStatement, factory, flattenDiagnosticMessageText,
-    FunctionDeclaration, getAllDecorators, getAncestor, getIllegalDecorators, getLineAndCharacterOfPosition, getRootEtsComponent, getSourceFileOfNode,
-    Identifier, ImportClause, ImportDeclaration, ImportEqualsDeclaration, ImportSpecifier, isCallExpression, isEtsComponentExpression,
-    isExportSpecifier, isExternalModuleImportEqualsDeclaration, isFunctionDeclaration, isIdentifier, isImportClause, isImportDeclaration,
-    isImportSpecifier, isNamedExportBindings, isNamedImportBindings, isNamespaceImport, isNamespaceExport, isNodeModulesDirectory,
-    isPropertyAccessExpression, isPropertyAssignment, isStringLiteral, isStructDeclaration, isTypeAliasDeclaration, isWhiteSpaceLike, last,
-    LateVisibilityPaintedStatement, LeftHandSideExpression, LineAndCharacter, MethodDeclaration, Modifier, ModifierLike, Mutable,
-    NamedExports, NamedImports, NamedImportBindings, NamespaceImport, Node, NodeArray, NodeFactory, NodeFlags, nodeModulesPathPart, noop,
-    ObjectLiteralExpression, Path, pathContainsNodeModules, PropertyAccessExpression, PropertyAssignment, PropertyDeclaration, resolvePath,
-    setTextRangePosEnd, ScriptKind, some, SourceFile, sys, startsWith, Statement, stringContains, StringLiteral, StructDeclaration, SyntaxKind,
-    TextRange, TransformationContext, TransformerFactory, tryGetTextOfPropertyName, visitEachChild, visitLexicalEnvironment, visitNode, visitNodes,
-    VisitResult, unescapeLeadingUnderscores
+    __String,
+    Annotation,
+    AnnotationDeclaration,
+    AnnotationPropertyDeclaration,
+    CallExpression,
+    ClassDeclaration,
+    CommentDirectiveType,
+    CompilerOptions,
+    computeLineStarts,
+    concatenate,
+    Debug,
+    Decorator,
+    Diagnostic,
+    ElementAccessExpression,
+    EmitHost,
+    EmitTextWriter,
+    endsWith,
+    EnumMember,
+    EtsComponentExpression,
+    ExportDeclaration,
+    ExportSpecifier,
+    Expression,
+    ExpressionStatement,
+    factory,
+    flattenDiagnosticMessageText,
+    FunctionDeclaration,
+    getAllDecorators,
+    getAncestor,
+    getIllegalDecorators,
+    getLineAndCharacterOfPosition,
+    getRootEtsComponent,
+    getSourceFileOfNode,
+    Identifier,
+    ImportClause,
+    ImportDeclaration,
+    ImportEqualsDeclaration,
+    ImportSpecifier,
+    isCallExpression,
+    isEtsComponentExpression,
+    isExportSpecifier,
+    isExternalModuleImportEqualsDeclaration,
+    isFunctionDeclaration,
+    isIdentifier,
+    isImportClause,
+    isImportDeclaration,
+    isImportSpecifier,
+    isNamedExportBindings,
+    isNamedImportBindings,
+    isNamespaceImport,
+    isNamespaceExport,
+    isNodeModulesDirectory,
+    isPropertyAccessExpression,
+    isPropertyAssignment,
+    isStringLiteral,
+    isStructDeclaration,
+    isTypeAliasDeclaration,
+    isWhiteSpaceLike,
+    last,
+    LateVisibilityPaintedStatement,
+    LeftHandSideExpression,
+    LineAndCharacter,
+    MethodDeclaration,
+    Modifier,
+    ModifierLike,
+    Mutable,
+    NamedExports,
+    NamedImports,
+    NamedImportBindings,
+    NamespaceImport,
+    Node,
+    NodeArray,
+    NodeFactory,
+    NodeFlags,
+    nodeModulesPathPart,
+    noop,
+    ObjectLiteralExpression,
+    Path,
+    pathContainsNodeModules,
+    PropertyAccessExpression,
+    PropertyAssignment,
+    PropertyDeclaration,
+    resolvePath,
+    setTextRangePosEnd,
+    ScriptKind,
+    some,
+    SourceFile,
+    sys,
+    startsWith,
+    Statement,
+    stringContains,
+    StringLiteral,
+    StructDeclaration,
+    SyntaxKind,
+    TextRange,
+    TransformationContext,
+    TransformerFactory,
+    tryGetTextOfPropertyName,
+    visitEachChild,
+    visitLexicalEnvironment,
+    visitNode,
+    visitNodes,
+    VisitResult,
+    unescapeLeadingUnderscores,
+    normalizePath,
 } from "./_namespaces/ts";
+import * as path from 'path';
 
 /** @internal */
 // Required for distinguishing annotations and decorators in other code analysis tools
@@ -1060,12 +1151,10 @@ const JSON_SUFFIX = '.json';
 const KIT_PREFIX = '@kit.';
 const DEFAULT_KEYWORD = 'default';
 const ETS_DECLARATION = '.d.ets';
-const OHOS_KIT_CONFIG_PATH = './openharmony/ets/ets1.1/build-tools/ets-loader/kit_configs';
-const HMS_KIT_CONFIG_PATH = './hms/ets/ets1.1/build-tools/ets-loader/kit_configs';
-export const THROWS_TAG = 'throws'
-export const THROWS_CATCH = 'catch'
-export const THROWS_ASYNC_CALLBACK = 'AsyncCallback'
-export const THROWS_ERROR_CALLBACK = 'ErrorCallback'
+export const THROWS_TAG = 'throws';
+export const THROWS_CATCH = 'catch';
+export const THROWS_ASYNC_CALLBACK = 'AsyncCallback';
+export const THROWS_ERROR_CALLBACK = 'ErrorCallback';
 
 interface KitSymbolInfo {
     source: string,
@@ -1082,13 +1171,32 @@ const kitJsonCache = new Map<string, KitJsonInfo | undefined>();
 
 /** @internal */
 export function getSdkPath(compilerOptions: CompilerOptions): string | undefined {
-    return compilerOptions.etsLoaderPath ? resolvePath(compilerOptions.etsLoaderPath, '../../../../..') : undefined;
+    if (compilerOptions.etsLoaderPath &&
+        normalizePath(compilerOptions.etsLoaderPath).endsWith('ets1.1/build-tools/ets-loader')) {
+        return resolvePath(compilerOptions.etsLoaderPath, '../../../../..');
+    }
+    return compilerOptions.etsLoaderPath ? resolvePath(compilerOptions.etsLoaderPath, '../../../..') : undefined;
 }
 
-function getKitJsonObject(name: string, sdkPath: string): KitJsonInfo | undefined {
+function getKitConfigRelativePath(compilerOptions: CompilerOptions): string {
+    const etsLoaderPath = compilerOptions.etsLoaderPath;
+    const sdkPath = getSdkPath(compilerOptions);
+    return path.relative(
+        sdkPath!,
+        path.join(etsLoaderPath!, 'kit_configs')
+    );
+}
+
+function convertPath(originalPath: string, from: string, to: string): string {
+    return originalPath.replace(new RegExp(from, 'g'), to);
+}
+
+function getKitJsonObject(name: string, sdkPath: string, compilerOptions: CompilerOptions): KitJsonInfo | undefined {
     if (kitJsonCache?.has(name)) {
         return kitJsonCache.get(name);
     }
+    const OHOS_KIT_CONFIG_PATH = getKitConfigRelativePath(compilerOptions);
+    const HMS_KIT_CONFIG_PATH = convertPath(OHOS_KIT_CONFIG_PATH, 'openharmony', 'hms');
     const ohosJsonPath = resolvePath(sdkPath, OHOS_KIT_CONFIG_PATH, `./${name}${JSON_SUFFIX}`);
     const hmsJsonPath = resolvePath(sdkPath, HMS_KIT_CONFIG_PATH, `./${name}${JSON_SUFFIX}`);
 
@@ -1288,7 +1396,7 @@ function processKitStatementSuccess(factory: NodeFactory, statement: ImportDecla
 
 /** @internal */
 export function processKit(factory: NodeFactory, statements: NodeArray<Statement>, sdkPath: string,
-    markedkitImportRanges: Array<TextRange>, inEtsContext: boolean): Statement[] {
+    markedkitImportRanges: Array<TextRange>, inEtsContext: boolean, compilerOptions: CompilerOptions): Statement[] {
     const list: Statement[] = [];
     let skipRestStatements = false;
     statements.forEach(
@@ -1308,7 +1416,7 @@ export function processKit(factory: NodeFactory, statements: NodeArray<Statement
                 return;
             }
 
-            const jsonObject = getKitJsonObject(moduleSpecifierText, sdkPath);
+            const jsonObject = getKitJsonObject(moduleSpecifierText, sdkPath, compilerOptions);
             const newImportStatements = new Array<ImportDeclaration>();
             
             if (!processKitStatementSuccess(factory, statement as ImportDeclaration, jsonObject, inEtsContext, newImportStatements)) {

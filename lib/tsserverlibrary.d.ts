@@ -9653,7 +9653,7 @@ declare namespace ts {
     function parseJsonText(fileName: string, sourceText: string): JsonSourceFile;
     function isExternalModule(file: SourceFile): boolean;
     function updateSourceFile(sourceFile: SourceFile, newText: string, textChangeRange: TextChangeRange, aggressiveChecks?: boolean, option?: CompilerOptions): SourceFile;
-    function getLanguageVersionByFilePath(getLanguageVersion: ((filePath: string) => boolean) | undefined): void;
+    function setLanguageVersionByFilePath(getLanguageVersion: ((filePath: string) => boolean) | undefined): void;
     interface CreateSourceFileOptions {
         languageVersion: ScriptTarget;
         /**
