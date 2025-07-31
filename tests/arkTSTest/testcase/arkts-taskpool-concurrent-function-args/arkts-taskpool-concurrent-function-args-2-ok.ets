@@ -24,7 +24,7 @@ function funB() {
 
 
 
-taskpool.execute(funB, 100)
+taskpool.execute(funB, 100);
 
 taskpool.execute(funB, 100).then((d: object) => {
   console.info(`task1 res is: ${d}`);
@@ -33,8 +33,8 @@ taskpool.execute(funB, 100).then((d: object) => {
 })
 
 let taskGroup: taskpool.TaskGroup = new taskpool.TaskGroup();
-taskGroup.addTask(funB, 100)
+taskGroup.addTask(funB, 100);
 
-let taskB1: taskpool.Task = new taskpool.Task('taskName', funB, "this is task")
+let taskB1: taskpool.Task = new taskpool.Task('taskName', funB, "this is task");
 
-taskpool.execute(taskB1)
+taskpool.execute(taskB1);

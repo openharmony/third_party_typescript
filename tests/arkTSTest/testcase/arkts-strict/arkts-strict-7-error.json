@@ -94,13 +94,6 @@
     {
       "messageText": "Type 'TestClassC' is not assignable to type 'TestClassD'.",
       "expectLineAndCharacter": {
-        "line": 30,
-        "character": 9
-      }
-    },
-    {
-      "messageText": "Type 'TestClassC' is not assignable to type 'TestClassD'.",
-      "expectLineAndCharacter": {
         "line": 36,
         "character": 9
       }

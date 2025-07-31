@@ -3,6 +3,13 @@
         "filePath": "entry/src/main/ets/pages/cases/#14860.ets",
         "defects": [
             {
+                "origin": "WARN: ArkTS:WARN File: /entry/src/main/ets/pages/cases/#14860.ets:4:28\n Function may throw exceptions. Special handling is required.\n\n",
+                "severity": 1,
+                "reportLine": 4,
+                "reportColumn": 28,
+                "description": "Function may throw exceptions. Special handling is required."
+            },
+            {
                 "origin": "ERROR: ArkTS:ERROR File: /entry/src/main/ets/pages/cases/#14860.ets:10:8\n Structural typing is not supported (arkts-no-structural-typing)\n\n",
                 "severity": 2,
                 "reportLine": 10,
