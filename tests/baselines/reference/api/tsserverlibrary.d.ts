@@ -9655,6 +9655,7 @@ declare namespace ts {
     function parseJsonText(fileName: string, sourceText: string): JsonSourceFile;
     function isExternalModule(file: SourceFile): boolean;
     function updateSourceFile(sourceFile: SourceFile, newText: string, textChangeRange: TextChangeRange, aggressiveChecks?: boolean, option?: CompilerOptions): SourceFile;
+    function setLanguageVersionByFilePath(getLanguageVersion: ((filePath: string) => boolean) | undefined): void;
     interface CreateSourceFileOptions {
         languageVersion: ScriptTarget;
         /**
@@ -9850,6 +9851,7 @@ declare namespace ts {
     function transformTypeExportImportAndConstEnumInTypeScript(context: TransformationContext): (node: SourceFile) => SourceFile;
     function hasTsNoCheckOrTsIgnoreFlag(node: SourceFile): boolean;
     function createObfTextSingleLineWriter(): EmitTextWriter;
+    function isMixedCompilerSDKPath(compilerOptions: CompilerOptions): boolean;
     function cleanKitJsonCache(): void;
     function getMaxFlowDepth(compilerOptions: CompilerOptions): number;
     function getErrorCode(diagnostic: Diagnostic): ErrorInfo;
