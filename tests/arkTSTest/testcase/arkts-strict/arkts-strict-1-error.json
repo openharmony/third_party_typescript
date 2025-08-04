@@ -1,13 +1,4 @@
 {
-    "arktsVersion_1_0": [
-      {
-        "messageText": "Type 'TestClassC' is not assignable to type 'TestClassD'.",
-        "expectLineAndCharacter": {
-          "line": 25,
-          "character": 9
-        }
-      }
-    ],
-    "arktsVersion_1_1": [
-  ]
+    "arktsVersion_1_0": [],
+    "arktsVersion_1_1": []
   }

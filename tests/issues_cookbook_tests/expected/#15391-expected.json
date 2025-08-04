@@ -1,6 +1,14 @@
 {
     "sdklinter": {
         "filePath": "entry/src/main/ets/pages/cases/#15391.ets",
-        "defects": []
+        "defects": [
+            {
+                "origin": "WARN: ArkTS:WARN File: /entry/src/main/ets/pages/cases/#15391.ets:5:3\n Function may throw exceptions. Special handling is required.\n\n",
+                "severity": 1,
+                "reportLine": 5,
+                "reportColumn": 3,
+                "description": "Function may throw exceptions. Special handling is required."
+            }
+        ]
     }
 }

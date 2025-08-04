@@ -41,6 +41,8 @@ let task7: taskpool.Task = new taskpool.Task('taskName', funB, "this is task") /
 
 function funD(taskFun: Function) {
     let task = new taskpool.Task(taskFun, "this is task2");  // ok 
+    const funA = taskFun;
+    let task = new taskpool.Task(funA, "this is task2");  // ok 
 }
 
 funD(funB)

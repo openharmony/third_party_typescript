@@ -60,8 +60,8 @@ import {
   isIndexableArray, isIntrinsicObjectType, isEnumType, isStringType, isStdMapType, getNonNullableType, getTypeOrTypeConstraintAtLocation,
   isShareableEntity, isBooleanLikeType, isStdBooleanType, isObject, isWrongSendableFunctionAssignment, isSymbolIteratorExpression,
   isArkTSCollectionsClassOrInterfaceDeclaration, isValidComputedPropertyName, isShareableType, needStrictMatchType, SENDABLE_DECORATOR,
-  SENDABLE_DECORATOR_NODES, getSendableDecorator, isAllowedIndexSignature, PROMISE, isCollectionArrayType, isTaskPoolApi, isConcurrentFunction,
-  isDeclarationSymbol,
+  SENDABLE_DECORATOR_NODES, getSendableDecorator, isAllowedIndexSignature, PROMISE, isCollectionArrayType, isTaskPoolApi, 
+  isDeclarationSymbol, checkTaskpoolFunction,
 } from "../_namespaces/ts.ArkTSLinter_1_1";
 import * as ArkTSLinter_1_1 from "../_namespaces/ts.ArkTSLinter_1_1";
 import { perfLogger as Logger } from "../_namespaces/ts";
@@ -595,8 +595,8 @@ readonly handlersMap = new Map([
     let typeInArkts2: boolean = false;
     for (const compType of lhsType.types) {
       const comTypeSorceFile = this.getSourceFileFromType(compType);
-      if (TypeScriptLinter.tsTypeChecker.isTypeAssignableTo(rhsType, compType) 
-        && isObjectLiteralAssignable(compType, rhsExpr)) {
+      if (TypeScriptLinter.tsTypeChecker.isTypeAssignableTo(rhsType, compType) &&
+        isObjectLiteralAssignable(compType, rhsExpr)) {
         assignableTypesCount = assignableTypesCount + 1;
         if (TypeScriptLinter.tsTypeChecker.isStaticSourceFile(comTypeSorceFile)) {
           typeInArkts2 = true;
@@ -845,16 +845,14 @@ readonly handlersMap = new Map([
     for (let i = 0; i < Math.min(args.length, 2); i++) {
       const arg = args[i];
       const argType = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(arg);
-      if (argType.isStringLiteral()) {
+      if (ArkTSLinter_1_1.isStringLikeType(argType)) {
         continue;
       }
       const argSym = argType.getSymbol();
-      if (isFunctionSymbol(argSym)) {
-        if ((isArrowFunction(arg) || !isConcurrentFunction(argType))) {
-          this.incrementCounters(arg, FaultID.TaskpoolFunctionArg);
-        }
-        return;
+      if (checkTaskpoolFunction(arg, argType, argSym)) {
+        this.incrementCounters(arg, FaultID.TaskpoolFunctionArg);
       }
+      break;
     }
   }
 
@@ -1972,7 +1970,11 @@ readonly handlersMap = new Map([
     const arg = args[0];
     const argType = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(arg);
     const argSym = argType.getSymbol();
-    if (isFunctionSymbol(argSym) && (isArrowFunction(arg) || !isConcurrentFunction(argType))) {
+    if (!argSym || ArkTSLinter_1_1.TASK_LIST.includes(argSym.name)) {
+      return;
+    }
+
+    if (checkTaskpoolFunction(arg, argType, argSym)) {
       this.incrementCounters(arg, FaultID.TaskpoolFunctionArg);
     }
   }

@@ -33,10 +33,10 @@ taskpool.execute(funB, 100).then((d: object) => {
 })
 
 let taskGroup: taskpool.TaskGroup = new taskpool.TaskGroup();
-taskGroup.addTask(funB, 100)
+taskGroup.addTask(funB, 100);
 
-taskpool.execute(() => { }, 100)
+taskpool.execute(() => { }, 100);
 
 
 let a: taskpool.TaskGroup = new taskpool.TaskGroup();
-a.addTask(funB, 100)
+a.addTask(funB, 100);

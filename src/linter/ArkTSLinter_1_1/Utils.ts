@@ -27,7 +27,7 @@ import {
     isImportDeclaration, isInterfaceDeclaration, isIntersectionTypeNode, isLiteralTypeNode, isMemberName,
     isMethodDeclaration, isModuleBlock, isNamedExports, isNamedTupleMember, isNumericLiteral, isObjectLiteralExpression,
     isParenthesizedExpression, isParenthesizedTypeNode, isPropertyAccessExpression, isPropertyAssignment,
-    isPropertyDeclaration, isSetAccessorDeclaration, isStringLiteral, isStringLiteralLike, isTupleTypeNode,
+    isPropertyDeclaration, isPropertySignature, isSetAccessorDeclaration, isStringLiteral, isStringLiteralLike, isTupleTypeNode,
     isTypeAliasDeclaration, isTypeLiteralNode, isTypeNode, isTypeQueryNode, isTypeReferenceNode, isUnionTypeNode,
     isVariableDeclaration, isVariableDeclarationList, isVariableStatement, Map, MethodDeclaration, Modifier,
     NamedDeclaration, Node, NodeArray, NodeBuilderFlags, NodeFlags, normalizePath, NumericLiteral, ObjectFlags, ObjectLiteralExpression, ObjectType,
@@ -98,6 +98,8 @@ export const TASKPOOL = 'taskpool';
 export const TASKGROUP = 'TaskGroup';
 
 export const TASKPOOL_API = ['Task', 'LongTask', 'GenericsTask', 'execute', 'addTask'];
+
+export const TASK_LIST = ['Task', 'LongTask', 'GenericsTask', 'TaskGroup'];
 
 export const CONCURRENT_DECORATOR = 'Concurrent';
 
@@ -2506,6 +2508,29 @@ export function isDeclarationSymbol(sym: Symbol | undefined): boolean {
       return false;
     }
     return srcFile.isDeclarationFile;
+  }
+  return false;
+}
+
+export function checkTaskpoolFunction(arg: Expression, argType: Type, argSym: Symbol| undefined): boolean {
+  if (isFunctionSymbol(argSym)) {
+    return !isConcurrentFunction(argType);
+  }
+
+  const symbol = trueSymbolAtLocation(arg);
+  const decl = getDeclaration(symbol);
+  return !!decl && (isMethodDeclaration(decl) || isClassDeclaration(decl) || isObjectConstructor(decl));
+}
+
+function isObjectConstructor(decl: Declaration): boolean {
+  if (
+    isPropertySignature(decl) &&
+    decl.name.getText() === 'constructor' &&
+    isInterfaceDeclaration(decl.parent) &&
+    decl.parent.name.getText() === 'Object'
+  ) {
+    const sourcefile = decl.getSourceFile();
+    return !!sourcefile && sourcefile.fileName.endsWith('lib.es5.d.ts');
   }
   return false;
 }

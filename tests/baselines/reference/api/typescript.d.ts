@@ -9379,6 +9379,7 @@ declare namespace ts {
         function hasConcurrentDecoratorFunctionOverload(decl: FunctionDeclaration): boolean;
         function hasUseConcurrentDirective(decl: FunctionDeclaration): boolean;
         function isDeclarationSymbol(sym: Symbol | undefined): boolean;
+        function checkTaskpoolFunction(arg: Expression, argType: Type, argSym: Symbol | undefined): boolean;
         const PROPERTY_HAS_NO_INITIALIZER_ERROR_CODE = 2564;
         const NON_INITIALIZABLE_PROPERTY_DECORATORS: string[];
         const NON_INITIALIZABLE_PROPERTY_CLASS_DECORATORS: string[];
@@ -9402,6 +9403,7 @@ declare namespace ts {
         const TASKPOOL = "taskpool";
         const TASKGROUP = "TaskGroup";
         const TASKPOOL_API: string[];
+        const TASK_LIST: string[];
         const CONCURRENT_DECORATOR = "Concurrent";
         const USE_CONCURRENT = "use concurrent";
         type CheckType = ((t: Type) => boolean);
