@@ -27,7 +27,7 @@ import {
     isImportDeclaration, isInterfaceDeclaration, isIntersectionTypeNode, isLiteralTypeNode, isMemberName,
     isMethodDeclaration, isModuleBlock, isNamedExports, isNamedTupleMember, isNumericLiteral, isObjectLiteralExpression,
     isParenthesizedExpression, isParenthesizedTypeNode, isPropertyAccessExpression, isPropertyAssignment,
-    isPropertyDeclaration, isPropertySignature, isSetAccessorDeclaration, isStringLiteral, isStringLiteralLike, isTupleTypeNode,
+    isPropertyDeclaration, isPropertySignature, isSetAccessorDeclaration, isSourceFile, isStringLiteral, isStringLiteralLike, isTupleTypeNode,
     isTypeAliasDeclaration, isTypeLiteralNode, isTypeNode, isTypeQueryNode, isTypeReferenceNode, isUnionTypeNode,
     isVariableDeclaration, isVariableDeclarationList, isVariableStatement, Map, MethodDeclaration, Modifier,
     NamedDeclaration, Node, NodeArray, NodeBuilderFlags, NodeFlags, normalizePath, NumericLiteral, ObjectFlags, ObjectLiteralExpression, ObjectType,
@@ -1001,7 +1001,7 @@ export function hasPredecessor(node: Node, predicate: (node: Node) => boolean): 
 
 export function processParentTypes(parentTypes: NodeArray<ExpressionWithTypeArguments>, typeB: Type, processInterfaces: boolean): boolean {
   for (const baseTypeExpr of parentTypes) {
-    let baseType = typeChecker.getTypeAtLocation(baseTypeExpr);
+    let baseType = getTypeAtLocationForLinter(baseTypeExpr);
     if (isTypeReference(baseType) && baseType.target !== baseType) baseType = baseType.target;
     if (baseType && (baseType.isClass() !== processInterfaces) && relatedByInheritanceOrIdentical(baseType, typeB)) return true;
   }
@@ -1014,7 +1014,7 @@ function processParentTypesCheck(
   checkedBaseTypes: Set<Type>
 ): boolean {
   for (const baseTypeExpr of parentTypes) {
-    let baseType = typeChecker.getTypeAtLocation(baseTypeExpr);
+    let baseType = getTypeAtLocationForLinter(baseTypeExpr);
     if (isTypeReference(baseType) && baseType.target !== baseType) {
       baseType = baseType.target;
     }
@@ -1293,7 +1293,7 @@ function validateField(type: Type, prop: PropertyAssignment): boolean {
 
   const propType = typeChecker.getTypeOfSymbolAtLocation(propSym, propSym.declarations[0]);
   const initExpr = unwrapParenthesized(prop.initializer);
-  const rhsType = typeChecker.getTypeAtLocation(initExpr);
+  const rhsType = getTypeAtLocationForLinter(initExpr);
   if (isObjectLiteralExpression(initExpr)) {
     if (!isObjectLiteralAssignable(propType, initExpr)) {
       return false;
@@ -1572,7 +1572,7 @@ export function isLibraryType(type: Type): boolean {
 }
 
 export function hasLibraryType(node: Node): boolean {
-  return isLibraryType(typeChecker.getTypeAtLocation(node));
+  return isLibraryType(getTypeAtLocationForLinter(node));
 }
 
 export function isLibrarySymbol(sym: Symbol | undefined) {
@@ -1747,7 +1747,7 @@ export function isDynamicLiteralInitializer(expr: Expression): boolean {
   // foo({ ... })
   if (isCallExpression(curNode)) {
     const callExpr = curNode;
-    const type = typeChecker.getTypeAtLocation(callExpr.expression);
+    const type = getTypeAtLocationForLinter(callExpr.expression);
 
     // this check is a hack to fix #13474, only for tac 4.2
     if (isAnyType(type)) return true;
@@ -1776,7 +1776,7 @@ export function isDynamicLiteralInitializer(expr: Expression): boolean {
     const binExpr = curNode;
     if (isPropertyAccessExpression(binExpr.left)) {
       const propAccessExpr = binExpr.left;
-      const type = typeChecker.getTypeAtLocation(propAccessExpr.expression);
+      const type = getTypeAtLocationForLinter(propAccessExpr.expression);
       return isLibrarySymbol(type.symbol);
     }
   }
@@ -1804,7 +1804,7 @@ export function isValueAssignableToESObject(node: Node): boolean {
   if (isArrayLiteralExpression(node) || isObjectLiteralExpression(node)) {
     return false;
   }
-  const valueType = typeChecker.getTypeAtLocation(node);
+  const valueType = getTypeAtLocationForLinter(node);
   return isUnsupportedType(valueType) || isAnonymousType(valueType)
 }
 
@@ -1895,7 +1895,7 @@ export function typeIsRecursive(topType: Type, type: Type | undefined = undefine
 }
 
 export function getTypeOrTypeConstraintAtLocation(expr: Expression): Type {
-  let type = typeChecker.getTypeAtLocation(expr);
+  let type = getTypeAtLocationForLinter(expr);
   if (type.isTypeParameter()) {
     let constraint = type.getConstraint();
     if (constraint) {
@@ -1940,7 +1940,7 @@ export function isStdBooleanType(type: Type): boolean {
 export function isEnumStringLiteral(expr: Expression): boolean {
   const symbol = trueSymbolAtLocation(expr);
   const isEnumMember = !!symbol && !!(symbol.flags & SymbolFlags.EnumMember);
-  const type = typeChecker.getTypeAtLocation(expr);
+  const type = getTypeAtLocationForLinter(expr);
   const isStringEnumLiteral = isEnumType(type) && !!(type.flags & TypeFlags.StringLiteral);
   return isEnumMember && isStringEnumLiteral;
 }
@@ -1966,7 +1966,7 @@ export function isAllowedIndexSignature(node: IndexSignatureDeclaration): boolea
     return false;
   }
 
-  const paramType = typeChecker.getTypeAtLocation(node.parameters[0]);
+  const paramType = getTypeAtLocationForLinter(node.parameters[0]);
   if ((paramType.flags & TypeFlags.Number) === 0) {
     return false;
   }
@@ -1987,7 +1987,7 @@ function isArkTSCollectionsArrayLikeDeclaration(decl: Declaration): boolean {
   if (!isArkTSCollectionsClassOrInterfaceDeclaration(decl)) {
     return false;
   }
-  if (!hasIndexSignature(typeChecker.getTypeAtLocation(decl))) {
+  if (!hasIndexSignature(getTypeAtLocationForLinter(decl))) {
     return false;
   } 
   return true;
@@ -2259,7 +2259,7 @@ export function isShareableEntity(node: Node): boolean {
   const typeNode = (decl as any)?.type;
   return (typeNode && !isFunctionLikeDeclaration(decl!)) ?
     isSendableTypeNode(typeNode, true) :
-    isShareableType(typeChecker.getTypeAtLocation(decl ? decl : node));
+    isShareableType(getTypeAtLocationForLinter(decl ? decl : node));
 }
 
 export function isSendableClassOrInterfaceEntity(node: Node): boolean {
@@ -2273,7 +2273,7 @@ export function isSendableClassOrInterfaceEntity(node: Node): boolean {
   }
 
   if (isInterfaceDeclaration(decl)) {
-    return isOrDerivedFrom(typeChecker.getTypeAtLocation(decl), isISendableInterface);
+    return isOrDerivedFrom(getTypeAtLocationForLinter(decl), isISendableInterface);
   }
   return false;
 }
@@ -2357,7 +2357,7 @@ function getTypsAliasOriginalDecl(type: Type): TypeAliasDeclaration | undefined 
     return undefined;
   }
   if (isTypeReferenceNode(decl.type)) {
-  const targetType = typeChecker.getTypeAtLocation(decl.type.typeName);
+  const targetType = getTypeAtLocationForLinter(decl.type.typeName);
     if (targetType.aliasSymbol && (targetType.aliasSymbol.getFlags() & SymbolFlags.TypeAlias)) {
       return getTypsAliasOriginalDecl(targetType);
     }
@@ -2533,4 +2533,11 @@ function isObjectConstructor(decl: Declaration): boolean {
     return !!sourcefile && sourcefile.fileName.endsWith('lib.es5.d.ts');
   }
   return false;
+}
+
+export function getTypeAtLocationForLinter(node: Node): Type {
+  if (isSourceFile(node) && typeChecker.createIntrinsicType) {
+    return typeChecker.createIntrinsicType(TypeFlags.Any, "error");
+  }
+  return typeChecker.getTypeAtLocation(node);
 }

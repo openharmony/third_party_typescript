@@ -5058,6 +5058,7 @@ export interface TypeChecker {
     clearQualifiedNameCache?(): void;
     isStaticRecord?(type: Type): boolean;
     isStaticSourceFile?(sourceFile: SourceFile | undefined): boolean;
+    createIntrinsicType?(kind: TypeFlags, intrinsicName: string, objectFlags?: ObjectFlags): Type;
 }
 
 /** @internal */

@@ -24,7 +24,7 @@ import {
 import { 
   Autofix, faultsAttrs, FaultID, LinterConfig, ProblemInfo, getHighlightRange, isInImportWhiteList, D_TS, getDeclarationNode, ARKTS_COLLECTIONS_D_ETS,
   ARKTS_LANG_D_ETS, isSendableClassOrInterfaceEntity, reduceReference, isSendableClassOrInterface, trueSymbolAtLocation, isSendableTypeNode,
-  typeContainsSendableClassOrInterface, isObject, isAnyType, cookBookTag, cookBookMsg, ProblemSeverity
+  typeContainsSendableClassOrInterface, isObject, isAnyType, cookBookTag, cookBookMsg, ProblemSeverity, getTypeAtLocationForLinter
 } from "../_namespaces/ts.ArkTSLinter_1_1";
 export interface KitSymbol {
   source: string
@@ -337,7 +337,7 @@ export class InteropTypescriptLinter {
       * 'extends' clause. Additionally, reduce reference, as mostly type checker returns
       * the TypeReference type objects for classes and interfaces.
       */
-      const tsExprType = reduceReference(InteropTypescriptLinter.tsTypeChecker.getTypeAtLocation(tsTypeExpr));
+      const tsExprType = reduceReference(getTypeAtLocationForLinter(tsTypeExpr));
       const isSendableBaseType = isSendableClassOrInterface(tsExprType);
       if (isSendableBaseType) {
         this.incrementCounters(tsTypeExpr, FaultID.SendableTypeInheritance);
@@ -370,7 +370,7 @@ export class InteropTypescriptLinter {
   }
 
   private handleSendableGenericTypes(node: NewExpression): void {
-    const type = InteropTypescriptLinter.tsTypeChecker.getTypeAtLocation(node);
+    const type = getTypeAtLocationForLinter(node);
     if (!isSendableClassOrInterface(type)) {
       return;
     }
@@ -405,8 +405,8 @@ export class InteropTypescriptLinter {
 
   private handleAsExpression(node: Node): void {
     const tsAsExpr = node as AsExpression;
-    const targetType = InteropTypescriptLinter.tsTypeChecker.getTypeAtLocation(tsAsExpr.type).getNonNullableType();
-    const exprType = InteropTypescriptLinter.tsTypeChecker.getTypeAtLocation(tsAsExpr.expression).getNonNullableType();
+    const targetType = getTypeAtLocationForLinter(tsAsExpr.type).getNonNullableType();
+    const exprType = getTypeAtLocationForLinter(tsAsExpr.expression).getNonNullableType();
 
     if (
         !isSendableClassOrInterface(exprType) &&

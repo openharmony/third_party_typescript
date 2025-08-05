@@ -25,24 +25,24 @@ function funB() {
     'use concurrent';
 }
 
-let task: taskpool.Task = new taskpool.Task('taskName', funA, "this is task") // ok
+let task: taskpool.Task = new taskpool.Task('taskName', funA, 'this is task') // ok
 
-let task2: taskpool.Task = new taskpool.Task(funA, "this is task2") // ok
+let task2: taskpool.Task = new taskpool.Task(funA, 'this is task2') // ok
 
-let task3: taskpool.LongTask = new taskpool.LongTask('taskName', funA, "this is longtask3") // ok
+let task3: taskpool.LongTask = new taskpool.LongTask('taskName', funA, 'this is longtask3') // ok
 
-let task4: taskpool.LongTask = new taskpool.LongTask(funA, "this is longtask4") // ok  
+let task4: taskpool.LongTask = new taskpool.LongTask(funA, 'this is longtask4') // ok  
 
 let task5: taskpool.Task = new taskpool.GenericsTask(funA) // ok
 
 let task6: taskpool.Task = new taskpool.GenericsTask('taskfunA', funA) // ok
 
-let task7: taskpool.Task = new taskpool.Task('taskName', funB, "this is task") // ok
+let task7: taskpool.Task = new taskpool.Task('taskName', funB, 'this is task') // ok
 
 function funD(taskFun: Function) {
-    let task = new taskpool.Task(taskFun, "this is task2");  // ok 
+    let task = new taskpool.Task(taskFun, 'this is task2');  // ok 
     const funA = taskFun;
-    let task = new taskpool.Task(funA, "this is task2");  // ok 
+    let task = new taskpool.Task(funA, 'this is task2');  // ok 
 }
 
 funD(funB)

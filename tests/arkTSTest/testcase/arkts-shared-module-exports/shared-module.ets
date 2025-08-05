@@ -14,6 +14,7 @@
  */
 
 import {lang} from "@arkts.lang";
+import * as otherName from './test-export';
 
 'use shared'
 
@@ -95,3 +96,5 @@ export {
 
 export type TypeC = C; // ERROR
 export type TypeE = E; // ERROR
+
+export { otherName }; // ERROR
