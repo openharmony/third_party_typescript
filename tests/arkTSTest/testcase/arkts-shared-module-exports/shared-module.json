@@ -3,7 +3,7 @@
       {
         "messageText": "No decorators except ArkUI decorators are currently allowed (arkts-no-decorators-except-arkui)",
         "expectLineAndCharacter": {
-          "line": 26,
+          "line": 27,
           "character": 1
         }
       }
@@ -12,71 +12,64 @@
     {
       "messageText": "Only \"Sendable\" entities can be exported in shared module (arkts-shared-module-exports)",
       "expectLineAndCharacter": {
-        "line": 21,
+        "line": 22,
         "character": 13
       }
     },
     {
       "messageText": "Only \"Sendable\" entities can be exported in shared module (arkts-shared-module-exports)",
       "expectLineAndCharacter": {
-        "line": 23,
+        "line": 24,
         "character": 12
       }
     },
     {
       "messageText": "Only \"Sendable\" entities can be exported in shared module (arkts-shared-module-exports)",
       "expectLineAndCharacter": {
-        "line": 25,
+        "line": 26,
         "character": 14
       }
     },
     {
       "messageText": "Only \"Sendable\" entities can be exported in shared module (arkts-shared-module-exports)",
       "expectLineAndCharacter": {
-        "line": 29,
+        "line": 30,
         "character": 12
       }
     },
     {
       "messageText": "Only \"Sendable\" entities can be exported in shared module (arkts-shared-module-exports)",
       "expectLineAndCharacter": {
-        "line": 31,
+        "line": 32,
         "character": 18
       }
     },
     {
       "messageText": "Only \"Sendable\" entities can be exported in shared module (arkts-shared-module-exports)",
       "expectLineAndCharacter": {
-        "line": 33,
+        "line": 34,
         "character": 9
       }
     },
     {
       "messageText": "Only \"Sendable\" entities can be exported in shared module (arkts-shared-module-exports)",
       "expectLineAndCharacter": {
-        "line": 35,
+        "line": 36,
         "character": 9
       }
     },
     {
       "messageText": "Only \"Sendable\" entities can be exported in shared module (arkts-shared-module-exports)",
       "expectLineAndCharacter": {
-        "line": 37,
+        "line": 38,
         "character": 13
       }
     },
     {
       "messageText": "\"export * from ...\" is not allowed in shared module (arkts-shared-module-no-wildcard-export)",
       "expectLineAndCharacter": {
-        "line": 38,
+        "line": 39,
         "character": 1
-      }
-    },
-    {
-      "messageText": "Only \"Sendable\" entities can be exported in shared module (arkts-shared-module-exports)",
-      "expectLineAndCharacter": {
-        "line": 41,
-        "character": 12
       }
     },
     {
@@ -89,43 +82,43 @@
     {
       "messageText": "Only \"Sendable\" entities can be exported in shared module (arkts-shared-module-exports)",
       "expectLineAndCharacter": {
-        "line": 48,
+        "line": 43,
+        "character": 12
+      }
+    },
+    {
+      "messageText": "Only \"Sendable\" entities can be exported in shared module (arkts-shared-module-exports)",
+      "expectLineAndCharacter": {
+        "line": 49,
         "character": 9
       }
     },
     {
       "messageText": "Only \"Sendable\" entities can be exported in shared module (arkts-shared-module-exports)",
       "expectLineAndCharacter": {
-        "line": 51,
+        "line": 52,
         "character": 9
       }
     },
     {
       "messageText": "Only \"Sendable\" entities can be exported in shared module (arkts-shared-module-exports)",
       "expectLineAndCharacter": {
-        "line": 67,
+        "line": 68,
         "character": 13
       }
     },
     {
       "messageText": "Only \"Sendable\" entities can be exported in shared module (arkts-shared-module-exports)",
       "expectLineAndCharacter": {
-        "line": 81,
+        "line": 82,
         "character": 14
       }
     },
     {
       "messageText": "Only \"Sendable\" entities can be exported in shared module (arkts-shared-module-exports)",
       "expectLineAndCharacter": {
-        "line": 93,
+        "line": 94,
         "character": 17
-      }
-    },
-    {
-      "messageText": "Only \"Sendable\" entities can be exported in shared module (arkts-shared-module-exports)",
-      "expectLineAndCharacter": {
-        "line": 96,
-        "character": 1
       }
     },
     {
@@ -133,6 +126,20 @@
       "expectLineAndCharacter": {
         "line": 97,
         "character": 1
+      }
+    },
+    {
+      "messageText": "Only \"Sendable\" entities can be exported in shared module (arkts-shared-module-exports)",
+      "expectLineAndCharacter": {
+        "line": 98,
+        "character": 1
+      }
+    },
+    {
+      "messageText": "Only \"Sendable\" entities can be exported in shared module (arkts-shared-module-exports)",
+      "expectLineAndCharacter": {
+        "line": 100,
+        "character": 10
       }
     }
   ]

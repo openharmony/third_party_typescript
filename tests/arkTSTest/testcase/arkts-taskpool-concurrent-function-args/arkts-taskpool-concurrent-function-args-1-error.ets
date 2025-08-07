@@ -23,25 +23,25 @@ function funB() {
 
 
 
-let taskB1: taskpool.Task = new taskpool.Task('taskName', funB, "this is task") // error
+let taskB1: taskpool.Task = new taskpool.Task('taskName', funB, 'this is task') // error
 
-let taskB2: taskpool.Task = new taskpool.Task(funB, "this is task2") // error
+let taskB2: taskpool.Task = new taskpool.Task(funB, 'this is task2') // error
 
-let taskB3: taskpool.LongTask = new taskpool.LongTask('taskName', funB, "this is longtask3") // error
+let taskB3: taskpool.LongTask = new taskpool.LongTask('taskName', funB, 'this is longtask3') // error
 
-let taskB4: taskpool.LongTask = new taskpool.LongTask(funB, "this is longtask4") // error  
+let taskB4: taskpool.LongTask = new taskpool.LongTask(funB, 'this is longtask4') // error  
 
 let taskB5: taskpool.Task = new taskpool.GenericsTask(funB) // error
 
 let taskB6: taskpool.Task = new taskpool.GenericsTask('taskName', funB) // errorss
 
-let taskD1: taskpool.Task = new taskpool.Task('taskName', () => { }, "this is task") // error
+let taskD1: taskpool.Task = new taskpool.Task('taskName', () => { }, 'this is task') // error
 
-let taskD2: taskpool.Task = new taskpool.Task(() => { }, "this is task2") // error
+let taskD2: taskpool.Task = new taskpool.Task(() => { }, 'this is task2') // error
 
-let taskD3: taskpool.LongTask = new taskpool.LongTask('taskName', () => { }, "this is longtask3") // error
+let taskD3: taskpool.LongTask = new taskpool.LongTask('taskName', () => { }, 'this is longtask3') // error
 
-let taskD4: taskpool.LongTask = new taskpool.LongTask(() => { }, "this is longtask4") // error  
+let taskD4: taskpool.LongTask = new taskpool.LongTask(() => { }, 'this is longtask4') // error  
 
 let taskD5: taskpool.Task = new taskpool.GenericsTask(() => { }) // error
 

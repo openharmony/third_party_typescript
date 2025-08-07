@@ -1850,6 +1850,7 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
         clearQualifiedNameCache: () => {qualifiedNameCache && qualifiedNameCache.clear()},
         isStaticRecord: isStaticRecord,
         isStaticSourceFile: isStaticSourceFile,
+        createIntrinsicType: createIntrinsicType,
     };
 
     function getTypeArgumentsForResolvedSignature(signature: Signature): readonly Type[] | undefined {

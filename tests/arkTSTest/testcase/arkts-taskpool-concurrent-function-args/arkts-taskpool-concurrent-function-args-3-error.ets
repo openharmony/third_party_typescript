@@ -16,7 +16,7 @@
 import taskpool from '../common-lib/@ohos.taskpool';
 
 class MyClass {
-    name: string;
+    private name: string;
     constructor(name: string) {
         'use concurrent';
         this.name = name;
@@ -34,13 +34,13 @@ class MyClass {
 
 let taskGroup: taskpool.TaskGroup = new taskpool.TaskGroup();
 
-let taskA1: taskpool.Task = new taskpool.Task('taskName', new MyClass().constructor, "this is task"); // error
+let taskA1: taskpool.Task = new taskpool.Task('taskName', new MyClass().constructor, 'this is task'); // error
 
-let taskA2: taskpool.Task = new taskpool.Task(new MyClass().constructor, "this is task2"); // error
+let taskA2: taskpool.Task = new taskpool.Task(new MyClass().constructor, 'this is task2'); // error
 
-let taskA3: taskpool.LongTask = new taskpool.LongTask('taskName', new MyClass().constructor, "this is longtask3"); // error
+let taskA3: taskpool.LongTask = new taskpool.LongTask('taskName', new MyClass().constructor, 'this is longtask3'); // error
 
-let taskA4: taskpool.LongTask = new taskpool.LongTask(new MyClass().constructor, "this is longtask4"); // error  
+let taskA4: taskpool.LongTask = new taskpool.LongTask(new MyClass().constructor, 'this is longtask4'); // error  
 
 let taskA5: taskpool.Task = new taskpool.GenericsTask(new MyClass().constructor); // error
 
@@ -51,13 +51,13 @@ taskGroup.addTask(taskA1); // ok
 taskGroup.addTask(taskA3); // ok
 taskGroup.addTask(taskA5); // ok
 
-let taskB1: taskpool.Task = new taskpool.Task('taskName', new MyClass().funB, "this is task"); // error
+let taskB1: taskpool.Task = new taskpool.Task('taskName', new MyClass().funB, 'this is task'); // error
 
-let taskB2: taskpool.Task = new taskpool.Task(new MyClass().funB, "this is task2"); // error
+let taskB2: taskpool.Task = new taskpool.Task(new MyClass().funB, 'this is task2'); // error
 
-let taskB3: taskpool.LongTask = new taskpool.LongTask('taskName', new MyClass().funB, "this is longtask3"); // error
+let taskB3: taskpool.LongTask = new taskpool.LongTask('taskName', new MyClass().funB, 'this is longtask3'); // error
 
-let taskB4: taskpool.LongTask = new taskpool.LongTask(new MyClass().funB, "this is longtask4"); // error  
+let taskB4: taskpool.LongTask = new taskpool.LongTask(new MyClass().funB, 'this is longtask4'); // error  
 
 let taskB5: taskpool.Task = new taskpool.GenericsTask(new MyClass().funB); // error
 
@@ -68,13 +68,13 @@ taskGroup.addTask(taskB1); // ok
 taskGroup.addTask(taskB3); // ok
 taskGroup.addTask(taskB5); // ok
 
-let taskC1: taskpool.Task = new taskpool.Task('taskName', MyClass.funA, "this is task"); // error
+let taskC1: taskpool.Task = new taskpool.Task('taskName', MyClass.funA, 'this is task'); // error
 
-let taskC2: taskpool.Task = new taskpool.Task(MyClass.funA, "this is task2"); // error
+let taskC2: taskpool.Task = new taskpool.Task(MyClass.funA, 'this is task2'); // error
 
-let taskC3: taskpool.LongTask = new taskpool.LongTask('taskName', MyClass.funA, "this is longtask3"); // error
+let taskC3: taskpool.LongTask = new taskpool.LongTask('taskName', MyClass.funA, 'this is longtask3'); // error
 
-let taskC4: taskpool.LongTask = new taskpool.LongTask(MyClass.funA, "this is longtask4"); // error  
+let taskC4: taskpool.LongTask = new taskpool.LongTask(MyClass.funA, 'this is longtask4'); // error  
 
 let taskC5: taskpool.Task = new taskpool.GenericsTask(MyClass.funA); // error
 
