@@ -25,6 +25,8 @@
                 "testcase/arkts-sendable-generic-types/@arkts.lang.d.ets",
                 "testcase/arkts-sendable-obj-init/@arkts.lang.d.ets",
                 "testcase/arkts-no-structural-typing/@arkts.lang.d.ets",
+                "testcase/arkts-no-class-literal-contructor/lib-dependency.ts",
+                "testcase/arkts-no-class-literal-contructor/no-lib-dependency.ets",
                 "testcase/common-lib/@arkts.lang.d.ets",
                 "testcase/arkts-strict/oh_modules/ohos_lib.ts"],
     "beta2":["testcase/arkts-sendable-beta-compatible/arkts-sendable-beta-compatible-1-errorr.ets",
