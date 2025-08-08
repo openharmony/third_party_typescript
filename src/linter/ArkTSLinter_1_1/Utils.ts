@@ -533,7 +533,7 @@ export function isTypeSymbol(symbol: Symbol | undefined): boolean {
 export function isGenericArrayType(tsType: Type): tsType is TypeReference {
   return (
     isTypeReference(tsType) && tsType.typeArguments?.length === 1 && tsType.target.typeParameters?.length === 1 &&
-    tsType.getSymbol()?.getName() === "Array"
+    tsType.getSymbol()?.getName() === 'Array'
   );
 }
 
@@ -840,7 +840,7 @@ export function isNumberConstantValue(
   Number(tsExpr.getText()) :
   typeChecker.getConstantValue(tsExpr);
 
-  return tsConstValue !== undefined && typeof tsConstValue === "number";
+  return tsConstValue !== undefined && typeof tsConstValue === 'number';
 }
 
 export function isIntegerConstantValue(
@@ -851,7 +851,7 @@ export function isIntegerConstantValue(
   Number(tsExpr.getText()) :
   typeChecker.getConstantValue(tsExpr);
   return (
-    tsConstValue !== undefined && typeof tsConstValue === "number" &&
+    tsConstValue !== undefined && typeof tsConstValue === 'number' &&
     tsConstValue.toFixed(0) === tsConstValue.toString()
   );
 }
@@ -861,7 +861,7 @@ export function isStringConstantValue(
 ): boolean {
   const tsConstValue = typeChecker.getConstantValue(tsExpr);
   return (
-    tsConstValue !== undefined && typeof tsConstValue === "string"
+    tsConstValue !== undefined && typeof tsConstValue === 'string'
   );
 }
 
@@ -2537,7 +2537,7 @@ function isObjectConstructor(decl: Declaration): boolean {
 
 export function getTypeAtLocationForLinter(node: Node): Type {
   if (isSourceFile(node) && typeChecker.createIntrinsicType) {
-    return typeChecker.createIntrinsicType(TypeFlags.Any, "error");
+    return typeChecker.createIntrinsicType(TypeFlags.Any, 'error');
   }
   return typeChecker.getTypeAtLocation(node);
 }
