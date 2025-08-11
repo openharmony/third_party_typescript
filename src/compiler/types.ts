@@ -5066,6 +5066,7 @@ export interface TypeChecker {
     clearConstEnumRelate?(): void;
     deleteConstEnumRelate?(path: string): void;
     isStaticRecord?(type: Type): boolean;
+    isStaticSourceFile?(sourceFile: SourceFile | undefined): boolean;
     getTypeArgumentsForResolvedSignature(signature: Signature): readonly Type[] | undefined;
     getCheckedSourceFiles(): Set<SourceFile>;
     collectHaveTsNoCheckFilesForLinter(sourceFile: SourceFile): void;

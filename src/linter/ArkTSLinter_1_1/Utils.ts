@@ -1185,6 +1185,14 @@ export function getNonNullableType(t: Type): Type {
   return t;
 }
 
+function isStaticSourceFile(lhsType: Type): boolean {
+  if (typeChecker.isStaticSourceFile) {
+    return typeChecker.isStaticSourceFile(lhsType.symbol?.declarations?.[0]?.getSourceFile());
+  }
+  // keep default logic
+  return false;
+}
+
 export function isObjectLiteralAssignable(lhsType: Type | undefined, rhsExpr: ObjectLiteralExpression): boolean {
   if (lhsType === undefined) {
     return false;
@@ -1204,7 +1212,9 @@ export function isObjectLiteralAssignable(lhsType: Type | undefined, rhsExpr: Ob
   // Allow initializing with anything when the type
   // originates from the library.
   if (isAnyType(lhsType) || isLibraryType(lhsType)) {
-    return true;
+    if (!isStaticSourceFile(lhsType)) {
+      return true;
+    }
   }
 
   // issue 13412:
@@ -1684,7 +1694,7 @@ export function isDynamicType(type: Type | undefined): boolean | undefined {
     return false;
   }
 
-  if (isLibraryType(type)) {
+  if (isLibraryType(type) && !isStaticSourceFile(type)) {
     return true;
   }
 
@@ -1740,7 +1750,7 @@ export function isDynamicLiteralInitializer(expr: Expression): boolean {
     if (isAnyType(type)) return true;
 
     let sym: Symbol | undefined = type.symbol;
-    if(isLibrarySymbol(sym)) {
+    if (isLibrarySymbol(sym)) {
       return true;
     }
 
