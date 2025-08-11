@@ -19,6 +19,7 @@ import re
 import json
 import json5
 import os
+import stat
 import subprocess
 
 
@@ -219,7 +220,9 @@ class SDKLinterTest:
         properties = config_data.setdefault("properties", {})
         self.old_tsimportsendable = properties.get("ark.tsImportSendable", False)
         properties["ark.tsImportSendable"] = tsimportsendable
-        with open(hvigor_config, "w") as f:
+        flags = os.O_WRONLY | os.O_CREAT | os.O_TRUNC
+        mode = stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IROTH
+        with os.fdopen(os.open(hvigor_config, flags, mode), "w") as f:
             json5.dump(config_data, f, indent=4)
 
     def _split_errors_list(self):
