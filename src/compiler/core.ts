@@ -1,7 +1,24 @@
 import {
-    __String, CharacterCodes, Comparer, Comparison, Debug, EqualityComparer, ESMap, isWhiteSpaceLike, Iterator, Map,
-    MapLike, Push, Queue, ReadonlyESMap, ReadonlySet, Set, SortedArray, SortedReadonlyArray, TextSpan,
-    UnderscoreEscapedMap,
+    __String,
+    CharacterCodes,
+    Comparer,
+    Comparison,
+    Debug,
+    EqualityComparer,
+    ESMap,
+    isWhiteSpaceLike,
+    Iterator,
+    Map,
+    MapLike,
+    Push,
+    Queue,
+    ReadonlyESMap,
+    ReadonlySet,
+    Set,
+    SortedArray,
+    SortedReadonlyArray,
+    TextSpan,
+    UnderscoreEscapedMap
 } from "./_namespaces/ts";
 
 /** @internal */
