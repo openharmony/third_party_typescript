@@ -9144,6 +9144,7 @@ declare namespace ts {
         function setTypeChecker(tsTypeChecker: TypeChecker): void;
         function clearTypeChecker(): void;
         function setTestMode(tsTestMode: boolean): void;
+        function setMixCompile(isMixCompile: boolean): void;
         function getStartPos(nodeOrComment: Node | CommentRange): number;
         function getEndPos(nodeOrComment: Node | CommentRange): number;
         function getHighlightRange(nodeOrComment: Node | CommentRange, faultId: number): [
