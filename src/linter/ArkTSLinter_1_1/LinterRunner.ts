@@ -20,7 +20,7 @@ import {
 } from "../_namespaces/ts";
 import { 
   LibraryTypeCallDiagnosticChecker, TypeScriptLinter, InteropTypescriptLinter, ProblemSeverity, ProblemInfo, setTypeChecker, clearTypeChecker,
-  clearTrueSymbolAtLocationCache, LinterConfig, TSCCompiledProgram, clearUtilsGlobalvariables
+  clearTrueSymbolAtLocationCache, LinterConfig, TSCCompiledProgram, clearUtilsGlobalvariables, setMixCompile
 } from "../_namespaces/ts.ArkTSLinter_1_1";
 
 function makeDiag(category: DiagnosticCategory, code: number, file: SourceFile, start: number, length: number, messageText: string): Diagnostic {
@@ -108,6 +108,7 @@ buildInfoWriteFile?: WriteFileCallback, arkTSVersion?: string): Diagnostic[] {
         TypeScriptLinter.initStatic();
         const linter = new TypeScriptLinter(fileToLint, program, tscStrictDiagnostics);
         setTypeChecker(TypeScriptLinter.tsTypeChecker);
+        setMixCompile(!!compilerOptions.mixCompile);
         linter.lint();
 
         // Get list of bad nodes from the current run.
@@ -125,6 +126,7 @@ buildInfoWriteFile?: WriteFileCallback, arkTSVersion?: string): Diagnostic[] {
         }
         const InteropLinter = new InteropTypescriptLinter(fileToLint, program, isInSdk);
         setTypeChecker(InteropTypescriptLinter.tsTypeChecker);
+        setMixCompile(!!compilerOptions.mixCompile);
         InteropLinter.lint();
 
         currentDiagnostics = [];

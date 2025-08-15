@@ -120,6 +120,11 @@ export function setTestMode(tsTestMode: boolean): void {
   testMode = tsTestMode;
 }
 
+let mixCompile = false;
+export function setMixCompile(isMixCompile: boolean): void {
+  mixCompile = isMixCompile;
+}
+
 export function getStartPos(nodeOrComment: Node | CommentRange): number {
   return (nodeOrComment.kind === SyntaxKind.SingleLineCommentTrivia || nodeOrComment.kind === SyntaxKind.MultiLineCommentTrivia)
     ? (nodeOrComment as CommentRange).pos
@@ -1216,7 +1221,7 @@ export function isObjectLiteralAssignable(lhsType: Type | undefined, rhsExpr: Ob
 
   // Allow initializing with anything when the type
   // originates from the library.
-  if (isAnyType(lhsType) || isLibraryType(lhsType)) {
+  if ((isAnyType(lhsType) || isLibraryType(lhsType)) && !isStaticSourceFileForLinter(lhsType)) {
     return true;
   }
 
@@ -1697,7 +1702,7 @@ export function isDynamicType(type: Type | undefined): boolean | undefined {
     return false;
   }
 
-  if (isLibraryType(type)) {
+  if (isLibraryType(type) && !isStaticSourceFileForLinter(type)) {
     return true;
   }
 
@@ -1753,7 +1758,7 @@ export function isDynamicLiteralInitializer(expr: Expression): boolean {
     if (isAnyType(type)) return true;
 
     let sym: Symbol | undefined = type.symbol;
-    if(isLibrarySymbol(sym)) {
+    if (isLibrarySymbol(sym)) {
       return true;
     }
 
@@ -2540,4 +2545,11 @@ export function getTypeAtLocationForLinter(node: Node): Type {
     return typeChecker.createIntrinsicType(TypeFlags.Any, 'error');
   }
   return typeChecker.getTypeAtLocation(node);
+}
+
+function isStaticSourceFileForLinter(type: Type): boolean {
+  if (mixCompile && typeChecker.isStaticSourceFile) {
+    return typeChecker.isStaticSourceFile(type.symbol?.declarations?.[0]?.getSourceFile());
+  }
+  return false;
 }
