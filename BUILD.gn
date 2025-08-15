@@ -119,13 +119,6 @@ group("build_typescript") {
   ]
 }
 
-ohos_shared_headers("build_typescript_etc") {
-  include_dirs = []
-  deps = [ ":build_typescript" ]
-  part_name = "typescript"
-  subsystem_name = "thirdparty"
-}
-
 action("build_typescript_pack") {
   sources = typescript_sources
   script = "compile_typescript.py"
@@ -134,6 +127,18 @@ action("build_typescript_pack") {
     rebase_path("${target_out_dir}"),
   ]
   outputs = [ "${target_out_dir}/ohos-typescript-4.9.5-r4.tgz" ]
+}
+
+ohos_prebuilt_etc("build_typescript_etc") {
+  deps = [
+    ":build_typescript",
+    ":build_typescript_pack",
+  ]
+  target_outputs_ = get_target_outputs(":build_typescript_pack")
+  source = target_outputs_[0]
+  install_enable = false
+  part_name = "typescript"
+  subsystem_name = "thirdparty"
 }
 
 collect_notice("typescript_notice") {
