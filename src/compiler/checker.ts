@@ -1868,6 +1868,7 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
         clearConstEnumRelate: () => {constEnumRelate && constEnumRelate.clear()},
         deleteConstEnumRelate: (path: string) => {constEnumRelate && constEnumRelate.delete(path)},
         isStaticRecord: isStaticRecord,
+        isStaticSourceFile: isStaticSourceFile,
         getTypeArgumentsForResolvedSignature,
         getCheckedSourceFiles: () => checkedSourceFiles,
         collectHaveTsNoCheckFilesForLinter: (sourceFile: SourceFile) => {isTypeCheckerForLinter && checkedSourceFiles.add(sourceFile)},
