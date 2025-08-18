@@ -1069,7 +1069,7 @@ import {
 } from "./_namespaces/ts";
 import * as performance from "./_namespaces/ts.performance";
 import * as moduleSpecifiers from "./_namespaces/ts.moduleSpecifiers";
-import { THROWS_TAG, THROWS_CATCH, THROWS_ASYNC_CALLBACK, THROWS_ERROR_CALLBACK } from "./ohApi"
+import { THROWS_TAG, THROWS_CATCH, THROWS_ASYNC_CALLBACK, THROWS_ERROR_CALLBACK, getSdkPath } from "./ohApi"
 
 const ambientModuleSymbolRegex = /^".+"$/;
 const anon = "(anonymous)" as __String & string;
@@ -1489,6 +1489,10 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
     var checkedSourceFiles: Set<SourceFile> = new Set();
     // Used only for linter, in non-strict typeChecker, it is always empty.
     var qualifiedNameCache: ESMap<Symbol, string> = new Map();
+
+    // Get the SDK paths that need to skip the @throws check.
+    const skipSdkPath: string = getSdkPath(compilerOptions)!;
+    const skipSdkPathReg: RegExp = new RegExp(skipSdkPath);
 
     // for public members that accept a Node or one of its subtypes, we must guard against
     // synthetic nodes created during transformations by calling `getParseTreeNode`.
@@ -34000,7 +34004,6 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
     function shouldCheckThrows(declaration: SignatureDeclaration): boolean {
         const sourceFileNamePath = getSourceFileOfNode(declaration).fileName.replace(/\\/g, '/');
         const SKIPPED_PATHS = ['/node_modules/', '/oh_modules/', '/js_util_module/'];
-        const skipSdkPathReg: RegExp = /\/sdk\/default\/(openharmony|hms)\/ets\//;
         if (SKIPPED_PATHS.some(path => sourceFileNamePath.includes(path))) {
             return false;
         }
