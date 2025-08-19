@@ -34246,7 +34246,7 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
             const config = checkConfig[i];
             let tagNameCheckNecessity = true;
             if (config.checkJsDocSpecialValidCallback) {
-                tagNameCheckNecessity = config.checkJsDocSpecialValidCallback(jsDocTags, config);
+                tagNameCheckNecessity = config.checkJsDocSpecialValidCallback(jsDocTags, config, node);
             }
             if (!tagNameCheckNecessity) {
                 continue;
