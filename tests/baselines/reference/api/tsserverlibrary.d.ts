@@ -7397,6 +7397,7 @@ declare namespace ts {
         maxFlowDepth?: number;
         skipOhModulesLint?: boolean;
         mixCompile?: boolean;
+        isCompileJsHar?: boolean;
     }
     interface EtsOptions {
         render: {
