@@ -8086,7 +8086,9 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
                     }
                 }
                 // Only for Resource type in openharmony SDK
-                if (specifier.endsWith('/openharmony/ets/ets1.1/api/global/resource')) {
+                if (specifier.endsWith('/ets/api/global/resource') || 
+                    specifier.endsWith('/ets/ets1.1/api/global/resource')
+                ) {
                     const lastSymbol = chain[chain.length - 1];
                     // Create typeReferenceNode if is Resource type
                     if (lastSymbol.escapedName === 'Resource') {
