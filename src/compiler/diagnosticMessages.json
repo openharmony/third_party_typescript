@@ -7837,5 +7837,9 @@
     "Function may throw exceptions. Special handling is required.": {
         "category": "Warning",
         "code": 28040
+    },
+    "Annotations are not supported in Hars compiled to JavaScript files.": {
+        "category": "Error",
+        "code": 28041
     }
 }

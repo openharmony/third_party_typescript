@@ -849,6 +849,7 @@ import {
     NodeWithTypeArguments,
     NonNullChain,
     NonNullExpression,
+    normalizePath,
     not,
     noTruncationMaximumTruncationLength,
     nullTransformationContext,
@@ -39987,8 +39988,12 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
             return;
         }
 
-        const annotatedDecl = annotation.parent;
+        // In the har package where the compiled output is a JavaScript file, the use of annotations is prohibited.
+        if (compilerOptions.isCompileJsHar && inModuleRootPath(annotation)) {
+            grammarErrorOnNode(annotation, Diagnostics.Annotations_are_not_supported_in_Hars_compiled_to_JavaScript_files);
+        }
 
+        const annotatedDecl = annotation.parent;
         // Only classes or methods must be annotated
         if (!isClassDeclaration(annotatedDecl) && !isMethodDeclaration(annotatedDecl)) {
             const nodeStr = getTextOfNode(annotatedDecl, /*includeTrivia*/ false);
@@ -42873,9 +42878,19 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
         }
     }
 
+    function inModuleRootPath(annotation: Annotation | AnnotationDeclaration): boolean {
+        return !!compilerOptions.moduleRootPath &&
+            normalizePath(getSourceFileOfNode(annotation).fileName).startsWith(normalizePath(compilerOptions.moduleRootPath))
+    }
+
     function checkAnnotationDeclaration(node: AnnotationDeclaration) {
         checkGrammarAnnotationDeclaration(node);
         checkDecorators(node);
+
+        // In the har package where the compiled output is a JavaScript file, the use of annotations is prohibited.
+        if (compilerOptions.isCompileJsHar && inModuleRootPath(node)) {
+            grammarErrorOnNode(node, Diagnostics.Annotations_are_not_supported_in_Hars_compiled_to_JavaScript_files);
+        }
 
         const firstDecorator = find(node.modifiers, isDecorator);
         if (firstDecorator) {
