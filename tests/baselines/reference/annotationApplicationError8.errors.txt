@@ -1,9 +1,9 @@
 tests/cases/conformance/annotations/annotationApplicationError8.ets(8,5): error TS28022: Annotation have to be applied for classes or methods only, got: '@Anno
     public a: number'.
 tests/cases/conformance/annotations/annotationApplicationError8.ets(11,16): error TS28022: Annotation have to be applied for classes or methods only, got: '@Anno a: number'.
-tests/cases/conformance/annotations/annotationApplicationError8.ets(13,5): error TS28022: Annotation have to be applied for classes or methods only, got: '@Anno
+tests/cases/conformance/annotations/annotationApplicationError8.ets(13,5): error TS28042: Annotation cannot be applied for getter or setter, got: '@Anno
     get prop(): number { return 0}'.
-tests/cases/conformance/annotations/annotationApplicationError8.ets(16,5): error TS28022: Annotation have to be applied for classes or methods only, got: '@Anno
+tests/cases/conformance/annotations/annotationApplicationError8.ets(16,5): error TS28042: Annotation cannot be applied for getter or setter, got: '@Anno
     set prop(a: number) {}'.
 
 
@@ -27,14 +27,14 @@ tests/cases/conformance/annotations/annotationApplicationError8.ets(16,5): error
     
         @Anno
         ~~~~~
-!!! error TS28022: Annotation have to be applied for classes or methods only, got: '@Anno
-!!! error TS28022:     get prop(): number { return 0}'.
+!!! error TS28042: Annotation cannot be applied for getter or setter, got: '@Anno
+!!! error TS28042:     get prop(): number { return 0}'.
         get prop(): number { return 0}
     
         @Anno
         ~~~~~
-!!! error TS28022: Annotation have to be applied for classes or methods only, got: '@Anno
-!!! error TS28022:     set prop(a: number) {}'.
+!!! error TS28042: Annotation cannot be applied for getter or setter, got: '@Anno
+!!! error TS28042:     set prop(a: number) {}'.
         set prop(a: number) {}
     }
     
