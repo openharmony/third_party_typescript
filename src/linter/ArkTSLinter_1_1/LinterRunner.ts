@@ -15,8 +15,8 @@
 
 import {
   ArkTSLinterTimePrinter, arrayFrom, BuilderProgram, Diagnostic, DiagnosticCategory, getBaseFileName,
-  isOHModules, Map, normalizePath, Path, PerformanceDotting, resolvePath, ReusableBuilderProgramState, ScriptKind, Set, SourceFile,
-  TimePhase, TypeChecker, WriteFileCallback, MemoryUtils
+  isOHModules, Map, normalizePath, Path, PerformanceDotting, Program, resolvePath, ReusableBuilderProgramState, ScriptKind, Set, SourceFile,
+  TimePhase, WriteFileCallback, MemoryUtils
 } from "../_namespaces/ts";
 import { 
   LibraryTypeCallDiagnosticChecker, TypeScriptLinter, InteropTypescriptLinter, ProblemSeverity, ProblemInfo, setTypeChecker, clearTypeChecker,
@@ -62,7 +62,7 @@ buildInfoWriteFile?: WriteFileCallback, arkTSVersion?: string): Diagnostic[] {
   tscDiagnosticsLinter.doAllGetDiagnostics();
   const changedFiles = collectChangedFilesFromProgramState(
     programState,
-    program.getLinterTypeChecker(),
+    program,
     arkTSVersion,
     compilerOptions.compatibleSdkVersion,
     compilerOptions.compatibleSdkVersionStage
@@ -177,7 +177,7 @@ function releaseReferences(): void {
 
 function collectChangedFilesFromProgramState(
   state: ReusableBuilderProgramState,
-  tsTypeChecker: TypeChecker,
+  program: Program,
   arkTSVersion?: string,
   compatibleSdkVersion?: number,
   compatibleSdkVersionStage?: string
@@ -208,9 +208,12 @@ const changedFiles = new Set<Path>(state.changedFilesSet);
     return changedFiles;
   }
 
-  const changeSources = tsTypeChecker.getCheckedSourceFiles();
+  const changedSourcesForLinter = program.getLinterTypeChecker().getCheckedSourceFiles();
+  const changedSources = program.getTypeChecker().getCheckedSourceFiles();
+
   const targetSet = new Set<Path>();
-  changeSources.forEach(x => targetSet.add(x.path));
+  changedSourcesForLinter.forEach(x => targetSet.add(x.path));
+  changedSources.forEach(x => targetSet.add(x.path));
   return targetSet;
 }
 

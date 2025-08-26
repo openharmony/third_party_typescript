@@ -1846,7 +1846,7 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
         deleteConstEnumRelate: (path: string) => {constEnumRelate && constEnumRelate.delete(path)},
         getTypeArgumentsForResolvedSignature,
         getCheckedSourceFiles: () => checkedSourceFiles,
-        collectHaveTsNoCheckFilesForLinter: (sourceFile: SourceFile) => {isTypeCheckerForLinter && checkedSourceFiles.add(sourceFile)},
+        collectHaveTsNoCheckFilesForLinter: (sourceFile: SourceFile) => {checkedSourceFiles.add(sourceFile)},
         clearQualifiedNameCache: () => {qualifiedNameCache && qualifiedNameCache.clear()},
         isStaticRecord: isStaticRecord,
         isStaticSourceFile: isStaticSourceFile,
@@ -45172,10 +45172,9 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
                 clear(potentialReflectCollisions);
             }
 
-            // collecting incremental affected files when the isTypeCheckerForLinter is true
-            if (isTypeCheckerForLinter) {
-                checkedSourceFiles.add(node);
-            }
+            // collecting incremental affected files
+            checkedSourceFiles.add(node);
+
             links.flags |= NodeCheckFlags.TypeChecked;
         }
     }
