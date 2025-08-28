@@ -29,7 +29,11 @@
         },
         "build": {
             "sub_component": [],
-            "inner_kits": [],
+            "inner_kits": [
+                {
+                    "name": "//third_party/typescript:build_typescript_etc"
+                }
+            ],
             "test": []
         }
     }
