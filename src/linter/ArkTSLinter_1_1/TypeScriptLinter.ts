@@ -177,7 +177,6 @@ export class TypeScriptLinter {
     private compatibleSdkVersionStage: string = 'beta1';
     private compatibleSdkVersion: number = 12;
     private mixCompile: boolean = false;
-    private enableStrictCheckOHModule: boolean = false;
 
   constructor(private sourceFile: SourceFile,
               /* private */ tsProgram: Program,
@@ -190,7 +189,6 @@ export class TypeScriptLinter {
     const options = tsProgram.getCompilerOptions();
     this.skipArkTSStaticBlocksCheck = false;
     this.mixCompile = !!options.mixCompile;
-    this.enableStrictCheckOHModule = !!options.enableStrictCheckOHModule;
     if (options.skipArkTSStaticBlocksCheck) {
       this.skipArkTSStaticBlocksCheck = options.skipArkTSStaticBlocksCheck as boolean;
     }
@@ -2142,7 +2140,7 @@ readonly handlersMap = new Map([
          * the diagnostic is downgraded to warning. For other files, downgraded to nothing.
          */
         if (isOhModulesEts && errorType !== ErrorType.UNKNOW) {
-          diagnostic.category = this.enableStrictCheckOHModule ? DiagnosticCategory.Error : DiagnosticCategory.Warning;
+          diagnostic.category = DiagnosticCategory.Warning;
         } else {
           deleteDiagnostics.add(diagnostic);
         }

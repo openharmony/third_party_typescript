@@ -58,7 +58,6 @@ export const LIMITED_STANDARD_UTILITY_TYPES = [
 export const ALLOWED_STD_SYMBOL_API = ["iterator"]
 
 export const ARKTS_IGNORE_DIRS = ['node_modules', 'oh_modules', 'build', '.preview'];
-export const ARKTS_IGNORE_DIRS_STRICT_OH_MODULES_CHECK = ['node_modules', 'build', '.preview'];
 export const ARKTS_IGNORE_FILES = ['hvigorfile.ts'];
 
 export const ARKTS_IGNORE_DIRS_OH_MODULES = 'oh_modules';
@@ -124,11 +123,6 @@ export function setTestMode(tsTestMode: boolean): void {
 let mixCompile = false;
 export function setMixCompile(isMixCompile: boolean): void {
   mixCompile = isMixCompile;
-}
-
-let enableStrictCheckOHModule = false;
-export function setEnableStrictCheckOHModule(isEnableStrictCheckOHModule: boolean): void {
-  enableStrictCheckOHModule = isEnableStrictCheckOHModule;
 }
 
 export function getStartPos(nodeOrComment: Node | CommentRange): number {
@@ -1598,27 +1592,20 @@ export function isLibrarySymbol(sym: Symbol | undefined) {
     // We disable such behavior for *.ts files in the test mode due to lack of 'ets'
     // extension support.
     const ext = getAnyExtensionFromPath(fileName);
-    const isThirdParty = !isThirdPartyCode(srcFile);
+    const isThirdPartyCode =
+      ARKTS_IGNORE_DIRS.some(ignore => srcFilePathContainsDirectory(srcFile, ignore)) ||
+      ARKTS_IGNORE_FILES.some(ignore => getBaseFileName(fileName) === ignore);
     const isEts = (ext === '.ets');
     const isTs = (ext === '.ts' && !srcFile.isDeclarationFile);
-    const isStatic = (isEts || (isTs && testMode)) && !isThirdParty;
+    const isStatic = (isEts || (isTs && testMode)) && !isThirdPartyCode;
     const isStdLib = STANDARD_LIBRARIES.includes(getBaseFileName(fileName).toLowerCase());
     // We still need to confirm support for certain API from the
     // TypeScript standard library in ArkTS. Thus, for now do not
     // count standard library modules as dynamic.
     return !isStatic && !isStdLib;
   }
-  return false;
-}
 
-export function isThirdPartyCode(srcFile: SourceFile): boolean {
-  // if strict check OH module, then code in oh_modules will not be treated as third party code
-  const ignoreDirs = enableStrictCheckOHModule ? 
-    ARKTS_IGNORE_DIRS_STRICT_OH_MODULES_CHECK : 
-    ARKTS_IGNORE_DIRS;
-    
-  return ignoreDirs.some(ignore => srcFilePathContainsDirectory(srcFile, ignore)) ||
-      ARKTS_IGNORE_FILES.some(ignore => getBaseFileName(srcFile.fileName) === ignore);
+  return false;
 }
 
 const srcFilePathComponents = new Map<SourceFile, string[]>();
