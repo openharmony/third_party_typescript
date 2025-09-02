@@ -7396,8 +7396,10 @@ declare namespace ts {
         etsAnnotationsEnable?: boolean;
         maxFlowDepth?: number;
         skipOhModulesLint?: boolean;
+        enableStrictCheckOHModule?: boolean;
         mixCompile?: boolean;
         isCompileJsHar?: boolean;
+        moduleRootPath?: string;
     }
     interface EtsOptions {
         render: {
@@ -13076,6 +13078,7 @@ declare namespace ts {
         function clearTypeChecker(): void;
         function setTestMode(tsTestMode: boolean): void;
         function setMixCompile(isMixCompile: boolean): void;
+        function setEnableStrictCheckOHModule(isEnableStrictCheckOHModule: boolean): void;
         function getStartPos(nodeOrComment: Node | CommentRange): number;
         function getEndPos(nodeOrComment: Node | CommentRange): number;
         function getHighlightRange(nodeOrComment: Node | CommentRange, faultId: number): [
@@ -13248,6 +13251,7 @@ declare namespace ts {
         function isLibraryType(type: Type): boolean;
         function hasLibraryType(node: Node): boolean;
         function isLibrarySymbol(sym: Symbol | undefined): boolean;
+        function isThirdPartyCode(srcFile: SourceFile): boolean;
         function srcFilePathContainsDirectory(srcFile: SourceFile, dir: string): boolean;
         function pathContainsDirectory(targetPath: string, dir: string): boolean;
         function getScriptKind(srcFile: SourceFile): ScriptKind;
@@ -13320,6 +13324,7 @@ declare namespace ts {
         const LIMITED_STANDARD_UTILITY_TYPES: string[];
         const ALLOWED_STD_SYMBOL_API: string[];
         const ARKTS_IGNORE_DIRS: string[];
+        const ARKTS_IGNORE_DIRS_STRICT_OH_MODULES_CHECK: string[];
         const ARKTS_IGNORE_FILES: string[];
         const ARKTS_IGNORE_DIRS_OH_MODULES = "oh_modules";
         const SENDABLE_DECORATOR = "Sendable";
@@ -13417,6 +13422,7 @@ declare namespace ts {
             private compatibleSdkVersionStage;
             private compatibleSdkVersion;
             private mixCompile;
+            private enableStrictCheckOHModule;
             constructor(sourceFile: SourceFile, tsProgram: Program, tscStrictDiagnostics?: ts.Map<ts.Diagnostic[]> | undefined);
             static clearTsTypeChecker(): void;
             static clearQualifiedNameCache(): void;
