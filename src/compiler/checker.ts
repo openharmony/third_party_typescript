@@ -40000,7 +40000,14 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
         // Only classes or methods must be annotated
         if (!isClassDeclaration(annotatedDecl) && !isMethodDeclaration(annotatedDecl)) {
             const nodeStr = getTextOfNode(annotatedDecl, /*includeTrivia*/ false);
-            error(annotation, Diagnostics.Annotation_have_to_be_applied_for_classes_or_methods_only_got_Colon_0, nodeStr);
+            switch (annotatedDecl.kind) {
+                case SyntaxKind.GetAccessor:
+                case SyntaxKind.SetAccessor:
+                    error(annotation, Diagnostics.Annotation_cannot_be_applied_for_getter_or_setter_got_Colon_0, nodeStr);
+                    break;
+                default:
+                    error(annotation, Diagnostics.Annotation_have_to_be_applied_for_classes_or_methods_only_got_Colon_0, nodeStr);
+            }
             return;
         }
 
