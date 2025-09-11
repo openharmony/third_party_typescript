@@ -1150,6 +1150,13 @@ const JSON_SUFFIX = '.json';
 const KIT_PREFIX = '@kit.';
 const DEFAULT_KEYWORD = 'default';
 const ETS_DECLARATION = '.d.ets';
+enum KIT_CONFIG_BASE_PATH {
+    OHOS_MIXEDCOMPILER = './openharmony/ets/ets1.1/build-tools/ets-loader/kit_configs',
+    OHOS_NOMIXEDCOMPILER = './openharmony/ets/build-tools/ets-loader/kit_configs',
+    HMS_MIXEDCOMPILER = './hms/ets/ets1.1/build-tools/ets-loader/kit_configs',
+    HMS_NOMIXEDCOMPILER ='./hms/ets/build-tools/ets-loader/kit_configs'
+}
+
 export const THROWS_TAG = 'throws';
 export const THROWS_CATCH = 'catch';
 export const THROWS_ASYNC_CALLBACK = 'AsyncCallback';
@@ -1180,18 +1187,21 @@ function getKitJsonObject(name: string, sdkPath: string, compilerOptions: Compil
     if (kitJsonCache?.has(name)) {
         return kitJsonCache.get(name);
     }
-    const OHOS_KIT_CONFIG_PATH = isMixedCompilerSDKPath(compilerOptions) ?
-        './openharmony/ets/ets1.1/build-tools/ets-loader/kit_configs' :
-        './openharmony/ets/build-tools/ets-loader/kit_configs';
-    const HMS_KIT_CONFIG_PATH = isMixedCompilerSDKPath(compilerOptions) ?
-        './hms/ets/ets1.1/build-tools/ets-loader/kit_configs' :
-        './hms/ets/build-tools/ets-loader/kit_configs';
-    const ohosJsonPath = resolvePath(sdkPath, OHOS_KIT_CONFIG_PATH, `./${name}${JSON_SUFFIX}`);
-    const hmsJsonPath = resolvePath(sdkPath, HMS_KIT_CONFIG_PATH, `./${name}${JSON_SUFFIX}`);
+
+    let ohosJsonPath: string | undefined = undefined;
+    let hmsJsonPath: string | undefined = undefined;
+    if (isOpenHarmonyRuntimeOS(compilerOptions)) {
+        ohosJsonPath = `${compilerOptions.etsLoaderPath}/kit_configs/${name}${JSON_SUFFIX}`;
+    } else {
+        const OHOS_KIT_CONFIG_PATH = getOhosKitConfigPath(compilerOptions);
+        const HMS_KIT_CONFIG_PATH = getHmsKitConfigPath(compilerOptions);
+        ohosJsonPath = resolvePath(sdkPath, OHOS_KIT_CONFIG_PATH, `./${name}${JSON_SUFFIX}`);
+        hmsJsonPath = resolvePath(sdkPath, HMS_KIT_CONFIG_PATH, `./${name}${JSON_SUFFIX}`);
+    }
 
     let fileInfo: string | undefined =
-        sys.fileExists(ohosJsonPath) ? sys.readFile(ohosJsonPath, 'utf-8') :
-        sys.fileExists(hmsJsonPath) ? sys.readFile(hmsJsonPath, 'utf-8') :
+        ohosJsonPath && sys.fileExists(ohosJsonPath) ? sys.readFile(ohosJsonPath, 'utf-8') :
+        hmsJsonPath && sys.fileExists(hmsJsonPath) ? sys.readFile(hmsJsonPath, 'utf-8') :
         undefined;
     if (!fileInfo) {
         kitJsonCache?.set(name, undefined);
@@ -1209,10 +1219,27 @@ export function isMixedCompilerSDKPath(compilerOptions: CompilerOptions): boolea
     if (!compilerOptions.etsLoaderPath) {
         return false;
     }
-    if (normalizePath(compilerOptions.etsLoaderPath).endsWith('ets1.1/build-tools/ets-loader')) {
-        return true;
+    return normalizePath(compilerOptions.etsLoaderPath).endsWith('ets1.1/build-tools/ets-loader');
+}
+
+// Determine whether it is a non-integrated SDK path
+export function isOpenHarmonyRuntimeOS(compilerOptions: CompilerOptions): boolean {
+    if (!compilerOptions.runtimeOS) {
+        return false;
     }
-    return false;
+    return compilerOptions.runtimeOS === 'OpenHarmony';
+}
+
+function getOhosKitConfigPath(compilerOptions: CompilerOptions): string {
+    return isMixedCompilerSDKPath(compilerOptions) ?
+        KIT_CONFIG_BASE_PATH.OHOS_MIXEDCOMPILER :
+        KIT_CONFIG_BASE_PATH.OHOS_NOMIXEDCOMPILER;
+}
+
+function getHmsKitConfigPath(compilerOptions: CompilerOptions): string {
+    return isMixedCompilerSDKPath(compilerOptions) ?
+        KIT_CONFIG_BASE_PATH.HMS_MIXEDCOMPILER :
+        KIT_CONFIG_BASE_PATH.HMS_NOMIXEDCOMPILER;
 }
 
 export function cleanKitJsonCache(): void {
