@@ -55,3 +55,9 @@ Issue:
 ### **七、 应用测试**
 - [ ] <small>已通过</small>
 - [ ] <small>不涉及，无需验证</small>
+
+## **CheckList**
+
+#### **1. 是否影响abc文件**
+- [ ] <small>影响abc文件，已验证运行时功能</small>
+- [ ] <small>不涉及，无需验证</small>
