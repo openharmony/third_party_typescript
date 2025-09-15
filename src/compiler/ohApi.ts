@@ -1181,10 +1181,10 @@ function getKitJsonObject(name: string, sdkPath: string, compilerOptions: Compil
         return kitJsonCache.get(name);
     }
     const OHOS_KIT_CONFIG_PATH = isMixedCompilerSDKPath(compilerOptions) ?
-        './openharmony/ets/ets1.1/build-tools/ets-loader/kit_configs' :
+        './openharmony/ets/dynamic/build-tools/ets-loader/kit_configs' :
         './openharmony/ets/build-tools/ets-loader/kit_configs';
     const HMS_KIT_CONFIG_PATH = isMixedCompilerSDKPath(compilerOptions) ?
-        './hms/ets/ets1.1/build-tools/ets-loader/kit_configs' :
+        './hms/ets/dynamic/build-tools/ets-loader/kit_configs' :
         './hms/ets/build-tools/ets-loader/kit_configs';
     const ohosJsonPath = resolvePath(sdkPath, OHOS_KIT_CONFIG_PATH, `./${name}${JSON_SUFFIX}`);
     const hmsJsonPath = resolvePath(sdkPath, HMS_KIT_CONFIG_PATH, `./${name}${JSON_SUFFIX}`);
@@ -1209,7 +1209,7 @@ export function isMixedCompilerSDKPath(compilerOptions: CompilerOptions): boolea
     if (!compilerOptions.etsLoaderPath) {
         return false;
     }
-    if (normalizePath(compilerOptions.etsLoaderPath).endsWith('ets1.1/build-tools/ets-loader')) {
+    if (normalizePath(compilerOptions.etsLoaderPath).endsWith('dynamic/build-tools/ets-loader')) {
         return true;
     }
     return false;
