@@ -1250,7 +1250,7 @@ export function isObjectLiteralAssignable(lhsType: Type | undefined, rhsExpr: Ob
   // Allow initializing Record objects with object initializer.
   // Record supports any type for a its value, but the key value
   // must be either a string or number literal.
-  if (isStdRecordType(lhsType)) {
+  if (isStdRecordType(lhsType) || isStaticRecordForLinter(lhsType)) {
     return validateRecordObjectKeys(rhsExpr);
   }
 
@@ -2565,4 +2565,8 @@ function isStaticSourceFileForLinter(type: Type): boolean {
     return typeChecker.isStaticSourceFile(type.symbol?.declarations?.[0]?.getSourceFile());
   }
   return false;
+}
+
+function isStaticRecordForLinter(type: Type): boolean {
+  return mixCompile && !!typeChecker.isStaticRecord && typeChecker.isStaticRecord(type);
 }
