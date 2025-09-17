@@ -39985,15 +39985,15 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
 
     /** Check the annotation of a node */
     function checkAnnotation(annotation: Annotation, annotationsSet: Set<String>): void {
+        // In the har package where the compiled output is a JavaScript file, the use of annotations is prohibited.
+        if (compilerOptions.isCompileJsHar && inModuleRootPath(annotation)) {
+            grammarErrorOnNode(annotation, Diagnostics.Annotations_are_not_supported_in_Hars_compiled_to_JavaScript_files);
+        }
+
         const signature = getResolvedSignature(annotation);
         const returnType = getReturnTypeOfSignature(signature);
         if (isErrorType(returnType)) {
             return;
-        }
-
-        // In the har package where the compiled output is a JavaScript file, the use of annotations is prohibited.
-        if (compilerOptions.isCompileJsHar && inModuleRootPath(annotation)) {
-            grammarErrorOnNode(annotation, Diagnostics.Annotations_are_not_supported_in_Hars_compiled_to_JavaScript_files);
         }
 
         const annotatedDecl = annotation.parent;
@@ -44903,8 +44903,8 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
                 return checkClassDeclaration(node as ClassDeclaration);
             case SyntaxKind.StructDeclaration:
                 return checkStructDeclaration(node as StructDeclaration);
-                case SyntaxKind.AnnotationDeclaration:
-                    return checkAnnotationDeclaration(node as AnnotationDeclaration);
+            case SyntaxKind.AnnotationDeclaration:
+                return checkAnnotationDeclaration(node as AnnotationDeclaration);
             case SyntaxKind.InterfaceDeclaration:
                 return checkInterfaceDeclaration(node as InterfaceDeclaration);
             case SyntaxKind.TypeAliasDeclaration:
