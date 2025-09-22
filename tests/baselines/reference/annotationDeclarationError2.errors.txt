@@ -6,5 +6,5 @@ tests/cases/conformance/annotations/annotationDeclarationError2.ets(1,1): error 
     ~~~~~
 !!! error TS28026: Annotation cannot be applied for annotation declaration.
     @interface Anno {
-        a: number
+        a: number = 1;
     }

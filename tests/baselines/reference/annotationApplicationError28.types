@@ -1,0 +1,59 @@
+=== tests/cases/conformance/annotations/A.d.ets ===
+export @interface Available {
+    minApiVersion: string = "1";
+>minApiVersion : string
+}
+
+=== tests/cases/conformance/annotations/B.ets ===
+import { Available } from "./A";
+>Available : typeof Available
+
+@Available({minApiVersion: 'OpenHarmony 20'})
+>Available({minApiVersion: 'OpenHarmony 20'}) : void
+>Available : typeof Available
+>{minApiVersion: 'OpenHarmony 20'} : { minApiVersion: string; }
+>minApiVersion : string
+>'OpenHarmony 20' : "OpenHarmony 20"
+
+export interface testI {
+    @Available({minApiVersion: 'OpenHarmony 20'})
+>Available({minApiVersion: 'OpenHarmony 20'}) : void
+>Available : typeof Available
+>{minApiVersion: 'OpenHarmony 20'} : { minApiVersion: string; }
+>minApiVersion : string
+>'OpenHarmony 20' : "OpenHarmony 20"
+
+    prop1: string;
+>prop1 : string
+
+    @Available({minApiVersion: 'OpenHarmony 20'})
+>Available({minApiVersion: 'OpenHarmony 20'}) : void
+>Available : typeof Available
+>{minApiVersion: 'OpenHarmony 20'} : { minApiVersion: string; }
+>minApiVersion : string
+>'OpenHarmony 20' : "OpenHarmony 20"
+
+    f(): void;
+>f : () => void
+
+    @Available({minApiVersion: 'OpenHarmony 20'})
+>Available({minApiVersion: 'OpenHarmony 20'}) : void
+>Available : typeof Available
+>{minApiVersion: 'OpenHarmony 20'} : { minApiVersion: string; }
+>minApiVersion : string
+>'OpenHarmony 20' : "OpenHarmony 20"
+
+    get prop(): string;
+>prop : string
+
+    @Available({minApiVersion: 'OpenHarmony 20'})
+>Available({minApiVersion: 'OpenHarmony 20'}) : void
+>Available : typeof Available
+>{minApiVersion: 'OpenHarmony 20'} : { minApiVersion: string; }
+>minApiVersion : string
+>'OpenHarmony 20' : "OpenHarmony 20"
+
+    set prop(value: string);
+>prop : string
+>value : string
+}

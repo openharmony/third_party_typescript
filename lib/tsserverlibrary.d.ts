@@ -4698,8 +4698,8 @@ declare namespace ts {
     type HasTypeArguments = CallExpression | NewExpression | TaggedTemplateExpression | JsxOpeningElement | JsxSelfClosingElement;
     type HasInitializer = HasExpressionInitializer | ForStatement | ForInStatement | ForOfStatement | JsxAttribute;
     type HasExpressionInitializer = VariableDeclaration | ParameterDeclaration | BindingElement | PropertyDeclaration | AnnotationPropertyDeclaration | PropertyAssignment | EnumMember;
-    type HasDecorators = ParameterDeclaration | PropertyDeclaration | MethodDeclaration | GetAccessorDeclaration | SetAccessorDeclaration | ClassExpression | ClassDeclaration | StructDeclaration | FunctionDeclaration;
-    type HasIllegalDecorators = PropertyAssignment | ShorthandPropertyAssignment | FunctionDeclaration | ConstructorDeclaration | IndexSignatureDeclaration | ClassStaticBlockDeclaration | MissingDeclaration | VariableStatement | InterfaceDeclaration | TypeAliasDeclaration | EnumDeclaration | ModuleDeclaration | ImportEqualsDeclaration | ImportDeclaration | NamespaceExportDeclaration | ExportDeclaration | ExportAssignment;
+    type HasDecorators = ParameterDeclaration | PropertyDeclaration | MethodDeclaration | GetAccessorDeclaration | SetAccessorDeclaration | ClassExpression | ClassDeclaration | StructDeclaration | FunctionDeclaration | AnnotationDeclaration;
+    type HasIllegalDecorators = PropertyAssignment | ShorthandPropertyAssignment | FunctionDeclaration | ConstructorDeclaration | IndexSignatureDeclaration | ClassStaticBlockDeclaration | MissingDeclaration | VariableStatement | InterfaceDeclaration | TypeAliasDeclaration | EnumDeclaration | ModuleDeclaration | ImportEqualsDeclaration | ImportDeclaration | NamespaceExportDeclaration | ExportDeclaration | ExportAssignment | PropertySignature | MethodSignature;
     type HasModifiers = TypeParameterDeclaration | ParameterDeclaration | ConstructorTypeNode | PropertySignature | PropertyDeclaration | MethodSignature | MethodDeclaration | ConstructorDeclaration | GetAccessorDeclaration | SetAccessorDeclaration | IndexSignatureDeclaration | FunctionExpression | ArrowFunction | ClassExpression | VariableStatement | FunctionDeclaration | ClassDeclaration | StructDeclaration | AnnotationDeclaration | InterfaceDeclaration | TypeAliasDeclaration | EnumDeclaration | ModuleDeclaration | ImportEqualsDeclaration | ImportDeclaration | ExportAssignment | ExportDeclaration;
     interface NodeArray<T extends Node> extends ReadonlyArray<T>, ReadonlyTextRange {
         readonly hasTrailingComma: boolean;
@@ -9142,6 +9142,7 @@ declare namespace ts {
     function getModifiers(node: HasModifiers): readonly Modifier[] | undefined;
     function getAllDecorators(node: Node | undefined): readonly Decorator[];
     function getIllegalDecorators(node: HasIllegalDecorators): readonly Decorator[] | undefined;
+    function getAnnotationsFromIllegalDecorators(node: HasIllegalDecorators): readonly Decorator[] | undefined;
     /**
      * Gets the JSDoc parameter tags for the node if present.
      *

@@ -560,7 +560,8 @@ const forEachChildTable: ForEachChildTable = {
             visitNode(cbNode, node.initializer);
     },
     [SyntaxKind.PropertySignature]: function forEachChildInPropertySignature<T>(node: PropertySignature, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
-        return visitNodes(cbNode, cbNodes, node.modifiers) ||
+        return visitNodes(cbNode, cbNodes, node.illegalDecorators) ||
+            visitNodes(cbNode, cbNodes, node.modifiers) ||
             visitNode(cbNode, node.name) ||
             visitNode(cbNode, node.questionToken) ||
             visitNode(cbNode, node.type) ||
@@ -624,7 +625,8 @@ const forEachChildTable: ForEachChildTable = {
             visitNode(cbNode, node.body);
     },
     [SyntaxKind.MethodSignature]: function forEachChildInMethodSignature<T>(node: MethodSignature, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
-        return visitNodes(cbNode, cbNodes, node.modifiers) ||
+        return visitNodes(cbNode, cbNodes, node.illegalDecorators) ||
+            visitNodes(cbNode, cbNodes, node.modifiers) ||
             visitNode(cbNode, node.name) ||
             visitNode(cbNode, node.questionToken) ||
             visitNodes(cbNode, cbNodes, node.typeParameters) ||
@@ -4426,7 +4428,12 @@ namespace Parser {
         return withJSDoc(finishNode(node, pos), hasJSDoc);
     }
 
-    function parsePropertyOrMethodSignature(pos: number, hasJSDoc: boolean, modifiers: NodeArray<Modifier> | undefined): PropertySignature | MethodSignature {
+    function parsePropertyOrMethodSignature(
+        pos: number,
+        hasJSDoc: boolean,
+        decorators: NodeArray<Decorator> | undefined,
+        modifiers: NodeArray<Modifier> | undefined
+    ): PropertySignature | MethodSignature {
         const name = parsePropertyName();
         const questionToken = parseOptionalToken(SyntaxKind.QuestionToken);
         let node: PropertySignature | MethodSignature;
@@ -4437,10 +4444,12 @@ namespace Parser {
             const parameters = parseParameters(SignatureFlags.Type);
             const type = parseReturnType(SyntaxKind.ColonToken, /*isType*/ true);
             node = factory.createMethodSignature(modifiers, name, questionToken, typeParameters, parameters, type);
+            (node as Mutable<MethodSignature>).illegalDecorators = decorators;
         }
         else {
             const type = parseTypeAnnotation();
             node = factory.createPropertySignature(modifiers, name, questionToken, type);
+            (node as Mutable<PropertySignature>).illegalDecorators = decorators;
             // Although type literal properties cannot not have initializers, we attempt
             // to parse an initializer so we can report in the checker that an interface
             // property or type literal property cannot have an initializer.
@@ -4458,6 +4467,14 @@ namespace Parser {
             token() === SyntaxKind.SetKeyword) {
             return true;
         }
+
+        if (token() === SyntaxKind.AtToken) {
+            if (inAllowAnnotationContext() && lookAhead(() => nextToken() === SyntaxKind.InterfaceKeyword)) {
+                return false;
+            }
+            return true;
+        }
+
         let idToken = false;
         // Eat up all modifiers, but hold on to the last one in case it is actually an identifier
         while (isModifierKind(token())) {
@@ -4495,19 +4512,20 @@ namespace Parser {
         }
         const pos = getNodePos();
         const hasJSDoc = hasPrecedingJSDocComment();
+        const decorators = parseDecorators();
         const modifiers = parseModifiers();
         if (parseContextualModifier(SyntaxKind.GetKeyword)) {
-            return parseAccessorDeclaration(pos, hasJSDoc, /*decorators*/ undefined, modifiers, SyntaxKind.GetAccessor, SignatureFlags.Type);
+            return parseAccessorDeclaration(pos, hasJSDoc, decorators, modifiers, SyntaxKind.GetAccessor, SignatureFlags.Type);
         }
 
         if (parseContextualModifier(SyntaxKind.SetKeyword)) {
-            return parseAccessorDeclaration(pos, hasJSDoc, /*decorators*/ undefined, modifiers, SyntaxKind.SetAccessor, SignatureFlags.Type);
+            return parseAccessorDeclaration(pos, hasJSDoc, decorators, modifiers, SyntaxKind.SetAccessor, SignatureFlags.Type);
         }
 
         if (isIndexSignature()) {
             return parseIndexSignatureDeclaration(pos, hasJSDoc, /*decorators*/ undefined, modifiers);
         }
-        return parsePropertyOrMethodSignature(pos, hasJSDoc, modifiers);
+        return parsePropertyOrMethodSignature(pos, hasJSDoc, decorators, modifiers);
     }
 
     function nextTokenIsOpenParenOrLessThan() {
@@ -7781,7 +7799,7 @@ namespace Parser {
                 if (inEtsContext()) {
                     return parseStructDeclaration(pos, hasJSDoc, decorators, modifiers);
                 }
-                return parseDeclarationDefault(pos,decorators, modifiers);
+                return parseDeclarationDefault(pos, decorators, modifiers);
             case SyntaxKind.AtToken:
                 if (inAllowAnnotationContext() &&
                     lookAhead(() => nextToken() === SyntaxKind.InterfaceKeyword)) {

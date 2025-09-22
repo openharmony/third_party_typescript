@@ -1,0 +1,18 @@
+=== tests/cases/conformance/annotations/A.d.ets ===
+export @interface Available {
+    minApiVersion: string = "1";
+>minApiVersion : string
+}
+
+=== tests/cases/conformance/annotations/B.ets ===
+import { Available } from "./A";
+>Available : typeof Available
+
+@Available({minApiVersion: 'OpenHarmony 20'})
+export enum E1 {
+>E1 : E1
+
+    A1 = 0
+>A1 : E1.A1
+>0 : 0
+}

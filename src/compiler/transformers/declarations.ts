@@ -9,7 +9,7 @@ import {
     declarationNameToString, Decorator, Diagnostics, DiagnosticWithLocation, EmitFlags, EmitHost, EmitResolver, emptyArray,
     ensureEtsDecorators, EntityNameOrEntityNameExpression, EnumDeclaration, ESMap, ExportAssignment, ExportDeclaration,
     ExpressionWithTypeArguments, factory, FileReference, filter, flatMap, flatten, forEach, FunctionDeclaration,
-    FunctionTypeNode, GeneratedIdentifierFlags, GetAccessorDeclaration, getAnnotations, getCommentRange, getDirectoryPath,
+    FunctionTypeNode, GeneratedIdentifierFlags, GetAccessorDeclaration, getAnnotations, getAnnotationsFromIllegalDecorators, getCommentRange, getDirectoryPath,
     getEffectiveBaseTypeNode, getEffectiveDecorators, getEffectiveModifierFlags,
     getExternalModuleImportEqualsDeclarationExpression, getExternalModuleNameFromDeclaration,
     getFirstConstructorWithBody, getLeadingCommentRanges, getLeadingCommentRangesOfNode, getLineAndCharacterOfPosition,
@@ -932,7 +932,10 @@ export function transformDeclarations(context: TransformationContext) {
         }
     }
 
-    function checkAnnotationVisibilityByDecorator(input: readonly Decorator[]): void {
+    function checkAnnotationVisibilityByDecorator(input: readonly Decorator[] | undefined): void {
+        if (!input) {
+            return;
+        }
         forEach(input, (decorator) => {
             if (!isAnnotation(decorator)) {
                 return;
@@ -1049,9 +1052,11 @@ export function transformDeclarations(context: TransformationContext) {
                         return cleanup(/*returnValue*/ undefined);
                     }
                     const accessorType = getTypeAnnotationFromAllAccessorDeclarations(input, resolver.getAllAccessorDeclarations(input));
+                    let reservedDecorators = getAnnotations(input);
+                    checkAnnotationVisibilityByDecorator(reservedDecorators);
                     return cleanup(factory.updateGetAccessorDeclaration(
                         input,
-                        ensureModifiers(input),
+                        concatenateDecoratorsAndModifiers(reservedDecorators, ensureModifiers(input)),
                         input.name,
                         updateAccessorParamsList(input, hasEffectiveModifier(input, ModifierFlags.Private)),
                         ensureType(input, accessorType),
@@ -1061,19 +1066,21 @@ export function transformDeclarations(context: TransformationContext) {
                     if (isPrivateIdentifier(input.name)) {
                         return cleanup(/*returnValue*/ undefined);
                     }
+                    let reservedDecorators = getAnnotations(input);
+                    checkAnnotationVisibilityByDecorator(reservedDecorators);
                     return cleanup(factory.updateSetAccessorDeclaration(
                         input,
-                        ensureModifiers(input),
+                        concatenateDecoratorsAndModifiers(reservedDecorators, ensureModifiers(input)),
                         input.name,
                         updateAccessorParamsList(input, hasEffectiveModifier(input, ModifierFlags.Private)),
                         /*body*/ undefined));
                 }
-                case SyntaxKind.PropertyDeclaration:
+                case SyntaxKind.PropertyDeclaration: {
                     if (isPrivateIdentifier(input.name)) {
                         return cleanup(/*returnValue*/ undefined);
                     }
-                    let reservedDecorators = getReservedDecoratorsOfStructDeclaration(input, host);
-
+                    let reservedDecorators = concatenate(getReservedDecoratorsOfStructDeclaration(input, host), getAnnotations(input));
+                    checkAnnotationVisibilityByDecorator(reservedDecorators);
                     return cleanup(factory.updatePropertyDeclaration(
                         input,
                         concatenateDecoratorsAndModifiers(reservedDecorators, ensureModifiers(input)),
@@ -1082,6 +1089,7 @@ export function transformDeclarations(context: TransformationContext) {
                         ensureType(input, input.type),
                         ensureNoInitializer(input)
                     ));
+                }
                 case SyntaxKind.AnnotationPropertyDeclaration:
                     return cleanup(factory.updateAnnotationPropertyDeclaration(
                         input,
@@ -1089,22 +1097,27 @@ export function transformDeclarations(context: TransformationContext) {
                         ensureType(input, input.type),
                         input.initializer,
                     ));
-                case SyntaxKind.PropertySignature:
+                case SyntaxKind.PropertySignature: {
                     if (isPrivateIdentifier(input.name)) {
                         return cleanup(/*returnValue*/ undefined);
                     }
-                    return cleanup(factory.updatePropertySignature(
+                    const clean = cleanup(factory.updatePropertySignature(
                         input,
                         ensureModifiers(input),
                         input.name,
                         input.questionToken,
                         ensureType(input, input.type)
                     ));
+                    let reservedDecorators = getAnnotationsFromIllegalDecorators(input);
+                    checkAnnotationVisibilityByDecorator(reservedDecorators);
+                    (clean as Mutable<PropertySignature>).illegalDecorators = factory.createNodeArray(reservedDecorators);
+                    return clean;
+                }
                 case SyntaxKind.MethodSignature: {
                     if (isPrivateIdentifier(input.name)) {
                         return cleanup(/*returnValue*/ undefined);
                     }
-                    return cleanup(factory.updateMethodSignature(
+                    const clean = cleanup(factory.updateMethodSignature(
                         input,
                         ensureModifiers(input),
                         input.name,
@@ -1113,6 +1126,10 @@ export function transformDeclarations(context: TransformationContext) {
                         updateParamsList(input, input.parameters),
                         ensureType(input, input.type)
                     ));
+                    let reservedDecorators = getAnnotationsFromIllegalDecorators(input);
+                    checkAnnotationVisibilityByDecorator(reservedDecorators);
+                    (clean as Mutable<MethodSignature>).illegalDecorators = factory.createNodeArray(reservedDecorators);
+                    return clean;
                 }
                 case SyntaxKind.CallSignature: {
                     return cleanup(factory.updateCallSignature(
@@ -1319,12 +1336,16 @@ export function transformDeclarations(context: TransformationContext) {
                 // Default factory will set illegalDecorators in updateTypeAliasDeclaration, add extra set here to avoid abnormal case.
                 if (isSendableFunctionOrType(input)) {
                     (clean as Mutable<TypeAliasDeclaration>).illegalDecorators = input.illegalDecorators;
+                } else {
+                    const reservedDecorators = getAnnotationsFromIllegalDecorators(input);
+                    checkAnnotationVisibilityByDecorator(reservedDecorators);
+                    (clean as Mutable<TypeAliasDeclaration>).illegalDecorators = factory.createNodeArray(reservedDecorators);
                 }
                 needsDeclare = previousNeedsDeclare;
                 return clean;
             }
             case SyntaxKind.InterfaceDeclaration: {
-                return cleanup(factory.updateInterfaceDeclaration(
+                const clean = cleanup(factory.updateInterfaceDeclaration(
                     input,
                     ensureModifiers(input),
                     input.name,
@@ -1332,6 +1353,10 @@ export function transformDeclarations(context: TransformationContext) {
                     transformHeritageClauses(input.heritageClauses),
                     visitNodes(input.members, visitDeclarationSubtree)
                 ));
+                const reservedDecorators = getAnnotationsFromIllegalDecorators(input);
+                checkAnnotationVisibilityByDecorator(reservedDecorators);
+                (clean as Mutable<InterfaceDeclaration>).illegalDecorators = factory.createNodeArray(reservedDecorators);
+                return clean;
             }
             case SyntaxKind.FunctionDeclaration: {
                 // Generators lose their generator-ness, excepting their return type
@@ -1349,7 +1374,11 @@ export function transformDeclarations(context: TransformationContext) {
                     (clean as Mutable<FunctionDeclaration>).illegalDecorators = input.illegalDecorators;
                 }
                 else if (isInEtsFile(input)) {
-                    const reservedDecorators = getEffectiveDecorators(input.illegalDecorators, host);
+                    const reservedDecorators = concatenate(
+                        getEffectiveDecorators(input.illegalDecorators, host),
+                        getAnnotationsFromIllegalDecorators(input)
+                    );
+                    checkAnnotationVisibilityByDecorator(reservedDecorators);
                     (clean as Mutable<FunctionDeclaration>).illegalDecorators = factory.createNodeArray(reservedDecorators);
                 }
                 if (clean && resolver.isExpandoFunctionDeclaration(input) && shouldEmitFunctionProperties(input)) {
@@ -1406,7 +1435,8 @@ export function transformDeclarations(context: TransformationContext) {
                         /*body*/ undefined
                     );
                     if (isInEtsFile(input)) {
-                        const reservedDecorators = getEffectiveDecorators(clean.illegalDecorators, host);
+                        const reservedDecorators = concatenate(getEffectiveDecorators(input.illegalDecorators, host), getAnnotationsFromIllegalDecorators(input));
+                        checkAnnotationVisibilityByDecorator(reservedDecorators);
                         (cleanDeclaration as Mutable<FunctionDeclaration>).illegalDecorators = factory.createNodeArray(reservedDecorators);
                     }
                     const namespaceDeclaration = factory.updateModuleDeclaration(
@@ -1463,12 +1493,16 @@ export function transformDeclarations(context: TransformationContext) {
                     needsScopeFixMarker = oldNeedsScopeFix;
                     resultHasScopeMarker = oldHasScopeFix;
                     const mods = ensureModifiers(input);
-                    return cleanup(factory.updateModuleDeclaration(
+                    const clean = cleanup(factory.updateModuleDeclaration(
                         input,
                         mods,
                         isExternalModuleAugmentation(input) ? rewriteModuleSpecifier(input, input.name) : input.name,
                         body
                     ));
+                    const reservedDecorators = getAnnotationsFromIllegalDecorators(input);
+                    checkAnnotationVisibilityByDecorator(reservedDecorators);
+                    (clean as Mutable<ModuleDeclaration>).illegalDecorators = factory.createNodeArray(reservedDecorators);
+                    return clean;
                 }
                 else {
                     needsDeclare = previousNeedsDeclare;
@@ -1479,19 +1513,24 @@ export function transformDeclarations(context: TransformationContext) {
                     const id = getOriginalNodeId(inner!); // TODO: GH#18217
                     const body = lateStatementReplacementMap.get(id);
                     lateStatementReplacementMap.delete(id);
-                    return cleanup(factory.updateModuleDeclaration(
+                    const clean = cleanup(factory.updateModuleDeclaration(
                         input,
                         mods,
                         input.name,
                         body as ModuleBody
                     ));
+                    const reservedDecorators = getAnnotationsFromIllegalDecorators(input);
+                    checkAnnotationVisibilityByDecorator(reservedDecorators);
+                    (clean as Mutable<ModuleDeclaration>).illegalDecorators = factory.createNodeArray(reservedDecorators);
+                    return clean;
                 }
             }
             case SyntaxKind.StructDeclaration: {
                 errorNameNode = input.name;
                 errorFallbackNode = input;
 
-                const decorators = ensureEtsDecorators(input, host);
+                const decorators = concatenate(ensureEtsDecorators(input, host), getAnnotations(input));
+                checkAnnotationVisibilityByDecorator(decorators);
                 const modifiers = factory.createNodeArray(ensureModifiers(input));
                 const typeParameters = ensureTypeParams(input, input.typeParameters);
                 const memberNodes = visitNodes(input.members, visitDeclarationSubtree, undefined, 1);
@@ -1510,13 +1549,15 @@ export function transformDeclarations(context: TransformationContext) {
                 errorNameNode = input.name;
                 errorFallbackNode = input;
 
+                const decorators = getAnnotations(input);
+                checkAnnotationVisibilityByDecorator(decorators);
                 const modifiers = factory.createNodeArray(ensureModifiers(input));
                 const memberNodes = visitNodes(input.members, visitDeclarationSubtree);
                 const members = factory.createNodeArray(memberNodes);
 
                 return cleanup(factory.updateAnnotationDeclaration(
                     input,
-                    modifiers,
+                    concatenateDecoratorsAndModifiers(decorators, modifiers),
                     input.name,
                     members
                 ));
@@ -1633,15 +1674,37 @@ export function transformDeclarations(context: TransformationContext) {
                 }
             }
             case SyntaxKind.VariableStatement: {
-                return cleanup(transformVariableStatement(input));
+                const reservedDecorators = getAnnotationsFromIllegalDecorators(input);
+                checkAnnotationVisibilityByDecorator(reservedDecorators);
+                let cleanDeclaration: VariableStatement | undefined = cleanup(transformVariableStatement(input));
+                if (cleanDeclaration) {
+                    (cleanDeclaration as Mutable<VariableStatement>).illegalDecorators = factory.createNodeArray(reservedDecorators);
+                }
+                return cleanDeclaration;
             }
             case SyntaxKind.EnumDeclaration: {
-                return cleanup(factory.updateEnumDeclaration(input, factory.createNodeArray(ensureModifiers(input)), input.name, factory.createNodeArray(mapDefined(input.members, m => {
-                    if (shouldStripInternal(m)) return;
-                    // Rewrite enum values to their constants, if available
-                    const constValue = resolver.getConstantValue(m);
-                    return preserveJsDoc(factory.updateEnumMember(m, m.name, constValue !== undefined ? typeof constValue === "string" ? factory.createStringLiteral(constValue) : factory.createNumericLiteral(constValue) : undefined), m);
-                }))));
+                const clean = cleanup(factory.updateEnumDeclaration(
+                    input,
+                    factory.createNodeArray(ensureModifiers(input)),
+                    input.name,
+                    factory.createNodeArray(
+                        mapDefined(input.members, m => {
+                            if (shouldStripInternal(m)) return;
+                            // Rewrite enum values to their constants, if available
+                            const constValue = resolver.getConstantValue(m);
+                            return preserveJsDoc(factory.updateEnumMember(
+                                m,
+                                m.name,
+                                constValue !== undefined ? typeof constValue === "string" ? factory.createStringLiteral(constValue) :
+                                factory.createNumericLiteral(constValue) : undefined), m);
+                            }
+                        )
+                    )
+                ));
+                const reservedDecorators = getAnnotationsFromIllegalDecorators(input);
+                checkAnnotationVisibilityByDecorator(reservedDecorators);
+                (clean as Mutable<EnumDeclaration>).illegalDecorators = factory.createNodeArray(reservedDecorators);
+                return clean;
             }
         }
 

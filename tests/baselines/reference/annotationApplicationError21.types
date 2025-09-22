@@ -1,0 +1,86 @@
+=== tests/cases/conformance/annotations/A.d.ets ===
+export @interface Available {
+    minApiVersion: string = "1";
+>minApiVersion : string
+}
+
+=== tests/cases/conformance/annotations/B.ets ===
+import { Available } from "./A";
+>Available : typeof Available
+
+@Available({minApiVersion: 'OpenHarmony 20'})
+>Available({minApiVersion: 'OpenHarmony 20'}) : void
+>Available : typeof Available
+>{minApiVersion: 'OpenHarmony 20'} : { minApiVersion: string; }
+>minApiVersion : string
+>'OpenHarmony 20' : "OpenHarmony 20"
+
+export class C {
+>C : C
+
+    @Available({minApiVersion: 'OpenHarmony 20'})
+>Available({minApiVersion: 'OpenHarmony 20'}) : void
+>Available : typeof Available
+>{minApiVersion: 'OpenHarmony 20'} : { minApiVersion: string; }
+>minApiVersion : string
+>'OpenHarmony 20' : "OpenHarmony 20"
+
+    prop1: string = "1";
+>prop1 : string
+>"1" : "1"
+
+    @Available({minApiVersion: 'OpenHarmony 20'})
+>Available({minApiVersion: 'OpenHarmony 20'}) : void
+>Available : typeof Available
+>{minApiVersion: 'OpenHarmony 20'} : { minApiVersion: string; }
+>minApiVersion : string
+>'OpenHarmony 20' : "OpenHarmony 20"
+
+    func1(): void {};
+>func1 : () => void
+
+    @Available({minApiVersion: 'OpenHarmony 20'})
+>Available({minApiVersion: 'OpenHarmony 20'}) : void
+>Available : typeof Available
+>{minApiVersion: 'OpenHarmony 20'} : { minApiVersion: string; }
+>minApiVersion : string
+>'OpenHarmony 20' : "OpenHarmony 20"
+
+    static sFunc1(): void {};
+>sFunc1 : () => void
+
+    @Available({minApiVersion: 'OpenHarmony 20'})
+>Available({minApiVersion: 'OpenHarmony 20'}) : void
+>Available : typeof Available
+>{minApiVersion: 'OpenHarmony 20'} : { minApiVersion: string; }
+>minApiVersion : string
+>'OpenHarmony 20' : "OpenHarmony 20"
+
+    get prop(): string {
+>prop : string
+
+        return this.prop1;
+>this.prop1 : string
+>this : this
+>prop1 : string
+    }
+
+    @Available({minApiVersion: 'OpenHarmony 20'})
+>Available({minApiVersion: 'OpenHarmony 20'}) : void
+>Available : typeof Available
+>{minApiVersion: 'OpenHarmony 20'} : { minApiVersion: string; }
+>minApiVersion : string
+>'OpenHarmony 20' : "OpenHarmony 20"
+
+    set prop(value: string) {
+>prop : string
+>value : string
+
+        this.prop1 = value;
+>this.prop1 = value : string
+>this.prop1 : string
+>this : this
+>prop1 : string
+>value : string
+    }
+}

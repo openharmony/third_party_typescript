@@ -1,0 +1,70 @@
+tests/cases/conformance/annotations/B.ets(3,1): error TS28022: Annotation have to be applied for classes or methods in classes only, got: '@Available({minApiVersion: 'OpenHarmony 20'})
+export interface testI {
+    @Available({minApiVersion: 'OpenHarmony 20'})
+    prop1: string;
+
+    @Available({minApiVersion: 'OpenHarmony 20'})
+    f(): void;
+
+    @Available({minApiVersion: 'OpenHarmony 20'})
+    get prop(): string;
+
+    @Available({minApiVersion: 'OpenHarmony 20'})
+    set prop(value: string);
+}'.
+tests/cases/conformance/annotations/B.ets(5,5): error TS28022: Annotation have to be applied for classes or methods in classes only, got: '@Available({minApiVersion: 'OpenHarmony 20'})
+    prop1: string;'.
+tests/cases/conformance/annotations/B.ets(8,5): error TS28022: Annotation have to be applied for classes or methods in classes only, got: '@Available({minApiVersion: 'OpenHarmony 20'})
+    f(): void;'.
+tests/cases/conformance/annotations/B.ets(11,5): error TS28042: Annotation cannot be applied for getter or setter, got: '@Available({minApiVersion: 'OpenHarmony 20'})
+    get prop(): string;'.
+tests/cases/conformance/annotations/B.ets(14,5): error TS28042: Annotation cannot be applied for getter or setter, got: '@Available({minApiVersion: 'OpenHarmony 20'})
+    set prop(value: string);'.
+
+
+==== tests/cases/conformance/annotations/A.d.ets (0 errors) ====
+    export @interface Available {
+        minApiVersion: string = "1";
+    }
+    
+==== tests/cases/conformance/annotations/B.ets (5 errors) ====
+    import { Available } from "./A";
+    
+    @Available({minApiVersion: 'OpenHarmony 20'})
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+!!! error TS28022: Annotation have to be applied for classes or methods in classes only, got: '@Available({minApiVersion: 'OpenHarmony 20'})
+!!! error TS28022: export interface testI {
+!!! error TS28022:     @Available({minApiVersion: 'OpenHarmony 20'})
+!!! error TS28022:     prop1: string;
+!!! error TS28022:     @Available({minApiVersion: 'OpenHarmony 20'})
+!!! error TS28022:     f(): void;
+!!! error TS28022:     @Available({minApiVersion: 'OpenHarmony 20'})
+!!! error TS28022:     get prop(): string;
+!!! error TS28022:     @Available({minApiVersion: 'OpenHarmony 20'})
+!!! error TS28022:     set prop(value: string);
+!!! error TS28022: }'.
+    export interface testI {
+        @Available({minApiVersion: 'OpenHarmony 20'})
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+!!! error TS28022: Annotation have to be applied for classes or methods in classes only, got: '@Available({minApiVersion: 'OpenHarmony 20'})
+!!! error TS28022:     prop1: string;'.
+        prop1: string;
+    
+        @Available({minApiVersion: 'OpenHarmony 20'})
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+!!! error TS28022: Annotation have to be applied for classes or methods in classes only, got: '@Available({minApiVersion: 'OpenHarmony 20'})
+!!! error TS28022:     f(): void;'.
+        f(): void;
+    
+        @Available({minApiVersion: 'OpenHarmony 20'})
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+!!! error TS28042: Annotation cannot be applied for getter or setter, got: '@Available({minApiVersion: 'OpenHarmony 20'})
+!!! error TS28042:     get prop(): string;'.
+        get prop(): string;
+    
+        @Available({minApiVersion: 'OpenHarmony 20'})
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+!!! error TS28042: Annotation cannot be applied for getter or setter, got: '@Available({minApiVersion: 'OpenHarmony 20'})
+!!! error TS28042:     set prop(value: string);'.
+        set prop(value: string);
+    }

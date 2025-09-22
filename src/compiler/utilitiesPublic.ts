@@ -733,8 +733,16 @@ export function getAllDecorators(node: Node | undefined): readonly Decorator[] {
 
 export function getIllegalDecorators(node: HasIllegalDecorators): readonly Decorator[] | undefined {
     if (hasIllegalDecorators(node)) {
-        return node.illegalDecorators;
+        return filter(node.illegalDecorators, isDecorator);
     }
+    return undefined;
+}
+
+export function getAnnotationsFromIllegalDecorators(node: HasIllegalDecorators): readonly Decorator[] | undefined {
+    if (hasIllegalDecorators(node)) {
+        return filter(node.illegalDecorators, isAnnotation);
+    }
+    return undefined;
 }
 
 function getJSDocParameterTagsWorker(param: ParameterDeclaration, noCache?: boolean): readonly JSDocParameterTag[] {

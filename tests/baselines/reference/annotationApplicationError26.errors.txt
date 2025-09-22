@@ -1,0 +1,23 @@
+tests/cases/conformance/annotations/B.ets(3,1): error TS28022: Annotation have to be applied for classes or methods in classes only, got: '@Available({minApiVersion: 'OpenHarmony 20'})
+export enum E1 {
+    A1 = 0
+}'.
+
+
+==== tests/cases/conformance/annotations/A.d.ets (0 errors) ====
+    export @interface Available {
+        minApiVersion: string = "1";
+    }
+    
+==== tests/cases/conformance/annotations/B.ets (1 errors) ====
+    import { Available } from "./A";
+    
+    @Available({minApiVersion: 'OpenHarmony 20'})
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+!!! error TS28022: Annotation have to be applied for classes or methods in classes only, got: '@Available({minApiVersion: 'OpenHarmony 20'})
+!!! error TS28022: export enum E1 {
+!!! error TS28022:     A1 = 0
+!!! error TS28022: }'.
+    export enum E1 {
+        A1 = 0
+    }

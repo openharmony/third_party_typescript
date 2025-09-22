@@ -980,7 +980,9 @@ export function canHaveIllegalDecorators(node: Node): node is HasIllegalDecorato
         || kind === SyntaxKind.ImportDeclaration
         || kind === SyntaxKind.NamespaceExportDeclaration
         || kind === SyntaxKind.ExportDeclaration
-        || kind === SyntaxKind.ExportAssignment;
+        || kind === SyntaxKind.ExportAssignment
+        || kind === SyntaxKind.MethodSignature
+        || kind === SyntaxKind.PropertySignature;
 }
 
 /** @internal */

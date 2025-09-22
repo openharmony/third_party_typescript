@@ -44,5 +44,6 @@ export function canHaveDecorators(node: Node): node is HasDecorators {
         || kind === SyntaxKind.SetAccessor
         || kind === SyntaxKind.ClassExpression
         || kind === SyntaxKind.ClassDeclaration
-        || kind === SyntaxKind.StructDeclaration;
+        || kind === SyntaxKind.StructDeclaration
+        || kind === SyntaxKind.AnnotationDeclaration;
 }

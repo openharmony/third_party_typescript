@@ -23,6 +23,7 @@ import {
     Expression,
     ExpressionStatement,
     factory,
+    filter,
     flattenDiagnosticMessageText,
     FunctionDeclaration,
     getAllDecorators,
@@ -31,12 +32,15 @@ import {
     getLineAndCharacterOfPosition,
     getRootEtsComponent,
     getSourceFileOfNode,
+    HasIllegalDecorators,
     Identifier,
     ImportClause,
     ImportDeclaration,
     ImportEqualsDeclaration,
     ImportSpecifier,
+    isAnnotation,
     isCallExpression,
+    isClassDeclaration,
     isEtsComponentExpression,
     isExportSpecifier,
     isExternalModuleImportEqualsDeclaration,
@@ -45,6 +49,7 @@ import {
     isImportClause,
     isImportDeclaration,
     isImportSpecifier,
+    isMethodDeclaration,
     isNamedExportBindings,
     isNamedImportBindings,
     isNamespaceImport,
@@ -538,10 +543,43 @@ export function transformAnnotation(context: TransformationContext): (node: Sour
         }
     }
 
+    function visitIllegalDecorators(node: HasIllegalDecorators): VisitResult<HasIllegalDecorators> {
+        if (!node.illegalDecorators) {
+            return visitEachChild(node, visitAnnotations, context);
+        }
+        switch (node.kind) {
+            case SyntaxKind.FunctionDeclaration:
+            case SyntaxKind.TypeAliasDeclaration: 
+            case SyntaxKind.VariableStatement:
+            case SyntaxKind.InterfaceDeclaration:
+            case SyntaxKind.PropertySignature:
+            case SyntaxKind.MethodSignature:
+            case SyntaxKind.ModuleDeclaration:
+            case SyntaxKind.EnumDeclaration:
+                (node as Mutable<HasIllegalDecorators>).illegalDecorators = factory.createNodeArray(filter(node.illegalDecorators, (decorator) => {
+                    return !isAnnotation(decorator);
+                }));
+                break;
+            default:
+                return visitEachChild(node, visitAnnotations, context);
+        }
+        
+        return visitEachChild(node, visitAnnotations, context);
+    }
+
     function visitAnnotations(node: Node): VisitResult<Node> {
         switch (node.kind) {
             case SyntaxKind.ImportSpecifier:
                 return visitImportSpecifier(<ImportSpecifier>node);
+            case SyntaxKind.FunctionDeclaration:
+            case SyntaxKind.VariableStatement:
+            case SyntaxKind.TypeAliasDeclaration:
+            case SyntaxKind.InterfaceDeclaration:
+            case SyntaxKind.PropertySignature:
+            case SyntaxKind.MethodSignature:
+            case SyntaxKind.ModuleDeclaration:
+            case SyntaxKind.EnumDeclaration:
+                return visitIllegalDecorators(<HasIllegalDecorators>node);
             case SyntaxKind.Decorator:
                 return visitAnnotation(<Annotation>node);
             default:
@@ -582,13 +620,27 @@ export function transformAnnotation(context: TransformationContext): (node: Sour
             return factory.updateAnnotationPropertyDeclaration(node, node.name, type, initializer);
         });
 
-        return factory.updateAnnotationDeclaration(node, node.modifiers, magicPrefixName, members);
+        return factory.updateAnnotationDeclaration(
+            node,
+            visitNodes(node.modifiers, visitAnnotation, isAnnotation), 
+            magicPrefixName,
+            members
+        );
     }
 
     function visitAnnotation(node: Annotation): VisitResult<Annotation> {
         if (!node.annotationDeclaration) {
             return node;
         }
+        // Only annotations on class and method will be reserved when generating intermediate files
+        if (!isClassDeclaration(node.parent) && !isMethodDeclaration(node.parent)) {
+            return undefined;
+        }
+
+        if (resolver.isAvailableAnnotation(node)) {
+            return undefined;
+        }
+        
         // Add default values into annotation object literal. For example,
         // @interface Anno {
         //     a: number = 10
@@ -1135,7 +1187,7 @@ export function isSendableFunctionOrType(node: Node, maybeNotOriginalNode: boole
         return false;
     }
     const nameExpr = illegalDecorators[0].expression;
-    return (isIdentifier(nameExpr) && nameExpr.escapedText.toString() === 'Sendable');
+    return isIdentifier(nameExpr) && nameExpr.escapedText.toString() === 'Sendable';
 }
 
 /** @internal */
