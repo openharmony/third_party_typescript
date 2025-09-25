@@ -8463,6 +8463,20 @@ namespace Parser {
         });
         return (hasParamDecorator && !hasOnceDecorator);
     }
+
+    function hasEnvDecorator(decorators: NodeArray<Decorator> | undefined): boolean {
+        let hasEnvDecorator: boolean = false;
+        decorators?.forEach((decorator) => {
+            if (!ts.isCallExpression(decorator.expression) ||
+                !ts.isIdentifier(decorator.expression.expression)) {
+                return;
+            }
+            if (decorator.expression.expression.escapedText === 'Env') {
+                hasEnvDecorator = true;
+            }
+        });
+        return hasEnvDecorator;
+    }
     /*
      * There are situations in which a modifier like 'const' will appear unexpectedly, such as on a class member.
      * In those situations, if we are entirely sure that 'const' is not valid on its own (such as when ASI takes effect
@@ -8516,7 +8530,8 @@ namespace Parser {
          *  shouldAddReadonly adds readonly modifier when the element in struct has the Param decorator
          *  and doesn't have Once decorator.
          */
-        const shouldAddReadonly = inStructContext() && hasParamAndNoOnceDecorator(decorators);
+        const shouldAddReadonly = inStructContext() &&
+            (hasParamAndNoOnceDecorator(decorators) || hasEnvDecorator(decorators));
         const modifiers = parseModifiers(/*permitInvalidConstAsModifier*/ true, /*stopOnStartOfClassStaticBlock*/ true, shouldAddReadonly);
         if (token() === SyntaxKind.StaticKeyword && lookAhead(nextTokenIsOpenBrace)) {
             return parseClassStaticBlockDeclaration(pos, hasJSDoc, decorators, modifiers);
