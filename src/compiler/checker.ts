@@ -47335,7 +47335,6 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
                     continue;
                 }
             }
-            return true;
         }
 
         if (!nodeCanBeDecorated(node, node.parent, node.parent.parent, compilerOptions)) {
