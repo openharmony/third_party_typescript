@@ -1834,7 +1834,8 @@ namespace Parser {
         // When the language version is 1.2, skip processKit
         statements = (!!sourceFileCompilerOptions.noTransformedKitInParser || !sdkPath || parseDiagnostics.length || languageVersionCallBack?.(fileName)) ?
             statements :
-            createNodeArray(processKit(factory, statements, sdkPath, markedkitImportRanges, inEtsContext(), sourceFileCompilerOptions), statements.pos);
+            createNodeArray(processKit(factory, statements, sdkPath, markedkitImportRanges, inEtsContext(),
+                sourceFileCompilerOptions, fileName), statements.pos);
         Debug.assert(token() === SyntaxKind.EndOfFileToken);
         const endOfFileToken = addJSDocComment(parseTokenNode<EndOfFileToken>());
 

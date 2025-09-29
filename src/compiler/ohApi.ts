@@ -1148,6 +1148,7 @@ export function checkStructPropertyPosition(declaration: Node, prop: Node): bool
 export const REQUIRE_DECORATOR = 'Require';
 const JSON_SUFFIX = '.json';
 const KIT_PREFIX = '@kit.';
+const DTS_SUFFIX = '.d.ts';
 const DEFAULT_KEYWORD = 'default';
 const ETS_DECLARATION = '.d.ets';
 export const THROWS_TAG = 'throws';
@@ -1304,6 +1305,76 @@ function excludeStatementForKitImport(statement: Statement): boolean {
     return false;
 }
 
+function excludeStatementForApiNamedBindingsImport(statement: Statement, fileName: string): boolean {
+    if (!fileName.endsWith(DTS_SUFFIX) &&
+        isImportDeclaration(statement) && isValidImport(statement) &&
+        apiModuleWhiteList.has((statement.moduleSpecifier as StringLiteral).text)) {
+        return true;
+    }
+    return false;
+}
+ 
+function processApiNamedBindingsStatement(statement: ImportDeclaration, apiMap: Map<string, Set<string>>,
+    existingAttribute: Set<string>): ImportDeclaration {
+    const importClause = statement.importClause;
+    if (!importClause || !importClause.namedBindings) {
+        return statement;
+    }
+    const moduleSpecifierText = (statement.moduleSpecifier as StringLiteral).text;
+    let newStatement: ImportDeclaration = statement;
+    if (apiMap.has(moduleSpecifierText)) {
+        newStatement = addNamedBindingsElements(moduleSpecifierText, apiMap, statement, existingAttribute);
+    }
+    return newStatement;
+}
+ 
+function addNamedBindingsElements(moduleSpecifierText: string, map: Map<string, Set<string>>,
+    statement: ImportDeclaration, existingAttribute: Set<string>): ImportDeclaration {
+    const addElements: Set<string> = new Set<string>;
+    for (const symbol of map.get(moduleSpecifierText)!) {
+        const symbolAttributeName: string = `${symbol}Attribute`;
+        if (!existingAttribute.has(symbolAttributeName)) {
+            addElements.add(symbolAttributeName);
+            existingAttribute.add(symbolAttributeName);
+        }
+    }
+    map.delete(moduleSpecifierText);
+    if (!addElements.size) {
+        return statement;
+    }
+    const newStatement: ImportDeclaration = supplementNamedBindings(addElements, statement);
+    return newStatement;
+}
+
+function supplementNamedBindings(addElements: Set<string>, statement: ImportDeclaration): ImportDeclaration {
+    const namedBindings: NamedImports = statement.importClause!.namedBindings as NamedImports;
+    const virtualElements: ImportSpecifier[] = [];
+    for (const elementName of addElements) {
+        const virtualElement: ImportSpecifier = createVirtualImportSpecifier(elementName);
+        virtualElements.push(virtualElement);
+    }
+    if (!virtualElements.length) {
+        return statement;
+    }
+    const newNamedBindingsElements: NodeArray<ImportSpecifier> = factory.createNodeArray([...namedBindings.elements, ...virtualElements])
+    const newNamedBindings: NamedImports = factory.createNamedImports(newNamedBindingsElements);
+    const newImportClause: ImportClause = factory.updateImportClause(statement.importClause!, false, undefined, newNamedBindings);
+    return factory.updateImportDeclaration(statement, statement.modifiers,
+        newImportClause, statement.moduleSpecifier, statement.assertClause);
+}
+ 
+function createVirtualImportSpecifier(elementName: string): ImportSpecifier {
+    const identifier: Identifier = finishVirtualNode(factory.createIdentifier(elementName, undefined, undefined, undefined));
+    const importSpecifierNode: ImportSpecifier = factory.createImportSpecifier(false, undefined, identifier);
+    const result: ImportSpecifier = finishVirtualNode(importSpecifierNode);
+    return result;
+}
+
+function finishVirtualNode<T extends Node>(node: T): T {
+    node.virtual = true;
+    return node;
+}
+
 interface WhiteListInfo {
     kitName: string;
     symbolName: string;
@@ -1339,7 +1410,7 @@ function inWhiteList(moduleSpecifierText: string, importName: string, inEtsConte
 }
 
 function processKitStatementSuccess(factory: NodeFactory, statement: ImportDeclaration, jsonObject: KitJsonInfo | undefined, inEtsContext: boolean,
-    newImportStatements: Array<ImportDeclaration>): boolean {
+    newImportStatements: Array<ImportDeclaration>, kitMap: Map<string, Set<string>>, existingAttribute: Set<string>): boolean {
     const importClause = statement.importClause!;
     const moduleSpecifierText = (statement.moduleSpecifier as StringLiteral).text;
     const kitSymbol = jsonObject?.symbols;
@@ -1359,8 +1430,13 @@ function processKitStatementSuccess(factory: NodeFactory, statement: ImportDecla
     }
 
     if (importClause.namedBindings) {
+        let newStatement: ImportDeclaration = statement;
+        if (kitMap.has(moduleSpecifierText)){
+            newStatement = addNamedBindingsElements(moduleSpecifierText, kitMap, statement, existingAttribute);
+        }
         let hasError = false;
-        (importClause.namedBindings as NamedImports).elements.forEach(
+        let newImportClause: ImportClause = newStatement.importClause!;
+        (newImportClause.namedBindings as NamedImports).elements.forEach(
             element => {
                 if (hasError) {
                     return;
@@ -1393,10 +1469,60 @@ function processKitStatementSuccess(factory: NodeFactory, statement: ImportDecla
     }
     return true;
 }
+ 
+const extendComponentWhiteList: Set<string> = new Set(['ArcList',
+    'ArcListItem',
+    'MovingPhotoView',
+    'ArcSwiper',
+    'ArcScrollBar',
+    'ArcAlphabetIndexer',
+    'HdsNavigation',
+    'HdsNavDestination',
+    'HdsTabs',
+    'DotMatrix',
+    'Metaball',
+    'HdsListItemCard',
+    'HdsVisualComponent',
+    'MultiWindowEntryInAPP',
+    'AudioWave']);
+const extendComponentAttributeWhiteList: Set<string> = new Set(['ArcListAttribute',
+    'ArcListItemAttribute',
+    'MovingPhotoViewAttribute',
+    'ArcSwiperAttribute',
+    'ArcScrollBarAttribute',
+    'ArcAlphabetIndexerAttribute',
+    'HdsNavigationAttribute',
+    'HdsNavDestinationAttribute',
+    'HdsTabsAttribute',
+    'DotMatrixAttribute',
+    'MetaballAttribute',
+    'HdsListItemCardAttribute',
+    'HdsVisualComponentAttribute',
+    'MultiWindowEntryInAPPAttribute',
+    'AudioWaveAttribute']);
+const apiModuleWhiteList: Set<string> = new Set([
+    '@ohos.arkui.ArcList', 
+    '@ohos.arkui.ArcSwiper', 
+    '@ohos.arkui.ArcScrollBar',
+    '@ohos.arkui.ArcAlphabetIndexer',
+    '@ohos.multimedia.movingphotoview',
+    '@hms.hds.hdsBaseComponent',
+    '@hms.hds.HdsVisualComponent',
+    '@hms.hds.dotMatrix',
+    '@hms.hds.Metaball',
+    '@hms.hds.AudioWave']);
+const kitModuleWhiteList: Set<string> = new Set([
+    '@kit.ArkUI',
+    '@kit.MediaLibraryKit',
+    '@kit.UIDesignKit']);
 
 /** @internal */
 export function processKit(factory: NodeFactory, statements: NodeArray<Statement>, sdkPath: string,
-    markedkitImportRanges: Array<TextRange>, inEtsContext: boolean, compilerOptions: CompilerOptions): Statement[] {
+    markedkitImportRanges: Array<TextRange>, inEtsContext: boolean, compilerOptions: CompilerOptions, fileName: string): Statement[] {
+    let apiModuleSpecifierMap: Map<string, Set<string>> = new Map<string, Set<string>>();
+    let kitModuleSpecifierMap: Map<string, Set<string>> = new Map<string, Set<string>>();
+    let existingAttribute: Set<string> = new Set<string>();
+    preProcessSpecifiedImportDeclaration(statements, inEtsContext, apiModuleSpecifierMap, kitModuleSpecifierMap, existingAttribute);
     const list: Statement[] = [];
     let skipRestStatements = false;
     statements.forEach(
@@ -1405,6 +1531,14 @@ export function processKit(factory: NodeFactory, statements: NodeArray<Statement
             if (!skipRestStatements && inEtsContext && !isImportDeclaration(statement)) {
                 skipRestStatements = true;
             }
+
+            if (!skipRestStatements && excludeStatementForApiNamedBindingsImport(statement, fileName)) {
+                const newStatement: ImportDeclaration = processApiNamedBindingsStatement(statement as ImportDeclaration,
+                    apiModuleSpecifierMap, existingAttribute);
+                list.push(newStatement);
+                return;
+            }
+
             if (skipRestStatements || excludeStatementForKitImport(statement)) {
                 list.push(statement);
                 return;
@@ -1418,8 +1552,9 @@ export function processKit(factory: NodeFactory, statements: NodeArray<Statement
 
             const jsonObject = getKitJsonObject(moduleSpecifierText, sdkPath, compilerOptions);
             const newImportStatements = new Array<ImportDeclaration>();
-            
-            if (!processKitStatementSuccess(factory, statement as ImportDeclaration, jsonObject, inEtsContext, newImportStatements)) {
+
+            if (!processKitStatementSuccess(factory, statement as ImportDeclaration, jsonObject, inEtsContext,
+                newImportStatements, kitModuleSpecifierMap, existingAttribute)) {
                 list.push(statement);
                 return;
             }
@@ -1429,6 +1564,65 @@ export function processKit(factory: NodeFactory, statements: NodeArray<Statement
         }
     );
     return list;
+}
+
+function preProcessSpecifiedImportDeclaration(statements: NodeArray<Statement>, inEtsContext: boolean, apiMap: Map<string, Set<string>>,
+    kitMap: Map<string, Set<string>>, existingAttribute: Set<string>): void {
+    let skipRestStatements: boolean = false;
+    statements.forEach((statement) => {
+        if (!isImportDeclaration(statement) || !isValidImport(statement)) {
+            return;
+        }
+        if (!skipRestStatements && inEtsContext && !isImportDeclaration(statement)) {
+            skipRestStatements = true;
+        }
+        const moduleSpecifierText = (statement.moduleSpecifier as StringLiteral).text;
+        if (!skipRestStatements) {
+            if (apiModuleWhiteList.has(moduleSpecifierText)) {
+                processSpecifiedImports(statement, apiMap, moduleSpecifierText, existingAttribute);
+            } else if (kitModuleWhiteList.has(moduleSpecifierText)) {
+                processSpecifiedImports(statement, kitMap, moduleSpecifierText, existingAttribute);
+            }
+        }
+    });
+}
+
+function isValidImport(statement: ImportDeclaration): boolean {
+    const importClause: ImportClause | undefined = statement.importClause;
+    if (importClause && importClause.namedBindings &&
+        !isNamespaceImport(importClause.namedBindings) &&
+        isStringLiteral(statement.moduleSpecifier) &&
+        !statement.illegalDecorators) {
+        return true;
+    }
+    return false;
+}
+
+function processSpecifiedImports(statement: ImportDeclaration, map: Map<string, Set<string>>,
+    moduleSpecifierText: string, existingAttribute: Set<string>): void {
+    const namedBindings: NamedImportBindings | undefined = statement.importClause?.namedBindings;
+    if (!namedBindings || isNamespaceImport(namedBindings)) {
+        return;
+    }
+    namedBindings.elements?.forEach((element) => {
+        processExtendComponentMap(moduleSpecifierText, map, element, existingAttribute);
+    })
+}
+
+function processExtendComponentMap(moduleSpecifierText: string, map: Map<string, Set<string>>,
+    nameBinding: ImportSpecifier, existingAttribute: Set<string>): void {
+    const namedBindingName: string = nameBinding.name?.escapedText.toString();
+    if (extendComponentWhiteList.has(namedBindingName)) {
+        if (!map.has(moduleSpecifierText)) {
+            map.set(moduleSpecifierText, new Set([]));
+        }
+        map.get(moduleSpecifierText)!.add(namedBindingName);
+        return;
+    }
+    if (extendComponentAttributeWhiteList.has(namedBindingName)) {
+        existingAttribute.add(namedBindingName);
+        return;
+    }
 }
 
 export function getMaxFlowDepth(compilerOptions: CompilerOptions): number {
