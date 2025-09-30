@@ -39,7 +39,7 @@ import {
     PropertyAssignment, PropertyDeclaration, PropertySignature, ReturnStatement, ScriptKind, Set,
     SetAccessorDeclaration, Signature, SourceFile, Symbol, SymbolFlags, SyntaxKind, TextRange, ThrowStatement, Type,
     TypeAliasDeclaration, TypeAssertion, TypeChecker, TypeFlags, TypeNode, TypeParameterDeclaration, TypeReference,
-    TypeReferenceNode, VariableDeclaration, VariableStatement,
+    TypeReferenceNode, VariableDeclaration, VariableStatement, HasDecorators
 } from "../_namespaces/ts";
 
 import { 
@@ -61,7 +61,7 @@ import {
   isShareableEntity, isBooleanLikeType, isStdBooleanType, isObject, isWrongSendableFunctionAssignment, isSymbolIteratorExpression,
   isArkTSCollectionsClassOrInterfaceDeclaration, isValidComputedPropertyName, isShareableType, needStrictMatchType, SENDABLE_DECORATOR,
   SENDABLE_DECORATOR_NODES, getSendableDecorator, isAllowedIndexSignature, PROMISE, isCollectionArrayType, isTaskPoolApi, 
-  isDeclarationSymbol, checkTaskpoolFunction, getTypeAtLocationForLinter,
+  isDeclarationSymbol, checkTaskpoolFunction, getTypeAtLocationForLinter, isArkUIDecorator, isDisableSendableClassDecoratorCheck
 } from "../_namespaces/ts.ArkTSLinter_1_1";
 import * as ArkTSLinter_1_1 from "../_namespaces/ts.ArkTSLinter_1_1";
 import { perfLogger as Logger } from "../_namespaces/ts";
@@ -120,12 +120,15 @@ export class TypeScriptLinter {
   static sharedModulesCache: ESMap<string, boolean>;
   static strictDiagnosticCache: Set<Diagnostic>;
   static unknowDiagnosticCache: Set<Diagnostic>;
+  static disableSendableClassDecoratorCheck: boolean = false;
 
-  public static initGlobals(): void {
+  public static initGlobals(compilerOptions: ts.CompilerOptions): void {
     TypeScriptLinter.filteredDiagnosticMessages = []
     TypeScriptLinter.sharedModulesCache = new Map<string, boolean>();
     TypeScriptLinter.strictDiagnosticCache = new Set<Diagnostic>();
     TypeScriptLinter.unknowDiagnosticCache = new Set<Diagnostic>();
+    TypeScriptLinter.disableSendableClassDecoratorCheck =
+      isDisableSendableClassDecoratorCheck(compilerOptions.disableSendableCheckRules || []);
   }
 
   public static initStatic(): void {
@@ -679,9 +682,7 @@ readonly handlersMap = new Map([
   private handleParameter(node: Node): void {
     const tsParam = node as ParameterDeclaration;
 
-    getDecoratorsIfInSendableClass(tsParam)?.forEach((decorator) => {
-      this.incrementCounters(decorator, FaultID.SendableClassDecorator);
-    });
+    this.handleDecoratorsSendableClass(tsParam);
 
     if (isArrayBindingPattern(tsParam.name) || isObjectBindingPattern(tsParam.name)) {
       this.incrementCounters(node, FaultID.DestructuringParameter);
@@ -698,6 +699,19 @@ readonly handlersMap = new Map([
     }
 
     this.handleDeclarationInferredType(tsParam);
+  }
+
+  private handleDecoratorsSendableClass(declaration: HasDecorators): void {
+    const decorators: readonly Decorator[] | undefined = getDecoratorsIfInSendableClass(declaration);
+    this.handleSendableClassDecorators(decorators);
+  }
+
+  private handleSendableClassDecorators(decorators: readonly Decorator[] | undefined): void {
+    const decoratorsToCheck = TypeScriptLinter.disableSendableClassDecoratorCheck
+      ? decorators?.filter(isArkUIDecorator) : decorators;
+    decoratorsToCheck?.forEach(decorator => {
+      this.incrementCounters(decorator, FaultID.SendableClassDecorator);
+    });
   }
 
   private handleEnumDeclaration(node: Node): void {
@@ -896,9 +910,7 @@ readonly handlersMap = new Map([
       this.incrementCounters(node, FaultID.SendableExplicitFieldType);
       return;
     }
-    getDecoratorsIfInSendableClass(node)?.forEach((decorator) => {
-      this.incrementCounters(decorator, FaultID.SendableClassDecorator);
-    });
+    this.handleDecoratorsSendableClass(node);
     if (!isSendableTypeNode(typeNode)) {
       this.incrementCounters(node, FaultID.SendablePropType);
     } else {
@@ -1381,9 +1393,8 @@ readonly handlersMap = new Map([
 
     const isSendableClass = hasSendableDecorator(tsClassDecl);
     if (isSendableClass) {
-      getNonSendableDecorators(tsClassDecl)?.forEach((decorator) => {
-        this.incrementCounters(decorator, FaultID.SendableClassDecorator);
-      });
+      const decorators: readonly Decorator[] | undefined = getNonSendableDecorators(tsClassDecl);
+      this.handleSendableClassDecorators(decorators);
       tsClassDecl.typeParameters?.forEach((typeParamDecl) => {
         this.checkSendableTypeParameter(typeParamDecl);
       });
@@ -1692,9 +1703,7 @@ readonly handlersMap = new Map([
 
   private handleMethodDeclaration(node: Node): void {
     const tsMethodDecl = node as MethodDeclaration;
-    getDecoratorsIfInSendableClass(tsMethodDecl)?.forEach((decorator) => {
-      this.incrementCounters(decorator, FaultID.SendableClassDecorator);
-    });
+    this.handleDecoratorsSendableClass(tsMethodDecl);
     let isStatic = false;
     if (tsMethodDecl.modifiers) {
       for (const mod of tsMethodDecl.modifiers) {
@@ -2385,15 +2394,11 @@ private handleTypeReference(node: Node): void {
   }
 
   private handleGetAccessor(node: GetAccessorDeclaration): void {
-    getDecoratorsIfInSendableClass(node)?.forEach((decorator) => {
-      this.incrementCounters(decorator, FaultID.SendableClassDecorator);
-    });
+    this.handleDecoratorsSendableClass(node);
   }
 
   private handleSetAccessor(node: SetAccessorDeclaration): void {
-    getDecoratorsIfInSendableClass(node)?.forEach((decorator) => {
-      this.incrementCounters(decorator, FaultID.SendableClassDecorator);
-    });
+    this.handleDecoratorsSendableClass(node);
   }
 
   private handleDeclarationInferredType(
