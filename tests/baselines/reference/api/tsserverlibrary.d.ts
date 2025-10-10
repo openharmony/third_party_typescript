@@ -9857,7 +9857,6 @@ declare namespace ts {
     function hasTsNoCheckOrTsIgnoreFlag(node: SourceFile): boolean;
     function createObfTextSingleLineWriter(): EmitTextWriter;
     function isMixedCompilerSDKPath(compilerOptions: CompilerOptions): boolean;
-    function isOpenHarmonyRuntimeOS(compilerOptions: CompilerOptions): boolean;
     function cleanKitJsonCache(): void;
     function getMaxFlowDepth(compilerOptions: CompilerOptions): number;
     function getErrorCode(diagnostic: Diagnostic): ErrorInfo;
