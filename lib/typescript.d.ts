@@ -3397,6 +3397,7 @@ declare namespace ts {
         mixCompile?: boolean;
         isCompileJsHar?: boolean;
         moduleRootPath?: string;
+        disableSendableCheckRules?: string[];
     }
     interface EtsOptions {
         render: {
@@ -9389,6 +9390,8 @@ declare namespace ts {
         function isDeclarationSymbol(sym: Symbol | undefined): boolean;
         function checkTaskpoolFunction(arg: Expression, argType: Type, argSym: Symbol | undefined): boolean;
         function getTypeAtLocationForLinter(node: Node): Type;
+        function isArkUIDecorator(decorator: Decorator): boolean;
+        function isDisableSendableClassDecoratorCheck(disableSendableCheckRules: string[]): boolean;
         const PROPERTY_HAS_NO_INITIALIZER_ERROR_CODE = 2564;
         const NON_INITIALIZABLE_PROPERTY_DECORATORS: string[];
         const NON_INITIALIZABLE_PROPERTY_CLASS_DECORATORS: string[];
@@ -9402,6 +9405,7 @@ declare namespace ts {
         const SENDABLE_INTERFACE = "ISendable";
         const PROMISE = "Promise";
         const SENDABLE_DECORATOR_NODES: SyntaxKind[];
+        const SENDABLE_CLASS_DECORATOR_RULE = "arkts-sendable-class-decorator";
         const SENDABLE_CLOSURE_DECLS: SyntaxKind[];
         const ARKTS_COLLECTIONS_D_ETS = "@arkts.collections.d.ets";
         const COLLECTIONS_NAMESPACE = "collections";
@@ -9482,7 +9486,8 @@ declare namespace ts {
             static sharedModulesCache: ESMap<string, boolean>;
             static strictDiagnosticCache: Set<Diagnostic>;
             static unknowDiagnosticCache: Set<Diagnostic>;
-            static initGlobals(): void;
+            static disableSendableClassDecoratorCheck: boolean;
+            static initGlobals(compilerOptions: ts.CompilerOptions): void;
             static initStatic(): void;
             static tsTypeChecker: TypeChecker;
             currentErrorLine: number;
@@ -9516,6 +9521,8 @@ declare namespace ts {
             private getSourceFileFromType;
             private handleArrayLiteralExpression;
             private handleParameter;
+            private handleDecoratorsSendableClass;
+            private handleSendableClassDecorators;
             private handleEnumDeclaration;
             private handleInterfaceDeclaration;
             private handleThrowStatement;
@@ -9722,5 +9729,6 @@ declare namespace ts {
         private formatMapAsTable;
         printTimes(): void;
     }
+    const ARKUI_DECORATOR_LIST: string[];
 }
 export = ts;

@@ -34,7 +34,7 @@ import {
     PrefixUnaryExpression, PrefixUnaryOperator, PropertyAccessExpression, PropertyAssignment, PropertyDeclaration,
     ResolvedModuleFull, ScriptKind, Set, SourceFile, Statement, Symbol, SymbolFlags, symbolName, SyntaxKind, Type,
     TypeAliasDeclaration, TypeAssertion, TypeChecker, TypeFlags, TypeNode, TypeReference, UnionType,
-    WithStatement,
+    WithStatement, ARKUI_DECORATOR_LIST
 } from "../_namespaces/ts";
 import { AutofixInfo, FaultID, ProblemInfo } from "../_namespaces/ts.ArkTSLinter_1_1";
 
@@ -74,6 +74,8 @@ export const SENDABLE_DECORATOR_NODES = [
   SyntaxKind.FunctionDeclaration,
   SyntaxKind.TypeAliasDeclaration
 ];
+
+export const SENDABLE_CLASS_DECORATOR_RULE = 'arkts-sendable-class-decorator';
 
 export const SENDABLE_CLOSURE_DECLS = [
   SyntaxKind.ClassDeclaration,
@@ -2569,4 +2571,13 @@ function isStaticSourceFileForLinter(type: Type): boolean {
 
 function isStaticRecordForLinter(type: Type): boolean {
   return mixCompile && !!typeChecker.isStaticRecord && typeChecker.isStaticRecord(type);
+}
+
+export function isArkUIDecorator(decorator: Decorator): boolean {
+  const decoratorName = getDecoratorName(decorator);
+  return ARKUI_DECORATOR_LIST.includes(decoratorName);
+}
+
+export function isDisableSendableClassDecoratorCheck(disableSendableCheckRules: string[]): boolean {
+  return disableSendableCheckRules.includes(SENDABLE_CLASS_DECORATOR_RULE);
 }

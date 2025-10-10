@@ -6926,6 +6926,7 @@ export interface CompilerOptions {
     mixCompile?: boolean;
     isCompileJsHar?: boolean; // The har where the compilation output is a js file.
     moduleRootPath?: string; // The root path of module, such as har.
+    disableSendableCheckRules?: string[]; // sendable rules that needs to disable
 }
 
 export interface EtsOptions {

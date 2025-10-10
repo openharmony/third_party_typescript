@@ -88,7 +88,7 @@ buildInfoWriteFile?: WriteFileCallback, arkTSVersion?: string): Diagnostic[] {
   PerformanceDotting.stopAdvanced(TimePhase.GET_TSC_DIAGNOSTICS);
 
   PerformanceDotting.startAdvanced(TimePhase.LINT);
-  TypeScriptLinter.initGlobals();
+  TypeScriptLinter.initGlobals(compilerOptions);
   InteropTypescriptLinter.initGlobals();
   LibraryTypeCallDiagnosticChecker.instance.rebuildTscDiagnostics(tscStrictDiagnostics);
 
