@@ -1263,7 +1263,7 @@ function isDynamicObjectAssignedToStdType(lhsType: Type, rhsExpr: Expression): b
   if (isStdLibraryType(lhsType) || isPrimitiveType(lhsType)) {
     const rhsSym = isCallExpression(rhsExpr)
       ? getSymbolOfCallExpression(rhsExpr)
-      : typeChecker.getSymbolAtLocation(rhsExpr);
+      : trueSymbolAtLocation(rhsExpr);
 
     if (rhsSym && isLibrarySymbol(rhsSym)) return true;
   }
