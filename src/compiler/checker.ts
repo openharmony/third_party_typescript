@@ -691,6 +691,7 @@ import {
     isStringLiteral,
     isStringLiteralLike,
     isStringOrNumericLiteralLike,
+    isStructDeclaration,
     isSuperCall,
     isSuperProperty,
     isTaggedTemplateExpression,
@@ -815,6 +816,7 @@ import {
     MinusToken,
     Modifier,
     ModifierFlags,
+    ModifierLike,
     modifiersToFlags,
     modifierToFlag,
     ModuleBlock,
@@ -39983,8 +39985,26 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
         });
     }
 
+    function checkAnnotations(decorators: NodeArray<ModifierLike> | undefined): void {
+        if (!decorators) {
+            return;
+        }
+        // Accumulator for duplications check
+        const annotationsSet = new Set<String>();
+        // Detect annotations and performing specific checks
+        for (const decorator of decorators) {
+            if (isAnnotation(decorator)) {
+                checkAnnotation(decorator, annotationsSet);
+            }
+        }
+    }
+
     /** Check the annotation of a node */
     function checkAnnotation(annotation: Annotation, annotationsSet: Set<String>): void {
+        if (isAvailableAnnotation(annotation)) {
+            checkAvailableAnnotation(annotation, annotationsSet);
+            return;
+        }
         // In the har package where the compiled output is a JavaScript file, the use of annotations is prohibited.
         if (compilerOptions.isCompileJsHar && inModuleRootPath(annotation)) {
             grammarErrorOnNode(annotation, Diagnostics.Annotations_are_not_supported_in_Hars_compiled_to_JavaScript_files);
@@ -39998,15 +40018,18 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
 
         const annotatedDecl = annotation.parent;
         // Only classes or methods must be annotated
-        if (!isClassDeclaration(annotatedDecl) && !isMethodDeclaration(annotatedDecl)) {
+        if (!isClassDeclaration(annotatedDecl) && !(isMethodDeclaration(annotatedDecl) && isClassDeclaration(annotatedDecl.parent))) {
             const nodeStr = getTextOfNode(annotatedDecl, /*includeTrivia*/ false);
             switch (annotatedDecl.kind) {
                 case SyntaxKind.GetAccessor:
                 case SyntaxKind.SetAccessor:
                     error(annotation, Diagnostics.Annotation_cannot_be_applied_for_getter_or_setter_got_Colon_0, nodeStr);
                     break;
+                case SyntaxKind.AnnotationDeclaration:
+                    error(annotation, Diagnostics.Annotation_cannot_be_applied_for_annotation_declaration);
+                    break;
                 default:
-                    error(annotation, Diagnostics.Annotation_have_to_be_applied_for_classes_or_methods_only_got_Colon_0, nodeStr);
+                    error(annotation, Diagnostics.Annotation_have_to_be_applied_for_classes_or_methods_in_classes_only_got_Colon_0, nodeStr);
             }
             return;
         }
@@ -40039,8 +40062,11 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
                 Debug.fail();
         }
 
-        // Check for duplicate annotation usage scenarios
-
+        checkDuplicateAnnotation(annotation, annotationsSet);
+    }
+ 
+    // Check for duplicate annotation usage scenarios
+    function checkDuplicateAnnotation(annotation: Annotation, annotationsSet: Set<String>): void {
         Debug.assert(annotation.annotationDeclaration);
         const typeName = typeToString(getTypeOfSymbol(getSymbolOfNode(annotation.annotationDeclaration)), /*enclosingDeclaration*/ undefined,
             TypeFormatFlags.UseFullyQualifiedType);
@@ -40052,6 +40078,45 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
         else {
             annotationsSet.add(typeName);
         }
+    }
+
+    function checkAvailableAnnotation(annotation: Annotation, annotationsSet: Set<String>): void {
+        const signature = getResolvedSignature(annotation);
+        const returnType = getReturnTypeOfSignature(signature);
+        if (isErrorType(returnType)) {
+            return;
+        }
+
+        const annotatedDecl = annotation.parent;
+        const nodeStr = getTextOfNode(annotatedDecl, /*includeTrivia*/ false);
+        switch (annotatedDecl.kind) {
+            case SyntaxKind.ClassDeclaration:
+            case SyntaxKind.StructDeclaration:
+            case SyntaxKind.FunctionDeclaration:
+            case SyntaxKind.VariableStatement:
+            case SyntaxKind.TypeAliasDeclaration:
+            case SyntaxKind.InterfaceDeclaration:
+            case SyntaxKind.EnumDeclaration:
+            case SyntaxKind.AnnotationDeclaration:
+            case SyntaxKind.ModuleDeclaration:
+                break;
+            case SyntaxKind.GetAccessor:
+            case SyntaxKind.SetAccessor:
+            case SyntaxKind.MethodDeclaration:
+            case SyntaxKind.PropertyDeclaration:
+                if (isClassDeclaration(annotatedDecl.parent) || isStructDeclaration(annotatedDecl.parent) || isInterfaceDeclaration(annotatedDecl.parent)) {
+                    break;
+                }
+            case SyntaxKind.PropertySignature:
+            case SyntaxKind.MethodSignature:
+                if (isInterfaceDeclaration(annotatedDecl.parent)) {
+                    break;
+                }
+            default:
+                error(annotation, Diagnostics.Available_annotation_are_not_valid_here, nodeStr);
+                return;
+        }
+        checkDuplicateAnnotation(annotation, annotationsSet);
     }
 
     /** Returns declaration which is related to an annotation */
@@ -40106,10 +40171,13 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
                 atLeastOneDecorator = true;
             }
         });
+        if (canHaveDecorators(node) && some(node.modifiers, isAnnotation)) {
+            checkAnnotations(node.modifiers);
+        }
 
         // skip this check for nodes that cannot have decorators. These should have already had an error reported by
         // checkGrammarDecorators.
-        if (!canHaveDecorators(node) || !hasDecorators(node) && !hasAnnotations(node) || !node.modifiers ||
+        if (isAnnotationDeclaration(node) || !canHaveDecorators(node) || !hasDecorators(node) && !hasAnnotations(node) || !node.modifiers ||
             !nodeCanBeDecorated(node, node.parent, node.parent.parent)) {
             return;
         }
@@ -40117,15 +40185,6 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
         // Skip checking if we have no at least one decorator
         if (atLeastOneDecorator && !compilerOptions.experimentalDecorators) {
             error(node, Diagnostics.Experimental_support_for_decorators_is_a_feature_that_is_subject_to_change_in_a_future_release_Set_the_experimentalDecorators_option_in_your_tsconfig_or_jsconfig_to_remove_this_warning);
-        }
-
-        // Accumulator for duplications check
-        const annotationsSet = new Set<String>();
-        // Detect annotations and performing specific checks
-        for (const modifier of node.modifiers) {
-            if (isAnnotation(modifier)) {
-                checkAnnotation(modifier, annotationsSet);
-            }
         }
 
         const firstDecorator = find(node.modifiers, isDecorator);
@@ -42905,10 +42964,6 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
         const firstDecorator = find(node.modifiers, isDecorator);
         if (firstDecorator) {
             grammarErrorOnNode(firstDecorator, Diagnostics.Decorators_are_not_valid_here);
-        }
-        const firstAnnotation = find(node.modifiers, isAnnotation);
-        if (firstAnnotation) {
-            grammarErrorOnNode(firstAnnotation, Diagnostics.Annotation_cannot_be_applied_for_annotation_declaration);
         }
 
         checkCollisionsForDeclarationName(node, node.name);
@@ -46747,6 +46802,33 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
         return links.exportOrImportRefersToAnnotation;
     }
 
+    /** 
+     * @internal 
+     * Determine whether an annotation is '@Available' annotation declared in SDK files
+     */
+    function isAvailableAnnotation(node: Annotation): boolean {
+        if (!node || !node.annotationDeclaration) {
+            return false;
+        }
+        const annoDecl: AnnotationDeclaration = node.annotationDeclaration;
+        const links: NodeLinks = getNodeLinks(annoDecl);
+        if (links.availableAnnotation === undefined) {
+            links.availableAnnotation = false;
+            if (isIdentifier(annoDecl.name) && annoDecl.name.escapedText.toString() !== 'Available') {
+                return links.availableAnnotation;
+            }
+            const sdkPath: string | undefined = getSdkPath(compilerOptions);
+            if (!sdkPath) {
+                return links.availableAnnotation;
+            }
+            const fileName: string = normalizePath(getSourceFileOfNode(annoDecl).fileName);
+            if (fileName.startsWith(normalizePath(sdkPath))) {
+                links.availableAnnotation = true;
+            }
+        }
+        return links.availableAnnotation;
+    }
+
     function createResolver(): EmitResolver {
         // this variable and functions that use it are deliberately moved here from the outer scope
         // to avoid scope pollution
@@ -46951,6 +47033,7 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
                 return links.annotationPropertyInferredType;
             },
             isReferredToAnnotation: isReferredToAnnotation,
+            isAvailableAnnotation: isAvailableAnnotation
         };
 
         function isImportRequiredByAugmentation(node: ImportDeclaration) {
@@ -47296,15 +47379,30 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
     }
 
     function checkGrammarDecorators(node: Node): boolean {
+        getAllDecorators(node).forEach(item => {
+            const annotationDecl = getAnnotationDeclaration(item);
+            if (annotationDecl) {
+                (item as Mutable<Decorator>).annotationDeclaration = annotationDecl;
+            }
+        });
+
+        if (canHaveIllegalDecorators(node) && some(node.illegalDecorators, isAnnotation)) {
+            checkAnnotations(node.illegalDecorators);
+        }
+
         if (canHaveIllegalDecorators(node) && some(node.illegalDecorators) && !isArkTsDecorator(node, compilerOptions)) {
             if (isSendableFunctionOrType(node)) {
                 return false;
             }
-            return grammarErrorOnFirstToken(node, Diagnostics.Decorators_are_not_valid_here);
+            const firstIllgealDecorator = find(node.illegalDecorators, isDecorator);
+            if (firstIllgealDecorator) {
+                return grammarErrorOnFirstToken(firstIllgealDecorator, Diagnostics.Decorators_are_not_valid_here);
+            }
         }
         if (!canHaveDecorators(node) || !hasDecorators(node) && !(isFunctionDeclaration(node) && !isArkTsDecorator(node, compilerOptions))) {
             return false;
         }
+
         const decorators = getAllDecorators(node);
         if (getSourceFileOfNode(node).scriptKind === ScriptKind.ETS) {
             if (isTokenInsideBuilder(decorators, compilerOptions) && !isConstructorDeclaration(node)) {
@@ -47324,17 +47422,6 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
             //     diagnostics.add(createFileDiagnostic(sourceFile, span.start, span.length, Diagnostics.Decorator_name_must_be_one_of_ETS_Components));
             //     return true;
             // }
-        }
-
-        if (isMethodDeclaration(node) && hasSyntacticModifier(node, ModifierFlags.Abstract)) {
-            for (const decorator of decorators) {
-                const annotatedDecl = decorator.parent;
-                if (getAnnotationDeclaration(decorator)) {
-                    const nodeStr = getTextOfNode(annotatedDecl, /*includeTrivia*/ false);
-                    error(decorator, Diagnostics.Annotation_have_to_be_applied_only_for_non_abstract_class_declarations_and_method_declarations_in_non_abstract_classes_got_Colon_0, nodeStr);
-                    continue;
-                }
-            }
         }
 
         if (!nodeCanBeDecorated(node, node.parent, node.parent.parent, compilerOptions)) {

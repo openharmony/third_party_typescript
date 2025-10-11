@@ -1381,6 +1381,7 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
 
         // The following properties are used only to report grammar errors
         node.initializer = undefined;
+        node.illegalDecorators = undefined;
         return node;
     }
 
@@ -1404,6 +1405,7 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         if (updated !== original) {
             // copy children used only for error reporting
             updated.initializer = original.initializer;
+            updated.illegalDecorators = original.illegalDecorators;
         }
         return update(updated, original);
     }
@@ -1507,6 +1509,9 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         );
         node.questionToken = questionToken;
         node.transformFlags = TransformFlags.ContainsTypeScript;
+
+        // The following properties are used only to report grammar errors
+        node.illegalDecorators = undefined;
         return node;
     }
 
@@ -1526,8 +1531,16 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
             || node.typeParameters !== typeParameters
             || node.parameters !== parameters
             || node.type !== type
-            ? finishUpdateBaseSignatureDeclaration(createMethodSignature(modifiers, name, questionToken, typeParameters, parameters, type), node)
+            ? finishUpdateMethodSignature(createMethodSignature(modifiers, name, questionToken, typeParameters, parameters, type), node)
             : node;
+    }
+
+    function finishUpdateMethodSignature(updated: Mutable<MethodSignature>, original: MethodSignature) {
+        if (updated !== original) {
+            // copy children used for quick info
+            updated.illegalDecorators = original.illegalDecorators;
+        }
+        return finishUpdateBaseSignatureDeclaration(updated, original);
     }
 
     // @api
@@ -1600,7 +1613,7 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
             : node;
     }
 
-    function finishUpdateMethodDeclaration(updated: Mutable<MethodDeclaration>, original: MethodDeclaration) {
+    function finishUpdateMethodDeclaration(updated: Mutable<MethodDeclaration>, original: MethodDeclaration): MethodDeclaration {
         if (updated !== original) {
             updated.exclamationToken = original.exclamationToken;
         }

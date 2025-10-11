@@ -1,0 +1,17 @@
+tests/cases/conformance/annotations/B.ets(3,1): error TS28026: Annotation cannot be applied for annotation declaration.
+
+
+==== tests/cases/conformance/annotations/A.d.ets (0 errors) ====
+    export @interface Available {
+        minApiVersion: string = "1";
+    }
+    
+==== tests/cases/conformance/annotations/B.ets (1 errors) ====
+    import { Available } from "./A";
+    
+    @Available({minApiVersion: 'OpenHarmony 20'})
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+!!! error TS28026: Annotation cannot be applied for annotation declaration.
+    export @interface Anno {
+        a: number = 1;
+    }

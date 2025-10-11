@@ -1,5 +1,5 @@
 //@etsAnnotationsEnable: true
 @Anno
 @interface Anno {
-    a: number
+    a: number = 1;
 }

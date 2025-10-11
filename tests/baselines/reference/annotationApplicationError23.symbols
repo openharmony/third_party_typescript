@@ -1,0 +1,20 @@
+=== tests/cases/conformance/annotations/A.d.ets ===
+export @interface Available {
+>Available : Symbol(Available, Decl(A.d.ets, 0, 0))
+
+    minApiVersion: string = "1";
+>minApiVersion : Symbol(Available.minApiVersion, Decl(A.d.ets, 0, 29))
+}
+
+=== tests/cases/conformance/annotations/B.ets ===
+import { Available } from "./A";
+>Available : Symbol(Available, Decl(B.ets, 0, 8))
+
+@Available({minApiVersion: 'OpenHarmony 20'})
+export let a1: number = 1;
+>a1 : Symbol(a1, Decl(B.ets, 3, 10))
+
+@Available({minApiVersion: 'OpenHarmony 20'})
+export const a2: number = 1;
+>a2 : Symbol(a2, Decl(B.ets, 6, 12))
+

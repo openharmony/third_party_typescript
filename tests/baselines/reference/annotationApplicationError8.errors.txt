@@ -1,6 +1,6 @@
-tests/cases/conformance/annotations/annotationApplicationError8.ets(8,5): error TS28022: Annotation have to be applied for classes or methods only, got: '@Anno
+tests/cases/conformance/annotations/annotationApplicationError8.ets(8,5): error TS28022: Annotation have to be applied for classes or methods in classes only, got: '@Anno
     public a: number'.
-tests/cases/conformance/annotations/annotationApplicationError8.ets(11,16): error TS28022: Annotation have to be applied for classes or methods only, got: '@Anno a: number'.
+tests/cases/conformance/annotations/annotationApplicationError8.ets(11,16): error TS28022: Annotation have to be applied for classes or methods in classes only, got: '@Anno a: number'.
 tests/cases/conformance/annotations/annotationApplicationError8.ets(13,5): error TS28042: Annotation cannot be applied for getter or setter, got: '@Anno
     get prop(): number { return 0}'.
 tests/cases/conformance/annotations/annotationApplicationError8.ets(16,5): error TS28042: Annotation cannot be applied for getter or setter, got: '@Anno
@@ -17,13 +17,13 @@ tests/cases/conformance/annotations/annotationApplicationError8.ets(16,5): error
     class C {
         @Anno
         ~~~~~
-!!! error TS28022: Annotation have to be applied for classes or methods only, got: '@Anno
+!!! error TS28022: Annotation have to be applied for classes or methods in classes only, got: '@Anno
 !!! error TS28022:     public a: number'.
         public a: number
     
         public foo(@Anno a: number) {}
                    ~~~~~
-!!! error TS28022: Annotation have to be applied for classes or methods only, got: '@Anno a: number'.
+!!! error TS28022: Annotation have to be applied for classes or methods in classes only, got: '@Anno a: number'.
     
         @Anno
         ~~~~~

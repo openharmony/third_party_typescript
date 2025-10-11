@@ -1261,6 +1261,7 @@ export type HasDecorators =
     | ClassDeclaration
     | StructDeclaration
     | FunctionDeclaration
+    | AnnotationDeclaration
     ;
 
 // NOTE: Changing the following list requires changes to:
@@ -1283,6 +1284,8 @@ export type HasIllegalDecorators =
     | NamespaceExportDeclaration
     | ExportDeclaration
     | ExportAssignment
+    | PropertySignature
+    | MethodSignature
     ;
 
 // NOTE: Changing the following list requires changes to:
@@ -1681,6 +1684,7 @@ export interface PropertySignature extends TypeElement, JSDocContainer {
 
     // The following properties are used only to report grammar errors
     /** @internal */ readonly initializer?: Expression | undefined; // A property signature cannot have an initializer
+    /** @internal */ readonly illegalDecorators?: NodeArray<Decorator> | undefined; // A property signature cannot have decorators
 }
 
 export interface PropertyDeclaration extends ClassElement, JSDocContainer {
@@ -1867,6 +1871,9 @@ export interface MethodSignature extends SignatureDeclarationBase, TypeElement {
     readonly parent: ObjectTypeDeclaration;
     readonly modifiers?: NodeArray<Modifier>;
     readonly name: PropertyName;
+
+    // The following properties are used only to report grammar errors
+    /** @internal */ readonly illegalDecorators?: NodeArray<Decorator> | undefined; // A method signature cannot have decorators
 }
 
 // Note that a MethodDeclaration is considered both a ClassElement and an ObjectLiteralElement.
@@ -4742,11 +4749,11 @@ export interface TypeCheckerHost extends ModuleSpecifierResolutionHost {
 
     readonly redirectTargetsMap: RedirectTargetsMap;
 
-        getJsDocNodeCheckedConfig?(fileCheckedInfo: FileCheckModuleInfo, symbolSourceFilePath: string): JsDocNodeCheckConfig;
-        getJsDocNodeConditionCheckedResult?(fileCheckedInfo: FileCheckModuleInfo, jsDocTagInfos: JsDocTagInfo[], jsDocs?: JSDoc[]): ConditionCheckResult;
-        getFileCheckedModuleInfo?(containFilePath: string): FileCheckModuleInfo;
-        isStaticSourceFile?(filePath: string): boolean;
-    }
+    getJsDocNodeCheckedConfig?(fileCheckedInfo: FileCheckModuleInfo, symbolSourceFilePath: string): JsDocNodeCheckConfig;
+    getJsDocNodeConditionCheckedResult?(fileCheckedInfo: FileCheckModuleInfo, jsDocTagInfos: JsDocTagInfo[], jsDocs?: JSDoc[]): ConditionCheckResult;
+    getFileCheckedModuleInfo?(containFilePath: string): FileCheckModuleInfo;
+    isStaticSourceFile?(filePath: string): boolean;
+}
 
 export interface TypeChecker {
     getTypeOfSymbolAtLocation(symbol: Symbol, node: Node): Type;
@@ -5464,6 +5471,7 @@ export interface EmitResolver {
     getAnnotationPropertyEvaluatedInitializer(node: AnnotationPropertyDeclaration): Expression | undefined;
     getAnnotationPropertyInferredType(node: AnnotationPropertyDeclaration): TypeNode | undefined;
     isReferredToAnnotation(node: ImportSpecifier | ExportSpecifier | ExportAssignment): boolean | undefined;
+    isAvailableAnnotation(node: Annotation): boolean;
 }
 
 export const enum SymbolFlags {
@@ -5798,6 +5806,7 @@ export interface NodeLinks {
     annotationPropertyInferredType?: TypeNode; // Cached inferred type of AnnotationPropertyDeclaration
     annotationDeclarationUniquePrefix?: string; // Cached a prefix of AnnotationDeclaration name
     exportOrImportRefersToAnnotation?: boolean; // Indicates that ImportSpecifier, ExportSpecifier or ExportAssignment are referred to AnnotationDeclaration.
+    availableAnnotation?: boolean; // Cached whether an annotation is '@Available' annotation declared in SDK files
 }
 
 export const enum TypeFlags {

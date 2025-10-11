@@ -7762,7 +7762,7 @@
         "category": "Error",
         "code": 28021
     },
-    "Annotation have to be applied for classes or methods only, got: '{0}'.": {
+    "Annotation have to be applied for classes or methods in classes only, got: '{0}'.": {
         "category": "Error",
         "code": 28022
     },
@@ -7845,5 +7845,9 @@
     "Annotation cannot be applied for getter or setter, got: '{0}'.": {
         "category": "Error",
         "code": 28042
+    },
+    "@Available annotation are not valid here": {
+        "category": "Error",
+        "code": 28043
     }
 }

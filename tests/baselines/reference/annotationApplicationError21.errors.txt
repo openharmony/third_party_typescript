@@ -1,0 +1,60 @@
+tests/cases/conformance/annotations/B.ets(5,5): error TS28022: Annotation have to be applied for classes or methods in classes only, got: '@Available({minApiVersion: 'OpenHarmony 20'})
+    prop1: string = "1";'.
+tests/cases/conformance/annotations/B.ets(14,5): error TS28042: Annotation cannot be applied for getter or setter, got: '@Available({minApiVersion: 'OpenHarmony 20'})
+    get prop(): string {
+        return this.prop1;
+    }'.
+tests/cases/conformance/annotations/B.ets(15,9): error TS1056: Accessors are only available when targeting ECMAScript 5 and higher.
+tests/cases/conformance/annotations/B.ets(19,5): error TS28042: Annotation cannot be applied for getter or setter, got: '@Available({minApiVersion: 'OpenHarmony 20'})
+    set prop(value: string) {
+        this.prop1 = value;
+    }'.
+tests/cases/conformance/annotations/B.ets(20,9): error TS1056: Accessors are only available when targeting ECMAScript 5 and higher.
+
+
+==== tests/cases/conformance/annotations/A.d.ets (0 errors) ====
+    export @interface Available {
+        minApiVersion: string = "1";
+    }
+    
+==== tests/cases/conformance/annotations/B.ets (5 errors) ====
+    import { Available } from "./A";
+    
+    @Available({minApiVersion: 'OpenHarmony 20'})
+    export class C {
+        @Available({minApiVersion: 'OpenHarmony 20'})
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+!!! error TS28022: Annotation have to be applied for classes or methods in classes only, got: '@Available({minApiVersion: 'OpenHarmony 20'})
+!!! error TS28022:     prop1: string = "1";'.
+        prop1: string = "1";
+    
+        @Available({minApiVersion: 'OpenHarmony 20'})
+        func1(): void {};
+    
+        @Available({minApiVersion: 'OpenHarmony 20'})
+        static sFunc1(): void {};
+    
+        @Available({minApiVersion: 'OpenHarmony 20'})
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+!!! error TS28042: Annotation cannot be applied for getter or setter, got: '@Available({minApiVersion: 'OpenHarmony 20'})
+!!! error TS28042:     get prop(): string {
+!!! error TS28042:         return this.prop1;
+!!! error TS28042:     }'.
+        get prop(): string {
+            ~~~~
+!!! error TS1056: Accessors are only available when targeting ECMAScript 5 and higher.
+            return this.prop1;
+        }
+    
+        @Available({minApiVersion: 'OpenHarmony 20'})
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+!!! error TS28042: Annotation cannot be applied for getter or setter, got: '@Available({minApiVersion: 'OpenHarmony 20'})
+!!! error TS28042:     set prop(value: string) {
+!!! error TS28042:         this.prop1 = value;
+!!! error TS28042:     }'.
+        set prop(value: string) {
+            ~~~~
+!!! error TS1056: Accessors are only available when targeting ECMAScript 5 and higher.
+            this.prop1 = value;
+        }
+    }

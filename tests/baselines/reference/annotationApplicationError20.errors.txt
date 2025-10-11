@@ -1,4 +1,3 @@
-error TS-1: Pre-emit (4) and post-emit (2) diagnostic counts do not match! This can indicate that a semantic _error_ was added by the emit resolver - such an error may not be reflected on the command line or in the editor, but may be captured in a baseline here!
 tests/cases/conformance/annotations/annotationApplicationError20.ets(6,1): error TS28021: Annotation have to be applied only for non-abstract class declarations and method declarations in non-abstract classes, got: '@Anno
 @Anno
 abstract class C {
@@ -13,17 +12,15 @@ abstract class C {
     @Anno
     abstract foo();
 }'.
-
-
-!!! error TS-1: Pre-emit (4) and post-emit (2) diagnostic counts do not match! This can indicate that a semantic _error_ was added by the emit resolver - such an error may not be reflected on the command line or in the editor, but may be captured in a baseline here!
-!!! related TS-1: The excess diagnostics are:
-!!! related TS28021 tests/cases/conformance/annotations/annotationApplicationError20.ets:9:5: Annotation have to be applied only for non-abstract class declarations and method declarations in non-abstract classes, got: '@Anno
+tests/cases/conformance/annotations/annotationApplicationError20.ets(9,5): error TS28021: Annotation have to be applied only for non-abstract class declarations and method declarations in non-abstract classes, got: '@Anno
     @Anno
     abstract foo();'.
-!!! related TS28021 tests/cases/conformance/annotations/annotationApplicationError20.ets:10:5: Annotation have to be applied only for non-abstract class declarations and method declarations in non-abstract classes, got: '@Anno
+tests/cases/conformance/annotations/annotationApplicationError20.ets(10,5): error TS28021: Annotation have to be applied only for non-abstract class declarations and method declarations in non-abstract classes, got: '@Anno
     @Anno
     abstract foo();'.
-==== tests/cases/conformance/annotations/annotationApplicationError20.ets (2 errors) ====
+
+
+==== tests/cases/conformance/annotations/annotationApplicationError20.ets (4 errors) ====
     @interface Anno {
         a: number = 10
         b: string[] = []
@@ -49,7 +46,15 @@ abstract class C {
 !!! error TS28021: }'.
     abstract class C {
         @Anno
+        ~~~~~
+!!! error TS28021: Annotation have to be applied only for non-abstract class declarations and method declarations in non-abstract classes, got: '@Anno
+!!! error TS28021:     @Anno
+!!! error TS28021:     abstract foo();'.
         @Anno
+        ~~~~~
+!!! error TS28021: Annotation have to be applied only for non-abstract class declarations and method declarations in non-abstract classes, got: '@Anno
+!!! error TS28021:     @Anno
+!!! error TS28021:     abstract foo();'.
         abstract foo();
     }
     

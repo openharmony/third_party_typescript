@@ -1,0 +1,27 @@
+=== tests/cases/conformance/annotations/A.d.ets ===
+export @interface Available {
+    minApiVersion: string = "1";
+>minApiVersion : string
+}
+
+=== tests/cases/conformance/annotations/B.ets ===
+import { Available } from "./A";
+>Available : typeof Available
+
+@Available({minApiVersion: 'OpenHarmony 20'})
+>Available({minApiVersion: 'OpenHarmony 20'}) : void
+>Available : typeof Available
+>{minApiVersion: 'OpenHarmony 20'} : { minApiVersion: string; }
+>minApiVersion : string
+>'OpenHarmony 20' : "OpenHarmony 20"
+
+export namespace A1 {}
+
+@Available({minApiVersion: 'OpenHarmony 20'})
+>Available({minApiVersion: 'OpenHarmony 20'}) : void
+>Available : typeof Available
+>{minApiVersion: 'OpenHarmony 20'} : { minApiVersion: string; }
+>minApiVersion : string
+>'OpenHarmony 20' : "OpenHarmony 20"
+
+export module A2 {}

@@ -12,7 +12,7 @@ import {
     getOriginalNode, getParseTreeNode, getProperties, getStrictOptionValue, getTextOfNode, hasDecorators,
     hasStaticModifier, hasSyntacticModifier, HeritageClause, Identifier, idText, ImportClause, ImportDeclaration,
     ImportEqualsDeclaration, ImportsNotUsedAsValues, ImportSpecifier, InitializedVariableDeclaration,
-    insertStatementsAfterStandardPrologue, isAccessExpression, isArray, isAssertionExpression, isBindingName,
+    insertStatementsAfterStandardPrologue, isAccessExpression, isAnnotation, isArray, isAssertionExpression, isBindingName,
     isBindingPattern, isClassElement, isClassLike, isComputedPropertyName, isDecorator, isDecoratorOrAnnotation, isElementAccessExpression,
     isEnumConst, isExportSpecifier, isExpression, isExternalModule, isExternalModuleImportEqualsDeclaration,
     isGeneratedIdentifier, isHeritageClause, isIdentifier, isImportClause, isImportDeclaration, isImportSpecifier, isInJSFile,
@@ -22,7 +22,7 @@ import {
     isPropertyAccessExpression, isPropertyName, isShorthandPropertyAssignment, isSimpleInlineableExpression,
     isSourceFile, isStatement, JsxOpeningElement, JsxSelfClosingElement, lastOrUndefined, LeftHandSideExpression, map,
     Map, mapDefined, MethodDeclaration, ModifierFlags, ModifierLike, modifierToFlag, ModuleBlock, ModuleDeclaration,
-    ModuleKind, moveRangePastDecorators, moveRangePastModifiers, moveRangePos, NamedExportBindings, NamedExports,
+    ModuleKind, moveRangePastDecorators, moveRangePastModifiers, moveRangePos, Mutable, NamedExportBindings, NamedExports,
     NamedImportBindings, NamespaceExport, NewExpression, Node, NodeFlags, nodeIsMissing, NonNullExpression,
     ObjectLiteralElementLike, ObjectLiteralExpression, OuterExpressionKinds, ParameterDeclaration,
     parameterIsThisKeyword, ParameterPropertyDeclaration, ParenthesizedExpression, PropertyAccessExpression,
@@ -1310,6 +1310,9 @@ export function transformTypeScript(context: TransformationContext) {
             /*type*/ undefined,
             visitFunctionBody(node.body, visitor, context) || factory.createBlock([])
         );
+        (updated as Mutable<FunctionDeclaration>).illegalDecorators = factory.createNodeArray(filter(node.illegalDecorators, (decorator) => {
+            return !(isAnnotation(decorator));
+        }));
         if (isExportOfNamespace(node)) {
             const statements: Statement[] = [updated];
             addExportMemberAssignment(statements, node);
@@ -1374,6 +1377,9 @@ export function transformTypeScript(context: TransformationContext) {
     }
 
     function visitVariableStatement(node: VariableStatement): Statement | undefined {
+        (node as Mutable<VariableStatement>).illegalDecorators = factory.createNodeArray(filter(node.illegalDecorators, (decorator) => {
+            return !(isAnnotation(decorator));
+        }));
         if (isExportOfNamespace(node)) {
             const variables = getInitializedVariables(node.declarationList);
             if (variables.length === 0) {
@@ -1537,6 +1543,10 @@ export function transformTypeScript(context: TransformationContext) {
         if (!shouldEmitEnumDeclaration(node)) {
             return factory.createNotEmittedStatement(node);
         }
+
+        (node as Mutable<EnumDeclaration>).illegalDecorators = factory.createNodeArray(filter(node.illegalDecorators, (decorator) => {
+            return !(isAnnotation(decorator));
+        }));
 
         const statements: Statement[] = [];
 
@@ -1836,6 +1846,10 @@ export function transformTypeScript(context: TransformationContext) {
         if (!shouldEmitModuleDeclaration(node)) {
             return factory.createNotEmittedStatement(node);
         }
+
+        (node as Mutable<ModuleDeclaration>).illegalDecorators = factory.createNodeArray(filter(node.illegalDecorators, (decorator) => {
+            return !(isAnnotation(decorator));
+        }));
 
         Debug.assertNode(node.name, isIdentifier, "A TypeScript namespace should have an Identifier name.");
         enableSubstitutionForNamespaceExports();

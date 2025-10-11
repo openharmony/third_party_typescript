@@ -1,0 +1,68 @@
+=== tests/cases/conformance/annotations/A.d.ets ===
+export @interface Available {
+>Available : Symbol(Available, Decl(A.d.ets, 0, 0))
+
+    minApiVersion: string = "1";
+>minApiVersion : Symbol(Available.minApiVersion, Decl(A.d.ets, 0, 29))
+}
+
+=== tests/cases/conformance/annotations/B.ets ===
+import { Available } from "./A";
+>Available : Symbol(Available, Decl(B.ets, 0, 8))
+
+@Available({minApiVersion: 'OpenHarmony 20'})
+>Available : Symbol(Available, Decl(B.ets, 0, 8))
+>minApiVersion : Symbol(minApiVersion, Decl(B.ets, 2, 12))
+
+export class C {
+>C : Symbol(C, Decl(B.ets, 0, 32))
+
+    @Available({minApiVersion: 'OpenHarmony 20'})
+>Available : Symbol(Available, Decl(B.ets, 0, 8))
+>minApiVersion : Symbol(minApiVersion, Decl(B.ets, 4, 16))
+
+    prop1: string = "1";
+>prop1 : Symbol(C.prop1, Decl(B.ets, 3, 16))
+
+    @Available({minApiVersion: 'OpenHarmony 20'})
+>Available : Symbol(Available, Decl(B.ets, 0, 8))
+>minApiVersion : Symbol(minApiVersion, Decl(B.ets, 7, 16))
+
+    func1(): void {};
+>func1 : Symbol(C.func1, Decl(B.ets, 5, 24))
+
+    @Available({minApiVersion: 'OpenHarmony 20'})
+>Available : Symbol(Available, Decl(B.ets, 0, 8))
+>minApiVersion : Symbol(minApiVersion, Decl(B.ets, 10, 16))
+
+    static sFunc1(): void {};
+>sFunc1 : Symbol(C.sFunc1, Decl(B.ets, 8, 21))
+
+    @Available({minApiVersion: 'OpenHarmony 20'})
+>Available : Symbol(Available, Decl(B.ets, 0, 8))
+>minApiVersion : Symbol(minApiVersion, Decl(B.ets, 13, 16))
+
+    get prop(): string {
+>prop : Symbol(C.prop, Decl(B.ets, 11, 29), Decl(B.ets, 16, 5))
+
+        return this.prop1;
+>this.prop1 : Symbol(C.prop1, Decl(B.ets, 3, 16))
+>this : Symbol(C, Decl(B.ets, 0, 32))
+>prop1 : Symbol(C.prop1, Decl(B.ets, 3, 16))
+    }
+
+    @Available({minApiVersion: 'OpenHarmony 20'})
+>Available : Symbol(Available, Decl(B.ets, 0, 8))
+>minApiVersion : Symbol(minApiVersion, Decl(B.ets, 18, 16))
+
+    set prop(value: string) {
+>prop : Symbol(C.prop, Decl(B.ets, 11, 29), Decl(B.ets, 16, 5))
+>value : Symbol(value, Decl(B.ets, 19, 13))
+
+        this.prop1 = value;
+>this.prop1 : Symbol(C.prop1, Decl(B.ets, 3, 16))
+>this : Symbol(C, Decl(B.ets, 0, 32))
+>prop1 : Symbol(C.prop1, Decl(B.ets, 3, 16))
+>value : Symbol(value, Decl(B.ets, 19, 13))
+    }
+}
