@@ -45,7 +45,8 @@ import { AutofixInfo, FaultID, ProblemInfo } from "../_namespaces/ts.ArkTSLinter
 
 export const PROPERTY_HAS_NO_INITIALIZER_ERROR_CODE = 2564;
 
-export const NON_INITIALIZABLE_PROPERTY_DECORATORS = ['Link', 'Consume', 'ObjectLink', 'Prop', 'BuilderParam', 'Param', 'Event', 'Require'];
+export const NON_INITIALIZABLE_PROPERTY_DECORATORS = ['Link', 'Consume', 'ObjectLink', 'Prop', 'BuilderParam',
+  'Param', 'Event', 'Require', 'Env'];
 
 export const NON_INITIALIZABLE_PROPERTY_CLASS_DECORATORS = ['CustomDialog']
 
