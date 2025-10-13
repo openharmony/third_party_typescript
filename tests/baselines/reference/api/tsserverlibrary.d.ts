@@ -7680,6 +7680,7 @@ declare namespace ts {
         checkValidCallback?: (jsDocTag: JSDocTag, config: JsDocNodeCheckConfigItem) => boolean;
         checkJsDocSpecialValidCallback?: (jsDocTags: readonly JSDocTag[], config: JsDocNodeCheckConfigItem, node?: Node) => boolean;
         checkConditionValidCallback?: (node: CallExpression, specifyFuncName: string, importSymbol: string, jsDocs?: JSDoc[]) => boolean;
+        checkHvigorLoggerValidCallback?: (config: JsDocNodeCheckConfigItem, diagnostic: DiagnosticWithLocation) => void;
     }
     interface TagCheckParam {
         needCheck: boolean;
