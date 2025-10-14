@@ -371,6 +371,7 @@ export interface LanguageServiceHost extends GetEffectiveTypeRootsHost, MinimalR
     clearProps?(): void;
     clearFileCache?(): void;
     isStaticSourceFile?(fileName: string): boolean;
+    useDeclarationFileSignature?: boolean;
 }
 
 /** @internal */

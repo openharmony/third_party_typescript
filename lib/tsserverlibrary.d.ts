@@ -10550,6 +10550,7 @@ declare namespace ts {
         clearProps?(): void;
         clearFileCache?(): void;
         isStaticSourceFile?(fileName: string): boolean;
+        useDeclarationFileSignature?: boolean;
     }
     type WithMetadata<T> = T & {
         metadata?: unknown;

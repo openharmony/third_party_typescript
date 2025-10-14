@@ -1699,7 +1699,9 @@ export function createLanguageService(
             getJsDocNodeCheckedConfig: maybeBind(host, host.getJsDocNodeCheckedConfig),
             getJsDocNodeConditionCheckedResult: maybeBind(host, host.getJsDocNodeConditionCheckedResult),
             getFileCheckedModuleInfo: maybeBind(host, host.getFileCheckedModuleInfo),
-            isStaticSourceFile: host.isStaticSourceFile
+            isStaticSourceFile: host.isStaticSourceFile,
+            // The option of whether to calculate the hash values of all declaration files for all files.
+            disableUseFileVersionAsSignature: host.useDeclarationFileSignature,
         };
 
         const originalGetSourceFile = compilerHost.getSourceFile;
