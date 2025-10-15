@@ -14,6 +14,8 @@
 */
 
 import taskpool from '../common-lib/@ohos.taskpool';
+import { dEtsFoo } from '../common-lib/concurrent-function-ets';
+import { dTsFoo } from '../common-lib/concurrent-function-ts';
 
 @Concurrent
 function funB() {
@@ -38,3 +40,6 @@ taskGroup.addTask(funB, 100);
 let taskB1: taskpool.Task = new taskpool.Task('taskName', funB, 'this is task');
 
 taskpool.execute(taskB1);
+
+taskpool.execute(dEtsFoo, 100);
+taskpool.execute(dTsFoo, 100);

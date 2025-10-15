@@ -7398,6 +7398,7 @@ declare namespace ts {
         skipOhModulesLint?: boolean;
         mixCompile?: boolean;
         isCompileJsHar?: boolean;
+        moduleRootPath?: string;
     }
     interface EtsOptions {
         render: {
