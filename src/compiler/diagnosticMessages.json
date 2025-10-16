@@ -7841,5 +7841,9 @@
     "Annotations are not supported in Hars compiled to JavaScript files.": {
         "category": "Error",
         "code": 28041
+    },
+    "Annotation cannot be applied for getter or setter, got: '{0}'.": {
+        "category": "Error",
+        "code": 28042
     }
 }
