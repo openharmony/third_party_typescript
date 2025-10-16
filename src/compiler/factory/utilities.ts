@@ -961,7 +961,6 @@ export function canHaveIllegalTypeParameters(node: Node): node is HasIllegalType
         || kind === SyntaxKind.SetAccessor;
 }
 
-/** @internal */
 export function canHaveIllegalDecorators(node: Node): node is HasIllegalDecorators {
     const kind = node.kind;
     return kind === SyntaxKind.PropertyAssignment
