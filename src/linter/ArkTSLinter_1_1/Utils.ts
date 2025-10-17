@@ -2534,13 +2534,15 @@ export function isDeclarationSymbol(sym: Symbol | undefined): boolean {
 }
 
 export function checkTaskpoolFunction(arg: Expression, argType: Type, argSym: Symbol| undefined): boolean {
+  const symbol = trueSymbolAtLocation(arg);
+  const decl = getDeclaration(symbol);
+  if (isDeclarationSymbol(argSym)) {
+    return !!decl && isObjectConstructor(decl);
+  }
   if (isFunctionSymbol(argSym)) {
     return !isConcurrentFunction(argType);
   }
-
-  const symbol = trueSymbolAtLocation(arg);
-  const decl = getDeclaration(symbol);
-  return !!decl && (isMethodDeclaration(decl) || isClassDeclaration(decl) || isObjectConstructor(decl));
+  return !!decl && (isMethodDeclaration(decl) || isClassDeclaration(decl));
 }
 
 function isObjectConstructor(decl: Declaration): boolean {
@@ -2551,7 +2553,7 @@ function isObjectConstructor(decl: Declaration): boolean {
     decl.parent.name.getText() === 'Object'
   ) {
     const sourcefile = decl.getSourceFile();
-    return !!sourcefile && sourcefile.fileName.endsWith('lib.es5.d.ts');
+    return !!sourcefile && getBaseFileName(sourcefile.fileName).toLowerCase() === 'lib.es5.d.ts';
   }
   return false;
 }
