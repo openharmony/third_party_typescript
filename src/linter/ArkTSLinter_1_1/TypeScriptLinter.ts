@@ -568,6 +568,67 @@ readonly handlersMap = new Map([
     ) {
       this.incrementCounters(node, FaultID.ObjectLiteralNoContextType);
     }
+    this.handleUnionTypeObjectLiteral(objectLiteralType, objectLiteralExpr);
+  }
+
+  private handleUnionTypeObjectLiteral(lhsType: ts.Type | undefined, rhsExpr: ts.ObjectLiteralExpression): void {
+    if (!TypeScriptLinter.tsTypeChecker.isStaticSourceFile) {
+      return;
+    }
+
+    if (lhsType === undefined) {
+      return;
+    }
+
+    lhsType = getNonNullableType(lhsType);
+    if (!lhsType.isUnion()) {
+      return;
+    }
+
+    const rhsType = TypeScriptLinter.tsTypeChecker.getTypeAtLocation(rhsExpr);
+    let assignableTypesCount: number = 0;
+    let typeInArkts2: boolean = false;
+    for (const compType of lhsType.types) {
+      const comTypeSorceFile = this.getSourceFileFromType(compType);
+      if (TypeScriptLinter.tsTypeChecker.isTypeAssignableTo(rhsType, compType) 
+        && isObjectLiteralAssignable(compType, rhsExpr)) {
+        assignableTypesCount = assignableTypesCount + 1;
+        if (TypeScriptLinter.tsTypeChecker.isStaticSourceFile(comTypeSorceFile)) {
+          typeInArkts2 = true;
+        }
+      }
+    }
+
+    if (assignableTypesCount >= 2 && typeInArkts2) {
+      this.incrementCounters(rhsExpr, FaultID.ObjectLiteralAmbiguity);
+    }
+  }
+
+  private getSourceFileFromType(type: ts.Type): SourceFile | undefined {
+    const symbol = type.getSymbol();
+    if (symbol) {
+      const declaration = symbol.valueDeclaration || symbol.declarations?.[0];
+      if (declaration && declaration.getSourceFile) {
+        return declaration.getSourceFile();
+      }
+    }
+    
+    const constructSignatures = type.getConstructSignatures();
+    if (constructSignatures.length > 0) {
+      const declaration = constructSignatures[0].declaration;
+      if (declaration && declaration.getSourceFile) {
+        return declaration.getSourceFile();
+      }
+    }
+    
+    const callSignatures = type.getCallSignatures();
+    if (callSignatures.length > 0) {
+      const declaration = callSignatures[0].declaration;
+      if (declaration && declaration.getSourceFile) {
+        return declaration.getSourceFile();
+      }
+    }
+    return undefined;
   }
 
   private handleArrayLiteralExpression(node: Node): void {
