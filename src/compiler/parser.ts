@@ -175,6 +175,7 @@ import {
     isNonNullExpression,
     isPrivateIdentifier,
     isPropertyAccessExpression,
+    isPropertyDeclaration,
     isSetAccessorDeclaration,
     isStringOrNumericLiteralLike,
     isTaggedTemplateExpression,
@@ -8519,7 +8520,9 @@ namespace Parser {
             list = append(list, modifier);
         }
         if (shouldAddReadonly && !hasReadonly) {
-            const readonlyModifier = finishVirtualNode(factory.createToken(SyntaxKind.ReadonlyKeyword));
+            const readonlyModifier = list ?
+                finishVirtualNode(factory.createToken(SyntaxKind.ReadonlyKeyword)) :
+                finishVirtualNode(factory.createToken(SyntaxKind.ReadonlyKeyword), pos, scanner.getTokenPos());
             list = append(list, readonlyModifier);
         }
         return list && createNodeArray(list, pos);
@@ -8552,6 +8555,11 @@ namespace Parser {
         const shouldAddReadonly = inStructContext() &&
             (hasParamAndNoOnceDecorator(decorators) || hasEnvDecorator(decorators));
         const modifiers = parseModifiers(/*permitInvalidConstAsModifier*/ true, /*stopOnStartOfClassStaticBlock*/ true, shouldAddReadonly);
+        let readonlyEndPos: number | undefined = undefined;
+        if (modifiers?.length === 1 && modifiers[0].kind === SyntaxKind.ReadonlyKeyword) {
+            readonlyEndPos = modifiers[0].end;
+        }
+        const needAddReadonlyBeforeNextToken: boolean = shouldAddReadonly && (readonlyEndPos !== undefined);
         if (token() === SyntaxKind.StaticKeyword && lookAhead(nextTokenIsOpenBrace)) {
             return parseClassStaticBlockDeclaration(pos, hasJSDoc, decorators, modifiers);
         }
@@ -8590,7 +8598,11 @@ namespace Parser {
                 return doInsideOfContext(NodeFlags.Ambient, () => parsePropertyOrMethodDeclaration(pos, hasJSDoc, decorators, modifiers));
             }
             else {
-                return parsePropertyOrMethodDeclaration(pos, hasJSDoc, decorators, modifiers);
+                let propOrMethodDeclaration: PropertyDeclaration | MethodDeclaration = parsePropertyOrMethodDeclaration(pos, hasJSDoc, decorators, modifiers);
+                if (isPropertyDeclaration(propOrMethodDeclaration) && needAddReadonlyBeforeNextToken) {
+                    (propOrMethodDeclaration.name as Mutable<Node>).pos = readonlyEndPos!;
+                }
+                return propOrMethodDeclaration;
             }
         }
 
