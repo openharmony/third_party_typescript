@@ -1606,6 +1606,10 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
             const node = getParseTreeNode(nodeIn);
             return node ? getTypeOfNode(node) : errorType;
         },
+        getTypeAtLocationForLinter: nodeIn => {
+            const node = getParseTreeNode(nodeIn);
+            return node ? getTypeOfNode(node, true) : errorType;
+        },
         tryGetTypeAtLocationWithoutCheck: nodeIn => {
             const node = getParseTreeNode(nodeIn);
             return node ? tryGetTypeOfNodeWithoutCheck(node) : errorType;
@@ -1858,7 +1862,6 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
         clearQualifiedNameCache: () => {qualifiedNameCache && qualifiedNameCache.clear()},
         isStaticRecord: isStaticRecord,
         isStaticSourceFile: isStaticSourceFile,
-        createIntrinsicType: createIntrinsicType,
     };
 
     function getTypeArgumentsForResolvedSignature(signature: Signature): readonly Type[] | undefined {
@@ -33003,7 +33006,7 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
     }
 
     function getTypeArgumentsFromNodes(typeArgumentNodes: readonly TypeNode[], typeParameters: readonly TypeParameter[], isJs: boolean): readonly Type[] {
-        const typeArguments = typeArgumentNodes.map(getTypeOfNode);
+        const typeArguments = typeArgumentNodes.map(node => getTypeOfNode(node));
         while (typeArguments.length > typeParameters.length) {
             typeArguments.pop();
         }
@@ -45919,8 +45922,8 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
         }
     }
 
-    function getTypeOfNode(node: Node): Type {
-        if (isSourceFile(node) && !isExternalModule(node)) {
+    function getTypeOfNode(node: Node, isForLinter: boolean = false): Type {
+        if (isSourceFile(node) && (!isExternalModule(node) || isForLinter)) {
             return errorType;
         }
 
