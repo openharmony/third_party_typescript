@@ -7678,7 +7678,7 @@ declare namespace ts {
         specifyCheckConditionFuncName: string;
         tagNameShouldExisted: boolean;
         checkValidCallback?: (jsDocTag: JSDocTag, config: JsDocNodeCheckConfigItem) => boolean;
-        checkJsDocSpecialValidCallback?: (jsDocTags: readonly JSDocTag[], config: JsDocNodeCheckConfigItem, node?: Node, declaration?: Declaration) => boolean;
+        checkJsDocSpecialValidCallback?: (jsDocTags: readonly JSDocTag[], config: JsDocNodeCheckConfigItem, node?: Node) => boolean;
         checkConditionValidCallback?: (node: CallExpression, specifyFuncName: string, importSymbol: string, jsDocs?: JSDoc[]) => boolean;
         checkHvigorLoggerValidCallback?: (config: JsDocNodeCheckConfigItem, diagnostic: DiagnosticWithLocation) => void;
     }
@@ -9635,7 +9635,6 @@ declare namespace ts {
     function isJSDocUnknownTag(node: Node): node is JSDocUnknownTag;
     function isJSDocPropertyTag(node: Node): node is JSDocPropertyTag;
     function isJSDocImplementsTag(node: Node): node is JSDocImplementsTag;
-    function canHaveIllegalDecorators(node: Node): node is HasIllegalDecorators;
     function setTextRange<T extends TextRange>(range: T, location: TextRange | undefined): T;
     function canHaveModifiers(node: Node): node is HasModifiers;
     function canHaveDecorators(node: Node): node is HasDecorators;
