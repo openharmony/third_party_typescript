@@ -4830,6 +4830,7 @@ export interface TypeChecker {
     getPropertySymbolOfDestructuringAssignment(location: Identifier): Symbol | undefined;
     getTypeOfAssignmentPattern(pattern: AssignmentPattern): Type;
     getTypeAtLocation(node: Node): Type;
+    getTypeAtLocationForLinter(node: Node): Type;
     tryGetTypeAtLocationWithoutCheck(node: Node): Type;
     getTypeFromTypeNode(node: TypeNode): Type;
 
@@ -5058,7 +5059,6 @@ export interface TypeChecker {
     clearQualifiedNameCache?(): void;
     isStaticRecord?(type: Type): boolean;
     isStaticSourceFile?(sourceFile: SourceFile | undefined): boolean;
-    createIntrinsicType?(kind: TypeFlags, intrinsicName: string, objectFlags?: ObjectFlags): Type;
 }
 
 /** @internal */
