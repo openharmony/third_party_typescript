@@ -8,6 +8,7 @@ import {
     hasProperty, HostWatchDirectory, HostWatchFile, identity, insertSorted, isArray, isNumber, isString,
     JsDocNodeCheckConfig, JsDocTagInfo, Map, mapDefined, matchFiles, ModuleResolutionHost, MultiMap, noop,
     patchWriteFileEnsuringDirectory, Path, PollingInterval, ReadonlyESMap, RequireResult, Set, SortedArray, sys, toPath,
+    Annotation, AnnotationDeclaration
 } from "./_namespaces/ts";
 import { ServerHost } from "./_namespaces/ts.server";
 
@@ -879,6 +880,20 @@ export class TestServerHost implements ServerHost, FormatDiagnosticsHost, Module
             checkConfig: [],
         };
     }
+
+    isAvailableVersion(annotationNode: Annotation): ConditionCheckResult{
+        Debug.log(annotationNode.kind.toString());
+        return {
+            valid: true,
+            message: '',
+            type: DiagnosticCategory.Warning
+        };
+    };
+
+    isAvailableDeclarationValid(annotationNode: AnnotationDeclaration): boolean{
+        Debug.log(annotationNode.kind.toString());
+        return true;
+    };
 
     getFileCheckedModuleInfo?(sourceFilePath: string): FileCheckModuleInfo {
         Debug.log(sourceFilePath);

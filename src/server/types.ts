@@ -1,6 +1,6 @@
 import {
     ConditionCheckResult, DirectoryWatcherCallback, FileCheckModuleInfo, FileWatcher, FileWatcherCallback,
-    JsDocNodeCheckConfig, JsDocTagInfo, System, WatchOptions,
+    JsDocNodeCheckConfig, JsDocTagInfo, System, WatchOptions, Annotation, AnnotationDeclaration
 } from "./_namespaces/ts";
 
 export interface CompressedData {
@@ -29,4 +29,6 @@ export interface ServerHost extends System {
     getJsDocNodeCheckedConfig?(fileCheckedInfo: FileCheckModuleInfo, symbolSourceFilePath: string): JsDocNodeCheckConfig;
     getJsDocNodeConditionCheckedResult?(fileCheckedInfo: FileCheckModuleInfo, jsDocs: JsDocTagInfo[]): ConditionCheckResult;
     getFileCheckedModuleInfo?(containFilePath: string): FileCheckModuleInfo;
+    isAvailableVersion?(annotationNode: Annotation): ConditionCheckResult;
+    isAvailableDeclarationValid?(annotationNode: AnnotationDeclaration): boolean;
 }

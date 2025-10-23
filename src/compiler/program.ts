@@ -1438,6 +1438,8 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         structureIsReused,
         writeFile,
         getJsDocNodeCheckedConfig: host.getJsDocNodeCheckedConfig,
+        isAvailableVersion: host.isAvailableVersion,
+        isAvailableDeclarationValid: host.isAvailableDeclarationValid,
         getJsDocNodeConditionCheckedResult: host. getJsDocNodeConditionCheckedResult,
         getFileCheckedModuleInfo: host.getFileCheckedModuleInfo,
         releaseTypeChecker: () => { typeChecker = undefined; linterTypeChecker = undefined; },

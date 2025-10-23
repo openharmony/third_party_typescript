@@ -28,7 +28,8 @@ import {
     ResolvedTypeReferenceDirective, resolvePackageNameToPackageJson, returnFalse, returnTrue, ScriptKind, Set, some,
     sort, sortAndDeduplicate, SortedReadonlyArray, SourceFile, SourceMapper, startsWith, stripQuotes, StructureIsReused,
     SymlinkCache, TagCheckParam, ThrottledCancellationToken, timestamp, toPath, tracing, TypeAcquisition,
-    updateErrorForNoInputFiles, updateMissingFilePathsWatch, WatchDirectoryFlags, WatchOptions, WatchType,
+    updateErrorForNoInputFiles, updateMissingFilePathsWatch, WatchDirectoryFlags, WatchOptions, WatchType, Annotation,
+    AnnotationDeclaration
 } from "./_namespaces/ts";
 
 export enum ProjectKind {
@@ -363,6 +364,12 @@ export abstract class Project implements LanguageServiceHost, ModuleResolutionHo
         if (this.projectService.host.getFileCheckedModuleInfo) {
             this.getFileCheckedModuleInfo = this.projectService.host.getFileCheckedModuleInfo;;
         }
+        if (this.projectService.host.isAvailableVersion) {
+            this.isAvailableVersion = this.projectService.host.isAvailableVersion;
+        }
+        if (this.projectService.host.isAvailableDeclarationValid) {
+            this.isAvailableDeclarationValid = this.projectService.host.isAvailableDeclarationValid;
+        }
         if (this.projectService.host.getJsDocNodeCheckedConfig) {
             this.getJsDocNodeCheckedConfig = this.projectService.host.getJsDocNodeCheckedConfig;
         }
@@ -442,6 +449,20 @@ export abstract class Project implements LanguageServiceHost, ModuleResolutionHo
             checkConfig: []
         };
     }
+
+    isAvailableVersion(annotationNode: Annotation): ConditionCheckResult{
+        Debug.log(annotationNode.kind.toString());
+        return {
+            valid: true,
+            message: '',
+            type: DiagnosticCategory.Warning
+        };
+    };
+
+    isAvailableDeclarationValid(annotationNode: AnnotationDeclaration): boolean{
+        Debug.log(annotationNode.kind.toString());
+        return true;
+    };
 
     getJsDocNodeConditionCheckedResult(jsDocFileCheckedInfo: FileCheckModuleInfo, jsDocs: JsDocTagInfo[]):ConditionCheckResult {
         Debug.log(jsDocFileCheckedInfo.checkPayload);
