@@ -2280,11 +2280,10 @@ export function isRestParameter(node: ParameterDeclaration | JSDocParameterTag):
 }
 
 export class MemoryUtils {
-    private static MemoryAfterGC: number = 0;
-    private static baseMemorySize: number = 0; 
+    private static baseMemorySize: number | undefined = undefined;
     private static MIN_GC_THRESHOLD: number = 256 * 1024 * 1024; // 256MB
     private static memoryGCThreshold: number = MemoryUtils.MIN_GC_THRESHOLD;
-    public static GC_THRESHOLD_RATIO: number = 0.4;
+    public static GC_THRESHOLD_RATIO: number = 0.3;
     
     /**
      * Try garbage collection if the memory usage exceeds MEMORY_BASELINE.
@@ -2295,8 +2294,13 @@ export class MemoryUtils {
         }
         
         const currentMemory = process.memoryUsage().heapUsed;
-        if ((currentMemory > MemoryUtils.baseMemorySize) && (currentMemory - MemoryUtils.MemoryAfterGC > MemoryUtils.memoryGCThreshold)) {
+        if (MemoryUtils.baseMemorySize === undefined || (currentMemory - MemoryUtils.baseMemorySize > MemoryUtils.memoryGCThreshold)) {
             global.gc();
+            MemoryUtils.updateBaseMemory();
+            return;
+        }
+
+        if (MemoryUtils.baseMemorySize > currentMemory) {
             MemoryUtils.updateBaseMemory(currentMemory);
             return;
         }
@@ -2305,12 +2309,12 @@ export class MemoryUtils {
     public static initializeBaseMemory(baseMemorySize?: number): void {
         const currentMemory = process.memoryUsage().heapUsed;
         MemoryUtils.baseMemorySize = baseMemorySize ? baseMemorySize : currentMemory;
-        MemoryUtils.MemoryAfterGC = currentMemory;
     }
 
-    public static updateBaseMemory(MemoryBeforeGC: number): void {
-        const currentMemory = process.memoryUsage().heapUsed;
-        MemoryUtils.baseMemorySize = MemoryBeforeGC;
-        MemoryUtils.MemoryAfterGC = currentMemory;
+    public static updateBaseMemory(currentMemory?: number): void {
+        currentMemory = currentMemory ?? process.memoryUsage().heapUsed;
+        const targetGCThreshold: number = currentMemory * MemoryUtils.GC_THRESHOLD_RATIO;
+        MemoryUtils.memoryGCThreshold = Math.max(targetGCThreshold, MemoryUtils.MIN_GC_THRESHOLD);
+        MemoryUtils.baseMemorySize = currentMemory;
     }
 }
