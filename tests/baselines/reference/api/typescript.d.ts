@@ -5318,7 +5318,6 @@ declare namespace ts {
         name: Identifier;
     };
     class MemoryUtils {
-        private static MemoryAfterGC;
         private static baseMemorySize;
         private static MIN_GC_THRESHOLD;
         private static memoryGCThreshold;
@@ -5328,7 +5327,7 @@ declare namespace ts {
          */
         static tryGC(): void;
         static initializeBaseMemory(baseMemorySize?: number): void;
-        static updateBaseMemory(MemoryBeforeGC: number): void;
+        static updateBaseMemory(currentMemory?: number): void;
     }
     function isPartOfTypeNode(node: Node): boolean;
     function getJSDocCommentsAndTags(hostNode: Node, noCache?: boolean): readonly (JSDoc | JSDocTag)[];
