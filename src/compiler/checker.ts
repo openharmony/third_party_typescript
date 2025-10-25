@@ -46811,6 +46811,27 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
         return links.exportOrImportRefersToAnnotation;
     }
 
+    function isReferredToAvailableAnnotation(node: ImportSpecifier): boolean | undefined {
+        let links: NodeLinks = getNodeLinks(node);
+        if (!links.importRefersToAvailableAnnotation) {
+            let symbol: Symbol | undefined = getSymbolOfNode(node);
+            if (!symbol) {
+                return undefined;
+            }
+            const target: Symbol = resolveAlias(symbol);
+            const targetFlags: SymbolFlags = getAllSymbolFlags(target);
+            if (targetFlags & SymbolFlags.Annotation) {
+                links.exportOrImportRefersToAnnotation = true;
+                const annoDecl: Declaration | undefined = target.valueDeclaration || target.declarations?.[0];
+                if (!annoDecl || !isAnnotationDeclaration(annoDecl)) {
+                    return undefined;
+                }
+                links.importRefersToAvailableAnnotation = isAvailableAnnotationDeclaration(annoDecl);
+            }
+        }
+        return links.importRefersToAvailableAnnotation;
+    }
+
     /** 
      * @internal 
      * Determine whether an annotation is '@Available' annotation declared in SDK files
@@ -46820,17 +46841,28 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
             return false;
         }
         const annoDecl: AnnotationDeclaration = node.annotationDeclaration;
-        const links: NodeLinks = getNodeLinks(annoDecl);
+        return isAvailableAnnotationDeclaration(annoDecl);
+    }
+
+    /** 
+     * @internal 
+     * Determine whether an annotationDeclaration is 'Available' annotation declared in SDK files
+     */
+    function isAvailableAnnotationDeclaration(node: AnnotationDeclaration | undefined): boolean {
+        if (!node) {
+            return false;
+        }
+        const links: NodeLinks = getNodeLinks(node);
         if (links.availableAnnotation === undefined) {
             links.availableAnnotation = false;
-            if (isIdentifier(annoDecl.name) && annoDecl.name.escapedText.toString() !== 'Available') {
+            if (isIdentifier(node.name) && node.name.escapedText.toString() !== 'Available') {
                 return links.availableAnnotation;
             }
             const sdkPath: string | undefined = getSdkPath(compilerOptions);
             if (!sdkPath) {
                 return links.availableAnnotation;
             }
-            const fileName: string = normalizePath(getSourceFileOfNode(annoDecl).fileName);
+            const fileName: string = normalizePath(getSourceFileOfNode(node).fileName);
             if (fileName.startsWith(normalizePath(sdkPath))) {
                 links.availableAnnotation = true;
             }
@@ -47042,7 +47074,8 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
                 return links.annotationPropertyInferredType;
             },
             isReferredToAnnotation: isReferredToAnnotation,
-            isAvailableAnnotation: isAvailableAnnotation
+            isAvailableAnnotation: isAvailableAnnotation,
+            isReferredToAvailableAnnotation: isReferredToAvailableAnnotation
         };
 
         function isImportRequiredByAugmentation(node: ImportDeclaration) {

@@ -134,7 +134,6 @@ import {
     GeneratedIdentifierFlags,
     GeneratedNamePart,
     GeneratedPrivateIdentifier,
-    getAnnotationsFromIllegalDecorators,
     getAreDeclarationMapsEnabled,
     getBaseFileName,
     GetCanonicalFileName,
@@ -245,7 +244,6 @@ import {
     isPrivateIdentifier,
     isPrologueDirective,
     isRecognizedTripleSlashComment,
-    isSendableFunctionOrType,
     isSourceFile,
     isSourceFileNotJson,
     isStringLiteral,
@@ -1201,7 +1199,8 @@ export const notImplementedResolver: EmitResolver = {
     getAnnotationPropertyEvaluatedInitializer: notImplemented,
     getAnnotationPropertyInferredType: notImplemented,
     isReferredToAnnotation: notImplemented,
-    isAvailableAnnotation: notImplemented
+    isAvailableAnnotation: notImplemented,
+    isReferredToAvailableAnnotation: notImplemented
 };
 
 /** File that isnt present resulting in error or output files
@@ -2630,7 +2629,7 @@ export function createPrinter(printerOptions: PrinterOptions = {}, handlers: Pri
     //
 
     function emitPropertySignature(node: PropertySignature) {
-        emitDecorators(node, factory.createNodeArray(getAnnotationsFromIllegalDecorators(node)));
+        emitDecorators(node, node.illegalDecorators);
         emitModifiers(node, node.modifiers);
         emitNodeWithWriter(node.name, writeProperty);
         emit(node.questionToken);
@@ -2657,7 +2656,7 @@ export function createPrinter(printerOptions: PrinterOptions = {}, handlers: Pri
 
     function emitMethodSignature(node: MethodSignature) {
         pushNameGenerationScope(node);
-        emitDecorators(node, factory.createNodeArray(getAnnotationsFromIllegalDecorators(node)));
+        emitDecorators(node, node.illegalDecorators);
         emitModifiers(node, node.modifiers);
         emit(node.name);
         emit(node.questionToken);
@@ -3442,7 +3441,7 @@ export function createPrinter(printerOptions: PrinterOptions = {}, handlers: Pri
     }
 
     function emitVariableStatement(node: VariableStatement) {
-        emitDecorators(node, factory.createNodeArray(getAnnotationsFromIllegalDecorators(node)));
+        emitDecorators(node, node.illegalDecorators);
         emitModifiers(node, node.modifiers);
         emit(node.declarationList);
         writeTrailingSemicolon();
@@ -3887,7 +3886,7 @@ export function createPrinter(printerOptions: PrinterOptions = {}, handlers: Pri
     }
 
     function emitInterfaceDeclaration(node: InterfaceDeclaration) {
-        emitDecorators(node, factory.createNodeArray(getAnnotationsFromIllegalDecorators(node)));
+        emitDecorators(node, node.illegalDecorators);
         emitModifiers(node, node.modifiers);
         writeKeyword("interface");
         writeSpace();
@@ -3925,11 +3924,7 @@ export function createPrinter(printerOptions: PrinterOptions = {}, handlers: Pri
     }
 
     function emitTypeAliasDeclaration(node: TypeAliasDeclaration) {
-        if (isSendableFunctionOrType(node, /*maybeNotOriginalNode*/ true)) {
-            emitDecorators(node, node.illegalDecorators);
-        } else {
-            emitDecorators(node, factory.createNodeArray(getAnnotationsFromIllegalDecorators(node)));
-        }
+        emitDecorators(node, node.illegalDecorators);
         emitModifiers(node, node.modifiers);
         writeKeyword("type");
         writeSpace();
@@ -3943,7 +3938,7 @@ export function createPrinter(printerOptions: PrinterOptions = {}, handlers: Pri
     }
 
     function emitEnumDeclaration(node: EnumDeclaration) {
-        emitDecorators(node, factory.createNodeArray(getAnnotationsFromIllegalDecorators(node)));
+        emitDecorators(node, node.illegalDecorators);
         emitModifiers(node, node.modifiers);
         writeKeyword("enum");
         writeSpace();
@@ -3956,7 +3951,7 @@ export function createPrinter(printerOptions: PrinterOptions = {}, handlers: Pri
     }
 
     function emitModuleDeclaration(node: ModuleDeclaration) {
-        emitDecorators(node, factory.createNodeArray(getAnnotationsFromIllegalDecorators(node)));
+        emitDecorators(node, node.illegalDecorators);
         emitModifiers(node, node.modifiers);
         if (~node.flags & NodeFlags.GlobalAugmentation) {
             writeKeyword(node.flags & NodeFlags.Namespace ? "namespace" : "module");
