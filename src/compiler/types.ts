@@ -5472,6 +5472,7 @@ export interface EmitResolver {
     getAnnotationPropertyInferredType(node: AnnotationPropertyDeclaration): TypeNode | undefined;
     isReferredToAnnotation(node: ImportSpecifier | ExportSpecifier | ExportAssignment): boolean | undefined;
     isAvailableAnnotation(node: Annotation): boolean;
+    isReferredToAvailableAnnotation(node: ImportSpecifier): boolean | undefined;
 }
 
 export const enum SymbolFlags {
@@ -5807,6 +5808,7 @@ export interface NodeLinks {
     annotationDeclarationUniquePrefix?: string; // Cached a prefix of AnnotationDeclaration name
     exportOrImportRefersToAnnotation?: boolean; // Indicates that ImportSpecifier, ExportSpecifier or ExportAssignment are referred to AnnotationDeclaration.
     availableAnnotation?: boolean; // Cached whether an annotation is '@Available' annotation declared in SDK files
+    importRefersToAvailableAnnotation?: boolean; // Cache whether an importSpecifier is referred to '@Available' AnnotationDeclaration.
 }
 
 export const enum TypeFlags {

@@ -569,8 +569,8 @@ export function transformAnnotation(context: TransformationContext): (node: Sour
 
     function visitAnnotations(node: Node): VisitResult<Node> {
         switch (node.kind) {
-            case SyntaxKind.ImportSpecifier:
-                return visitImportSpecifier(<ImportSpecifier>node);
+            case SyntaxKind.ImportDeclaration:
+                return visitImportDeclaration(<ImportDeclaration>node);
             case SyntaxKind.FunctionDeclaration:
             case SyntaxKind.VariableStatement:
             case SyntaxKind.TypeAliasDeclaration:
@@ -587,10 +587,42 @@ export function transformAnnotation(context: TransformationContext): (node: Sour
         }
     }
 
+    function visitImportDeclaration(node: ImportDeclaration): VisitResult<ImportDeclaration> {
+        if (!node.importClause) {
+            return node;
+        }
+        const importClause = visitNode(node.importClause, visitImportClause, isImportClause);
+        return importClause
+            ? factory.updateImportDeclaration(
+                node,
+                node.modifiers,
+                importClause,
+                node.moduleSpecifier,
+                node.assertClause)
+            : undefined;
+    }
+
+    function visitImportClause(node: ImportClause): VisitResult<ImportClause> {
+        const namedBindings = visitNode(node.namedBindings, visitNamedImportBindings, isNamedImportBindings);
+        return namedBindings ? factory.updateImportClause(node, node.isTypeOnly, node.name, namedBindings) : undefined;
+    }
+
+    function visitNamedImportBindings(node: NamedImportBindings): VisitResult<NamedImportBindings> {
+        if (node.kind === SyntaxKind.NamespaceImport) {
+            return node;
+        } 
+        const elements = visitNodes(node.elements, visitImportSpecifier, isImportSpecifier);
+        return some(elements) ? factory.updateNamedImports(node, elements) : undefined;
+    }
+
+
     function visitImportSpecifier(node: ImportSpecifier): VisitResult<ImportSpecifier> {
         // Return if the import has type or not refered to Annotation
         if (node.isTypeOnly || !resolver.isReferredToAnnotation(node)) {
             return node;
+        }
+        if (resolver.isReferredToAvailableAnnotation(node)) {
+            return undefined;
         }
         const magicPrefixName = addMagicPrefixToAnnotationNameIdentifier(node.name);
         Debug.assert(isIdentifier(magicPrefixName));
