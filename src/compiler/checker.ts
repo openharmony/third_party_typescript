@@ -1437,7 +1437,8 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
 
     var getJsDocNodeCheckedConfig = host.getJsDocNodeCheckedConfig;
     var compilerOptions: CompilerOptions = {...host.getCompilerOptions()};
-
+    let isAvailableVersion = host.isAvailableVersion;
+    let isAvailableDeclarationValid = host.isAvailableDeclarationValid;
     if (!!compilerOptions.needDoArkTsLinter) {
         compilerOptions.skipLibCheck = false;
     }
@@ -34283,7 +34284,8 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
         }
     }
 
-    function collectDiagnostics(config: JsDocNodeCheckConfigItem | ConditionCheckResult, node: Identifier, diagnostic: DiagnosticWithLocation): void {
+    function collectDiagnostics(config: JsDocNodeCheckConfigItem | ConditionCheckResult,
+        node: Identifier | Annotation, diagnostic: DiagnosticWithLocation): void {
         if (config.message) {
             // @ts-ignore
             diagnostic.messageText = config.message.replace("{0}", node.getText() === "" ? node.text : node.getText());
@@ -40126,6 +40128,15 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
                 return;
         }
         checkDuplicateAnnotation(annotation, annotationsSet);
+        if (isAvailableVersion) {
+            let checkResult = isAvailableVersion(annotation);
+            if (checkResult && !checkResult.valid) {
+                const diagnostic = createDiagnosticForNodeInSourceFile(getSourceFileOfNode(annotation), 
+                    annotation, Diagnostics.This_API_has_been_Special_Markings_exercise_caution_when_using_this_API);
+                diagnostic.messageText = checkResult.message ? checkResult.message : '';
+                collectDiagnostics(checkResult, annotation, diagnostic);
+            }
+        }
     }
 
     /** Returns declaration which is related to an annotation */
@@ -46855,16 +46866,8 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
         const links: NodeLinks = getNodeLinks(node);
         if (links.availableAnnotation === undefined) {
             links.availableAnnotation = false;
-            if (isIdentifier(node.name) && node.name.escapedText.toString() !== 'Available') {
-                return links.availableAnnotation;
-            }
-            const sdkPath: string | undefined = getSdkPath(compilerOptions);
-            if (!sdkPath) {
-                return links.availableAnnotation;
-            }
-            const fileName: string = normalizePath(getSourceFileOfNode(node).fileName);
-            if (fileName.startsWith(normalizePath(sdkPath))) {
-                links.availableAnnotation = true;
+            if (isAvailableDeclarationValid) {
+                links.availableAnnotation = isAvailableDeclarationValid(node);
             }
         }
         return links.availableAnnotation;

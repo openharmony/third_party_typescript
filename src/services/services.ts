@@ -1697,6 +1697,8 @@ export function createLanguageService(
             useSourceOfProjectReferenceRedirect: maybeBind(host, host.useSourceOfProjectReferenceRedirect),
             getParsedCommandLine,
             getJsDocNodeCheckedConfig: maybeBind(host, host.getJsDocNodeCheckedConfig),
+            isAvailableVersion: maybeBind(host, host.isAvailableVersion),
+            isAvailableDeclarationValid: maybeBind(host, host.isAvailableDeclarationValid),
             getJsDocNodeConditionCheckedResult: maybeBind(host, host.getJsDocNodeConditionCheckedResult),
             getFileCheckedModuleInfo: maybeBind(host, host.getFileCheckedModuleInfo),
             isStaticSourceFile: host.isStaticSourceFile,

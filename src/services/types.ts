@@ -6,7 +6,7 @@ import {
     ModuleKind, ModuleResolutionCache, ModuleSpecifierCache, ParsedCommandLine, Path, Program, ProjectReference,
     ResolvedModule, ResolvedModuleWithFailedLookupLocations, ResolvedProjectReference, ResolvedTypeReferenceDirective,
     ScriptKind, Set, SourceFile, SourceFileLike, SourceMapper, Symbol, SymbolDisplayPart, SymlinkCache, TextChangeRange,
-    textChanges, TextRange, TextSpan, UserPreferences,
+    textChanges, TextRange, TextSpan, UserPreferences, Annotation, AnnotationDeclaration
 } from "./_namespaces/ts";
 
 declare module "../compiler/types" {
@@ -372,6 +372,8 @@ export interface LanguageServiceHost extends GetEffectiveTypeRootsHost, MinimalR
     clearFileCache?(): void;
     isStaticSourceFile?(fileName: string): boolean;
     useDeclarationFileSignature?: boolean;
+    isAvailableVersion?(annotationNode: Annotation): ConditionCheckResult;
+    isAvailableDeclarationValid?(annotationNode: AnnotationDeclaration): boolean;
 }
 
 /** @internal */
