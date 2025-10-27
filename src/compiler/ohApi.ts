@@ -604,7 +604,7 @@ export function transformAnnotation(context: TransformationContext): (node: Sour
 
     function visitImportClause(node: ImportClause): VisitResult<ImportClause> {
         const namedBindings = visitNode(node.namedBindings, visitNamedImportBindings, isNamedImportBindings);
-        return namedBindings ? factory.updateImportClause(node, node.isTypeOnly, node.name, namedBindings) : undefined;
+        return (node.name || namedBindings) ? factory.updateImportClause(node, node.isTypeOnly, node.name, namedBindings) : undefined;
     }
 
     function visitNamedImportBindings(node: NamedImportBindings): VisitResult<NamedImportBindings> {
