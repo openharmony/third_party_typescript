@@ -34291,16 +34291,8 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
             diagnostic.messageText = config.message.replace("{0}", node.getText() === "" ? node.text : node.getText());
         }
         diagnostic.category = config.type ? config.type : DiagnosticCategory.Warning;
-        if (config.type === DiagnosticCategory.Error && isJsDocNodeCheckConfigItem(config)) {
-            config.checkHvigorLoggerValidCallback?.(config, diagnostic);
-        } else {
-            diagnostics.add(diagnostic);
-            suggestionDiagnostics.add(diagnostic);
-        }
-    }
-
-    function isJsDocNodeCheckConfigItem(config: JsDocNodeCheckConfigItem | ConditionCheckResult): config is JsDocNodeCheckConfigItem {
-        return (config as JsDocNodeCheckConfigItem).checkHvigorLoggerValidCallback !== undefined;
+        diagnostics.add(diagnostic);
+        suggestionDiagnostics.add(diagnostic);
     }
 
     function getSpecifyJsDocTagValue(jsDocs: readonly JSDocTag[], specifyTag: string[]): string | undefined {
