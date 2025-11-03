@@ -9,6 +9,9 @@ class C {
     @Anno
     public a: number
 
+    @Anno
+    constructor() {}
+
     public foo(@Anno a: number) {}
 
     @Anno
@@ -22,6 +25,7 @@ class C {
 //// [annotationApplicationError8.js]
 class C {
     a;
+    constructor() { }
     foo(a) { }
     get prop() { return 0; }
     set prop(a) { }

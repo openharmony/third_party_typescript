@@ -18,6 +18,11 @@ class C {
     public a: number
 >a : number
 
+    @Anno
+>Anno : typeof Anno
+
+    constructor() {}
+
     public foo(@Anno a: number) {}
 >foo : (a: number) => void
 >Anno : typeof Anno

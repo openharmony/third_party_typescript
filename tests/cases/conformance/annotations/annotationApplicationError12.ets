@@ -6,4 +6,8 @@
 
 @Anno
 @Anno
-class C {}
+class C {
+    @Anno
+    @Anno
+    constructor() {}
+}

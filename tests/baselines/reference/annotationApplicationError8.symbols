@@ -19,22 +19,27 @@ class C {
     public a: number
 >a : Symbol(C.a, Decl(annotationApplicationError8.ets, 6, 9))
 
-    public foo(@Anno a: number) {}
->foo : Symbol(C.foo, Decl(annotationApplicationError8.ets, 8, 20))
+    @Anno
 >Anno : Symbol(Anno, Decl(annotationApplicationError8.ets, 0, 0))
->a : Symbol(a, Decl(annotationApplicationError8.ets, 10, 15))
+
+    constructor() {}
+
+    public foo(@Anno a: number) {}
+>foo : Symbol(C.foo, Decl(annotationApplicationError8.ets, 11, 20))
+>Anno : Symbol(Anno, Decl(annotationApplicationError8.ets, 0, 0))
+>a : Symbol(a, Decl(annotationApplicationError8.ets, 13, 15))
 
     @Anno
 >Anno : Symbol(Anno, Decl(annotationApplicationError8.ets, 0, 0))
 
     get prop(): number { return 0}
->prop : Symbol(C.prop, Decl(annotationApplicationError8.ets, 10, 34), Decl(annotationApplicationError8.ets, 13, 34))
+>prop : Symbol(C.prop, Decl(annotationApplicationError8.ets, 13, 34), Decl(annotationApplicationError8.ets, 16, 34))
 
     @Anno
 >Anno : Symbol(Anno, Decl(annotationApplicationError8.ets, 0, 0))
 
     set prop(a: number) {}
->prop : Symbol(C.prop, Decl(annotationApplicationError8.ets, 10, 34), Decl(annotationApplicationError8.ets, 13, 34))
->a : Symbol(a, Decl(annotationApplicationError8.ets, 16, 13))
+>prop : Symbol(C.prop, Decl(annotationApplicationError8.ets, 13, 34), Decl(annotationApplicationError8.ets, 16, 34))
+>a : Symbol(a, Decl(annotationApplicationError8.ets, 19, 13))
 }
 
