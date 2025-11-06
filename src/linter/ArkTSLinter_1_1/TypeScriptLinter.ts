@@ -61,7 +61,7 @@ import {
   isShareableEntity, isBooleanLikeType, isStdBooleanType, isObject, isWrongSendableFunctionAssignment, isSymbolIteratorExpression,
   isArkTSCollectionsClassOrInterfaceDeclaration, isValidComputedPropertyName, isShareableType, needStrictMatchType, SENDABLE_DECORATOR,
   SENDABLE_DECORATOR_NODES, getSendableDecorator, isAllowedIndexSignature, PROMISE, isCollectionArrayType, isTaskPoolApi, 
-  isDeclarationSymbol, checkTaskpoolFunction, getTypeAtLocationForLinter, isArkUIDecorator, isDisableSendableClassDecoratorCheck
+  isDeclarationSymbol, checkTaskpoolFunction, isArkUIDecorator, isDisableSendableClassDecoratorCheck
 } from "../_namespaces/ts.ArkTSLinter_1_1";
 import * as ArkTSLinter_1_1 from "../_namespaces/ts.ArkTSLinter_1_1";
 import { perfLogger as Logger } from "../_namespaces/ts";
@@ -485,7 +485,7 @@ readonly handlersMap = new Map([
       curPropAccess = curPropAccess.expression;
     }
     if (isIdentifier(curPropAccess) && curPropAccess.text !== 'prototype') {
-      const type = getTypeAtLocationForLinter(curPropAccess);
+      const type = TypeScriptLinter.tsTypeChecker.getTypeAtLocationForLinter(curPropAccess);
       if (isAnyType(type)) {
         return false;
       }
@@ -516,7 +516,7 @@ readonly handlersMap = new Map([
 
       const prop2type = new Map<string, string>();
       for (const tsTypeExpr of hClause.types) {
-        const tsExprType = getTypeAtLocationForLinter(tsTypeExpr.expression);
+        const tsExprType = TypeScriptLinter.tsTypeChecker.getTypeAtLocationForLinter(tsTypeExpr.expression);
         if (tsExprType.isClass()) {
           this.incrementCounters(tsTypeExpr, FaultID.InterfaceExtendsClass);
         }
@@ -595,7 +595,7 @@ readonly handlersMap = new Map([
       return;
     }
 
-    const rhsType = getTypeAtLocationForLinter(rhsExpr);
+    const rhsType = TypeScriptLinter.tsTypeChecker.getTypeAtLocationForLinter(rhsExpr);
     let assignableTypesCount: number = 0;
     let typeInArkts2: boolean = false;
     for (const compType of lhsType.types) {
@@ -760,7 +760,7 @@ readonly handlersMap = new Map([
 
   private handleThrowStatement(node: Node): void {
     const throwStmt = node as ThrowStatement;
-    const throwExprType = getTypeAtLocationForLinter(throwStmt.expression);
+    const throwExprType = TypeScriptLinter.tsTypeChecker.getTypeAtLocationForLinter(throwStmt.expression);
     if (!throwExprType.isClassOrInterface() || !isOrDerivedFrom(throwExprType, isStdErrorType)) {
       this.incrementCounters(node, FaultID.ThrowStatement);
     }
@@ -841,7 +841,7 @@ readonly handlersMap = new Map([
     const propertyAccessNode = node as PropertyAccessExpression;
     const exprSym = trueSymbolAtLocation(propertyAccessNode);
     const baseExprSym = trueSymbolAtLocation(propertyAccessNode.expression);
-    const baseExprType = getTypeAtLocationForLinter(propertyAccessNode.expression);
+    const baseExprType = TypeScriptLinter.tsTypeChecker.getTypeAtLocationForLinter(propertyAccessNode.expression);
     if (this.isPrototypePropertyAccess(propertyAccessNode, exprSym, baseExprSym, baseExprType)) {
       this.incrementCounters(propertyAccessNode.name, FaultID.Prototype);
     }
@@ -860,7 +860,7 @@ readonly handlersMap = new Map([
     const args = tsNewExpr.arguments || [];
     for (let i = 0; i < Math.min(args.length, 2); i++) {
       const arg = args[i];
-      const argType = getTypeAtLocationForLinter(arg);
+      const argType = TypeScriptLinter.tsTypeChecker.getTypeAtLocationForLinter(arg);
       if (ArkTSLinter_1_1.isStringLikeType(argType)) {
         continue;
       }
@@ -892,7 +892,7 @@ readonly handlersMap = new Map([
     this.filterOutDecoratorsDiagnostics(classDecorators, NON_INITIALIZABLE_PROPERTY_CLASS_DECORATORS,
       {begin: propName.getStart(), end: propName.getStart()}, PROPERTY_HAS_NO_INITIALIZER_ERROR_CODE, propType);
     if (node.type && node.initializer) {
-      this.checkAssignmentMatching(node, getTypeAtLocationForLinter(node.type), node.initializer, true);
+      this.checkAssignmentMatching(node, TypeScriptLinter.tsTypeChecker.getTypeAtLocationForLinter(node.type), node.initializer, true);
       this.handleEsObjectAssignment(node, node.type, node.initializer, true);
     }
     this.handleDeclarationInferredType(node);
@@ -1006,7 +1006,7 @@ readonly handlersMap = new Map([
       return;
     }
     const interfaceNode = node.parent;
-    const interfaceNodeType = getTypeAtLocationForLinter(interfaceNode);
+    const interfaceNodeType = TypeScriptLinter.tsTypeChecker.getTypeAtLocationForLinter(interfaceNode);
     if (!isInterfaceDeclaration(interfaceNode) || !isSendableClassOrInterface(interfaceNodeType)) {
       return;
     }
@@ -1232,7 +1232,7 @@ readonly handlersMap = new Map([
       tsUnaryOp === SyntaxKind.MinusToken ||
       tsUnaryOp === SyntaxKind.TildeToken
     ) {
-      const tsOperatndType = getTypeAtLocationForLinter(tsUnaryOperand);
+      const tsOperatndType = TypeScriptLinter.tsTypeChecker.getTypeAtLocationForLinter(tsUnaryOperand);
       const isTilde = tsUnaryOp === SyntaxKind.TildeToken;
       const isInvalidTilde =
         isTilde && isNumericLiteral(tsUnaryOperand) && !isIntegerConstantValue(tsUnaryOperand);
@@ -1266,7 +1266,7 @@ readonly handlersMap = new Map([
       }
     }
     if (tsBinaryExpr.operatorToken.kind === SyntaxKind.EqualsToken) {
-      const leftOperandType = getTypeAtLocationForLinter(tsLhsExpr);
+      const leftOperandType = TypeScriptLinter.tsTypeChecker.getTypeAtLocationForLinter(tsLhsExpr);
       this.checkAssignmentMatching(tsBinaryExpr, leftOperandType, tsRhsExpr);
       const typeNode = getVariableDeclarationTypeNode(tsLhsExpr);
       this.handleEsObjectAssignment(tsBinaryExpr, typeNode, tsRhsExpr);
@@ -1294,7 +1294,7 @@ readonly handlersMap = new Map([
       if (tsLhsExpr.kind === SyntaxKind.ThisKeyword) {
         return;
       }
-      const leftOperandType = getTypeAtLocationForLinter(tsLhsExpr);
+      const leftOperandType = TypeScriptLinter.tsTypeChecker.getTypeAtLocationForLinter(tsLhsExpr);
       if (isPrimitiveType(leftOperandType) || isTypeNode(leftExpr) || isTypeSymbol(leftSymbol)) {
         this.incrementCounters(node, FaultID.InstanceofUnsupported);
       }
@@ -1337,7 +1337,7 @@ readonly handlersMap = new Map([
     if (tsVarDecl.type && tsVarDecl.initializer) {
       this.checkAssignmentMatching(
         tsVarDecl,
-        getTypeAtLocationForLinter(tsVarDecl.type),
+        TypeScriptLinter.tsTypeChecker.getTypeAtLocationForLinter(tsVarDecl.type),
         tsVarDecl.initializer
       );
     }
@@ -1505,7 +1505,7 @@ readonly handlersMap = new Map([
     if (!isSourceFile(decl.parent)) {
       return false;
     }
-    if (isClassDeclaration(decl) && isSendableClassOrInterface(getTypeAtLocationForLinter(decl))) {
+    if (isClassDeclaration(decl) && isSendableClassOrInterface(TypeScriptLinter.tsTypeChecker.getTypeAtLocationForLinter(decl))) {
       return true;
     }
     if (isFunctionDeclaration(decl) && hasSendableDecoratorFunctionOverload(decl)) {
@@ -1544,7 +1544,7 @@ readonly handlersMap = new Map([
       * 'extends' clause. Additionally, reduce reference, as mostly type checker returns
       * the TypeReference type objects for classes and interfaces.
       */
-      const tsExprType = reduceReference(getTypeAtLocationForLinter(tsTypeExpr));
+      const tsExprType = reduceReference(TypeScriptLinter.tsTypeChecker.getTypeAtLocationForLinter(tsTypeExpr));
       const isSendableBaseType = isSendableClassOrInterface(tsExprType);
       if (tsExprType.isClass() && hClause.token === SyntaxKind.ImplementsKeyword) {
         this.incrementCounters(tsTypeExpr, FaultID.ImplementsClass);
@@ -1767,7 +1767,7 @@ readonly handlersMap = new Map([
 
     if (isCallExpression(ctx.parent) || isNewExpression(ctx.parent)) {
       const callee = ctx.parent.expression;
-      const isAny = isAnyType(getTypeAtLocationForLinter(callee));
+      const isAny = isAnyType(TypeScriptLinter.tsTypeChecker.getTypeAtLocationForLinter(callee));
       const isDynamic = isAny || hasLibraryType(callee);
       if (callee !== ctx && isDynamic) {
         return true;
@@ -1887,7 +1887,7 @@ readonly handlersMap = new Map([
     const tsElementAccessExpr = node as ElementAccessExpression;
     const tsElementAccessExprSymbol = trueSymbolAtLocation(tsElementAccessExpr.expression);
     const tsElemAccessBaseExprType = getNonNullableType(getTypeOrTypeConstraintAtLocation(tsElementAccessExpr.expression));
-    const tsElemAccessArgType = getTypeAtLocationForLinter(tsElementAccessExpr.argumentExpression);
+    const tsElemAccessArgType = TypeScriptLinter.tsTypeChecker.getTypeAtLocationForLinter(tsElementAccessExpr.argumentExpression);
 
     if (
       // unnamed types do not have symbol, so need to check that explicitly
@@ -1906,7 +1906,7 @@ readonly handlersMap = new Map([
 
   private handleEnumMember(node: Node): void {
     const tsEnumMember = node as EnumMember;
-    const tsEnumMemberType = getTypeAtLocationForLinter(tsEnumMember);
+    const tsEnumMemberType = TypeScriptLinter.tsTypeChecker.getTypeAtLocationForLinter(tsEnumMember);
     const constVal = TypeScriptLinter.tsTypeChecker.getConstantValue(tsEnumMember);
 
     if (tsEnumMember.initializer && !isValidEnumMemberInit(tsEnumMember.initializer)) {
@@ -1915,7 +1915,7 @@ readonly handlersMap = new Map([
     // check for type - all members should be of same type
     const enumDecl = tsEnumMember.parent;
     const firstEnumMember = enumDecl.members[0];
-    const firstEnumMemberType = getTypeAtLocationForLinter(firstEnumMember);
+    const firstEnumMemberType = TypeScriptLinter.tsTypeChecker.getTypeAtLocationForLinter(firstEnumMember);
     const firstElewmVal = TypeScriptLinter.tsTypeChecker.getConstantValue(firstEnumMember);
     // each string enum member has its own type
     // so check that value type is string
@@ -1979,7 +1979,7 @@ readonly handlersMap = new Map([
       return;
     }
     const arg = args[0];
-    const argType = getTypeAtLocationForLinter(arg);
+    const argType = TypeScriptLinter.tsTypeChecker.getTypeAtLocationForLinter(arg);
     const argSym = argType.getSymbol();
     if (!argSym || ArkTSLinter_1_1.TASK_LIST.includes(argSym.name)) {
       return;
@@ -2021,7 +2021,7 @@ readonly handlersMap = new Map([
       tsCallExpr.expression.text === "require" &&
       isVariableDeclaration(tsCallExpr.parent)
     ) {
-      const tsType = getTypeAtLocationForLinter(tsCallExpr.expression);
+      const tsType = TypeScriptLinter.tsTypeChecker.getTypeAtLocationForLinter(tsCallExpr.expression);
       if (isInterfaceType(tsType) && tsType.symbol.name === "NodeRequire") {
         this.incrementCounters(tsCallExpr.parent, FaultID.ImportAssignment);
       }
@@ -2075,7 +2075,7 @@ readonly handlersMap = new Map([
 
     for (let argIndex = 0; argIndex < tsCallOrNewExpr.arguments.length; ++argIndex) {
       const tsArg = tsCallOrNewExpr.arguments[argIndex];
-      const tsArgType = getTypeAtLocationForLinter(tsArg);
+      const tsArgType = TypeScriptLinter.tsTypeChecker.getTypeAtLocationForLinter(tsArg);
       if (!tsArgType) continue;
 
       let paramIndex = argIndex < callSignature.parameters.length ? argIndex : callSignature.parameters.length-1;
@@ -2143,7 +2143,7 @@ readonly handlersMap = new Map([
     LibraryTypeCallDiagnosticChecker.instance.filterDiagnostics(
       tscDiagnostics,
       expr,
-      isLibraryType(getTypeAtLocationForLinter(expr.expression)),
+      isLibraryType(TypeScriptLinter.tsTypeChecker.getTypeAtLocationForLinter(expr.expression)),
       (diagnostic, errorType) => {
 
         /*
@@ -2181,7 +2181,7 @@ readonly handlersMap = new Map([
   }
 
   private handleSendableGenericTypes(node: NewExpression): void {
-    const type = getTypeAtLocationForLinter(node);
+    const type = TypeScriptLinter.tsTypeChecker.getTypeAtLocationForLinter(node);
     if (!isSendableClassOrInterface(type)) {
       return;
     }
@@ -2202,8 +2202,8 @@ readonly handlersMap = new Map([
     const tsAsExpr = node as AsExpression;
     if (tsAsExpr.type.getText() === "const") this.incrementCounters(node, FaultID.ConstAssertion);
 
-    const targetType = getTypeAtLocationForLinter(tsAsExpr.type).getNonNullableType();
-    const exprType = getTypeAtLocationForLinter(tsAsExpr.expression).getNonNullableType();
+    const targetType = TypeScriptLinter.tsTypeChecker.getTypeAtLocationForLinter(tsAsExpr.type).getNonNullableType();
+    const exprType = TypeScriptLinter.tsTypeChecker.getTypeAtLocationForLinter(tsAsExpr.expression).getNonNullableType();
     // check for rule#65:   "number as Number" and "boolean as Boolean" are disabled
     if(
       (isNumberLikeType(exprType) && isStdNumberType(targetType)) ||
@@ -2301,7 +2301,7 @@ private handleTypeReference(node: Node): void {
       return;
     }
 
-    const typeNameType = getTypeAtLocationForLinter(typeRef.typeName);
+    const typeNameType = TypeScriptLinter.tsTypeChecker.getTypeAtLocationForLinter(typeRef.typeName);
     if (isSendableClassOrInterface(typeNameType)) {
       this.checkSendableTypeArguments(typeRef);
     }
@@ -2385,7 +2385,7 @@ private handleTypeReference(node: Node): void {
     if (declNode && isClassDeclaration(declNode) && hasSendableDecorator(declNode)) {
       return true;
     } else if (declNode && isInterfaceDeclaration(declNode)) {
-      const declNodeType = getTypeAtLocationForLinter(declNode);
+      const declNodeType = TypeScriptLinter.tsTypeChecker.getTypeAtLocationForLinter(declNode);
       if (isSendableClassOrInterface(declNodeType)) {
         return true;
       }
@@ -2433,7 +2433,7 @@ private handleTypeReference(node: Node): void {
       return;
     }
 
-    const type = getTypeAtLocationForLinter(decl);
+    const type = TypeScriptLinter.tsTypeChecker.getTypeAtLocationForLinter(decl);
     if (type) this.validateDeclInferredType(type, decl);
   }
 
@@ -2622,7 +2622,7 @@ private handleTypeReference(node: Node): void {
       case SyntaxKind.InterfaceDeclaration:
       case SyntaxKind.FunctionDeclaration:
       case SyntaxKind.ClassDeclaration:
-        if (!isShareableType(getTypeAtLocationForLinter(parentNode))) {
+        if (!isShareableType(TypeScriptLinter.tsTypeChecker.getTypeAtLocationForLinter(parentNode))) {
           this.incrementCounters((parentNode as NamedDeclaration).name ?? parentNode, FaultID.SharedModuleExports);
         }
         return;
@@ -2655,7 +2655,7 @@ private handleTypeReference(node: Node): void {
     }
 
     if (isNamespaceExport(exportDecl.exportClause)) {
-      if (!isShareableType(getTypeAtLocationForLinter(exportDecl.exportClause.name))) {
+      if (!isShareableType(TypeScriptLinter.tsTypeChecker.getTypeAtLocationForLinter(exportDecl.exportClause.name))) {
         this.incrementCounters(exportDecl.exportClause.name, FaultID.SharedModuleExports);
       }
       return;
@@ -2693,7 +2693,7 @@ private handleTypeReference(node: Node): void {
     rhsExpr: Expression,
     isMissStructural: boolean = false
   ): void {
-    const rhsType = getTypeAtLocationForLinter(rhsExpr);
+    const rhsType = TypeScriptLinter.tsTypeChecker.getTypeAtLocationForLinter(rhsExpr);
     // check that 'sendable typeAlias' is assigned correctly
     if (isWrongSendableFunctionAssignment(lhsType, rhsType)) {
       this.incrementCounters(field, FaultID.SendableFunctionAssignment);

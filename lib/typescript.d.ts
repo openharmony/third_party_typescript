@@ -2595,6 +2595,7 @@ declare namespace ts {
         getPropertySymbolOfDestructuringAssignment(location: Identifier): Symbol | undefined;
         getTypeOfAssignmentPattern(pattern: AssignmentPattern): Type;
         getTypeAtLocation(node: Node): Type;
+        getTypeAtLocationForLinter(node: Node): Type;
         tryGetTypeAtLocationWithoutCheck(node: Node): Type;
         getTypeFromTypeNode(node: TypeNode): Type;
         signatureToString(signature: Signature, enclosingDeclaration?: Node, flags?: TypeFormatFlags, kind?: SignatureKind): string;
@@ -2649,7 +2650,6 @@ declare namespace ts {
         clearQualifiedNameCache?(): void;
         isStaticRecord?(type: Type): boolean;
         isStaticSourceFile?(sourceFile: SourceFile | undefined): boolean;
-        createIntrinsicType?(kind: TypeFlags, intrinsicName: string, objectFlags?: ObjectFlags): Type;
     }
     enum NodeBuilderFlags {
         None = 0,
@@ -9398,7 +9398,6 @@ declare namespace ts {
         function hasUseConcurrentDirective(decl: FunctionDeclaration): boolean;
         function isDeclarationSymbol(sym: Symbol | undefined): boolean;
         function checkTaskpoolFunction(arg: Expression, argType: Type, argSym: Symbol | undefined): boolean;
-        function getTypeAtLocationForLinter(node: Node): Type;
         function isArkUIDecorator(decorator: Decorator): boolean;
         function isDisableSendableClassDecoratorCheck(disableSendableCheckRules: string[]): boolean;
         const PROPERTY_HAS_NO_INITIALIZER_ERROR_CODE = 2564;
