@@ -10,6 +10,9 @@ class C {
     @Anno
     public a: number
 
+    @Anno
+    constructor() {}
+
     public foo(@Anno a: number) {}
 
     @Anno

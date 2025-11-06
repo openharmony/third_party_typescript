@@ -1,7 +1,13 @@
 tests/cases/conformance/annotations/annotationApplicationError12.ets(7,1): error TS28023: Repeatable annotation are not supported, got: '@Anno'.
+tests/cases/conformance/annotations/annotationApplicationError12.ets(9,5): error TS28044: Annotation cannot be applied for constructor, got: '@Anno
+    @Anno
+    constructor() {}'.
+tests/cases/conformance/annotations/annotationApplicationError12.ets(10,5): error TS28044: Annotation cannot be applied for constructor, got: '@Anno
+    @Anno
+    constructor() {}'.
 
 
-==== tests/cases/conformance/annotations/annotationApplicationError12.ets (1 errors) ====
+==== tests/cases/conformance/annotations/annotationApplicationError12.ets (3 errors) ====
     @interface Anno {
         a: number = 10
         b: string[] = []
@@ -11,5 +17,17 @@ tests/cases/conformance/annotations/annotationApplicationError12.ets(7,1): error
     @Anno
     ~~~~~
 !!! error TS28023: Repeatable annotation are not supported, got: '@Anno'.
-    class C {}
+    class C {
+        @Anno
+        ~~~~~
+!!! error TS28044: Annotation cannot be applied for constructor, got: '@Anno
+!!! error TS28044:     @Anno
+!!! error TS28044:     constructor() {}'.
+        @Anno
+        ~~~~~
+!!! error TS28044: Annotation cannot be applied for constructor, got: '@Anno
+!!! error TS28044:     @Anno
+!!! error TS28044:     constructor() {}'.
+        constructor() {}
+    }
     

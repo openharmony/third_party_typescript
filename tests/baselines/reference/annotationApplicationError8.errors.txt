@@ -1,13 +1,15 @@
 tests/cases/conformance/annotations/annotationApplicationError8.ets(8,5): error TS28022: Annotation have to be applied for classes or methods in classes only, got: '@Anno
     public a: number'.
-tests/cases/conformance/annotations/annotationApplicationError8.ets(11,16): error TS28022: Annotation have to be applied for classes or methods in classes only, got: '@Anno a: number'.
-tests/cases/conformance/annotations/annotationApplicationError8.ets(13,5): error TS28042: Annotation cannot be applied for getter or setter, got: '@Anno
-    get prop(): number { return 0}'.
+tests/cases/conformance/annotations/annotationApplicationError8.ets(11,5): error TS28044: Annotation cannot be applied for constructor, got: '@Anno
+    constructor() {}'.
+tests/cases/conformance/annotations/annotationApplicationError8.ets(14,16): error TS28022: Annotation have to be applied for classes or methods in classes only, got: '@Anno a: number'.
 tests/cases/conformance/annotations/annotationApplicationError8.ets(16,5): error TS28042: Annotation cannot be applied for getter or setter, got: '@Anno
+    get prop(): number { return 0}'.
+tests/cases/conformance/annotations/annotationApplicationError8.ets(19,5): error TS28042: Annotation cannot be applied for getter or setter, got: '@Anno
     set prop(a: number) {}'.
 
 
-==== tests/cases/conformance/annotations/annotationApplicationError8.ets (4 errors) ====
+==== tests/cases/conformance/annotations/annotationApplicationError8.ets (5 errors) ====
     @interface Anno {
         a: number = 10
         b: string[] = []
@@ -20,6 +22,12 @@ tests/cases/conformance/annotations/annotationApplicationError8.ets(16,5): error
 !!! error TS28022: Annotation have to be applied for classes or methods in classes only, got: '@Anno
 !!! error TS28022:     public a: number'.
         public a: number
+    
+        @Anno
+        ~~~~~
+!!! error TS28044: Annotation cannot be applied for constructor, got: '@Anno
+!!! error TS28044:     constructor() {}'.
+        constructor() {}
     
         public foo(@Anno a: number) {}
                    ~~~~~

@@ -15,6 +15,15 @@
 @Anno
 >Anno : Symbol(Anno, Decl(annotationApplicationError12.ets, 0, 0))
 
-class C {}
+class C {
 >C : Symbol(C, Decl(annotationApplicationError12.ets, 3, 1))
+
+    @Anno
+>Anno : Symbol(Anno, Decl(annotationApplicationError12.ets, 0, 0))
+
+    @Anno
+>Anno : Symbol(Anno, Decl(annotationApplicationError12.ets, 0, 0))
+
+    constructor() {}
+}
 

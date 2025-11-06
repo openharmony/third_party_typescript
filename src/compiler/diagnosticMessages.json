@@ -7849,5 +7849,9 @@
     "@Available annotation are not valid here": {
         "category": "Error",
         "code": 28043
+    },
+    "Annotation cannot be applied for constructor, got: '{0}'.": {
+        "category": "Error",
+        "code": 28044
     }
 }

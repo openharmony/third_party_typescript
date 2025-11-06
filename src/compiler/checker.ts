@@ -40027,6 +40027,9 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
         if (!isClassDeclaration(annotatedDecl) && !(isMethodDeclaration(annotatedDecl) && isClassDeclaration(annotatedDecl.parent))) {
             const nodeStr = getTextOfNode(annotatedDecl, /*includeTrivia*/ false);
             switch (annotatedDecl.kind) {
+                case SyntaxKind.Constructor:
+                    error(annotation, Diagnostics.Annotation_cannot_be_applied_for_constructor_got_Colon_0, nodeStr);
+                    break;
                 case SyntaxKind.GetAccessor:
                 case SyntaxKind.SetAccessor:
                     error(annotation, Diagnostics.Annotation_cannot_be_applied_for_getter_or_setter_got_Colon_0, nodeStr);
