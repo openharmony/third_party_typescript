@@ -21,7 +21,7 @@ import {
     GeneratedNamePart, GetAccessorDeclaration, getAllUnscopedEmitHelpers, getBuildInfo, getCommentRange,
     getElementsOfBindingOrAssignmentPattern, getEmitFlags, getJSDocTypeAliasName, getLineAndCharacterOfPosition,
     getNameOfDeclaration, getNodeId, getSourceMapRange, getSyntheticLeadingComments, getSyntheticTrailingComments,
-    getTargetOfBindingOrAssignmentElement, getTextOfIdentifierOrLiteral, hasInvalidEscape, HasModifiers, hasProperty,
+    getTargetOfBindingOrAssignmentElement, getTextOfIdentifierOrLiteral, HasIllegalDecorators, hasInvalidEscape, HasModifiers, hasProperty,
     hasStaticModifier, hasSyntacticModifier, HeritageClause, Identifier, idText, IfStatement, ImportClause,
     ImportDeclaration, ImportEqualsDeclaration, ImportSpecifier, ImportTypeAssertionContainer, ImportTypeNode,
     IndexedAccessTypeNode, IndexSignatureDeclaration, InferTypeNode, InputFiles, InterfaceDeclaration,
@@ -171,6 +171,7 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         updateParameterDeclaration,
         createDecorator,
         updateDecorator,
+        updateIllegalDecorators,
         createPropertySignature,
         updatePropertySignature,
         createPropertyDeclaration,
@@ -1357,6 +1358,94 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         return node.expression !== expression || node.annotationDeclaration !== annotationDeclaration
             ? update(createDecorator(expression, annotationDeclaration), node)
             : node;
+    }
+
+    // @api
+    function updateIllegalDecorators<T extends HasIllegalDecorators>(node: T, newIllegalDecorators: NodeArray<Decorator>): HasIllegalDecorators {
+        if (node.illegalDecorators === newIllegalDecorators) {
+            return node;
+        }
+
+        let updated: Mutable<HasIllegalDecorators>;
+
+        switch (node.kind) {
+            case SyntaxKind.FunctionDeclaration:
+                updated = factory.createFunctionDeclaration(
+                    node.modifiers,
+                    node.asteriskToken,
+                    node.name,
+                    node.typeParameters,
+                    node.parameters,
+                    node.type,
+                    node.body);
+                updated.illegalDecorators = newIllegalDecorators;
+                return update(updated, node);
+            case SyntaxKind.VariableStatement:
+                updated = factory.createVariableStatement(
+                    node.modifiers,
+                    node.declarationList
+                );
+                updated.illegalDecorators = newIllegalDecorators;
+                return update(updated, node);
+            case SyntaxKind.TypeAliasDeclaration:
+                updated = factory.createTypeAliasDeclaration(
+                    node.modifiers,
+                    node.name,
+                    node.typeParameters,
+                    node.type
+                );
+                updated.illegalDecorators = newIllegalDecorators;
+                return update(updated, node);
+            case SyntaxKind.PropertySignature:
+                updated = factory.createPropertySignature(
+                    node.modifiers,
+                    node.name,
+                    node.questionToken,
+                    node.type
+                );
+                updated.illegalDecorators = newIllegalDecorators;
+                return update(updated, node);
+            case SyntaxKind.MethodSignature:
+                updated = factory.createMethodSignature(
+                    node.modifiers,
+                    node.name,
+                    node.questionToken,
+                    node.typeParameters,
+                    node.parameters,
+                    node.type
+                );
+                updated.illegalDecorators = newIllegalDecorators;
+                return update(updated, node);
+            case SyntaxKind.ModuleDeclaration:
+                updated = factory.createModuleDeclaration(
+                    node.modifiers,
+                    node.name,
+                    node.body,
+                    node.flags
+                );
+                updated.illegalDecorators = newIllegalDecorators;
+                return update(updated, node);
+            case SyntaxKind.EnumDeclaration:
+                updated = factory.createEnumDeclaration(
+                    node.modifiers,
+                    node.name,
+                    node.members
+                );
+                updated.illegalDecorators = newIllegalDecorators;
+                return update(updated, node);
+            case SyntaxKind.InterfaceDeclaration:
+                updated = factory.createInterfaceDeclaration(
+                    node.modifiers,
+                    node.name,
+                    node.typeParameters,
+                    node.heritageClauses,
+                    node.members
+                );
+                updated.illegalDecorators = newIllegalDecorators;
+                return update(updated, node);
+            default:
+                return node;
+        }
     }
 
     //

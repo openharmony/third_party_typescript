@@ -547,24 +547,19 @@ export function transformAnnotation(context: TransformationContext): (node: Sour
         if (!node.illegalDecorators) {
             return visitEachChild(node, visitAnnotations, context);
         }
-        switch (node.kind) {
-            case SyntaxKind.FunctionDeclaration:
-            case SyntaxKind.TypeAliasDeclaration: 
-            case SyntaxKind.VariableStatement:
-            case SyntaxKind.InterfaceDeclaration:
-            case SyntaxKind.PropertySignature:
-            case SyntaxKind.MethodSignature:
-            case SyntaxKind.ModuleDeclaration:
-            case SyntaxKind.EnumDeclaration:
-                (node as Mutable<HasIllegalDecorators>).illegalDecorators = factory.createNodeArray(filter(node.illegalDecorators, (decorator) => {
-                    return !isAnnotation(decorator);
-                }));
-                break;
-            default:
-                return visitEachChild(node, visitAnnotations, context);
+
+        const shouldUpdateIllegalDecorators = node.illegalDecorators.some(decorator => isAnnotation(decorator));
+
+        if (!shouldUpdateIllegalDecorators) {
+            return visitEachChild(node, visitAnnotations, context);
         }
-        
-        return visitEachChild(node, visitAnnotations, context);
+
+        const newIllegalDecorators = factory.createNodeArray(filter(node.illegalDecorators, (decorator) => {
+            return !isAnnotation(decorator);
+        }));
+
+        const newNode = factory.updateIllegalDecorators(node, newIllegalDecorators);
+        return visitEachChild(newNode, visitAnnotations, context);
     }
 
     function visitAnnotations(node: Node): VisitResult<Node> {
