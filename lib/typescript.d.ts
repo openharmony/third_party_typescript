@@ -2600,9 +2600,11 @@ declare namespace ts {
         getTypeFromTypeNode(node: TypeNode): Type;
         signatureToString(signature: Signature, enclosingDeclaration?: Node, flags?: TypeFormatFlags, kind?: SignatureKind): string;
         typeToString(type: Type, enclosingDeclaration?: Node, flags?: TypeFormatFlags): string;
+        typeToStringForLinter(type: Type, enclosingDeclaration?: Node, flags?: TypeFormatFlags): string;
         symbolToString(symbol: Symbol, enclosingDeclaration?: Node, meaning?: SymbolFlags, flags?: SymbolFormatFlags): string;
         typePredicateToString(predicate: TypePredicate, enclosingDeclaration?: Node, flags?: TypeFormatFlags): string;
         getFullyQualifiedName(symbol: Symbol): string;
+        getFullyQualifiedNameForLinter(symbol: Symbol): string;
         getAugmentedPropertiesOfType(type: Type): Symbol[];
         getRootSymbols(symbol: Symbol): readonly Symbol[];
         getSymbolOfExpando(node: Node, allowDeclaration: boolean): Symbol | undefined;
@@ -2647,6 +2649,8 @@ declare namespace ts {
         getTypeArgumentsForResolvedSignature(signature: Signature): readonly Type[] | undefined;
         getCheckedSourceFiles(): Set<SourceFile>;
         collectHaveTsNoCheckFilesForLinter(sourceFile: SourceFile): void;
+        clearQualifiedNameForLinterCache(): void;
+        clearTypeToStringForLinterCache(): void;
         clearQualifiedNameCache?(): void;
         isStaticRecord?(type: Type): boolean;
         isStaticSourceFile?(sourceFile: SourceFile | undefined): boolean;

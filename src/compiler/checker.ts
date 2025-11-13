@@ -1493,6 +1493,8 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
     var checkedSourceFiles: Set<SourceFile> = new Set();
     // Used only for linter, in non-strict typeChecker, it is always empty.
     var qualifiedNameCache: ESMap<Symbol, string> = new Map();
+    var qualifiedNameForLinterCache = new WeakMap<Symbol, string>();
+    var typeToStringCache = new WeakMap<Type, string>();
 
     // Get the SDK paths that need to skip the @throws check.
     const skipSdkPath: string = getSdkPath(compilerOptions)!;
@@ -1628,6 +1630,9 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
         typeToString: (type, enclosingDeclaration, flags) => {
             return typeToString(type, getParseTreeNode(enclosingDeclaration), flags);
         },
+        typeToStringForLinter: (type, enclosingDeclaration, flags) => {
+            return typeToStringForLinter(type, getParseTreeNode(enclosingDeclaration), flags);
+        },
         symbolToString: (symbol, enclosingDeclaration, meaning, flags) => {
             return symbolToString(symbol, getParseTreeNode(enclosingDeclaration), meaning, flags);
         },
@@ -1674,6 +1679,7 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
         isContextSensitive,
         getTypeOfPropertyOfContextualType,
         getFullyQualifiedName,
+        getFullyQualifiedNameForLinter,
         tryGetResolvedSignatureWithoutCheck: (node, candidatesOutArray, argumentCount) =>
             getResolvedSignatureWorker(node, candidatesOutArray, argumentCount, CheckMode.SkipEtsComponentBody),
         getResolvedSignature: (node, candidatesOutArray, argumentCount) =>
@@ -1860,6 +1866,8 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
         getCheckedSourceFiles: () => checkedSourceFiles,
         collectHaveTsNoCheckFilesForLinter: (sourceFile: SourceFile) => {checkedSourceFiles.add(sourceFile)},
         clearQualifiedNameCache: () => {qualifiedNameCache && qualifiedNameCache.clear()},
+        clearQualifiedNameForLinterCache: () => {qualifiedNameForLinterCache = new WeakMap<Symbol, string>();},
+        clearTypeToStringForLinterCache: () => {typeToStringCache = new WeakMap<Type, string>();},
         isStaticRecord: isStaticRecord,
         isStaticSourceFile: isStaticSourceFile,
     };
@@ -4609,6 +4617,40 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
         }
     }
 
+    /**
+     * Add a getFullyQualifiedName caching interface for easytrans.
+     */
+    function getFullyQualifiedNameForLinter(symbol: Symbol): string {
+        const cachedQualifiedName: string | undefined = qualifiedNameForLinterCache.get(symbol);
+        if (cachedQualifiedName) {
+            return cachedQualifiedName;
+        }
+
+        const parts: string[] = [];
+        let current: Symbol = symbol;
+        collectSymbolNames(parts, current);
+        const fullName = parts.join('.');
+        qualifiedNameForLinterCache.set(symbol, fullName);
+        return fullName;
+    }
+
+    function collectSymbolNames(
+        parts: string[],
+        symbol: Symbol,
+        containingLocation?: ts.Node
+    ): void {
+        if (symbol.parent) {
+            collectSymbolNames(parts, symbol.parent, containingLocation);
+        }
+        const name = symbolToString(
+            symbol,
+            containingLocation,
+            /*meaning*/ undefined,
+            ts.SymbolFormatFlags.DoNotIncludeSymbolChain | ts.SymbolFormatFlags.AllowAnyNodeKind
+        );
+        parts.push(name);
+    }
+
     function getFullyQualifiedName(symbol: Symbol, containingLocation?: Node): string {
         if (isTypeCheckerForLinter && containingLocation === undefined) {
             const cachedQualifiedName: string | undefined = qualifiedNameCache.get(symbol);
@@ -6175,6 +6217,19 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
             printer.writeNode(EmitHint.Unspecified, sig!, /*sourceFile*/ sourceFile, getTrailingSemicolonDeferringWriter(writer)); // TODO: GH#18217
             return writer;
         }
+    }
+
+    /**
+     * Add a typeToString caching interface for easytrans.
+     */
+    function typeToStringForLinter(type: Type, enclosingDeclaration?: Node, flags: TypeFormatFlags = TypeFormatFlags.AllowUniqueESSymbolType | TypeFormatFlags.UseAliasDefinedOutsideCurrentScope, writer: EmitTextWriter = createTextWriter("")): string {
+        const typeCache: string | undefined = typeToStringCache.get(type);
+        if (typeCache) {
+            return typeCache;
+        }
+        const result: string = typeToString(type, enclosingDeclaration, flags, writer);
+        typeToStringCache.set(type, result);
+        return result;
     }
 
     function typeToString(type: Type, enclosingDeclaration?: Node, flags: TypeFormatFlags = TypeFormatFlags.AllowUniqueESSymbolType | TypeFormatFlags.UseAliasDefinedOutsideCurrentScope, writer: EmitTextWriter = createTextWriter("")): string {
