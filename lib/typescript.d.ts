@@ -3601,6 +3601,8 @@ declare namespace ts {
         resolvedFileName: string;
         /** True if `resolvedFileName` comes from `node_modules`. */
         isExternalLibraryImport?: boolean;
+        /** True if the module is not in `oh-exports` and requires checking. */
+        isNotOhExport?: boolean;
     }
     /**
      * ResolvedModule with an explicitly provided `extension` property.

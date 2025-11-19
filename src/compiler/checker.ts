@@ -5034,6 +5034,9 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
 
         // May be an untyped module. If so, ignore resolutionDiagnostic.
         if (resolvedModule && !resolutionExtensionIsTSOrJson(resolvedModule.extension) && resolutionDiagnostic === undefined || resolutionDiagnostic === Diagnostics.Could_not_find_a_declaration_file_for_module_0_1_implicitly_has_an_any_type) {
+            if (resolvedModule?.isNotOhExport) {
+                error(errorNode, Diagnostics.Cannot_find_module_0_This_module_is_not_exported, moduleReference);
+            } 
             if (isForAugmentation) {
                 const diag = Diagnostics.Invalid_module_name_in_augmentation_Module_0_resolves_to_an_untyped_module_at_1_which_cannot_be_augmented;
                 error(errorNode, diag, moduleReference, resolvedModule!.resolvedFileName);
@@ -5099,6 +5102,8 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
                     if (isSoFile) {
                         const diagnostic = createDiagnosticForNode(errorNode, Diagnostics.Currently_module_for_0_is_not_verified_If_you_re_importing_napi_its_verification_will_be_enabled_in_later_SDK_version_Please_make_sure_the_corresponding_d_ts_file_is_provided_and_the_napis_are_correctly_declared, moduleReference);
                         diagnostics.add(diagnostic);
+                    } else if (resolvedModule?.isNotOhExport) {
+                        error(errorNode, Diagnostics.Cannot_find_module_0_This_module_is_not_exported, moduleReference);
                     } else {
                         error(errorNode, moduleNotFoundError, moduleReference);
                     }
