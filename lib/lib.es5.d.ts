@@ -4430,9 +4430,9 @@ declare namespace Intl {
         minimumSignificantDigits?: number;
         maximumSignificantDigits?: number;
         useGrouping: boolean;
-        roundingIncrement: number;
-        roundingMode: string;
-        roundingPriority: string;
+        roundingIncrement?: number;
+        roundingMode?: string;
+        roundingPriority?: string;
     }
 
     interface NumberFormat {
