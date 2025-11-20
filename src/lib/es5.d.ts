@@ -4393,6 +4393,10 @@ declare namespace Intl {
         maximumFractionDigits?: number | undefined;
         minimumSignificantDigits?: number | undefined;
         maximumSignificantDigits?: number | undefined;
+        numberingSystem?: string | undefined;
+        roundingIncrement?: number | undefined;
+        roundingMode?: string | undefined;
+        roundingPriority?: string | undefined;
     }
 
     interface ResolvedNumberFormatOptions {
@@ -4406,6 +4410,9 @@ declare namespace Intl {
         minimumSignificantDigits?: number;
         maximumSignificantDigits?: number;
         useGrouping: boolean;
+        roundingIncrement: number;
+        roundingMode: string;
+        roundingPriority: string;
     }
 
     interface NumberFormat {
