@@ -29,7 +29,7 @@ import {
     isPropertyAccessExpression, isPropertySignature, isSemicolonClassElement, isSendableFunctionOrType,
     isSetAccessorDeclaration, isSourceFile, isSourceFileJS, isSourceFileNotJson, isStringANonContextualKeyword,
     isStringLiteral, isStringLiteralLike, isStructDeclaration, isTupleTypeNode, isTypeAliasDeclaration, isTypeNode,
-    isTypeParameterDeclaration, isTypeQueryNode, isTypeReferenceNode, isUnparsedSource, last, LateBoundDeclaration,
+    isTypeParameterDeclaration, isTypeQueryNode, isTypeReferenceNode, isUnparsedSource, isVariableStatement, last, LateBoundDeclaration,
     LateVisibilityPaintedStatement, length, map, Map, mapDefined, MethodDeclaration, MethodSignature, Modifier,
     ModifierFlags, ModuleBody, ModuleDeclaration, Mutable, NamedDeclaration, NamespaceDeclaration,
     needsScopeMarker, Node, NodeArray, NodeBuilderFlags, NodeFlags, NodeId, normalizeSlashes, OmittedExpression,
@@ -1292,6 +1292,38 @@ export function transformDeclarations(context: TransformationContext) {
         return factory.updateModifiers(statement, modifiers);
     }
 
+    // We need to keep reserved decorators and annotations for ets files.
+    function stripExportModifiersForEts(statement: Statement): Statement {
+        if (isImportEqualsDeclaration(statement) || hasEffectiveModifier(statement, ModifierFlags.Default) || !canHaveModifiers(statement)) {
+            // `export import` statements should remain as-is, as imports are _not_ implicitly exported in an ambient namespace
+            // Likewise, `export default` classes and the like and just be `default`, so we preserve their `export` modifiers, too
+            return statement;
+        }
+
+        const modifiers = factory.createModifiersFromModifierFlags(getEffectiveModifierFlags(statement) & (ModifierFlags.All ^ ModifierFlags.Export));
+
+        if (isClassDeclaration(statement)) {
+            let reservedDecorators = concatenate(ensureEtsDecorators(statement, host), getAnnotations(statement));
+            return factory.updateClassDeclaration(
+                statement,
+                concatenateDecoratorsAndModifiers(reservedDecorators, modifiers),
+                statement.name,
+                statement.typeParameters,
+                statement.heritageClauses,
+                statement.members
+            );
+        }
+
+        const updated = factory.updateModifiers(statement, modifiers);
+
+        if (isVariableStatement(statement)) {
+            let reservedDecorators = getAnnotationsFromIllegalDecorators(statement);
+            (updated as Mutable<VariableStatement>).illegalDecorators = factory.createNodeArray(reservedDecorators);
+        }
+
+        return updated;
+    }
+
     function transformTopLevelDeclaration(input: LateVisibilityPaintedStatement) {
         if (lateMarkedStatements) {
             while (orderedRemoveItem(lateMarkedStatements, input));
@@ -1485,7 +1517,9 @@ export function transformDeclarations(context: TransformationContext) {
                             lateStatements = factory.createNodeArray([...lateStatements, createEmptyExports(factory)]);
                         }
                         else {
-                            lateStatements = visitNodes(lateStatements, stripExportModifiers);
+                            lateStatements = isInEtsFile(input) ?
+                                visitNodes(lateStatements, stripExportModifiersForEts) :
+                                visitNodes(lateStatements, stripExportModifiers);
                         }
                     }
                     const body = factory.updateModuleBlock(inner, lateStatements);
