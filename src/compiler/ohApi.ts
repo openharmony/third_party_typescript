@@ -1311,51 +1311,34 @@ function setNoOriginalText<T extends Node>(node: T): T {
     return node;
 }
 
-function createNameImportDeclaration(factory: NodeFactory, isType: boolean, name: Identifier, source: string,
-    oldStatement: ImportDeclaration, importSpecifier: TextRange, isLazy?: boolean): ImportDeclaration {
+function createImportDeclarationForKit(factory: NodeFactory, isType: boolean, name: Identifier, symbol: KitSymbolInfo,
+    oldStatement: ImportDeclaration, importSpecifier: ImportSpecifier | Identifier, isLazy?: boolean): ImportDeclaration {
+    const source = symbol.source.replace(/\.d.[e]?ts$/, '');
+    const binding = symbol.bindings;
     const oldModuleSpecifier = oldStatement.moduleSpecifier;
-    const newModuleSpecifier = setNoOriginalText(setVirtualNodeAndKitImportFlags(
-        factory.createStringLiteral(source), oldModuleSpecifier.pos, oldModuleSpecifier.end)
-    );
-    let newImportClause = factory.createImportClause(isType, name, undefined);
+    const newModuleSpecifier = setNoOriginalText(
+        setVirtualNodeAndKitImportFlags(factory.createStringLiteral(source), oldModuleSpecifier.pos, oldModuleSpecifier.end));
+    let newImportClause: ImportClause;
+    if (binding === DEFAULT_KEYWORD) {
+        newImportClause = factory.createImportClause(isType, name, undefined);
+    }
+    else {
+        const newPropertyName = isImportSpecifier(importSpecifier) && importSpecifier.propertyName === undefined && binding === name.escapedText ?
+            undefined : setNoOriginalText(setVirtualNodeAndKitImportFlags(factory.createIdentifier(binding), name.pos, name.end));
+        // The location information of the newImportSpecific is created using the location information of the old importSpecifier.
+        const newImportSpecific = setVirtualNodeAndKitImportFlags(
+            factory.createImportSpecifier(false, newPropertyName, name), importSpecifier.pos, importSpecifier.end);
+        // The location information of the newNamedBindings is created using the location information of the old importSpecifier.
+        const newNamedBindings = setVirtualNodeAndKitImportFlags(factory.createNamedImports([newImportSpecific]), importSpecifier.pos, importSpecifier.end);
+        newImportClause = factory.createImportClause(isType, undefined, newNamedBindings);
+    }
     // Add the isLazy flag in the original importDeclaration to the new importClause statement.
     (newImportClause as Mutable<ImportClause>).isLazy = isLazy;
+    // The location information of the newImportClause is created using the location information of the old importSpecifier.
     newImportClause = setVirtualNodeAndKitImportFlags(newImportClause, importSpecifier.pos, importSpecifier.end);
     const newImportDeclaration = setVirtualNodeAndKitImportFlags(
         factory.createImportDeclaration(undefined, newImportClause, newModuleSpecifier), oldStatement.pos, oldStatement.end);
     return newImportDeclaration;
-}
-
-function createBindingImportDeclaration(factory: NodeFactory, isType: boolean, propname: string, name: Identifier, source: string,
-    oldStatement: ImportDeclaration, importSpecifier: TextRange, isLazy?: boolean): ImportDeclaration {
-    const oldModuleSpecifier = oldStatement.moduleSpecifier;
-    const newModuleSpecifier = setNoOriginalText(
-        setVirtualNodeAndKitImportFlags(factory.createStringLiteral(source), oldModuleSpecifier.pos, oldModuleSpecifier.end));
-    const newPropertyName = setNoOriginalText(setVirtualNodeAndKitImportFlags(factory.createIdentifier(propname), name.pos, name.end));
-    // The location information of the newImportSpecific is created using the location information of the old importSpecifier.
-    const newImportSpecific = setVirtualNodeAndKitImportFlags(
-        factory.createImportSpecifier(false, newPropertyName, name), importSpecifier.pos, importSpecifier.end);
-    // The location information of the newNamedBindings is created using the location information of the old importSpecifier.
-    const newNamedBindings = setVirtualNodeAndKitImportFlags(factory.createNamedImports([newImportSpecific]), importSpecifier.pos, importSpecifier.end);
-    let newImportClause = factory.createImportClause(isType, undefined, newNamedBindings);
-    // Add the isLazy flag in the original importDeclaration to the new importClause statement.
-    (newImportClause as Mutable<ImportClause>).isLazy = isLazy;
-    // The location information of the newImportClause is created using the location information of the old importSpecifier.
-    newImportClause = setVirtualNodeAndKitImportFlags(
-        newImportClause, importSpecifier.pos, importSpecifier.end);
-    const newImportDeclaration = setVirtualNodeAndKitImportFlags(
-        factory.createImportDeclaration(undefined, newImportClause, newModuleSpecifier), oldStatement.pos, oldStatement.end);
-    return newImportDeclaration;
-}
-
-function createImportDeclarationForKit(factory: NodeFactory, isType: boolean, name: Identifier, symbol: KitSymbolInfo,
-    oldStatement: ImportDeclaration, importSpecifier: TextRange, isLazy?: boolean): ImportDeclaration {
-    const source = symbol.source.replace(/\.d.[e]?ts$/, '');
-    const binding = symbol.bindings;
-    if (binding === DEFAULT_KEYWORD) {
-        return createNameImportDeclaration(factory, isType, name, source, oldStatement, importSpecifier, isLazy);
-    }
-    return createBindingImportDeclaration(factory, isType, binding, name, source, oldStatement, importSpecifier, isLazy);
 }
 
 function markKitImport(statement : Statement, markedkitImportRanges: Array<TextRange>): void {
