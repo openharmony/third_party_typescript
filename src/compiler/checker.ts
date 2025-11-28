@@ -201,6 +201,7 @@ import {
     FlowSwitchClause,
     FlowType,
     forEach,
+    forEachAncestor,
     forEachChild,
     forEachChildRecursively,
     forEachEnclosingBlockScopeContainer,
@@ -34308,6 +34309,8 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
 
     function expressionCheckByJsDoc(declaration: Declaration, node: Identifier, sourceFile: SourceFile, checkConfig: JsDocNodeCheckConfigItem[]): void {
         const jsDocTags = getJSDocTags(declaration);
+        // set Annotations of decl recursivly before sdk api check.
+        forEachAncestor(declaration, setAnnotationsOfNode);
         for (let i = 0; i < checkConfig.length; i++) {
             const config = checkConfig[i];
             let tagNameCheckNecessity = true;
@@ -40226,8 +40229,25 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
         return type.symbol.declarations[0];
     }
 
+    function setAnnotationsOfNode(node: Node): void {
+        if (!canHaveDecorators(node) && !canHaveIllegalDecorators(node)) {
+            return;
+        }
+        const links = getNodeLinks(node);
+        if (!(links.flags & NodeCheckFlags.AnnotationChecked)) {
+            links.flags |= NodeCheckFlags.AnnotationChecked;
+            getAllDecorators(node).forEach(item => {
+                const annotationDecl = getAnnotationDeclaration(item);
+                if (annotationDecl) {
+                    (item as Mutable<Decorator>).annotationDeclaration = annotationDecl;
+                }
+            });
+        }
+    }
+
     /** Check the decorators of a node */
     function checkDecorators(node: Node): void {
+        setAnnotationsOfNode(node);
         let atLeastOneDecorator = false;
         getAllDecorators(node).forEach(item => {
             if (isIdentifier(item.expression)) {
@@ -40236,13 +40256,7 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
                     checkIdentifierJsDoc(item.expression, symbol);
                 }
             }
-            const annotationDecl = getAnnotationDeclaration(item);
-            if (annotationDecl) {
-                (item as Mutable<Decorator>).annotationDeclaration = annotationDecl;
-            }
-            else {
-                atLeastOneDecorator = true;
-            }
+            atLeastOneDecorator = true;
         });
         if (canHaveDecorators(node) && some(node.modifiers, isAnnotation)) {
             checkAnnotations(node.modifiers);
@@ -47477,13 +47491,7 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
     }
 
     function checkGrammarDecorators(node: Node): boolean {
-        getAllDecorators(node).forEach(item => {
-            const annotationDecl = getAnnotationDeclaration(item);
-            if (annotationDecl) {
-                (item as Mutable<Decorator>).annotationDeclaration = annotationDecl;
-            }
-        });
-
+        setAnnotationsOfNode(node);
         if (canHaveIllegalDecorators(node) && some(node.illegalDecorators, isAnnotation)) {
             checkAnnotations(node.illegalDecorators);
         }
