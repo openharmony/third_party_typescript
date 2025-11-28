@@ -7846,7 +7846,7 @@
         "category": "Error",
         "code": 28042
     },
-    "@Available annotation are not valid here": {
+    "{0} annotation are not valid here, got: '{1}'.": {
         "category": "Error",
         "code": 28043
     },

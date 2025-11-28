@@ -616,7 +616,7 @@ export function transformAnnotation(context: TransformationContext): (node: Sour
         if (node.isTypeOnly || !resolver.isReferredToAnnotation(node)) {
             return node;
         }
-        if (resolver.isReferredToAvailableAnnotation(node)) {
+        if (resolver.isReferredToSourceRetentionAnnotation(node)) {
             return undefined;
         }
         const magicPrefixName = addMagicPrefixToAnnotationNameIdentifier(node.name);
@@ -664,7 +664,7 @@ export function transformAnnotation(context: TransformationContext): (node: Sour
             return undefined;
         }
 
-        if (resolver.isAvailableAnnotation(node)) {
+        if (resolver.isSourceRetentionAnnotation(node)) {
             return undefined;
         }
         
