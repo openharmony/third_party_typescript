@@ -14,6 +14,7 @@
  */
 import * as ts from "../_namespaces/ts";
 import { Diagnostic, Map, Set, ESMap } from "../_namespaces/ts";
+import { PROPERTY_HAS_NO_INITIALIZER_ERROR_CODE } from "./Utils";
 
 // Current approach relates on error code and error message matching and it is quite fragile,
 // so this place should be checked thoroughly in the case of typescript upgrade
@@ -56,18 +57,84 @@ export class LibraryTypeCallDiagnosticChecker {
   }
 
   private _diagnosticErrorTypeMap: ESMap<ts.Diagnostic, ErrorType> = new Map();
+  // Store diagnostics that linter should not handle (e.g., throw exception warnings)
+  // These diagnostics need to be merged back after linter processing is complete
+  private _nonLinterDiagnostics: ESMap<string, ts.Diagnostic[]> = new Map();
+
+  // Only process diagnostics with these error codes; other diagnostics (e.g., throw exception warnings) will be ignored
+  private static readonly RELEVANT_ERROR_CODES = new Set<number>([
+    TYPE_0_IS_NOT_ASSIGNABLE_TO_TYPE_1_ERROR_CODE,           // 2322
+    ARGUMENT_OF_TYPE_0_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_ERROR_CODE,  // 2345
+    NO_OVERLOAD_MATCHES_THIS_CALL_ERROR_CODE,                // 2769
+    OBJECT_IS_POSSIBLY_UNDEFINED_ERROR_CODE,                 // 2532
+    PROPERTY_HAS_NO_INITIALIZER_ERROR_CODE,                  // 2564
+  ]);
 
   private constructor() {}
 
   clear(): void {
     this._diagnosticErrorTypeMap = new Map();
+    this._nonLinterDiagnostics.clear();
+  }
+
+  // Get non-linter processed diagnostics (for subsequent merging)
+  getNonLinterDiagnostics(file: string): ts.Diagnostic[] {
+    return this._nonLinterDiagnostics.get(file) ?? [];
+  }
+
+  // Merge linter-processed diagnostics with non-linter diagnostics
+  mergeDiagnostics(file: string, linterProcessedDiagnostics: ts.Diagnostic[]): ts.Diagnostic[] {
+    const nonLinterDiags = this._nonLinterDiagnostics.get(file);
+    if (!nonLinterDiags || nonLinterDiags.length === 0) {
+      return linterProcessedDiagnostics;
+    }
+    return [...linterProcessedDiagnostics, ...nonLinterDiags];
   }
 
   // eslint-disable-next-line max-lines-per-function
-  rebuildTscDiagnostics(tscStrictDiagnostics: ESMap<string, ts.Diagnostic[]>): void {
+  rebuildTscDiagnostics(tscStrictDiagnostics: ESMap<string, ts.Diagnostic[]>, compilerOptions: ts.CompilerOptions): void {
     this.clear();
     if (tscStrictDiagnostics.size === 0) {
       return;
+    }
+
+    // Pre-filtering: Divide diagnostics into two categories
+    // 1. linterDiagnostics: Diagnostics that linter needs to handle (retained in tscStrictDiagnostics)
+    // 2. nonLinterDiagnostics: Diagnostics that linter does not need to handle (stored in _nonLinterDiagnostics)
+    // Only executed when enableEtsOptimization is enabled, as this mode generates many irrelevant diagnostics
+    if (compilerOptions.strictCheckerOnly) {
+      tscStrictDiagnostics.forEach((diagnostics, file) => {
+        const linterDiags: ts.Diagnostic[] = [];
+        const nonLinterDiags: ts.Diagnostic[] = [];
+
+        for (const diag of diagnostics) {
+          if (diag.start !== undefined &&
+              LibraryTypeCallDiagnosticChecker.RELEVANT_ERROR_CODES.has(diag.code)) {
+            linterDiags.push(diag);
+          } else {
+            nonLinterDiags.push(diag);
+          }
+        }
+
+        // Update tscStrictDiagnostics to only keep diagnostics that linter needs to handle
+        if (linterDiags.length === 0 && nonLinterDiags.length > 0) {
+          // If there are no linter diagnostics, remove the file from the map
+          tscStrictDiagnostics.delete(file);
+        } else if (linterDiags.length > 0) {
+          // Update to linter diagnostics
+          tscStrictDiagnostics.set(file, linterDiags);
+        }
+
+        // Save non-linter processed diagnostics
+        if (nonLinterDiags.length > 0) {
+          this._nonLinterDiagnostics.set(file, nonLinterDiags);
+        }
+      });
+
+      // If there are no linter diagnostics after pre-filtering, return directly
+      if (tscStrictDiagnostics.size === 0) {
+        return;
+      }
     }
 
     const diagnosticMessageChainArr: Diagnostic[] = [];
@@ -98,7 +165,7 @@ export class LibraryTypeCallDiagnosticChecker {
     const unknownSet: Set<string> = new Set<string>();
     diagnosticMessageChainArr.forEach((item) => {
       const diagnosticMessageChain = item.messageText as ts.DiagnosticMessageChain;
-      const errorType: ErrorType = MessageUtils.checkMessageChainErrorType(diagnosticMessageChain);
+      const errorType: ErrorType = MessageUtils.checkMessageChainErrorType(diagnosticMessageChain, compilerOptions);
       if (errorType === ErrorType.UNKNOW) {
         MessageUtils.collectDiagnosticMessage(diagnosticMessageChain, unknownSet);
         this._diagnosticErrorTypeMap.set(item, ErrorType.UNKNOW);
@@ -119,6 +186,9 @@ export class LibraryTypeCallDiagnosticChecker {
       }
 
       if (errorType === ErrorType.NO_ERROR) {
+        return;
+      }
+      if (compilerOptions.strictCheckerOnly && errorType === ErrorType.UNKNOW) {
         return;
       }
       this._diagnosticErrorTypeMap.set(item, errorType);
@@ -225,7 +295,33 @@ class MessageUtils {
     textSet.add(argumentText);
   }
 
-  static checkMessageErrorType(code: number, messageText: string): ErrorType {
+  static checkMessageErrorTypeWithFlag(code: number, messageText: string, filterFlag?: boolean): ErrorType {
+    if (code === TYPE_0_IS_NOT_ASSIGNABLE_TO_TYPE_1_ERROR_CODE) {
+      if (messageText.match(TYPE_UNKNOWN_IS_NOT_ASSIGNABLE_TO_TYPE_1_RE) && filterFlag) {
+        return ErrorType.UNKNOW;
+      }
+      if (messageText.match(TYPE_UNDEFINED_IS_NOT_ASSIGNABLE_TO_TYPE_1_RE)) {
+        return ErrorType.NULL;
+      }
+      if (messageText.match(TYPE_NULL_IS_NOT_ASSIGNABLE_TO_TYPE_1_RE)) {
+        return ErrorType.NULL;
+      }
+    }
+    if (code === ARGUMENT_OF_TYPE_0_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_ERROR_CODE) {
+      if (messageText.match(ARGUMENT_OF_TYPE_UNDEFINED_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_RE)) {
+        return ErrorType.NULL;
+      }
+      if (messageText.match(ARGUMENT_OF_TYPE_NULL_IS_NOT_ASSIGNABLE_TO_PARAMETER_OF_TYPE_1_RE)) {
+        return ErrorType.NULL;
+      }
+    }
+    if (code === OBJECT_IS_POSSIBLY_UNDEFINED_ERROR_CODE) {
+      return ErrorType.POSSIBLY_UNDEFINED;
+    }
+    return ErrorType.NO_ERROR;
+  }
+
+    static checkMessageErrorType(code: number, messageText: string): ErrorType {
     if (code === TYPE_0_IS_NOT_ASSIGNABLE_TO_TYPE_1_ERROR_CODE) {
       if (messageText.match(TYPE_UNKNOWN_IS_NOT_ASSIGNABLE_TO_TYPE_1_RE)) {
         return ErrorType.UNKNOW;
@@ -251,18 +347,23 @@ class MessageUtils {
     return ErrorType.NO_ERROR;
   }
 
-  static checkMessageChainErrorType(chain: ts.DiagnosticMessageChain): ErrorType {
-    let errorType = MessageUtils.checkMessageErrorType(chain.code, chain.messageText);
+  static checkMessageChainErrorType(chain: ts.DiagnosticMessageChain, compilerOptions: ts.CompilerOptions): ErrorType {
+    let errorType: ts.ArkTSLinter_1_1.ErrorType;
+    if (compilerOptions.strictCheckerOnly) {
+      errorType = MessageUtils.checkMessageErrorTypeWithFlag(chain.code, chain.messageText, chain.filterFlag);
+    } else {
+      errorType = MessageUtils.checkMessageErrorType(chain.code, chain.messageText);
+    }
     if (errorType !== ErrorType.NO_ERROR || !chain.next?.length) {
       return errorType;
     }
     // 'No_overrload... 'Errors need to check each sub-error message, others only check the first one
     if (chain.code !== NO_OVERLOAD_MATCHES_THIS_CALL_ERROR_CODE) {
-      return MessageUtils.checkMessageChainErrorType(chain.next[0]);
+      return MessageUtils.checkMessageChainErrorType(chain.next[0], compilerOptions);
     }
 
     for (const child of chain.next) {
-      errorType = MessageUtils.checkMessageChainErrorType(child);
+      errorType = MessageUtils.checkMessageChainErrorType(child, compilerOptions);
       if (errorType !== ErrorType.NO_ERROR) {
         break;
       }

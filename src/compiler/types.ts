@@ -5091,6 +5091,7 @@ export interface TypeChecker {
     clearQualifiedNameCache?(): void;
     isStaticRecord?(type: Type): boolean;
     isStaticSourceFile?(sourceFile: SourceFile | undefined): boolean;
+    resetJsDocCheck(): void;
 }
 
 /** @internal */
@@ -6693,6 +6694,7 @@ export interface DiagnosticMessageChain {
     category: DiagnosticCategory;
     code: number;
     next?: DiagnosticMessageChain[];
+    filterFlag?: boolean;
 }
 
 export interface Diagnostic extends DiagnosticRelatedInformation {
@@ -6963,7 +6965,8 @@ export interface CompilerOptions {
     mixCompile?: boolean;
     isCompileJsHar?: boolean; // The har where the compilation output is a js file.
     moduleRootPath?: string; // The root path of module, such as har.
-    disableSendableCheckRules?: string[]; // sendable rules that needs to disable
+    disableSendableCheckRules?: string[]; // sendable rules that needs to disable.
+    strictCheckerOnly?: boolean; // Only do strict check for ets files when enabled.
 }
 
 export interface EtsOptions {

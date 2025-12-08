@@ -2654,6 +2654,7 @@ declare namespace ts {
         clearQualifiedNameCache?(): void;
         isStaticRecord?(type: Type): boolean;
         isStaticSourceFile?(sourceFile: SourceFile | undefined): boolean;
+        resetJsDocCheck(): void;
     }
     enum NodeBuilderFlags {
         None = 0,
@@ -3207,6 +3208,7 @@ declare namespace ts {
         category: DiagnosticCategory;
         code: number;
         next?: DiagnosticMessageChain[];
+        filterFlag?: boolean;
     }
     interface Diagnostic extends DiagnosticRelatedInformation {
         /** May store more in future. For now, this will simply be `true` to indicate when a diagnostic is an unused-identifier diagnostic. */
@@ -3404,6 +3406,7 @@ declare namespace ts {
         isCompileJsHar?: boolean;
         moduleRootPath?: string;
         disableSendableCheckRules?: string[];
+        strictCheckerOnly?: boolean;
     }
     interface EtsOptions {
         render: {
@@ -9034,9 +9037,13 @@ declare namespace ts {
             private static _instance;
             static get instance(): LibraryTypeCallDiagnosticChecker;
             private _diagnosticErrorTypeMap;
+            private _nonLinterDiagnostics;
+            private static readonly RELEVANT_ERROR_CODES;
             private constructor();
             clear(): void;
-            rebuildTscDiagnostics(tscStrictDiagnostics: ESMap<string, ts.Diagnostic[]>): void;
+            getNonLinterDiagnostics(file: string): ts.Diagnostic[];
+            mergeDiagnostics(file: string, linterProcessedDiagnostics: ts.Diagnostic[]): ts.Diagnostic[];
+            rebuildTscDiagnostics(tscStrictDiagnostics: ESMap<string, ts.Diagnostic[]>, compilerOptions: ts.CompilerOptions): void;
             filterDiagnostics(tscDiagnostics: readonly ts.Diagnostic[], expr: ts.CallExpression | ts.NewExpression, isLibCall: boolean, filterHandle: (diagnositc: ts.Diagnostic, errorType: ErrorType) => void): void;
             private getErrorType;
             private static isValidErrorType;

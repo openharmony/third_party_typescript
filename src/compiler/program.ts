@@ -1495,6 +1495,8 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
     tracing?.push(tracing.Phase.Program, "tryReuseStructureFromOldProgram", {});
     PerformanceDotting.start("tryReuseStructureFromOldProgram");
     structureIsReused = tryReuseStructureFromOldProgram(); // eslint-disable-line prefer-const
+    PerformanceDotting.startAdvanced("structureIsReused" + ': ' + structureIsReused);
+ 	  PerformanceDotting.stopAdvanced("structureIsReused" + ': ' + structureIsReused);
     PerformanceDotting.stop("tryReuseStructureFromOldProgram");
     tracing?.pop();
     if (structureIsReused !== StructureIsReused.Completely) {
@@ -1714,6 +1716,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
     onProgramCreateComplete();
 
     // Add file processingDiagnostics
+    PerformanceDotting.startAdvanced("processingDiagnostics");
     fileProcessingDiagnostics?.forEach(diagnostic => {
         switch (diagnostic.kind) {
             case FilePreprocessingDiagnosticsKind.FilePreprocessingFileExplainingDiagnostic:
@@ -1725,6 +1728,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
                 Debug.assertNever(diagnostic);
         }
     });
+    PerformanceDotting.stopAdvanced("processingDiagnostics");
 
     verifyCompilerOptions();
     performance.mark("afterProgram");
@@ -2474,9 +2478,9 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
 
     function emit(sourceFile?: SourceFile, writeFileCallback?: WriteFileCallback, cancellationToken?: CancellationToken, emitOnlyDtsFiles?: boolean, transformers?: CustomTransformers, forceDtsEmit?: boolean): EmitResult {
         tracing?.push(tracing.Phase.Emit, "emit", { path: sourceFile?.path }, /*separateBeginAndEnd*/ true);
-        PerformanceDotting.start("emit");
+        PerformanceDotting.startAdvanced("emit");
         const result = runWithCancellationToken(() => emitWorker(program, sourceFile, writeFileCallback, cancellationToken, emitOnlyDtsFiles, transformers, forceDtsEmit));
-        PerformanceDotting.stop("emit");
+        PerformanceDotting.stopAdvanced("emit");
         tracing?.pop();
         return result;
     }
@@ -2500,7 +2504,8 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         // files need to be type checked. And the way to specify that all files need to be type
         // checked is to not pass the file to getEmitResolver.
         PerformanceDotting.start("getEmitResolver");
-        const emitResolver = getTypeChecker().getEmitResolver(outFile(options) ? undefined : sourceFile, cancellationToken);
+        const checker = options.strictCheckerOnly && sourceFile?.scriptKind === ScriptKind.ETS ? getLinterTypeChecker() : getTypeChecker();
+        const emitResolver = checker.getEmitResolver(outFile(options) ? undefined : sourceFile, cancellationToken);
         PerformanceDotting.stop("getEmitResolver");
 
         performance.mark("beforeEmit");
@@ -2656,6 +2661,10 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
             }
 
             if (isForLinter && sourceFile.scriptKind !== ScriptKind.ETS) {
+                return emptyArray;
+            }
+
+            if (options.strictCheckerOnly && !isForLinter && sourceFile.scriptKind === ScriptKind.ETS) {
                 return emptyArray;
             }
 

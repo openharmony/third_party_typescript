@@ -69,6 +69,7 @@ import {
     ReadonlySet,
     returnFalse,
     returnUndefined,
+    ScriptKind,
     SemanticDiagnosticsBuilderProgram,
     Set,
     skipTypeChecking,
@@ -930,7 +931,10 @@ function getBinderAndCheckerDiagnosticsOfFile(state: BuilderProgramState, source
     }
     // Update const enum relate cache in the builder state, and set isUpdate as true if the cache is different than before.
     if (state.constEnumRelatePerFile) {
-        let checker = Debug.checkDefined(state.program).getTypeChecker();
+        let program = Debug.checkDefined(state.program);
+        let checker = (program.getCompilerOptions().strictCheckerOnly && sourceFile.scriptKind === ScriptKind.ETS)
+            ? program.getLinterTypeChecker()
+            : program.getTypeChecker();
         let newCache = checker.getConstEnumRelate ? checker.getConstEnumRelate().get(path) : undefined;
         if (newCache) {
             let oldCache = state.constEnumRelatePerFile.get(path);
