@@ -38081,10 +38081,23 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
     }
 
     function isAllowedAnnotationPropertyEnumType(type: Type): boolean {
-        // Non-constant enums are prohibited
-        if (!type.symbol || !isConstEnumSymbol(type.symbol)) {
+        // Non-constant enums are prohibited.
+        // 1. A type without symbol cannot be a constant enum.
+        if (!type.symbol) {
             return false;
         }
+
+        // For two special cases, check whether its parent is a constant enum.
+        // 2. When an annotation references a constant enum with only one property, the 
+        //    type here becomes its property type, which is not a constant enum. 
+        // 3. It is allowed that an annotation references the property type in a constant 
+        //    enum, which is number, numeric literal or string literal type.
+        if (!isConstEnumSymbol(type.symbol)){
+            if (!type.symbol.parent || !isConstEnumSymbol(type.symbol.parent)){
+                return false;
+            }
+        }
+
         // Mixing of numbers and strings is prohibited
         if (type.symbol.declarations) {
             for (const decl of type.symbol.declarations) {
