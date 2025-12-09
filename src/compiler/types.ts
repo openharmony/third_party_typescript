@@ -4628,8 +4628,8 @@ export interface Program extends ScriptReferenceHost {
     getJsDocNodeCheckedConfig?(jsDocFileCheckInfo: FileCheckModuleInfo, symbolSourceFilePath: string): JsDocNodeCheckConfig;
     getJsDocNodeConditionCheckedResult?(jsDocFileCheckedInfo: FileCheckModuleInfo, jsDocTagInfos: JsDocTagInfo[], jsDocs?: JSDoc[]): ConditionCheckResult;
     getFileCheckedModuleInfo?(containFilePath: string): FileCheckModuleInfo;
-    isAvailableVersion?(annotationNode: Annotation): ConditionCheckResult;
-    isAvailableDeclarationValid?(annotationNode: AnnotationDeclaration): boolean;
+    isSourceRetentionAnnotationContentValid?(annotationNode: Annotation): ConditionCheckResult;
+    isSourceRetentionDeclarationValid?(annotationNode: AnnotationDeclaration): boolean;
     /** @internal */ getProgramBuildInfoForLinter?(): ProgramBuildInfo | undefined;
 
     /**
@@ -4754,8 +4754,8 @@ export interface TypeCheckerHost extends ModuleSpecifierResolutionHost {
     getJsDocNodeConditionCheckedResult?(fileCheckedInfo: FileCheckModuleInfo, jsDocTagInfos: JsDocTagInfo[], jsDocs?: JSDoc[]): ConditionCheckResult;
     getFileCheckedModuleInfo?(containFilePath: string): FileCheckModuleInfo;
     isStaticSourceFile?(filePath: string): boolean;
-    isAvailableVersion?(annotationNode: Annotation): ConditionCheckResult;
-    isAvailableDeclarationValid?(annotationNode: AnnotationDeclaration): boolean;
+    isSourceRetentionAnnotationContentValid?(annotationNode: Annotation): ConditionCheckResult;
+    isSourceRetentionDeclarationValid?(annotationNode: AnnotationDeclaration): boolean;
 }
 
 export interface TypeChecker {
@@ -7381,8 +7381,8 @@ export interface ModuleResolutionHost {
         getJsDocNodeCheckedConfig?(jsDocFileCheckInfo: FileCheckModuleInfo, symbolSourceFilePath: string): JsDocNodeCheckConfig;
         getJsDocNodeConditionCheckedResult?(jsDocFileCheckedInfo: FileCheckModuleInfo, jsDocTagInfos: JsDocTagInfo[], jsDocs?: JSDoc[]): ConditionCheckResult;
         getFileCheckedModuleInfo?(containFilePath: string): FileCheckModuleInfo;
-        isAvailableVersion?(annotationNode: Annotation): ConditionCheckResult;
-        isAvailableDeclarationValid?(annotationNode: AnnotationDeclaration): boolean;
+        isSourceRetentionAnnotationContentValid?(annotationNode: Annotation): ConditionCheckResult;
+        isSourceRetentionDeclarationValid?(annotationNode: AnnotationDeclaration): boolean;
     }
 
 /**
@@ -7607,9 +7607,9 @@ export interface CompilerHost extends ModuleResolutionHost {
     // Verify whether the file belongs to ArkTS 1.2
     isStaticSourceFile?(filePath: string): boolean;
     // Verify whether the annotation meets the requirements
-    isAvailableVersion?(annotationNode: Annotation): ConditionCheckResult;
+    isSourceRetentionAnnotationContentValid?(annotationNode: Annotation): ConditionCheckResult;
     //Verify whether the declaration node of the annotation meets the requirements.
-    isAvailableDeclarationValid?(annotationNode: AnnotationDeclaration): boolean;
+    isSourceRetentionDeclarationValid?(annotationNode: AnnotationDeclaration): boolean;
 }
 
 /**

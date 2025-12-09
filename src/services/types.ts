@@ -372,8 +372,8 @@ export interface LanguageServiceHost extends GetEffectiveTypeRootsHost, MinimalR
     clearFileCache?(): void;
     isStaticSourceFile?(fileName: string): boolean;
     useDeclarationFileSignature?: boolean;
-    isAvailableVersion?(annotationNode: Annotation): ConditionCheckResult;
-    isAvailableDeclarationValid?(annotationNode: AnnotationDeclaration): boolean;
+    isSourceRetentionAnnotationContentValid?(annotationNode: Annotation): ConditionCheckResult;
+    isSourceRetentionDeclarationValid?(annotationNode: AnnotationDeclaration): boolean;
 }
 
 /** @internal */

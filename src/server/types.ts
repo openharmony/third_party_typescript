@@ -29,6 +29,6 @@ export interface ServerHost extends System {
     getJsDocNodeCheckedConfig?(fileCheckedInfo: FileCheckModuleInfo, symbolSourceFilePath: string): JsDocNodeCheckConfig;
     getJsDocNodeConditionCheckedResult?(fileCheckedInfo: FileCheckModuleInfo, jsDocs: JsDocTagInfo[]): ConditionCheckResult;
     getFileCheckedModuleInfo?(containFilePath: string): FileCheckModuleInfo;
-    isAvailableVersion?(annotationNode: Annotation): ConditionCheckResult;
-    isAvailableDeclarationValid?(annotationNode: AnnotationDeclaration): boolean;
+    isSourceRetentionAnnotationContentValid?(annotationNode: Annotation): ConditionCheckResult;
+    isSourceRetentionDeclarationValid?(annotationNode: AnnotationDeclaration): boolean;
 }

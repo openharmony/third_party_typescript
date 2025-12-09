@@ -881,7 +881,7 @@ export class TestServerHost implements ServerHost, FormatDiagnosticsHost, Module
         };
     }
 
-    isAvailableVersion(annotationNode: Annotation): ConditionCheckResult{
+    isSourceRetentionAnnotationContentValid(annotationNode: Annotation): ConditionCheckResult{
         Debug.log(annotationNode.kind.toString());
         return {
             valid: true,
@@ -890,7 +890,7 @@ export class TestServerHost implements ServerHost, FormatDiagnosticsHost, Module
         };
     };
 
-    isAvailableDeclarationValid(annotationNode: AnnotationDeclaration): boolean{
+    isSourceRetentionDeclarationValid(annotationNode: AnnotationDeclaration): boolean{
         Debug.log(annotationNode.kind.toString());
         return true;
     };
