@@ -5478,8 +5478,8 @@ export interface EmitResolver {
     getAnnotationPropertyEvaluatedInitializer(node: AnnotationPropertyDeclaration): Expression | undefined;
     getAnnotationPropertyInferredType(node: AnnotationPropertyDeclaration): TypeNode | undefined;
     isReferredToAnnotation(node: ImportSpecifier | ExportSpecifier | ExportAssignment): boolean | undefined;
-    isAvailableAnnotation(node: Annotation): boolean;
-    isReferredToAvailableAnnotation(node: ImportSpecifier): boolean | undefined;
+    isSourceRetentionAnnotation(node: Annotation): boolean;
+    isReferredToSourceRetentionAnnotation(node: ImportSpecifier): boolean | undefined;
 }
 
 export const enum SymbolFlags {
@@ -5815,8 +5815,8 @@ export interface NodeLinks {
     annotationPropertyInferredType?: TypeNode; // Cached inferred type of AnnotationPropertyDeclaration
     annotationDeclarationUniquePrefix?: string; // Cached a prefix of AnnotationDeclaration name
     exportOrImportRefersToAnnotation?: boolean; // Indicates that ImportSpecifier, ExportSpecifier or ExportAssignment are referred to AnnotationDeclaration.
-    availableAnnotation?: boolean; // Cached whether an annotation is '@Available' annotation declared in SDK files
-    importRefersToAvailableAnnotation?: boolean; // Cache whether an importSpecifier is referred to '@Available' AnnotationDeclaration.
+    sourceRetentionAnnotation?: boolean; // Cached whether an annotation is 'SourceRetention' annotation declared in SDK files
+    importRefersToSourceRetentionAnnotation?: boolean; // Cache whether an importSpecifier is referred to 'SourceRetention' AnnotationDeclaration.
 }
 
 export const enum TypeFlags {
