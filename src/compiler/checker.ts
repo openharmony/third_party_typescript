@@ -38147,10 +38147,23 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
     }
 
     function isAllowedAnnotationPropertyEnumType(type: Type): boolean {
-        // Non-constant enums are prohibited
-        if (!type.symbol || !isConstEnumSymbol(type.symbol)) {
+        // Non-constant enums are prohibited.
+        // 1. A type without symbol cannot be a constant enum.
+        if (!type.symbol) {
             return false;
         }
+
+        // For two special cases, check whether its parent is a constant enum.
+        // 2. When an annotation references a constant enum with only one property, the 
+        //    type here becomes its property type, which is not a constant enum. 
+        // 3. It is allowed that an annotation references the property type in a constant 
+        //    enum, which is number, numeric literal or string literal type.
+        if (!isConstEnumSymbol(type.symbol)){
+            if (!type.symbol.parent || !isConstEnumSymbol(type.symbol.parent)){
+                return false;
+            }
+        }
+
         // Mixing of numbers and strings is prohibited
         if (type.symbol.declarations) {
             for (const decl of type.symbol.declarations) {
@@ -40065,8 +40078,8 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
 
     /** Check the annotation of a node */
     function checkAnnotation(annotation: Annotation, annotationsSet: Set<String>): void {
-        if (isAvailableAnnotation(annotation)) {
-            checkAvailableAnnotation(annotation, annotationsSet);
+        if (isSourceRetentionAnnotation(annotation)) {
+            checkSourceRetentionAnnotation(annotation, annotationsSet);
             return;
         }
         // In the har package where the compiled output is a JavaScript file, the use of annotations is prohibited.
@@ -40147,7 +40160,7 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
         }
     }
 
-    function checkAvailableAnnotation(annotation: Annotation, annotationsSet: Set<String>): void {
+    function checkSourceRetentionAnnotation(annotation: Annotation, annotationsSet: Set<String>): void {
         const signature = getResolvedSignature(annotation);
         const returnType = getReturnTypeOfSignature(signature);
         if (isErrorType(returnType)) {
@@ -40156,6 +40169,7 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
 
         const annotatedDecl = annotation.parent;
         const nodeStr = getTextOfNode(annotatedDecl, /*includeTrivia*/ false);
+        const nodeDecl: string | undefined = annotation.annotationDeclaration ? getTextOfNode(annotation.annotationDeclaration.name, false) : undefined;
         switch (annotatedDecl.kind) {
             case SyntaxKind.ClassDeclaration:
             case SyntaxKind.StructDeclaration:
@@ -40180,7 +40194,7 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
                     break;
                 }
             default:
-                error(annotation, Diagnostics.Available_annotation_are_not_valid_here, nodeStr);
+                error(annotation, Diagnostics._0_annotation_are_not_valid_here_got_Colon_1, nodeDecl, nodeStr);
                 return;
         }
         checkDuplicateAnnotation(annotation, annotationsSet);
@@ -46889,9 +46903,9 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
         return links.exportOrImportRefersToAnnotation;
     }
 
-    function isReferredToAvailableAnnotation(node: ImportSpecifier): boolean | undefined {
+    function isReferredToSourceRetentionAnnotation(node: ImportSpecifier): boolean | undefined {
         let links: NodeLinks = getNodeLinks(node);
-        if (!links.importRefersToAvailableAnnotation) {
+        if (!links.importRefersToSourceRetentionAnnotation) {
             let symbol: Symbol | undefined = getSymbolOfNode(node);
             if (!symbol) {
                 return undefined;
@@ -46904,40 +46918,40 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
                 if (!annoDecl || !isAnnotationDeclaration(annoDecl)) {
                     return undefined;
                 }
-                links.importRefersToAvailableAnnotation = isAvailableAnnotationDeclaration(annoDecl);
+                links.importRefersToSourceRetentionAnnotation = isSourceRetentionAnnotationDeclaration(annoDecl);
             }
         }
-        return links.importRefersToAvailableAnnotation;
+        return links.importRefersToSourceRetentionAnnotation;
     }
 
     /** 
      * @internal 
-     * Determine whether an annotation is '@Available' annotation declared in SDK files
+     * Determine whether an annotation is 'SourceRetention' annotation declared in SDK files
      */
-    function isAvailableAnnotation(node: Annotation): boolean {
+    function isSourceRetentionAnnotation(node: Annotation): boolean {
         if (!node || !node.annotationDeclaration) {
             return false;
         }
         const annoDecl: AnnotationDeclaration = node.annotationDeclaration;
-        return isAvailableAnnotationDeclaration(annoDecl);
+        return isSourceRetentionAnnotationDeclaration(annoDecl);
     }
 
     /** 
      * @internal 
-     * Determine whether an annotationDeclaration is 'Available' annotation declared in SDK files
+     * Determine whether an annotationDeclaration is 'SourceRetention' annotation declared in SDK files, such as Available annotation or SuppressWarnings annotation.
      */
-    function isAvailableAnnotationDeclaration(node: AnnotationDeclaration | undefined): boolean {
+    function isSourceRetentionAnnotationDeclaration(node: AnnotationDeclaration | undefined): boolean {
         if (!node) {
             return false;
         }
         const links: NodeLinks = getNodeLinks(node);
-        if (links.availableAnnotation === undefined) {
-            links.availableAnnotation = false;
+        if (links.sourceRetentionAnnotation === undefined) {
+            links.sourceRetentionAnnotation = false;
             if (isSourceRetentionDeclarationValid) {
-                links.availableAnnotation = isSourceRetentionDeclarationValid(node);
+                links.sourceRetentionAnnotation = isSourceRetentionDeclarationValid(node);
             }
         }
-        return links.availableAnnotation;
+        return links.sourceRetentionAnnotation;
     }
 
     function createResolver(): EmitResolver {
@@ -47144,8 +47158,8 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
                 return links.annotationPropertyInferredType;
             },
             isReferredToAnnotation: isReferredToAnnotation,
-            isAvailableAnnotation: isAvailableAnnotation,
-            isReferredToAvailableAnnotation: isReferredToAvailableAnnotation
+            isSourceRetentionAnnotation: isSourceRetentionAnnotation,
+            isReferredToSourceRetentionAnnotation: isReferredToSourceRetentionAnnotation
         };
 
         function isImportRequiredByAugmentation(node: ImportDeclaration) {

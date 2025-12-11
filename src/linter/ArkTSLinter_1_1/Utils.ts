@@ -2463,6 +2463,7 @@ export function searchFileExportDecl(sourceFile: SourceFile, targetDecls?: Synta
 export function clearUtilsGlobalvariables(): void {
   parentSymbolCache?.clear();
   parentSymbolCache = undefined;
+  srcFilePathComponents.clear();
 }
 
 

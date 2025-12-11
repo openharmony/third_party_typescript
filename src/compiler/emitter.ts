@@ -1199,8 +1199,8 @@ export const notImplementedResolver: EmitResolver = {
     getAnnotationPropertyEvaluatedInitializer: notImplemented,
     getAnnotationPropertyInferredType: notImplemented,
     isReferredToAnnotation: notImplemented,
-    isAvailableAnnotation: notImplemented,
-    isReferredToAvailableAnnotation: notImplemented
+    isSourceRetentionAnnotation: notImplemented,
+    isReferredToSourceRetentionAnnotation: notImplemented
 };
 
 /** File that isnt present resulting in error or output files
