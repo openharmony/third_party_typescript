@@ -3804,7 +3804,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
                 const resolution = resolutions[index];
                 setResolvedModule(file, moduleNames[index], resolution, getModeForResolutionAtIndex(file, index));
 
-                if (!resolution) {
+                if (!resolution || resolution.isNotOhExport) {
                     continue;
                 }
 

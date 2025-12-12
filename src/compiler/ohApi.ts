@@ -1742,7 +1742,8 @@ const EXTENSION_CODE = '001'; // Extended codes defined by various subsystems
 const codeCollectionUI = new Set([28000, 28001, 28002, 28003, 28004, 28005, 28006, 28007, 28015]); // UI code error collection
 const codeCollectionLinter = new Set([28016, 28017]); // Linter code error collection
 const newTscCodeMap = new Map([
-    [28014, '10505114']
+    [28014, { code: '10505114', solutions: [] }],
+    [28045, { code: '10505127', solutions: ["Make sure it is exported in the 'oh-exports' field of it's 'oh-package.json5'"] }]
 ]); // New tsc code error collection
 
 // Currently, only the tsc error reporting triggers this function.
@@ -1756,7 +1757,8 @@ export function getErrorCode(diagnostic: Diagnostic): ErrorInfo {
     }
 
     if (newTscCodeMap.has(diagnostic.code)) {
-        errorInfo.code = newTscCodeMap.get(diagnostic.code) as string;
+        errorInfo.code = newTscCodeMap.get(diagnostic.code)!.code;
+        errorInfo.solutions = newTscCodeMap.get(diagnostic.code)!.solutions;
     } else {
         errorInfo.code = SUBSYSTEM_CODE + ERROR_TYPE_CODE + EXTENSION_CODE;
     }
