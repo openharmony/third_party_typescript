@@ -1438,8 +1438,8 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
 
     var getJsDocNodeCheckedConfig = host.getJsDocNodeCheckedConfig;
     var compilerOptions: CompilerOptions = {...host.getCompilerOptions()};
-    let isAvailableVersion = host.isAvailableVersion;
-    let isAvailableDeclarationValid = host.isAvailableDeclarationValid;
+    let isSourceRetentionAnnotationContentValid = host.isSourceRetentionAnnotationContentValid;
+    let isSourceRetentionDeclarationValid = host.isSourceRetentionDeclarationValid;
     if (!!compilerOptions.needDoArkTsLinter) {
         compilerOptions.skipLibCheck = false;
     }
@@ -40203,8 +40203,8 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
                 return;
         }
         checkDuplicateAnnotation(annotation, annotationsSet);
-        if (isAvailableVersion) {
-            let checkResult = isAvailableVersion(annotation);
+        if (isSourceRetentionAnnotationContentValid) {
+            let checkResult = isSourceRetentionAnnotationContentValid(annotation);
             if (checkResult && !checkResult.valid) {
                 const diagnostic = createDiagnosticForNodeInSourceFile(getSourceFileOfNode(annotation), 
                     annotation, Diagnostics.This_API_has_been_Special_Markings_exercise_caution_when_using_this_API);
@@ -46952,8 +46952,8 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
         const links: NodeLinks = getNodeLinks(node);
         if (links.sourceRetentionAnnotation === undefined) {
             links.sourceRetentionAnnotation = false;
-            if (isAvailableDeclarationValid) {
-                links.sourceRetentionAnnotation = isAvailableDeclarationValid(node);
+            if (isSourceRetentionDeclarationValid) {
+                links.sourceRetentionAnnotation = isSourceRetentionDeclarationValid(node);
             }
         }
         return links.sourceRetentionAnnotation;

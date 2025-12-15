@@ -364,11 +364,11 @@ export abstract class Project implements LanguageServiceHost, ModuleResolutionHo
         if (this.projectService.host.getFileCheckedModuleInfo) {
             this.getFileCheckedModuleInfo = this.projectService.host.getFileCheckedModuleInfo;;
         }
-        if (this.projectService.host.isAvailableVersion) {
-            this.isAvailableVersion = this.projectService.host.isAvailableVersion;
+        if (this.projectService.host.isSourceRetentionAnnotationContentValid) {
+            this.isSourceRetentionAnnotationContentValid = this.projectService.host.isSourceRetentionAnnotationContentValid;
         }
-        if (this.projectService.host.isAvailableDeclarationValid) {
-            this.isAvailableDeclarationValid = this.projectService.host.isAvailableDeclarationValid;
+        if (this.projectService.host.isSourceRetentionDeclarationValid) {
+            this.isSourceRetentionDeclarationValid = this.projectService.host.isSourceRetentionDeclarationValid;
         }
         if (this.projectService.host.getJsDocNodeCheckedConfig) {
             this.getJsDocNodeCheckedConfig = this.projectService.host.getJsDocNodeCheckedConfig;
@@ -450,7 +450,7 @@ export abstract class Project implements LanguageServiceHost, ModuleResolutionHo
         };
     }
 
-    isAvailableVersion(annotationNode: Annotation): ConditionCheckResult{
+    isSourceRetentionAnnotationContentValid(annotationNode: Annotation): ConditionCheckResult{
         Debug.log(annotationNode.kind.toString());
         return {
             valid: true,
@@ -459,7 +459,7 @@ export abstract class Project implements LanguageServiceHost, ModuleResolutionHo
         };
     };
 
-    isAvailableDeclarationValid(annotationNode: AnnotationDeclaration): boolean{
+    isSourceRetentionDeclarationValid(annotationNode: AnnotationDeclaration): boolean{
         Debug.log(annotationNode.kind.toString());
         return true;
     };
