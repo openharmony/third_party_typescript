@@ -7401,6 +7401,7 @@ declare namespace ts {
         etsLoaderPath?: string;
         tsImportSendableEnable?: boolean;
         skipPathsInKeyForCompilationSettings?: boolean;
+        skipBaseUrlInKeyForCompilationSettings?: boolean;
         compatibleSdkVersion?: number;
         compatibleSdkVersionStage?: string;
         noTransformedKitInParser?: boolean;
