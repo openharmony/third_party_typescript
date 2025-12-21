@@ -1,7 +1,24 @@
 import {
-    BaseNodeFactory, CreateSourceFileOptions, EmitHelperFactory, ESMap, Map, MapLike, ModeAwareCache,
-    ModuleResolutionCache, MultiMap, NodeFactoryFlags, OptionsNameMap, PackageJsonInfo, PackageJsonInfoCache, Pattern,
-    ProgramBuildInfo, Push, ReadonlyESMap, ReadonlySet, Set, SymlinkCache,
+    BaseNodeFactory,
+    CreateSourceFileOptions,
+    EmitHelperFactory,
+    ESMap,
+    Map,
+    MapLike,
+    ModeAwareCache,
+    ModuleResolutionCache,
+    MultiMap,
+    NodeFactoryFlags,
+    OptionsNameMap,
+    PackageJsonInfo,
+    PackageJsonInfoCache,
+    Pattern,
+    ProgramBuildInfo,
+    Push,
+    ReadonlyESMap,
+    ReadonlySet,
+    Set,
+    SymlinkCache,
 } from "./_namespaces/ts";
 
 // branded string type used to store absolute, normalized and canonicalized paths
