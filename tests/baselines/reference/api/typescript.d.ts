@@ -3904,6 +3904,7 @@ declare namespace ts {
         updateParameterDeclaration(node: ParameterDeclaration, modifiers: readonly ModifierLike[] | undefined, dotDotDotToken: DotDotDotToken | undefined, name: string | BindingName, questionToken: QuestionToken | undefined, type: TypeNode | undefined, initializer: Expression | undefined): ParameterDeclaration;
         createDecorator(expression: Expression, annotationDeclaration?: AnnotationDeclaration): Decorator;
         updateDecorator(node: Decorator, expression: Expression, annotationDeclaration?: AnnotationDeclaration): Decorator;
+        updateIllegalDecorators<T extends HasIllegalDecorators>(node: T, newIllegalDecorators: NodeArray<Decorator>): HasIllegalDecorators;
         createPropertySignature(modifiers: readonly Modifier[] | undefined, name: PropertyName | string, questionToken: QuestionToken | undefined, type: TypeNode | undefined): PropertySignature;
         updatePropertySignature(node: PropertySignature, modifiers: readonly Modifier[] | undefined, name: PropertyName, questionToken: QuestionToken | undefined, type: TypeNode | undefined): PropertySignature;
         createPropertyDeclaration(modifiers: readonly ModifierLike[] | undefined, name: string | PropertyName, questionOrExclamationToken: QuestionToken | ExclamationToken | undefined, type: TypeNode | undefined, initializer: Expression | undefined): PropertyDeclaration;

@@ -8146,7 +8146,7 @@ export interface NodeFactory {
     updateParameterDeclaration(node: ParameterDeclaration, modifiers: readonly ModifierLike[] | undefined, dotDotDotToken: DotDotDotToken | undefined, name: string | BindingName, questionToken: QuestionToken | undefined, type: TypeNode | undefined, initializer: Expression | undefined): ParameterDeclaration;
     createDecorator(expression: Expression, annotationDeclaration?: AnnotationDeclaration): Decorator;
     updateDecorator(node: Decorator, expression: Expression, annotationDeclaration?: AnnotationDeclaration): Decorator;
-    /** @internal */ updateIllegalDecorators<T extends HasIllegalDecorators>(node: T, newIllegalDecorators: NodeArray<Decorator>): HasIllegalDecorators;
+    updateIllegalDecorators<T extends HasIllegalDecorators>(node: T, newIllegalDecorators: NodeArray<Decorator>): HasIllegalDecorators;
 
     //
     // Type Elements
