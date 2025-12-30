@@ -373,6 +373,7 @@ import {
     hasEtsStylesDecoratorNames,
     HasExpressionInitializer,
     hasExtension,
+    hasIllegalDecorators,
     HasIllegalDecorators,
     HasIllegalModifiers,
     hasInitializer,
@@ -40249,7 +40250,7 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
     }
 
     function setAnnotationsOfNode(node: Node): void {
-        if (!canHaveDecorators(node) && !canHaveIllegalDecorators(node)) {
+        if (!canHaveDecorators(node) && !canHaveIllegalDecorators(node) || !hasDecorators(node) && !hasIllegalDecorators(node)) {
             return;
         }
         const links = getNodeLinks(node);

@@ -197,6 +197,7 @@ import {
     getTrailingCommentRanges,
     HasExpressionInitializer,
     hasExtension,
+    HasIllegalDecorators,
     hasInitializer,
     HasInitializer,
     HasJSDoc,
@@ -245,6 +246,7 @@ import {
     isConstructorDeclaration,
     isDeclaration,
     isDecorator,
+    isDecoratorOrAnnotation,
     isElementAccessExpression,
     isEnumDeclaration,
     isEnumMember,
@@ -5951,7 +5953,7 @@ export function isStatic(node: Node) {
 
 /** @internal */
 export function hasIllegalDecorators(node: Node): boolean {
-    return canHaveIllegalDecorators(node);
+    return canHaveIllegalDecorators(node) && some((node as HasIllegalDecorators).illegalDecorators, isDecoratorOrAnnotation);
 }
 
 /** @internal */
