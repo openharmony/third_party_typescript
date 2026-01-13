@@ -7753,6 +7753,7 @@ declare namespace ts {
         isStaticSourceFile?(filePath: string): boolean;
         isSourceRetentionAnnotationContentValid?(annotationNode: Annotation): ConditionCheckResult;
         isSourceRetentionDeclarationValid?(annotationNode: AnnotationDeclaration): boolean;
+        isSourceOrExternalCode?(filePath: string): boolean;
     }
     interface SourceMapRange extends TextRange {
         source?: SourceMapSource;
@@ -10570,6 +10571,7 @@ declare namespace ts {
         useDeclarationFileSignature?: boolean;
         isSourceRetentionAnnotationContentValid?(annotationNode: Annotation): ConditionCheckResult;
         isSourceRetentionDeclarationValid?(annotationNode: AnnotationDeclaration): boolean;
+        isSourceOrExternalCode?(fileName: string): boolean;
     }
     type WithMetadata<T> = T & {
         metadata?: unknown;

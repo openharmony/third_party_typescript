@@ -374,6 +374,7 @@ export interface LanguageServiceHost extends GetEffectiveTypeRootsHost, MinimalR
     useDeclarationFileSignature?: boolean;
     isSourceRetentionAnnotationContentValid?(annotationNode: Annotation): ConditionCheckResult;
     isSourceRetentionDeclarationValid?(annotationNode: AnnotationDeclaration): boolean;
+    isSourceOrExternalCode?(fileName: string): boolean;
 }
 
 /** @internal */

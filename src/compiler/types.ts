@@ -4773,6 +4773,7 @@ export interface TypeCheckerHost extends ModuleSpecifierResolutionHost {
     isStaticSourceFile?(filePath: string): boolean;
     isSourceRetentionAnnotationContentValid?(annotationNode: Annotation): ConditionCheckResult;
     isSourceRetentionDeclarationValid?(annotationNode: AnnotationDeclaration): boolean;
+    isSourceOrExternalCode?(filePath: string): boolean;
 }
 
 export interface TypeChecker {
@@ -7629,6 +7630,7 @@ export interface CompilerHost extends ModuleResolutionHost {
     isSourceRetentionAnnotationContentValid?(annotationNode: Annotation): ConditionCheckResult;
     //Verify whether the declaration node of the annotation meets the requirements.
     isSourceRetentionDeclarationValid?(annotationNode: AnnotationDeclaration): boolean;
+    isSourceOrExternalCode?(filePath: string): boolean;
 }
 
 /**

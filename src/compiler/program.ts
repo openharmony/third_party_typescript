@@ -1707,7 +1707,8 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         processImportedModules,
         getProcessingFiles,
         deleteProgramSourceFiles,
-        isStaticSourceFile: host.isStaticSourceFile
+        isStaticSourceFile: host.isStaticSourceFile,
+        isSourceOrExternalCode: host.isSourceOrExternalCode,
     };
 
     onProgramCreateComplete();
