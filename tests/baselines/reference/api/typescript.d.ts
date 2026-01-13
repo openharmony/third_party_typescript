@@ -3684,8 +3684,9 @@ declare namespace ts {
         type: DiagnosticCategory;
         specifyCheckConditionFuncName: string;
         tagNameShouldExisted: boolean;
+        timeAnalyzerEvent: Object;
         checkValidCallback?: (jsDocTag: JSDocTag, config: JsDocNodeCheckConfigItem) => boolean;
-        checkJsDocSpecialValidCallback?: (jsDocTags: readonly JSDocTag[], config: JsDocNodeCheckConfigItem, node?: Node, declaration?: Declaration) => boolean;
+        checkJsDocSuppressorValidCallback?: (jsDocTags: readonly JSDocTag[], config: JsDocNodeCheckConfigItem, node?: Node, declaration?: Declaration, timeAnalyzerEvent?: Object) => boolean;
         checkConditionValidCallback?: (node: CallExpression, specifyFuncName: string, importSymbol: string, jsDocs?: JSDoc[]) => boolean;
     }
     interface TagCheckParam {
