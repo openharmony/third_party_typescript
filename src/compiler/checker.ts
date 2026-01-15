@@ -31138,16 +31138,19 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
         return getFlowTypeOfAccessExpression(node, prop, propType, right, checkMode);
     }
 
-    function checkConstEnumRelate(node: Node, originalSymbol: Symbol): void {
+    function checkConstEnumRelate(node: Node, originalSymbol: Symbol, filter?: (filePath: string) => boolean): void {
         const symbol = resolveSymbol(originalSymbol);
         let filePath = getSourceFileOfNode(node)?.resolvedPath;
         if (!symbol || !filePath) { return; }
+        if (filter && !filter(filePath)) {
+            return;
+        }
         if (!constEnumRelate.has(filePath)) {
             constEnumRelate.set(filePath, new Map());
         }
         symbol.declarations?.forEach(decl => {
             let file = getSourceFileOfNode(decl);
-            if (!file || file.resolvedPath === filePath) {
+            if (!file || file.resolvedPath === filePath || (filter && !filter(file.resolvedPath))) {
                 return;
             }
             constEnumRelate.get(filePath)?.set(file.resolvedPath, file.version);
@@ -44398,12 +44401,12 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
                 }
             }
 
-                if (isImportSpecifier(node)) {
-                    const targetSymbol = checkDeprecatedAliasedSymbol(symbol, node);
-                    if (isDeprecatedAliasedSymbol(targetSymbol) && targetSymbol.declarations) {
-                        addDeprecatedSuggestion(node, targetSymbol.declarations, targetSymbol.escapedName as string);
-                    }
+            if (isImportSpecifier(node)) {
+                const targetSymbol = checkDeprecatedAliasedSymbol(symbol, node);
+                if (isDeprecatedAliasedSymbol(targetSymbol) && targetSymbol.declarations) {
+                    addDeprecatedSuggestion(node, targetSymbol.declarations, targetSymbol.escapedName as string);
                 }
+            }
 
             if ((isImportSpecifier(node) || isExportSpecifier(node))) {
                 if (targetFlags & SymbolFlags.Annotation) {
@@ -44417,6 +44420,8 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
             if (!isVariableDeclaration(node) && !isBindingElement(node)) {
                 if (targetFlags & SymbolFlags.ConstEnum) {
                     checkConstEnumRelate(node, target);
+                } else if ((targetFlags & SymbolFlags.Interface) && host.isSourceOrExternalCode && !isTypeOnlyImportOrExportDeclaration(node)) {
+                    checkConstEnumRelate(node, target, host.isSourceOrExternalCode);
                 }
             }
         }

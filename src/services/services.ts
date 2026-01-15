@@ -1704,6 +1704,7 @@ export function createLanguageService(
             isStaticSourceFile: host.isStaticSourceFile,
             // The option of whether to calculate the hash values of all declaration files for all files.
             disableUseFileVersionAsSignature: host.useDeclarationFileSignature,
+            isSourceOrExternalCode: host.isSourceOrExternalCode,
         };
 
         const originalGetSourceFile = compilerHost.getSourceFile;
