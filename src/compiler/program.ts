@@ -3801,11 +3801,13 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
             const resolutions = resolveModuleNamesReusingOldState(moduleNames, file);
             Debug.assert(resolutions.length === moduleNames.length);
             const optionsForFile = (useSourceOfProjectReferenceRedirect ? getRedirectReferenceForResolution(file)?.commandLine.options : undefined) || options;
+            // true: source code; false: external code from oh_modules
+            const isSourceOrExternal = host.isSourceOrExternalCode ? host.isSourceOrExternalCode(file.fileName) : !file.fileName.includes(ohModulesPathPart);
             for (let index = 0; index < moduleNames.length; index++) {
                 const resolution = resolutions[index];
                 setResolvedModule(file, moduleNames[index], resolution, getModeForResolutionAtIndex(file, index));
-
-                if (!resolution || resolution.isNotOhExport) {
+                // Skip if unresolved or source file non-oh-exports
+                if (!resolution || (resolution.isNotOhExport && isSourceOrExternal)) {
                     continue;
                 }
 
