@@ -4549,7 +4549,7 @@ export interface Program extends ScriptReferenceHost {
     /** The first time this is called, it will return global diagnostics (no location). */
     getSemanticDiagnostics(sourceFile?: SourceFile, cancellationToken?: CancellationToken): readonly Diagnostic[];
     getSemanticDiagnosticsForLinter(sourceFile?: SourceFile, cancellationToken?: CancellationToken): readonly Diagnostic[];
-    getDeclarationDiagnostics(sourceFile?: SourceFile, cancellationToken?: CancellationToken): readonly DiagnosticWithLocation[];
+    getDeclarationDiagnostics(sourceFile?: SourceFile, cancellationToken?: CancellationToken, skipDiagnostics?: boolean): readonly DiagnosticWithLocation[];
     getConfigFileParsingDiagnostics(): readonly Diagnostic[];
     /** @internal */ getSuggestionDiagnostics(sourceFile: SourceFile, cancellationToken?: CancellationToken): readonly DiagnosticWithLocation[];
 
@@ -4996,7 +4996,7 @@ export interface TypeChecker {
     // Should not be called directly.  Should only be accessed through the Program instance.
     /** @internal */ getDiagnostics(sourceFile?: SourceFile, cancellationToken?: CancellationToken): Diagnostic[];
     /** @internal */ getGlobalDiagnostics(): Diagnostic[];
-    /** @internal */ getEmitResolver(sourceFile?: SourceFile, cancellationToken?: CancellationToken): EmitResolver;
+    /** @internal */ getEmitResolver(sourceFile?: SourceFile, cancellationToken?: CancellationToken, skipDiagnostics?: boolean): EmitResolver;
 
     /** @internal */ getNodeCount(): number;
     /** @internal */ getIdentifierCount(): number;
@@ -5503,6 +5503,7 @@ export interface EmitResolver {
     isSourceRetentionAnnotationDeclaration(node: AnnotationDeclaration): boolean;
     isReferredToSourceRetentionAnnotationOrRetentionAnnotation(node: ImportSpecifier): boolean | undefined;
     isReferredToRetentionPolicy(node: ImportSpecifier): boolean;
+    setAnnotationsOfNode(node: Node): void;
 }
 
 export const enum SymbolFlags {

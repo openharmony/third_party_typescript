@@ -110,8 +110,10 @@ export interface BuilderProgram {
     getSyntacticDiagnostics(sourceFile?: SourceFile, cancellationToken?: CancellationToken): readonly Diagnostic[];
     /**
      * Get the declaration diagnostics, for all source files if source file is not supplied
+     * It will perfom type checking to ensure correct type information
+     * But if type information is assured, type checking can be skipped
      */
-    getDeclarationDiagnostics(sourceFile?: SourceFile, cancellationToken?: CancellationToken): readonly DiagnosticWithLocation[];
+    getDeclarationDiagnostics(sourceFile?: SourceFile, cancellationToken?: CancellationToken, skipDiagnostics?: boolean): readonly DiagnosticWithLocation[];
     /**
      * Get all the dependencies of the file
      */
