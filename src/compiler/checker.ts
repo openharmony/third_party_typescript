@@ -2330,10 +2330,12 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
         return visitEachChild(node, markAsSynthetic, nullTransformationContext);
     }
 
-    function getEmitResolver(sourceFile: SourceFile, cancellationToken: CancellationToken) {
+    function getEmitResolver(sourceFile: SourceFile, cancellationToken: CancellationToken, skipDiagnostics?: boolean) {
         // Ensure we have all the type information in place for this file so that all the
         // emitter questions of this resolver will return the right information.
-        getDiagnostics(sourceFile, cancellationToken);
+        if (!skipDiagnostics) {
+            getDiagnostics(sourceFile, cancellationToken);
+        }
         return emitResolver;
     }
 
@@ -47332,7 +47334,8 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
             isSourceRetentionAnnotation: isSourceRetentionAnnotation,
             isSourceRetentionAnnotationDeclaration: isSourceRetentionAnnotationDeclaration,
             isReferredToSourceRetentionAnnotationOrRetentionAnnotation: isReferredToSourceRetentionAnnotationOrRetentionAnnotation,
-            isReferredToRetentionPolicy: isReferredToRetentionPolicy
+            isReferredToRetentionPolicy: isReferredToRetentionPolicy,
+            setAnnotationsOfNode: setAnnotationsOfNode
         };
 
         function isImportRequiredByAugmentation(node: ImportDeclaration) {

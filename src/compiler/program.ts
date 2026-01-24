@@ -2477,10 +2477,10 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         return res;
     }
 
-    function emit(sourceFile?: SourceFile, writeFileCallback?: WriteFileCallback, cancellationToken?: CancellationToken, emitOnlyDtsFiles?: boolean, transformers?: CustomTransformers, forceDtsEmit?: boolean): EmitResult {
+    function emit(sourceFile?: SourceFile, writeFileCallback?: WriteFileCallback, cancellationToken?: CancellationToken, emitOnlyDtsFiles?: boolean, transformers?: CustomTransformers, forceDtsEmit?: boolean, skipDiagnostics?: boolean): EmitResult {
         tracing?.push(tracing.Phase.Emit, "emit", { path: sourceFile?.path }, /*separateBeginAndEnd*/ true);
         PerformanceDotting.startAdvanced("emit");
-        const result = runWithCancellationToken(() => emitWorker(program, sourceFile, writeFileCallback, cancellationToken, emitOnlyDtsFiles, transformers, forceDtsEmit));
+        const result = runWithCancellationToken(() => emitWorker(program, sourceFile, writeFileCallback, cancellationToken, emitOnlyDtsFiles, transformers, forceDtsEmit, skipDiagnostics));
         PerformanceDotting.stopAdvanced("emit");
         tracing?.pop();
         return result;
@@ -2490,7 +2490,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         return hasEmitBlockingDiagnostics.has(toPath(emitFileName));
     }
 
-    function emitWorker(program: Program, sourceFile: SourceFile | undefined, writeFileCallback: WriteFileCallback | undefined, cancellationToken: CancellationToken | undefined, emitOnlyDtsFiles?: boolean, customTransformers?: CustomTransformers, forceDtsEmit?: boolean): EmitResult {
+    function emitWorker(program: Program, sourceFile: SourceFile | undefined, writeFileCallback: WriteFileCallback | undefined, cancellationToken: CancellationToken | undefined, emitOnlyDtsFiles?: boolean, customTransformers?: CustomTransformers, forceDtsEmit?: boolean, skipDiagnostics?: boolean): EmitResult {
         if (!forceDtsEmit) {
             const result = handleNoEmitOptions(program, sourceFile, writeFileCallback, cancellationToken);
             if (result) return result;
@@ -2506,7 +2506,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         // checked is to not pass the file to getEmitResolver.
         PerformanceDotting.start("getEmitResolver");
         const checker = options.strictCheckerOnly && sourceFile?.scriptKind === ScriptKind.ETS ? getLinterTypeChecker() : getTypeChecker();
-        const emitResolver = checker.getEmitResolver(outFile(options) ? undefined : sourceFile, cancellationToken);
+        const emitResolver = checker.getEmitResolver(outFile(options) ? undefined : sourceFile, cancellationToken, skipDiagnostics);
         PerformanceDotting.stop("getEmitResolver");
 
         performance.mark("beforeEmit");
@@ -2519,7 +2519,8 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
             getTransformers(options, customTransformers, emitOnlyDtsFiles),
             emitOnlyDtsFiles,
             /*onlyBuildInfo*/ false,
-            forceDtsEmit
+            forceDtsEmit,
+            skipDiagnostics
         );
         PerformanceDotting.stop("emitFiles");
 
@@ -2538,16 +2539,17 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
 
     function getDiagnosticsHelper<T extends Diagnostic>(
         sourceFile: SourceFile | undefined,
-        getDiagnostics: (sourceFile: SourceFile, cancellationToken: CancellationToken | undefined) => readonly T[],
-        cancellationToken: CancellationToken | undefined): readonly T[] {
+        getDiagnostics: (sourceFile: SourceFile, cancellationToken: CancellationToken | undefined, skipDiagnostics?: boolean) => readonly T[],
+        cancellationToken: CancellationToken | undefined,
+        skipDiagnostics?: boolean): readonly T[] {
         if (sourceFile) {
-            return getDiagnostics(sourceFile, cancellationToken);
+            return getDiagnostics(sourceFile, cancellationToken, skipDiagnostics);
         }
         return sortAndDeduplicateDiagnostics(flatMap(program.getSourceFiles(), sourceFile => {
             if (cancellationToken) {
                 cancellationToken.throwIfCancellationRequested();
             }
-            return getDiagnostics(sourceFile, cancellationToken);
+            return getDiagnostics(sourceFile, cancellationToken, skipDiagnostics);
         }));
     }
 
@@ -2593,14 +2595,14 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         return getDiagnosticsWithPrecedingDirectives(sourceFile, sourceFile.commentDirectives, programDiagnosticsInFile).diagnostics;
     }
 
-    function getDeclarationDiagnostics(sourceFile?: SourceFile, cancellationToken?: CancellationToken): readonly DiagnosticWithLocation[] {
+    function getDeclarationDiagnostics(sourceFile?: SourceFile, cancellationToken?: CancellationToken, skipDiagnostics?: boolean): readonly DiagnosticWithLocation[] {
         const options = program.getCompilerOptions();
         // collect diagnostics from the program only once if either no source file was specified or out/outFile is set (bundled emit)
         if (!sourceFile || outFile(options)) {
-            return getDeclarationDiagnosticsWorker(sourceFile, cancellationToken);
+            return getDeclarationDiagnosticsWorker(sourceFile, cancellationToken, skipDiagnostics);
         }
         else {
-            return getDiagnosticsHelper(sourceFile, getDeclarationDiagnosticsForFile, cancellationToken);
+            return getDiagnosticsHelper(sourceFile, getDeclarationDiagnosticsForFile, cancellationToken, skipDiagnostics);
         }
     }
 
@@ -3021,13 +3023,13 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         });
     }
 
-    function getDeclarationDiagnosticsWorker(sourceFile: SourceFile | undefined, cancellationToken: CancellationToken | undefined): readonly DiagnosticWithLocation[] {
-        return getAndCacheDiagnostics(sourceFile, cancellationToken, cachedDeclarationDiagnosticsForFile, getDeclarationDiagnosticsForFileNoCache);
+    function getDeclarationDiagnosticsWorker(sourceFile: SourceFile | undefined, cancellationToken: CancellationToken | undefined, skipDiagnostics?: boolean): readonly DiagnosticWithLocation[] {
+        return getAndCacheDiagnostics(sourceFile, cancellationToken, cachedDeclarationDiagnosticsForFile, getDeclarationDiagnosticsForFileNoCache, undefined, skipDiagnostics);
     }
 
-    function getDeclarationDiagnosticsForFileNoCache(sourceFile: SourceFile | undefined, cancellationToken: CancellationToken | undefined): readonly DiagnosticWithLocation[] {
+    function getDeclarationDiagnosticsForFileNoCache(sourceFile: SourceFile | undefined, cancellationToken: CancellationToken | undefined, skipDiagnostics?: boolean): readonly DiagnosticWithLocation[] {
         return runWithCancellationToken(() => {
-            const resolver = getTypeChecker().getEmitResolver(sourceFile, cancellationToken);
+            const resolver = getTypeChecker().getEmitResolver(sourceFile, cancellationToken, skipDiagnostics);
             // Don't actually write any files since we're just getting diagnostics.
             return ts.getDeclarationDiagnostics(getEmitHost(noop), resolver, sourceFile) || emptyArray;
         });
@@ -3037,8 +3039,9 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         sourceFile: T,
         cancellationToken: CancellationToken | undefined,
         cache: DiagnosticCache<U>,
-        getDiagnostics: (sourceFile: T, cancellationToken: CancellationToken | undefined, isForLinter?: boolean) => readonly U[],
-        isForLinter?: boolean
+        getDiagnostics: (sourceFile: T, cancellationToken: CancellationToken | undefined, isForLinterOrSkipDiagnostics?: boolean) => readonly U[],
+        isForLinter?: boolean,
+        skipDiagnostics?: boolean
     ): readonly U[] {
 
         const cachedResult = sourceFile
@@ -3053,7 +3056,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         if (isForLinter !== undefined) {
             result = getDiagnostics(sourceFile, cancellationToken, isForLinter);
         } else {
-            result = getDiagnostics(sourceFile, cancellationToken);
+            result = getDiagnostics(sourceFile, cancellationToken, skipDiagnostics);
         }
 
         if (sourceFile) {
@@ -3065,8 +3068,8 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         return result;
     }
 
-    function getDeclarationDiagnosticsForFile(sourceFile: SourceFile, cancellationToken: CancellationToken): readonly DiagnosticWithLocation[] {
-        return sourceFile.isDeclarationFile ? [] : getDeclarationDiagnosticsWorker(sourceFile, cancellationToken);
+    function getDeclarationDiagnosticsForFile(sourceFile: SourceFile, cancellationToken: CancellationToken, skipDiagnostics?: boolean): readonly DiagnosticWithLocation[] {
+        return sourceFile.isDeclarationFile ? [] : getDeclarationDiagnosticsWorker(sourceFile, cancellationToken, skipDiagnostics);
     }
 
     function getOptionsDiagnostics(): SortedReadonlyArray<Diagnostic> {
