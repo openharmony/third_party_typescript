@@ -34335,8 +34335,8 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
         for (let i = 0; i < checkConfig.length; i++) {
             const config = checkConfig[i];
             let tagNameCheckNecessity = true;
-            if (config.checkJsDocSpecialValidCallback) {
-                tagNameCheckNecessity = config.checkJsDocSpecialValidCallback(jsDocTags, config, node, declaration);
+            if (config.checkJsDocSuppressorValidCallback) {
+                tagNameCheckNecessity = config.checkJsDocSuppressorValidCallback(jsDocTags, config, node, declaration);
             }
             if (!tagNameCheckNecessity) {
                 continue;
