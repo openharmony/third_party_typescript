@@ -277,6 +277,7 @@ import {
     UnparsedNode,
     UnparsedTextLike,
     VariableDeclaration,
+    PerformanceDotting,
 } from "./_namespaces/ts";
 
 export function isExternalModuleNameRelative(moduleName: string): boolean {
@@ -2526,7 +2527,9 @@ export class MemoryUtils {
         
         const currentMemory = process.memoryUsage().heapUsed;
         if (MemoryUtils.baseMemorySize === undefined || (currentMemory - MemoryUtils.baseMemorySize > MemoryUtils.memoryGCThreshold)) {
+            PerformanceDotting.startAdvanced("tryGC");
             global.gc();
+            PerformanceDotting.stopAdvanced("tryGC");
             MemoryUtils.updateBaseMemory();
             return;
         }

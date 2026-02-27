@@ -1459,7 +1459,9 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
         compilerOptions.strictPropertyInitialization = true;
         compilerOptions.noImplicitReturns = true;
 
-        getJsDocNodeCheckedConfig = undefined;
+        if (!compilerOptions.strictCheckerOnly) {
+            getJsDocNodeCheckedConfig = undefined;
+        }
     }
 
     var languageVersion = getEmitScriptTarget(compilerOptions);
@@ -1508,6 +1510,9 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
     // Get the SDK paths that need to skip the @throws check.
     const skipSdkPath: string = getSdkPath(compilerOptions)!;
     const skipSdkPathReg: RegExp = new RegExp(skipSdkPath);
+
+    // Mark strictVariance flag
+    var strictVarianceFlag: boolean = false;
 
     // for public members that accept a Node or one of its subtypes, we must guard against
     // synthetic nodes created during transformations by calling `getParseTreeNode`.
@@ -1879,6 +1884,7 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
         clearTypeToStringForLinterCache: () => {typeToStringCache = new WeakMap<Type, string>();},
         isStaticRecord: isStaticRecord,
         isStaticSourceFile: isStaticSourceFile,
+        resetJsDocCheck: () => {getJsDocNodeCheckedConfig = undefined},
     };
 
     function getTypeArgumentsForResolvedSignature(signature: Signature): readonly Type[] | undefined {
@@ -19761,7 +19767,7 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
                     (getTypeFacts(sourceType) & TypeFacts.IsUndefinedOrNull) === (getTypeFacts(targetType) & TypeFacts.IsUndefinedOrNull);
                 let related = callbacks ?
                     compareSignaturesRelated(targetSig, sourceSig, (checkMode & SignatureCheckMode.StrictArity) | (strictVariance ? SignatureCheckMode.StrictCallback : SignatureCheckMode.BivariantCallback), reportErrors, errorReporter, incompatibleErrorReporter, compareTypes, reportUnreliableMarkers) :
-                    !(checkMode & SignatureCheckMode.Callback) && !strictVariance && compareTypes(sourceType, targetType, /*reportErrors*/ false) || compareTypes(targetType, sourceType, reportErrors);
+                    !(checkMode & SignatureCheckMode.Callback) && !strictVariance && compareTypes(sourceType, targetType, /*reportErrors*/ false) || compareTypesWithFlag(targetType, sourceType, reportErrors);
                 // With strict arity, (x: number | undefined) => void is a subtype of (x?: number | undefined) => void
                 if (related && checkMode & SignatureCheckMode.StrictArity && i >= getMinArgumentCount(source) && i < getMinArgumentCount(target) && compareTypes(sourceType, targetType, /*reportErrors*/ false)) {
                     related = Ternary.False;
@@ -19819,6 +19825,18 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
         }
 
         return result;
+
+        function compareTypesWithFlag(targetType: Type, sourceType: Type, reportErrors: boolean): Ternary {
+            let result: ts.Ternary;
+            if (compilerOptions.strictCheckerOnly) {
+                strictVarianceFlag = true;
+                result = compareTypes(targetType, sourceType, reportErrors);
+                strictVarianceFlag = false;
+            } else {
+                result = compareTypes(targetType, sourceType, reportErrors);
+            }
+            return result;
+        }
     }
 
     function compareTypePredicateRelatedTo(
@@ -20276,6 +20294,12 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
             if (incompatibleStack) reportIncompatibleStack();
             if (message.elidedInCompatabilityPyramid) return;
             errorInfo = chainDiagnosticMessages(errorInfo, message, arg0, arg1, arg2, arg3);
+            if (!strictVarianceFlag) {
+                return;
+            }
+            if (message === Diagnostics.Type_0_is_not_assignable_to_type_1 && arg0 === "unknown") {
+                errorInfo.filterFlag = true;
+            }
         }
 
         function associateRelatedInfo(info: DiagnosticRelatedInformation) {
@@ -34254,7 +34278,15 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
 
     function getPropertyAccessExpressionNameSymbol(node: PropertyAccessExpression) {
         const right = node.name;
-        const leftType = checkNonNullExpression(node.expression);
+        let leftType: Type;
+        if (compilerOptions.strictCheckerOnly && isOptionalChain(node)) {
+            leftType = checkNonNullType(
+                getOptionalExpressionType(checkExpression(node.expression), node.expression),
+                node.expression
+            )
+        } else {
+            leftType = checkNonNullExpression(node.expression);
+        }
         const assignmentKind = getAssignmentTargetKind(node);
         const apparentType = getApparentType(assignmentKind !== AssignmentKind.None || isMethodAccessForCall(node) ? getWidenedType(leftType) : leftType);
         let sourceSymbol: Symbol | undefined;

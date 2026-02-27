@@ -60,6 +60,12 @@ buildInfoWriteFile?: WriteFileCallback, arkTSVersion?: string): Diagnostic[] {
   PerformanceDotting.stopAdvanced(TimePhase.INIT);
 
   tscDiagnosticsLinter.doAllGetDiagnostics();
+
+  // Reset JsDoc check
+  program.getTypeChecker().resetJsDocCheck();
+  program.getLinterTypeChecker().resetJsDocCheck();
+
+  PerformanceDotting.startAdvanced('collectChangedFilesFromProgramState');
   const changedFiles = collectChangedFilesFromProgramState(
     programState,
     program,
@@ -67,6 +73,7 @@ buildInfoWriteFile?: WriteFileCallback, arkTSVersion?: string): Diagnostic[] {
     compilerOptions.compatibleSdkVersion,
     compilerOptions.compatibleSdkVersionStage
   );
+  PerformanceDotting.stopAdvanced('collectChangedFilesFromProgramState');
   // Set arkTSVersion info for file .tsbuildinfo.
   // File .tsbuildinfo.linter dosen't need to set arkTSVersion because it dosen't contain linter diagnostics.
   programState.arkTSVersion = arkTSVersion;
@@ -87,10 +94,11 @@ buildInfoWriteFile?: WriteFileCallback, arkTSVersion?: string): Diagnostic[] {
   timePrinterInstance.appendTime(TimePhase.GET_TSC_DIAGNOSTICS);
   PerformanceDotting.stopAdvanced(TimePhase.GET_TSC_DIAGNOSTICS);
 
-  PerformanceDotting.startAdvanced(TimePhase.LINT);
+  const lintRecordLog: string = TimePhase.LINT + '(checkedFilesNum: ' + changedFiles.size + ')';
+  PerformanceDotting.startAdvanced(lintRecordLog);
   TypeScriptLinter.initGlobals(compilerOptions);
   InteropTypescriptLinter.initGlobals();
-  LibraryTypeCallDiagnosticChecker.instance.rebuildTscDiagnostics(tscStrictDiagnostics);
+  LibraryTypeCallDiagnosticChecker.instance.rebuildTscDiagnostics(tscStrictDiagnostics, compilerOptions);
 
   var lintLoop = function(fileToLint: SourceFile) {
     if (fileToLint.scriptKind !== ScriptKind.ETS && fileToLint.scriptKind !== ScriptKind.TS) {
@@ -113,7 +121,16 @@ buildInfoWriteFile?: WriteFileCallback, arkTSVersion?: string): Diagnostic[] {
         linter.lint();
 
         // Get list of bad nodes from the current run.
-        currentDiagnostics = tscStrictDiagnostics.get(normalizePath(fileToLint.fileName)) ?? [];
+        // When strictCheckerOnly is enabled, we need to merge linter-processed diagnostics with non-linter diagnostics
+        const linterProcessedDiagnostics = tscStrictDiagnostics.get(normalizePath(fileToLint.fileName)) ?? [];
+        if (compilerOptions.strictCheckerOnly) {
+          currentDiagnostics = LibraryTypeCallDiagnosticChecker.instance.mergeDiagnostics(
+            normalizePath(fileToLint.fileName),
+            linterProcessedDiagnostics
+          );
+        } else {
+          currentDiagnostics = linterProcessedDiagnostics;
+        }
         TypeScriptLinter.problemsInfos.forEach((x) => currentDiagnostics.push(translateDiag(fileToLint, x)));
       } else {
         InteropTypescriptLinter.initStatic();
@@ -132,7 +149,7 @@ buildInfoWriteFile?: WriteFileCallback, arkTSVersion?: string): Diagnostic[] {
 
         currentDiagnostics = [];
         InteropTypescriptLinter.problemsInfos.forEach((x) => currentDiagnostics.push(translateDiag(fileToLint, x)));
-      } 
+      }
     } else {
       // Get diagnostics from old run.
       currentDiagnostics = (oldDiagnostics?.get(fileToLint.resolvedPath) as Diagnostic[]) ?? [];
@@ -150,7 +167,7 @@ buildInfoWriteFile?: WriteFileCallback, arkTSVersion?: string): Diagnostic[] {
   }
 
   timePrinterInstance.appendTime(TimePhase.LINT);
-  PerformanceDotting.stopAdvanced(TimePhase.LINT);
+  PerformanceDotting.stopAdvanced(lintRecordLog);
 
   // Write tsbuildinfo file only after we cached the linter diagnostics.
   PerformanceDotting.startAdvanced(TimePhase.EMIT_BUILD_INFO);

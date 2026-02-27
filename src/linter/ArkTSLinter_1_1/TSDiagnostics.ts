@@ -81,7 +81,12 @@ class TypeScriptDiagnosticsExtractor {
     timePrinterInstance.appendTime(TimePhase.NON_STRICT_PROGRAM_GET_SYNTACTIC_DIAGNOSTICS);
     PerformanceDotting.stopAdvanced(TimePhase.NON_STRICT_PROGRAM_GET_SYNTACTIC_DIAGNOSTICS);
     PerformanceDotting.startAdvanced(TimePhase.STRICT_PROGRAM_GET_SEMANTIC_DIAGNOSTICS);
-    this.nonStrictProgram.builderProgramForLinter?.getSemanticDiagnostics();
+    if (this.nonStrictProgram.builderProgramForLinter) {
+      if (this.nonStrictProgram.getCompilerOptions().strictCheckerOnly) {
+        this.nonStrictProgram.builderProgramForLinter.getState().constEnumRelatePerFile = this.nonStrictProgram.getState().constEnumRelatePerFile;
+      }
+      this.nonStrictProgram.builderProgramForLinter.getSemanticDiagnostics();
+    }
     timePrinterInstance.appendTime(TimePhase.STRICT_PROGRAM_GET_SEMANTIC_DIAGNOSTICS);
     PerformanceDotting.stopAdvanced(TimePhase.STRICT_PROGRAM_GET_SEMANTIC_DIAGNOSTICS);
   }
