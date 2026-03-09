@@ -1,0 +1,92 @@
+=== tests/cases/conformance/annotations/@arkts.lang.d.ets ===
+export const enum RetentionPolicy {
+>RetentionPolicy : RetentionPolicy
+
+    SOURCE='source',
+>SOURCE : RetentionPolicy.SOURCE
+>'source' : "source"
+
+    BYTECODE='bytecode'
+>BYTECODE : RetentionPolicy.BYTECODE
+>'bytecode' : "bytecode"
+}
+
+export @interface Retention {
+    policy: RetentionPolicy
+>policy : RetentionPolicy
+}
+
+=== tests/cases/conformance/annotations/A.ets ===
+import { RetentionPolicy, Retention } from "./@arkts.lang"
+>RetentionPolicy : typeof RetentionPolicy
+>Retention : typeof Retention
+
+@Retention({policy: RetentionPolicy.SOURCE})
+>Retention({policy: RetentionPolicy.SOURCE}) : void
+>Retention : typeof Retention
+>{policy: RetentionPolicy.SOURCE} : { policy: RetentionPolicy.SOURCE; }
+>policy : RetentionPolicy.SOURCE
+>RetentionPolicy.SOURCE : RetentionPolicy.SOURCE
+>RetentionPolicy : typeof RetentionPolicy
+>SOURCE : RetentionPolicy.SOURCE
+
+@interface Anno1 {
+    value: number
+>value : number
+}
+
+@Anno1({value: 1})
+>Anno1({value: 1}) : void
+>Anno1 : typeof Anno1
+>{value: 1} : { value: number; }
+>value : number
+>1 : 1
+
+let a = 1;
+>a : number
+>1 : 1
+
+@Anno1({value: 2})
+>Anno1({value: 2}) : void
+>Anno1 : typeof Anno1
+>{value: 2} : { value: number; }
+>value : number
+>2 : 2
+
+function foo() {}
+>foo : () => void
+
+@Anno1({value: 3})
+>Anno1({value: 3}) : void
+>Anno1 : typeof Anno1
+>{value: 3} : { value: number; }
+>value : number
+>3 : 3
+
+class A {}
+>A : A
+
+@Retention({policy: RetentionPolicy.BYTECODE})
+>Retention({policy: RetentionPolicy.BYTECODE}) : void
+>Retention : typeof Retention
+>{policy: RetentionPolicy.BYTECODE} : { policy: RetentionPolicy.BYTECODE; }
+>policy : RetentionPolicy.BYTECODE
+>RetentionPolicy.BYTECODE : RetentionPolicy.BYTECODE
+>RetentionPolicy : typeof RetentionPolicy
+>BYTECODE : RetentionPolicy.BYTECODE
+
+@interface Anno2 {
+    value: number
+>value : number
+}
+
+@Anno2({value: 4})
+>Anno2({value: 4}) : void
+>Anno2 : typeof Anno2
+>{value: 4} : { value: number; }
+>value : number
+>4 : 4
+
+class B {}
+>B : B
+

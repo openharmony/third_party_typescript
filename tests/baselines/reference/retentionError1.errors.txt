@@ -1,0 +1,54 @@
+tests/cases/conformance/annotations/A.ets(3,1): error TS28046: @Retention should only be applied to annotation declarations.
+tests/cases/conformance/annotations/A.ets(6,1): error TS28019: When annotation 'Retention' is applied, all fields without default values must be provided.
+tests/cases/conformance/annotations/A.ets(16,19): error TS1146: Declaration expected.
+tests/cases/conformance/annotations/A.ets(24,1): error TS28022: Annotation have to be applied for classes or methods in classes only, got: '@Anno3({value: 2})
+let b = 2;'.
+
+
+==== tests/cases/conformance/annotations/@arkts.lang.d.ets (0 errors) ====
+    export const enum RetentionPolicy {
+        SOURCE='source',
+        BYTECODE='bytecode'
+    }
+    
+    export @interface Retention {
+        policy: RetentionPolicy
+    }
+    
+==== tests/cases/conformance/annotations/A.ets (4 errors) ====
+    import { RetentionPolicy, Retention } from "./@arkts.lang"
+    
+    @Retention({policy: RetentionPolicy.SOURCE})
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+!!! error TS28046: @Retention should only be applied to annotation declarations.
+    class A {}
+    
+    @Retention
+    ~~~~~~~~~~
+!!! error TS28019: When annotation 'Retention' is applied, all fields without default values must be provided.
+    @interface Anno1 {}
+    
+    @Retention({policy: RetentionPolicy.SOURCE})
+    @interface Anno2 {
+        value: number
+    }
+    
+    let a = 1;
+    
+    @Anno1({value: 1})
+                      
+!!! error TS1146: Declaration expected.
+    a = 2;
+    
+    @Retention({policy: RetentionPolicy.BYTECODE})
+    @interface Anno3 {
+        value: number
+    }
+    
+    @Anno3({value: 2})
+    ~~~~~~~~~~~~~~~~~~
+!!! error TS28022: Annotation have to be applied for classes or methods in classes only, got: '@Anno3({value: 2})
+!!! error TS28022: let b = 2;'.
+    let b = 2;
+    
+    
