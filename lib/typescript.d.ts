@@ -3687,7 +3687,6 @@ declare namespace ts {
         type: DiagnosticCategory;
         specifyCheckConditionFuncName: string;
         tagNameShouldExisted: boolean;
-        timeAnalyzerEvent: Object;
         checkValidCallback?: (jsDocTag: JSDocTag, config: JsDocNodeCheckConfigItem) => boolean;
         checkJsDocSuppressorValidCallback?: (jsDocTags: readonly JSDocTag[], config: JsDocNodeCheckConfigItem, node?: Node, declaration?: Declaration) => boolean;
         checkConditionValidCallback?: (node: CallExpression, specifyFuncName: string, importSymbol: string, jsDocs?: JSDoc[]) => boolean;
