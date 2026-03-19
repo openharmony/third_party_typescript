@@ -6967,6 +6967,7 @@ export interface CompilerOptions {
     moduleRootPath?: string; // The root path of module, such as har.
     disableSendableCheckRules?: string[]; // sendable rules that needs to disable.
     strictCheckerOnly?: boolean; // Only do strict check for ets files when enabled.
+    tsImportSoCheck?: boolean; // Enable type checking for .so file imports.
 }
 
 export interface EtsOptions {
