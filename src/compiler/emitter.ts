@@ -1200,6 +1200,7 @@ export const notImplementedResolver: EmitResolver = {
     getAnnotationPropertyInferredType: notImplemented,
     isReferredToAnnotation: notImplemented,
     isSourceRetentionAnnotation: notImplemented,
+    isSourceRetentionAnnotationDeclaration: notImplemented,
     isReferredToSourceRetentionAnnotation: notImplemented
 };
 

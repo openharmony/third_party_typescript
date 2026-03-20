@@ -1,0 +1,86 @@
+=== tests/cases/conformance/annotations/@arkts.lang.d.ets ===
+export const enum RetentionPolicy {
+>RetentionPolicy : Symbol(RetentionPolicy, Decl(@arkts.lang.d.ets, 0, 0))
+
+    SOURCE='source',
+>SOURCE : Symbol(RetentionPolicy.SOURCE, Decl(@arkts.lang.d.ets, 0, 35))
+
+    BYTECODE='bytecode'
+>BYTECODE : Symbol(RetentionPolicy.BYTECODE, Decl(@arkts.lang.d.ets, 1, 20))
+}
+
+export @interface Retention {
+>Retention : Symbol(Retention, Decl(@arkts.lang.d.ets, 3, 1))
+
+    policy: RetentionPolicy
+>policy : Symbol(Retention.policy, Decl(@arkts.lang.d.ets, 5, 29))
+>RetentionPolicy : Symbol(RetentionPolicy, Decl(@arkts.lang.d.ets, 0, 0))
+}
+
+=== tests/cases/conformance/annotations/A.ets ===
+import { RetentionPolicy, Retention } from "./@arkts.lang"
+>RetentionPolicy : Symbol(RetentionPolicy, Decl(A.ets, 0, 8))
+>Retention : Symbol(Retention, Decl(A.ets, 0, 25))
+
+@Retention({policy: RetentionPolicy.SOURCE})
+>Retention : Symbol(Retention, Decl(A.ets, 0, 25))
+>policy : Symbol(policy, Decl(A.ets, 2, 12))
+>RetentionPolicy.SOURCE : Symbol(RetentionPolicy.SOURCE, Decl(@arkts.lang.d.ets, 0, 35))
+>RetentionPolicy : Symbol(RetentionPolicy, Decl(A.ets, 0, 8))
+>SOURCE : Symbol(RetentionPolicy.SOURCE, Decl(@arkts.lang.d.ets, 0, 35))
+
+class A {}
+>A : Symbol(A, Decl(A.ets, 0, 58))
+
+@Retention
+>Retention : Symbol(Retention, Decl(A.ets, 0, 25))
+
+@interface Anno1 {}
+>Anno1 : Symbol(Anno1, Decl(A.ets, 3, 10))
+
+@Retention({policy: RetentionPolicy.SOURCE})
+>Retention : Symbol(Retention, Decl(A.ets, 0, 25))
+>policy : Symbol(policy, Decl(A.ets, 8, 12))
+>RetentionPolicy.SOURCE : Symbol(RetentionPolicy.SOURCE, Decl(@arkts.lang.d.ets, 0, 35))
+>RetentionPolicy : Symbol(RetentionPolicy, Decl(A.ets, 0, 8))
+>SOURCE : Symbol(RetentionPolicy.SOURCE, Decl(@arkts.lang.d.ets, 0, 35))
+
+@interface Anno2 {
+>Anno2 : Symbol(Anno2, Decl(A.ets, 6, 19))
+
+    value: number
+>value : Symbol(Anno2.value, Decl(A.ets, 9, 18))
+}
+
+let a = 1;
+>a : Symbol(a, Decl(A.ets, 13, 3))
+
+@Anno1({value: 1})
+>Anno1 : Symbol(Anno1, Decl(A.ets, 3, 10))
+>value : Symbol(value, Decl(A.ets, 15, 8))
+
+a = 2;
+>a : Symbol(a, Decl(A.ets, 13, 3))
+
+@Retention({policy: RetentionPolicy.BYTECODE})
+>Retention : Symbol(Retention, Decl(A.ets, 0, 25))
+>policy : Symbol(policy, Decl(A.ets, 18, 12))
+>RetentionPolicy.BYTECODE : Symbol(RetentionPolicy.BYTECODE, Decl(@arkts.lang.d.ets, 1, 20))
+>RetentionPolicy : Symbol(RetentionPolicy, Decl(A.ets, 0, 8))
+>BYTECODE : Symbol(RetentionPolicy.BYTECODE, Decl(@arkts.lang.d.ets, 1, 20))
+
+@interface Anno3 {
+>Anno3 : Symbol(Anno3, Decl(A.ets, 16, 6))
+
+    value: number
+>value : Symbol(Anno3.value, Decl(A.ets, 19, 18))
+}
+
+@Anno3({value: 2})
+>Anno3 : Symbol(Anno3, Decl(A.ets, 16, 6))
+>value : Symbol(value, Decl(A.ets, 23, 8))
+
+let b = 2;
+>b : Symbol(b, Decl(A.ets, 24, 3))
+
+

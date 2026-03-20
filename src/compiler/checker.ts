@@ -40129,6 +40129,15 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
         }
     }
 
+    function isRetentionAnnotationDeclaration(annoDecl: AnnotationDeclaration): boolean {
+        const annoDeclName = getTextOfNode(annoDecl.name, false);
+        return annoDeclName === 'Retention' && ts.getBaseFileName(getSourceFileOfNode(annoDecl).fileName).toLocaleLowerCase() === '@arkts.lang.d.ets';
+    }
+
+    function isRetentionAnnotation(annotation: Annotation): boolean {
+        return !!annotation.annotationDeclaration && isRetentionAnnotationDeclaration(annotation.annotationDeclaration);
+    }
+
     /** Check the annotation of a node */
     function checkAnnotation(annotation: Annotation, annotationsSet: Set<String>): void {
         if (isSourceRetentionAnnotation(annotation)) {
@@ -40147,52 +40156,60 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
         }
 
         const annotatedDecl = annotation.parent;
-        // Only classes or methods must be annotated
-        if (!isClassDeclaration(annotatedDecl) && !(isMethodDeclaration(annotatedDecl) && isClassDeclaration(annotatedDecl.parent))) {
-            const nodeStr = getTextOfNode(annotatedDecl, /*includeTrivia*/ false);
+
+        if (isRetentionAnnotation(annotation)) {
+            if (annotatedDecl.kind !== SyntaxKind.AnnotationDeclaration) {
+                error(annotation, Diagnostics._0_should_only_be_applied_to_annotation_declarations, '@Retention');
+                return;
+            }
+        } else {
+            // Only classes or methods must be annotated
+            if (!isClassDeclaration(annotatedDecl) && !(isMethodDeclaration(annotatedDecl) && isClassDeclaration(annotatedDecl.parent))) {
+                const nodeStr = getTextOfNode(annotatedDecl, /*includeTrivia*/ false);
+                switch (annotatedDecl.kind) {
+                    case SyntaxKind.Constructor:
+                        error(annotation, Diagnostics.Annotation_cannot_be_applied_for_constructor_got_Colon_0, nodeStr);
+                        break;
+                    case SyntaxKind.GetAccessor:
+                    case SyntaxKind.SetAccessor:
+                        error(annotation, Diagnostics.Annotation_cannot_be_applied_for_getter_or_setter_got_Colon_0, nodeStr);
+                        break;
+                    case SyntaxKind.AnnotationDeclaration:
+                        error(annotation, Diagnostics.Annotation_cannot_be_applied_for_annotation_declaration);
+                        break;
+                    default:
+                        error(annotation, Diagnostics.Annotation_have_to_be_applied_for_classes_or_methods_in_classes_only_got_Colon_0, nodeStr);
+                }
+                return;
+            }
+
+            // Prohibit application of annotation for abstract classes and methods
+            if (hasSyntacticModifier(annotatedDecl, ModifierFlags.Abstract)) {
+                const nodeStr = getTextOfNode(annotatedDecl, /*includeTrivia*/ false);
+                error(annotation, Diagnostics.Annotation_have_to_be_applied_only_for_non_abstract_class_declarations_and_method_declarations_in_non_abstract_classes_got_Colon_0, nodeStr);
+                return;
+            }
+
             switch (annotatedDecl.kind) {
-                case SyntaxKind.Constructor:
-                    error(annotation, Diagnostics.Annotation_cannot_be_applied_for_constructor_got_Colon_0, nodeStr);
+                case SyntaxKind.ClassDeclaration:
                     break;
-                case SyntaxKind.GetAccessor:
-                case SyntaxKind.SetAccessor:
-                    error(annotation, Diagnostics.Annotation_cannot_be_applied_for_getter_or_setter_got_Colon_0, nodeStr);
-                    break;
-                case SyntaxKind.AnnotationDeclaration:
-                    error(annotation, Diagnostics.Annotation_cannot_be_applied_for_annotation_declaration);
+                case SyntaxKind.MethodDeclaration:
+                    const enclosingDecl = annotatedDecl.parent;
+                    Debug.assert(isClassDeclaration(enclosingDecl));
+
+                    /* abstract class C {
+                        *    @goo
+                        *    puiblic foo() {}
+                        * }
+                        */
+                    if (hasSyntacticModifier(enclosingDecl, ModifierFlags.Abstract)) {
+                        const nodeStr = getTextOfNode(enclosingDecl, /*includeTrivia*/ false);
+                        error(annotation, Diagnostics.Annotation_have_to_be_applied_only_for_non_abstract_class_declarations_and_method_declarations_in_non_abstract_classes_got_Colon_0, nodeStr);
+                    }
                     break;
                 default:
-                    error(annotation, Diagnostics.Annotation_have_to_be_applied_for_classes_or_methods_in_classes_only_got_Colon_0, nodeStr);
+                    Debug.fail();
             }
-            return;
-        }
-
-        // Prohibit application of annotation for abstract classes and methods
-        if (hasSyntacticModifier(annotatedDecl, ModifierFlags.Abstract)) {
-            const nodeStr = getTextOfNode(annotatedDecl, /*includeTrivia*/ false);
-            error(annotation, Diagnostics.Annotation_have_to_be_applied_only_for_non_abstract_class_declarations_and_method_declarations_in_non_abstract_classes_got_Colon_0, nodeStr);
-            return;
-        }
-
-        switch (annotatedDecl.kind) {
-            case SyntaxKind.ClassDeclaration:
-                break;
-            case SyntaxKind.MethodDeclaration:
-                const enclosingDecl = annotatedDecl.parent;
-                Debug.assert(isClassDeclaration(enclosingDecl));
-
-                /* abstract class C {
-                    *    @goo
-                    *    puiblic foo() {}
-                    * }
-                    */
-                if (hasSyntacticModifier(enclosingDecl, ModifierFlags.Abstract)) {
-                    const nodeStr = getTextOfNode(enclosingDecl, /*includeTrivia*/ false);
-                    error(annotation, Diagnostics.Annotation_have_to_be_applied_only_for_non_abstract_class_declarations_and_method_declarations_in_non_abstract_classes_got_Colon_0, nodeStr);
-                }
-                break;
-            default:
-                Debug.fail();
         }
 
         checkDuplicateAnnotation(annotation, annotationsSet);
@@ -46981,7 +46998,66 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
 
     /** 
      * @internal 
-     * Determine whether an annotation is 'SourceRetention' annotation declared in SDK files
+     * Check if an annotation declaration has @Retention({policy: "source"}) applied
+     */
+    function hasSourceRetentionPolicy(node: AnnotationDeclaration): boolean {
+        if (isRetentionAnnotationDeclaration(node)) {
+            return false;
+        }
+        const decorators = node.modifiers;
+        if (!decorators) {
+            return false;
+        }
+        for (const decorator of decorators) {
+            // Check if decorator kind is Decorator, regardless of annotationDeclaration property
+            if (decorator.kind !== SyntaxKind.Decorator) {
+                continue;
+            }
+            const annoDecl = getAnnotationDeclaration(<Annotation>decorator);
+            if (!annoDecl) {
+                continue;
+            }
+            if (!isRetentionAnnotationDeclaration(annoDecl)) {
+                continue;
+            }
+            const expr = (<Annotation>decorator).expression;
+            if (!isCallExpression(expr)) {
+                continue;
+            }
+            const args = expr.arguments;
+            if (args.length !== 1) {
+                continue;
+            }
+            const arg = args[0];
+            if (!isObjectLiteralExpression(arg)) {
+                continue;
+            }
+            for (const prop of arg.properties) {
+                if (!isPropertyAssignment(prop)) {
+                    continue;
+                }
+                const propName = getTextOfNode(prop.name, false);
+                if (propName !== 'policy') {
+                    continue;
+                }
+                const policyValue = prop.initializer;
+                if (isStringLiteral(policyValue)) {
+                    return policyValue.text === 'source';
+                }
+                if (canHaveConstantValue(policyValue)) {
+                    const constantValue = getConstantValue(policyValue);
+                    if (constantValue === 'source') {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    /** 
+     * @internal 
+     * Determine whether an annotation is 'SourceRetention' annotation
      */
     function isSourceRetentionAnnotation(node: Annotation): boolean {
         if (!node || !node.annotationDeclaration) {
@@ -46993,7 +47069,7 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
 
     /** 
      * @internal 
-     * Determine whether an annotationDeclaration is 'SourceRetention' annotation declared in SDK files, such as Available annotation or SuppressWarnings annotation.
+     * Determine whether an annotationDeclaration is 'SourceRetention' annotation, such as Available annotation or SuppressWarnings annotation.
      */
     function isSourceRetentionAnnotationDeclaration(node: AnnotationDeclaration | undefined): boolean {
         if (!node) {
@@ -47004,6 +47080,9 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
             links.sourceRetentionAnnotation = false;
             if (isSourceRetentionDeclarationValid) {
                 links.sourceRetentionAnnotation = isSourceRetentionDeclarationValid(node);
+            }
+            if (!links.sourceRetentionAnnotation) {
+                links.sourceRetentionAnnotation = hasSourceRetentionPolicy(node);
             }
         }
         return links.sourceRetentionAnnotation;
@@ -47214,6 +47293,7 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
             },
             isReferredToAnnotation: isReferredToAnnotation,
             isSourceRetentionAnnotation: isSourceRetentionAnnotation,
+            isSourceRetentionAnnotationDeclaration: isSourceRetentionAnnotationDeclaration,
             isReferredToSourceRetentionAnnotation: isReferredToSourceRetentionAnnotation
         };
 

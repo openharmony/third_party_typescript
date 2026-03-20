@@ -7857,5 +7857,9 @@
     "Cannot find module '{0}'. This module is not exported.": {
         "category": "Error",
         "code": 28045
+    },
+    "{0} should only be applied to annotation declarations.": {
+        "category": "Error",
+        "code": 28046
     }
 }
