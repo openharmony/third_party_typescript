@@ -5498,6 +5498,7 @@ export interface EmitResolver {
     getAnnotationPropertyInferredType(node: AnnotationPropertyDeclaration): TypeNode | undefined;
     isReferredToAnnotation(node: ImportSpecifier | ExportSpecifier | ExportAssignment): boolean | undefined;
     isSourceRetentionAnnotation(node: Annotation): boolean;
+    isSourceRetentionAnnotationDeclaration(node: AnnotationDeclaration): boolean;
     isReferredToSourceRetentionAnnotation(node: ImportSpecifier): boolean | undefined;
 }
 

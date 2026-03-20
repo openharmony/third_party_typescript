@@ -627,6 +627,9 @@ export function transformAnnotation(context: TransformationContext): (node: Sour
     }
 
     function visitAnnotationDeclaration(node: AnnotationDeclaration): VisitResult<AnnotationDeclaration> {
+        if (resolver.isSourceRetentionAnnotationDeclaration(node)) {
+            return undefined;
+        }
         // Add magic prefix for AnnotationDeclaration. For example,
         // @interface Anno {} ---> @interface __$$ETS_ANNOTATION$$__Anno {}
         const magicPrefixName = addMagicPrefixToAnnotationNameIdentifier(node.name);
@@ -667,7 +670,7 @@ export function transformAnnotation(context: TransformationContext): (node: Sour
         if (resolver.isSourceRetentionAnnotation(node)) {
             return undefined;
         }
-        
+
         // Add default values into annotation object literal. For example,
         // @interface Anno {
         //     a: number = 10
@@ -679,7 +682,7 @@ export function transformAnnotation(context: TransformationContext): (node: Sour
         //
         // and
         //
-        // Add the magic prefix for annotation name. For example,
+        // Add magic prefix for annotation name. For example,
         // @myModule.Anno({a: 10, b: "abc"}) --- > @myModule.__$$ETS_ANNOTATION$$__Anno({a: 10, b: "abc"})
         return factory.updateDecorator(
             node,
