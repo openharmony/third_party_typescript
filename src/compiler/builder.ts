@@ -177,6 +177,16 @@ export interface ReusableBuilderProgramState extends BuilderState {
      * Cache the compatibleSdkVersionStage info
      */
     compatibleSdkVersionStage?: string;
+    /**
+     * Strict diagnostics to be concatenated with semantic diagnostics
+     * @internal
+     */
+    strictDiagnostics?: readonly Diagnostic[];
+    /**
+     * Strict diagnostics grouped by fileName for per-file lookup
+     * @internal
+     */
+    strictDiagnosticsByFileName?: ESMap<string, Diagnostic[]>;
 }
 
 /** @internal */
@@ -270,6 +280,16 @@ export interface BuilderProgramState extends BuilderState, ReusableBuilderProgra
      * Cache the compatibleSdkVersionStage info
      */
     compatibleSdkVersionStage?: string;
+    /**
+     * Strict diagnostics to be concatenated with semantic diagnostics
+     * @internal
+     */
+    strictDiagnostics?: readonly Diagnostic[];
+    /**
+     * Strict diagnostics grouped by fileName for per-file lookup
+     * @internal
+     */
+    strictDiagnosticsByFileName?: ESMap<string, Diagnostic[]>;
 }
 
 /** @internal */
@@ -1692,30 +1712,42 @@ export function createBuilderProgram(kind: BuilderProgramKind, { newProgram, hos
     function getSemanticDiagnostics(sourceFile?: SourceFile, cancellationToken?: CancellationToken): readonly Diagnostic[] {
         assertSourceFileOkWithoutNextAffectedCall(state, sourceFile);
         const compilerOptions = Debug.checkDefined(state.program).getCompilerOptions();
+        let result: readonly Diagnostic[];
         if (outFile(compilerOptions)) {
             Debug.assert(!state.semanticDiagnosticsPerFile);
             // We dont need to cache the diagnostics just return them from program
             if (state.isForLinter) {
-                return Debug.checkDefined(state.program).getSemanticDiagnosticsForLinter(sourceFile, cancellationToken);
+                result = Debug.checkDefined(state.program).getSemanticDiagnosticsForLinter(sourceFile, cancellationToken);
+            } else {
+                result = Debug.checkDefined(state.program).getSemanticDiagnostics(sourceFile, cancellationToken);
             }
-            return Debug.checkDefined(state.program).getSemanticDiagnostics(sourceFile, cancellationToken);
+        } else if (sourceFile) {
+            result = getSemanticDiagnosticsOfFile(state, sourceFile, cancellationToken);
+        } else {
+            // When semantic builder asks for diagnostics of the whole program,
+            // ensure that all the affected files are handled
+            // eslint-disable-next-line no-empty
+            while (getSemanticDiagnosticsOfNextAffectedFile(cancellationToken)) {
+            }
+
+            let diagnostics: Diagnostic[] | undefined;
+            for (const sourceFile of Debug.checkDefined(state.program).getSourceFiles()) {
+                diagnostics = addRange(diagnostics, getSemanticDiagnosticsOfFile(state, sourceFile, cancellationToken));
+            }
+            result = diagnostics || emptyArray;
         }
 
-        if (sourceFile) {
-            return getSemanticDiagnosticsOfFile(state, sourceFile, cancellationToken);
+        // Concatenate strict diagnostics from state
+        if (state.strictDiagnostics?.length) {
+            if (!sourceFile) {
+                return result.concat(state.strictDiagnostics as Diagnostic[]);
+            }
+            const strict = state.strictDiagnosticsByFileName?.get(sourceFile.fileName);
+            if (strict?.length) {
+                return result.concat(strict);
+            }
         }
-
-        // When semantic builder asks for diagnostics of the whole program,
-        // ensure that all the affected files are handled
-        // eslint-disable-next-line no-empty
-        while (getSemanticDiagnosticsOfNextAffectedFile(cancellationToken)) {
-        }
-
-        let diagnostics: Diagnostic[] | undefined;
-        for (const sourceFile of Debug.checkDefined(state.program).getSourceFiles()) {
-            diagnostics = addRange(diagnostics, getSemanticDiagnosticsOfFile(state, sourceFile, cancellationToken));
-        }
-        return diagnostics || emptyArray;
+        return result;
     }
 
     function isFileUpdateInConstEnumCache(sourceFile: SourceFile): boolean {
