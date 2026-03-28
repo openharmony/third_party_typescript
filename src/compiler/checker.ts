@@ -1448,6 +1448,7 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
     var compilerOptions: CompilerOptions = {...host.getCompilerOptions()};
     let isSourceRetentionAnnotationContentValid = host.isSourceRetentionAnnotationContentValid;
     let isSourceRetentionDeclarationValid = host.isSourceRetentionDeclarationValid;
+    let isApiAvailableVersionSpecifications = host.isApiAvailableVersionSpecifications;
     if (!!compilerOptions.needDoArkTsLinter) {
         compilerOptions.skipLibCheck = false;
     }
@@ -33991,7 +33992,7 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
      */
     function checkCallExpression(node: CallExpression | NewExpression | EtsComponentExpression, checkMode?: CheckMode): Type {
         checkGrammarTypeArguments(node, node.typeArguments);
-
+        checkApiAvailableVersion(node);
         const signature = getResolvedSignature(node, /*candidatesOutArray*/ undefined, checkMode);
         if (signature === resolvingSignature) {
             // CheckMode.SkipGenericFunctions is enabled and this is a call to a generic function that
@@ -34399,7 +34400,7 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
     }
 
     function collectDiagnostics(config: JsDocNodeCheckConfigItem | ConditionCheckResult,
-        node: Identifier | Annotation, diagnostic: DiagnosticWithLocation): void {
+        node: Identifier | Annotation | Node, diagnostic: DiagnosticWithLocation): void {
         if (config.message) {
             // @ts-ignore
             diagnostic.messageText = config.message.replace("{0}", node.getText() === "" ? node.text : node.getText());
@@ -47086,6 +47087,22 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
             }
         }
         return links.sourceRetentionAnnotation;
+    }
+
+    function checkApiAvailableVersion(apiAvailableNode: Node): boolean {
+        if (!apiAvailableNode) {
+            return false;
+        }
+        if (isApiAvailableVersionSpecifications) {
+            let checkResult = isApiAvailableVersionSpecifications(apiAvailableNode);
+            if (checkResult && !checkResult.valid) {
+                const diagnostic = createDiagnosticForNodeInSourceFile(getSourceFileOfNode(apiAvailableNode),
+            apiAvailableNode, Diagnostics.This_API_has_been_Special_Markings_exercise_caution_when_using_this_API);
+            diagnostic.messageText = checkResult.message ? checkResult.message : '';
+            collectDiagnostics(checkResult, apiAvailableNode, diagnostic);
+            }
+        }
+        return false;
     }
 
     function createResolver(): EmitResolver {

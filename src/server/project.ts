@@ -29,7 +29,7 @@ import {
     sort, sortAndDeduplicate, SortedReadonlyArray, SourceFile, SourceMapper, startsWith, stripQuotes, StructureIsReused,
     SymlinkCache, TagCheckParam, ThrottledCancellationToken, timestamp, toPath, tracing, TypeAcquisition,
     updateErrorForNoInputFiles, updateMissingFilePathsWatch, WatchDirectoryFlags, WatchOptions, WatchType, Annotation,
-    AnnotationDeclaration
+    AnnotationDeclaration, Node
 } from "./_namespaces/ts";
 
 export enum ProjectKind {
@@ -370,6 +370,9 @@ export abstract class Project implements LanguageServiceHost, ModuleResolutionHo
         if (this.projectService.host.isSourceRetentionDeclarationValid) {
             this.isSourceRetentionDeclarationValid = this.projectService.host.isSourceRetentionDeclarationValid;
         }
+        if (this.projectService.host.isApiAvailableVersionSpecifications) {
+            this.isApiAvailableVersionSpecifications = this.projectService.host.isApiAvailableVersionSpecifications;
+        }
         if (this.projectService.host.getJsDocNodeCheckedConfig) {
             this.getJsDocNodeCheckedConfig = this.projectService.host.getJsDocNodeCheckedConfig;
         }
@@ -462,6 +465,15 @@ export abstract class Project implements LanguageServiceHost, ModuleResolutionHo
     isSourceRetentionDeclarationValid(annotationNode: AnnotationDeclaration): boolean{
         Debug.log(annotationNode.kind.toString());
         return true;
+    };
+
+    isApiAvailableVersionSpecifications(apiAvailableNode: Node): ConditionCheckResult{
+        Debug.log(apiAvailableNode.kind.toString());
+        return {
+            valid: true,
+            message: '',
+            type: DiagnosticCategory.Error
+        };
     };
 
     getJsDocNodeConditionCheckedResult(jsDocFileCheckedInfo: FileCheckModuleInfo, jsDocs: JsDocTagInfo[]):ConditionCheckResult {

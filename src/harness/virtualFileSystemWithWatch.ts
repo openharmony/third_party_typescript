@@ -56,6 +56,7 @@ import {
     SortedArray,
     sys,
     toPath,
+    Node
 } from "./_namespaces/ts";
 import { 
     ServerHost,
@@ -942,6 +943,15 @@ export class TestServerHost implements ServerHost, FormatDiagnosticsHost, Module
     isSourceRetentionDeclarationValid(annotationNode: AnnotationDeclaration): boolean{
         Debug.log(annotationNode.kind.toString());
         return true;
+    };
+
+    isApiAvailableVersionSpecifications(apiAvailableNode: Node): ConditionCheckResult{
+        Debug.log(apiAvailableNode.kind.toString());
+        return {
+            valid: true,
+            message: '',
+            type: DiagnosticCategory.Error
+        };
     };
 
     getFileCheckedModuleInfo?(sourceFilePath: string): FileCheckModuleInfo {

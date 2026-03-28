@@ -6,7 +6,7 @@ import {
     ModuleKind, ModuleResolutionCache, ModuleSpecifierCache, ParsedCommandLine, Path, Program, ProjectReference,
     ResolvedModule, ResolvedModuleWithFailedLookupLocations, ResolvedProjectReference, ResolvedTypeReferenceDirective,
     ScriptKind, Set, SourceFile, SourceFileLike, SourceMapper, Symbol, SymbolDisplayPart, SymlinkCache, TextChangeRange,
-    textChanges, TextRange, TextSpan, UserPreferences, Annotation, AnnotationDeclaration
+    textChanges, TextRange, TextSpan, UserPreferences, Annotation, AnnotationDeclaration, Node
 } from "./_namespaces/ts";
 
 declare module "../compiler/types" {
@@ -375,6 +375,7 @@ export interface LanguageServiceHost extends GetEffectiveTypeRootsHost, MinimalR
     isSourceRetentionAnnotationContentValid?(annotationNode: Annotation): ConditionCheckResult;
     isSourceRetentionDeclarationValid?(annotationNode: AnnotationDeclaration): boolean;
     isSourceOrExternalCode?(fileName: string): boolean;
+    isApiAvailableVersionSpecifications?(apiAvailableNode: Node): ConditionCheckResult;
 }
 
 /** @internal */
