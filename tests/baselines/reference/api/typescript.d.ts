@@ -3408,6 +3408,7 @@ declare namespace ts {
         moduleRootPath?: string;
         disableSendableCheckRules?: string[];
         strictCheckerOnly?: boolean;
+        tsImportSoCheck?: boolean;
     }
     interface EtsOptions {
         render: {
