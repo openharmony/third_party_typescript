@@ -15,3 +15,4 @@ export @interface Anno {
 
 //// [B.js]
 "use strict";
+require("./A");
