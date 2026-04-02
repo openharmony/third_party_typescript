@@ -5499,7 +5499,8 @@ export interface EmitResolver {
     isReferredToAnnotation(node: ImportSpecifier | ExportSpecifier | ExportAssignment): boolean | undefined;
     isSourceRetentionAnnotation(node: Annotation): boolean;
     isSourceRetentionAnnotationDeclaration(node: AnnotationDeclaration): boolean;
-    isReferredToSourceRetentionAnnotation(node: ImportSpecifier): boolean | undefined;
+    isReferredToSourceRetentionAnnotationOrRetentionAnnotation(node: ImportSpecifier): boolean | undefined;
+    isReferredToRetentionPolicy(node: ImportSpecifier): boolean;
 }
 
 export const enum SymbolFlags {

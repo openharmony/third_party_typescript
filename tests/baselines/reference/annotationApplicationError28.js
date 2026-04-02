@@ -26,3 +26,4 @@ export interface testI {
 //// [B.js]
 "use strict";
 exports.__esModule = true;
+require("./A");

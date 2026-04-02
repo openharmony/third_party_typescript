@@ -17,6 +17,7 @@ export enum E1 {
 "use strict";
 exports.__esModule = true;
 exports.E1 = void 0;
+require("./A");
 var E1;
 (function (E1) {
     E1[E1["A1"] = 0] = "A1";
