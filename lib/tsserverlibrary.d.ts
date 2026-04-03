@@ -7418,6 +7418,7 @@ declare namespace ts {
         moduleRootPath?: string;
         disableSendableCheckRules?: string[];
         strictCheckerOnly?: boolean;
+        tsImportSoCheck?: boolean;
     }
     interface EtsOptions {
         render: {
@@ -10100,6 +10101,13 @@ declare namespace ts {
      */
     function resolveProjectReferencePath(ref: ProjectReference): ResolvedConfigFileName;
     /** @deprecated */ function resolveProjectReferencePath(host: ResolveProjectReferencePathHost, ref: ProjectReference): ResolvedConfigFileName;
+    /**
+     * Patch a `BuilderProgram` instance so `builderProgram.getSemanticDiagnostics(...)`
+     * returns the original semantic diagnostics + the provided strict diagnostics.
+     * The strict diagnostics are stored directly in the BuilderProgramState,
+     * so their lifetime is tied to the program state and is not affected by GC.
+     */
+    function updateStrictDiagnosticsToGetSemanticDiagnostics(program: BuilderProgram, strictDiagnostics: readonly Diagnostic[]): void;
     interface FormatDiagnosticsHost {
         getCurrentDirectory(): string;
         getCanonicalFileName(fileName: string): string;

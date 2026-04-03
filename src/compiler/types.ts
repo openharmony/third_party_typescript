@@ -5501,7 +5501,8 @@ export interface EmitResolver {
     isReferredToAnnotation(node: ImportSpecifier | ExportSpecifier | ExportAssignment): boolean | undefined;
     isSourceRetentionAnnotation(node: Annotation): boolean;
     isSourceRetentionAnnotationDeclaration(node: AnnotationDeclaration): boolean;
-    isReferredToSourceRetentionAnnotation(node: ImportSpecifier): boolean | undefined;
+    isReferredToSourceRetentionAnnotationOrRetentionAnnotation(node: ImportSpecifier): boolean | undefined;
+    isReferredToRetentionPolicy(node: ImportSpecifier): boolean;
 }
 
 export const enum SymbolFlags {
@@ -6971,6 +6972,7 @@ export interface CompilerOptions {
     moduleRootPath?: string; // The root path of module, such as har.
     disableSendableCheckRules?: string[]; // sendable rules that needs to disable.
     strictCheckerOnly?: boolean; // Only do strict check for ets files when enabled.
+    tsImportSoCheck?: boolean; // Enable type checking for .so file imports.
 }
 
 export interface EtsOptions {

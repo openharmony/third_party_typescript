@@ -34,6 +34,7 @@ export class C {
 "use strict";
 exports.__esModule = true;
 exports.C = void 0;
+require("./A");
 var C = /** @class */ (function () {
     function C() {
         this.prop1 = "1";

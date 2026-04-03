@@ -17,6 +17,7 @@ export function testFunc(): void {
 "use strict";
 exports.__esModule = true;
 exports.testFunc = void 0;
+require("./A");
 function testFunc() {
     return;
 }

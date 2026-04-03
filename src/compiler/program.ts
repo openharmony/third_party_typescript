@@ -4940,3 +4940,32 @@ export function getModuleNameStringLiteralAt({ imports, moduleAugmentations }: S
     }
     Debug.fail("should never ask for module name at index higher than possible module name");
 }
+
+/**
+ * Patch a `BuilderProgram` instance so `builderProgram.getSemanticDiagnostics(...)`
+ * returns the original semantic diagnostics + the provided strict diagnostics.
+ * The strict diagnostics are stored directly in the BuilderProgramState,
+ * so their lifetime is tied to the program state and is not affected by GC.
+ */
+export function updateStrictDiagnosticsToGetSemanticDiagnostics(
+    program: BuilderProgram,
+    strictDiagnostics: readonly Diagnostic[]
+): void {
+    // Pre-group by fileName to avoid per-call filtering.
+    const strictDiagnosticsByFileName: ESMap<string, Diagnostic[]> = new Map();
+    for (const strictDiagnostic of strictDiagnostics) {
+        const fileName = strictDiagnostic.file?.fileName;
+        if (!fileName) {
+          continue;
+        };
+        const strictDiagnosticsList = strictDiagnosticsByFileName.get(fileName);
+        if (strictDiagnosticsList) {
+            strictDiagnosticsList.push(strictDiagnostic);
+        } else {
+            strictDiagnosticsByFileName.set(fileName, [strictDiagnostic]);
+        }
+    }
+    const state = program.getState();
+    state.strictDiagnostics = strictDiagnostics;
+    state.strictDiagnosticsByFileName = strictDiagnosticsByFileName;
+}
