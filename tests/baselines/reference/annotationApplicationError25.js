@@ -17,3 +17,4 @@ export module A2 {}
 //// [B.js]
 "use strict";
 exports.__esModule = true;
+require("./A");

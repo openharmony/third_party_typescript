@@ -26,14 +26,15 @@ import {
     isIndexSignatureDeclaration, isInEtsFile, isInterfaceDeclaration, isJsonSourceFile,
     isLateVisibilityPaintedStatement, isLiteralImportTypeNode, isMappedTypeNode, isMethodDeclaration, isMethodSignature,
     isModifier, isModuleDeclaration, isNightly, isOHModulesReference, isOhpm, isOmittedExpression, isPrivateIdentifier,
-    isPropertyAccessExpression, isPropertySignature, isSemicolonClassElement, isSendableFunctionOrType,
+    isPropertyAccessExpression, isPropertyAssignment, isPropertySignature, isSemicolonClassElement, isSendableFunctionOrType,
     isSetAccessorDeclaration, isSourceFile, isSourceFileJS, isSourceFileNotJson, isStringANonContextualKeyword,
     isStringLiteral, isStringLiteralLike, isStructDeclaration, isTupleTypeNode, isTypeAliasDeclaration, isTypeNode,
     isTypeParameterDeclaration, isTypeQueryNode, isTypeReferenceNode, isUnparsedSource, isVariableStatement, last, LateBoundDeclaration,
     LateVisibilityPaintedStatement, length, map, Map, mapDefined, MethodDeclaration, MethodSignature, Modifier,
     ModifierFlags, ModuleBody, ModuleDeclaration, Mutable, NamedDeclaration, NamespaceDeclaration,
-    needsScopeMarker, Node, NodeArray, NodeBuilderFlags, NodeFlags, NodeId, normalizeSlashes, OmittedExpression,
+    needsScopeMarker, Node, NodeArray, NodeBuilderFlags, NodeFlags, NodeId, normalizeSlashes, ObjectLiteralExpression, OmittedExpression,
     orderedRemoveItem, ParameterDeclaration, parseNodeFactory, pathContainsNodeModules, pathIsRelative,
+    PropertyAssignment,
     PropertyDeclaration, PropertySignature, pushIfUnique, removeAllComments, Set, SetAccessorDeclaration,
     setCommentRange, setEmitFlags, setOriginalNode, setParent, setTextRange, SignatureDeclaration, skipTrivia, some,
     SourceFile, startsWith, Statement, stringContains, StringLiteral, Symbol, SymbolAccessibility,
@@ -943,6 +944,14 @@ export function transformDeclarations(context: TransformationContext) {
             if (isCallExpression(decorator.expression)) {
                 // @Anno({})
                 checkEntityNameVisibility((decorator.expression.expression) as Identifier, enclosingDeclaration);
+                (decorator.expression.arguments[0] as ObjectLiteralExpression)?.properties.forEach(prop=>{
+                    if (!isPropertyAssignment(prop)) {
+                        return;
+                    }
+
+                    isPropertyAccessExpression((prop as PropertyAssignment).initializer) &&
+                        checkEntityNameVisibility((prop as PropertyAssignment).initializer as EntityNameOrEntityNameExpression, enclosingDeclaration);
+                })
             } else if (isIdentifier(decorator.expression)) {
                 // @Anno
                 checkEntityNameVisibility((decorator.expression) as Identifier, enclosingDeclaration);
