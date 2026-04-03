@@ -612,13 +612,15 @@ export function transformAnnotation(context: TransformationContext): (node: Sour
 
 
     function visitImportSpecifier(node: ImportSpecifier): VisitResult<ImportSpecifier> {
+        if (resolver.isReferredToRetentionPolicy(node) || resolver.isReferredToSourceRetentionAnnotationOrRetentionAnnotation(node)) {
+            return undefined;
+        }
+
         // Return if the import has type or not refered to Annotation
         if (node.isTypeOnly || !resolver.isReferredToAnnotation(node)) {
             return node;
         }
-        if (resolver.isReferredToSourceRetentionAnnotation(node)) {
-            return undefined;
-        }
+
         const magicPrefixName = addMagicPrefixToAnnotationNameIdentifier(node.name);
         Debug.assert(isIdentifier(magicPrefixName));
         // Add magic prefix for import Annotation. For example,

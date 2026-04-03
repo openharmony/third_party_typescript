@@ -17,3 +17,4 @@ export type testType1 = () => string;
 //// [B.js]
 "use strict";
 exports.__esModule = true;
+require("./A");
