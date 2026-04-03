@@ -1201,7 +1201,8 @@ export const notImplementedResolver: EmitResolver = {
     isReferredToAnnotation: notImplemented,
     isSourceRetentionAnnotation: notImplemented,
     isSourceRetentionAnnotationDeclaration: notImplemented,
-    isReferredToSourceRetentionAnnotation: notImplemented
+    isReferredToSourceRetentionAnnotationOrRetentionAnnotation: notImplemented,
+    isReferredToRetentionPolicy: notImplemented
 };
 
 /** File that isnt present resulting in error or output files

@@ -18,5 +18,6 @@ export const a2: number = 1;
 "use strict";
 exports.__esModule = true;
 exports.a2 = exports.a1 = void 0;
+require("./A");
 exports.a1 = 1;
 exports.a2 = 1;

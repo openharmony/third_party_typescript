@@ -40134,6 +40134,11 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
         return annoDeclName === 'Retention' && ts.getBaseFileName(getSourceFileOfNode(annoDecl).fileName).toLocaleLowerCase() === '@arkts.lang.d.ets';
     }
 
+    function isRetentionPolicyEnumDeclaration(enumDecl: EnumDeclaration): boolean {
+        const enumDeclName = getTextOfNode(enumDecl.name, false);
+        return enumDeclName === 'RetentionPolicy' && ts.getBaseFileName(getSourceFileOfNode(enumDecl).fileName).toLocaleLowerCase() === '@arkts.lang.d.ets';
+    }
+
     function isRetentionAnnotation(annotation: Annotation): boolean {
         return !!annotation.annotationDeclaration && isRetentionAnnotationDeclaration(annotation.annotationDeclaration);
     }
@@ -46975,7 +46980,7 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
         return links.exportOrImportRefersToAnnotation;
     }
 
-    function isReferredToSourceRetentionAnnotation(node: ImportSpecifier): boolean | undefined {
+    function isReferredToSourceRetentionAnnotationOrRetentionAnnotation(node: ImportSpecifier): boolean | undefined {
         let links: NodeLinks = getNodeLinks(node);
         if (!links.importRefersToSourceRetentionAnnotation) {
             let symbol: Symbol | undefined = getSymbolOfNode(node);
@@ -46990,10 +46995,19 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
                 if (!annoDecl || !isAnnotationDeclaration(annoDecl)) {
                     return undefined;
                 }
-                links.importRefersToSourceRetentionAnnotation = isSourceRetentionAnnotationDeclaration(annoDecl);
+                links.importRefersToSourceRetentionAnnotation = isSourceRetentionAnnotationDeclaration(annoDecl) || isRetentionAnnotationDeclaration(annoDecl);
             }
         }
         return links.importRefersToSourceRetentionAnnotation;
+    }
+
+    function isReferredToRetentionPolicy(node: ImportSpecifier): boolean {
+        let symbol: Symbol | undefined = getSymbolOfNode(node);
+        if (!symbol || !(symbol = resolveAlias(symbol)) || !(getAllSymbolFlags(symbol) & SymbolFlags.ConstEnum)) {
+            return false;
+        }
+
+        return isRetentionPolicyEnumDeclaration(symbol.declarations![0] as EnumDeclaration);
     }
 
     /** 
@@ -47044,11 +47058,17 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
                 if (isStringLiteral(policyValue)) {
                     return policyValue.text === 'source';
                 }
-                if (canHaveConstantValue(policyValue)) {
-                    const constantValue = getConstantValue(policyValue);
-                    if (constantValue === 'source') {
-                        return true;
-                    }
+                if (!isPropertyAccessExpression(policyValue)) {
+                    continue;
+                }
+                const symbol = getSymbolOfNameOrPropertyAccessExpression(policyValue);
+                if (!symbol || !(symbol.flags & SymbolFlags.EnumMember)) {
+                    continue;
+                }
+
+                const member = symbol!.valueDeclaration as EnumMember;
+                if (isEnumConst(member.parent) && getEnumMemberValue(member) === 'source') {
+                    return true;
                 }
             }
         }
@@ -47294,7 +47314,8 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
             isReferredToAnnotation: isReferredToAnnotation,
             isSourceRetentionAnnotation: isSourceRetentionAnnotation,
             isSourceRetentionAnnotationDeclaration: isSourceRetentionAnnotationDeclaration,
-            isReferredToSourceRetentionAnnotation: isReferredToSourceRetentionAnnotation
+            isReferredToSourceRetentionAnnotationOrRetentionAnnotation: isReferredToSourceRetentionAnnotationOrRetentionAnnotation,
+            isReferredToRetentionPolicy: isReferredToRetentionPolicy
         };
 
         function isImportRequiredByAugmentation(node: ImportDeclaration) {

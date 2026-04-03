@@ -2040,6 +2040,7 @@ export function transformTypeScript(context: TransformationContext) {
         }
 
         // Elide the declaration if the import clause was elided.
+        // If all import entities are referred to annotations, reserve a side-effect only import declaration to keep module dependencies.
         const importClause = visitNode(node.importClause, visitImportClause, isImportClause);
         return importClause ||
             compilerOptions.importsNotUsedAsValues === ImportsNotUsedAsValues.Preserve ||
@@ -2050,7 +2051,30 @@ export function transformTypeScript(context: TransformationContext) {
                 importClause,
                 node.moduleSpecifier,
                 node.assertClause)
+            : allImportEntitiesReferredToAnnotation(node.importClause) 
+            ? factory.updateImportDeclaration(
+                node,
+                /*modifiers*/ undefined,
+                undefined,
+                node.moduleSpecifier,
+                node.assertClause)
             : undefined;
+    }
+
+    function allImportEntitiesReferredToAnnotation(node: ImportClause): boolean {
+        if (node.name) {
+            return false;
+        }
+
+        if (!node.namedBindings || node.namedBindings.kind === SyntaxKind.NamespaceImport ||
+            node.namedBindings.elements.length === 0) {
+            return false;
+        }
+
+        return node.namedBindings.elements.every((node: ImportSpecifier) => {
+            const original = getOriginalNode(node);
+            return isImportSpecifier(original) && resolver.isReferredToAnnotation(original);
+        });
     }
 
     /**

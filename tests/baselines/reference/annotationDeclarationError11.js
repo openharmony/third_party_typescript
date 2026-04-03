@@ -13,3 +13,4 @@ import {Anno as B} from "./A";
 "use strict";
 //// [B.js]
 "use strict";
+require("./A");
