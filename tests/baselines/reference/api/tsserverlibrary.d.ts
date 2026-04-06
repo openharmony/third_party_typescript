@@ -3031,6 +3031,7 @@ declare namespace ts {
             getFileCheckedModuleInfo?(containFilePath: string): FileCheckModuleInfo;
             isSourceRetentionAnnotationContentValid?(annotationNode: Annotation): ConditionCheckResult;
             isSourceRetentionDeclarationValid?(annotationNode: AnnotationDeclaration): boolean;
+            isApiAvailableVersionSpecifications?(apiAvailableNode: Node): ConditionCheckResult;
         }
         function createInstallTypingsRequest(project: Project, typeAcquisition: TypeAcquisition, unresolvedImports: SortedReadonlyArray<string>, cachePath?: string): DiscoverTypings;
         function toNormalizedPath(fileName: string): NormalizedPath;
@@ -3226,6 +3227,7 @@ declare namespace ts {
             getJsDocNodeCheckedConfig(jsDocFileCheckedInfo: FileCheckModuleInfo, sourceFilePath: string): JsDocNodeCheckConfig;
             isSourceRetentionAnnotationContentValid(annotationNode: Annotation): ConditionCheckResult;
             isSourceRetentionDeclarationValid(annotationNode: AnnotationDeclaration): boolean;
+            isApiAvailableVersionSpecifications(apiAvailableNode: Node): ConditionCheckResult;
             getJsDocNodeConditionCheckedResult(jsDocFileCheckedInfo: FileCheckModuleInfo, jsDocs: JsDocTagInfo[]): ConditionCheckResult;
             getTagNameNeededCheckByFile(filePath: string): TagCheckParam;
             getExpressionCheckedResultsByFile?(filePath: string, jsDocs: JSDoc[]): ConditionCheckResult;
@@ -6484,6 +6486,7 @@ declare namespace ts {
         getFileCheckedModuleInfo?(containFilePath: string): FileCheckModuleInfo;
         isSourceRetentionAnnotationContentValid?(annotationNode: Annotation): ConditionCheckResult;
         isSourceRetentionDeclarationValid?(annotationNode: AnnotationDeclaration): boolean;
+        isApiAvailableVersionSpecifications?(apiAvailableNode: Node): ConditionCheckResult;
         /**
          * Release typeChecker & linterTypeChecker
          */
@@ -7593,6 +7596,7 @@ declare namespace ts {
         getFileCheckedModuleInfo?(containFilePath: string): FileCheckModuleInfo;
         isSourceRetentionAnnotationContentValid?(annotationNode: Annotation): ConditionCheckResult;
         isSourceRetentionDeclarationValid?(annotationNode: AnnotationDeclaration): boolean;
+        isApiAvailableVersionSpecifications?(apiAvailableNode: Node): ConditionCheckResult;
     }
     /**
      * Used by services to specify the minimum host area required to set up source files under any compilation settings
@@ -7759,6 +7763,7 @@ declare namespace ts {
         isSourceRetentionAnnotationContentValid?(annotationNode: Annotation): ConditionCheckResult;
         isSourceRetentionDeclarationValid?(annotationNode: AnnotationDeclaration): boolean;
         isSourceOrExternalCode?(filePath: string): boolean;
+        isApiAvailableVersionSpecifications?(apiAvailableNode: Node): ConditionCheckResult;
     }
     interface SourceMapRange extends TextRange {
         source?: SourceMapSource;
@@ -10584,6 +10589,7 @@ declare namespace ts {
         isSourceRetentionAnnotationContentValid?(annotationNode: Annotation): ConditionCheckResult;
         isSourceRetentionDeclarationValid?(annotationNode: AnnotationDeclaration): boolean;
         isSourceOrExternalCode?(fileName: string): boolean;
+        isApiAvailableVersionSpecifications?(apiAvailableNode: Node): ConditionCheckResult;
     }
     type WithMetadata<T> = T & {
         metadata?: unknown;

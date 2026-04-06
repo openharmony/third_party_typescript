@@ -1,6 +1,6 @@
 import {
     ConditionCheckResult, DirectoryWatcherCallback, FileCheckModuleInfo, FileWatcher, FileWatcherCallback,
-    JsDocNodeCheckConfig, JsDocTagInfo, System, WatchOptions, Annotation, AnnotationDeclaration
+    JsDocNodeCheckConfig, JsDocTagInfo, System, WatchOptions, Annotation, AnnotationDeclaration, Node
 } from "./_namespaces/ts";
 
 export interface CompressedData {
@@ -31,4 +31,5 @@ export interface ServerHost extends System {
     getFileCheckedModuleInfo?(containFilePath: string): FileCheckModuleInfo;
     isSourceRetentionAnnotationContentValid?(annotationNode: Annotation): ConditionCheckResult;
     isSourceRetentionDeclarationValid?(annotationNode: AnnotationDeclaration): boolean;
+    isApiAvailableVersionSpecifications?(apiAvailableNode: Node): ConditionCheckResult;
 }

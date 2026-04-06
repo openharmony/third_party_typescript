@@ -4648,6 +4648,7 @@ export interface Program extends ScriptReferenceHost {
     isSourceRetentionAnnotationContentValid?(annotationNode: Annotation): ConditionCheckResult;
     isSourceRetentionDeclarationValid?(annotationNode: AnnotationDeclaration): boolean;
     /** @internal */ getProgramBuildInfoForLinter?(): ProgramBuildInfo | undefined;
+    isApiAvailableVersionSpecifications?(apiAvailableNode: Node): ConditionCheckResult;
 
     /**
      * Release typeChecker & linterTypeChecker
@@ -4774,6 +4775,7 @@ export interface TypeCheckerHost extends ModuleSpecifierResolutionHost {
     isSourceRetentionAnnotationContentValid?(annotationNode: Annotation): ConditionCheckResult;
     isSourceRetentionDeclarationValid?(annotationNode: AnnotationDeclaration): boolean;
     isSourceOrExternalCode?(filePath: string): boolean;
+    isApiAvailableVersionSpecifications?(apiAvailableNode: Node): ConditionCheckResult;
 }
 
 export interface TypeChecker {
@@ -7408,6 +7410,7 @@ export interface ModuleResolutionHost {
         getFileCheckedModuleInfo?(containFilePath: string): FileCheckModuleInfo;
         isSourceRetentionAnnotationContentValid?(annotationNode: Annotation): ConditionCheckResult;
         isSourceRetentionDeclarationValid?(annotationNode: AnnotationDeclaration): boolean;
+        isApiAvailableVersionSpecifications?(apiAvailableNode: Node): ConditionCheckResult;
     }
 
 /**
@@ -7638,6 +7641,7 @@ export interface CompilerHost extends ModuleResolutionHost {
     //Verify whether the declaration node of the annotation meets the requirements.
     isSourceRetentionDeclarationValid?(annotationNode: AnnotationDeclaration): boolean;
     isSourceOrExternalCode?(filePath: string): boolean;
+    isApiAvailableVersionSpecifications?(apiAvailableNode: Node): ConditionCheckResult;
 }
 
 /**
