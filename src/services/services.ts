@@ -1699,6 +1699,7 @@ export function createLanguageService(
             getJsDocNodeCheckedConfig: maybeBind(host, host.getJsDocNodeCheckedConfig),
             isSourceRetentionAnnotationContentValid: maybeBind(host, host.isSourceRetentionAnnotationContentValid),
             isSourceRetentionDeclarationValid: maybeBind(host, host.isSourceRetentionDeclarationValid),
+            isApiAvailableVersionSpecifications: maybeBind(host, host.isApiAvailableVersionSpecifications),
             getJsDocNodeConditionCheckedResult: maybeBind(host, host.getJsDocNodeConditionCheckedResult),
             getFileCheckedModuleInfo: maybeBind(host, host.getFileCheckedModuleInfo),
             isStaticSourceFile: host.isStaticSourceFile,
