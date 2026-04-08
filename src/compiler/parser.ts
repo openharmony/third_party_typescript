@@ -8714,7 +8714,7 @@ namespace Parser {
         if (parseExpected(SyntaxKind.OpenBraceToken)) {
             // ClassTail[Yield,Await] : (Modified) See 14.5
             //      ClassHeritage[?Yield,?Await]opt { ClassBody[?Yield,?Await]opt }
-            members = parseStructMembers(pos);
+            members = parseStructMembers();
             parseExpected(SyntaxKind.CloseBraceToken);
         }
         else {
@@ -8801,7 +8801,7 @@ namespace Parser {
         return parseList(ParsingContext.AnnotationMembers, parseAnnotationElement);
     }
 
-    function parseStructMembers(pos: number): NodeArray<ClassElement> {
+    function parseStructMembers(): NodeArray<ClassElement> {
         const structMembers = parseList(ParsingContext.ClassMembers, parseClassElement);
 
         const virtualStructMembers: ClassElement[] = [];
@@ -8841,7 +8841,7 @@ namespace Parser {
         const emptyBody = finishVirtualNode(factory.createBlock(createNodeArray([], 0, 0)));
         const virtualConstructor = factory.createConstructorDeclaration(/*modifier*/ undefined, createNodeArray(parameters, 0, 0), emptyBody);
 
-        virtualStructMembers.unshift(finishVirtualNode(virtualConstructor, pos, pos));
+        virtualStructMembers.unshift(finishVirtualNode(virtualConstructor, -1, -1));
 
         return createNodeArray(virtualStructMembers, structMembers.pos);
     }
