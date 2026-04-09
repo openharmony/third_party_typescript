@@ -22,6 +22,7 @@ import {
     ExportSpecifier,
     Expression,
     ExpressionStatement,
+    ExternalModuleReference,
     factory,
     filter,
     flattenDiagnosticMessageText,
@@ -1778,4 +1779,344 @@ export function getErrorCodeArea(code: number): ErrorCodeArea {
     } else {
         return ErrorCodeArea.TSC;
     }
+}
+
+export interface EsTreeNodeBase {
+  start: number;
+  end: number;
+}
+
+export interface IdentifierNode extends EsTreeNodeBase {
+  type: "Identifier";
+  name: __String;
+}
+
+export interface LiteralNode extends EsTreeNodeBase {
+  type: "Literal";
+  raw: string;
+  value: string;
+}
+
+export interface ImportDefaultSpecifierNode extends EsTreeNodeBase {
+  type: "ImportDefaultSpecifier";
+  local: EsTreeNode | null;
+}
+
+export interface ImportNamespaceSpecifierNode extends EsTreeNodeBase {
+  type: "ImportNamespaceSpecifier";
+  local: EsTreeNode | null;
+}
+
+export interface ImportSpecifierNode extends EsTreeNodeBase {
+  type: "ImportSpecifier";
+  imported: EsTreeNode | null;
+  importKind: "type" | "value";
+  local: EsTreeNode | null;
+}
+
+export interface ExportSpecifierNode extends EsTreeNodeBase {
+  type: "ExportSpecifier";
+  exported: EsTreeNode | null;
+  exportKind: "type" | "value";
+  local: EsTreeNode | null;
+}
+
+export interface ImportExpressionNode extends EsTreeNodeBase {
+  type: "ImportExpression";
+  source: EsTreeNode | null;
+}
+
+export interface ImportDeclarationNode extends EsTreeNodeBase {
+  type: "ImportDeclaration";
+  importKind: "value";
+  source: EsTreeNode | null;
+  specifiers: EsTreeNode[];
+}
+
+export interface ImportEqualsDeclarationNode extends EsTreeNodeBase {
+  type: "ImportDeclaration";
+  specifiers: ImportNamespaceSpecifierNode[];
+  source: EsTreeNode | null;
+}
+
+export interface ExportDeclarationNode extends EsTreeNodeBase {
+  type: "ExportNamedDeclaration";
+  exportKind: "type" | "value";
+  source: EsTreeNode | null;
+  specifiers: (EsTreeNode | null)[];
+}
+
+export interface ExportAllDeclarationNode extends EsTreeNodeBase {
+  type: "ExportAllDeclaration";
+  exported: EsTreeNode | null;
+  exportKind: "type" | "value";
+  source: EsTreeNode | null;
+}
+
+export interface ProgramNode extends EsTreeNodeBase {
+  type: "Program";
+  body: EsTreeNode[];
+  sourceType: "module";
+}
+
+export type EsTreeNode =
+  | IdentifierNode
+  | LiteralNode
+  | ImportDefaultSpecifierNode
+  | ImportNamespaceSpecifierNode
+  | ImportSpecifierNode
+  | ExportSpecifierNode
+  | ImportExpressionNode
+  | ImportDeclarationNode
+  | ImportEqualsDeclarationNode
+  | ExportDeclarationNode
+  | ExportAllDeclarationNode
+  | ProgramNode;
+
+export function convertTsAstToJsAst(sourceFile: SourceFile): ProgramNode {
+  const bodyNodes: EsTreeNode[] = [];
+  sourceFile.imports?.forEach((node: any) => {
+    const esTreeNode = convertDynamicImportDeclaration(node.parent);
+    if (esTreeNode) {
+      bodyNodes.push(esTreeNode);
+    }
+  });
+
+  sourceFile.statements.forEach((node) => {
+    const esTreeNode = convertImportExportNode(node);
+    if (esTreeNode && !shouldIgnoreNode(esTreeNode)) {
+      bodyNodes.push(esTreeNode);
+    }
+  });
+  return {
+    start: sourceFile.pos,
+    end: sourceFile.end,
+    type: "Program",
+    body: bodyNodes,
+    sourceType: "module"
+  };
+}
+
+export function convertImportExportNode(node: Node): EsTreeNode | null {
+  if (!node) {
+    return null;
+  }
+
+  switch (node.kind) {
+    case SyntaxKind.ImportDeclaration:
+      return convertImportDeclaration(node as ImportDeclaration);
+    case SyntaxKind.ExportDeclaration:
+      return convertExportDeclaration(node as ExportDeclaration);
+    case SyntaxKind.ImportEqualsDeclaration:
+      return convertImportEqualsDeclaration(node as ImportEqualsDeclaration);
+    default:
+      return null;
+  }
+}
+
+export function convertDynamicImportDeclaration(node: CallExpression): ImportExpressionNode | null {
+  if (
+    !node?.expression || node.expression.kind !== SyntaxKind.ImportKeyword ||
+    !node.arguments?.[0] || node.arguments[0].kind !== SyntaxKind.StringLiteral
+  ) {
+    return null;
+  }
+
+  return {
+    type: "ImportExpression",
+    start: node.pos,
+    end: node.end,
+    source: convertChildNode(node.arguments[0])
+  };
+}
+
+export function convertImportEqualsDeclaration(node: ImportEqualsDeclaration): ImportEqualsDeclarationNode | null {
+  if (node.moduleReference.kind === SyntaxKind.ExternalModuleReference) {
+    const externalModuleReference = node.moduleReference as ExternalModuleReference;
+    return {
+      type: "ImportDeclaration",
+      start: node.pos,
+      end: node.end,
+      specifiers: [
+        {
+          type: "ImportNamespaceSpecifier",
+          start: externalModuleReference.pos,
+          end: externalModuleReference.end,
+          local: convertChildNode(node.name)
+        }
+      ],
+      source: convertChildNode(externalModuleReference.expression)
+    };
+  }
+  return null;
+}
+
+function hasSpecifiers(node: EsTreeNode): node is ImportDeclarationNode | ExportDeclarationNode {
+  return "specifiers" in node && Array.isArray((node as any).specifiers);
+}
+
+function shouldIgnoreNode(esTreeNode: EsTreeNode): boolean {
+  if (!hasSpecifiers(esTreeNode) || !esTreeNode.specifiers.length) {
+    return false;
+  }
+
+  return esTreeNode.specifiers.every(
+    (specifier) => (specifier as any).importKind === "type" || (specifier as any).exportKind === "type"
+  );
+}
+
+export function convertChildNode(node?: Node): EsTreeNode | null {
+  if (!node) {
+    return null;
+  }
+  switch (node.kind) {
+    case SyntaxKind.ImportClause:
+      return convertImportClause(node as ImportClause);
+    case SyntaxKind.NamespaceImport:
+      return convertNamespaceImport(node as NamespaceImport);
+    case SyntaxKind.ImportSpecifier:
+      return convertImportSpecifier(node as ImportSpecifier);
+    case SyntaxKind.Identifier:
+      return convertIdentifier(node as Identifier);
+    case SyntaxKind.StringLiteral:
+      return convertStringLiteral(node as StringLiteral);
+    case SyntaxKind.ExportSpecifier:
+      return convertExportSpecifier(node as ExportSpecifier);
+    default:
+      return null;
+  }
+}
+
+export function convertImportClause(node: ImportClause): ImportDefaultSpecifierNode {
+  return {
+    type: "ImportDefaultSpecifier",
+    start: node.pos,
+    end: node.end,
+    local: convertChildNode(node.name)
+  };
+}
+
+export function convertNamespaceImport(node: NamespaceImport): ImportNamespaceSpecifierNode {
+  return {
+    type: "ImportNamespaceSpecifier",
+    start: node.pos,
+    end: node.end,
+    local: convertChildNode(node.name)
+  };
+}
+
+/**
+ * 
+ * @param node 
+ * @returns ImportSpecifierNode
+ * import { A as B } from 'C';
+ * 
+ */
+export function convertImportSpecifier(node: ImportSpecifier): ImportSpecifierNode {
+  return {
+    type: "ImportSpecifier",
+    start: node.pos,
+    end: node.end,
+    imported: convertChildNode(node.propertyName ?? node.name),
+    importKind: node.isTypeOnly ? "type" : "value",
+    local: convertChildNode(node.name)
+  };
+}
+
+function convertIdentifier(node: Identifier): IdentifierNode {
+  return {
+    type: "Identifier",
+    start: node.pos,
+    end: node.end,
+    name: node.escapedText
+  };
+}
+
+export function convertStringLiteral(node: StringLiteral): LiteralNode {
+  return {
+    type: "Literal",
+    start: node.pos,
+    end: node.end,
+    raw: node.text,
+    value: node.text
+  };
+}
+
+export function convertExportSpecifier(node: ExportSpecifier): ExportSpecifierNode {
+  return {
+    type: "ExportSpecifier",
+    start: node.pos,
+    end: node.end,
+    exported: convertChildNode(node.name),
+    exportKind: node.isTypeOnly ? "type" : "value",
+    local: convertChildNode(node.name)
+  };
+}
+
+export function convertExportDeclaration(node: ExportDeclaration): ExportDeclarationNode | ExportAllDeclarationNode | null {
+  // export type is not parsed
+  if (node.isTypeOnly) {
+    return null;
+  }
+  if (node.exportClause?.kind === SyntaxKind.NamedExports) {
+    return {
+      type: "ExportNamedDeclaration",
+      start: node.pos,
+      end: node.end,
+      exportKind: node.isTypeOnly ? "type" : "value",
+      source: convertChildNode(node.moduleSpecifier),
+      specifiers: (node.exportClause as NamedExports).elements.map((element) => convertChildNode(element))
+    };
+  }
+
+  return {
+    type: "ExportAllDeclaration", // export all
+    start: node.pos,
+    end: node.end,
+    exported:
+      node.exportClause && isNamespaceExport(node.exportClause) // export * as A
+        ? convertChildNode((node.exportClause as any).name)
+        : null,
+    exportKind: node.isTypeOnly ? "type" : "value",
+    source: convertChildNode(node.moduleSpecifier)
+  };
+}
+
+export function convertImportDeclaration(node: ImportDeclaration): ImportDeclarationNode | null {
+  if (node.importClause && node.importClause.isTypeOnly) {
+    return null;
+  }
+
+  const specifiers: EsTreeNode[] = [];
+
+  if (node.importClause) {
+    if (node.importClause.name) {
+      specifiers.push(convertChildNode(node.importClause)!);
+    }
+    if (node.importClause.namedBindings) {
+      switch (node.importClause.namedBindings.kind) {
+        case SyntaxKind.NamespaceImport:
+          specifiers.push(convertChildNode(node.importClause.namedBindings)!);
+          break;
+        case SyntaxKind.NamedImports:
+          specifiers.push(...(node.importClause.namedBindings as NamedImports).elements.map(
+            element => convertChildNode(element)!
+          ));
+          break;
+        default:
+          break;
+      }
+    }
+  }
+
+  // import 'xxx';
+  // import { xxx } from 'yyy';
+  return {
+    type: "ImportDeclaration",
+    start: node.pos,
+    end: node.end,
+    importKind: "value",
+    source: convertChildNode(node.moduleSpecifier),
+    specifiers
+  };
 }
