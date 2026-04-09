@@ -744,7 +744,7 @@ export function getFirstProjectOutput(configFile: ParsedCommandLine, ignoreCase:
  * 
  * @internal
  */
-export function emitFiles(resolver: EmitResolver, host: EmitHost, targetSourceFile: SourceFile | undefined, { scriptTransformers, declarationTransformers }: EmitTransformers, emitOnlyDtsFiles?: boolean, onlyBuildInfo?: boolean, forceDtsEmit?: boolean): EmitResult {
+export function emitFiles(resolver: EmitResolver, host: EmitHost, targetSourceFile: SourceFile | undefined, { scriptTransformers, declarationTransformers }: EmitTransformers, emitOnlyDtsFiles?: boolean, onlyBuildInfo?: boolean, forceDtsEmit?: boolean, skipDiagnostics?: boolean): EmitResult {
     var compilerOptions = host.getCompilerOptions();
     var sourceMapDataList: SourceMapEmitResult[] | undefined = (compilerOptions.sourceMap || compilerOptions.inlineSourceMap || getAreDeclarationMapsEnabled(compilerOptions)) ? [] : undefined;
     var emittedFilesList: string[] | undefined = compilerOptions.listEmittedFiles ? [] : undefined;
@@ -921,10 +921,11 @@ export function emitFiles(resolver: EmitResolver, host: EmitHost, targetSourceFi
         const filesForEmit = forceDtsEmit ? sourceFiles : filter(sourceFiles, isSourceFileNotJson);
         // Setup and perform the transformation to retrieve declarations from the input files
         const inputListOrBundle = outFile(compilerOptions) ? [factory.createBundle(filesForEmit, !isSourceFile(sourceFileOrBundle) ? sourceFileOrBundle.prepends : undefined)] : filesForEmit;
-        if (emitOnlyDtsFiles && !getEmitDeclarations(compilerOptions)) {
+        if ((emitOnlyDtsFiles && !getEmitDeclarations(compilerOptions)) || skipDiagnostics) {
             // Checker wont collect the linked aliases since thats only done when declaration is enabled.
             // Do that here when emitting only dts files
             filesForEmit.forEach(collectLinkedAliases);
+            filesForEmit.forEach(setAnnotationsOfNode);
         }
         PerformanceDotting.start("transformNodes");
         const declarationTransform = transformNodes(resolver, host, factory, compilerOptions, inputListOrBundle, declarationTransformers, /*allowDtsFiles*/ false);
@@ -997,6 +998,14 @@ export function emitFiles(resolver: EmitResolver, host: EmitHost, targetSourceFi
             return;
         }
         forEachChild(node, collectLinkedAliases);
+    }
+
+    // Annotations are missing when type checking is skipped,
+    // this function walks the AST and sets annotations properly,
+    // which is required for emitting correct declaration files.
+    function setAnnotationsOfNode(node: Node) {
+        resolver.setAnnotationsOfNode(node);
+        forEachChild(node, setAnnotationsOfNode);
     }
 
     function printSourceFileOrBundle(jsFilePath: string, sourceMapFilePath: string | undefined, transform: TransformationResult<SourceFile | Bundle>, printer: Printer, mapOptions: SourceMapOptions) {
@@ -1202,7 +1211,8 @@ export const notImplementedResolver: EmitResolver = {
     isSourceRetentionAnnotation: notImplemented,
     isSourceRetentionAnnotationDeclaration: notImplemented,
     isReferredToSourceRetentionAnnotationOrRetentionAnnotation: notImplemented,
-    isReferredToRetentionPolicy: notImplemented
+    isReferredToRetentionPolicy: notImplemented,
+    setAnnotationsOfNode: notImplemented
 };
 
 /** File that isnt present resulting in error or output files
