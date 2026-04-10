@@ -9890,6 +9890,25 @@ declare namespace ts {
     function getMaxFlowDepth(compilerOptions: CompilerOptions): number;
     function getErrorCode(diagnostic: Diagnostic): ErrorInfo;
     function getErrorCodeArea(code: number): ErrorCodeArea;
+    function convertTsAstToJsAst(sourceFile: SourceFile): ProgramNode;
+    function convertImportExportNode(node: Node): EsTreeNode | null;
+    function convertDynamicImportDeclaration(node: CallExpression): ImportExpressionNode | null;
+    function convertImportEqualsDeclaration(node: ImportEqualsDeclaration): ImportEqualsDeclarationNode | null;
+    function convertChildNode(node?: Node): EsTreeNode | null;
+    function convertImportClause(node: ImportClause): ImportDefaultSpecifierNode;
+    function convertNamespaceImport(node: NamespaceImport): ImportNamespaceSpecifierNode;
+    /**
+     *
+     * @param node
+     * @returns ImportSpecifierNode
+     * import { A as B } from 'C';
+     *
+     */
+    function convertImportSpecifier(node: ImportSpecifier): ImportSpecifierNode;
+    function convertStringLiteral(node: StringLiteral): LiteralNode;
+    function convertExportSpecifier(node: ExportSpecifier): ExportSpecifierNode;
+    function convertExportDeclaration(node: ExportDeclaration): ExportDeclarationNode | ExportAllDeclarationNode | null;
+    function convertImportDeclaration(node: ImportDeclaration): ImportDeclarationNode | null;
     const ohModulesPathPart: string;
     const REQUIRE_DECORATOR = "Require";
     const THROWS_TAG = "throws";
@@ -9919,6 +9938,72 @@ declare namespace ts {
         LINTER = 1,
         UI = 2
     }
+    interface EsTreeNodeBase {
+        start: number;
+        end: number;
+    }
+    interface IdentifierNode extends EsTreeNodeBase {
+        type: "Identifier";
+        name: __String;
+    }
+    interface LiteralNode extends EsTreeNodeBase {
+        type: "Literal";
+        raw: string;
+        value: string;
+    }
+    interface ImportDefaultSpecifierNode extends EsTreeNodeBase {
+        type: "ImportDefaultSpecifier";
+        local: EsTreeNode | null;
+    }
+    interface ImportNamespaceSpecifierNode extends EsTreeNodeBase {
+        type: "ImportNamespaceSpecifier";
+        local: EsTreeNode | null;
+    }
+    interface ImportSpecifierNode extends EsTreeNodeBase {
+        type: "ImportSpecifier";
+        imported: EsTreeNode | null;
+        importKind: "type" | "value";
+        local: EsTreeNode | null;
+    }
+    interface ExportSpecifierNode extends EsTreeNodeBase {
+        type: "ExportSpecifier";
+        exported: EsTreeNode | null;
+        exportKind: "type" | "value";
+        local: EsTreeNode | null;
+    }
+    interface ImportExpressionNode extends EsTreeNodeBase {
+        type: "ImportExpression";
+        source: EsTreeNode | null;
+    }
+    interface ImportDeclarationNode extends EsTreeNodeBase {
+        type: "ImportDeclaration";
+        importKind: "value";
+        source: EsTreeNode | null;
+        specifiers: EsTreeNode[];
+    }
+    interface ImportEqualsDeclarationNode extends EsTreeNodeBase {
+        type: "ImportDeclaration";
+        specifiers: ImportNamespaceSpecifierNode[];
+        source: EsTreeNode | null;
+    }
+    interface ExportDeclarationNode extends EsTreeNodeBase {
+        type: "ExportNamedDeclaration";
+        exportKind: "type" | "value";
+        source: EsTreeNode | null;
+        specifiers: (EsTreeNode | null)[];
+    }
+    interface ExportAllDeclarationNode extends EsTreeNodeBase {
+        type: "ExportAllDeclaration";
+        exported: EsTreeNode | null;
+        exportKind: "type" | "value";
+        source: EsTreeNode | null;
+    }
+    interface ProgramNode extends EsTreeNodeBase {
+        type: "Program";
+        body: EsTreeNode[];
+        sourceType: "module";
+    }
+    type EsTreeNode = IdentifierNode | LiteralNode | ImportDefaultSpecifierNode | ImportNamespaceSpecifierNode | ImportSpecifierNode | ExportSpecifierNode | ImportExpressionNode | ImportDeclarationNode | ImportEqualsDeclarationNode | ExportDeclarationNode | ExportAllDeclarationNode | ProgramNode;
     enum CheckMode {
         Normal = 0,
         Contextual = 1,
