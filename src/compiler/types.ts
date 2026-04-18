@@ -6968,6 +6968,7 @@ export interface CompilerOptions {
     maxFlowDepth?: number; // The value of maxFlowDepth ranges from 2000 to 65535.
     skipOhModulesLint?: boolean;
     enableStrictCheckOHModule?: boolean;
+    disableStrictCheckPaths?: string[];
     mixCompile?: boolean;
     isCompileJsHar?: boolean; // The har where the compilation output is a js file.
     moduleRootPath?: string; // The root path of module, such as har.
