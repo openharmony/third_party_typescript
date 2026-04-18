@@ -3404,6 +3404,7 @@ declare namespace ts {
         maxFlowDepth?: number;
         skipOhModulesLint?: boolean;
         enableStrictCheckOHModule?: boolean;
+        disableStrictCheckPaths?: string[];
         mixCompile?: boolean;
         isCompileJsHar?: boolean;
         moduleRootPath?: string;
@@ -9275,7 +9276,7 @@ declare namespace ts {
         function clearTypeChecker(): void;
         function setTestMode(tsTestMode: boolean): void;
         function setMixCompile(isMixCompile: boolean): void;
-        function setEnableStrictCheckOHModule(isEnableStrictCheckOHModule: boolean): void;
+        function configureStrictCheckOHModule(isEnableStrictCheckOHModule: boolean, customDisableStrictCheckPaths?: string[]): boolean;
         function getStartPos(nodeOrComment: Node | CommentRange): number;
         function getEndPos(nodeOrComment: Node | CommentRange): number;
         function getHighlightRange(nodeOrComment: Node | CommentRange, faultId: number): [
@@ -9522,7 +9523,6 @@ declare namespace ts {
         const LIMITED_STANDARD_UTILITY_TYPES: string[];
         const ALLOWED_STD_SYMBOL_API: string[];
         const ARKTS_IGNORE_DIRS: string[];
-        const ARKTS_IGNORE_DIRS_STRICT_OH_MODULES_CHECK: string[];
         const ARKTS_IGNORE_FILES: string[];
         const ARKTS_IGNORE_DIRS_OH_MODULES = "oh_modules";
         const SENDABLE_DECORATOR = "Sendable";
@@ -9623,7 +9623,7 @@ declare namespace ts {
             private compatibleSdkVersion;
             private mixCompile;
             private enableStrictCheckOHModule;
-            constructor(sourceFile: SourceFile, tsProgram: Program, tscStrictDiagnostics?: ts.Map<ts.Diagnostic[]> | undefined);
+            constructor(sourceFile: SourceFile, tsProgram: Program, enableStrictCheckOHModule?: boolean, tscStrictDiagnostics?: ts.Map<ts.Diagnostic[]> | undefined);
             static clearTsTypeChecker(): void;
             static clearQualifiedNameCache(): void;
             readonly handlersMap: ts.ESMap<ts.SyntaxKind, {

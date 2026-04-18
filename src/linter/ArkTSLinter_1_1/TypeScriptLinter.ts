@@ -184,6 +184,7 @@ export class TypeScriptLinter {
 
   constructor(private sourceFile: SourceFile,
               /* private */ tsProgram: Program,
+              enableStrictCheckOHModule: boolean = false,
               private tscStrictDiagnostics?: Map<Diagnostic[]>) {
     TypeScriptLinter.tsTypeChecker = tsProgram.getLinterTypeChecker();
     this.currentErrorLine = 0;
@@ -193,7 +194,7 @@ export class TypeScriptLinter {
     const options = tsProgram.getCompilerOptions();
     this.skipArkTSStaticBlocksCheck = false;
     this.mixCompile = !!options.mixCompile;
-    this.enableStrictCheckOHModule = !!options.enableStrictCheckOHModule;
+    this.enableStrictCheckOHModule = enableStrictCheckOHModule;
     if (options.skipArkTSStaticBlocksCheck) {
       this.skipArkTSStaticBlocksCheck = options.skipArkTSStaticBlocksCheck as boolean;
     }
