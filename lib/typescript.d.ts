@@ -3398,6 +3398,7 @@ declare namespace ts {
         skipBaseUrlInKeyForCompilationSettings?: boolean;
         compatibleSdkVersion?: number;
         compatibleSdkVersionStage?: string;
+        compileSdkVersion?: number;
         noTransformedKitInParser?: boolean;
         [option: string]: CompilerOptionsValue | TsConfigSourceFile | undefined;
         etsAnnotationsEnable?: boolean;
