@@ -59,7 +59,6 @@ export const LIMITED_STANDARD_UTILITY_TYPES = [
 export const ALLOWED_STD_SYMBOL_API = ["iterator"]
 
 export const ARKTS_IGNORE_DIRS = ['node_modules', 'oh_modules', 'build', '.preview'];
-export const ARKTS_IGNORE_DIRS_STRICT_OH_MODULES_CHECK = ['node_modules', 'build', '.preview'];
 export const ARKTS_IGNORE_FILES = ['hvigorfile.ts'];
 
 export const ARKTS_IGNORE_DIRS_OH_MODULES = 'oh_modules';
@@ -129,9 +128,18 @@ export function setMixCompile(isMixCompile: boolean): void {
   mixCompile = isMixCompile;
 }
 
-let enableStrictCheckOHModule: boolean = false;
-export function setEnableStrictCheckOHModule(isEnableStrictCheckOHModule: boolean): void {
-  enableStrictCheckOHModule = isEnableStrictCheckOHModule;
+let ignoreDirsForThirdPartyCheck: string[] = [...ARKTS_IGNORE_DIRS];
+export function configureStrictCheckOHModule(
+  isEnableStrictCheckOHModule: boolean,
+  customDisableStrictCheckPaths?: string[]
+): boolean {
+  const disableStrictCheckPaths = customDisableStrictCheckPaths ?? ARKTS_IGNORE_DIRS;
+  ignoreDirsForThirdPartyCheck = disableStrictCheckPaths.filter(
+    (disableStrictCheckPath, index, paths) => disableStrictCheckPath &&
+      (!isEnableStrictCheckOHModule || disableStrictCheckPath !== ARKTS_IGNORE_DIRS_OH_MODULES) &&
+      paths.indexOf(disableStrictCheckPath) === index
+  );
+  return ignoreDirsForThirdPartyCheck.indexOf(ARKTS_IGNORE_DIRS_OH_MODULES) === -1;
 }
 
 export function getStartPos(nodeOrComment: Node | CommentRange): number {
@@ -1615,12 +1623,7 @@ export function isLibrarySymbol(sym: Symbol | undefined) {
 }
 
 export function isThirdPartyCode(srcFile: SourceFile): boolean {
-  // if strict check OH module, then code in oh_modules will not be treated as third party code
-  const ignoreDirs = enableStrictCheckOHModule ? 
-    ARKTS_IGNORE_DIRS_STRICT_OH_MODULES_CHECK : 
-    ARKTS_IGNORE_DIRS;
-    
-  return ignoreDirs.some(ignore => srcFilePathContainsDirectory(srcFile, ignore)) ||
+  return ignoreDirsForThirdPartyCheck.some(ignore => srcFilePathContainsDirectory(srcFile, ignore)) ||
       ARKTS_IGNORE_FILES.some(ignore => getBaseFileName(srcFile.fileName) === ignore);
 }
 
@@ -2464,6 +2467,7 @@ export function clearUtilsGlobalvariables(): void {
   parentSymbolCache?.clear();
   parentSymbolCache = undefined;
   srcFilePathComponents.clear();
+  ignoreDirsForThirdPartyCheck = [...ARKTS_IGNORE_DIRS];
 }
 
 
