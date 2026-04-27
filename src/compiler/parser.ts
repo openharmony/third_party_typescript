@@ -8491,7 +8491,8 @@ namespace Parser {
                 !ts.isIdentifier(decorator.expression.expression)) {
                 return;
             }
-            if (decorator.expression.expression.escapedText === 'Env') {
+            if (decorator.expression.expression.escapedText === 'Env' ||
+                decorator.expression.expression.escapedText === 'CustomEnv') {
                 hasEnvDecorator = true;
             }
         });
