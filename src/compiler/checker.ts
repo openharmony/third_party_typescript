@@ -34158,7 +34158,90 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
         return undefined;
     }
 
-    // Ignore only 401 @throws errors from the SDK.
+    // Parse [since xx] or [since xx - yy] tag from comment and return version range {from, to?}
+    // Supported formats:
+    // - [since xx] - simple version number
+    // - [since xx - yy] - version range (simple numbers)
+    // - [since m.f.s(num)] - extract number from parentheses
+    // - [since m.f.s(num1) - m.f.s(num2)] - extract two numbers from parentheses
+    // - [since x.y.z] - extract the major version number x
+    // - [since x.y.z - a.b.c] - extract major version numbers x and a
+    // - [since m.f.s(num1) - a.b.c] - extract num1 from parentheses and major version a
+    // - [since num1 - a.b.c] - extract num1 and major version a
+    function parseSinceTag(comment: string): {from: number, to?: number} | undefined {
+        // Try matching m.f.s(num) or m.f.s(num1) - m.f.s(num2) format
+        const parenReg: RegExp = /\[since\s+(?:\d+\.\d+\.\d+\((\d+)\))(?:\s*-\s*(?:\d+\.\d+\.\d+\((\d+)\)))?\]/;
+        const parenMatch = comment.match(parenReg);
+        if (parenMatch) {
+            const from = parseInt(parenMatch[1]);
+            const to = parenMatch[2] !== undefined ? parseInt(parenMatch[2]) : undefined;
+            return {from, to};
+        }
+
+        // Try matching m.f.s(num1) - a.b.c format (mixed: parentheses - version)
+        const mixedParenReg: RegExp = /\[since\s+(?:\d+\.\d+\.\d+\((\d+)\))\s*-\s*(\d+)\.\d+\.\d+\]/;
+        const mixedParenMatch = comment.match(mixedParenReg);
+        if (mixedParenMatch) {
+            const from = parseInt(mixedParenMatch[1]);
+            const to = parseInt(mixedParenMatch[2]);
+            return {from, to};
+        }
+
+        // Try matching num - a.b.c format (mixed: simple number - version)
+        const mixedNumReg: RegExp = /\[since\s+(\d+)\s*-\s*(\d+)\.\d+\.\d+\]/;
+        const mixedNumMatch = comment.match(mixedNumReg);
+        if (mixedNumMatch) {
+            const from = parseInt(mixedNumMatch[1]);
+            const to = parseInt(mixedNumMatch[2]);
+            return {from, to};
+        }
+
+        // Try matching x.y.z or x.y.z - a.b.c format
+        const versionReg: RegExp = /\[since\s+(\d+)\.\d+\.\d+(?:\s*-\s*(\d+)\.\d+\.\d+)?\]/;
+        const versionMatch = comment.match(versionReg);
+        if (versionMatch) {
+            const from = parseInt(versionMatch[1]);
+            const to = versionMatch[2] !== undefined ? parseInt(versionMatch[2]) : undefined;
+            return {from, to};
+        }
+
+        // Try matching simple xx or xx - yy format
+        const simpleReg: RegExp = /\[since\s+(\d+)(?:\s*-\s*(\d+))?\]/;
+        const simpleMatch = comment.match(simpleReg);
+        if (simpleMatch && simpleMatch.length >= 2) {
+            const from = parseInt(simpleMatch[1]);
+            const to = simpleMatch[2] !== undefined ? parseInt(simpleMatch[2]) : undefined;
+            return {from, to};
+        }
+
+        return undefined;
+    }
+
+    // Check if compileSdkVersion is within the version range in [since] tag.
+    // Returns true if compileSdkVersion is in range, meaning we should check this @throws.
+    // Returns false if compileSdkVersion is outside the range, meaning we should skip this @throws.
+    function isVersionInRange(sinceFrom: number, sinceTo: number | undefined): boolean {
+        const compileSdkVersion = compilerOptions.compileSdkVersion;
+
+        if (compileSdkVersion === undefined) {
+            // If version info is not available, assume it's in range and should check
+            return true;
+        }
+
+        if (sinceTo === undefined) {
+            // [since xx] format: check if compileSdkVersion >= sinceFrom
+            // Means "from version xx to present"
+            return compileSdkVersion >= sinceFrom;
+        }
+
+        // [since xx - yy] format: check if compileSdkVersion is within [sinceFrom, sinceTo] range
+        const minSince = Math.min(sinceFrom, sinceTo);
+        const maxSince = Math.max(sinceFrom, sinceTo);
+
+        return compileSdkVersion >= minSince && compileSdkVersion <= maxSince;
+    }
+
+    // Ignore only 401 @throws errors from the SDK, and throws annotations with version ranges that don't overlap with current compile SDK version.
     function shouldSkipTag(tag: JSDocTag, isSDKPath: boolean): boolean {
         const comment = getJSDocTagComment(tag);
         if (!comment) {
@@ -34170,6 +34253,11 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
             return true;
         }
 
+        // Check version range in [since] tag (only for SDK)
+        if (isSDKPath) {
+            const sinceRange = parseSinceTag(comment);
+            return sinceRange !== undefined && !isVersionInRange(sinceRange.from, sinceRange.to);
+        }
         return false;
     }
 
@@ -34201,10 +34289,16 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
         const expression = node.expression;
 
         if (isIdentifier(expression)) {
+            // func()
             return expression;
         }
         if (isPropertyAccessExpression(expression)) {
-            return expression.expression;
+            // obj.method() or obj.method().another()
+            return expression.name;
+        }
+        if (isElementAccessExpression(expression)) {
+            // obj['method']() or arr[0]()
+            return expression;
         }
 
         return node;
