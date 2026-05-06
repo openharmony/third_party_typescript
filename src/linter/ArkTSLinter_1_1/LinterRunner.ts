@@ -121,7 +121,7 @@ buildInfoWriteFile?: WriteFileCallback, arkTSVersion?: string): Diagnostic[] {
         const linter = new TypeScriptLinter(
           fileToLint,
           program,
-          enableStrictCheckOHModule,
+          !enableStrictCheckOHModule,
           tscStrictDiagnostics
         );
         setTypeChecker(TypeScriptLinter.tsTypeChecker);
