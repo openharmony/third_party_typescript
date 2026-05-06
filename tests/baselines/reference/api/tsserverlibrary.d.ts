@@ -13559,8 +13559,8 @@ declare namespace ts {
             private compatibleSdkVersionStage;
             private compatibleSdkVersion;
             private mixCompile;
-            private enableStrictCheckOHModule;
-            constructor(sourceFile: SourceFile, tsProgram: Program, enableStrictCheckOHModule?: boolean, tscStrictDiagnostics?: ts.Map<ts.Diagnostic[]> | undefined);
+            private allowOHMdouleFallback;
+            constructor(sourceFile: SourceFile, tsProgram: Program, allowOHMdouleFallback?: boolean, tscStrictDiagnostics?: ts.Map<ts.Diagnostic[]> | undefined);
             static clearTsTypeChecker(): void;
             static clearQualifiedNameCache(): void;
             readonly handlersMap: ts.ESMap<ts.SyntaxKind, {

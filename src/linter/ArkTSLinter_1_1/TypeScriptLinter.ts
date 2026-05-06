@@ -180,11 +180,11 @@ export class TypeScriptLinter {
     private compatibleSdkVersionStage: string = 'beta1';
     private compatibleSdkVersion: number = 12;
     private mixCompile: boolean = false;
-    private enableStrictCheckOHModule: boolean = false;
+    private allowOHMdouleFallback: boolean = true;
 
   constructor(private sourceFile: SourceFile,
               /* private */ tsProgram: Program,
-              enableStrictCheckOHModule: boolean = false,
+              allowOHMdouleFallback: boolean = true,
               private tscStrictDiagnostics?: Map<Diagnostic[]>) {
     TypeScriptLinter.tsTypeChecker = tsProgram.getLinterTypeChecker();
     this.currentErrorLine = 0;
@@ -194,7 +194,7 @@ export class TypeScriptLinter {
     const options = tsProgram.getCompilerOptions();
     this.skipArkTSStaticBlocksCheck = false;
     this.mixCompile = !!options.mixCompile;
-    this.enableStrictCheckOHModule = enableStrictCheckOHModule;
+    this.allowOHMdouleFallback = allowOHMdouleFallback;
     if (options.skipArkTSStaticBlocksCheck) {
       this.skipArkTSStaticBlocksCheck = options.skipArkTSStaticBlocksCheck as boolean;
     }
@@ -2139,7 +2139,7 @@ readonly handlersMap = new Map([
       return;
     }
 
-    const isOhModulesEts = isOhModulesEtsSymbol(trueSymbolAtLocation(expr.expression));
+    const isOhModulesEts = this.allowOHMdouleFallback && isOhModulesEtsSymbol(trueSymbolAtLocation(expr.expression));
     const deleteDiagnostics: Set<Diagnostic> = new Set();
     LibraryTypeCallDiagnosticChecker.instance.filterDiagnostics(
       tscDiagnostics,
@@ -2152,7 +2152,7 @@ readonly handlersMap = new Map([
          * the diagnostic is downgraded to warning. For other files, downgraded to nothing.
          */
         if (isOhModulesEts && errorType !== ErrorType.UNKNOW) {
-          diagnostic.category = this.enableStrictCheckOHModule ? DiagnosticCategory.Error : DiagnosticCategory.Warning;
+          diagnostic.category = DiagnosticCategory.Warning;
         } else {
           deleteDiagnostics.add(diagnostic);
         }
