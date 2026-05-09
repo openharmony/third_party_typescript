@@ -20109,7 +20109,15 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
 
         Debug.assert(relation !== identityRelation || !errorNode, "no error reporting in identity checking");
 
-        const result = isRelatedTo(source, target, RecursionFlags.Both, /*reportErrors*/ !!errorNode, headMessage);
+        let result: Ternary;
+        if (compilerOptions.strictCheckerOnly) {
+            strictVarianceFlag = true;
+            result = isRelatedTo(source, target, RecursionFlags.Both, /*reportErrors*/ !!errorNode, headMessage);
+            strictVarianceFlag = false;
+        } else {
+            result = isRelatedTo(source, target, RecursionFlags.Both, /*reportErrors*/ !!errorNode, headMessage);
+        }
+
         if (incompatibleStack) {
             reportIncompatibleStack();
         }
