@@ -6758,6 +6758,7 @@ namespace Parser {
                             if (currentNodeName === 'each') {
                                 setRepeatEachRest(true);
                             }
+                        } else if (rootNodeName === 'WithEnv' && ['env', 'customEnv'].includes(currentNodeName) ) {
                         } else if (type === 'etsComponentType') {
                             typeArguments = parseEtsTypeArguments(pos, `${rootNodeName}Attribute`);
                         }
@@ -8714,7 +8715,7 @@ namespace Parser {
         if (parseExpected(SyntaxKind.OpenBraceToken)) {
             // ClassTail[Yield,Await] : (Modified) See 14.5
             //      ClassHeritage[?Yield,?Await]opt { ClassBody[?Yield,?Await]opt }
-            members = parseStructMembers();
+            members = parseStructMembers(pos);
             parseExpected(SyntaxKind.CloseBraceToken);
         }
         else {
@@ -8801,7 +8802,7 @@ namespace Parser {
         return parseList(ParsingContext.AnnotationMembers, parseAnnotationElement);
     }
 
-    function parseStructMembers(): NodeArray<ClassElement> {
+    function parseStructMembers(pos: number): NodeArray<ClassElement> {
         const structMembers = parseList(ParsingContext.ClassMembers, parseClassElement);
 
         const virtualStructMembers: ClassElement[] = [];
@@ -8841,7 +8842,7 @@ namespace Parser {
         const emptyBody = finishVirtualNode(factory.createBlock(createNodeArray([], 0, 0)));
         const virtualConstructor = factory.createConstructorDeclaration(/*modifier*/ undefined, createNodeArray(parameters, 0, 0), emptyBody);
 
-        virtualStructMembers.unshift(finishVirtualNode(virtualConstructor, -1, -1));
+        virtualStructMembers.unshift(finishVirtualNode(virtualConstructor, pos, pos));
 
         return createNodeArray(virtualStructMembers, structMembers.pos);
     }
