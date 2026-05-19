@@ -31,5 +31,5 @@ export interface ServerHost extends System {
     getFileCheckedModuleInfo?(containFilePath: string): FileCheckModuleInfo;
     isSourceRetentionAnnotationContentValid?(annotationNode: Annotation): ConditionCheckResult;
     isSourceRetentionDeclarationValid?(annotationNode: AnnotationDeclaration): boolean;
-    isApiAvailableVersionSpecifications?(apiAvailableNode: Node): ConditionCheckResult;
+    isApiAvailableVersionSpecifications?(apiAvailableNode: Node, typeOfNodeFunc: Function): ConditionCheckResult;
 }

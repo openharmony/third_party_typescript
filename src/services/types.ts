@@ -375,7 +375,7 @@ export interface LanguageServiceHost extends GetEffectiveTypeRootsHost, MinimalR
     isSourceRetentionAnnotationContentValid?(annotationNode: Annotation): ConditionCheckResult;
     isSourceRetentionDeclarationValid?(annotationNode: AnnotationDeclaration): boolean;
     isSourceOrExternalCode?(fileName: string): boolean;
-    isApiAvailableVersionSpecifications?(apiAvailableNode: Node): ConditionCheckResult;
+    isApiAvailableVersionSpecifications?(apiAvailableNode: Node, typeOfNodeFunc: Function): ConditionCheckResult;
 }
 
 /** @internal */
