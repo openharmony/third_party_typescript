@@ -469,7 +469,7 @@ export abstract class Project implements LanguageServiceHost, ModuleResolutionHo
 
     isApiAvailableVersionSpecifications(apiAvailableNode: Node, typeOfNodeFunc: Function): ConditionCheckResult{
         Debug.log(apiAvailableNode.kind.toString());
-        Debug.log(typeOfNodeFunc());
+        Debug.log(typeOfNodeFunc.name);
         return {
             valid: true,
             message: '',

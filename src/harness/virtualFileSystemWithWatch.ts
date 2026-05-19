@@ -947,7 +947,7 @@ export class TestServerHost implements ServerHost, FormatDiagnosticsHost, Module
 
     isApiAvailableVersionSpecifications(apiAvailableNode: Node, typeOfNodeFunc: Function): ConditionCheckResult{
         Debug.log(apiAvailableNode.kind.toString());
-        Debug.log(typeOfNodeFunc());
+        Debug.log(typeOfNodeFunc.name);
         return {
             valid: true,
             message: '',

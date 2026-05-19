@@ -34002,7 +34002,7 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
      */
     function checkCallExpression(node: CallExpression | NewExpression | EtsComponentExpression, checkMode?: CheckMode): Type {
         checkGrammarTypeArguments(node, node.typeArguments);
-        checkApiAvailableVersion(node, getTypeOfNode);
+        checkApiAvailableVersion(node);
         const signature = getResolvedSignature(node, /*candidatesOutArray*/ undefined, checkMode);
         if (signature === resolvingSignature) {
             // CheckMode.SkipGenericFunctions is enabled and this is a call to a generic function that
@@ -47213,12 +47213,17 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
         return links.sourceRetentionAnnotation;
     }
 
-    function checkApiAvailableVersion(apiAvailableNode: Node, typeOfNodeFunc: Function): boolean {
+    function apiAvailableGetTypeOfNode(node: Node) {
+        const nodeIn = getParseTreeNode(node);
+        return nodeIn ? getTypeOfNode(node) : undefined;
+    }
+
+    function checkApiAvailableVersion(apiAvailableNode: Node): boolean {
         if (!apiAvailableNode) {
             return false;
         }
         if (isApiAvailableVersionSpecifications) {
-            let checkResult = isApiAvailableVersionSpecifications(apiAvailableNode, typeOfNodeFunc);
+            let checkResult = isApiAvailableVersionSpecifications(apiAvailableNode, apiAvailableGetTypeOfNode);
             if (checkResult && !checkResult.valid) {
                 const diagnostic = createDiagnosticForNodeInSourceFile(getSourceFileOfNode(apiAvailableNode),
             apiAvailableNode, Diagnostics.This_API_has_been_Special_Markings_exercise_caution_when_using_this_API);
