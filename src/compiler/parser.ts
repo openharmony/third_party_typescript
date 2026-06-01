@@ -6758,6 +6758,7 @@ namespace Parser {
                             if (currentNodeName === 'each') {
                                 setRepeatEachRest(true);
                             }
+                        } else if (rootNodeName === 'WithEnv' && ['env', 'customEnv'].includes(currentNodeName) ) {
                         } else if (type === 'etsComponentType') {
                             typeArguments = parseEtsTypeArguments(pos, `${rootNodeName}Attribute`);
                         }
