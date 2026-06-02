@@ -467,8 +467,9 @@ export abstract class Project implements LanguageServiceHost, ModuleResolutionHo
         return true;
     };
 
-    isApiAvailableVersionSpecifications(apiAvailableNode: Node): ConditionCheckResult{
+    isApiAvailableVersionSpecifications(apiAvailableNode: Node, typeOfNodeFunc: Function): ConditionCheckResult{
         Debug.log(apiAvailableNode.kind.toString());
+        Debug.log(typeOfNodeFunc.name);
         return {
             valid: true,
             message: '',
