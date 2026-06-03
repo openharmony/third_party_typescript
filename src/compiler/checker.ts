@@ -47213,12 +47213,17 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
         return links.sourceRetentionAnnotation;
     }
 
+    function apiAvailableGetTypeOfNode(node: Node) {
+        const nodeIn = getParseTreeNode(node);
+        return nodeIn ? getTypeOfNode(node) : undefined;
+    }
+
     function checkApiAvailableVersion(apiAvailableNode: Node): boolean {
         if (!apiAvailableNode) {
             return false;
         }
         if (isApiAvailableVersionSpecifications) {
-            let checkResult = isApiAvailableVersionSpecifications(apiAvailableNode);
+            let checkResult = isApiAvailableVersionSpecifications(apiAvailableNode, apiAvailableGetTypeOfNode);
             if (checkResult && !checkResult.valid) {
                 const diagnostic = createDiagnosticForNodeInSourceFile(getSourceFileOfNode(apiAvailableNode),
             apiAvailableNode, Diagnostics.This_API_has_been_Special_Markings_exercise_caution_when_using_this_API);
