@@ -1,408 +1,155 @@
-# AGENTS Guidelines for This Repository
+# ohos-typescript 指引
 
-This document provides guidance for AI agents working on the ohos-typescript codebase.
+> 入口层：永远在上下文中，只做路由和全局约束。领域知识在 `docs/knowledge/`，按需加载。
+> 本仓是 TypeScript 4.9.5-r4 的 OpenHarmony fork（包名 `ohos-typescript`），新增 ETS 语言范式、OH 模块系统、API 可用性检查、ArkTS Linter 等。
 
-## Repository Overview
+## 1. 代码地图
 
-This is **ohos-typescript** (OpenHarmony TypeScript), a fork of TypeScript 4.9.5-r4 modified for OpenHarmony development. It adds extended support for the **ETS (Extensible TypeScript)** language paradigm used in OpenHarmony development.
+本 AGENTS.md 适用于仓库根。本仓对应 OpenHarmony 源码树 `third_party/typescript`，当前不存在子级 AGENTS.md / CLAUDE.md；各目录的局部规则尚未沉淀，遇到歧义先以根为准并提问。
 
-## Directory Structure
+核心职责：在标准 TypeScript 之上扩展 ETS 语法、OH 模块解析、API 可用性检查与 ArkTS Linter，同时保持对标准 TS 的向后兼容。
 
-```
-ohos-typescript/                  # OpenHarmony TypeScript (TypeScript 4.9.5-r4 fork)
-├── src/                          # Source code
-│   ├── compiler/                 # Core compiler implementation
-│   │   ├── binder.ts             # Symbol and variable binding
-│   │   ├── checker.ts            # Type checker (contains ETS-specific type logic)
-│   │   ├── parser.ts             # Syntax parser (handles ETS syntax extensions)
-│   │   ├── emitter.ts            # JavaScript code generator
-│   │   ├── ohApi.ts              # OpenHarmony/ETS-specific APIs (1776 lines)
-│   │   ├── program.ts            # Compilation program management
-│   │   ├── transformer.ts        # AST transformation utilities
-│   │   ├── moduleNameResolver.ts # Module resolution logic
-│   │   ├── types.ts              # TypeScript type definitions
-│   │   ├── scanner.ts            # Lexical scanner/tokenizer
-│   │   ├── core.ts               # Core compiler interfaces
-│   │   ├── utilities.ts          # Shared utility functions
-│   │   ├── builder.ts            # AST builder for ETS components
-│   │   ├── builderState.ts       # Builder state management
-│   │   ├── commandLineParser.ts  # Command-line argument parser
-│   │   ├── path.ts               # Path manipulation utilities
-│   │   ├── sys.ts                # System I/O abstraction layer
-│   │   ├── watch.ts              # File watching infrastructure
-│   │   ├── tsbuild.ts            # Project reference build system
-│   │   ├── performance.ts        # Performance monitoring
-│   │   ├── debug.ts              # Debug logging utilities
-│   │   ├── tracing.ts            # Execution tracing
-│   │   ├── sourcemap.ts          # Source map generation
-│   │   ├── symbolWalker.ts       # AST symbol traversal
-│   │   ├── resolutionCache.ts    # Module resolution cache
-│   │   ├── moduleSpecifiers.ts   # Module specifier handling
-│   │   ├── semver.ts             # Semantic versioning utilities
-│   │   ├── perfLogger.ts         # Performance logging
-│   │   └── *Public.ts            # Public API variants (corePublic, utilitiesPublic, etc.)
-│   ├── services/                 # Language services (auto-completion, navigation)
-│   ├── server/                   # Language server implementation
-│   ├── tsc/                      # Command-line interface
-│   ├── tsserver/                 # TypeScript language server for IDEs
-│   ├── testRunner/               # Test framework
-│   ├── linter/                   # Linting and static analysis
-│   └── typescript/               # TypeScript type definitions
-│
-├── tests/                        # Test suites
-│   ├── cases/                    # Compiler test cases
-│   │   ├── compiler/             # Compiler tests
-│   │   ├── conformance/          # Conformance tests
-│   │   └── project/              # Project-based tests
-│   ├── arkTSTest/                # ETS language feature tests
-│   ├── baselines/                # Expected output for regression testing
-│   ├── system_api_test/          # OpenHarmony-specific API tests
-│   ├── projects/                 # Test project configurations
-│   └── ts_extra_tests/           # Additional TypeScript tests
-│
-├── lib/                          # Built JavaScript output
-├── doc/                          # Documentation
-│   ├── spec-ARCHIVED.md          # TypeScript language specification
-│   └── handbook/                 # TypeScript handbook
-│
-├── bin/                          # Executable scripts
-├── scripts/                      # Build and utility scripts
-├── built/                        # Build artifacts
-├── internal/                     # Internal utilities
-│
-├── package.json                  # npm package configuration
-├── tsconfig.json                 # TypeScript compiler configuration
-├── BUILD.gn                      # GN build configuration (OpenHarmony)
-├── bundle.json                   # OpenHarmony bundle metadata
-├── Herebyfile.mjs                # Hereby build configuration
-├── README.md                     # Project overview
-├── CONTRIBUTING.md               # Contribution guidelines
-├── CLAUDE.md                     # General codebase overview
-├── AGENTS.md                     # This file - AI agent guidelines
-└── ohos-typescript-4.9.5-r4.tgz  # Release package
-```
+关键路径（按重要性与高频修改排序）：
 
-## Critical Files for ETS Functionality
+- `src/compiler/ohApi.ts`：OH/ETS 专属逻辑入口（kit 导入、注解、装饰器、oh_modules、错误码映射），改动最频繁。
+- `src/compiler/checker.ts`：类型检查器，体积极大、性能敏感，OH 扩展（API 可用性、`@throws`、`getTypeOfNode`）散落其中，回归代价高。
+- `src/compiler/`：编译器核心（parser/binder/checker/emitter）。
+- `src/linter/`：ArkTS Linter（1.0 / 1.1）。
+- `lib/`：构建产物 + 标准 TS 内置 `.d.ts` 声明，禁止手改（ArkUI 枚举等 SDK 声明不在本仓 `lib/`）。
+- `tests/`：`cases/`（编译器用例）、`baselines/`（回归基线）、`arkTSTest/`、`system_api_test/`、`dets/`、`ts_extra_tests/`。
 
-When working on ETS-related features or issues, these files are most relevant:
+Where to look（任务 → 路径）：
 
-- **`src/compiler/ohApi.ts`** - Core OpenHarmony/ETS-specific APIs
-  - Annotation processing and transformation
-  - Kit import handling (`@kit.*`)
-  - ETS decorator detection and processing
-  - Module resolution for `oh_modules` (OpenHarmony package manager)
+- 语法 / 注解 / `.ets` 行为变更 → `src/compiler/ohApi.ts`
+- 类型检查 / 兼容回归 → `src/compiler/checker.ts`
+- ArkTS lint 行为 → `src/linter/`
+- 公开声明 / ArkUI 枚举 / `.d.ts` → `lib/`
+- 用例预期输出 → `tests/baselines/` + `tests/cases/`
 
-- **`src/compiler/checker.ts`** - Type checker (contains ETS-specific type logic)
-- **`src/compiler/parser.ts`** - Parser (handles ETS syntax extensions like `struct`)
-- **`src/compiler/emitter.ts`** - Code generator (ETS-specific emission logic)
+## 2. 知识路由
 
-## ETS Language Features
+改动前先按以下三类归类任务，读取对应领域文档。不要把这些文档当可选背景，它们是任务级权威。所有链接均指向真实存在的 `docs/knowledge/*.md`。
 
-### Syntax Extensions
+### Task-based routing（按任务类型）
 
-- **`struct` declarations** - Custom component syntax (`StructDeclaration` node)
-- **`.ets` file extension** - Detected via `ScriptKind.ETS`
-- **Special decorators:**
-  - `@Builder` / `@LocalBuilder` - Component builders
-  - `@BuilderParam` - Builder parameters
-  - `@Styles` - Component styling
-  - `@Extend` - Extension decorators
-  - `@Require` - Requirement decorator
-  - `@Sendable` - Concurrent/Shared decorator
+- 语法 / 注解 / `.ets` 范式扩展 → 读 `docs/knowledge/ets-language-extensions.md`
+- OH 模块系统 / kit 导入 / ohpm 解析 → 读 `docs/knowledge/oh-module-system.md`
+- 类型检查 / 兼容性改动 → 读 `docs/knowledge/type-checker-and-compat.md`
+- API 可用性 / `apiAvailable` / `@throws` 改动 → 读 `docs/knowledge/api-availability.md`
+- 内置声明 / `.d.ts` / ArkUI 枚举改动 → 读 `docs/knowledge/lib-declarations.md`
+- Linter 规则 / 增量 lint 改动 → 读 `docs/knowledge/arkts-linter.md`
+- 错误码增删或语义变更 → 读 `docs/knowledge/error-codes.md`
+- 构建 / 基线 / 测试体系改动 → 读 `docs/knowledge/build-test-baseline.md`
 
-### Annotation System
+### Path-based routing（按修改路径）
 
-ETS has a custom annotation system that transforms at compile time:
-- Annotations use magic prefix: `__$$ETS_ANNOTATION$$__`
-- `@interface` syntax for annotation declarations
-- Automatic default value injection
-- Type inference for annotation properties
-- Source retention vs. emit retention
+- `src/compiler/ohApi.ts` → 读 `ets-language-extensions.md` + `oh-module-system.md`
+- `src/compiler/checker.ts` → 读 `type-checker-and-compat.md`（**必读**，该文件大且回归代价高）
+- `src/linter/` → 读 `arkts-linter.md`
+- `lib/` 或 `scripts/dtsBundler.mjs` → 读 `lib-declarations.md`
+- `tests/baselines/` 或 `tests/cases/` → 读 `build-test-baseline.md`
 
-## OpenHarmony Module System
+### Vocabulary-based routing（按术语）
 
-### Package Manager Differences
+当任务、issue、log、API 名或被改文件出现下列术语时，规划前先读对应文档：
 
-| Standard TypeScript | OpenHarmony ETS |
-|-------------------|-----------------|
-| `node_modules` | `oh_modules` |
-| `package.json` | `oh-package.json5` |
-| `npm` packages | `ohpm` packages |
+| 术语 | 风险提示 | 先读 |
+| --- | --- | --- |
+| struct / @Builder / @Styles / @Extend / annotation / `.ets` / `ScriptKind` | ETS 扩展只应在 `.ets` 生效，污染 `.ts` 会破坏标准 TS | `ets-language-extensions.md` |
+| `oh_modules` / ohpm / oh-package.json5 / `@kit` / `processKit` | 必须同时处理 `node_modules` 与 `oh_modules`，只认一套会丢解析 | `oh-module-system.md` |
+| checker / 类型兼容 / `isTypeRelatedTo` / `maybeKeys` / `strictCheckerOnly` | 文件大、性能敏感，回归代价高 | `type-checker-and-compat.md` |
+| `apiAvailable` / `getTypeOfNode` / `WithEnv` / `@throws` / API 可用性 | 影响公共 API 语义与兼容性 | `api-availability.md` |
+| `lib` / `.d.ts` / ArkUI 枚举 / ES2022 / `dtsBundler` | 生成物，禁止手改 | `lib-declarations.md` |
+| linter / ArkTSLinter / `LinterRunner` / 增量 lint / `.tsbuildinfo` | 规则跨 1.0/1.1，行为差异易错 | `arkts-linter.md` |
+| 错误码 / 10505114 / 28000 / `ErrorInfo` / `getErrorCode` | 错误码是公共契约，改动需问人 | `error-codes.md` |
+| hereby / BUILD.gn / bundle.json / baseline / runtests / `arkTSTest` / `system_api_test` | 构建测试体系，基线变更必须接受 | `build-test-baseline.md` |
 
-### Kit Imports
+### Plan 阶段声明
 
-Special handling for `@kit.*` imports (e.g., `@kit.ArkUI`, `@kit.NetworkKit`):
-- Transformed during compilation via `processKit()` function
-- Uses JSON configuration files in SDK's `build-tools/ets-loader/kit_configs/`
-- Supports both OHOS and HMS kit configurations
-- Includes lazy import support via `isLazy` flag
+在开始实现前，plan 中需声明：
 
-## Common Patterns
+- 任务归类（task category）
+- 已读的领域文档
+- 已识别的约束（见第 3 节）
+- 是否需要先问人、是否需要补充板侧证据
 
-### Checking ETS Context
+## 3. 约束边界
 
-```typescript
-import { isInEtsFile } from "./ohApi";
+### Architecture / domain invariants
 
-// Always check if code is in ETS context before applying ETS-specific logic
-if (isInEtsFile(node)) {
-    // Apply ETS-specific handling
-}
+- **ETS 隔离**：所有 ETS 扩展必须先判断 `isInEtsFile(node)` / `ScriptKind.ETS`，否则会污染标准 TS 行为。
+- **向后兼容**：必须保持对标准 TypeScript 的向后兼容；ETS 能力只在 `.ets` 生效。
+- **双模块解析**：必须同时处理 `node_modules` 与 `oh_modules`，不能只认一套。
+- **注解前缀不变**：不得改动魔法前缀 `__$$ETS_ANNOTATION$$__`，工具链依赖它。
+- **生成物不手改**：`lib/` 下产物与生成 `.d.ts` 不得手改，改 source of truth 后重新生成。
+- **checker 性能敏感性**：`checker.ts` 体极大、性能敏感，改动须先读 `type-checker-and-compat.md`，评估回归面。
+- **DFX 不可绕过**：不得为通过测试删除/绕过 DFX、日志、错误码或兼容性检查。
+- **持久化/兼容性边界**：错误码、API 签名、`.d.ts` 公开声明属于跨版本兼容契约，不得随意破坏。
+
+### Do not
+
+- 不要在 `.ts` 上下文启用 ETS 逻辑。
+- 不要手改 `lib/` 下构建产物与生成 `.d.ts`。
+- 不要为通过测试删除/绕过 DFX、日志、错误码或兼容性检查。
+- 不要改动注解魔法前缀 `__$$ETS_ANNOTATION$$__`。
+- 不要只认 `node_modules` 或 `oh_modules` 一套模块解析。
+- 不要把内部实现细节泄露到公开 API / `.d.ts`。
+
+### Ask before
+
+- 新增第三方依赖。
+- 改动公共 API 签名 / 错误码语义。
+- 改动 `lib/*.d.ts` 公开声明。
+- 删除兼容 shim 或迁移逻辑。
+- 运行可能影响真实设备的命令（板侧操作）。
+
+## 4. 验证闭环
+
+构建命令从仓库根目录执行。
+
+### Minimum checks
+
+- 构建：`npm run build`
+- 仅 compiler：`npm run build:compiler`
+- 测试：`npm run test`
+- Lint：`npm run lint`
+- 接受基线（用例预期输出变更后必须）：`npm run baseline`
+- OH 系统 API 测试：`npm run test:system-api`
+
+一键执行全套用 `scripts/auto-test-runner.sh`（4 suite：tsc-native / ts-extra / arkts / system-api）：
+
+```sh
+./scripts/auto-test-runner.sh --all                # 全套
+./scripts/auto-test-runner.sh --suite tsc-native   # 单 suite
+./scripts/auto-test-runner.sh --all --fail-fast    # 失败即停
 ```
 
-### Checking ETS Decorators
+ArkTS 用例（先在仓库根 `npm pack`，再到 `tests/arkTSTest npm install`）：
 
-```typescript
-import { hasEtsBuilderDecoratorNames, hasEtsStylesDecoratorNames } from "./ohApi";
-
-// Check for specific ETS decorator types
-if (hasEtsBuilderDecoratorNames(decorators, compilerOptions)) {
-    // Handle Builder decorator
-}
+```sh
+node tests/arkTSTest/run.js -v1.0 -D
+node tests/arkTSTest/run.js -v1.1 -D
 ```
 
-### Module Resolution
+### Task-specific checks
 
-```typescript
-import { isOHModules, isOhpm, getModuleByPMType } from "./ohApi";
+- ETS 语法 / 注解 / `ohApi.ts` 改动 → 执行相关编译器用例 + `npm run baseline`（若基线变）。
+- `checker.ts` / 类型兼容改动 → 执行 `npm run test`，重点看兼容用例。
+- Linter 改动 → 执行 `tests/arkTSTest`（1.0/1.1）+ `npm run test:eslint-rules`。
+- `lib/` / `.d.ts` 改动 → 重新生成后执行 `npm run build:tests` + 涉及声明的用例。
+- 错误码改动 → 执行 `scripts/errorCheck.mjs` + `npm run test:system-api`，更新对应基线。
+- 仅测试改动 → 执行被改用例 + 至少一个邻近相关用例。
 
-// Check for OpenHarmony package manager
-if (isOhpm(packageManagerType)) {
-    const modulesDir = getModuleByPMType(packageManagerType); // "oh_modules"
-}
-```
+### Done 定义与无法验证的兜底
 
-## Testing Strategy
+任务完成须满足：
 
-### Test Locations
+- 请求行为已实现。
+- 相关 build/test/lint/baseline/兼容性检查已执行，**或给出无法验证的原因**（环境缺失、依赖板侧、用例不可本地复现等）——不得用虚假验证声称完成。
+- 涉及真实设备 / 集成行为的改动，**必须补充板侧证据**，不能只靠 `npm test` 声称完成。
+- 最终回复包含：变更文件、验证命令与结果、兼容性/DFX/错误码影响（若有）、剩余风险。
+- 不夹带无关格式化、重构或顺手改动。
 
-- **`tests/cases/`** - Compiler test cases
-- **`tests/baselines/`** - Expected output for regression testing
-- **`tests/system_api_test/`** - OpenHarmony-specific API tests
-- **`tests/arkTSTest/`** - ETS language feature tests
+## 附：知识文档清单
 
-### Build Commands and Run Tests
-
-```bash
-# Build both compiler and tests
-npm run build
-
-# Build only the compiler
-npm run build:compiler
-
-# Build only tests
-npm run build:tests
-
-# Run tests
-npm run test
-
-# Run lint tests
-First, run `npm pack` in the typescript directory to pack the package, and then run `npm install` in the `typescript/tests/arkTSTest` directory to install the dependency.
-node run.js -v1.0 -D
-node run.js -v1.1 -D
-
-# Run system API tests (OpenHarmony-specific)
-npm run test:system-api
-
-# Clean build artifacts
-npm run clean
-```
-
-## High-Level Architecture
-
-The compiler follows a classic multi-phase architecture:
-
-1. **Parser** (`src/compiler/parser.ts`) - Converts source code to AST
-2. **Binder** (`src/compiler/binder.ts`) - Resolves symbols and builds symbol tables
-3. **Checker** (`src/compiler/checker.ts`) - Type checking and semantic analysis (very large, ~2.8MB)
-4. **Emitter** (`src/compiler/emitter.ts`) - Generates JavaScript output
-5. **Diagnostics** - Error and warning reporting system
-
-### Key Directories
-
-- `src/compiler/` - Core compiler implementation (parser, checker, binder, emitter)
-- `src/services/` - Language services (auto-completion, navigation, etc.)
-- `src/tsserver/` - Language server for IDE integration
-- `src/tsc/` - Command-line interface
-- `src/testRunner/` - Test framework
-- `src/compiler/ohApi.ts` - **OpenHarmony/ETS-specific APIs and utilities**
-
-## OpenHarmony/ETS-Specific Features
-
-### ETS Language Extensions
-
-The codebase adds several ETS-specific language features:
-
-- **Custom component `struct` syntax** - `StructDeclaration` and `EtsComponentExpression` node types
-- **Special decorators** - `@Builder`, `@BuilderParam`, `@Styles`, `@Extend` for ETS components
-- **Lifecycle completion** - Support for ETS component lifecycle methods
-- **Annotations** - Custom annotation system with magic prefix `__$$ETS_ANNOTATION$$__`
-- **File extension** - `.ets` files with `ScriptKind.ETS`
-
-### Key OpenHarmony APIs (src/compiler/ohApi.ts)
-
-- `isInEtsFile()` - Check if a node is in an ETS file
-- `getReservedDecoratorsOfEtsFile()` - Get ETS-specific decorators
-- `processKit()` - Process OpenHarmony kit imports (`@kit.*`)
-- `getAnnotationTransformer()` - Transform ETS annotations
-- `hasEtsBuilderDecoratorNames()`, `hasEtsStylesDecoratorNames()` - Check for ETS decorators
-- `isOHModules()`, `isOhpm()` - Support for `oh_modules` directory (OpenHarmony package manager)
-
-## Build System
-
-- Uses `hereby` as the build tool (accessed via `.gulp.js` shim)
-- ESLint for code quality
-- Parallel test execution with configurable workers
-- LKG (Last Known Good) builds for releases
-
-## Common Tasks
-
-### Adding a New ETS Decorator
-
-1. Define decorator in compiler options schema
-2. Add detection logic in `ohApi.ts` (similar to `hasEtsBuilderDecoratorNames`)
-3. Update parser if syntax is new
-4. Add transformation logic in emitter if needed
-5. Add tests
-
-### Modifying Annotation Processing
-
-Annotation transformation happens in `ohApi.ts`:
-- `getAnnotationTransformer()` - Main entry point
-- `transformAnnotation()` - Core transformation logic
-- `visitAnnotationDeclaration()` - Declaration handling
-- `visitAnnotation()` - Usage site handling
-
-### Kit Import Changes
-
-Kit import processing is in `processKit()`:
-- Kit JSON configs are cached in `kitJsonCache`
-- White lists control special handling: `whiteListForErrorSymbol`, `whiteListForTsFile`
-- SDK path detection via `getSdkPath()`
-
-## Debugging Tips
-
-### Enable Debug Logging
-
-Check `src/compiler/debug.ts` for debug flags.
-
-### Trace Kit Imports
-
-Kit import transformations add virtual nodes with `NodeFlags.KitImportFlags`.
-
-### Check ETS File Detection
-
-```typescript
-// Verify file is being detected as ETS
-getSourceFileOfNode(node)?.scriptKind === ScriptKind.ETS
-```
-
-## Important Constraints
-
-1. **Never modify ETS files in `.ts` context** - ETS features only active when `ScriptKind.ETS` is detected
-2. **Preserve backward compatibility** - Changes should not break standard TypeScript
-3. **Annotation prefix is magic** - The `__$$ETS_ANNOTATION$$__` prefix must be preserved for tool compatibility
-4. **Virtual nodes** - Many ETS transformations create virtual nodes - handle appropriately
-5. **Module system coexistence** - Code must handle both `node_modules` and `oh_modules`
-
-## ArkTS Linter
-
-### Overview
-
-The ArkTS Linter is a static analysis tool for ArkTS (a TypeScript variant used in HarmonyOS). It enforces strict typing rules and language restrictions specific to the ArkTS programming paradigm.
-
-### Directory Structure
-
-```
-linter/
-├── ArkTSLinter_1_0/          # Linter implementation for ArkTS 1.0
-├── ArkTSLinter_1_1/          # Linter implementation for ArkTS 1.1
-├── Common/                   # Shared utilities
-└── _namespaces/              # TypeScript namespace definitions
-```
-
-#### Linter Runner (`LinterRunner.ts`)
-
-The `runArkTSLinter` function is the primary entry point for running the linter:
-
-**Key Features:**
-- **Incremental Linting**: Only lints changed files based on program state
-- **Version Awareness**: Re-lints all files if ArkTS version changes
-- **Build Info Caching**: Stores diagnostics in `.tsbuildinfo` for faster subsequent runs
-- **Memory Management**: Clears caches after completion for daemon mode
-
-**Workflow:**
-1. Initialize static configuration
-2. Collect changed files from program state
-3. Run TSC diagnostics (strict and non-strict modes)
-4. Iterate through source files and apply ArkTS rules
-5. Cache diagnostics and optionally emit build info
-6. Release references for memory cleanup
-
-## Error Code System
-
-ETS-specific errors use specific error codes (see `ohApi.ts`):
-- **TSC error codes**: Mapped to OpenHarmony error format (e.g., `10505114`)
-- **UI error codes**: 28000-28007, 28015
-- **Linter error codes**: 28016-28017
-
-Error info is provided via `ErrorInfo` class and `getErrorCode()` function.
-
-## Related Documentation
-
-- **`README.md`** - Project overview and modification history
-- **`CONTRIBUTING.md`** - Contribution guidelines
-- **`doc/spec-ARCHIVED.md`** - TypeScript language specification (archived)
-- **`CLAUDE.md`** - General codebase overview
-
-## Related Repositories
-
-### developtools_ace_ets2bundle
-
-**Purpose**: ETS/ArkTS declarative syntax compiler and bundler for OpenHarmony ACE framework.
-
-**Key Functions**:
-- **Syntax Compilation**: Converts declarative ArkTS/ETS syntax into executable bundle formats
-- **Syntax Validation**: Performs syntax verification to ensure code correctness
-- **Error Reporting**: Provides detailed and friendly syntax error messages for debugging
-- **Bytecode Generation**: Works with `arkcompiler_ets_frontend` to produce Ark bytecode files
-
-**Architecture**:
-- Part of the **ACE (Ark Compiler Engine)** toolchain
-- Source code located in `compiler/src/` directory
-- Integrates with Ark Runtime for executing compiled ETS applications
-
-**Links**:
-- [Gitcode Repository](https://gitcode.com/openharmony/developtools_ace_ets2bundle)
-
-### arkcompiler_ets_frontend
-
-**Purpose**: Front-end compiler in the ARK Runtime Subsystem for converting ETS/ArkTS source code into Ark bytecode.
-
-**Key Functions**:
-- **Bytecode Generation**: Converts ETS (Extended TypeScript), ArkTS, TypeScript, and JavaScript source code into Ark bytecode files
-- **Type Processing**: Preserves static type information for optimized runtime execution
-- **Compilation Pipeline**: Works as the frontend component that produces bytecode, while the Ark Runtime executes it
-- **Integration**: Collaborates with `ace-ets2bundle` component to complete the ETS-to-bytecode conversion
-
-**Architecture**:
-- Part of the **ArkCompiler** system - Huawei's default JavaScript/ArkTS runtime on OpenHarmony
-- Implementation divided into two parts: Frontend (bytecode generation) and Runtime (execution)
-- Provides the foundation for ArkTS language execution on OpenHarmony/HarmonyOS platforms
-
-**Links**:
-- [Gitcode Repository](https://gitcode.com/openharmony/arkcompiler_ets_frontend)
-
-## Version Information
-
-- **Base version**: TypeScript 4.9.5
-- **Current version**: 4.9.5-r4
-- **License**: Apache-2.0
-- **Node.js requirement**: >=4.2.0 (build uses Node 14.20.0)
-
-## Development Notes
-- This is based on TypeScript 4.9.5, not the latest version
-- ETS features are only active in `.ets` files (detected via `ScriptKind.ETS`)
-- Many ETS features use AST node flags and virtual nodes for transformation
-- The `ohApi.ts` file contains critical ETS-specific logic that hooks into the compiler pipeline
-- Annotation processing is a major feature - annotations are transformed with special prefix handling
+`docs/knowledge/`：`ets-language-extensions.md`、`oh-module-system.md`、`type-checker-and-compat.md`、`api-availability.md`、`lib-declarations.md`、`arkts-linter.md`、`error-codes.md`、`build-test-baseline.md`。
