@@ -150,6 +150,8 @@ export interface BuilderProgram {
     close(): void;
 
     isFileUpdateInConstEnumCache?(sourceFile: SourceFile): boolean;
+    /** @internal */
+    resetConstEnumRelateUpdateFlag?(): void;
     builderProgramForLinter?: EmitAndSemanticDiagnosticsBuilderProgram;
 }
 

@@ -1462,6 +1462,7 @@ export function createBuilderProgram(kind: BuilderProgramKind, { newProgram, hos
     }
 
     builderProgram.isFileUpdateInConstEnumCache = isFileUpdateInConstEnumCache;
+    builderProgram.resetConstEnumRelateUpdateFlag = resetConstEnumRelateUpdateFlag;
 
     return builderProgram;
 
@@ -1760,6 +1761,20 @@ export function createBuilderProgram(kind: BuilderProgramKind, { newProgram, hos
             return false;
         }
         return info.isUpdate;
+    }
+
+    // Called when the program is reused as up-to-date (nothing changed this build cycle).
+    // The `isUpdate` flags set during the previous cycle's semantic diagnostics are stale by
+    // definition now; clear them so checkRelateToConstEnum on the consumer side does not
+    // spuriously re-transform const-enum-referencing files on every unchanged build.
+    function resetConstEnumRelateUpdateFlag(): void {
+        const state = getState();
+        if (!state.constEnumRelatePerFile) {
+            return;
+        }
+        state.constEnumRelatePerFile.forEach(info => {
+            info.isUpdate = false;
+        });
     }
 }
 
