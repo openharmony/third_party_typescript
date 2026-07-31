@@ -1738,9 +1738,16 @@ export function createLanguageService(
         PerformanceDotting.start("isProgramUptoDate");
         if (isProgramUptoDate(program, rootFileNames, newSettings, (_path, fileName) => host.getScriptVersion(fileName), fileName => compilerHost!.fileExists(fileName), hasInvalidatedResolutions, hasChangedAutomaticTypeDirectiveNames, getParsedCommandLine, projectReferences)) {
             PerformanceDotting.stop("isProgramUptoDate");
-            // During incremental compilation, executing isProgramUptoDate to check for program updates generates file caches; 
+            // During incremental compilation, executing isProgramUptoDate to check for program updates generates file caches;
             // clear these caches to avoid affecting future compilations.
             host.clearFileCache && host.clearFileCache();
+            // Program is up-to-date: nothing changed this build cycle, so the const-enum "updated"
+            // markers left by the previous build's semantic diagnostics are stale. Reset them so
+            // the consumer (checkRelateToConstEnum) does not re-transform these files on every
+            // unchanged build.
+            if (isCreateIncrementalProgramMode && builderProgram?.resetConstEnumRelateUpdateFlag) {
+                builderProgram.resetConstEnumRelateUpdateFlag();
+            }
             return;
         }
         PerformanceDotting.stop("isProgramUptoDate");
