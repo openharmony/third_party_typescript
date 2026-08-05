@@ -34,6 +34,8 @@ ETS 扩展只在 `ScriptKind.ETS`（`.ets` 文件）下激活。所有 ETS 专�
 - **不要**手改 ETS 变换产生的虚拟节点（`NodeFlags.KitImportFlags` 等）；改 source of truth 后重新走变换。
 - **必须**保持对标准 TypeScript 的向后兼容：ETS 能力只在 `.ets` 生效，`.ts` 行为不能因 ETS 改动而变。
 - 注解分 source retention 与 emit retention，**不要**为通过测试把 emit-retention 注解删掉。
+- **必须**验证新增语法规则对混淆（obfuscation）功能的适配：tsc 的 emit 输出会被下游混淆工具消费，新增语法/注解/装饰器（`struct`、`@Builder`、`@Styles`、`@Extend`、注解 `@interface`、`@Available` 等）必须全量验证在名称重命名、代码变换后语义不被破坏，魔法前缀与 emit-retention 注解在混淆后仍被正确保留/消费。
+- 混淆不在 bundle 模式下运行（见 `src/compiler/ohApi.ts` `rawWrite` 注释），混淆链路的验证需在对应构建模式/板侧下游工程执行；当前 `tests/cases/` 与 `tests/arkTSTest/` 无混淆适配用例，不能只靠本地用例声称混淆兼容。
 
 ## 修改前检查
 
@@ -41,9 +43,10 @@ ETS 扩展只在 `ScriptKind.ETS`（`.ets` 文件）下激活。所有 ETS 专�
 - [ ] 是否动了 `__$$ETS_ANNOTATION$$__` 前缀？（否）
 - [ ] `.ts` 文件的标准 TS 行为是否未变？（执行 `tests/cases/conformance`）
 - [ ] 新装饰器是否在 `ohApi.ts` 加了检测逻辑（仿 `hasEtsBuilderDecoratorNames`）？
+- [ ] 新增语法规则是否全量验证了对混淆功能的适配？（名称重命名/代码变换后行为一致，魔法前缀与保留注解不被破坏）
 
 ## 代码和测试
 
-- 代码入口：`src/compiler/ohApi.ts`（`isInEtsFile`、`getReservedDecoratorsOfEtsFile`、`hasEtsBuilderDecoratorNames`、`hasEtsStylesDecoratorNames`、`getAnnotationTransformer`、`transformAnnotation`、`visitAnnotationDeclaration`、`visitAnnotation`）
+- 代码入口：`src/compiler/ohApi.ts`（`isInEtsFile`、`getReservedDecoratorsOfEtsFile`、`hasEtsBuilderDecoratorNames`、`hasEtsStylesDecoratorNames`、`getAnnotationTransformer`、`transformAnnotation`、`visitAnnotationDeclaration`、`visitAnnotation`、`rawWrite`）
 - 解析/生成：`src/compiler/parser.ts`、`src/compiler/emitter.ts`
-- 测试：`tests/arkTSTest/`（`node run.js -v1.0 -D` / `-v1.1 -D`）、`tests/cases/`、`tests/dets/`
+- 测试：`tests/arkTSTest/`（`node run.js -v1.0 -D` / `-v1.1 -D`）、`tests/cases/`、`tests/dets/`；混淆适配验证配置在OpenHarmony/arkcompiler/ets_frontend/arkguard代码仓知识库中

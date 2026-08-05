@@ -34,6 +34,23 @@
 | `getModuleByPMType()` | 按包管理器取目录名 | 硬编码 `"oh_modules"` |
 | `processKit()` | kit 导入变换入口 | 当成普通模块解析 |
 | `kitJsonCache` | kit 配置缓存 | 改配置不失效缓存 |
+| `getSdkPath()` | 按 `etsLoaderPath` 推导 SDK 根 | 只适配一种 SDK 目录布局 |
+| `isMixedCompilerSDKPath()` | 判断是否为 1.2 SDK（`dynamic/` 布局） | 用前缀/子串猜测而不是按 `etsLoaderPath` 后缀判定 |
+
+## SDK 路径布局（硬编码场景）
+
+`getKitJsonObject()` / `getSdkPath()` 中硬编码了 SDK 目录布局，必须**同时适配 HarmonyOS 与 OpenHarmony 两套 SDK**，且每套都有普通与 1.2（mixed compiler）两种布局：
+
+| 路径常量 | 前缀 | 布局 |
+|---|---|---|
+| `./openharmony/ets/build-tools/ets-loader/kit_configs` | OpenHarmony | 普通 |
+| `./openharmony/ets/dynamic/build-tools/ets-loader/kit_configs` | OpenHarmony | 1.2 SDK |
+| `./hms/ets/build-tools/ets-loader/kit_configs` | OpenHarmony | 普通 |
+| `./hms/ets/dynamic/build-tools/ets-loader/kit_configs` | OpenHarmony | 1.2 SDK |
+
+- `isMixedCompilerSDKPath()`（`src/compiler/ohApi.ts:1294`）按 `etsLoaderPath` 是否以 `dynamic/build-tools/ets-loader` 结尾判定 1.2 SDK。
+- `getSdkPath()` 的向上回退层数也因此不同：普通为 `resolvePath(etsLoaderPath, '../../../..')`，1.2 为 `resolvePath(etsLoaderPath, '../../../../..')`。
+- 判定与回退深度都依赖字符串后缀/相对层数，任何新增硬编码 SDK 路径场景（含 linter 侧 `LinterRunner.ts`、`InteropTypescriptLinter.ts` 对 `etsLoaderPath` 的解析）**必须**为两套 SDK 的两种布局都补测试。
 
 ## 约束
 
@@ -42,15 +59,20 @@
 - kit 配置变更**必须**确认 `kitJsonCache` 失效策略，否则用旧配置。
 - **不要**手改 `processKit()` 产出的虚拟节点；改 source 配置后重新变换。
 - 新增 kit 类型（OHOS/HMS）**先问人**，涉及 SDK 契约。
+- **必须**同时适配 HarmonyOS 与 OpenHarmony 两套 SDK 路径；新增/改动硬编码 SDK 路径常量时，OHOS/HMS × 普通/1.2（`dynamic/`）四类组合都覆盖，且配套测试用例。
 
 ## 修改前检查
 
 - [ ] 新分支是否同时覆盖 node_modules 与 oh_modules？
 - [ ] 是否走了 `processKit()` 而非自行解析 `@kit.*`？
 - [ ] 缓存 key 是否考虑了 SDK 路径与 kit 配置版本？
+- [ ] 硬编码 SDK 路径是否同时适配了 HarmonyOS 与 OpenHarmony 两套 SDK？
+- [ ] 普通与 1.2 SDK（`dynamic/build-tools/ets-loader`）两种布局是否都验证？
+- [ ] 新增 SDK 路径场景是否补了对应测试用例？
 
 ## 代码和测试
 
-- 代码入口：`src/compiler/ohApi.ts`（`processKit`、`isOHModules`、`isOhpm`、`getModuleByPMType`、`getSdkPath`、`kitJsonCache`、`whiteListForErrorSymbol`、`whiteListForTsFile`、`isLazy`）
+- 代码入口：`src/compiler/ohApi.ts`（`processKit`、`isOHModules`、`isOhpm`、`getModuleByPMType`、`getSdkPath`、`isMixedCompilerSDKPath`、`getKitJsonObject`、`kitJsonCache`、`whiteListForErrorSymbol`、`whiteListForTsFile`、`isLazy`）
 - 模块解析：`src/compiler/moduleNameResolver.ts`、`src/compiler/resolutionCache.ts`、`src/compiler/moduleSpecifiers.ts`
-- 测试：`tests/system_api_test/`、`tests/arkTSTest/`
+- SDK 路径消费：`src/linter/ArkTSLinter_1_1/LinterRunner.ts`、`src/linter/ArkTSLinter_1_1/InteropTypescriptLinter.ts`
+- 测试：`tests/system_api_test/`、`tests/arkTSTest/`；SDK 路径适配**必须**覆盖 HarmonyOS（通过DevEco界面setting下的OpenHarmony SDK将sdk目录下载到本地，通过工程目录下的local.properties配置sdk路径）与 OpenHarmony（DevEco安装文件中自带的sdk）两类 SDK 的测试场景
