@@ -9488,7 +9488,7 @@ declare namespace ts {
         function isSendableType(type: Type): boolean;
         function isShareableType(tsType: Type): boolean;
         function isSendableClassOrInterface(type: Type): boolean;
-        function typeContainsSendableClassOrInterface(type: Type): boolean;
+        function isLiteralInitializerForSendableType(contextualType: Type, literalNode: Expression): boolean;
         function typeContainsNonSendableClassOrInterface(type: Type): boolean;
         function isConstEnum(sym: Symbol | undefined): boolean;
         function isSendableUnionType(type: UnionType): boolean;
