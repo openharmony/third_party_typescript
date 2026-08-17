@@ -52,7 +52,7 @@ import {
   isMethodAssignment, isPrimitiveType, needToDeduceStructuralIdentity, getVariableDeclarationTypeNode, isEsObjectType, NON_RETURN_FUNCTION_DECORATORS,
   FUNCTION_HAS_NO_RETURN_ERROR_CODE, hasLibraryType, isStruct, isGenericArrayType, isValidEnumMemberInit, isInterfaceType, LIMITED_STD_GLOBAL_FUNC,
   LIMITED_STD_OBJECT_API, LIMITED_STD_REFLECT_API, LIMITED_STD_PROXYHANDLER_API, getParentSymbolName, entityNameToString, LIMITED_STANDARD_UTILITY_TYPES,
-  isEsObjectSymbol, isUnknownType, getHighlightRange, isStructDeclaration, typeContainsSendableClassOrInterface, isObjectLiteralAssignable,
+  isEsObjectSymbol, isUnknownType, getHighlightRange, isStructDeclaration, isLiteralInitializerForSendableType, isObjectLiteralAssignable,
   getDecoratorsIfInSendableClass, isOhModulesEtsSymbol, isOrDerivedFrom, isStdErrorType, isSendableFunction, hasSendableTypeAlias,
   NON_INITIALIZABLE_PROPERTY_CLASS_DECORATORS, hasSendableDecorator, isSendableTypeNode, unwrapParenthesizedTypeNode, getDeclaration, checkTypeSet,
   isSendableClassOrInterface, getDecoratorName, hasSendableDecoratorFunctionOverload, getNonSendableDecorators, isStdBigIntType, isStdNumberType,
@@ -567,7 +567,7 @@ readonly handlersMap = new Map([
       return;
     }
     const objectLiteralType = TypeScriptLinter.tsTypeChecker.getContextualType(objectLiteralExpr);
-    if (objectLiteralType && typeContainsSendableClassOrInterface(objectLiteralType)) {
+    if (objectLiteralType && isLiteralInitializerForSendableType(objectLiteralType, objectLiteralExpr)) {
       this.incrementCounters(node, FaultID.SendableObjectInitialization);
     } else if (
       // issue 13082: Allow initializing struct instances with object literal.
@@ -653,7 +653,7 @@ readonly handlersMap = new Map([
     let noContextTypeForArrayLiteral = false;
 
     const arrayLitType = TypeScriptLinter.tsTypeChecker.getContextualType(arrayLitNode);
-    if (arrayLitType && typeContainsSendableClassOrInterface(arrayLitType)) {
+    if (arrayLitType && isLiteralInitializerForSendableType(arrayLitType, arrayLitNode)) {
       this.incrementCounters(node, FaultID.SendableObjectInitialization);
       return;
     }

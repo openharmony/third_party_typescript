@@ -24,7 +24,7 @@ import {
 import { 
   Autofix, faultsAttrs, FaultID, LinterConfig, ProblemInfo, getHighlightRange, isInImportWhiteList, D_TS, getDeclarationNode, ARKTS_COLLECTIONS_D_ETS,
   ARKTS_LANG_D_ETS, isSendableClassOrInterfaceEntity, reduceReference, isSendableClassOrInterface, trueSymbolAtLocation, isSendableTypeNode,
-  typeContainsSendableClassOrInterface, isObject, isAnyType, cookBookTag, cookBookMsg, ProblemSeverity
+  isLiteralInitializerForSendableType, isObject, isAnyType, cookBookTag, cookBookMsg, ProblemSeverity
 } from "../_namespaces/ts.ArkTSLinter_1_1";
 export interface KitSymbol {
   source: string
@@ -390,7 +390,7 @@ export class InteropTypescriptLinter {
   private handleObjectLiteralExpression(node: Node): void {
     const objectLiteralExpr = node as ObjectLiteralExpression;
     const objectLiteralType = InteropTypescriptLinter.tsTypeChecker.getContextualType(objectLiteralExpr);
-    if (objectLiteralType && typeContainsSendableClassOrInterface(objectLiteralType)) {
+    if (objectLiteralType && isLiteralInitializerForSendableType(objectLiteralType, objectLiteralExpr)) {
       this.incrementCounters(node, FaultID.SendableObjectInitialization);
     }
   }
@@ -398,7 +398,7 @@ export class InteropTypescriptLinter {
   private handleArrayLiteralExpression(node: Node): void {
     const arrayLitNode = node as ArrayLiteralExpression;
     const arrayLitType = InteropTypescriptLinter.tsTypeChecker.getContextualType(arrayLitNode);
-    if (arrayLitType && typeContainsSendableClassOrInterface(arrayLitType)) {
+    if (arrayLitType && isLiteralInitializerForSendableType(arrayLitType, arrayLitNode)) {
       this.incrementCounters(node, FaultID.SendableObjectInitialization);
     }
   }

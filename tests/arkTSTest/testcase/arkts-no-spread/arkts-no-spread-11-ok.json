@@ -15,6 +15,13 @@
       }
     },
     {
+      "messageText": "No decorators except ArkUI decorators are currently allowed (arkts-no-decorators-except-arkui)",
+      "expectLineAndCharacter": {
+        "line": 24,
+        "character": 3
+      }
+    },
+    {
       "messageText": "Indexed access is not supported for fields (arkts-no-props-by-index)",
       "expectLineAndCharacter": {
         "line": 21,

@@ -2153,15 +2153,18 @@ export function isSendableClassOrInterface(type: Type): boolean {
   return isOrDerivedFrom(type, isISendableInterface);
 }
 
-export function typeContainsSendableClassOrInterface(type: Type): boolean {
-  // Only check type contains sendable class / interface
-  if ((type.flags & TypeFlags.Union) !== 0) {
-    return !!(type as UnionType)?.types?.some((type) => {
-      return typeContainsSendableClassOrInterface(type);
-    });
+export function isLiteralInitializerForSendableType(contextualType: Type, literalNode: Expression): boolean {
+  if (!contextualType.isUnion()) {
+    return isSendableClassOrInterface(contextualType);
   }
 
-  return isSendableClassOrInterface(type);
+  // A literal in an argument position may satisfy more than one union constituent.
+  // It initializes a Sendable object only when every matching constituent is Sendable.
+  const literalType = typeChecker.getTypeAtLocationForLinter(literalNode);
+  const matchingTypes = contextualType.types.filter((type) => {
+    return typeChecker.isTypeAssignableTo(literalType, type);
+  });
+  return matchingTypes.length > 0 && matchingTypes.every((type) => isSendableClassOrInterface(type));
 }
 
 export function typeContainsNonSendableClassOrInterface(type: Type): boolean {

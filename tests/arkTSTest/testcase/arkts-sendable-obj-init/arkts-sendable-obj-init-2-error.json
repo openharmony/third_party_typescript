@@ -36,13 +36,6 @@
         "line": 45,
         "character": 7
       }
-    },
-    {
-      "messageText": "Objects of \"Sendable\" type can not be initialized using object literal or array literal (arkts-sendable-obj-init)",
-      "expectLineAndCharacter": {
-        "line": 46,
-        "character": 7
-      }
     }
   ]
 }
