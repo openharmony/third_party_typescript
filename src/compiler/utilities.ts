@@ -2988,11 +2988,6 @@ export function isJSDocIndexSignature(node: TypeReferenceNode | ExpressionWithTy
 }
 
 /** @internal */
-export function isInETSFile(node: Node | undefined): boolean {
-    return !!node && getSourceFileOfNode(node).scriptKind === ScriptKind.ETS;
-}
-
-/** @internal */
 export function isInBuildOrPageTransitionContext(node: Node | undefined, compilerOptions: CompilerOptions): boolean {
     if (!node) {
         return false;

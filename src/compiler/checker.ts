@@ -11,7 +11,6 @@ import {
     and,
     Annotation,
     AnnotationDeclaration,
-    AnnotationElement,
     AnnotationPropertyDeclaration,
     AnonymousType,
     AnyImportOrReExport,
@@ -552,7 +551,6 @@ import {
     isInBuildOrPageTransitionContext,
     isIndexedAccessTypeNode,
     isInEtsFile,
-    isInETSFile,
     isInExpressionContext,
     isInfinityOrNaNString,
     isInJSDoc,
@@ -3759,8 +3757,8 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
     }
 
     function isExtendedByInterface(node: Node): boolean {
-        const grandparent = node.parent.parent;
-        const parentOfGrandparent = grandparent.parent;
+        const grandparent = node.parent?.parent;
+        const parentOfGrandparent = grandparent?.parent;
         if (grandparent && parentOfGrandparent) {
             const isExtending = isHeritageClause(grandparent) && grandparent.token === SyntaxKind.ExtendsKeyword;
             const isInterface = isInterfaceDeclaration(parentOfGrandparent);
@@ -4916,7 +4914,7 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
 
         const isSoFile = (moduleReference.lastIndexOf(".so") !== -1);
 
-        if (!compilerOptions.tsImportSoCheck && isSoFile && !(isInETSFile(location) && compilerOptions.needDoArkTsLinter && !compilerOptions.isCompatibleVersion)) {
+        if (!compilerOptions.tsImportSoCheck && isSoFile && !(isInEtsFile(location) && compilerOptions.needDoArkTsLinter && !compilerOptions.isCompatibleVersion)) {
             const diagnostic = createDiagnosticForNode(errorNode, Diagnostics.Currently_module_for_0_is_not_verified_If_you_re_importing_napi_its_verification_will_be_enabled_in_later_SDK_version_Please_make_sure_the_corresponding_d_ts_file_is_provided_and_the_napis_are_correctly_declared, moduleReference);
             diagnostics.add(diagnostic);
             return undefined;
@@ -14744,8 +14742,9 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
             }
             let type = signature.target ? instantiateType(getReturnTypeOfSignature(signature.target), signature.mapper) :
                 signature.compositeSignatures ? instantiateType(getUnionOrIntersectionType(map(signature.compositeSignatures, getReturnTypeOfSignature), signature.compositeKind, UnionReduction.Subtype), signature.mapper) :
-                getReturnTypeFromAnnotation(signature.declaration!) ||
-                (nodeIsMissing((signature.declaration as FunctionLikeDeclaration).body) ? anyType : getReturnTypeFromBody(signature.declaration as FunctionLikeDeclaration));
+                signature.declaration ? getReturnTypeFromAnnotation(signature.declaration) ||
+                    (nodeIsMissing((signature.declaration as FunctionLikeDeclaration).body) ? anyType : getReturnTypeFromBody(signature.declaration as FunctionLikeDeclaration)) :
+                errorType;
             if (signature.flags & SignatureFlags.IsInnerCallChain) {
                 type = addOptionalTypeMarker(type);
             }
@@ -26004,7 +26003,7 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
             // circularities in control flow analysis, we use getTypeOfDottedName when resolving the call
             // target expression of an assertion.
             let funcType: Type | undefined;
-            if (node.parent.kind === SyntaxKind.ExpressionStatement) {
+            if (node.parent?.kind === SyntaxKind.ExpressionStatement) {
                 funcType = getTypeOfDottedName(node.expression, /*diagnostic*/ undefined);
             }
             else if (node.expression.kind !== SyntaxKind.SuperKeyword) {
@@ -29125,6 +29124,7 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
             return node.contextualType;
         }
         const { parent } = node;
+        if (!parent) return undefined;
         switch (parent.kind) {
             case SyntaxKind.VariableDeclaration:
             case SyntaxKind.Parameter:
@@ -32055,8 +32055,10 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
             return voidType;
         }
         const thisArgumentType = checkExpression(thisArgumentNode);
-        return isOptionalChainRoot(thisArgumentNode.parent) ? getNonNullableType(thisArgumentType) :
-            isOptionalChain(thisArgumentNode.parent) ? removeOptionalTypeMarker(thisArgumentType) :
+        const parent = thisArgumentNode.parent;
+        return !parent ? thisArgumentType :
+            isOptionalChainRoot(parent) ? getNonNullableType(thisArgumentType) :
+            isOptionalChain(parent) ? removeOptionalTypeMarker(thisArgumentType) :
             thisArgumentType;
     }
 
@@ -32136,7 +32138,11 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
 
         for (let i = 0; i < argCount; i++) {
             const arg = args[i];
-            if (arg.kind !== SyntaxKind.OmittedExpression && !(checkMode & CheckMode.IsForStringLiteralArgumentCompletions && hasSkipDirectInferenceFlag(arg))) {
+            // Skip holes in a sparse/half-built `args` (synthetic nodes or
+            // incremental re-check); treat `undefined` like an OmittedExpression
+            // so we neither crash on `arg.kind` nor feed `undefined` into
+            // `hasSkipDirectInferenceFlag`.
+            if (arg && arg.kind !== SyntaxKind.OmittedExpression && !(checkMode & CheckMode.IsForStringLiteralArgumentCompletions && hasSkipDirectInferenceFlag(arg))) {
                 const paramType = getTypeAtPosition(signature, i);
                 if (couldContainTypeVariables(paramType)) {
                     const argType = checkExpressionWithContextualType(arg, paramType, context, checkMode);
@@ -32175,6 +32181,10 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
         const names = [];
         for (let i = index; i < argCount; i++) {
             const arg = args[i];
+            // Skip holes in a sparse/half-built `args` (synthetic nodes or
+            // incremental re-check); `isSpreadArgument` tolerates `undefined`,
+            // but the else-branch below dereferences `arg` directly.
+            if (!arg) continue;
             if (isSpreadArgument(arg)) {
                 const spreadType = arg.kind === SyntaxKind.SyntheticExpression ? (arg as SyntheticExpression).type : checkExpression((arg as SpreadElement).expression);
                 if (isArrayLikeType(spreadType)) {
@@ -32387,7 +32397,10 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
         const argCount = restType ? Math.min(getParameterCount(signature) - 1, args.length) : args.length;
         for (let i = 0; i < argCount; i++) {
             const arg = args[i];
-            if (arg.kind !== SyntaxKind.OmittedExpression) {
+            // A sparse/half-built `args` (synthetic nodes from runArkPack or incremental
+            // re-check) can yield `undefined` here. Treat it like an OmittedExpression
+            // and skip the assignability check rather than crashing on `arg.kind`.
+            if (arg && arg.kind !== SyntaxKind.OmittedExpression) {
                 const paramType = getTypeAtPosition(signature, i);
                 const argType = checkExpressionWithContextualType(arg, paramType, /*inferenceContext*/ undefined, checkMode);
                 // If one or more arguments are still excluded (as indicated by CheckMode.SkipContextSensitive),
@@ -32404,10 +32417,12 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
         if (restType) {
             const spreadType = getSpreadArgumentType(args, argCount, args.length, restType, /*context*/ undefined, checkMode);
             const restArgCount = args.length - argCount;
+            const firstRest = args[argCount];
+            const lastRest = args[args.length - 1];
             const errorNode = !reportErrors ? undefined :
                 restArgCount === 0 ? node :
-                restArgCount === 1 ? args[argCount] :
-                setTextRangePosEnd(createSyntheticExpression(node, spreadType), args[argCount].pos, args[args.length - 1].end);
+                restArgCount === 1 ? firstRest :
+                firstRest && lastRest ? setTextRangePosEnd(createSyntheticExpression(node, spreadType), firstRest.pos, lastRest.end) : node;
             if (!checkTypeRelatedTo(spreadType, restType, relation, errorNode, headMessage, /*containingMessageChain*/ undefined, errorOutputContainer)) {
                 Debug.assert(!reportErrors || !!errorOutputContainer.errors, "rest parameter should have errors when reporting errors");
                 maybeAddMissingAwaitInfo(errorNode, spreadType, restType);
@@ -32478,6 +32493,10 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
             const effectiveArgs = args.slice(0, spreadIndex);
             for (let i = spreadIndex; i < args.length; i++) {
                 const arg = args[i];
+                // Skip holes in a sparse/half-built `args` (synthetic nodes or
+                // incremental re-check) so we neither crash on `arg.kind` below
+                // nor propagate `undefined` into `effectiveArgs`.
+                if (!arg) continue;
                 // We can call checkExpressionCached because spread expressions never have a contextual type.
                 const spreadType = arg.kind === SyntaxKind.SpreadElement && (flowLoopCount ? checkExpression((arg as SpreadElement).expression) : checkExpressionCached((arg as SpreadElement).expression));
                 if (spreadType && isTupleType(spreadType)) {
@@ -32502,25 +32521,30 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
      */
     function getEffectiveDecoratorArguments(node: Decorator): readonly Expression[] {
         const parent = node.parent;
+        if (!parent) return emptyArray;
         const expr = node.expression;
         switch (parent.kind) {
             case SyntaxKind.ClassDeclaration:
             case SyntaxKind.ClassExpression:
-            case SyntaxKind.StructDeclaration:
+            case SyntaxKind.StructDeclaration: {
                 // For a class decorator, the `target` is the type of the class (e.g. the
                 // "static" or "constructor" side of the class).
+                const symbol = getSymbolOfNode(parent);
                 return [
-                    createSyntheticExpression(expr, getTypeOfSymbol(getSymbolOfNode(parent)))
+                    createSyntheticExpression(expr, symbol ? getTypeOfSymbol(symbol) : errorType)
                 ];
-            case SyntaxKind.Parameter:
+            }
+            case SyntaxKind.Parameter: {
                 // A parameter declaration decorator will have three arguments (see
                 // `ParameterDecorator` in core.d.ts).
                 const func = parent.parent as FunctionLikeDeclaration;
+                const funcSymbol = getSymbolOfNode(func);
                 return [
-                    createSyntheticExpression(expr, parent.parent.kind === SyntaxKind.Constructor ? getTypeOfSymbol(getSymbolOfNode(func)) : errorType),
+                    createSyntheticExpression(expr, parent.parent?.kind === SyntaxKind.Constructor ? (funcSymbol ? getTypeOfSymbol(funcSymbol) : errorType) : errorType),
                     createSyntheticExpression(expr, anyType),
                     createSyntheticExpression(expr, numberType)
                 ];
+            }
             case SyntaxKind.PropertyDeclaration:
             case SyntaxKind.MethodDeclaration:
             case SyntaxKind.GetAccessor:
@@ -33630,7 +33654,7 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
     }
 
     function annotationHasDefaultValue(node: Annotation): boolean {
-        const members = node.annotationDeclaration!.members;
+        const members = node.annotationDeclaration?.members;
         return every(members, (elem) => (elem as AnnotationPropertyDeclaration).initializer !== undefined);
     }
 
@@ -33656,7 +33680,7 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
         // class C {}
         if (isIdentifier(node.expression) || isPropertyAccessExpression(node.expression)) {
             const identType = checkExpression(node.expression);
-            Debug.assert(identType.symbol.flags & SymbolFlags.Annotation);
+            Debug.assert(identType.symbol && identType.symbol.flags & SymbolFlags.Annotation);
             return setAnnotationDefaultSignature(node, annotationDefaultSignature);
         }
 
@@ -33665,7 +33689,7 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
         // class C {}
         if (node.expression.arguments && !node.expression.arguments.length) {
             const identType = checkExpression(node.expression.expression);
-            Debug.assert(identType.symbol.flags & SymbolFlags.Annotation);
+            Debug.assert(identType.symbol && identType.symbol.flags & SymbolFlags.Annotation);
             return setAnnotationDefaultSignature(node, annotationDefaultSignature);
         }
 
@@ -33711,7 +33735,7 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
             return resolveErrorCall(node);
         }
 
-        const members = node.annotationDeclaration!.members;
+        const members = node.annotationDeclaration?.members ?? [];
         for (const m of members) {
             const memberName = tryGetTextOfPropertyName(m.name)!;
             if (evaluatedProps.has(memberName)) {
@@ -34043,9 +34067,9 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
         // Treat any call to the global 'Symbol' function that is part of a const variable or readonly property
         // as a fresh unique symbol literal type.
         if (returnType.flags & TypeFlags.ESSymbolLike && isSymbolOrSymbolForCall(node)) {
-            return getESSymbolLikeTypeForNode(walkUpParenthesizedExpressions(node.parent));
+            return getESSymbolLikeTypeForNode(node.parent ? walkUpParenthesizedExpressions(node.parent) : node);
         }
-        if (node.kind === SyntaxKind.CallExpression && !node.questionDotToken && node.parent.kind === SyntaxKind.ExpressionStatement &&
+        if (node.kind === SyntaxKind.CallExpression && !node.questionDotToken && node.parent?.kind === SyntaxKind.ExpressionStatement &&
             returnType.flags & TypeFlags.Void && getTypePredicateOfSignature(signature)) {
             if (!isDottedName(node.expression)) {
                 error(node.expression, Diagnostics.Assertions_require_the_call_target_to_be_an_identifier_or_qualified_name);
@@ -34066,7 +34090,7 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
         }
 
         // System UI components can only be used in build/pageTransition method or method/function with the decorator "@Builder"
-        if (isInETSFile(node) &&
+        if (isInEtsFile(node) &&
             isIdentifier(node.expression) &&
             !isNewExpression(node) &&
             isSystemEtsComponent(node.expression, compilerOptions) &&
@@ -37656,12 +37680,13 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
         // - 'left' in property access
         // - 'object' in indexed access
         // - target in rhs of import statement
+        const parent = node.parent;
         const ok =
-            (node.parent.kind === SyntaxKind.PropertyAccessExpression && (node.parent as PropertyAccessExpression).expression === node) ||
-            (node.parent.kind === SyntaxKind.ElementAccessExpression && (node.parent as ElementAccessExpression).expression === node) ||
+            (parent?.kind === SyntaxKind.PropertyAccessExpression && (parent as PropertyAccessExpression).expression === node) ||
+            (parent?.kind === SyntaxKind.ElementAccessExpression && (parent as ElementAccessExpression).expression === node) ||
             ((node.kind === SyntaxKind.Identifier || node.kind === SyntaxKind.QualifiedName) && isInRightSideOfImportOrExportAssignment(node as Identifier) ||
-                (node.parent.kind === SyntaxKind.TypeQuery && (node.parent as TypeQueryNode).exprName === node)) ||
-            (node.parent.kind === SyntaxKind.ExportSpecifier); // We allow reexporting const enums
+                (parent?.kind === SyntaxKind.TypeQuery && (parent as TypeQueryNode).exprName === node)) ||
+            (parent?.kind === SyntaxKind.ExportSpecifier); // We allow reexporting const enums
 
         if (!ok) {
             error(node, Diagnostics.const_enums_can_only_be_used_in_property_or_index_access_expressions_or_the_right_hand_side_of_an_import_declaration_or_export_assignment_or_type_query);
@@ -46221,7 +46246,7 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
         if (isTypeDeclaration(node)) {
             // In this case, we call getSymbolOfNode instead of getSymbolAtLocation because it is a declaration
             const symbol = getSymbolOfNode(node);
-            return getDeclaredTypeOfSymbol(symbol);
+            return symbol ? getDeclaredTypeOfSymbol(symbol) : errorType;
         }
 
         if (isTypeDeclarationName(node)) {
@@ -47385,7 +47410,8 @@ export function createTypeChecker(host: TypeCheckerHost, isTypeCheckerForLinter:
                         evaluatedProps.set(tryGetTextOfPropertyName(prop.name)!, evaluated);
                     }
         
-                    const members: NodeArray<AnnotationElement> = node.annotationDeclaration!.members;
+                    const members = node.annotationDeclaration?.members;
+                    if (!members) return undefined;
                     for (const m of members) {
                         const memberName: __String | undefined = tryGetTextOfPropertyName(m.name)!;
                         if (evaluatedProps.has(memberName)) {
