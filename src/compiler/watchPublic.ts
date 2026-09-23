@@ -67,6 +67,7 @@ import {
     ParsedCommandLine,
     Path,
     perfLogger,
+    PerformanceDotting,
     PollingInterval,
     Program,
     ProjectReference,
@@ -119,10 +120,20 @@ export function readBuilderProgram(compilerOptions: CompilerOptions, host: ReadB
     }
     else {
         const content = host.readFile(buildInfoPath);
-        if (!content) return undefined;
+        if (!content) {
+            PerformanceDotting.startAdvanced("readBuilderProgram: buildInfoNotFound", `${buildInfoPath} not found`);
+            PerformanceDotting.stopAdvanced("readBuilderProgram: buildInfoNotFound");
+            return undefined;
+        }
         buildInfo = getBuildInfo(buildInfoPath, content);
     }
-    if (!buildInfo || buildInfo.version !== version || !buildInfo.program) return undefined;
+    if (!buildInfo || buildInfo.version !== version || !buildInfo.program) {
+        PerformanceDotting.startAdvanced("readBuilderProgram: invalidBuildInfo", `path=${buildInfoPath}, version=${buildInfo?.version}, hasProgram=${!!buildInfo?.program}`);
+        PerformanceDotting.stopAdvanced("readBuilderProgram: invalidBuildInfo");
+        return undefined;
+    }
+    PerformanceDotting.startAdvanced("readBuilderProgram: loaded");
+    PerformanceDotting.stopAdvanced("readBuilderProgram: loaded");
     return createBuilderProgramUsingProgramBuildInfo(buildInfo.program, buildInfoPath, host);
 }
 

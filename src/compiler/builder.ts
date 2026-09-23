@@ -62,6 +62,7 @@ import {
     notImplemented,
     outFile,
     Path,
+    PerformanceDotting,
     Program,
     ProjectReference,
     ReadBuildProgramHost,
@@ -1339,14 +1340,20 @@ export function getBuilderCreationParameters(newProgramOrRootNames: Program | re
         oldProgram = configFileParsingDiagnosticsOrOldProgram as BuilderProgram;
         Debug.assert(!!oldProgram);
         newProgram = oldProgram.getProgram();
+        PerformanceDotting.startAdvanced("getBuilderCreationParameters: reuseProgramFromOldProgram", "newProgramOrRootNames undefined, no createProgram call");
+        PerformanceDotting.stopAdvanced("getBuilderCreationParameters: reuseProgramFromOldProgram");
     }
     else if (isArray(newProgramOrRootNames)) {
         oldProgram = configFileParsingDiagnosticsOrOldProgram as BuilderProgram;
+        const oldProgramForCreate = oldProgram && oldProgram.getProgramOrUndefined();
+        PerformanceDotting.startAdvanced("getBuilderCreationParameters: createProgram",
+            `oldProgram=${!!oldProgram}, hasOldProgram=${!!oldProgramForCreate}, rootNames=${(newProgramOrRootNames as readonly string[]).length}`);
+        PerformanceDotting.stopAdvanced("getBuilderCreationParameters: createProgram");
         newProgram = createProgram({
             rootNames: newProgramOrRootNames,
             options: hostOrOptions as CompilerOptions,
             host: oldProgramOrHost as CompilerHost,
-            oldProgram: oldProgram && oldProgram.getProgramOrUndefined(),
+            oldProgram: oldProgramForCreate,
             configFileParsingDiagnostics,
             projectReferences
         });
@@ -1357,6 +1364,8 @@ export function getBuilderCreationParameters(newProgramOrRootNames: Program | re
         host = hostOrOptions as BuilderProgramHost;
         oldProgram = oldProgramOrHost as BuilderProgram;
         configFileParsingDiagnostics = configFileParsingDiagnosticsOrOldProgram as readonly Diagnostic[];
+        PerformanceDotting.startAdvanced("getBuilderCreationParameters: newProgramProvided", `newProgram=${!!newProgram}, host=${!!host}, oldProgram=${!!oldProgram}, configFileParsingDiagnostics=${!!configFileParsingDiagnostics}`);
+        PerformanceDotting.stopAdvanced("getBuilderCreationParameters: newProgramProvided");
     }
     return { host, newProgram, oldProgram, configFileParsingDiagnostics: configFileParsingDiagnostics || emptyArray };
 }

@@ -1736,7 +1736,9 @@ export function createLanguageService(
 
         // If the program is already up-to-date, we can reuse it
         PerformanceDotting.start("isProgramUptoDate");
+        PerformanceDotting.startAdvanced("isProgramUptoDate");
         if (isProgramUptoDate(program, rootFileNames, newSettings, (_path, fileName) => host.getScriptVersion(fileName), fileName => compilerHost!.fileExists(fileName), hasInvalidatedResolutions, hasChangedAutomaticTypeDirectiveNames, getParsedCommandLine, projectReferences)) {
+            PerformanceDotting.stopAdvanced("isProgramUptoDate");
             PerformanceDotting.stop("isProgramUptoDate");
             // During incremental compilation, executing isProgramUptoDate to check for program updates generates file caches;
             // clear these caches to avoid affecting future compilations.
@@ -1750,6 +1752,7 @@ export function createLanguageService(
             }
             return;
         }
+        PerformanceDotting.stopAdvanced("isProgramUptoDate");
         PerformanceDotting.stop("isProgramUptoDate");
 
         // clear ArkUI collected properties
@@ -1796,7 +1799,9 @@ export function createLanguageService(
 
         // Make sure all the nodes in the program are both bound, and have their parent
         // pointers set property.
+        PerformanceDotting.startAdvanced("getTypeChecker");
         program.getTypeChecker();
+        PerformanceDotting.stopAdvanced("getTypeChecker");
         host.clearFileCache && host.clearFileCache();
         return;
 
