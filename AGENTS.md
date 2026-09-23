@@ -40,6 +40,7 @@ Where to look（任务 → 路径）：
 - Linter 规则 / 增量 lint 改动 → 读 `docs/knowledge/arkts-linter.md`
 - 错误码增删或语义变更 → 读 `docs/knowledge/error-codes.md`
 - 构建 / 基线 / 测试体系改动 → 读 `docs/knowledge/build-test-baseline.md`
+- 增量编译 / 结构复用 / `structureIsReused` / `tryReuseStructureFromOldProgram` → 读 `docs/knowledge/incremental-structure-reuse.md`
 
 ### Path-based routing（按修改路径）
 
@@ -48,6 +49,7 @@ Where to look（任务 → 路径）：
 - `src/linter/` → 读 `arkts-linter.md`
 - `lib/` 或 `scripts/dtsBundler.mjs` → 读 `lib-declarations.md`
 - `tests/baselines/` 或 `tests/cases/` → 读 `build-test-baseline.md`
+- `src/compiler/program.ts` / `src/compiler/builder.ts` → 读 `incremental-structure-reuse.md`
 
 ### Vocabulary-based routing（按术语）
 
@@ -63,6 +65,7 @@ Where to look（任务 → 路径）：
 | linter / ArkTSLinter / `LinterRunner` / 增量 lint / `.tsbuildinfo` | 规则跨 1.0/1.1，行为差异易错 | `arkts-linter.md` |
 | 错误码 / 10505114 / 28000 / `ErrorInfo` / `getErrorCode` | 错误码是公共契约，改动需问人 | `error-codes.md` |
 | hereby / BUILD.gn / bundle.json / baseline / runtests / `arkTSTest` / `system_api_test` | 构建测试体系，基线变更必须接受 | `build-test-baseline.md` |
+| `structureIsReused` / `tryReuseStructureFromOldProgram` / `SafeModules` / `Completely` / `.tsbuildinfo` | 增量判定错会漏检 modified files 或脏缓存 | `incremental-structure-reuse.md` |
 
 ### Plan 阶段声明
 
@@ -152,4 +155,4 @@ node tests/arkTSTest/run.js -v1.1 -D
 
 ## 附：知识文档清单
 
-`docs/knowledge/`：`ets-language-extensions.md`、`oh-module-system.md`、`type-checker-and-compat.md`、`api-availability.md`、`lib-declarations.md`、`arkts-linter.md`、`error-codes.md`、`build-test-baseline.md`。
+`docs/knowledge/`：`ets-language-extensions.md`、`oh-module-system.md`、`type-checker-and-compat.md`、`api-availability.md`、`lib-declarations.md`、`arkts-linter.md`、`error-codes.md`、`build-test-baseline.md`、`incremental-structure-reuse.md`。

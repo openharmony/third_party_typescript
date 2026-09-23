@@ -91,6 +91,7 @@ import {
     parseConfigHostFromCompilerHostLike,
     ParsedCommandLine,
     Path,
+    PerformanceDotting,
     PollingInterval,
     Program,
     ProgramBuildInfo,
@@ -1494,9 +1495,17 @@ function listEmittedFile({ write }: SolutionBuilderState, proj: ParsedCommandLin
 }
 
 function getOldProgram<T extends BuilderProgram>({ options, builderPrograms, compilerHost }: SolutionBuilderState<T>, proj: ResolvedConfigFilePath, parsed: ParsedCommandLine) {
-    if (options.force) return undefined;
+    if (options.force) {
+        PerformanceDotting.startAdvanced("getOldProgram: force", `--force flag set, returning undefined for ${proj}`);
+        PerformanceDotting.stopAdvanced("getOldProgram: force");
+        return undefined;
+    }
     const value = builderPrograms.get(proj);
-    if (value) return value;
+    if (value) {
+        PerformanceDotting.startAdvanced("getOldProgram: cachedBuilderProgram", `reused from builderPrograms map for ${proj}`);
+        PerformanceDotting.stopAdvanced("getOldProgram: cachedBuilderProgram");
+        return value;
+    }
     return readBuilderProgram(parsed.options, compilerHost) as any as T;
 }
 

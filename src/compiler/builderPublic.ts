@@ -206,6 +206,7 @@ export function createEmitAndSemanticDiagnosticsBuilderProgramForArkTs(
     configFileParsingDiagnostics?: readonly Diagnostic[],
     projectReferences?: readonly ProjectReference[]) : EmitAndSemanticDiagnosticsBuilderProgram {
     PerformanceDotting.start("createEmitAndSemanticDiagnosticsBuilderProgramForArkTs");
+    PerformanceDotting.startAdvanced("createEmitAndSemanticDiagnosticsBuilderProgramForArkTs");
     PerformanceDotting.start("getBuilderCreationParameters");
     let builderCreatetionParameters: BuilderCreationParameters =
         getBuilderCreationParameters(newProgramOrRootNames, hostOrOptions, oldProgramOrHost,
@@ -213,8 +214,10 @@ export function createEmitAndSemanticDiagnosticsBuilderProgramForArkTs(
     PerformanceDotting.stop("getBuilderCreationParameters");
     let newProgram = builderCreatetionParameters.newProgram;
     PerformanceDotting.start("createBuilderProgram");
+    PerformanceDotting.startAdvanced("createBuilderProgram");
     let builderProgram: EmitAndSemanticDiagnosticsBuilderProgram = createBuilderProgram(
     BuilderProgramKind.EmitAndSemanticDiagnosticsBuilderProgram, builderCreatetionParameters);
+    PerformanceDotting.stopAdvanced("createBuilderProgram");
     PerformanceDotting.stop("createBuilderProgram");
 
     let oldProgramForLinter =
@@ -222,11 +225,14 @@ export function createEmitAndSemanticDiagnosticsBuilderProgramForArkTs(
     builderCreatetionParameters.oldProgram = oldProgramForLinter;
     builderCreatetionParameters.newProgram = newProgram;
     PerformanceDotting.start("createBuilderProgramForLinter");
+    PerformanceDotting.startAdvanced("createBuilderProgramForLinter");
     let builderProgramForLinter: EmitAndSemanticDiagnosticsBuilderProgram = createBuilderProgram(
     BuilderProgramKind.EmitAndSemanticDiagnosticsBuilderProgram, builderCreatetionParameters, true);
+    PerformanceDotting.stopAdvanced("createBuilderProgramForLinter");
     PerformanceDotting.stop("createBuilderProgramForLinter");
 
     builderProgram.builderProgramForLinter = builderProgramForLinter;
+    PerformanceDotting.stopAdvanced("createEmitAndSemanticDiagnosticsBuilderProgramForArkTs");
     PerformanceDotting.stop("createEmitAndSemanticDiagnosticsBuilderProgramForArkTs");
     return builderProgram;
 }

@@ -8,8 +8,8 @@ ArkTS Linter 是 ArkTS（TS 变体）的静态分析器，按版本分两套实�
 
 ```
 src/linter/
-├── ArkTSLinter_1_0/   # ArkTS 1.0
-├── ArkTSLinter_1_1/   # ArkTS 1.1
+├── ArkTSLinter_1_0/   # ArkTS 1.0（早期 API，无 Sendable/版本感知/打点）
+├── ArkTSLinter_1_1/   # ArkTS 1.1（API 12+，含 @Sendable 规则、compatibleSdkVersion 感知、PerformanceDotting）
 ├── Common/            # 共享工具
 └── _namespaces/       # TS namespace 定义
 ```
@@ -31,7 +31,7 @@ src/linter/
 | 版本感知 | ArkTS 版本变更触发全量 | 忽略版本切换导致旧诊断残留 |
 | `.tsbuildinfo` | 诊断缓存 | 改规则后不失效缓存 |
 | strict / non-strict | 两路 TSC 诊断 | 只执行一路会漏报 |
-| 1.0 / 1.1 | 两套实现 | 规则只改一边导致两版不一致 |
+| 1.0 / 1.1 | v1.1 面向 API 12+，v1.0 面向早期 API | 规则只改一边导致两版不一致 |
 
 ## 约束
 

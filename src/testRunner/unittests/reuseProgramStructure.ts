@@ -729,6 +729,38 @@ describe("unittests:: Reuse program structure:: host is optional", () => {
     });
 });
 
+describe("unittests:: Reuse program structure:: PerformanceDotting VERBOSE balance", () => {
+    // Verifies that `tryReuseStructureFromOldProgram` (program.ts) produces a balanced
+    // `startAdvanced`/`stopAdvanced` call sequence under VERBOSE on an incremental reuse.
+    it("does not throw and records tryReuse/processingDiagnostics on a Completely reuse under VERBOSE", () => {
+        const PD = ts.PerformanceDotting;
+        PD.setPerformanceSwitch(PD.AnalyzeMode.VERBOSE);
+        try {
+            const target = ts.ScriptTarget.Latest;
+            const files: NamedSourceText[] = [
+                { name: "a.ts", text: SourceText.New("", "", "var x = 1;") },
+            ];
+            const options: ts.CompilerOptions = { target, noLib: true };
+            const program1 = newProgram(files, ["a.ts"], options);
+            // Second build: only the function body changed -> structure fully reused (Completely).
+            const program2 = updateProgram(program1, ["a.ts"], options, f => {
+                f[0].text = f[0].text.updateProgram("var x = 100;");
+            });
+            assert.equal(program2.structureIsReused, ts.StructureIsReused.Completely);
+
+            const names = new Set(PD.getEventData().map(e => e.name));
+            for (const want of ["structureIsReused: Completely", "tryReuseStructureFromOldProgram", "processingDiagnostics"]) {
+                assert.isTrue(names.has(want), `expected PerformanceDotting event "${want}" to be recorded`);
+            }
+        }
+        finally {
+            // getEventData() already cleared internal state; reset the switch too so VERBOSE
+            // cannot leak into neighbouring tests (clearEvent flips advancedSwitch/traceSwitch off).
+            PD.clearEvent();
+        }
+    });
+});
+
 type File = ts.TestFSWithWatch.File;
 import createTestSystem = ts.TestFSWithWatch.createWatchedSystem;
 import libFile = ts.TestFSWithWatch.libFile;

@@ -94,7 +94,7 @@ buildInfoWriteFile?: WriteFileCallback, arkTSVersion?: string): Diagnostic[] {
   timePrinterInstance.appendTime(TimePhase.GET_TSC_DIAGNOSTICS);
   PerformanceDotting.stopAdvanced(TimePhase.GET_TSC_DIAGNOSTICS);
 
-  const lintRecordLog: string = TimePhase.LINT + '(checkedFilesNum: ' + changedFiles.size + ')';
+  const lintRecordLog: string = TimePhase.LINT + '(checkedFilesNum: ' + changedFiles.size + ', totalFilesNum: ' + srcFiles.length + ')';
   PerformanceDotting.startAdvanced(lintRecordLog);
   TypeScriptLinter.initGlobals(compilerOptions);
   InteropTypescriptLinter.initGlobals();

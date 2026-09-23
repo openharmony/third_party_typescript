@@ -107,6 +107,7 @@ import {
     getBaseFileName,
     GetCanonicalFileName,
     getCommonSourceDirectoryOfConfig,
+    getCompilerOptionValue,
     getDefaultLibFileName,
     getDirectoryPath,
     getEmitDeclarations,
@@ -186,6 +187,7 @@ import {
     isImportTypeNode,
     isIncrementalCompilation,
     isInJSFile,
+    isJsonEqual,
     isLiteralImportTypeNode,
     isModifier,
     isModuleDeclaration,
@@ -219,6 +221,7 @@ import {
     ModuleResolutionCache,
     ModuleResolutionHost,
     moduleResolutionIsEqualTo,
+    moduleResolutionOptionDeclarations,
     ModuleResolutionKind,
     Mutable,
     Node,
@@ -233,6 +236,7 @@ import {
     ObjectLiteralExpression,
     ohModulesPathPart,
     OperationCanceledException,
+    optionsAffectingProgramStructure,
     optionsHaveChanges,
     outFile,
     PackageId,
@@ -1345,6 +1349,7 @@ export function createProgram(createProgramOptions: CreateProgramOptions): Progr
 export function createProgram(rootNames: readonly string[], options: CompilerOptions, host?: CompilerHost, oldProgram?: Program, configFileParsingDiagnostics?: readonly Diagnostic[]): Program;
 export function createProgram(rootNamesOrOptions: readonly string[] | CreateProgramOptions, _options?: CompilerOptions, _host?: CompilerHost, _oldProgram?: Program, _configFileParsingDiagnostics?: readonly Diagnostic[]): Program {
     PerformanceDotting.start("createProgram");
+    PerformanceDotting.startAdvanced("createProgram");
     const createProgramOptions = isArray(rootNamesOrOptions) ? createCreateProgramOptions(rootNamesOrOptions, _options!, _host, _oldProgram, _configFileParsingDiagnostics) : rootNamesOrOptions; // TODO: GH#18217
     const { rootNames, options, configFileParsingDiagnostics, projectReferences } = createProgramOptions;
     let { oldProgram } = createProgramOptions;
@@ -1494,9 +1499,13 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
     let structureIsReused: StructureIsReused;
     tracing?.push(tracing.Phase.Program, "tryReuseStructureFromOldProgram", {});
     PerformanceDotting.start("tryReuseStructureFromOldProgram");
+    PerformanceDotting.startAdvanced("tryReuseStructureFromOldProgram");
     structureIsReused = tryReuseStructureFromOldProgram(); // eslint-disable-line prefer-const
-    PerformanceDotting.startAdvanced("structureIsReused" + ': ' + structureIsReused);
- 	  PerformanceDotting.stopAdvanced("structureIsReused" + ': ' + structureIsReused);
+    const structureIsReusedName = structureIsReused === StructureIsReused.Completely ? "Completely" :
+        structureIsReused === StructureIsReused.SafeModules ? "SafeModules" : "Not";
+    PerformanceDotting.startAdvanced("structureIsReused: " + structureIsReusedName);
+    PerformanceDotting.stopAdvanced("structureIsReused: " + structureIsReusedName);
+    PerformanceDotting.stopAdvanced("tryReuseStructureFromOldProgram");
     PerformanceDotting.stop("tryReuseStructureFromOldProgram");
     tracing?.pop();
     if (structureIsReused !== StructureIsReused.Completely) {
@@ -1537,7 +1546,9 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
 
         tracing?.push(tracing.Phase.Program, "processRootFiles", { count: rootNames.length });
         PerformanceDotting.start("processRootFiles");
+        PerformanceDotting.startAdvanced("processRootFiles", `rootNames=${rootNames.length}`);
         forEach(rootNames, (name, index) => processRootFile(name, /*isDefaultLib*/ false, /*ignoreNoDefaultLib*/ false, { kind: FileIncludeKind.RootFile, index }));
+        PerformanceDotting.stopAdvanced("processRootFiles");
         PerformanceDotting.stop("processRootFiles");
         tracing?.pop();
 
@@ -1547,6 +1558,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         if (typeReferences.length) {
             tracing?.push(tracing.Phase.Program, "processTypeReferences", { count: typeReferences.length });
             PerformanceDotting.start("processTypeReferences");
+            PerformanceDotting.startAdvanced("processTypeReferences", `count=${typeReferences.length}`);
             // This containingFilename needs to match with the one used in managed-side
             const containingDirectory = options.configFilePath ? getDirectoryPath(options.configFilePath) : host.getCurrentDirectory();
             const containingFilename = combinePaths(containingDirectory, inferredTypesContainingFile);
@@ -1555,6 +1567,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
                 // under node16/nodenext module resolution, load `types`/ata include names as cjs resolution results by passing an `undefined` mode
                 processTypeReferenceDirective(typeReferences[i], /*mode*/ undefined, resolutions[i], { kind: FileIncludeKind.AutomaticTypeDirectiveFile, typeReference: typeReferences[i], packageId: resolutions[i]?.packageId });
             }
+            PerformanceDotting.stopAdvanced("processTypeReferences");
             PerformanceDotting.stop("processTypeReferences");
             tracing?.pop();
         }
@@ -1564,6 +1577,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         //  - A 'no-default-lib' reference comment is encountered in
         //      processing the root files.
         PerformanceDotting.start("processDefaultLib");
+        PerformanceDotting.startAdvanced("processDefaultLib");
         if (rootNames.length && !skipDefaultLib) {
             // If '--lib' is not specified, include default library file according to '--target'
             // otherwise, using options specified in '--lib' instead of '--target' default library file
@@ -1584,6 +1598,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
                 }
             }
         }
+        PerformanceDotting.stopAdvanced("processDefaultLib");
         PerformanceDotting.stop("processDefaultLib");
 
         missingFilePaths = arrayFrom(mapDefinedIterator(filesByName.entries(), ([path, file]) => file === undefined ? path as Path : undefined));
@@ -1614,8 +1629,6 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
             });
         }
     }
-
-    // Release commandlines that new program does not use
     if (oldProgram && host.onReleaseParsedCommandLine) {
         forEachProjectReference(
             oldProgram.getProjectReferences(),
@@ -1736,6 +1749,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
     MemoryDotting.stopRecordStage(recordInfo);
     performance.measure("Program", "beforeProgram", "afterProgram");
     tracing?.pop();
+    PerformanceDotting.stopAdvanced("createProgram");
     PerformanceDotting.stop("createProgram");
 
     return program;
@@ -2036,34 +2050,51 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         }
     }
 
-    function canReuseProjectReferences(): boolean {
-        return !forEachProjectReference(
+    function tryReuseProjectReferences(): string | undefined {
+        return forEachProjectReference(
             oldProgram!.getProjectReferences(),
             oldProgram!.getResolvedProjectReferences(),
             (oldResolvedRef, parent, index) => {
                 const newRef = (parent ? parent.commandLine.projectReferences : projectReferences)![index];
                 const newResolvedRef = parseProjectReferenceConfigFile(newRef);
+                const refPath = newRef?.originalPath ?? newRef?.path ?? oldResolvedRef?.sourceFile?.fileName ?? "(unknown project reference)";
                 if (oldResolvedRef) {
                     // Resolved project reference has gone missing or changed
-                    return !newResolvedRef ||
-                        newResolvedRef.sourceFile !== oldResolvedRef.sourceFile ||
-                        !arrayIsEqualTo(oldResolvedRef.commandLine.fileNames, newResolvedRef.commandLine.fileNames);
+                    if (!newResolvedRef) {
+                        return `resolved project reference no longer resolvable: ${refPath}`;
+                    }
+                    if (newResolvedRef.sourceFile !== oldResolvedRef.sourceFile) {
+                        return `project reference sourceFile changed: ${refPath}`;
+                    }
+                    if (!arrayIsEqualTo(oldResolvedRef.commandLine.fileNames, newResolvedRef.commandLine.fileNames)) {
+                        return `project reference fileNames changed: ${refPath}`;
+                    }
+                    return undefined;
                 }
                 else {
                     // A previously-unresolved reference may be resolved now
-                    return newResolvedRef !== undefined;
+                    if (newResolvedRef !== undefined) {
+                        return `previously-unresolved project reference now resolved: ${refPath}`;
+                    }
+                    return undefined;
                 }
             },
             (oldProjectReferences, parent) => {
                 // If array of references is changed, we cant resue old program
                 const newReferences = parent ? getResolvedProjectReferenceByPath(parent.sourceFile.path)!.commandLine.projectReferences : projectReferences;
-                return !arrayIsEqualTo(oldProjectReferences, newReferences, projectReferenceIsEqualTo);
+                if (!arrayIsEqualTo(oldProjectReferences, newReferences, projectReferenceIsEqualTo)) {
+                    const owner = parent ? parent.sourceFile.fileName : "(root)";
+                    return `project references array changed in: ${owner}`;
+                }
+                return undefined;
             }
         );
     }
 
     function tryReuseStructureFromOldProgram(): StructureIsReused {
         if (!oldProgram) {
+            PerformanceDotting.startAdvanced("structureIsReused: Not", "#1 oldProgram is undefined (first build or .tsbuildinfo missing/deleted/corrupt)");
+            PerformanceDotting.stopAdvanced("structureIsReused: Not");
             return StructureIsReused.Not;
         }
 
@@ -2071,17 +2102,31 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         // if any of these properties has changed - structure cannot be reused
         const oldOptions = oldProgram.getCompilerOptions();
         if (changesAffectModuleResolution(oldOptions, options)) {
+            const changedOptions = moduleResolutionOptionDeclarations
+                .filter(o => !isJsonEqual(getCompilerOptionValue(oldOptions, o), getCompilerOptionValue(options, o)))
+                .map(o => o.name);
+            PerformanceDotting.startAdvanced("structureIsReused: Not", `#2 changesAffectModuleResolution - changedOptions: [${changedOptions.join(", ")}], configFilePath: ${oldOptions.configFilePath} -> ${options.configFilePath}`);
+            PerformanceDotting.stopAdvanced("structureIsReused: Not");
             return StructureIsReused.Not;
         }
 
         // there is an old program, check if we can reuse its structure
         const oldRootNames = oldProgram.getRootFileNames();
         if (!arrayIsEqualTo(oldRootNames, rootNames)) {
+            const addedFiles = rootNames.filter(f => !oldRootNames.includes(f));
+            const removedFiles = oldRootNames.filter(f => !rootNames.includes(f));
+            const addedList = addedFiles.length > 10 ? addedFiles.slice(0, 10).join(", ") + `, ... and ${addedFiles.length - 10} more` : addedFiles.join(", ");
+            const removedList = removedFiles.length > 10 ? removedFiles.slice(0, 10).join(", ") + `, ... and ${removedFiles.length - 10} more` : removedFiles.join(", ");
+            PerformanceDotting.startAdvanced("structureIsReused: Not", `#3 rootNames changed - oldCount=${oldRootNames.length}, newCount=${rootNames.length}, added=[${addedList}], removed=[${removedList}]`);
+            PerformanceDotting.stopAdvanced("structureIsReused: Not");
             return StructureIsReused.Not;
         }
 
         // Check if any referenced project tsconfig files are different
-        if (!canReuseProjectReferences()) {
+        const projectReferenceReuseFailReason = tryReuseProjectReferences();
+        if (projectReferenceReuseFailReason !== undefined) {
+            PerformanceDotting.startAdvanced("structureIsReused: Not", `#4 tryReuseProjectReferences failed: ${projectReferenceReuseFailReason}`);
+            PerformanceDotting.stopAdvanced("structureIsReused: Not");
             return StructureIsReused.Not;
         }
         if (projectReferences) {
@@ -2096,7 +2141,10 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         // If the missing file paths are now present, it can change the progam structure,
         // and hence cant reuse the structure.
         // This is same as how we dont reuse the structure if one of the file from old program is now missing
-        if (oldProgram.getMissingFilePaths().some(missingFilePath => host.fileExists(missingFilePath))) {
+        const nowExistingMissingFilePath = oldProgram.getMissingFilePaths().find(missingFilePath => host.fileExists(missingFilePath));
+        if (nowExistingMissingFilePath !== undefined) {
+            PerformanceDotting.startAdvanced("structureIsReused: Not", `#5 a previously missing file now exists: ${nowExistingMissingFilePath}`);
+            PerformanceDotting.stopAdvanced("structureIsReused: Not");
             return StructureIsReused.Not;
         }
 
@@ -2111,6 +2159,8 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
                 : host.getSourceFile(oldSourceFile.fileName, sourceFileOptions, /*onError*/ undefined, shouldCreateNewSourceFile || sourceFileOptions.impliedNodeFormat !== oldSourceFile.impliedNodeFormat); // TODO: GH#18217
 
             if (!newSourceFile) {
+                PerformanceDotting.startAdvanced("structureIsReused: Not", `#6 source file no longer exists: ${oldSourceFile.fileName}`);
+                PerformanceDotting.stopAdvanced("structureIsReused: Not");
                 return StructureIsReused.Not;
             }
             newSourceFile.packageJsonLocations = sourceFileOptions.packageJsonLocations?.length ? sourceFileOptions.packageJsonLocations : undefined;
@@ -2124,6 +2174,8 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
                 // This lets us know if the unredirected file has changed. If it has we should break the redirect.
                 if (newSourceFile !== oldSourceFile.redirectInfo.unredirected) {
                     // Underlying file has changed. Might not redirect anymore. Must rebuild program.
+                    PerformanceDotting.startAdvanced("structureIsReused: Not", `#7 redirect underlying file changed: ${oldSourceFile.fileName}`);
+                    PerformanceDotting.stopAdvanced("structureIsReused: Not");
                     return StructureIsReused.Not;
                 }
                 fileChanged = false;
@@ -2132,6 +2184,8 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
             else if (oldProgram.redirectTargetsMap.has(oldSourceFile.path)) {
                 // If a redirected-to source file changes, the redirect may be broken.
                 if (newSourceFile !== oldSourceFile) {
+                    PerformanceDotting.startAdvanced("structureIsReused: Not", `#8 redirected-to file changed: ${oldSourceFile.fileName}`);
+                    PerformanceDotting.stopAdvanced("structureIsReused: Not");
                     return StructureIsReused.Not;
                 }
                 fileChanged = false;
@@ -2153,6 +2207,8 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
                 const prevKind = seenPackageNames.get(packageName);
                 const newKind = fileChanged ? SeenPackageName.Modified : SeenPackageName.Exists;
                 if ((prevKind !== undefined && newKind === SeenPackageName.Modified) || prevKind === SeenPackageName.Modified) {
+                    PerformanceDotting.startAdvanced("structureIsReused: Not", `#9 package name conflict (two files for package "${packageName}", at least one changed): ${oldSourceFile.fileName}`);
+                    PerformanceDotting.stopAdvanced("structureIsReused: Not");
                     return StructureIsReused.Not;
                 }
                 seenPackageNames.set(packageName, newKind);
@@ -2160,21 +2216,29 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
 
             if (fileChanged) {
                 if (oldSourceFile.impliedNodeFormat !== newSourceFile.impliedNodeFormat) {
+                    PerformanceDotting.startAdvanced("structureIsReused: SafeModules", `impliedNodeFormat changed: ${oldSourceFile.fileName}`);
+                    PerformanceDotting.stopAdvanced("structureIsReused: SafeModules");
                     structureIsReused = StructureIsReused.SafeModules;
                 }
                 // The `newSourceFile` object was created for the new program.
                 else if (!arrayIsEqualTo(oldSourceFile.libReferenceDirectives, newSourceFile.libReferenceDirectives, fileReferenceIsEqualTo)) {
                     // 'lib' references has changed. Matches behavior in changesAffectModuleResolution
+                    PerformanceDotting.startAdvanced("structureIsReused: SafeModules", `libReferenceDirectives changed: ${oldSourceFile.fileName}`);
+                    PerformanceDotting.stopAdvanced("structureIsReused: SafeModules");
                     structureIsReused = StructureIsReused.SafeModules;
                 }
                 else if (oldSourceFile.hasNoDefaultLib !== newSourceFile.hasNoDefaultLib) {
                     // value of no-default-lib has changed
                     // this will affect if default library is injected into the list of files
+                    PerformanceDotting.startAdvanced("structureIsReused: SafeModules", `hasNoDefaultLib changed: ${oldSourceFile.fileName}`);
+                    PerformanceDotting.stopAdvanced("structureIsReused: SafeModules");
                     structureIsReused = StructureIsReused.SafeModules;
                 }
                 // check tripleslash references
                 else if (!arrayIsEqualTo(oldSourceFile.referencedFiles, newSourceFile.referencedFiles, fileReferenceIsEqualTo)) {
                     // tripleslash references has changed
+                    PerformanceDotting.startAdvanced("structureIsReused: SafeModules", `referencedFiles changed: ${oldSourceFile.fileName}`);
+                    PerformanceDotting.stopAdvanced("structureIsReused: SafeModules");
                     structureIsReused = StructureIsReused.SafeModules;
                 }
                 else {
@@ -2182,18 +2246,26 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
                     collectExternalModuleReferences(newSourceFile);
                     if (!arrayIsEqualTo(oldSourceFile.imports, newSourceFile.imports, moduleNameIsEqualTo)) {
                         // imports has changed
+                        PerformanceDotting.startAdvanced("structureIsReused: SafeModules", `imports changed: ${oldSourceFile.fileName}`);
+                        PerformanceDotting.stopAdvanced("structureIsReused: SafeModules");
                         structureIsReused = StructureIsReused.SafeModules;
                     }
                     else if (!arrayIsEqualTo(oldSourceFile.moduleAugmentations, newSourceFile.moduleAugmentations, moduleNameIsEqualTo)) {
                         // moduleAugmentations has changed
+                        PerformanceDotting.startAdvanced("structureIsReused: SafeModules", `moduleAugmentations changed: ${oldSourceFile.fileName}`);
+                        PerformanceDotting.stopAdvanced("structureIsReused: SafeModules");
                         structureIsReused = StructureIsReused.SafeModules;
                     }
                     else if ((oldSourceFile.flags & NodeFlags.PermanentlySetIncrementalFlags) !== (newSourceFile.flags & NodeFlags.PermanentlySetIncrementalFlags)) {
                         // dynamicImport has changed
+                        PerformanceDotting.startAdvanced("structureIsReused: SafeModules", `PermanentlySetIncrementalFlags changed: ${oldSourceFile.fileName}`);
+                        PerformanceDotting.stopAdvanced("structureIsReused: SafeModules");
                         structureIsReused = StructureIsReused.SafeModules;
                     }
                     else if (!arrayIsEqualTo(oldSourceFile.typeReferenceDirectives, newSourceFile.typeReferenceDirectives, fileReferenceIsEqualTo)) {
                         // 'types' references has changed
+                        PerformanceDotting.startAdvanced("structureIsReused: SafeModules", `typeReferenceDirectives changed: ${oldSourceFile.fileName}`);
+                        PerformanceDotting.stopAdvanced("structureIsReused: SafeModules");
                         structureIsReused = StructureIsReused.SafeModules;
                     }
                 }
@@ -2203,6 +2275,8 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
             }
             else if (hasInvalidatedResolutions(oldSourceFile.path)) {
                 // 'module/types' references could have changed
+                PerformanceDotting.startAdvanced("structureIsReused: SafeModules", `hasInvalidatedResolutions: ${oldSourceFile.fileName}`);
+                PerformanceDotting.stopAdvanced("structureIsReused: SafeModules");
                 structureIsReused = StructureIsReused.SafeModules;
 
                 // add file to the modified list so that we will resolve it later
@@ -2214,6 +2288,8 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         }
 
         if (structureIsReused !== StructureIsReused.Completely) {
+            PerformanceDotting.startAdvanced("structureIsReused: SafeModules", `file content changed but module resolution reusable, modifiedFiles=${modifiedSourceFiles.length}`);
+            PerformanceDotting.stopAdvanced("structureIsReused: SafeModules");
             return structureIsReused;
         }
 
@@ -2226,12 +2302,15 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
             }
         }
         // try to verify results of module resolution
+        PerformanceDotting.startAdvanced("resolveModuleNames", `modifiedFiles=${modifiedSourceFiles.length}`);
         for (const { oldFile: oldSourceFile, newFile: newSourceFile } of modifiedSourceFiles) {
             const moduleNames = getModuleNames(newSourceFile);
             const resolutions = resolveModuleNamesReusingOldState(moduleNames, newSourceFile);
             // ensure that module resolution results are still correct
             const resolutionsChanged = hasChangesInResolutions(moduleNames, resolutions, oldSourceFile.resolvedModules, oldSourceFile, moduleResolutionIsEqualTo);
             if (resolutionsChanged) {
+                PerformanceDotting.startAdvanced("structureIsReused: SafeModules", `module resolution changed: ${newSourceFile.fileName}`);
+                PerformanceDotting.stopAdvanced("structureIsReused: SafeModules");
                 structureIsReused = StructureIsReused.SafeModules;
                 newSourceFile.resolvedModules = zipToModeAwareCache(newSourceFile, moduleNames, resolutions);
             }
@@ -2243,6 +2322,8 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
             // ensure that types resolutions are still correct
             const typeReferenceResolutionsChanged = hasChangesInResolutions(typesReferenceDirectives, typeReferenceResolutions, oldSourceFile.resolvedTypeReferenceDirectiveNames, oldSourceFile, typeDirectiveIsEqualTo);
             if (typeReferenceResolutionsChanged) {
+                PerformanceDotting.startAdvanced("structureIsReused: SafeModules", `typeReference resolution changed: ${newSourceFile.fileName}`);
+                PerformanceDotting.stopAdvanced("structureIsReused: SafeModules");
                 structureIsReused = StructureIsReused.SafeModules;
                 newSourceFile.resolvedTypeReferenceDirectiveNames = zipToModeAwareCache(newSourceFile, typesReferenceDirectives, typeReferenceResolutions);
             }
@@ -2250,12 +2331,27 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
                 newSourceFile.resolvedTypeReferenceDirectiveNames = oldSourceFile.resolvedTypeReferenceDirectiveNames;
             }
         }
+        PerformanceDotting.stopAdvanced("resolveModuleNames");
 
         if (structureIsReused !== StructureIsReused.Completely) {
+            PerformanceDotting.startAdvanced("structureIsReused: SafeModules", `module resolution changed for modified files, modifiedFiles=${modifiedSourceFiles.length}`);
+            PerformanceDotting.stopAdvanced("structureIsReused: SafeModules");
             return structureIsReused;
         }
 
         if (changesAffectingProgramStructure(oldOptions, options) || host.hasChangedAutomaticTypeDirectiveNames?.()) {
+            const reasons: string[] = [];
+            if (changesAffectingProgramStructure(oldOptions, options)) {
+                const changedOpts = optionsAffectingProgramStructure
+                    .filter(o => !isJsonEqual(getCompilerOptionValue(oldOptions, o), getCompilerOptionValue(options, o)))
+                    .map(o => o.name);
+                reasons.push(`changesAffectingProgramStructure: [${changedOpts.join(", ")}]`);
+            }
+            if (host.hasChangedAutomaticTypeDirectiveNames?.()) {
+                reasons.push("hasChangedAutomaticTypeDirectiveNames");
+            }
+            PerformanceDotting.startAdvanced("structureIsReused: SafeModules", `#10 ${reasons.join("; ")}`);
+            PerformanceDotting.stopAdvanced("structureIsReused: SafeModules");
             return StructureIsReused.SafeModules;
         }
 
@@ -2291,6 +2387,8 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         redirectTargetsMap = oldProgram.redirectTargetsMap;
         usesUriStyleNodeCoreModules = oldProgram.usesUriStyleNodeCoreModules;
 
+        PerformanceDotting.startAdvanced("structureIsReused: Completely", "structure fully reused from old program");
+        PerformanceDotting.stopAdvanced("structureIsReused: Completely");
         return StructureIsReused.Completely;
     }
 
